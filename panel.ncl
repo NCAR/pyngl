@@ -1,5 +1,4 @@
-;load "$NCARG_ROOT/lib/ncarg/nclex/gsun/gsn_code.ncl"
-load "./gsn_code.ncl"
+load "$NCARG_ROOT/lib/ncarg/nclex/gsun/gsn_code.ncl"
 
 function create_title(parray, parray_copy, nplots, panel_dims, \
                       extra_string:string, row_spec:logical)
@@ -50,12 +49,20 @@ begin
 
 
   cdfpath = ncargpath("data") + "/cdf/"
+  a = addfile(cdfpath + "Ustorm.cdf","r")
+  b = addfile(cdfpath + "Vstorm.cdf","r")
   c = addfile(cdfpath + "Tstorm.cdf","r")
 
+  u = a->u
+  v = b->v
   t = c->t
   t = (t-273.15)*(9./5.) + 32.
 
-  wks = gsn_open_wks("x11","panel2")
+  wks = gsn_open_wks("ncgm","panel2")
+
+;
+; Set some contour/vector common resources.
+;
 
   res = True
   res@gsnDraw                = False
@@ -68,40 +75,63 @@ begin
     gsn_define_colormap(wks,cmap)
   end if
 
-  res@sfYArray               = t&lat
-  res@sfXArray               = t&lon
+;
+; Set some vector resources.
+;
+  vcres                          = res
+  vcres@vfYArray                 = t&lat
+  vcres@vfXArray                 = t&lon
+  vcres@vcRefLengthF             =  0.045
+  vcres@vcRefMagnitudeF          = 20.0
+  vcres@vcMinMagnitudeF          = 0.001
+  vcres@vcFillArrowsOn           = "True"
+  vcres@vcMonoFillArrowFillColor = "False"
+  vcres@vcMinFracLengthF         = 0.33
+  vcres@pmLabelBarDisplayMode    = "Never"
+  vcres@vcLevelSelectionMode     = "ManualLevels"
+  vcres@vcLevelSpacingF          = 2.0
+  vcres@vcMinLevelValF           = 0.0
+  vcres@vcMaxLevelValF           = 20.0
 
-  res@pmLabelBarDisplayMode  = "Always"
-  res@pmLabelBarSide         = "Bottom"
-  res@lbOrientation          = "Horizontal"
-  res@lbPerimOn              = "False"
-  res@lbTitleFont            = 25
-  res@lbTitleString          = "temperature (:S:o:N:F)"
-  res@pmLabelBarDisplayMode  = "Never"
-  res@tiMainFontHeightF      = 0.03
-  res@tiMainString           = ":F25:Wind velocity vectors"
-  res@cnFillOn               = True
-  res@cnLevelSelectionMode   = "ManualLevels"
-  res@cnMinLevelValF         = -20.
-  res@cnMaxLevelValF         =  80.
-  res@cnLevelSpacingF        =  10.
+; 
+; Set some contour resources.
+;
+  cnres = res
+  cnres@sfYArray               = t&lat
+  cnres@sfXArray               = t&lon
+
+  cnres@pmLabelBarDisplayMode  = "Always"
+  cnres@pmLabelBarSide         = "Bottom"
+  cnres@lbPerimOn              = "False"
+  cnres@lbTitleFont            = 25
+  cnres@lbTitleString          = "temperature (:S:o:N:F)"
+  cnres@pmLabelBarDisplayMode  = "Never"
+  cnres@tiMainFontHeightF      = 0.03
+  cnres@tiMainString           = ":F25:Wind velocity vectors"
+  cnres@cnFillOn               = True
+  cnres@cnLevelSelectionMode   = "ManualLevels"
+  cnres@cnMinLevelValF         = -20.
+  cnres@cnMaxLevelValF         =  80.
+  cnres@cnLevelSpacingF        =  10.
 
   ntime = dimsizes(t(:,0,0))
 
   carray      = new(ntime,graphic)
   carray_copy = new(ntime,graphic)
+  varray      = new(ntime,graphic)
+  varray_copy = new(ntime,graphic)
 
   do i=0,17
-    carray(i) = gsn_contour(wks,t(i,:,:),res)
+    carray(i) = gsn_contour(wks,t(i,:,:),cnres)
+    varray(i) = gsn_vector_scalar(wks,u(i,:,:),v(i,:,:),t(i,:,:),vcres)
   end do
   carray_copy = carray
+  varray_copy = varray
 
   pnlres             = True
   pnlres@gsnPanelLabelBar = True
-  pnlres@gsnPanelRowSpec  = True
-  pnlres@gsnDebug    = True
-  pnlres@gsnMaximize = True
-  pnlres@gsnFrame    = False
+  pnlres@gsnDebug         = True
+  pnlres@gsnMaximize      = True
 
   txres                       = True
   txres@txFontHeightF         = 0.03
@@ -110,87 +140,109 @@ begin
   txres@gsnFrame              = True
 
 ;
+; Begin panel plots.
+;
+  panel_dims = new(2,integer)
+
+  nplots = 6
+  panel_dims(0) = 3
+  panel_dims(1) = 2
+  gsn_panel(wks, varray(0:nplots-1), panel_dims, pnlres)
+
+  pnlres@lbOrientation  = "Vertical"
+  gsn_panel(wks, varray(0:nplots-1), panel_dims, pnlres)
+
+  pnlres@pmLabelBarOrthogonalPosF = 0.02;
+  gsn_panel(wks, varray(0:nplots-1), panel_dims, pnlres)
+
+  pnlres@lbLabelStride = 2
+  delete(pnlres@vpWidthF)
+  gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
+
+;
 ; Begin row_spec plots.
 ;
   row_spec = (/3,2,1/)
 
-  nplots = 6
+  pnlres@gsnPanelRowSpec  = True
+  pnlres@gsnFrame         = False
+  delete(pnlres@lbLabelStride)
   pnlres@gsnPanelCenter = True
-;  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
+  pnlres@lbOrientation          = "Vertical"
+  pnlres@pmLabelBarOrthogonalPosF = 0.02
+  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
+
+  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
   title = create_title(carray, carray_copy, nplots, row_spec,"PanelCenter is True",True)
-;  gsn_text_ndc(wks,title,0.5,0.5,txres)
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   pnlres@gsnPanelCenter = False
-;  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
+  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
   title = create_title(carray, carray_copy, nplots, row_spec,"PanelCenter is False",True)
-;  gsn_text_ndc(wks,title,0.5,0.5,txres)
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(0) = carray@_FillValue
   pnlres@gsnPanelCenter = True
-;  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
+  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
   title = create_title(carray, carray_copy, nplots, row_spec,"PanelCenter is True",True)
-;  gsn_text_ndc(wks,title,0.5,0.5,txres)
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(0) = carray@_FillValue
   pnlres@gsnPanelCenter = False
-;  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
+  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
   title = create_title(carray, carray_copy, nplots, row_spec,"PanelCenter is False",True)
-;  gsn_text_ndc(wks,title,0.5,0.5,txres)
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(5) = carray@_FillValue
   pnlres@gsnPanelCenter = True
-;  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
+  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
   title = create_title(carray, carray_copy, nplots, row_spec,"PanelCenter is True",True)
-;  gsn_text_ndc(wks,title,0.5,0.5,txres)
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(5) = carray@_FillValue
   pnlres@gsnPanelCenter = False
-;  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
+  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
   title = create_title(carray, carray_copy, nplots, row_spec,"PanelCenter is False",True)
-;  gsn_text_ndc(wks,title,0.5,0.5,txres)
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(0:2) = carray@_FillValue
   pnlres@gsnPanelCenter = True
-;  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
+  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
   title = create_title(carray, carray_copy, nplots, row_spec,"PanelCenter is True",True)
-;  gsn_text_ndc(wks,title,0.5,0.5,txres)
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(0:2) = carray@_FillValue
   pnlres@gsnPanelCenter = False
-;  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
+  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
   title = create_title(carray, carray_copy, nplots, row_spec,"PanelCenter is False",True)
-;  gsn_text_ndc(wks,title,0.5,0.5,txres)
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(3:4) = carray@_FillValue
   pnlres@gsnPanelCenter = True
-;  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
+  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
   title = create_title(carray, carray_copy, nplots, row_spec,"PanelCenter is True",True)
-;  gsn_text_ndc(wks,title,0.5,0.5,txres)
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(3:4) = carray@_FillValue
   pnlres@gsnPanelCenter = False
-;  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
+  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
   title = create_title(carray, carray_copy, nplots, row_spec,"PanelCenter is False",True)
-;  gsn_text_ndc(wks,title,0.5,0.5,txres)
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(0:4) = carray@_FillValue
   pnlres@gsnPanelCenter = True
-;  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
+  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
   title = create_title(carray, carray_copy, nplots, row_spec,"PanelCenter is True",True)
-;  gsn_text_ndc(wks,title,0.5,0.5,txres)
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(0:4) = carray@_FillValue
   pnlres@gsnPanelCenter = False
-;  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
+  gsn_panel(wks, carray(0:nplots-1), row_spec, pnlres)
   title = create_title(carray, carray_copy, nplots, row_spec,"PanelCenter is False",True)
-;  gsn_text_ndc(wks,title,0.5,0.5,txres)
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   delete(pnlres@gsnPanelCenter)
   delete(pnlres@gsnPanelRowSpec)
-;
-; Begin panel plots.
-;
-  panel_dims = new(2,integer)
 
 ;
 ; Start with a single row of plots, then make the first plot and the last
@@ -199,20 +251,20 @@ begin
   panel_dims(0) = 1
   panel_dims(1) = 3
   nplots = panel_dims(0) * panel_dims(1)
-;  gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
+  gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
   title = create_title(carray, carray_copy, nplots, panel_dims,"",False)
-;  gsn_text_ndc(wks,title,0.5,0.5,txres)
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(0) = carray@_FillValue
 
-;  gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
+  gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
   title = create_title(carray, carray_copy, nplots, panel_dims,"",False)
-;  gsn_text_ndc(wks,title,0.5,0.5,txres)
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(2) = carray@_FillValue
-;  gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
+  gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
   title = create_title(carray, carray_copy, nplots, panel_dims,"",False)
-;  gsn_text_ndc(wks,title,0.5,0.5,txres)
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
 
 ;
 ; Single column of plots, then make the first plot and the last

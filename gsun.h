@@ -99,18 +99,31 @@ typedef struct {
  */
 
 typedef struct {
-  int   base;
-  int   contour;
-  int   vector;
-  int   streamline;
-  int   map;
-  int   xy;
-  int   xydspec;
-  int   text;
-  int   primitive;
-  int   cafield;
-  int   sffield;
-  int   vffield;
+  int   *base;
+  int   *contour;
+  int   *vector;
+  int   *streamline;
+  int   *map;
+  int   *xy;
+  int   *xydspec;
+  int   *text;
+  int   *primitive;
+  int   *cafield;
+  int   *sffield;
+  int   *vffield;
+
+  int   nbase;
+  int   ncontour;
+  int   nvector;
+  int   nstreamline;
+  int   nmap;
+  int   nxy;
+  int   nxydspec;
+  int   ntext;
+  int   nprimitive;
+  int   ncafield;
+  int   nsffield;
+  int   nvffield;
 } nglPlotId;
 
 /*
@@ -240,21 +253,22 @@ extern nglPlotId ngl_vector_scalar_map_wrap(int, void *, void *, void *,
 
 extern nglPlotId ngl_text_ndc_wrap(int, char *, void *, void *, const char *, 
                                    const char *, int, nglRes *);
-extern nglPlotId ngl_text_wrap(int, int, char *, void *, void *, const char *,
-                               const char *, int, nglRes *);
+extern nglPlotId ngl_text_wrap(int, nglPlotId *, char *, void *, void *,
+                               const char *, const char *, int, nglRes *);
 
 /*
  * Primitive drawing routines.
  */
 
-extern void ngl_poly_wrap(int, int, void *, void *, const char *type_x,
+extern void ngl_poly_wrap(int, nglPlotId *, void *, void *, const char *type_x,
                           const char *type_y, int, int, int, void *, void*,
-                          NhlPolyType, int, int, nglRes *);
+                          NhlPolyType, int, nglRes *);
 
 
-extern nglPlotId ngl_add_poly_wrap(int, int, void *, void *, const char *, 
-                                   const char *, int, int, int, void *, 
-                                   void *,NhlPolyType, int, nglRes *);
+extern nglPlotId ngl_add_poly_wrap(int, nglPlotId *, void *, void *, 
+                                   const char *, const char *, int, int,
+                                   int, void *, void *,NhlPolyType, int,
+                                   nglRes *);
 
 extern void ngl_polymarker_ndc_wrap(int, void *, void *, const char *, 
                                     const char *, int, int, int, void *,
@@ -268,32 +282,32 @@ extern void ngl_polygon_ndc_wrap(int, void *, void *, const char *,
                                  const char *, int, int, int, void *, 
                                  void *, int, nglRes *);
 
-extern void ngl_polymarker_wrap(int, int, void *, void *, const char *, 
-                                const char *, int, int, int, void *, void *, 
-                                int, nglRes *);
+extern void ngl_polymarker_wrap(int, nglPlotId *, void *, void *,
+                                const char *, const char *, int, int, int,
+                                void *, void *, int, nglRes *);
 
-extern void ngl_polyline_wrap(int, int, void *, void *, const char *, 
+extern void ngl_polyline_wrap(int, nglPlotId *, void *, void *, const char *, 
                               const char *, int, int, int, void *, void *, 
                               int, nglRes *);
 
-extern void ngl_polygon_wrap(int, int, void *, void *, const char *, 
+extern void ngl_polygon_wrap(int, nglPlotId *, void *, void *, const char *, 
                              const char *, int, int, int, void *, void *, 
                              int, nglRes *);
 
-extern nglPlotId ngl_add_polyline_wrap(int, int, void *, void *, 
+extern nglPlotId ngl_add_polyline_wrap(int, nglPlotId *, void *, void *, 
                                        const char *, const char *, int, int, 
                                        int, void *, void *, int, nglRes *);
 
-extern nglPlotId ngl_add_polymarker_wrap(int, int, void *, void *, 
+extern nglPlotId ngl_add_polymarker_wrap(int, nglPlotId *, void *, void *, 
                                          const char *, const char *, int, 
                                          int, int, void *, void *, int, 
                                          nglRes *);
 
-extern nglPlotId ngl_add_polygon_wrap(int, int, void *, void *, 
+extern nglPlotId ngl_add_polygon_wrap(int, nglPlotId *, void *, void *, 
                                       const char *, const char *, int, int,
                                       int, void *, void *, int, nglRes *);
 
-extern nglPlotId ngl_add_text_wrap(int, int, char *, void *, void *, 
+extern nglPlotId ngl_add_text_wrap(int, nglPlotId *, char *, void *, void *, 
                                    const char *, const char *, int, int,
                                    nglRes *special_res);
 
