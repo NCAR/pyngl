@@ -1,28 +1,38 @@
 import Ngl
 import os, sys
 
-pkgs_pth    = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
-                           'site-packages')
-color_dir   = pkgs_pth + "/PyNGL/ncarg/colormaps"
-color_files = os.listdir(color_dir)
-
 wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"color1") 
 
 rlist = Ngl.Resources()
 
 #
-# Loop through all of the user defined color maps and draw each one
-# as a table of colors and index values. If you just want to draw
-# some of the color maps, you can list them out using color_files:
+# Loop through all of the listed color maps and draw them as a 
+# table of colors and index values.
 #
-#   color_files = ["BlueRed","thelix","cosam"]
+# Originally, this example drew *all* of the color maps in the colormaps
+# directory. This resulted in a large PostScript file, so just do a
+# subset instead. If you want to do all of them, uncomment the following
+# code:
 #
-for i in xrange(len(color_files)):
-  base_name = os.path.splitext(color_files[i])
-  print base_name[0]
+#pkgs_pth    = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
+#                           'site-packages')
+#color_dir   = pkgs_pth + "/PyNGL/ncarg/colormaps"
+#color_files = os.listdir(color_dir)
 
-  rlist.wkColorMap = base_name[0] 
+color_files = ["thelix","GreenYellow","rainbow"]
+
+for i in xrange(len(color_files)):
+#
+# Uncomment this code too, if you want to draw all colormaps,
+# and comment out the other wkColorMap line below.
+#
+#base_name = os.path.splitext(color_files[i])
+#print base_name[0]
+#rlist.wkColorMap = base_name[0] 
+
+  rlist.wkColorMap = color_files[i]
+
   Ngl.set_values(wks,rlist)
 
   Ngl.draw_colormap(wks)      # This call automatically advances the frame.
