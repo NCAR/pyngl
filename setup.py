@@ -29,9 +29,8 @@ copy_rangs = False
 # data files (fontcaps, graphcaps, map databases, example
 # scripts, etc)
 #
-sitedirs  = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
+pkgs_pth  = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
             'site-packages')
-pkgs_pth  = site.sitedirs[0]
 pyngl_dir = pkgs_pth + "/PyNGL/ncarg"
 
 #
