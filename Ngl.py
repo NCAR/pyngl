@@ -288,6 +288,30 @@ def set_spc_res(resource_name,value):
     set_nglRes_f(45, lval) 
   elif (resource_name == "AppResFileName"):
     set_nglRes_s(46, lval) 
+  elif (resource_name == "XAxisType"):
+    if(type(lval) == types.StringType):
+      if(string.lower(lval) == "irregularaxis"):
+        set_nglRes_i(47, 0) 
+      elif(string.lower(lval) == "linearaxis"):
+        set_nglRes_i(47, 1) 
+      elif(string.lower(lval) == "logaxis"):
+        set_nglRes_i(47, 2) 
+      else:
+        print "set_spc_res: Unknown value for " + resource_name
+    else:
+      set_nglRes_i(47, lval) 
+  elif (resource_name == "YAxisType"):
+    if(type(lval) == types.StringType):
+      if(string.lower(lval) == "irregularaxis"):
+        set_nglRes_i(48, 0) 
+      elif(string.lower(lval) == "linearaxis"):
+        set_nglRes_i(48, 1) 
+      elif(string.lower(lval) == "logaxis"):
+        set_nglRes_i(48, 2) 
+      else:
+        print "set_spc_res: Unknown value for " + resource_name
+    else:
+      set_nglRes_i(48, lval) 
   else:
     print "set_spc_res: Unknown special resource ngl" + resource_name
 
@@ -725,6 +749,8 @@ def set_spc_defaults(type):
   set_nglRes_i(44, 0)       # nglPanelFigureStringsBackgroundFillColor
   set_nglRes_f(45, -999.)   # nglPanelFigureStringsFontHeightF
   set_nglRes_s(46, "")      # nglAppResFileName
+  set_nglRes_i(47, 0)       # nglXAxisType - default to irregular
+  set_nglRes_i(48, 0)       # nglYAxisType - default to irregular
 
 def open_wks(wk_type,wk_name,wk_rlist=None):
   set_spc_defaults(1)

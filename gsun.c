@@ -529,6 +529,164 @@ void maximize_plot(int wks, nglPlotId *plot, int nplots, int ispanel,
   }
 }
 
+
+/*
+ * This function overlays the given plot object on an irregular object
+ * so it can take an irregular axis and make it log or linear.
+ * The axes types are determined by the resources nglXAxisType
+ * and nglYAxisType.
+ */
+void overlay_on_irregular(int wks, nglPlotId *plot, nglRes *special_res)
+{
+  int xaxistype, yaxistype, overlay_plot, base_plot, nxpts, nypts;
+  float xmin, xmax, ymin, ymax, *xpts, *ypts;
+  int xreverse, yreverse;  
+  int srlist, grlist;
+
+  overlay_plot = *(plot->base);
+  
+/*
+ * Get the values of the special resources.
+ */
+  xaxistype = special_res->nglXAxisType;
+  yaxistype = special_res->nglYAxisType;
+
+/*
+ * If both axes at this point are Irregular, then there is no point
+ * in overlaying it on an irregular plot class.  Just return it as is.
+ */
+
+  if(xaxistype == 0 && yaxistype == 0) {
+    return;
+  }
+
+/*
+ * Error checking.
+ *
+ * The values must be 0 (irregular), 1 (linear), or 2 (log).
+ */
+
+  if(xaxistype < 0 || xaxistype > 2) {
+    NhlPError(NhlWARNING,NhlEUNKNOWN,"Value of nglXAxisType is invalid.");
+    NhlPError(NhlWARNING,NhlEUNKNOWN,"Defaulting to irregular.");
+    xaxistype = 0;
+    return;
+  }
+
+  if(yaxistype < 0 || yaxistype > 2) {
+    NhlPError(NhlWARNING,NhlEUNKNOWN,"Value of nglYAxisType is invalid.");
+    NhlPError(NhlWARNING,NhlEUNKNOWN,"Defaulting to irregular.");
+    yaxistype = 0;
+    return;
+  }
+
+/*
+ * Retrieve information about existing plot so we can use these values
+ * to create new overlay plot object.
+ */
+
+  grlist = NhlRLCreate(NhlGETRL);
+  NhlRLClear(grlist);
+
+  NhlRLGetFloat(grlist,"trXMinF", &xmin);
+  NhlRLGetFloat(grlist,"trXMaxF", &xmax);
+  NhlRLGetFloat(grlist,"trYMinF", &ymin);
+  NhlRLGetFloat(grlist,"trYMaxF", &ymax);
+  NhlRLGetInteger(grlist,"trYReverse", &yreverse);
+  NhlRLGetInteger(grlist,"trXReverse", &xreverse);
+  NhlGetValues(overlay_plot,grlist);
+
+  if(!strcmp(NhlClassName(overlay_plot),"contourPlotClass")) {
+    NhlRLClear(grlist);
+    NhlRLGetFloatArray(grlist,"sfXArray",&xpts,&nxpts);
+    NhlRLGetFloatArray(grlist,"sfYArray",&ypts,&nypts);
+    NhlGetValues(*(plot->sffield),grlist);
+  }
+  else {
+    if(!strcmp(NhlClassName(overlay_plot),"vectorPlotClass") ||
+       !strcmp(NhlClassName(overlay_plot),"streamlinePlotClass")) { 
+      NhlRLClear(grlist);
+      NhlRLGetFloatArray(grlist,"vfXArray",&xpts,&nxpts);
+      NhlRLGetFloatArray(grlist,"vfYArray",&ypts,&nypts);
+      NhlGetValues(*(plot->vffield),grlist);
+    }
+  }
+
+/*
+ * If x/yaxistype is irregular, then we must set trX/YCoordPoints
+ * in order to retain the irregular axis.
+ *
+ * Oherwise, if an axis isn't irregular, you can't set trX/YCoordPoints.
+ * So, we have to do all kinds of tests to see which axes are
+ * irregular, and which ones are log or linear.
+ *
+ * Also, if xpts or ypts are missing, this means the corresponding
+ * axis can't be irregular, and thus we default to linear.
+ * This test is commented out for now since we don't really have a way
+ * for checking for missing values here.
+ *
+ *  if(any(ismissing(xpts)).and.xaxistype.eq.0) then
+ *   xaxistype = 1     (LinearAxis)
+ * end if
+ *
+ *  if(any(ismissing(Ypts)).and.yaxistype.eq.0) then
+ *   yaxistype = 1     (LinearAxis)
+ * end if
+ *
+ */
+
+/*
+ * We have three possible cases that can exist at this point:
+ *
+ *   Case 1: Both X and Y axes are either linear or log.
+ *   Case 2: X axis is irregular and Y axis is linear or log.
+ *   Case 3: Y axis is irregular and X axis is linear or log.
+ *
+ * First, set resources common to all three cases. 
+ */
+  srlist = NhlRLCreate(NhlSETRL);
+  NhlRLClear(srlist);
+
+  NhlRLSetInteger(srlist,"trXAxisType", xaxistype);
+  NhlRLSetInteger(srlist,"trYAxisType", yaxistype);
+  NhlRLSetInteger(srlist,"trYReverse",  yreverse);
+  NhlRLSetInteger(srlist,"trXReverse",  xreverse);
+  NhlRLSetFloat(srlist,  "trXMinF",     xmin);
+  NhlRLSetFloat(srlist,  "trXMaxF",     xmax);
+  NhlRLSetFloat(srlist,  "trYMinF",     ymin);
+  NhlRLSetFloat(srlist,  "trYMaxF",     ymax);
+
+/*
+ * Case 1: Both X and Y axes are either linear or log, nothing
+ *         additional needed.
+ *
+ * Case 2: X axis is irregular and Y axis is linear or log.
+ */
+  if(xaxistype == 0 && yaxistype != 0) {
+    NhlRLSetFloatArray(srlist,"trXCoordPoints",xpts,nxpts);
+  }
+/*
+ * Case 3: Y axis is irregular and X axis is linear or log.
+ */
+  if(yaxistype == 0 && xaxistype != 0) {
+    NhlRLSetFloatArray(srlist,"trYCoordPoints",ypts,nypts);
+  }
+
+/*
+ * Create the irregular plot object, and overlay the current plot
+ * on this new object.
+ */
+  NhlCreate(&base_plot, "IrregularPlot",NhlirregularPlotClass,wks,srlist);
+  NhlAddOverlay(base_plot,overlay_plot,-1);
+
+/*
+ * Set the new base plot.
+ */
+  *(plot->base) = base_plot;
+
+  return;
+}
+
 /*
  * Function : spread_colors
  *
@@ -1049,6 +1207,13 @@ void initialize_resources(nglRes *res, int list_type)
  * Special resource to rename resource file.
  */
   res->nglAppResFileName                = NULL;
+
+/*
+ * Special resources for indicating the type of the axis. 
+ * 0 = irregular, 1 = linear, 2 = log.
+ */
+  res->nglXAxisType =  0;
+  res->nglYAxisType =  0;
 }
 
 /*
@@ -1494,6 +1659,13 @@ nglPlotId contour_wrap(int wks, void *data, const char *type, int ylen,
   plot.nbase      = plot.ncontour;
 
 /*
+ * Overlay on an irregular plot object if it is desired to log
+ * or linearize either of the axes.
+ */
+
+  overlay_on_irregular(wks,&plot,special_res);
+
+/*
  * Draw contour plot and advance frame.
  */
 
@@ -1697,6 +1869,13 @@ nglPlotId vector_wrap(int wks, void *u, void *v, const char *type_u,
   plot.nbase      = plot.nvector;
 
 /*
+ * Overlay on an irregular plot object if it is desired to log
+ * or linearize either of the axes.
+ */
+
+  overlay_on_irregular(wks,&plot,special_res);
+
+/*
  * Draw vector plot and advance frame.
  */
 
@@ -1761,6 +1940,13 @@ nglPlotId streamline_wrap(int wks, void *u, void *v, const char *type_u,
  */
 
   if(special_res->nglScale) scale_plot(streamline,st_res);
+
+/*
+ * Overlay on an irregular plot object if it is desired to log
+ * or linearize either of the axes.
+ */
+
+  overlay_on_irregular(wks,&plot,special_res);
 
 /*
  * Set up plot id structure to return.
@@ -1830,8 +2016,6 @@ nglPlotId map_wrap(int wks, ResInfo *mp_res, nglRes *special_res)
  */
   return(plot);
 }
-
-
 
 /*
  * This function uses the HLUs to overlay contours on a map.
@@ -2163,6 +2347,13 @@ nglPlotId vector_scalar_wrap(int wks, void *u, void *v, void *t,
   plot.nsffield = 1;
   plot.nvector  = 1;
   plot.nbase    = plot.nvector;
+
+/*
+ * Overlay on an irregular plot object if it is desired to log
+ * or linearize either of the axes.
+ */
+
+  overlay_on_irregular(wks,&plot,special_res);
 
 /*
  * Draw plots and advance frame.

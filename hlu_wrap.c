@@ -773,6 +773,12 @@ void set_nglRes_i(int pos, int ival) {
   else if (pos == 44) {
     nglRlist.nglPanelFigureStringsBackgroundFillColor = ival;
   }
+  else if (pos == 47) {
+    nglRlist.nglXAxisType = ival;
+  }
+  else if (pos == 48) {
+    nglRlist.nglYAxisType = ival;
+  }
   else {
     printf("set_nglRes_i: invalid argument %d\n",pos);
   }
@@ -844,6 +850,12 @@ int get_nglRes_i(int pos) {
   }
   else if (pos == 44) {
     return(nglRlist.nglPanelFigureStringsBackgroundFillColor);
+  }
+  else if (pos == 47) {
+    return(nglRlist.nglXAxisType);
+  }
+  else if (pos == 48) {
+    return(nglRlist.nglYAxisType);
   }
   else {
     printf("get_nglRes_i: invalid argument %d\n",pos);

@@ -20,6 +20,7 @@
 #include <ncarg/hlu/TextItem.h>
 #include <ncarg/hlu/GraphicStyle.h>
 #include <ncarg/hlu/LogLinPlot.h>
+#include <ncarg/hlu/IrregularPlot.h>
 #include <ncarg/hlu/Primitive.h>
 
 #define min(x,y)   ((x) < (y) ? (x) : (y))
@@ -108,7 +109,14 @@ typedef struct {
   float nglPanelLabelBarLabelFontHeightF;
   float nglPanelLabelBarOrthogonalPosF;
   float nglPanelLabelBarParallelPosF;
+
   NhlString nglAppResFileName;
+
+/*
+ * Special resources for linearizing or logizing one or both axes.
+ */
+  int nglXAxisType;
+  int nglYAxisType;
 } nglRes;
 
 /*
@@ -166,6 +174,8 @@ extern int is_res_set(ResInfo *, char *);
 extern void compute_ps_device_coords(int, nglPlotId *, int, nglRes *);
 
 extern void maximize_plot(int, nglPlotId *, int, int, nglRes *);
+
+extern void overlay_on_irregular(int, nglPlotId *asplot, nglRes*);
 
 extern void spread_colors(int, int, int, int, char*, char*, int);
 
