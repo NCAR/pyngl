@@ -16,6 +16,7 @@ LN_COMMANDS = $(LD) -shared
 #elif defined(SUN)
 EXTRA_LIBS = -R /opt/SUNWspro/lib -L/opt/SUNWspro/lib -lF77 -lM77 -lnsl -lsunmath -lm -lX11 -lXext
 LN_COMMANDS = $(LD) -G
+CCOPTIONS = 
 
 #elif defined(AIX)
 EXTRA_LIBS = -lm -lc -lxlf90 -lxlf -lxlopt
