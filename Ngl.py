@@ -286,6 +286,8 @@ def set_spc_res(resource_name,value):
     set_nglRes_i(44, lval) 
   elif (resource_name == "PanelFigureStringsFontHeightF"):
     set_nglRes_f(45, lval) 
+  elif (resource_name == "AppResFileName"):
+    set_nglRes_s(46, lval) 
   else:
     print "set_spc_res: Unknown special resource ngl" + resource_name
 

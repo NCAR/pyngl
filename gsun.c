@@ -1273,17 +1273,22 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
  * Create Application object.
  */
   NhlRLClear(ap_rlist);
-  NhlRLSetString(ap_rlist,"appDefaultParent","True");
-  NhlRLSetString(ap_rlist,"appUsrDir","./");
-  if(special_res->nglAppResFileName != NULL) {
-    if(special_res->nglDebug) {
-      printf("appresfilename = '%s'\n", special_res->nglAppResFileName);
-    }
-    NhlCreate(&app,special_res->nglAppResFileName,NhlappClass,
-              NhlDEFAULT_APP,ap_rlist);
+  if(!is_res_set(ap_res,"appDefaultParent")) {
+    NhlRLSetString(ap_rlist,"appDefaultParent","True");
+  }
+  if(!is_res_set(ap_res,"appUsrDir")) {
+    NhlRLSetString(ap_rlist,"appUsrDir","./");
   }
   else {
+    printf("Not setting appUsrDir b/c already set by user.\n");
+  }
+  if(special_res->nglAppResFileName == NULL ||
+     !strcmp(special_res->nglAppResFileName,"")) {
     NhlCreate(&app,name,NhlappClass,NhlDEFAULT_APP,ap_rlist);
+  }
+  else {
+    NhlCreate(&app,special_res->nglAppResFileName,NhlappClass,
+              NhlDEFAULT_APP,ap_rlist);
   }
 
 /*
@@ -1300,7 +1305,6 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
 /*
  * Create an XWorkstation object.
  */
-
     if(!is_res_set(wk_res,"wkPause")) {
       NhlRLSetInteger(wk_rlist,"wkPause",True);
     }
