@@ -145,6 +145,8 @@ extern void set_resource(char *, int, void *, const char *, int, int *);
 
 extern int create_graphicstyle_object(int);
 
+extern void initialize_ids(nglPlotId *);
+
 extern void draw_and_frame(int, nglPlotId *, int, int, nglRes *);
 
 /*

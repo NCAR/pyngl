@@ -844,19 +844,19 @@ int create_graphicstyle_object(int wks)
 /*
  * This function sets all HLU objects ids to -1.
  */
-void initialize_ids(nglPlotId plot)
+void initialize_ids(nglPlotId *plot)
 {
-  plot.base       = -1;
-  plot.contour    = -1;
-  plot.vector     = -1;
-  plot.streamline = -1;
-  plot.map        = -1;
-  plot.xy         = -1;
-  plot.text       = -1;
-  plot.primitive  = -1;
-  plot.cafield    = -1;
-  plot.sffield    = -1;
-  plot.vffield    = -1;
+  plot->base       = -1;
+  plot->contour    = -1;
+  plot->vector     = -1;
+  plot->streamline = -1;
+  plot->map        = -1;
+  plot->xy         = -1;
+  plot->text       = -1;
+  plot->primitive  = -1;
+  plot->cafield    = -1;
+  plot->sffield    = -1;
+  plot->vffield    = -1;
 }
 
 /*
@@ -1207,7 +1207,7 @@ nglPlotId ngl_contour_wrap(int wks, void *data, const char *type, int ylen,
 /*
  * Initialize plot id structure.
  */
-  initialize_ids(plot);
+  initialize_ids(&plot);
   plot.sffield = field;;
   plot.contour = contour;
   plot.base    = contour;
@@ -1286,7 +1286,7 @@ nglPlotId ngl_xy_wrap(int wks, void *x, void *y, const char *type_x,
 /*
  * Initialize plot ids.
  */
-  initialize_ids(plot);
+  initialize_ids(&plot);
   plot.cafield = cafield;
   plot.xydspec = xyds[0];
   plot.xy      = xy;
@@ -1381,7 +1381,7 @@ nglPlotId ngl_vector_wrap(int wks, void *u, void *v, const char *type_u,
 /*
  * Initialize plot ids.
  */
-  initialize_ids(plot);
+  initialize_ids(&plot);
   plot.vffield = field;
   plot.vector  = vector;
   plot.base    = vector;
@@ -1448,7 +1448,7 @@ nglPlotId ngl_streamline_wrap(int wks, void *u, void *v, const char *type_u,
 /*
  * Set up plot id structure to return.
  */
-  initialize_ids(plot);
+  initialize_ids(&plot);
   plot.vffield    = field;
   plot.streamline = streamline;
   plot.base       = streamline;
@@ -1480,7 +1480,7 @@ nglPlotId ngl_map_wrap(int wks, int mp_rlist, nglRes *special_res)
 /*
  * Set up plot id structure to return.
  */
-  initialize_ids(plot);
+  initialize_ids(&plot);
   plot.map  = map;
   plot.base = map;
 
@@ -1551,7 +1551,7 @@ nglPlotId ngl_contour_map_wrap(int wks, void *data, const char *type,
 /*
  * Set up plot id structure to return.
  */
-  initialize_ids(plot);
+  initialize_ids(&plot);
   plot.map     = map.base;
   plot.base    = map.base;
   plot.sffield = contour.sffield;
@@ -1620,7 +1620,7 @@ nglPlotId ngl_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
 /*
  * Set up plot id structure to return.
  */
-  initialize_ids(plot);
+  initialize_ids(&plot);
   plot.map     = map.base;
   plot.base    = map.base;
   plot.vffield = vector.vffield;
@@ -1687,7 +1687,7 @@ nglPlotId ngl_streamline_map_wrap(int wks, void *u, void *v,
 /*
  * Set up plot id structure to return.
  */
-  initialize_ids(plot);
+  initialize_ids(&plot);
   plot.map  = map.base;
   plot.base = map.base;
   plot.streamline = streamline.base;
@@ -1764,7 +1764,7 @@ nglPlotId ngl_vector_scalar_wrap(int wks, void *u, void *v, void *t,
 /*
  * Set up plot id structure to return.
  */
-  initialize_ids(plot);
+  initialize_ids(&plot);
   plot.vffield = vffield;
   plot.sffield = sffield;
   plot.vector  = vector;
@@ -1836,7 +1836,7 @@ nglPlotId ngl_vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
 /*
  * Set up plot id structure to return.
  */
-  initialize_ids(plot);
+  initialize_ids(&plot);
   plot.vffield = vector.vffield;
   plot.sffield = vector.sffield;
   plot.vector  = vector.base;
@@ -1862,7 +1862,7 @@ nglPlotId ngl_text_ndc_wrap(int wks, char* string, void *x, void *y,
 /*
  * Initialize plot ids.
  */
-  initialize_ids(plot);
+  initialize_ids(&plot);
 
   length[0] = 1;
 
@@ -2022,7 +2022,7 @@ nglPlotId ngl_add_poly_wrap(int wks, int plot, void *x, void *y,
 /*
  * Set up plot id structure to return.
  */
-  initialize_ids(poly);
+  initialize_ids(&poly);
 
 /*
  * Create resource list for primitive object.
@@ -2323,7 +2323,7 @@ nglPlotId ngl_add_text_wrap(int wks, int plot, char *string, void *x,
 /*
  * Set up plot id structure to return.
  */
-  initialize_ids(annos);
+  initialize_ids(&annos);
 
 /*
  * First create the text object with the given string.
