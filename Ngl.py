@@ -1,4 +1,3 @@
-
 from hlu import *
 import hlu
 import sys, os
@@ -301,6 +300,40 @@ def check_res_value(resvalue,strvalue,intvalue):
     return(True)
   else:
     return(False)
+
+def set_contour_res(reslist,reslist1):
+#
+#  Set some contour resources of which we either don't like the NCL
+#  defaults, or we want to set something on behalf of the user.
+#
+    if(reslist.has_key("cnFillOn") and reslist["cnFillOn"] > 0):
+      if ( not (reslist.has_key("cnInfoLabelOn"))):
+        reslist1["cnInfoLabelOn"] = False
+      if ( not (reslist.has_key("pmLabelBarDisplayMode"))):
+        reslist1["pmLabelBarDisplayMode"] = "Always"
+#
+#  Check for "plural" resources that only take effect if their
+#  corresponding "Mono" resource is set to False, and set the
+#  Mono resource on behalf of the user.
+#
+    if(reslist.has_key("cnLineDashPatterns")):
+      if ( not (reslist.has_key("cnMonoLineDashPattern"))):
+        reslist1["cnMonoLineDashPattern"] = False
+    if(reslist.has_key("cnLineColors")):
+      if (not (reslist.has_key("cnMonoLineColor"))):
+        reslist1["cnMonoLineColor"] = False
+    if(reslist.has_key("cnLineThicknesss")):
+      if (not (reslist.has_key("cnMonoLineThickness"))):
+        reslist1["cnMonoLineThickness"] = False
+    if(reslist.has_key("cnFillPatterns")):
+      if (not (reslist.has_key("cnMonoFillPattern"))):
+        reslist1["cnMonoFillPattern"] = False
+    if(reslist.has_key("cnFillScales")):
+      if (not (reslist.has_key("cnMonoFillScale"))):
+        reslist1["cnMonoFillScale"] = False
+    if(reslist.has_key("cnLineLabelFontColors")):
+      if (not (reslist.has_key("cnMonoLineLabelFontColor"))):
+        reslist1["cnMonoLineLabelFontColor"] = False
 
 def set_labelbar_res(reslist,reslist1):
 #
@@ -775,15 +808,6 @@ def contour_map(wks,array,rlistc=None):
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
-#
-#  Turn labelbar on if "cnFillOn" is set and pmLabelBarDisplayMode
-#  is not in the resource list.
-#
-    if(key[0:8] == "cnFillOn" and rlist[key] > 0):
-      if ( not (rlist.has_key("cnInfoLabelOn"))):
-        rlist3["cnInfoLabelOn"] = False
-      if ( not (rlist.has_key("pmLabelBarDisplayMode"))):
-        rlist3["pmLabelBarDisplayMode"] = "Always"
     if (key[0:2] == "sf"):
       rlist1[key] = rlist[key]
     elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
@@ -793,13 +817,13 @@ def contour_map(wks,array,rlistc=None):
       set_spc_res(key[3:],rlist[key])      
     else:
       rlist3[key] = rlist[key]
-
 #
 # Turn on map tickmarks.
 #
   if ( not (rlist.has_key("pmTickMarkDisplayMode"))):
       rlist2["pmTickMarkDisplayMode"] = "Always"
 
+  set_contour_res(rlist,rlist3)       # Set some contour resources
   set_labelbar_res(rlist,rlist3)      # Set some labelbar resources
 
 #
@@ -841,15 +865,6 @@ def contour(wks,array,rlistc=None):
   rlist1 = {}
   rlist2 = {}
   for key in rlist.keys():
-#
-#  Turn label bars on if "cnFillOn" is set and pmLabelBarDisplayMode
-#  is not in the resource list.
-#
-    if(key[0:8] == "cnFillOn" and rlist[key] > 0):
-      if ( not (rlist.has_key("cnInfoLabelOn"))):
-        rlist2["cnInfoLabelOn"] = False
-      if ( not (rlist.has_key("pmLabelBarDisplayMode"))):
-        rlist2["pmLabelBarDisplayMode"] = "Always"
     if (key[0:2] == "sf"):
       rlist1[key] = rlist[key]
     elif(key[0:3] == "ngl"):
@@ -857,6 +872,7 @@ def contour(wks,array,rlistc=None):
     else:
       rlist2[key] = rlist[key]
 
+  set_contour_res(rlist,rlist2)       # Set some contour resources
   set_labelbar_res(rlist,rlist2)      # Set some labelbar resources
     
 #
