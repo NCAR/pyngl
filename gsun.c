@@ -9,7 +9,7 @@ main()
  * Declare variables for the HLU routine calls.
  */
 
-  int app, wks, contour, vector, streamline;
+  int wks, contour, vector, streamline;
   int wk_rlist, sf_rlist, vf_rlist, cn_rlist, vc_rlist, st_rlist;
   int colors[] = {2,16,30,44,58,52,86,100,114,128,142,156,170};
 
@@ -835,9 +835,9 @@ void maximize_plot(int wks, int plot)
  * used with the contour object.
  */
 
-int scalar_field(void *data, char *type_data, int ylen, int xlen, 
-                 int is_ycoord, void *ycoord, char *type_ycoord,
-                 int is_xcoord, void *xcoord, char *type_xcoord,
+int scalar_field(void *data, const char *type_data, int ylen, int xlen, 
+                 int is_ycoord, void *ycoord, const char *type_ycoord,
+                 int is_xcoord, void *xcoord, const char *type_xcoord,
                  int is_missing_data, void *FillValue_data, int sf_rlist)
 {
   int app, field, length[2];
@@ -918,10 +918,10 @@ int scalar_field(void *data, char *type_data, int ylen, int xlen,
  * used with the vector or streamline object.
  */
 
-int vector_field(void *u, void *v, char *type_u, char *type_v, 
+int vector_field(void *u, void *v, const char *type_u, const char *type_v, 
                  int ylen, int xlen, 
-                 int is_ycoord, void *ycoord, char *type_ycoord, 
-                 int is_xcoord, void *xcoord, char *type_xcoord,
+                 int is_ycoord, void *ycoord, const char *type_ycoord, 
+                 int is_xcoord, void *xcoord, const char *type_xcoord,
                  int is_missing_u, int is_missing_v,
                  void *FillValue_u, void *FillValue_v, int vf_rlist)
 {
@@ -1023,10 +1023,10 @@ int vector_field(void *u, void *v, char *type_u, char *type_v,
  * and to open a workstation.
  */
 
-int gsn_open_wks(char *type, char *name, int wk_rlist)
+int gsn_open_wks(const char *type, const char *name, int wk_rlist)
 {
   int wks, len;
-  char *filename;
+  char *filename = (char *) NULL;
   int srlist, app;
 
 /*
@@ -1135,7 +1135,7 @@ int gsn_open_wks(char *type, char *name, int wk_rlist)
  * Clean up and return.
  */
 
-  free(filename);
+  if(filename != NULL) free(filename);
   return(wks);
 }
 
@@ -1143,9 +1143,10 @@ int gsn_open_wks(char *type, char *name, int wk_rlist)
  * This function uses the HLUs to create a contour plot.
  */
 
-int gsn_contour_wrap(int wks, void *data, char *type, int ylen, int xlen,
-                     int is_ycoord, void *ycoord, char *ycoord_type,
-                     int is_xcoord, void *xcoord, char *xcoord_type,
+int gsn_contour_wrap(int wks, void *data, const char *type, 
+                     int ylen, int xlen,
+                     int is_ycoord, void *ycoord, const char *ycoord_type,
+                     int is_xcoord, void *xcoord, const char *xcoord_type,
                      int is_missing, void *FillValue, 
                      int sf_rlist, int cn_rlist)
 {
@@ -1193,10 +1194,10 @@ int gsn_contour_wrap(int wks, void *data, char *type, int ylen, int xlen,
  * This function uses the HLUs to create a vector plot.
  */
 
-int gsn_vector_wrap(int wks, void *u, void *v, char *type_u,
-                    char *type_v, int ylen, int xlen, 
-                    int is_ycoord, void *ycoord, char *type_ycoord,
-                    int is_xcoord, void *xcoord, char *type_xcoord,
+int gsn_vector_wrap(int wks, void *u, void *v, const char *type_u,
+                    const char *type_v, int ylen, int xlen, 
+                    int is_ycoord, void *ycoord, const char *type_ycoord,
+                    int is_xcoord, void *xcoord, const char *type_xcoord,
                     int is_missing_u, int is_missing_v, 
                     void *FillValue_u, void *FillValue_v,
                     int vf_rlist, int vc_rlist)
@@ -1246,10 +1247,10 @@ int gsn_vector_wrap(int wks, void *u, void *v, char *type_u,
  * This function uses the HLUs to create a streamline plot.
  */
 
-int gsn_streamline_wrap(int wks, void *u, void *v, char *type_u,
-                        char *type_v, int ylen, int xlen, 
-                        int is_ycoord, void *ycoord, char *type_ycoord,
-                        int is_xcoord, void *xcoord, char *type_xcoord,
+int gsn_streamline_wrap(int wks, void *u, void *v, const char *type_u,
+                        const char *type_v, int ylen, int xlen, 
+                        int is_ycoord, void *ycoord, const char *type_ycoord,
+                        int is_xcoord, void *xcoord, const char *type_xcoord,
                         int is_missing_u, int is_missing_v, 
                         void *FillValue_u, void *FillValue_v, 
                         int vf_rlist, int st_rlist)

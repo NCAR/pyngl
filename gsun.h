@@ -25,28 +25,31 @@
  * Prototype GSUN and supplemental functions.
  */
 
-extern int scalar_field(void *, char *, int, int, int, void *, char *, 
-                        int, void *, char *, int, void *, int);
+extern int scalar_field(void *, const char *, int, int, int, void *, 
+                        const char *, int, void *, const char *, int,
+                        void *, int);
 
-extern int vector_field(void *, void *, char *, char *, int, int, int, 
-                        void *, char *, int, void*, char *, int, int,
-                        void *, void *, int);
+extern int vector_field(void *, void *, const char *, const char *, int,
+                        int, int, void *, const char *, int, void*, 
+                        const char *, int, int, void *, void *, int);
 
 extern void compute_ps_device_coords(int,int);
 
 extern void maximize_plot(int, int);
 
-extern int gsn_open_wks(char *, char *, int);
+extern int gsn_open_wks(const char *, const char *, int);
 
-extern int gsn_contour_wrap(int, void *, char *, int, int, 
-                            int, void *, char *, int, void *, char *,
-                            int, void *, int, int);
+extern int gsn_contour_wrap(int, void *, const char *, int, int, 
+                            int, void *, const char *, int, void *, 
+                            const char *, int, void *, int, int);
 
-extern int gsn_vector_wrap(int, void *, void *, char *, char *, int, int,
-                           int, void *, char *, int, void *, char *, int,
+extern int gsn_vector_wrap(int, void *, void *, const char *, 
+                           const char *, int, int, int, void *, 
+                           const char *, int, void *, const char *, int,
                            int, void *, void *, int, int);
 
-extern int gsn_streamline_wrap(int, void *, void *, char *, char *, int,
-                               int, int, void *, char *, int, void *, 
-                               char *, int, int, void *, void *, int, int);
+extern int gsn_streamline_wrap(int, void *, void *, const char *, 
+                               const char *, int, int, int, void *, 
+                               const char *, int, void *, const char *, 
+                               int, int, void *, void *, int, int);
 
