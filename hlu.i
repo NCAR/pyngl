@@ -3807,7 +3807,8 @@ extern void c_cprect(float *sequence_as_float, int, int, int, float *sequence_as
 extern void c_cpcldr(float *sequence_as_float, float *sequence_as_float, int *sequence_as_int);
 extern void c_plchhq(float, float, NhlString, float, float, float);
 
-extern int open_wks_wrap(const char *, const char *, ResInfo *rlist);
+extern int open_wks_wrap(const char *, const char *, ResInfo *rlist,
+                         ResInfo *rlist, nglRes *);
 extern nglPlotId contour_wrap(int, void *sequence_as_void, 
                             const char *, int, int,
                             int, void *, const char *, int, void *, 
@@ -4022,7 +4023,8 @@ extern NhlString get_nglRes_s(int);
 
 %newobject NGGetNCARGEnv(const char *);
 
-%newobject  open_wks_wrap(const char *, const char *, ResInfo *rlist);
+%newobject  open_wks_wrap(const char *, const char *, ResInfo *rlist,
+                          ResInfo *rlist, nglRes *rlist);
 %newobject  contour_wrap(int, void *sequence_as_void, 
                             const char *, int, int,
                             int, void *, const char *, int, void *, 

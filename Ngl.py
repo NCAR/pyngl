@@ -722,11 +722,26 @@ def set_spc_defaults(type):
   set_nglRes_i(43, 1)       # nglPanelFigureStringsPerimOn
   set_nglRes_i(44, 0)       # nglPanelFigureStringsBackgroundFillColor
   set_nglRes_f(45, -999.)   # nglPanelFigureStringsFontHeightF
-  set_nglRes_s(46, "file")  # nglAppResFileName
+  set_nglRes_s(46, "")      # nglAppResFileName
 
 def open_wks(wk_type,wk_name,wk_rlist=None):
+  set_spc_defaults(1)
   global first_call_to_open_wks
   rlist = crt_dict(wk_rlist)
+
+#
+# Divide out "app" and other resources.
+# 
+  rlist1 = {}
+  rlist2 = {}
+
+  for key in rlist.keys():
+    if (key[0:3] == "app"):
+      rlist2[key] = rlist[key]
+    elif(key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist1[key] = rlist[key]
 
 # 
 # Initialize the special resource values, and make sure 
@@ -768,7 +783,6 @@ def open_wks(wk_type,wk_name,wk_rlist=None):
 #
       os.environ["NCARG_NCARG"] = ncarg_ncarg
 
-    set_spc_defaults(1)
     first_call_to_open_wks = first_call_to_open_wks + 1
 
 #
@@ -785,8 +799,10 @@ def open_wks(wk_type,wk_name,wk_rlist=None):
 #
 #  Call the wrapped function and return.
 #
-  iopn = open_wks_wrap(wk_type,wk_name,rlist)
+  iopn = open_wks_wrap(wk_type,wk_name,rlist1,rlist2,pvoid())
   del rlist
+  del rlist1
+  del rlist2
   return(iopn)
 
 def draw_colormap(wks):

@@ -171,14 +171,14 @@ extern float xmax_array(float *, int);
 extern float xmin_array(float *, int);
 extern float *fspan(float, float, int);
 extern int *ispan(int, int, int);
-
+extern int is_res_set(ResInfo *, char *);
 extern void compute_ps_device_coords(int, nglPlotId *, int, nglRes *);
 
 extern void maximize_plot(int, nglPlotId *, int, int, nglRes *);
 
 extern void spread_colors(int, int, int, int, char*, char*, int);
 
-extern void scale_plot(int);
+extern void scale_plot(int,ResInfo *);
 
 extern float *coerce_to_float(void *, const char *, int);
 
@@ -218,7 +218,8 @@ extern int vector_field(void *, void *, const char *, const char *, int,
  * Workstation routine.
  */
 
-extern int open_wks_wrap(const char *, const char *, ResInfo *);
+extern int open_wks_wrap(const char *, const char *, ResInfo *, ResInfo *,
+                         nglRes *);
 
 /*
  * Plotting routines.

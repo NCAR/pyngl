@@ -98,6 +98,29 @@ int *ispan(int start, int end, int nskip)
 }
 
 /*
+ * This function checks a given resource list to see if a resource
+ * has been set. If it has, then 1 is returned; otherwise 0 is returned.
+ * This function is used to keep from setting resources internally
+ * when they've been set by the user in a PyNGL script.
+ */
+int is_res_set(ResInfo *res_list, char *resname)
+{
+  int i;
+
+  if(res_list->nstrings <= 0) {
+    return(0);
+  }
+
+  for(i = 0; i < res_list->nstrings; i++) {
+    if(!strcmp((res_list->strings)[i],resname)) {
+      return(1);
+    }
+  }
+  return(0);
+}
+
+
+/*
  * This function computes the PostScript device coordinates needed to
  * make a plot fill up the full page.
  *
@@ -621,7 +644,7 @@ void spread_colors(int wks, int plot, int min_index, int max_index,
  * so they are the same size/length.
  */
 
-void scale_plot(int plot)
+void scale_plot(int plot,ResInfo *res)
 {
   int srlist, grlist;
   float xfont, yfont, xbfont, ylfont;
@@ -660,14 +683,30 @@ void scale_plot(int plot)
  */
 
   NhlRLClear(srlist);
-  NhlRLSetFloat(srlist, "tiXAxisFontHeightF",   (xfont+yfont)/2.);
-  NhlRLSetFloat(srlist, "tiYAxisFontHeightF",   (xfont+yfont)/2.);
-  NhlRLSetFloat(srlist, "tmXBLabelFontHeightF", (xbfont+ylfont)/2.);
-  NhlRLSetFloat(srlist, "tmXBMajorLengthF",     xlength);
-  NhlRLSetFloat(srlist, "tmXBMinorLengthF",     xmlength);
-  NhlRLSetFloat(srlist, "tmYLLabelFontHeightF", (xbfont+ylfont)/2.);
-  NhlRLSetFloat(srlist, "tmYLMajorLengthF",     ylength);
-  NhlRLSetFloat(srlist, "tmYLMinorLengthF",     ymlength);
+  if(!is_res_set(res,"tiXAxisFontHeightF")) {
+    NhlRLSetFloat(srlist, "tiXAxisFontHeightF",   (xfont+yfont)/2.);
+  }
+  if(!is_res_set(res,"tiYAxisFontHeightF")) {
+    NhlRLSetFloat(srlist, "tiYAxisFontHeightF",   (xfont+yfont)/2.);
+  }
+  if(!is_res_set(res,"tmXBLabelFontHeightF")) {
+    NhlRLSetFloat(srlist, "tmXBLabelFontHeightF", (xbfont+ylfont)/2.);
+  }
+  if(!is_res_set(res,"tmXBMajorLengthF")) {
+    NhlRLSetFloat(srlist, "tmXBMajorLengthF",     xlength);
+  }
+  if(!is_res_set(res,"tmXBMinorLengthF")) {
+    NhlRLSetFloat(srlist, "tmXBMinorLengthF",     xmlength);
+  }
+  if(!is_res_set(res,"tmYLLabelFontHeightF")) {
+    NhlRLSetFloat(srlist, "tmYLLabelFontHeightF", (xbfont+ylfont)/2.);
+  }
+  if(!is_res_set(res,"tmYLMajorLengthF")) {
+    NhlRLSetFloat(srlist, "tmYLMajorLengthF",     ylength);
+  }
+  if(!is_res_set(res,"tmYLMinorLengthF")) {
+    NhlRLSetFloat(srlist, "tmYLMinorLengthF",     ymlength);
+  }
   NhlSetValues(plot,srlist);
 
   return;
@@ -1006,6 +1045,10 @@ void initialize_resources(nglRes *res, int list_type)
   res->nglPanelLabelBarLabelFontHeightF = -999.;
   res->nglPanelLabelBarOrthogonalPosF   = -999.;
   res->nglPanelLabelBarParallelPosF     = -999.;
+/*
+ * Special resource to rename resource file.
+ */
+  res->nglAppResFileName                = NULL;
 }
 
 /*
@@ -1211,38 +1254,37 @@ int vector_field(void *u, void *v, const char *type_u, const char *type_v,
  * and to open a workstation.
  */
 
-int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res)
+int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
+                  ResInfo *ap_res, nglRes *special_res)
 {
-  int i, wks, len, tlen, wk_rlist, grlist, check_orientation = 0;
+  int i, wks, len, tlen, wk_rlist, ap_rlist, grlist, check_orientation = 0;
   char *filename = (char *) NULL;
-  int srlist, app;
+  int app;
 
   wk_rlist = wk_res->id;
+  ap_rlist = ap_res->id;
 
 /*
  * Initialize HLU library.
  */
   NhlInitialize();
-/*
- * Initialize variable for holding resources.
- */
-
-  srlist = NhlRLCreate(NhlSETRL);
 
 /*
  * Create Application object.
  */
-
-  NhlRLClear(srlist);
-  NhlRLSetString(srlist,"appDefaultParent","True");
-  NhlRLSetString(srlist,"appUsrDir","./");
-  NhlCreate(&app,name,NhlappClass,NhlDEFAULT_APP,srlist);
-
-/*
- * Remove resource list.
- */
-
-  NhlRLDestroy(srlist);
+  NhlRLClear(ap_rlist);
+  NhlRLSetString(ap_rlist,"appDefaultParent","True");
+  NhlRLSetString(ap_rlist,"appUsrDir","./");
+  if(special_res->nglAppResFileName != NULL) {
+    if(special_res->nglDebug) {
+      printf("appresfilename = '%s'\n", special_res->nglAppResFileName);
+    }
+    NhlCreate(&app,special_res->nglAppResFileName,NhlappClass,
+              NhlDEFAULT_APP,ap_rlist);
+  }
+  else {
+    NhlCreate(&app,name,NhlappClass,NhlDEFAULT_APP,ap_rlist);
+  }
 
 /*
  * Load color maps. This is necessary for access to the color maps in
@@ -1259,7 +1301,9 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res)
  * Create an XWorkstation object.
  */
 
-    NhlRLSetInteger(wk_rlist,"wkPause",True);
+    if(!is_res_set(wk_res,"wkPause")) {
+      NhlRLSetInteger(wk_rlist,"wkPause",True);
+    }
     NhlCreate(&wks,"x11",NhlxWorkstationClass,
               NhlDEFAULT_APP,wk_rlist);
   }
@@ -1277,7 +1321,9 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res)
  * Create a meta file object.
  */
 
-    NhlRLSetString(wk_rlist,"wkMetaName",filename);
+    if(!is_res_set(wk_res,"wkMetaName")) {
+      NhlRLSetString(wk_rlist,"wkMetaName",filename);
+    }
     NhlCreate(&wks,"ncgm",NhlncgmWorkstationClass,NhlDEFAULT_APP,wk_rlist);
   }
   else if(!strcmp(type,"ps")   || !strcmp(type,"PS") || 
@@ -1303,7 +1349,9 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res)
  * Create a PS workstation.
  */
 
-    NhlRLSetString(wk_rlist,"wkPSFileName",filename);
+    if(!is_res_set(wk_res,"wkPSFileName")) {
+      NhlRLSetString(wk_rlist,"wkPSFileName",filename);
+    }
     NhlCreate(&wks,type,NhlpsWorkstationClass,NhlDEFAULT_APP,wk_rlist);
   }
   else if(!strcmp(type,"pdf") || !strcmp(type,"PDF")) {
@@ -1325,7 +1373,9 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res)
  * Create a PDF workstation.
  */
 
-    NhlRLSetString(wk_rlist,"wkPDFFileName",filename);
+    if(!is_res_set(wk_res,"wkPDFFileName")) {
+      NhlRLSetString(wk_rlist,"wkPDFFileName",filename);
+    }
     NhlCreate(&wks,"pdf",NhlpdfWorkstationClass,NhlDEFAULT_APP,wk_rlist);
   }
 /*
@@ -1337,8 +1387,12 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res)
     filename = (char *)calloc(len+1,sizeof(char));
     strncpy(filename,name,len);
     filename[len] = '\0';
-    NhlRLSetString(wk_rlist,"wkImageFileName",filename);
-    NhlRLSetString(wk_rlist,"wkImageFormat","png");
+    if(!is_res_set(wk_res,"wkImageFileName")) {
+      NhlRLSetString(wk_rlist,"wkImageFileName",filename);
+    }
+    if(!is_res_set(wk_res,"wkImageFormat")) {
+      NhlRLSetString(wk_rlist,"wkImageFormat","png");
+    }
     NhlCreate(&wks,"png",NhlimageWorkstationClass,NhlDEFAULT_APP,wk_rlist);
   }
   else {
@@ -1352,13 +1406,11 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res)
  * will override wkOrientation.
  */
   if(check_orientation) {
-    for(i = 0; i < wk_res->nstrings; i++) {
-      if(!strcmp((wk_res->strings)[i],"wkOrientation")) {
-        grlist = NhlRLCreate(NhlGETRL);
-        NhlRLClear(grlist);
-        NhlRLGetInteger(grlist,"wkOrientation",&global_wk_orientation);
-        NhlGetValues(wks,grlist);
-      }
+    if(is_res_set(wk_res,"wkOrientation")) {
+      grlist = NhlRLCreate(NhlGETRL);
+      NhlRLClear(grlist);
+      NhlRLGetInteger(grlist,"wkOrientation",&global_wk_orientation);
+      NhlGetValues(wks,grlist);
     }
   }
 
@@ -1426,7 +1478,7 @@ nglPlotId contour_wrap(int wks, void *data, const char *type, int ylen,
  * Make tickmarks and axis labels the same size.
  */
 
-  if(special_res->nglScale) scale_plot(contour);
+  if(special_res->nglScale) scale_plot(contour,cn_res);
 
 /*
  * Initialize plot id structure.
@@ -1517,7 +1569,7 @@ nglPlotId xy_wrap(int wks, void *x, void *y, const char *type_x,
  * Make tickmarks and axis labels the same size.
  */
 
-  if(special_res->nglScale) scale_plot(xy);
+  if(special_res->nglScale) scale_plot(xy,xy_res);
 
 /*
  * Initialize plot ids.
@@ -1629,7 +1681,7 @@ nglPlotId vector_wrap(int wks, void *u, void *v, const char *type_u,
  * Make tickmarks and axis labels the same size.
  */
 
-  if(special_res->nglScale) scale_plot(vector);
+  if(special_res->nglScale) scale_plot(vector,vc_res);
 
 /*
  * Initialize plot ids.
@@ -1708,7 +1760,7 @@ nglPlotId streamline_wrap(int wks, void *u, void *v, const char *type_u,
  * Make tickmarks and axis labels the same size.
  */
 
-  if(special_res->nglScale) scale_plot(streamline);
+  if(special_res->nglScale) scale_plot(streamline,st_res);
 
 /*
  * Set up plot id structure to return.
@@ -2079,9 +2131,12 @@ nglPlotId vector_scalar_wrap(int wks, void *u, void *v, void *t,
 
   NhlRLSetInteger(vc_rlist, "vcVectorFieldData",    vffield);
   NhlRLSetInteger(vc_rlist, "vcScalarFieldData",    sffield);
-  NhlRLSetString (vc_rlist, "vcUseScalarArray",     "True");
-  NhlRLSetString (vc_rlist, "vcMonoLineArrowColor", "False");
-
+  if(!is_res_set(vc_res,"vcUseScalarArray")) {
+    NhlRLSetString (vc_rlist, "vcUseScalarArray",     "True");
+  }
+  if(!is_res_set(vc_res,"vcMonoLineArrowColor")) {
+    NhlRLSetString (vc_rlist, "vcMonoLineArrowColor", "False");
+  }
   NhlCreate(&vector,"vector",NhlvectorPlotClass,wks,vc_rlist);
 
 /*
@@ -3051,7 +3106,7 @@ void draw_colormap_wrap(int wks)
 
 /*
  * Set some line resources for outlining the color boxes.
- **/
+ */
   NhlRLClear(ln_rlist);
   NhlRLSetString(ln_rlist,"gsLineColor","black");
 
