@@ -394,9 +394,9 @@ PyObject *ftcurvc(int n, float *x, float *y, int m, float *xo)
   obj1 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
                                               (char *) yo);
   resultobj = Py_None;
-  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,status);
   resultobj = t_output_helper(resultobj,obj1);
+  if (resultobj == Py_None) Py_INCREF(Py_None);
   return resultobj;
 }
 
@@ -414,9 +414,9 @@ PyObject *ftcurvpc(int n, float *x, float *y, float p, int m, float *xo)
   obj1 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
                                               (char *) yo);
   resultobj = Py_None;
-  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,status);
   resultobj = t_output_helper(resultobj,obj1);
+  if (resultobj == Py_None) Py_INCREF(Py_None);
   return resultobj;
 }
 
@@ -430,10 +430,10 @@ PyObject *ftcurvpic(float xl, float xr, float p, int m, float *xi, float *yi)
   ier = c_ftcurvpi(xl,xr,p,m,xi,yi,&yo);
   status = (PyObject *) PyInt_FromLong((long) ier);
   resultobj = Py_None;
-  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,status);
   resultobj = t_output_helper(resultobj,
                  (PyObject *) PyFloat_FromDouble((double) yo));
+  if (resultobj == Py_None) Py_INCREF(Py_None);
   return resultobj;
 }
 
@@ -607,12 +607,12 @@ PyObject *NhlPNDCToData(int pid, float *x, float *y, int n, float xmissing,
   range = (PyObject *) PyFloat_FromDouble((double) out_of_range); 
 
   resultobj = Py_None;
-  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,nhlerr);
   resultobj = t_output_helper(resultobj,obj1);
   resultobj = t_output_helper(resultobj,obj2);
   resultobj = t_output_helper(resultobj,rstatus);
   resultobj = t_output_helper(resultobj,range);
+  if (resultobj == Py_None) Py_INCREF(Py_None);
   return resultobj;
 }
 
@@ -663,12 +663,12 @@ PyObject *NhlPDataToNDC(int pid, float *x, float *y, int n, float xmissing,
   range = (PyObject *) PyFloat_FromDouble((double) out_of_range); 
 
   resultobj = Py_None;
-  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,nhlerr);
   resultobj = t_output_helper(resultobj,obj1);
   resultobj = t_output_helper(resultobj,obj2);
   resultobj = t_output_helper(resultobj,rstatus);
   resultobj = t_output_helper(resultobj,range);
+  if (resultobj == Py_None) Py_INCREF(Py_None);
   return resultobj;
 }
 
@@ -688,9 +688,9 @@ PyObject *NhlGetMDFloatArray(int pid, char *name) {
   nhlerr = (PyObject *) PyInt_FromLong((long) rval); 
 
   resultobj = Py_None;
-  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,nhlerr);
   resultobj = t_output_helper(resultobj,obj1);
+  if (resultobj == Py_None) Py_INCREF(Py_None);
   return resultobj;
 }
 
@@ -710,9 +710,9 @@ PyObject *NhlGetMDDoubleArray(int pid, char *name) {
   nhlerr = (PyObject *) PyInt_FromLong((long) rval); 
 
   resultobj = Py_None;
-  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,nhlerr);
   resultobj = t_output_helper(resultobj,obj1);
+  if (resultobj == Py_None) Py_INCREF(Py_None);
   return resultobj;
 }
 
@@ -732,9 +732,9 @@ PyObject *NhlGetMDIntegerArray(int pid, char *name) {
   nhlerr = (PyObject *) PyInt_FromLong((long) rval); 
 
   resultobj = Py_None;
-  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,nhlerr);
   resultobj = t_output_helper(resultobj,obj1);
+  if (resultobj == Py_None) Py_INCREF(Py_None);
   return resultobj;
 }
 
@@ -2338,6 +2338,7 @@ import_array();
  return_list = PyList_New(12);
 
  if (pid.nbase == 0) {
+   Py_INCREF(Py_None); 
    PyList_SetItem(return_list,0,Py_None);
  }
  else {
@@ -2349,6 +2350,7 @@ import_array();
  }
 
  if (pid.ncontour == 0) {
+   Py_INCREF(Py_None); 
    PyList_SetItem(return_list,1,Py_None);
  }
  else {
@@ -2382,6 +2384,7 @@ import_array();
  }
 
  if (pid.nmap == 0) {
+   Py_INCREF(Py_None); 
    PyList_SetItem(return_list,4,Py_None);
  }
  else {
@@ -2393,6 +2396,7 @@ import_array();
  }
 
  if (pid.nxy == 0) {
+   Py_INCREF(Py_None); 
    PyList_SetItem(return_list,5,Py_None);
  }
  else {
@@ -2426,6 +2430,7 @@ import_array();
  }
 
  if (pid.nprimitive == 0) {
+   Py_INCREF(Py_None); 
    PyList_SetItem(return_list,8,Py_None);
  }
  else {
@@ -2437,6 +2442,7 @@ import_array();
  }
 
  if (pid.ncafield == 0) {
+   Py_INCREF(Py_None); 
    PyList_SetItem(return_list,9,Py_None);
  }
  else {
@@ -2448,6 +2454,7 @@ import_array();
  }
 
  if (pid.nsffield == 0) {
+   Py_INCREF(Py_None); 
    PyList_SetItem(return_list,10,Py_None);
  }
  else {
@@ -2459,6 +2466,7 @@ import_array();
  }
 
  if (pid.nvffield == 0) {
+   Py_INCREF(Py_None); 
    PyList_SetItem(return_list,11,Py_None);
  }
  else {
@@ -2469,6 +2477,7 @@ import_array();
    PyList_SetItem(return_list,11,l_vffield);
  }
 
+ Py_INCREF(return_list); 
  $result = return_list;
 }
 
@@ -2485,6 +2494,7 @@ import_array();
 
   if (!PyList_Check($input)) {
     printf("PlotIds must be a Python list\n");
+    Py_INCREF(Py_None);
     return Py_None;
   }
 
@@ -3890,3 +3900,193 @@ extern void set_nglRes_f(int, float);
 extern float get_nglRes_f(int);
 extern void set_nglRes_c(int, NhlString *);
 extern NhlString *get_nglRes_c(int);
+
+%newobject _NGGetNCARGEnv(const char *);
+%newobject  NhlSetValues (int, int res_id);
+%newobject  NhlRLSetString (int, NhlString, NhlString);
+%newobject  NhlRLSetFloat (int, NhlString, float);
+%newobject  NhlRLSetDouble (int, NhlString, double);
+%newobject  NhlRLSetInteger (int, NhlString, int);
+%newobject  NhlNDCPolyline (int, int, float *sequence_as_float, float *sequence_as_float, int);
+%newobject  NhlNDCPolymarker (int, int, float *sequence_as_float, float *sequence_as_float, int);
+%newobject  NhlNDCPolygon (int, int, float *sequence_as_float, float *sequence_as_float, int);
+%newobject  NhlDataPolyline (int, int, float *sequence_as_float,
+  float *sequence_as_float, int);
+%newobject  NhlDataPolymarker (int, int, float *sequence_as_float,
+  float *sequence_as_float, int);
+%newobject  NhlDataPolygon (int, int, float *sequence_as_float,
+  float *sequence_as_float, int);
+%newobject  NhlDraw (int);
+%newobject  NhlFreeColor (int, int);
+%newobject  NhlGetGksCi (int, int);
+%newobject  NhlGetWorkspaceObjectId();
+%newobject  NhlIsAllocatedColor(int, int);
+%newobject  NhlIsApp(int);
+%newobject  NhlIsDataComm(int);
+%newobject  NhlIsDataItem(int);
+%newobject  NhlIsDataSpec(int);
+%newobject  NhlRLIsSet(int,NhlString);
+%newobject  NhlRLUnSet(int,NhlString);
+%newobject  NhlIsTransform(int);
+%newobject  NhlIsView(int);
+%newobject  NhlIsWorkstation(int);
+%newobject  NhlName(int);
+
+%newobject  NhlNewColor(int, float, float, float);
+%newobject  NhlSetColor(int, int, float, float, float);
+%newobject  NhlUpdateData(int);
+%newobject  NhlUpdateWorkstation(int);
+
+%newobject  NhlCreate (int *OUTPUT, const char *, NhlClass, int, int);
+%newobject  NhlRLCreate(NhlRLType);
+%newobject  NhlFrame (int);
+%newobject  NhlDestroy (int);
+%newobject  NhlRLSetMDIntegerArray(int, char *, int *sequence_as_int, int, int *sequence_as_int);
+%newobject  NhlRLSetMDDoubleArray(int, char *, double *sequence_as_double, int, int *sequence_as_int);
+%newobject  NhlRLSetMDFloatArray(int, char *, float *sequence_as_float, int, int *sequence_as_int);
+%newobject  NhlRLSetFloatArray(int, char *, float *sequence_as_float, int);
+%newobject  NhlRLSetIntegerArray(int, char *, int *sequence_as_int, int);
+%newobject  NhlRLSetStringArray(int, NhlString, NhlString *, int);
+%newobject  NhlGetValues(int, int res_id);
+%newobject  NhlGetFloat(int oid, char *name);
+%newobject  NhlGetFloatArray(int oid, char *name, int *numberf);
+%newobject  NhlGetInteger(int oid, char *name);
+%newobject  NhlGetIntegerArray(int oid, char *name, int *numberi);
+%newobject  NhlGetDouble(int oid, char *name);
+%newobject  NhlGetDoubleArray(int oid, char *name, int *numberd);
+%newobject  NhlAddOverlay(int,int,int);
+%newobject  NhlClearWorkstation(int);
+%newobject  NhlRemoveAnnotation(int, int);
+%newobject  NhlAddAnnotation(int,int);
+%newobject  NhlAppGetDefaultParentId();
+%newobject  NhlClassName(int);
+%newobject  NhlGetString(int, NhlString);
+%newobject  NhlAddData(int, NhlString, int);
+%newobject  NhlRemoveData(int, NhlString, int);
+%newobject  NhlRemoveOverlay(int, int, NhlBoolean);
+%newobject  NhlGetStringArray(int oid, char *name, int *numbers);
+%newobject  NhlGetNamedColorIndex(int, const char *);
+%newobject  NhlGetBB(int, NhlBoundingBox *);
+%newobject  NhlChangeWorkstation(int, int);
+%newobject  NhlPGetBB(int, float *OUTPUT, float *OUTPUT, float *OUTPUT,
+                                float *OUTPUT);
+%newobject  NhlPNDCToData(int, float *sequence_as_float, 
+                               float *sequence_as_float, int, float,
+                               float, int, int);
+%newobject NhlPDataToNDC(int, float *sequence_as_float, 
+                               float *sequence_as_float, int, float,
+                               float, int, int);
+%newobject NhlGetMDFloatArray(int, char *);
+%newobject NhlGetMDDoubleArray(int, char *);
+%newobject NhlGetMDIntegerArray(int, char *);
+%newobject  NhlPAppClass ();
+%newobject  NhlPNcgmWorkstationClass ();
+%newobject  NhlPXWorkstationClass ();
+%newobject  NhlPPSWorkstationClass ();
+%newobject  NhlPPDFWorkstationClass ();
+%newobject  NhlPLogLinPlotClass();
+%newobject  NhlPGraphicStyleClass();
+%newobject  NhlPScalarFieldClass ();
+%newobject  NhlPContourPlotClass();
+%newobject  NhlPtextItemClass();
+%newobject  NhlPscalarFieldClass();
+%newobject  NhlPmapPlotClass();
+%newobject  NhlPcoordArraysClass();
+%newobject  NhlPxyPlotClass();
+%newobject  NhlPtickMarkClass();
+%newobject  NhlPtitleClass();
+%newobject  NhlPlabelBarClass();
+%newobject  NhlPvectorFieldClass();
+%newobject  NhlPvectorPlotClass();
+%newobject  NhlPstreamlinePlotClass();
+
+%newobject NGGetNCARGEnv(const char *);
+
+%newobject  open_wks_wrap(const char *, const char *, ResInfo *rlist);
+%newobject  contour_wrap(int, void *sequence_as_void, 
+                            const char *, int, int,
+                            int, void *, const char *, int, void *, 
+                            const char *,
+                            int, void *, ResInfo *rlist, ResInfo *rlist, 
+                            nglRes *rlist);
+%newobject  map_wrap(int, ResInfo *rlist, nglRes *rlist);
+%newobject  contour_map_wrap(int, void *sequence_as_void, 
+                            const char *, int, int,
+                            int, void *, const char *, int, void *, 
+                            const char *, int,
+                            void *, ResInfo *rlist, ResInfo *rlist, ResInfo *rlist,
+                            nglRes *rlist);
+%newobject  xy_wrap(int, void *sequence_as_void, void *sequence_as_void, 
+                const char *, const char *, int, int *sequence_as_int,
+                int, int *sequence_as_int, int, int, void *, void *,
+                ResInfo *rlist, ResInfo *rlist, ResInfo *rlist, nglRes *rlist);
+%newobject  y_wrap(int, void *sequence_as_void, 
+                const char *, int, int *sequence_as_int, int, void *,
+                ResInfo *rlist, ResInfo *rlist, ResInfo *rlist, nglRes *rlist);
+%newobject  vector_wrap(int, void *sequence_as_void, 
+                           void *sequence_as_void, const char *,
+                           const char *, int, int, int, void *, 
+                           const char *, int, void *, const char *, int, int,
+                           void *, void *, ResInfo *rlist, ResInfo *rlist,
+                           nglRes *rlist);
+%newobject  vector_map_wrap(int, void *sequence_as_void, 
+                           void *sequence_as_void, const char *, 
+                           const char *, int, int, int, void *, 
+                           const char *, int, void *, const char *, int, int, 
+                           void *, void *, ResInfo *rlist, ResInfo *rlist, 
+                           ResInfo *rlist, nglRes *rlist);
+%newobject  vector_scalar_wrap(int, void *sequence_as_void, 
+                           void *sequence_as_void,
+                           void *sequence_as_void, const char *, 
+                           const char *, const char *, int, int, int, void *, 
+                           const char *, int, void *, const char *, int, int, 
+                           int, void *, void *, void *, 
+                           ResInfo *rlist, ResInfo *rlist, 
+                           ResInfo *rlist, nglRes *rlist);
+%newobject  vector_scalar_map_wrap(int, void *sequence_as_void, 
+                           void *sequence_as_void, 
+                           void *sequence_as_void, const char *, 
+                           const char *, const char *, int, int, int, void *,
+                           const char *, int, void *, const char *, int, int,
+                           int, void *, void *, void *,
+                           ResInfo *rlist, ResInfo *rlist, 
+                           ResInfo *rlist, ResInfo *rlist, nglRes *rlist);
+%newobject  streamline_wrap(int, void *sequence_as_void, 
+                           void *sequence_as_void, const char *,
+                           const char *, int, int, int, void *,
+                           const char *, int, void *, const char *, 
+                           int, int,
+                           void *, void *, ResInfo *rlist, ResInfo *rlist, 
+                           nglRes *rlist);
+%newobject  streamline_map_wrap(int, void *sequence_as_void, 
+                            void *sequence_as_void, const char *,
+                            const char *, int, int, int, void *,
+                            const char *, int, void *, const char *, 
+                            int, int,
+                            void *, void *, ResInfo *rlist, ResInfo *rlist, 
+                            ResInfo *rlist, nglRes *rlist);
+%newobject  text_ndc_wrap(int, NhlString, void *sequence_as_void,
+                             void *sequence_as_void, const char *,
+                             const char *, ResInfo *rlist, nglRes *rlist);
+%newobject  text_wrap(int, nglPlotId *plot, NhlString, void *sequence_as_void,
+                             void *sequence_as_void, const char *,
+                             const char *, ResInfo *rlist, nglRes *rlist);
+%newobject  add_text_wrap(int, nglPlotId *plot, NhlString, void *sequence_as_void,
+                             void *sequence_as_void, const char *,
+                             const char *, ResInfo *rlist, ResInfo *rlist,
+                             nglRes *rlist);
+%newobject  add_poly_wrap(int, nglPlotId *plot, void *sequence_as_void,                       void *sequence_as_void, const char *type_x,
+                       const char *type_y, int, int, int, void *, void*,
+                       NhlPolyType, ResInfo *rlist, nglRes *rlist);
+%newobject ftcurvc(int, float *sequence_as_float, 
+                         float *sequence_as_float,
+                         int m, float *sequence_as_float);
+%newobject ftcurvpc(int, float *sequence_as_float, 
+                         float *sequence_as_float, float,
+                         int m, float *sequence_as_float);
+%newobject ftcurvpic(float, float, float, int, 
+                           float *sequence_as_float, 
+                           float *sequence_as_float);
+%newobject  get_nglRes_i(int);
+%newobject  get_nglRes_f(int);
+%newobject  get_nglRes_c(int);

@@ -1048,9 +1048,9 @@ PyObject *ftcurvc(int n, float *x, float *y, int m, float *xo)
   obj1 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
                                               (char *) yo);
   resultobj = Py_None;
-  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,status);
   resultobj = t_output_helper(resultobj,obj1);
+  if (resultobj == Py_None) Py_INCREF(Py_None);
   return resultobj;
 }
 
@@ -1068,9 +1068,9 @@ PyObject *ftcurvpc(int n, float *x, float *y, float p, int m, float *xo)
   obj1 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
                                               (char *) yo);
   resultobj = Py_None;
-  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,status);
   resultobj = t_output_helper(resultobj,obj1);
+  if (resultobj == Py_None) Py_INCREF(Py_None);
   return resultobj;
 }
 
@@ -1084,10 +1084,10 @@ PyObject *ftcurvpic(float xl, float xr, float p, int m, float *xi, float *yi)
   ier = c_ftcurvpi(xl,xr,p,m,xi,yi,&yo);
   status = (PyObject *) PyInt_FromLong((long) ier);
   resultobj = Py_None;
-  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,status);
   resultobj = t_output_helper(resultobj,
                  (PyObject *) PyFloat_FromDouble((double) yo));
+  if (resultobj == Py_None) Py_INCREF(Py_None);
   return resultobj;
 }
 
@@ -1261,12 +1261,12 @@ PyObject *NhlPNDCToData(int pid, float *x, float *y, int n, float xmissing,
   range = (PyObject *) PyFloat_FromDouble((double) out_of_range); 
 
   resultobj = Py_None;
-  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,nhlerr);
   resultobj = t_output_helper(resultobj,obj1);
   resultobj = t_output_helper(resultobj,obj2);
   resultobj = t_output_helper(resultobj,rstatus);
   resultobj = t_output_helper(resultobj,range);
+  if (resultobj == Py_None) Py_INCREF(Py_None);
   return resultobj;
 }
 
@@ -1317,12 +1317,12 @@ PyObject *NhlPDataToNDC(int pid, float *x, float *y, int n, float xmissing,
   range = (PyObject *) PyFloat_FromDouble((double) out_of_range); 
 
   resultobj = Py_None;
-  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,nhlerr);
   resultobj = t_output_helper(resultobj,obj1);
   resultobj = t_output_helper(resultobj,obj2);
   resultobj = t_output_helper(resultobj,rstatus);
   resultobj = t_output_helper(resultobj,range);
+  if (resultobj == Py_None) Py_INCREF(Py_None);
   return resultobj;
 }
 
@@ -1342,9 +1342,9 @@ PyObject *NhlGetMDFloatArray(int pid, char *name) {
   nhlerr = (PyObject *) PyInt_FromLong((long) rval); 
 
   resultobj = Py_None;
-  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,nhlerr);
   resultobj = t_output_helper(resultobj,obj1);
+  if (resultobj == Py_None) Py_INCREF(Py_None);
   return resultobj;
 }
 
@@ -1364,9 +1364,9 @@ PyObject *NhlGetMDDoubleArray(int pid, char *name) {
   nhlerr = (PyObject *) PyInt_FromLong((long) rval); 
 
   resultobj = Py_None;
-  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,nhlerr);
   resultobj = t_output_helper(resultobj,obj1);
+  if (resultobj == Py_None) Py_INCREF(Py_None);
   return resultobj;
 }
 
@@ -1386,9 +1386,9 @@ PyObject *NhlGetMDIntegerArray(int pid, char *name) {
   nhlerr = (PyObject *) PyInt_FromLong((long) rval); 
 
   resultobj = Py_None;
-  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,nhlerr);
   resultobj = t_output_helper(resultobj,obj1);
+  if (resultobj == Py_None) Py_INCREF(Py_None);
   return resultobj;
 }
 
@@ -5597,6 +5597,7 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
         return_list = PyList_New(12);
         
         if (pid.nbase == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,0,Py_None);
         }
         else {
@@ -5608,6 +5609,7 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncontour == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,1,Py_None);
         }
         else {
@@ -5641,6 +5643,7 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nmap == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,4,Py_None);
         }
         else {
@@ -5652,6 +5655,7 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nxy == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,5,Py_None);
         }
         else {
@@ -5685,6 +5689,7 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nprimitive == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,8,Py_None);
         }
         else {
@@ -5696,6 +5701,7 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncafield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,9,Py_None);
         }
         else {
@@ -5707,6 +5713,7 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nsffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,10,Py_None);
         }
         else {
@@ -5718,6 +5725,7 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nvffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,11,Py_None);
         }
         else {
@@ -5728,6 +5736,7 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
             PyList_SetItem(return_list,11,l_vffield);
         }
         
+        Py_INCREF(return_list); 
         resultobj = return_list;
     }
     return resultobj;
@@ -6031,6 +6040,7 @@ static PyObject *_wrap_map_wrap(PyObject *self, PyObject *args) {
         return_list = PyList_New(12);
         
         if (pid.nbase == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,0,Py_None);
         }
         else {
@@ -6042,6 +6052,7 @@ static PyObject *_wrap_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncontour == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,1,Py_None);
         }
         else {
@@ -6075,6 +6086,7 @@ static PyObject *_wrap_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nmap == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,4,Py_None);
         }
         else {
@@ -6086,6 +6098,7 @@ static PyObject *_wrap_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nxy == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,5,Py_None);
         }
         else {
@@ -6119,6 +6132,7 @@ static PyObject *_wrap_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nprimitive == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,8,Py_None);
         }
         else {
@@ -6130,6 +6144,7 @@ static PyObject *_wrap_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncafield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,9,Py_None);
         }
         else {
@@ -6141,6 +6156,7 @@ static PyObject *_wrap_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nsffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,10,Py_None);
         }
         else {
@@ -6152,6 +6168,7 @@ static PyObject *_wrap_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nvffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,11,Py_None);
         }
         else {
@@ -6162,6 +6179,7 @@ static PyObject *_wrap_map_wrap(PyObject *self, PyObject *args) {
             PyList_SetItem(return_list,11,l_vffield);
         }
         
+        Py_INCREF(return_list); 
         resultobj = return_list;
     }
     return resultobj;
@@ -7028,6 +7046,7 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
         return_list = PyList_New(12);
         
         if (pid.nbase == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,0,Py_None);
         }
         else {
@@ -7039,6 +7058,7 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncontour == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,1,Py_None);
         }
         else {
@@ -7072,6 +7092,7 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nmap == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,4,Py_None);
         }
         else {
@@ -7083,6 +7104,7 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nxy == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,5,Py_None);
         }
         else {
@@ -7116,6 +7138,7 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nprimitive == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,8,Py_None);
         }
         else {
@@ -7127,6 +7150,7 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncafield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,9,Py_None);
         }
         else {
@@ -7138,6 +7162,7 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nsffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,10,Py_None);
         }
         else {
@@ -7149,6 +7174,7 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nvffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,11,Py_None);
         }
         else {
@@ -7159,6 +7185,7 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
             PyList_SetItem(return_list,11,l_vffield);
         }
         
+        Py_INCREF(return_list); 
         resultobj = return_list;
     }
     return resultobj;
@@ -8044,6 +8071,7 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
         return_list = PyList_New(12);
         
         if (pid.nbase == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,0,Py_None);
         }
         else {
@@ -8055,6 +8083,7 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncontour == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,1,Py_None);
         }
         else {
@@ -8088,6 +8117,7 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nmap == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,4,Py_None);
         }
         else {
@@ -8099,6 +8129,7 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nxy == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,5,Py_None);
         }
         else {
@@ -8132,6 +8163,7 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nprimitive == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,8,Py_None);
         }
         else {
@@ -8143,6 +8175,7 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncafield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,9,Py_None);
         }
         else {
@@ -8154,6 +8187,7 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nsffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,10,Py_None);
         }
         else {
@@ -8165,6 +8199,7 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nvffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,11,Py_None);
         }
         else {
@@ -8175,6 +8210,7 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
             PyList_SetItem(return_list,11,l_vffield);
         }
         
+        Py_INCREF(return_list); 
         resultobj = return_list;
     }
     return resultobj;
@@ -9038,6 +9074,7 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
         return_list = PyList_New(12);
         
         if (pid.nbase == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,0,Py_None);
         }
         else {
@@ -9049,6 +9086,7 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncontour == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,1,Py_None);
         }
         else {
@@ -9082,6 +9120,7 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nmap == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,4,Py_None);
         }
         else {
@@ -9093,6 +9132,7 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nxy == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,5,Py_None);
         }
         else {
@@ -9126,6 +9166,7 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nprimitive == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,8,Py_None);
         }
         else {
@@ -9137,6 +9178,7 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncafield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,9,Py_None);
         }
         else {
@@ -9148,6 +9190,7 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nsffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,10,Py_None);
         }
         else {
@@ -9159,6 +9202,7 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nvffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,11,Py_None);
         }
         else {
@@ -9169,6 +9213,7 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
             PyList_SetItem(return_list,11,l_vffield);
         }
         
+        Py_INCREF(return_list); 
         resultobj = return_list;
     }
     return resultobj;
@@ -9779,6 +9824,7 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
         return_list = PyList_New(12);
         
         if (pid.nbase == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,0,Py_None);
         }
         else {
@@ -9790,6 +9836,7 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncontour == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,1,Py_None);
         }
         else {
@@ -9823,6 +9870,7 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nmap == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,4,Py_None);
         }
         else {
@@ -9834,6 +9882,7 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nxy == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,5,Py_None);
         }
         else {
@@ -9867,6 +9916,7 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nprimitive == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,8,Py_None);
         }
         else {
@@ -9878,6 +9928,7 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncafield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,9,Py_None);
         }
         else {
@@ -9889,6 +9940,7 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nsffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,10,Py_None);
         }
         else {
@@ -9900,6 +9952,7 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nvffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,11,Py_None);
         }
         else {
@@ -9910,6 +9963,7 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
             PyList_SetItem(return_list,11,l_vffield);
         }
         
+        Py_INCREF(return_list); 
         resultobj = return_list;
     }
     return resultobj;
@@ -10789,6 +10843,7 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
         return_list = PyList_New(12);
         
         if (pid.nbase == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,0,Py_None);
         }
         else {
@@ -10800,6 +10855,7 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncontour == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,1,Py_None);
         }
         else {
@@ -10833,6 +10889,7 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nmap == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,4,Py_None);
         }
         else {
@@ -10844,6 +10901,7 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nxy == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,5,Py_None);
         }
         else {
@@ -10877,6 +10935,7 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nprimitive == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,8,Py_None);
         }
         else {
@@ -10888,6 +10947,7 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncafield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,9,Py_None);
         }
         else {
@@ -10899,6 +10959,7 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nsffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,10,Py_None);
         }
         else {
@@ -10910,6 +10971,7 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nvffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,11,Py_None);
         }
         else {
@@ -10920,6 +10982,7 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
             PyList_SetItem(return_list,11,l_vffield);
         }
         
+        Py_INCREF(return_list); 
         resultobj = return_list;
     }
     return resultobj;
@@ -11812,6 +11875,7 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
         return_list = PyList_New(12);
         
         if (pid.nbase == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,0,Py_None);
         }
         else {
@@ -11823,6 +11887,7 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncontour == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,1,Py_None);
         }
         else {
@@ -11856,6 +11921,7 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nmap == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,4,Py_None);
         }
         else {
@@ -11867,6 +11933,7 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nxy == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,5,Py_None);
         }
         else {
@@ -11900,6 +11967,7 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nprimitive == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,8,Py_None);
         }
         else {
@@ -11911,6 +11979,7 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncafield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,9,Py_None);
         }
         else {
@@ -11922,6 +11991,7 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nsffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,10,Py_None);
         }
         else {
@@ -11933,6 +12003,7 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nvffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,11,Py_None);
         }
         else {
@@ -11943,6 +12014,7 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
             PyList_SetItem(return_list,11,l_vffield);
         }
         
+        Py_INCREF(return_list); 
         resultobj = return_list;
     }
     return resultobj;
@@ -13104,6 +13176,7 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
         return_list = PyList_New(12);
         
         if (pid.nbase == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,0,Py_None);
         }
         else {
@@ -13115,6 +13188,7 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncontour == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,1,Py_None);
         }
         else {
@@ -13148,6 +13222,7 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nmap == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,4,Py_None);
         }
         else {
@@ -13159,6 +13234,7 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nxy == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,5,Py_None);
         }
         else {
@@ -13192,6 +13268,7 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nprimitive == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,8,Py_None);
         }
         else {
@@ -13203,6 +13280,7 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncafield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,9,Py_None);
         }
         else {
@@ -13214,6 +13292,7 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nsffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,10,Py_None);
         }
         else {
@@ -13225,6 +13304,7 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nvffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,11,Py_None);
         }
         else {
@@ -13235,6 +13315,7 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
             PyList_SetItem(return_list,11,l_vffield);
         }
         
+        Py_INCREF(return_list); 
         resultobj = return_list;
     }
     return resultobj;
@@ -13845,6 +13926,7 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
         return_list = PyList_New(12);
         
         if (pid.nbase == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,0,Py_None);
         }
         else {
@@ -13856,6 +13938,7 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncontour == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,1,Py_None);
         }
         else {
@@ -13889,6 +13972,7 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nmap == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,4,Py_None);
         }
         else {
@@ -13900,6 +13984,7 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nxy == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,5,Py_None);
         }
         else {
@@ -13933,6 +14018,7 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nprimitive == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,8,Py_None);
         }
         else {
@@ -13944,6 +14030,7 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncafield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,9,Py_None);
         }
         else {
@@ -13955,6 +14042,7 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nsffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,10,Py_None);
         }
         else {
@@ -13966,6 +14054,7 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nvffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,11,Py_None);
         }
         else {
@@ -13976,6 +14065,7 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
             PyList_SetItem(return_list,11,l_vffield);
         }
         
+        Py_INCREF(return_list); 
         resultobj = return_list;
     }
     return resultobj;
@@ -14855,6 +14945,7 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
         return_list = PyList_New(12);
         
         if (pid.nbase == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,0,Py_None);
         }
         else {
@@ -14866,6 +14957,7 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncontour == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,1,Py_None);
         }
         else {
@@ -14899,6 +14991,7 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nmap == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,4,Py_None);
         }
         else {
@@ -14910,6 +15003,7 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nxy == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,5,Py_None);
         }
         else {
@@ -14943,6 +15037,7 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nprimitive == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,8,Py_None);
         }
         else {
@@ -14954,6 +15049,7 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncafield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,9,Py_None);
         }
         else {
@@ -14965,6 +15061,7 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nsffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,10,Py_None);
         }
         else {
@@ -14976,6 +15073,7 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nvffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,11,Py_None);
         }
         else {
@@ -14986,6 +15084,7 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
             PyList_SetItem(return_list,11,l_vffield);
         }
         
+        Py_INCREF(return_list); 
         resultobj = return_list;
     }
     return resultobj;
@@ -15308,6 +15407,7 @@ static PyObject *_wrap_text_ndc_wrap(PyObject *self, PyObject *args) {
         return_list = PyList_New(12);
         
         if (pid.nbase == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,0,Py_None);
         }
         else {
@@ -15319,6 +15419,7 @@ static PyObject *_wrap_text_ndc_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncontour == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,1,Py_None);
         }
         else {
@@ -15352,6 +15453,7 @@ static PyObject *_wrap_text_ndc_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nmap == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,4,Py_None);
         }
         else {
@@ -15363,6 +15465,7 @@ static PyObject *_wrap_text_ndc_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nxy == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,5,Py_None);
         }
         else {
@@ -15396,6 +15499,7 @@ static PyObject *_wrap_text_ndc_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nprimitive == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,8,Py_None);
         }
         else {
@@ -15407,6 +15511,7 @@ static PyObject *_wrap_text_ndc_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncafield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,9,Py_None);
         }
         else {
@@ -15418,6 +15523,7 @@ static PyObject *_wrap_text_ndc_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nsffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,10,Py_None);
         }
         else {
@@ -15429,6 +15535,7 @@ static PyObject *_wrap_text_ndc_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nvffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,11,Py_None);
         }
         else {
@@ -15439,6 +15546,7 @@ static PyObject *_wrap_text_ndc_wrap(PyObject *self, PyObject *args) {
             PyList_SetItem(return_list,11,l_vffield);
         }
         
+        Py_INCREF(return_list); 
         resultobj = return_list;
     }
     return resultobj;
@@ -16008,6 +16116,7 @@ static PyObject *_wrap_text_wrap(PyObject *self, PyObject *args) {
         return_list = PyList_New(12);
         
         if (pid.nbase == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,0,Py_None);
         }
         else {
@@ -16019,6 +16128,7 @@ static PyObject *_wrap_text_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncontour == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,1,Py_None);
         }
         else {
@@ -16052,6 +16162,7 @@ static PyObject *_wrap_text_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nmap == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,4,Py_None);
         }
         else {
@@ -16063,6 +16174,7 @@ static PyObject *_wrap_text_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nxy == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,5,Py_None);
         }
         else {
@@ -16096,6 +16208,7 @@ static PyObject *_wrap_text_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nprimitive == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,8,Py_None);
         }
         else {
@@ -16107,6 +16220,7 @@ static PyObject *_wrap_text_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncafield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,9,Py_None);
         }
         else {
@@ -16118,6 +16232,7 @@ static PyObject *_wrap_text_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nsffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,10,Py_None);
         }
         else {
@@ -16129,6 +16244,7 @@ static PyObject *_wrap_text_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nvffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,11,Py_None);
         }
         else {
@@ -16139,6 +16255,7 @@ static PyObject *_wrap_text_wrap(PyObject *self, PyObject *args) {
             PyList_SetItem(return_list,11,l_vffield);
         }
         
+        Py_INCREF(return_list); 
         resultobj = return_list;
     }
     return resultobj;
@@ -16977,6 +17094,7 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
         return_list = PyList_New(12);
         
         if (pid.nbase == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,0,Py_None);
         }
         else {
@@ -16988,6 +17106,7 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncontour == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,1,Py_None);
         }
         else {
@@ -17021,6 +17140,7 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nmap == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,4,Py_None);
         }
         else {
@@ -17032,6 +17152,7 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nxy == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,5,Py_None);
         }
         else {
@@ -17065,6 +17186,7 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nprimitive == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,8,Py_None);
         }
         else {
@@ -17076,6 +17198,7 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncafield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,9,Py_None);
         }
         else {
@@ -17087,6 +17210,7 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nsffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,10,Py_None);
         }
         else {
@@ -17098,6 +17222,7 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nvffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,11,Py_None);
         }
         else {
@@ -17108,6 +17233,7 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
             PyList_SetItem(return_list,11,l_vffield);
         }
         
+        Py_INCREF(return_list); 
         resultobj = return_list;
     }
     return resultobj;
@@ -18249,6 +18375,7 @@ static PyObject *_wrap_add_poly_wrap(PyObject *self, PyObject *args) {
         return_list = PyList_New(12);
         
         if (pid.nbase == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,0,Py_None);
         }
         else {
@@ -18260,6 +18387,7 @@ static PyObject *_wrap_add_poly_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncontour == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,1,Py_None);
         }
         else {
@@ -18293,6 +18421,7 @@ static PyObject *_wrap_add_poly_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nmap == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,4,Py_None);
         }
         else {
@@ -18304,6 +18433,7 @@ static PyObject *_wrap_add_poly_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nxy == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,5,Py_None);
         }
         else {
@@ -18337,6 +18467,7 @@ static PyObject *_wrap_add_poly_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nprimitive == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,8,Py_None);
         }
         else {
@@ -18348,6 +18479,7 @@ static PyObject *_wrap_add_poly_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.ncafield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,9,Py_None);
         }
         else {
@@ -18359,6 +18491,7 @@ static PyObject *_wrap_add_poly_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nsffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,10,Py_None);
         }
         else {
@@ -18370,6 +18503,7 @@ static PyObject *_wrap_add_poly_wrap(PyObject *self, PyObject *args) {
         }
         
         if (pid.nvffield == 0) {
+            Py_INCREF(Py_None); 
             PyList_SetItem(return_list,11,Py_None);
         }
         else {
@@ -18380,6 +18514,7 @@ static PyObject *_wrap_add_poly_wrap(PyObject *self, PyObject *args) {
             PyList_SetItem(return_list,11,l_vffield);
         }
         
+        Py_INCREF(return_list); 
         resultobj = return_list;
     }
     return resultobj;
@@ -18418,6 +18553,7 @@ static PyObject *_wrap_panel_wrap(PyObject *self, PyObject *args) {
         
         if (!PyList_Check(obj1)) {
             printf("PlotIds must be a Python list\n");
+            Py_INCREF(Py_None);
             return Py_None;
         }
         
