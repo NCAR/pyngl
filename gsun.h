@@ -14,6 +14,7 @@
 #include <ncarg/hlu/ScalarField.h>
 #include <ncarg/hlu/CoordArrays.h>
 #include <ncarg/hlu/VectorField.h>
+#include <ncarg/hlu/TextItem.h>
 #include <netcdf.h>
 
 #define max(x,y)   ((x) > (y) ? (x) : (y))

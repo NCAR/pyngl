@@ -394,27 +394,27 @@ int coord_array(void *x, void *y, const char *type_x, const char *type_y,
  */
 
   if(x != NULL) {
-	if(!strcmp(type_x,"double")) {
-	  NhlRLSetMDDoubleArray(ca_rlist,"caXArray",(double*)x,ndims_x,dsizes_x);
+    if(!strcmp(type_x,"double")) {
+      NhlRLSetMDDoubleArray(ca_rlist,"caXArray",(double*)x,ndims_x,dsizes_x);
  
-	  if(is_missing_x) {
-		NhlRLSetDouble(ca_rlist,"caXMissingV",((double*)FillValue_x)[0]);
-	  }
-	}
-	else if(!strcmp(type_x,"float")) {
-	  NhlRLSetMDFloatArray(ca_rlist,"caXArray",(float*)x,ndims_x,dsizes_x);
-	  
-	  if(is_missing_x) {
-		NhlRLSetFloat(ca_rlist,"caXMissingV",((float*)FillValue_x)[0]);
-	  }
-	}
-	else if(!strcmp(type_x,"integer")) {
-	  NhlRLSetMDIntegerArray(ca_rlist,"caXArray",(int*)x,ndims_x,dsizes_x);
-	  
-	  if(is_missing_x) {
-		NhlRLSetInteger(ca_rlist,"caXMissingV",((int*)FillValue_x)[0]);
-	  }
-	}
+      if(is_missing_x) {
+        NhlRLSetDouble(ca_rlist,"caXMissingV",((double*)FillValue_x)[0]);
+      }
+    }
+    else if(!strcmp(type_x,"float")) {
+      NhlRLSetMDFloatArray(ca_rlist,"caXArray",(float*)x,ndims_x,dsizes_x);
+      
+      if(is_missing_x) {
+        NhlRLSetFloat(ca_rlist,"caXMissingV",((float*)FillValue_x)[0]);
+      }
+    }
+    else if(!strcmp(type_x,"integer")) {
+      NhlRLSetMDIntegerArray(ca_rlist,"caXArray",(int*)x,ndims_x,dsizes_x);
+      
+      if(is_missing_x) {
+        NhlRLSetInteger(ca_rlist,"caXMissingV",((int*)FillValue_x)[0]);
+      }
+    }
   }
 
   if(!strcmp(type_y,"double")) {
@@ -565,7 +565,6 @@ int gsn_open_wks(const char *type, const char *name, int wk_rlist)
  * Initialize HLU library.
  */
   NhlInitialize();
-
 /*
  * Initialize variable for holding resources.
  */
@@ -788,9 +787,9 @@ int gsn_xy_wrap(int wks, void *x, void *y, const char *type_x,
  */
 
 int gsn_y_wrap(int wks, void *y, const char *type_y, int ndims_y, 
-			   int *dsizes_y, int is_missing_y, void *FillValue_y,
+               int *dsizes_y, int is_missing_y, void *FillValue_y,
                int ca_rlist, int xy_rlist, int xyd_rlist,
-			   gsnRes *special_res)
+               gsnRes *special_res)
 {
   int xy;
 
@@ -799,7 +798,7 @@ int gsn_y_wrap(int wks, void *y, const char *type_y, int ndims_y,
  */
   xy = gsn_xy_wrap(wks, NULL, y, NULL, type_y, 0, NULL,
                    ndims_y, &dsizes_y[0], 0, is_missing_y, NULL, 
-				   FillValue_y, ca_rlist, xy_rlist, xyd_rlist, special_res);
+                   FillValue_y, ca_rlist, xy_rlist, xyd_rlist, special_res);
 
 /*
  * Return.
@@ -1045,14 +1044,14 @@ int gsn_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
  */
 
 int gsn_streamline_map_wrap(int wks, void *u, void *v, const char *type_u,
-							const char *type_v, int ylen, int xlen, 
-							int is_ycoord, void *ycoord, 
-							const char *type_ycoord, int is_xcoord, 
-							void *xcoord, const char *type_xcoord,
-							int is_missing_u, int is_missing_v, 
-							void *FillValue_u, void *FillValue_v,
-							int vf_rlist, int vc_rlist, int mp_rlist,
-							gsnRes *special_res)
+                            const char *type_v, int ylen, int xlen, 
+                            int is_ycoord, void *ycoord, 
+                            const char *type_ycoord, int is_xcoord, 
+                            void *xcoord, const char *type_xcoord,
+                            int is_missing_u, int is_missing_v, 
+                            void *FillValue_u, void *FillValue_v,
+                            int vf_rlist, int vc_rlist, int mp_rlist,
+                            gsnRes *special_res)
 {
   int streamline, map;
   gsnRes special_res2;
@@ -1064,11 +1063,11 @@ int gsn_streamline_map_wrap(int wks, void *u, void *v, const char *type_u,
   special_res2.gsnDraw  = 0;
   special_res2.gsnFrame = 0;
   streamline = gsn_streamline_wrap(wks, u, v, type_u, type_v, ylen, xlen, 
-								   is_ycoord, ycoord, type_ycoord, 
-								   is_xcoord, xcoord, type_xcoord, 
-								   is_missing_u, is_missing_v, FillValue_u, 
-								   FillValue_v, vf_rlist, vc_rlist,
-								   &special_res2);
+                                   is_ycoord, ycoord, type_ycoord, 
+                                   is_xcoord, xcoord, type_xcoord, 
+                                   is_missing_u, is_missing_v, FillValue_u, 
+                                   FillValue_v, vf_rlist, vc_rlist,
+                                   &special_res2);
 
 /*
  * Create map plot.
@@ -1210,10 +1209,14 @@ int gsn_vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
 }
 
 int gsn_text_ndc_wrap(int wks, char* string, float x, float y, 
-					  int tx_rlist, gsnRes *special_res)
+                      int tx_rlist, gsnRes *special_res)
 {
   int text;
   gsnRes special_res2;
+
+  if(special_res->gsnDebug) {
+    printf("gsn_text_ndc: string = %s x = %g y = %g\n", string, x, y);
+  }
 
   NhlRLSetString(tx_rlist, "txString", string);
   NhlRLSetFloat (tx_rlist, "txPosXF" , x);
@@ -1225,6 +1228,7 @@ int gsn_text_ndc_wrap(int wks, char* string, float x, float y,
 
   special_res2.gsnMaximize = 0;
   special_res2.gsnFrame    = 0;
+  special_res2.gsnDraw     = 1;
 
   draw_and_frame(wks, text, &special_res2);
 
@@ -1237,7 +1241,7 @@ int gsn_text_ndc_wrap(int wks, char* string, float x, float y,
 
 
 int gsn_text_wrap(int wks, int plot, char* string, float x, float y, 
-				  int tx_rlist, gsnRes *special_res)
+                  int tx_rlist, gsnRes *special_res)
 {
   float xndc, yndc, oor = 0.;
   int text, status;
@@ -1249,7 +1253,8 @@ int gsn_text_wrap(int wks, int plot, char* string, float x, float y,
   (void)NhlDataToNDC(plot,&x,&y,1,&xndc,&yndc,NULL,NULL,&status,&oor);
 
   if(special_res->gsnDebug) {
-	printf("x = %g y = %g xndc = %g yndc = %g\n", x, y, xndc, yndc);
+    printf("gsn_text: string = %s x = %g y = %g xndc = %g yndc = %g\n", 
+           string, x, y, xndc, yndc);
   }
 
   text = gsn_text_ndc_wrap(wks, string, xndc, yndc, tx_rlist, special_res);

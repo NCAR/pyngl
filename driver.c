@@ -24,12 +24,13 @@ main()
   int srlist, cmap_len[2];
   float cmap[NCOLORS][3];
   gsnRes special_res;
+
 /*
  * Declare variables for determining which plots to draw.
  */
-  int do_contour, do_xy, do_y, do_vector, do_streamline, do_map;
-  int do_contour_map, do_vector_map, do_streamline_map, do_vector_scalar;
-  int do_vector_scalar_map;
+  int do_contour, do_xy_single, do_xy_multi, do_y, do_vector;
+  int do_streamline, do_map, do_contour_map, do_vector_map;
+  int do_streamline_map, do_vector_scalar, do_vector_scalar_map;
 
 /*
  * Declare variables for getting information from netCDF file.
@@ -418,12 +419,12 @@ main()
 /*
  * Convert from K to F.
  */
-	for(i = 0; i < nlat_UV*nlon_UV; i++) {
+    for(i = 0; i < nlat_UV*nlon_UV; i++) {
       if(!is_missing_T2 ||
-		 (is_missing_T2 && ((double*)T2)[i] != ((double*)FillValue_T2)[0])) {
-		((double*)T2)[i] = (((double*)T2)[i]-273.15)*(9./5.) + 32.;
-	  }
-	}
+         (is_missing_T2 && ((double*)T2)[i] != ((double*)FillValue_T2)[0])) {
+        ((double*)T2)[i] = (((double*)T2)[i]-273.15)*(9./5.) + 32.;
+      }
+    }
 
     break;
 
@@ -446,12 +447,12 @@ main()
 /*
  * Convert from K to F.
  */
-	for(i = 0; i < nlat_UV*nlon_UV; i++) {
+    for(i = 0; i < nlat_UV*nlon_UV; i++) {
       if(!is_missing_T2 ||
-		 (is_missing_T2 && ((float*)T2)[i] != ((float*)FillValue_T2)[0])) {
-		((float*)T2)[i] = (((float*)T2)[i]-273.15)*(9./5.) + 32.;
-	  }
-	}
+         (is_missing_T2 && ((float*)T2)[i] != ((float*)FillValue_T2)[0])) {
+        ((float*)T2)[i] = (((float*)T2)[i]-273.15)*(9./5.) + 32.;
+      }
+    }
     break;
 
   case NC_INT:
@@ -560,17 +561,18 @@ main()
 /*
  * Initialize which plots to draw.
  */
-  do_contour           = 1;
-  do_xy                = 1;
-  do_y                 = 1;
-  do_vector            = 1;
-  do_streamline        = 1;
-  do_map               = 1;
-  do_contour_map       = 1;
-  do_vector_map        = 1;
+  do_contour           = 0;
+  do_xy_single         = 1;
+  do_xy_multi          = 1;
+  do_y                 = 0;
+  do_vector            = 0;
+  do_streamline        = 0;
+  do_map               = 0;
+  do_contour_map       = 0;
+  do_vector_map        = 0;
   do_streamline_map    = 1;
-  do_vector_scalar     = 1;
-  do_vector_scalar_map = 1;
+  do_vector_scalar     = 0;
+  do_vector_scalar_map = 0;
 
 /*
  * Initialize color map for later.
@@ -612,7 +614,7 @@ main()
  */
 
   NhlRLSetString(wk_rlist,"wkColorMap","rainbow+gray");
-  wks = gsn_open_wks("ncgm","test", wk_rlist);
+  wks = gsn_open_wks("x11","test", wk_rlist);
 
 /*
  * Initialize and clear resource lists.
@@ -657,32 +659,32 @@ main()
  * Set some contour resources.
  */
 
-	NhlRLSetString      (cn_rlist, "cnFillOn"             , "True");
-	NhlRLSetIntegerArray(cn_rlist, "cnFillColors"         , cncolors,13);
-	NhlRLSetString      (cn_rlist, "cnLineLabelsOn"       , "False");
-	NhlRLSetString      (cn_rlist, "lbPerimOn"            , "False");
-	NhlRLSetString      (cn_rlist, "pmLabelBarDisplayMode", "ALWAYS");
+    NhlRLSetString      (cn_rlist, "cnFillOn"             , "True");
+    NhlRLSetIntegerArray(cn_rlist, "cnFillColors"         , cncolors,13);
+    NhlRLSetString      (cn_rlist, "cnLineLabelsOn"       , "False");
+    NhlRLSetString      (cn_rlist, "lbPerimOn"            , "False");
+    NhlRLSetString      (cn_rlist, "pmLabelBarDisplayMode", "ALWAYS");
 
 /*
  * Set some text resources and draw a text string.
  */
-	NhlRLClear(tx_rlist);
-	NhlRLSetFloat  (tx_rlist,"txFontHeightF", 0.02);
-	NhlRLSetInteger(tx_rlist,"txFont"       , 21);
-	NhlRLSetString (tx_rlist,"txJust"       , "CenterLeft");
-	NhlRLSetString (tx_rlist,"txFuncCode"   , "~");
+    NhlRLClear(tx_rlist);
+    NhlRLSetFloat  (tx_rlist,"txFontHeightF", 0.02);
+    NhlRLSetInteger(tx_rlist,"txFont"       , 21);
+    NhlRLSetString (tx_rlist,"txJust"       , "CenterLeft");
+    NhlRLSetString (tx_rlist,"txFuncCode"   , "~");
 
-	text = gsn_text_ndc_wrap(wks,"gsn_text_ndc: bottom feeder",
-							 0.01,0.05, tx_rlist,special_res);
+    text = gsn_text_ndc_wrap(wks,"gsn_text_ndc: bottom feeder",
+                             0.01,0.05, tx_rlist,&special_res);
 
 /*
  * Create and draw contour plot, and advance frame.
  */
-	contour = gsn_contour_wrap(wks, T, type_T, nlat_T, nlon_T, 
-							   is_lat_coord_T, lat_T, type_lat_T, 
-							   is_lon_coord_T, lon_T, type_lon_T, 
-							   is_missing_T, FillValue_T, sf_rlist, cn_rlist,
-							   special_res);
+    contour = gsn_contour_wrap(wks, T, type_T, nlat_T, nlon_T, 
+                               is_lat_coord_T, lat_T, type_lat_T, 
+                               is_lon_coord_T, lon_T, type_lon_T, 
+                               is_missing_T, FillValue_T, sf_rlist, cn_rlist,
+                               &special_res);
   }
 
 /*
@@ -692,35 +694,37 @@ main()
  */
 
   if(do_y) {
-	xy = gsn_y_wrap(wks, T, type_T, 1, &nlon_T, is_missing_T, FillValue_T, 
-					ca_rlist, xy_rlist, xyd_rlist, special_res);
+    NhlRLClear(tx_rlist);
+    NhlRLSetString(tx_rlist,"txFuncCode"   , "~");
+    NhlRLSetFloat (tx_rlist,"txFontHeightF", 0.03);
+    NhlRLSetString (tx_rlist,"txJust"      , "TopLeft");
+    NhlRLSetString(tx_rlist,"txDirection"  , "Down");
+    text = gsn_text_ndc_wrap(wks,"gsn_text_ndc",0.3,0.8, tx_rlist,
+                             &special_res);
+    text = gsn_text_ndc_wrap(wks,"Down",0.35,0.8, tx_rlist,&special_res);
+
+    xy = gsn_y_wrap(wks, T, type_T, 1, &nlon_T, is_missing_T, FillValue_T, 
+                    ca_rlist, xy_rlist, xyd_rlist, &special_res);
+
   }
 
 /*
  * gsn_xy section
  */
 
-  if(do_xy) {
-	NhlRLSetFloat  (xy_rlist,  "trXMinF",          -180);
-	NhlRLSetFloat  (xy_rlist,  "trXMaxF",           180);
-	NhlRLSetString (xy_rlist,  "tiMainFont",       "helvetica-bold");
-	NhlRLSetString (xy_rlist,  "tiMainFontColor",  "red");
-	NhlRLSetString (xy_rlist,  "tiMainString",     "This is a boring red title");
-
-/*
- * Resources for a single line. 
- */
-/*
-   NhlRLSetString (xyd_rlist, "xyLineColor",      "green");
-   NhlRLSetFloat  (xyd_rlist, "xyLineThicknessF", 3.0);
- */
+  if(do_xy_multi) {
+    NhlRLSetFloat  (xy_rlist,  "trXMinF",          -180);
+    NhlRLSetFloat  (xy_rlist,  "trXMaxF",           180);
+    NhlRLSetString (xy_rlist,  "tiMainFont",       "helvetica-bold");
+    NhlRLSetString (xy_rlist,  "tiMainFontColor",  "red");
+    NhlRLSetString (xy_rlist,  "tiMainString",     "This is a boring red title");
 
 /*
  * Resources for multiple lines.
  */
-	NhlRLSetString (xyd_rlist,      "xyMonoLineColor", "False");
-	NhlRLSetIntegerArray(xyd_rlist, "xyLineColors",    cncolors,10);
-	NhlRLSetIntegerArray(xyd_rlist, "xyDashPatterns",  pttrns,10);
+    NhlRLSetString (xyd_rlist,      "xyMonoLineColor", "False");
+    NhlRLSetIntegerArray(xyd_rlist, "xyLineColors",    cncolors,10);
+    NhlRLSetIntegerArray(xyd_rlist, "xyDashPatterns",  pttrns,10);
 
 /*
  * Create and draw XY plot, and advance frame. In this case, the X data
@@ -728,40 +732,45 @@ main()
  *
  * Plot only the first 10 lines.
  */
-	dsizes_T[0] = 10;           /* Could be up to nlat_T lines. */
-	dsizes_T[1] = nlon_T;
+    dsizes_T[0] = 10;           /* Could be up to nlat_T lines. */
+    dsizes_T[1] = nlon_T;
 
 
     special_res.gsnFrame = 0;
 
-	xy = gsn_xy_wrap(wks, lon_T, T, type_lon_T, type_T, 1, &nlon_T, 
-					 2, &dsizes_T[0], 0, is_missing_T, NULL, FillValue_T, 
-					 ca_rlist, xy_rlist, xyd_rlist, special_res);
+    xy = gsn_xy_wrap(wks, lon_T, T, type_lon_T, type_T, 1, &nlon_T, 
+                     2, &dsizes_T[0], 0, is_missing_T, NULL, FillValue_T, 
+                     ca_rlist, xy_rlist, xyd_rlist, &special_res);
 
     special_res.gsnFrame = 1;
 
 /*
  * Set some text resources and draw a text string.
  */
-	NhlRLClear(tx_rlist);
-	NhlRLSetFloat (tx_rlist,"txAngleF"     , 90);
-	NhlRLSetString(tx_rlist,"txFuncCode"   , "~");
-	NhlRLSetFloat (tx_rlist,"txFontHeightF", 0.03);
+    NhlRLClear(tx_rlist);
+    NhlRLSetFloat (tx_rlist,"txAngleF"     ,   90.);
+    NhlRLSetFloat (tx_rlist,"txFontHeightF", 0.03);
+    NhlRLSetString(tx_rlist,"txFuncCode"   , "~");
 
-	text = gsn_text_wrap(wks, xy, "gsn_text:~C~sideways", -140, 267,
-						 tx_rlist,special_res);
+    text = gsn_text_wrap(wks, xy, "~F26~gsn_text:~C~sideways", -130, 268,
+                         tx_rlist,&special_res);
 
-	NhlFrame(wks);
+    NhlFrame(wks);
   }
 
 /* 
- * To plot just a single line.
+ * Plot just a single line.
  */
-/*
-  xy = gsn_xy_wrap(wks, lon_T, lat_T, type_lon_T, type_lat_T, 1, &nlon_T, 
-                   1, &nlat_T, 0, 0, NULL, NULL, 
-                   ca_rlist, xy_rlist, xyd_rlist, special_res);
- */
+  if(do_xy_single) {
+    NhlRLClear     (xy_rlist);
+    NhlRLClear     (xyd_rlist);
+    NhlRLSetString (xyd_rlist, "xyLineColor"     , "green");
+    NhlRLSetFloat  (xyd_rlist, "xyLineThicknessF", 3.0);
+
+    xy = gsn_xy_wrap(wks, lat_T, T, type_lat_T, type_T, 1, &nlat_T, 
+                     1, &nlon_T, 0, 0, NULL, NULL, 
+                     ca_rlist, xy_rlist, xyd_rlist, &special_res);
+  }
 
 /*
  * gsn_streamline section
@@ -772,13 +781,13 @@ main()
 /*
  * Create and draw streamline plot, and advance frame.
  */
-	streamline = gsn_streamline_wrap(wks, U, V, type_U, type_V, 
-									 nlat_UV, nlon_UV, 
-									 is_lat_coord_UV, lat_UV, type_lat_UV, 
-									 is_lon_coord_UV, lon_UV, type_lon_UV, 
-									 is_missing_U, is_missing_V, 
-									 FillValue_U, FillValue_V,
-									 vf_rlist, st_rlist, special_res);
+    streamline = gsn_streamline_wrap(wks, U, V, type_U, type_V, 
+                                     nlat_UV, nlon_UV, 
+                                     is_lat_coord_UV, lat_UV, type_lat_UV, 
+                                     is_lon_coord_UV, lon_UV, type_lon_UV, 
+                                     is_missing_U, is_missing_V, 
+                                     FillValue_U, FillValue_V,
+                                     vf_rlist, st_rlist, &special_res);
   }
 
 /*
@@ -790,22 +799,22 @@ main()
 /*
  * Set some vector resources.
  */
-	NhlRLSetFloat (vc_rlist, "vcRefAnnoOrthogonalPosF", -0.2);
-	NhlRLSetFloat (vc_rlist, "vpXF",      0.10);
-	NhlRLSetFloat (vc_rlist, "vpYF",      0.95);
-	NhlRLSetFloat (vc_rlist, "vpWidthF",  0.85);
-	NhlRLSetFloat (vc_rlist, "vpHeightF", 0.85);
+    NhlRLSetFloat (vc_rlist, "vcRefAnnoOrthogonalPosF", -0.2);
+    NhlRLSetFloat (vc_rlist, "vpXF",      0.10);
+    NhlRLSetFloat (vc_rlist, "vpYF",      0.95);
+    NhlRLSetFloat (vc_rlist, "vpWidthF",  0.85);
+    NhlRLSetFloat (vc_rlist, "vpHeightF", 0.85);
 
 /*
  * Create and draw vector plot, and advance frame.
  */
 
-	vector = gsn_vector_wrap(wks, U, V, type_U, type_V, nlat_UV, nlon_UV, 
-							 is_lat_coord_UV, lat_UV, type_lat_UV, 
-							 is_lon_coord_UV, lon_UV, type_lon_UV, 
-							 is_missing_U, is_missing_V, 
-							 FillValue_U, FillValue_V,
-							 vf_rlist, vc_rlist, special_res);
+    vector = gsn_vector_wrap(wks, U, V, type_U, type_V, nlat_UV, nlon_UV, 
+                             is_lat_coord_UV, lat_UV, type_lat_UV, 
+                             is_lon_coord_UV, lon_UV, type_lon_UV, 
+                             is_missing_U, is_missing_V, 
+                             FillValue_U, FillValue_V,
+                             vf_rlist, vc_rlist, &special_res);
   }
 
 /*
@@ -818,16 +827,16 @@ main()
  * Set some map resources.
  */
 
-	NhlRLSetString  (mp_rlist, "mpGridAndLimbOn",    "False");
-	NhlRLSetInteger (mp_rlist, "mpPerimOn",          1);
-	NhlRLSetString  (mp_rlist, "pmTitleDisplayMode", "Always");
-	NhlRLSetString  (mp_rlist, "tiMainString",       "CylindricalEquidistant");
+    NhlRLSetString  (mp_rlist, "mpGridAndLimbOn",    "False");
+    NhlRLSetInteger (mp_rlist, "mpPerimOn",          1);
+    NhlRLSetString  (mp_rlist, "pmTitleDisplayMode", "Always");
+    NhlRLSetString  (mp_rlist, "tiMainString",       "CylindricalEquidistant");
 
 /*
  * Create and draw map plot, and advance frame.
  */
 
-	map = gsn_map_wrap(wks, mp_rlist, special_res);
+    map = gsn_map_wrap(wks, mp_rlist, &special_res);
   }
 
 /*
@@ -839,29 +848,29 @@ main()
 /*
  * Set up some resources.
  */
-	NhlRLSetString      (cn2_rlist, "cnFillOn",              "True");
-	NhlRLSetIntegerArray(cn2_rlist, "cnFillColors",          cncolors,13);
-	NhlRLSetString      (cn2_rlist, "cnLinesOn",             "False");
-	NhlRLSetString      (cn2_rlist, "cnLineLabelsOn",        "False");
-	NhlRLSetString      (cn2_rlist, "cnInfoLabelOn",         "False");
-	NhlRLSetString      (cn2_rlist, "pmLabelBarDisplayMode", "ALWAYS");
-	NhlRLSetString      (cn2_rlist, "lbOrientation",         "Horizontal");
-	NhlRLSetString      (cn2_rlist, "lbPerimOn",             "False");
-	NhlRLSetString      (cn2_rlist, "pmLabelBarSide",        "Bottom");
+    NhlRLSetString      (cn2_rlist, "cnFillOn",              "True");
+    NhlRLSetIntegerArray(cn2_rlist, "cnFillColors",          cncolors,13);
+    NhlRLSetString      (cn2_rlist, "cnLinesOn",             "False");
+    NhlRLSetString      (cn2_rlist, "cnLineLabelsOn",        "False");
+    NhlRLSetString      (cn2_rlist, "cnInfoLabelOn",         "False");
+    NhlRLSetString      (cn2_rlist, "pmLabelBarDisplayMode", "ALWAYS");
+    NhlRLSetString      (cn2_rlist, "lbOrientation",         "Horizontal");
+    NhlRLSetString      (cn2_rlist, "lbPerimOn",             "False");
+    NhlRLSetString      (cn2_rlist, "pmLabelBarSide",        "Bottom");
 
-	NhlRLSetString      (mp2_rlist, "mpFillOn",              "True");
-	NhlRLSetIntegerArray(mp2_rlist, "mpFillColors",          mpcolors,4);
-	NhlRLSetString      (mp2_rlist, "mpFillDrawOrder",       "PostDraw");
-	NhlRLSetString      (mp2_rlist, "mpGridAndLimbOn",       "False");
-	NhlRLSetString      (mp2_rlist, "mpGeophysicalLineColor","black");
-	NhlRLSetInteger     (mp2_rlist, "mpPerimOn",             1);
+    NhlRLSetString      (mp2_rlist, "mpFillOn",              "True");
+    NhlRLSetIntegerArray(mp2_rlist, "mpFillColors",          mpcolors,4);
+    NhlRLSetString      (mp2_rlist, "mpFillDrawOrder",       "PostDraw");
+    NhlRLSetString      (mp2_rlist, "mpGridAndLimbOn",       "False");
+    NhlRLSetString      (mp2_rlist, "mpGeophysicalLineColor","black");
+    NhlRLSetInteger     (mp2_rlist, "mpPerimOn",             1);
 
-	cntrmap = gsn_contour_map_wrap(wks, T, type_T, nlat_T, nlon_T, 
-								   is_lat_coord_T, lat_T, type_lat_T, 
-								   is_lon_coord_T, lon_T, type_lon_T, 
-								   is_missing_T, FillValue_T, 
-								   sf_rlist, cn2_rlist, mp2_rlist,
-								   special_res);
+    cntrmap = gsn_contour_map_wrap(wks, T, type_T, nlat_T, nlon_T, 
+                                   is_lat_coord_T, lat_T, type_lat_T, 
+                                   is_lon_coord_T, lon_T, type_lon_T, 
+                                   is_missing_T, FillValue_T, 
+                                   sf_rlist, cn2_rlist, mp2_rlist,
+                                   &special_res);
   }
 
 /* 
@@ -884,32 +893,32 @@ main()
  * First set up some resources.
  */
 
-	NhlRLSetString (vc2_rlist,"pmLabelBarDisplayMode"  , "Always");
-	NhlRLSetString (vc2_rlist,"pmLabelBarSide"         , "Bottom");
-	NhlRLSetString (vc2_rlist,"lbOrientation"          , "Horizontal");
-	NhlRLSetString (vc2_rlist,"lbPerimOn"              , "False");
-	NhlRLSetInteger(vc2_rlist,"lbTitleFont"            , 25);
-	NhlRLSetString (vc2_rlist,"lbTitleString"          , "TEMPERATURE (:S:o:N:F)");
-	NhlRLSetFloat  (vc2_rlist,"tiMainFontHeightF"      , 0.03);
-	NhlRLSetString (vc2_rlist,"tiMainString"           , ":F25:Wind velocity vectors");
-	
-	NhlRLSetInteger(vc2_rlist,"vcFillArrowEdgeColor"    , 1);
-	NhlRLSetString (vc2_rlist,"vcFillArrowsOn"          , "True");
-	NhlRLSetFloat  (vc2_rlist,"vcMinFracLengthF"        , 0.33);
-	NhlRLSetFloat  (vc2_rlist,"vcMinMagnitudeF"         , 0.001);
-	NhlRLSetString (vc2_rlist,"vcMonoFillArrowFillColor", "False");
-	NhlRLSetString (vc2_rlist,"vcMonoLineArrowColor"    , "False");
-	NhlRLSetFloat  (vc2_rlist,"vcRefLengthF"            , 0.045);
-	NhlRLSetFloat  (vc2_rlist,"vcRefMagnitudeF"         , 20.0);
+    NhlRLSetString (vc2_rlist,"pmLabelBarDisplayMode"  , "Always");
+    NhlRLSetString (vc2_rlist,"pmLabelBarSide"         , "Bottom");
+    NhlRLSetString (vc2_rlist,"lbOrientation"          , "Horizontal");
+    NhlRLSetString (vc2_rlist,"lbPerimOn"              , "False");
+    NhlRLSetInteger(vc2_rlist,"lbTitleFont"            , 25);
+    NhlRLSetString (vc2_rlist,"lbTitleString"          , "TEMPERATURE (:S:o:N:F)");
+    NhlRLSetFloat  (vc2_rlist,"tiMainFontHeightF"      , 0.03);
+    NhlRLSetString (vc2_rlist,"tiMainString"           , ":F25:Wind velocity vectors");
+    
+    NhlRLSetInteger(vc2_rlist,"vcFillArrowEdgeColor"    , 1);
+    NhlRLSetString (vc2_rlist,"vcFillArrowsOn"          , "True");
+    NhlRLSetFloat  (vc2_rlist,"vcMinFracLengthF"        , 0.33);
+    NhlRLSetFloat  (vc2_rlist,"vcMinMagnitudeF"         , 0.001);
+    NhlRLSetString (vc2_rlist,"vcMonoFillArrowFillColor", "False");
+    NhlRLSetString (vc2_rlist,"vcMonoLineArrowColor"    , "False");
+    NhlRLSetFloat  (vc2_rlist,"vcRefLengthF"            , 0.045);
+    NhlRLSetFloat  (vc2_rlist,"vcRefMagnitudeF"         , 20.0);
 
-	vctrmap = gsn_vector_scalar_wrap(wks, U, V, T2, type_U, type_V, type_T2,
-									 nlat_UV, nlon_UV, is_lat_coord_UV, 
-									 lat_UV, type_lat_UV, is_lon_coord_UV, 
-									 lon_UV, type_lon_UV, is_missing_U, 
-									 is_missing_V, is_missing_T2,
-									 FillValue_U, FillValue_V, FillValue_T2,
-									 vf_rlist, sf2_rlist, vc2_rlist, 
-									 special_res);
+    vctrmap = gsn_vector_scalar_wrap(wks, U, V, T2, type_U, type_V, type_T2,
+                                     nlat_UV, nlon_UV, is_lat_coord_UV, 
+                                     lat_UV, type_lat_UV, is_lon_coord_UV, 
+                                     lon_UV, type_lon_UV, is_missing_U, 
+                                     is_missing_V, is_missing_T2,
+                                     FillValue_U, FillValue_V, FillValue_T2,
+                                     vf_rlist, sf2_rlist, vc2_rlist, 
+                                     &special_res);
   }
 
 /*
@@ -922,68 +931,69 @@ main()
  * Set some vector resources.
  */
 
-	NhlRLClear(vf_rlist);
-	NhlRLClear(vc2_rlist);
+    NhlRLClear(vf_rlist);
+    NhlRLClear(vc2_rlist);
 
-	NhlRLSetInteger(vc2_rlist,"vcFillArrowEdgeColor"    , 1);
-	NhlRLSetString (vc2_rlist,"vcFillArrowsOn"          , "True");
-	NhlRLSetFloat  (vc2_rlist,"vcMinFracLengthF"        , 0.33);
-	NhlRLSetFloat  (vc2_rlist,"vcMinMagnitudeF"         , 0.001);
-	NhlRLSetString (vc2_rlist,"vcMonoFillArrowFillColor", "False");
-	NhlRLSetString (vc2_rlist,"vcMonoLineArrowColor"    , "False");
-	NhlRLSetFloat  (vc2_rlist,"vcRefLengthF"            , 0.045);
-	NhlRLSetFloat  (vc2_rlist,"vcRefMagnitudeF"         , 20.0);
-	NhlRLSetFloat  (vc2_rlist, "vcRefAnnoOrthogonalPosF", -0.1);
-	NhlRLSetString (vc2_rlist,"pmLabelBarDisplayMode"   , "Always");
-	NhlRLSetString (vc2_rlist,"pmLabelBarSide"          , "Bottom");
-	NhlRLSetString (vc2_rlist,"lbOrientation"           , "Horizontal");
-	NhlRLSetString (vc2_rlist,"lbPerimOn"               , "False");
-	NhlRLSetInteger(vc2_rlist,"lbLabelFont"             , 25);
+    NhlRLSetInteger(vc2_rlist,"vcFillArrowEdgeColor"    , 1);
+    NhlRLSetString (vc2_rlist,"vcFillArrowsOn"          , "True");
+    NhlRLSetFloat  (vc2_rlist,"vcMinFracLengthF"        , 0.33);
+    NhlRLSetFloat  (vc2_rlist,"vcMinMagnitudeF"         , 0.001);
+    NhlRLSetString (vc2_rlist,"vcMonoFillArrowFillColor", "False");
+    NhlRLSetString (vc2_rlist,"vcMonoLineArrowColor"    , "False");
+    NhlRLSetFloat  (vc2_rlist,"vcRefLengthF"            , 0.045);
+    NhlRLSetFloat  (vc2_rlist,"vcRefMagnitudeF"         , 20.0);
+    NhlRLSetFloat  (vc2_rlist, "vcRefAnnoOrthogonalPosF", -0.1);
+    NhlRLSetString (vc2_rlist,"pmLabelBarDisplayMode"   , "Always");
+    NhlRLSetString (vc2_rlist,"pmLabelBarSide"          , "Bottom");
+    NhlRLSetString (vc2_rlist,"lbOrientation"           , "Horizontal");
+    NhlRLSetString (vc2_rlist,"lbPerimOn"               , "False");
+    NhlRLSetInteger(vc2_rlist,"lbLabelFont"             , 25);
 
 /*
  * Set some map resources.
  */
-	NhlRLClear(mp2_rlist);
-	NhlRLSetString (mp2_rlist,"mpProjection"           , "Mercator");
-	NhlRLSetString (mp2_rlist,"mpLimitMode"            , "LatLon");
-	NhlRLSetFloat  (mp2_rlist,"mpMaxLatF"              ,  65.0);
-	NhlRLSetFloat  (mp2_rlist,"mpMaxLonF"              , -58.);
-	NhlRLSetFloat  (mp2_rlist,"mpMinLatF"              ,  18.0);
-	NhlRLSetFloat  (mp2_rlist,"mpMinLonF"              , -128.);
-	NhlRLSetFloat  (mp2_rlist,"mpCenterLatF"           ,   40.0);
-	NhlRLSetFloat  (mp2_rlist,"mpCenterLonF"           , -100.0);
-	NhlRLSetString (mp2_rlist,"mpFillOn"               , "True");
-	NhlRLSetInteger(mp2_rlist,"mpInlandWaterFillColor" , -1);
-	NhlRLSetInteger(mp2_rlist,"mpLandFillColor"        , 16);
-	NhlRLSetInteger(mp2_rlist,"mpOceanFillColor"       , -1);
-	NhlRLSetInteger(mp2_rlist,"mpGridLineDashPattern"  , 2);
-	NhlRLSetString (mp2_rlist,"mpGridMaskMode"         , "MaskNotOcean");
-	NhlRLSetString (mp2_rlist,"mpPerimOn"              , "True");
-	NhlRLSetString (mp2_rlist,"mpOutlineBoundarySets"  ,
-					"GeophysicalAndUSStates");
-	
-	special_res.gsnFrame = 0;
-	vctrmap = gsn_vector_map_wrap(wks, U, V, type_U, type_V, nlat_UV, nlon_UV, 
-								  is_lat_coord_UV, lat_UV, type_lat_UV, 
-								  is_lon_coord_UV, lon_UV, type_lon_UV, 
-								  is_missing_U, is_missing_V, 
-								  FillValue_U, FillValue_V,
-								  vf_rlist, vc2_rlist, mp2_rlist, special_res);
+    NhlRLClear(mp2_rlist);
+    NhlRLSetString (mp2_rlist,"mpProjection"           , "Mercator");
+    NhlRLSetString (mp2_rlist,"mpLimitMode"            , "LatLon");
+    NhlRLSetFloat  (mp2_rlist,"mpMaxLatF"              ,  65.0);
+    NhlRLSetFloat  (mp2_rlist,"mpMaxLonF"              , -58.);
+    NhlRLSetFloat  (mp2_rlist,"mpMinLatF"              ,  18.0);
+    NhlRLSetFloat  (mp2_rlist,"mpMinLonF"              , -128.);
+    NhlRLSetFloat  (mp2_rlist,"mpCenterLatF"           ,   40.0);
+    NhlRLSetFloat  (mp2_rlist,"mpCenterLonF"           , -100.0);
+    NhlRLSetString (mp2_rlist,"mpFillOn"               , "True");
+    NhlRLSetInteger(mp2_rlist,"mpInlandWaterFillColor" , -1);
+    NhlRLSetInteger(mp2_rlist,"mpLandFillColor"        , 16);
+    NhlRLSetInteger(mp2_rlist,"mpOceanFillColor"       , -1);
+    NhlRLSetInteger(mp2_rlist,"mpGridLineDashPattern"  , 2);
+    NhlRLSetString (mp2_rlist,"mpGridMaskMode"         , "MaskNotOcean");
+    NhlRLSetString (mp2_rlist,"mpPerimOn"              , "True");
+    NhlRLSetString (mp2_rlist,"mpOutlineBoundarySets"  ,
+                    "GeophysicalAndUSStates");
+    
+    special_res.gsnFrame = 0;
+    vctrmap = gsn_vector_map_wrap(wks, U, V, type_U, type_V, nlat_UV, nlon_UV, 
+                                  is_lat_coord_UV, lat_UV, type_lat_UV, 
+                                  is_lon_coord_UV, lon_UV, type_lon_UV, 
+                                  is_missing_U, is_missing_V, 
+                                  FillValue_U, FillValue_V,
+                                  vf_rlist, vc2_rlist, mp2_rlist, &special_res);
 
   
-	special_res.gsnFrame = 1;
+    special_res.gsnFrame = 1;
 
 /*
  * Set some text resources and draw a text string.
  */
 
-	NhlRLSetFloat  (tx_rlist,"txFontHeightF", 0.03);
-	NhlRLSetInteger(tx_rlist,"txFont"       , 22);
-	NhlRLSetString (tx_rlist,"txFuncCode"   , "~");
+    NhlRLClear (tx_rlist);
+    NhlRLSetFloat  (tx_rlist,"txFontHeightF", 0.03);
+    NhlRLSetInteger(tx_rlist,"txFont"       , 22);
+    NhlRLSetString (tx_rlist,"txFuncCode"   , "~");
 
-	text = gsn_text_ndc_wrap(wks,"gsn_text_ndc: I'm a big labelbar",
-							 0.5,0.22, tx_rlist,special_res);
-	NhlFrame(wks);
+    text = gsn_text_ndc_wrap(wks,"gsn_text_ndc: I'm a big labelbar",
+                             0.5,0.16, tx_rlist,&special_res);
+    NhlFrame(wks);
 
   }
 
@@ -997,54 +1007,55 @@ main()
  * Set some resources for streamline over map plot.
  */
 
-	NhlRLClear(vf_rlist);
-	NhlRLClear(vc2_rlist);
-	NhlRLClear(mp2_rlist);
+    NhlRLClear(vf_rlist);
+    NhlRLClear(vc2_rlist);
+    NhlRLClear(mp2_rlist);
 
-	NhlRLSetString (mp2_rlist,"mpProjection"           , "LambertConformal");
-	NhlRLSetFloat  (mp2_rlist,"mpLambertParallel1F"    ,   0.001); 
-	NhlRLSetFloat  (mp2_rlist,"mpLambertParallel2F"    ,  89.999); 
-	NhlRLSetFloat  (mp2_rlist,"mpLambertMeridianF"     , -93.0);
-	NhlRLSetString (mp2_rlist,"mpLimitMode"            , "LatLon");
-	NhlRLSetFloat  (mp2_rlist,"mpMaxLatF"              ,  65.0);
-	NhlRLSetFloat  (mp2_rlist,"mpMaxLonF"              , -58.);
-	NhlRLSetFloat  (mp2_rlist,"mpMinLatF"              ,  18.0);
-	NhlRLSetFloat  (mp2_rlist,"mpMinLonF"              , -128.);
-	NhlRLSetString (mp2_rlist,"mpPerimOn"              , "True");
+    NhlRLSetString (mp2_rlist,"mpProjection"           , "LambertConformal");
+    NhlRLSetFloat  (mp2_rlist,"mpLambertParallel1F"    ,   0.001); 
+    NhlRLSetFloat  (mp2_rlist,"mpLambertParallel2F"    ,  89.999); 
+    NhlRLSetFloat  (mp2_rlist,"mpLambertMeridianF"     , -93.0);
+    NhlRLSetString (mp2_rlist,"mpLimitMode"            , "LatLon");
+    NhlRLSetFloat  (mp2_rlist,"mpMaxLatF"              ,  65.0);
+    NhlRLSetFloat  (mp2_rlist,"mpMaxLonF"              , -58.);
+    NhlRLSetFloat  (mp2_rlist,"mpMinLatF"              ,  18.0);
+    NhlRLSetFloat  (mp2_rlist,"mpMinLonF"              , -128.);
+    NhlRLSetString (mp2_rlist,"mpPerimOn"              , "True");
 
 /*
  * Set some streamline resources. 
  */
-	NhlRLClear(st_rlist);
-	NhlRLSetString (st_rlist,"stLineColor"             , "green");
-	NhlRLSetFloat  (st_rlist,"stLineThicknessF"        , 2.0);
-	NhlRLSetString (st_rlist,"tiMainString"            , "Mean Green Streams");
-	NhlRLSetInteger(st_rlist,"tiMainFont"              , 25);
+    NhlRLClear(st_rlist);
+    NhlRLSetString (st_rlist,"stLineColor"             , "green");
+    NhlRLSetFloat  (st_rlist,"stLineThicknessF"        , 2.0);
+    NhlRLSetString (st_rlist,"tiMainString"            , "Green Streams");
+    NhlRLSetInteger(st_rlist,"tiMainFont"              , 25);
 
-	special_res.gsnFrame = 0;
+    special_res.gsnFrame = 0;
 
-	strmlnmap = gsn_streamline_map_wrap(wks, U, V, type_U, type_V, nlat_UV, 
-										nlon_UV, is_lat_coord_UV, lat_UV, 
-										type_lat_UV, is_lon_coord_UV, lon_UV,
-										type_lon_UV, is_missing_U, 
-										is_missing_V, FillValue_U, FillValue_V,
-										vf_rlist, st_rlist, mp2_rlist, 
-										special_res);
+    strmlnmap = gsn_streamline_map_wrap(wks, U, V, type_U, type_V, nlat_UV, 
+                                        nlon_UV, is_lat_coord_UV, lat_UV, 
+                                        type_lat_UV, is_lon_coord_UV, lon_UV,
+                                        type_lon_UV, is_missing_U, 
+                                        is_missing_V, FillValue_U, FillValue_V,
+                                        vf_rlist, st_rlist, mp2_rlist, 
+                                        &special_res);
 
-	special_res.gsnFrame = 1;
+    special_res.gsnFrame = 1;
 /*
  * Set some text resources and draw a text string.
  */
-	NhlRLClear(tx_rlist);
-	NhlRLSetFloat  (tx_rlist,"txFontHeightF"        , 0.02);
-	NhlRLSetString (tx_rlist,"txFuncCode"           , "~");
-	NhlRLSetString (tx_rlist,"txFontColor"          , "HotPink");
-	NhlRLSetString (tx_rlist,"txPerimOn"            , "True");
-	NhlRLSetString (tx_rlist,"txBackgroundFillColor", "background");
-	
-	text = gsn_text_wrap(wks,strmlnmap,"gsn_text: lat=50,lon=-93",
-						 -93, 50, tx_rlist,special_res);
-	NhlFrame(wks);
+    NhlRLClear(tx_rlist);
+    NhlRLSetFloat  (tx_rlist,"txFontHeightF"        , 0.02);
+    NhlRLSetString (tx_rlist,"txFuncCode"           , "~");
+    NhlRLSetString (tx_rlist,"txFont"               , "helvetica-bold");
+    NhlRLSetString (tx_rlist,"txFontColor"          , "Blue");
+    NhlRLSetString (tx_rlist,"txPerimOn"            , "True");
+    NhlRLSetString (tx_rlist,"txBackgroundFillColor", "LightGray");
+    
+    text = gsn_text_wrap(wks,strmlnmap,"gsn_text: lat=65,lon=-93",
+                         -93, 65, tx_rlist,&special_res);
+    NhlFrame(wks);
   }
 
 /*
@@ -1057,58 +1068,58 @@ main()
  * Set some map resources.
  */
 
-	NhlRLClear(mp2_rlist);
-	NhlRLSetString (mp2_rlist,"mpProjection"           , "Mercator");
-	NhlRLSetString (mp2_rlist,"mpLimitMode"            , "LatLon");
-	NhlRLSetFloat  (mp2_rlist,"mpMaxLatF"              ,  60.0);
-	NhlRLSetFloat  (mp2_rlist,"mpMaxLonF"              , -62.);
-	NhlRLSetFloat  (mp2_rlist,"mpMinLatF"              ,  18.0);
-	NhlRLSetFloat  (mp2_rlist,"mpMinLonF"              , -128.);
-	NhlRLSetFloat  (mp2_rlist,"mpCenterLatF"           ,   40.0);
-	NhlRLSetFloat  (mp2_rlist,"mpCenterLonF"           , -100.0);
-	NhlRLSetString (mp2_rlist,"mpFillOn"               , "True");
-	NhlRLSetInteger(mp2_rlist,"mpInlandWaterFillColor" , -1);
-	NhlRLSetString (mp2_rlist,"mpLandFillColor"        , "LightGray");
-	NhlRLSetInteger(mp2_rlist,"mpOceanFillColor"       , -1);
-	NhlRLSetInteger(mp2_rlist,"mpGridLineDashPattern"  , 2);
-	NhlRLSetString (mp2_rlist,"mpGridMaskMode"         , "MaskNotOcean");
-	NhlRLSetString (mp2_rlist,"mpOutlineOn"            , "False");
-	NhlRLSetString (mp2_rlist,"mpPerimOn"              , "True");
+    NhlRLClear(mp2_rlist);
+    NhlRLSetString (mp2_rlist,"mpProjection"           , "Mercator");
+    NhlRLSetString (mp2_rlist,"mpLimitMode"            , "LatLon");
+    NhlRLSetFloat  (mp2_rlist,"mpMaxLatF"              ,  60.0);
+    NhlRLSetFloat  (mp2_rlist,"mpMaxLonF"              , -62.);
+    NhlRLSetFloat  (mp2_rlist,"mpMinLatF"              ,  18.0);
+    NhlRLSetFloat  (mp2_rlist,"mpMinLonF"              , -128.);
+    NhlRLSetFloat  (mp2_rlist,"mpCenterLatF"           ,   40.0);
+    NhlRLSetFloat  (mp2_rlist,"mpCenterLonF"           , -100.0);
+    NhlRLSetString (mp2_rlist,"mpFillOn"               , "True");
+    NhlRLSetInteger(mp2_rlist,"mpInlandWaterFillColor" , -1);
+    NhlRLSetString (mp2_rlist,"mpLandFillColor"        , "LightGray");
+    NhlRLSetInteger(mp2_rlist,"mpOceanFillColor"       , -1);
+    NhlRLSetInteger(mp2_rlist,"mpGridLineDashPattern"  , 2);
+    NhlRLSetString (mp2_rlist,"mpGridMaskMode"         , "MaskNotOcean");
+    NhlRLSetString (mp2_rlist,"mpOutlineOn"            , "False");
+    NhlRLSetString (mp2_rlist,"mpPerimOn"              , "True");
 
 /*
  * Set some vector resources.
  */
-	NhlRLClear(vf_rlist);
-	NhlRLClear(vc2_rlist);
+    NhlRLClear(vf_rlist);
+    NhlRLClear(vc2_rlist);
 
-	NhlRLSetString (vc2_rlist,"pmLabelBarDisplayMode"  , "Always");
-	NhlRLSetString (vc2_rlist,"pmLabelBarSide"         , "Bottom");
-	NhlRLSetString (vc2_rlist,"lbOrientation"          , "Horizontal");
-	NhlRLSetString (vc2_rlist,"lbPerimOn"              , "False");
-	NhlRLSetInteger(vc2_rlist,"lbTitleFont"            , 25);
-	NhlRLSetString (vc2_rlist,"lbTitleString"          , "TEMPERATURE (:S:o:N:F)");
-	NhlRLSetFloat  (vc2_rlist,"tiMainFontHeightF"      , 0.03);
-	NhlRLSetString (vc2_rlist,"tiMainString"           , ":F25:Wind velocity vectors");
+    NhlRLSetString (vc2_rlist,"pmLabelBarDisplayMode"  , "Always");
+    NhlRLSetString (vc2_rlist,"pmLabelBarSide"         , "Bottom");
+    NhlRLSetString (vc2_rlist,"lbOrientation"          , "Horizontal");
+    NhlRLSetString (vc2_rlist,"lbPerimOn"              , "False");
+    NhlRLSetInteger(vc2_rlist,"lbTitleFont"            , 25);
+    NhlRLSetString (vc2_rlist,"lbTitleString"          , "TEMPERATURE (:S:o:N:F)");
+    NhlRLSetFloat  (vc2_rlist,"tiMainFontHeightF"      , 0.03);
+    NhlRLSetString (vc2_rlist,"tiMainString"           , ":F25:Wind velocity vectors");
 
-	NhlRLSetInteger(vc2_rlist,"vcFillArrowEdgeColor"    , 1);
-	NhlRLSetString (vc2_rlist,"vcFillArrowsOn"          , "True");
-	NhlRLSetFloat  (vc2_rlist,"vcMinFracLengthF"        , 0.33);
-	NhlRLSetFloat  (vc2_rlist,"vcMinMagnitudeF"         , 0.001);
-	NhlRLSetString (vc2_rlist,"vcMonoFillArrowFillColor", "False");
-	NhlRLSetString (vc2_rlist,"vcMonoLineArrowColor"    , "False");
-	NhlRLSetFloat  (vc2_rlist,"vcRefLengthF"            , 0.045);
-	NhlRLSetFloat  (vc2_rlist,"vcRefMagnitudeF"         , 20.0);
-	NhlRLSetString (vc2_rlist,"vcGlyphStyle"            , "CurlyVector");
+    NhlRLSetInteger(vc2_rlist,"vcFillArrowEdgeColor"    , 1);
+    NhlRLSetString (vc2_rlist,"vcFillArrowsOn"          , "True");
+    NhlRLSetFloat  (vc2_rlist,"vcMinFracLengthF"        , 0.33);
+    NhlRLSetFloat  (vc2_rlist,"vcMinMagnitudeF"         , 0.001);
+    NhlRLSetString (vc2_rlist,"vcMonoFillArrowFillColor", "False");
+    NhlRLSetString (vc2_rlist,"vcMonoLineArrowColor"    , "False");
+    NhlRLSetFloat  (vc2_rlist,"vcRefLengthF"            , 0.045);
+    NhlRLSetFloat  (vc2_rlist,"vcRefMagnitudeF"         , 20.0);
+    NhlRLSetString (vc2_rlist,"vcGlyphStyle"            , "CurlyVector");
 
-	vctrmap = gsn_vector_scalar_map_wrap(wks, U, V, T2, type_U, type_V, 
-										 type_T2, nlat_UV, nlon_UV, 
-										 is_lat_coord_UV, lat_UV, type_lat_UV,
-										 is_lon_coord_UV, lon_UV, type_lon_UV,
-										 is_missing_U, is_missing_V, 
-										 is_missing_T2, FillValue_U, 
-										 FillValue_V, FillValue_T2, vf_rlist,
-										 sf2_rlist, vc2_rlist, mp2_rlist,
-										 special_res);
+    vctrmap = gsn_vector_scalar_map_wrap(wks, U, V, T2, type_U, type_V, 
+                                         type_T2, nlat_UV, nlon_UV, 
+                                         is_lat_coord_UV, lat_UV, type_lat_UV,
+                                         is_lon_coord_UV, lon_UV, type_lon_UV,
+                                         is_missing_U, is_missing_V, 
+                                         is_missing_T2, FillValue_U, 
+                                         FillValue_V, FillValue_T2, vf_rlist,
+                                         sf2_rlist, vc2_rlist, mp2_rlist,
+                                         &special_res);
 
   }
 /*
