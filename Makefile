@@ -4,8 +4,15 @@ gsun: gsun.o driver.o gsun.h
 panel: gsun.o panel.o gsun.h
 	nhlcc -g -o panel panel.o gsun.o -lnetcdf
 
+fpanel: gsun.o fpanel.o gsun.h
+	nhlcc -g -o fpanel fpanel.o gsun.o -lnetcdf
+
 panel.o: panel.c gsun.h
 	nhlcc -g -c panel.c
+
+
+fpanel.o: fpanel.c gsun.h
+	nhlcc -g -c fpanel.c
 
 driver.o: driver.c gsun.h
 	nhlcc -g -c driver.c

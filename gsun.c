@@ -2093,7 +2093,6 @@ nglPlotId ngl_text_ndc_wrap(int wks, char* string, void *x, void *y,
   set_resource("txPosXF", tx_rlist, x, type_x, 1, &length[0] );
   set_resource("txPosYF", tx_rlist, y, type_y, 1, &length[0] );
 
-
   NhlRLSetString(tx_rlist, "txString", string);
   NhlCreate(&text,"text",NhltextItemClass,wks,tx_rlist);
 
