@@ -280,11 +280,11 @@ void maximize_plot(int wks, int plot)
  * This function maximizes and draws the plot, and advances the frame.
  */
 
-void draw_and_frame(int wks, int plot, gsnRes special_res)
+void draw_and_frame(int wks, int plot, gsnRes *special_res)
 {
-  if(special_res.gsnMaximize) maximize_plot(wks, plot);
-  if(special_res.gsnDraw)  NhlDraw(plot);
-  if(special_res.gsnFrame) NhlFrame(wks);
+  if(special_res->gsnMaximize) maximize_plot(wks, plot);
+  if(special_res->gsnDraw)  NhlDraw(plot);
+  if(special_res->gsnFrame) NhlFrame(wks);
 }
 
 /*
@@ -680,7 +680,7 @@ int gsn_contour_wrap(int wks, void *data, const char *type,
                      int is_ycoord, void *ycoord, const char *ycoord_type,
                      int is_xcoord, void *xcoord, const char *xcoord_type,
                      int is_missing, void *FillValue, 
-                     int sf_rlist, int cn_rlist, gsnRes special_res)
+                     int sf_rlist, int cn_rlist, gsnRes *special_res)
 {
   int field, contour;
 
@@ -729,7 +729,7 @@ int gsn_xy_wrap(int wks, void *x, void *y, const char *type_x,
                 int is_missing_x, int is_missing_y, 
                 void *FillValue_x, void *FillValue_y,
                 int ca_rlist, int xy_rlist, int xyd_rlist,
-                gsnRes special_res)
+                gsnRes *special_res)
 {
   int carray, xy, grlist;
   int num_dspec, *xyds;
@@ -790,7 +790,7 @@ int gsn_xy_wrap(int wks, void *x, void *y, const char *type_x,
 int gsn_y_wrap(int wks, void *y, const char *type_y, int ndims_y, 
 			   int *dsizes_y, int is_missing_y, void *FillValue_y,
                int ca_rlist, int xy_rlist, int xyd_rlist,
-			   gsnRes special_res)
+			   gsnRes *special_res)
 {
   int xy;
 
@@ -819,7 +819,7 @@ int gsn_vector_wrap(int wks, void *u, void *v, const char *type_u,
                     int is_xcoord, void *xcoord, const char *type_xcoord,
                     int is_missing_u, int is_missing_v, 
                     void *FillValue_u, void *FillValue_v,
-                    int vf_rlist, int vc_rlist, gsnRes special_res)
+                    int vf_rlist, int vc_rlist, gsnRes *special_res)
 {
   int field, vector;
 
@@ -869,7 +869,7 @@ int gsn_streamline_wrap(int wks, void *u, void *v, const char *type_u,
                         int is_xcoord, void *xcoord, const char *type_xcoord,
                         int is_missing_u, int is_missing_v, 
                         void *FillValue_u, void *FillValue_v, 
-                        int vf_rlist, int st_rlist, gsnRes special_res)
+                        int vf_rlist, int st_rlist, gsnRes *special_res)
 {
   int field, streamline;
 
@@ -912,7 +912,7 @@ int gsn_streamline_wrap(int wks, void *u, void *v, const char *type_u,
  * This function uses the HLUs to create a map plot.
  */
 
-int gsn_map_wrap(int wks, int mp_rlist, gsnRes special_res)
+int gsn_map_wrap(int wks, int mp_rlist, gsnRes *special_res)
 {
   int map;
 
@@ -949,7 +949,7 @@ int gsn_contour_map_wrap(int wks, void *data, const char *type,
                          int is_xcoord, void *xcoord, const char *xcoord_type,
                          int is_missing, void *FillValue, 
                          int sf_rlist, int cn_rlist, int mp_rlist,
-                         gsnRes special_res)
+                         gsnRes *special_res)
 {
   int contour, map;
   gsnRes special_res2;
@@ -964,12 +964,12 @@ int gsn_contour_map_wrap(int wks, void *data, const char *type,
                              is_ycoord, ycoord, ycoord_type,
                              is_xcoord, xcoord, xcoord_type,
                              is_missing, FillValue, sf_rlist, cn_rlist,
-                             special_res2);
+                             &special_res2);
 
 /*
  * Create map plot.
  */
-  map = gsn_map_wrap(wks, mp_rlist, special_res2);
+  map = gsn_map_wrap(wks, mp_rlist, &special_res2);
 
 /*
  * Overlay contour plot on map plot.
@@ -1000,7 +1000,7 @@ int gsn_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
                         int is_missing_u, int is_missing_v, 
                         void *FillValue_u, void *FillValue_v,
                         int vf_rlist, int vc_rlist, int mp_rlist,
-                        gsnRes special_res)
+                        gsnRes *special_res)
 {
   int vector, map;
   gsnRes special_res2;
@@ -1015,12 +1015,12 @@ int gsn_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
                            ycoord, type_ycoord, is_xcoord, xcoord, 
                            type_xcoord, is_missing_u, is_missing_v, 
                            FillValue_u, FillValue_v, vf_rlist, vc_rlist,
-                           special_res2);
+                           &special_res2);
 
 /*
  * Create map plot.
  */
-  map = gsn_map_wrap(wks, mp_rlist, special_res2);
+  map = gsn_map_wrap(wks, mp_rlist, &special_res2);
 
 /*
  * Overlay vector plot on map plot.
@@ -1052,7 +1052,7 @@ int gsn_streamline_map_wrap(int wks, void *u, void *v, const char *type_u,
 							int is_missing_u, int is_missing_v, 
 							void *FillValue_u, void *FillValue_v,
 							int vf_rlist, int vc_rlist, int mp_rlist,
-							gsnRes special_res)
+							gsnRes *special_res)
 {
   int streamline, map;
   gsnRes special_res2;
@@ -1068,12 +1068,12 @@ int gsn_streamline_map_wrap(int wks, void *u, void *v, const char *type_u,
 								   is_xcoord, xcoord, type_xcoord, 
 								   is_missing_u, is_missing_v, FillValue_u, 
 								   FillValue_v, vf_rlist, vc_rlist,
-								   special_res2);
+								   &special_res2);
 
 /*
  * Create map plot.
  */
-  map = gsn_map_wrap(wks, mp_rlist, special_res2);
+  map = gsn_map_wrap(wks, mp_rlist, &special_res2);
 
 /*
  * Overlay streamline plot on map plot.
@@ -1109,7 +1109,7 @@ int gsn_vector_scalar_wrap(int wks, void *u, void *v, void *t,
                            int is_missing_t, void *FillValue_u, 
                            void *FillValue_v, void *FillValue_t,
                            int vf_rlist, int sf_rlist, int vc_rlist, 
-                           gsnRes special_res)
+                           gsnRes *special_res)
 {
   int vfield, sfield, vector;
 
@@ -1167,7 +1167,7 @@ int gsn_vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
                                int is_missing_t, void *FillValue_u, 
                                void *FillValue_v, void *FillValue_t,
                                int vf_rlist, int sf_rlist, int vc_rlist, 
-                               int mp_rlist, gsnRes special_res)
+                               int mp_rlist, gsnRes *special_res)
 {
   int vector, map;
   gsnRes special_res2;
@@ -1184,12 +1184,12 @@ int gsn_vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
                                   type_xcoord, is_missing_u, is_missing_v, 
                                   is_missing_t, FillValue_u, FillValue_v, 
                                   FillValue_t, vf_rlist, sf_rlist, vc_rlist, 
-                                  special_res2);
+                                  &special_res2);
 
 /*
  * Create map plot.
  */
-  map = gsn_map_wrap(wks, mp_rlist, special_res2);
+  map = gsn_map_wrap(wks, mp_rlist, &special_res2);
 
 /*
  * Overlay vector plot on map plot.
@@ -1210,7 +1210,7 @@ int gsn_vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
 }
 
 int gsn_text_ndc_wrap(int wks, char* string, float x, float y, 
-					  int tx_rlist, gsnRes special_res)
+					  int tx_rlist, gsnRes *special_res)
 {
   int text;
   gsnRes special_res2;
@@ -1226,7 +1226,7 @@ int gsn_text_ndc_wrap(int wks, char* string, float x, float y,
   special_res2.gsnMaximize = 0;
   special_res2.gsnFrame    = 0;
 
-  draw_and_frame(wks, text, special_res2);
+  draw_and_frame(wks, text, &special_res2);
 
 /*
  * Return.
@@ -1237,7 +1237,7 @@ int gsn_text_ndc_wrap(int wks, char* string, float x, float y,
 
 
 int gsn_text_wrap(int wks, int plot, char* string, float x, float y, 
-				  int tx_rlist, gsnRes special_res)
+				  int tx_rlist, gsnRes *special_res)
 {
   float xndc, yndc, oor = 0.;
   int text, status;
@@ -1248,7 +1248,7 @@ int gsn_text_wrap(int wks, int plot, char* string, float x, float y,
 
   (void)NhlDataToNDC(plot,&x,&y,1,&xndc,&yndc,NULL,NULL,&status,&oor);
 
-  if(special_res.gsnDebug) {
+  if(special_res->gsnDebug) {
 	printf("x = %g y = %g xndc = %g yndc = %g\n", x, y, xndc, yndc);
   }
 
