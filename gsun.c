@@ -31,11 +31,13 @@ main()
  */
   void  *T, *U, *V, *lat_T, *lon_T, *lat_UV, *lon_UV;
   void  *FillValue_T, *FillValue_U, *FillValue_V;
+  int is_lat_coord_T, is_lon_coord_T, is_lat_coord_UV, is_lon_coord_UV;
 
   nc_type nctype_T, nctype_lat_T, nctype_lon_T;
   nc_type nctype_U, nctype_V, nctype_lat_UV, nctype_lon_UV;
-  NrmQuark type_T, type_U, type_V;
-  NrmQuark type_lat_T, type_lon_T, type_lat_UV, type_lon_UV;
+  char type_T[TYPE_LEN], type_U[TYPE_LEN], type_V[TYPE_LEN];
+  char type_lat_T[TYPE_LEN], type_lon_T[TYPE_LEN];
+  char type_lat_UV[TYPE_LEN], type_lon_UV[TYPE_LEN];
 
   size_t i, *start, *count;
   char  filename_T[256], filename_U[256], filename_V[256];
@@ -88,26 +90,26 @@ main()
 
   status = nc_inq_attid (ncid_T, id_T, "_FillValue", &attid); 
   if(status == NC_NOERR) {
-	is_missing_T = 1;
+    is_missing_T = 1;
   }
   else {
-	is_missing_T = 0;
+    is_missing_T = 0;
   }
 
   status = nc_inq_attid (ncid_U, id_U, "_FillValue", &attid); 
   if(status == NC_NOERR) {
-	is_missing_U = 1;
+    is_missing_U = 1;
   }
   else {
-	is_missing_U = 0;
+    is_missing_U = 0;
   }
 
   status = nc_inq_attid (ncid_V, id_V, "_FillValue", &attid); 
   if(status == NC_NOERR) {
-	is_missing_V = 1;
+    is_missing_V = 1;
   }
   else {
-	is_missing_V = 0;
+    is_missing_V = 0;
   }
 
 /*
@@ -129,49 +131,49 @@ main()
   switch(nctype_T) {
 
   case NC_DOUBLE:
-	type_T = NrmStringToQuark(NhlTDouble);
-	T      = (double *)calloc(nlat_T,sizeof(double));
+    strcpy(type_T,"double");
+    T      = (double *)calloc(nlat_T,sizeof(double));
 
-	nc_get_vara_double(ncid_T,id_T,start,count,(double*)T);
+    nc_get_vara_double(ncid_T,id_T,start,count,(double*)T);
 
 /*
  * Get double missing value.
  */
     if(is_missing_T) {
-	  FillValue_T = (double *)calloc(1,sizeof(double));
-	  nc_get_att_double (ncid_T, id_T, "_FillValue", (double*)FillValue_T); 
-	}
-	break;
+      FillValue_T = (double *)calloc(1,sizeof(double));
+      nc_get_att_double (ncid_T, id_T, "_FillValue", (double*)FillValue_T); 
+    }
+    break;
 
   case NC_FLOAT:
-	type_T = NrmStringToQuark(NhlTFloat);
-	T      = (float *)calloc(nlat_T*nlon_T,sizeof(float));
+    strcpy(type_T,"float");
+    T      = (float *)calloc(nlat_T*nlon_T,sizeof(float));
 
-	nc_get_vara_float(ncid_T,id_T,start,count,(float*)T);
+    nc_get_vara_float(ncid_T,id_T,start,count,(float*)T);
 
 /*
  * Get float missing value.
  */
     if(is_missing_T) {
-	  FillValue_T = (float *)calloc(1,sizeof(float));
-	  nc_get_att_float (ncid_T, id_T, "_FillValue", (float*)FillValue_T); 
-	}
-	break;
+      FillValue_T = (float *)calloc(1,sizeof(float));
+      nc_get_att_float (ncid_T, id_T, "_FillValue", (float*)FillValue_T); 
+    }
+    break;
 
   case NC_INT:
-	type_T = NrmStringToQuark(NhlTInteger);
-	T      = (int *)calloc(nlat_T*nlon_T,sizeof(int));
+    strcpy(type_T,"integer");
+    T      = (int *)calloc(nlat_T*nlon_T,sizeof(int));
 
-	nc_get_vara_int(ncid_T,id_T,start,count,(int*)T);
+    nc_get_vara_int(ncid_T,id_T,start,count,(int*)T);
 
 /*
  * Get integer missing value.
  */
     if(is_missing_T) {
-	  FillValue_T = (int *)calloc(1,sizeof(int));
-	  nc_get_att_int (ncid_T, id_T, "_FillValue", (int*)FillValue_T); 
-	}
-	break;
+      FillValue_T = (int *)calloc(1,sizeof(int));
+      nc_get_att_int (ncid_T, id_T, "_FillValue", (int*)FillValue_T); 
+    }
+    break;
   }
 
 /*
@@ -181,50 +183,52 @@ main()
   nc_inq_vartype  (ncid_T, latid_T, &nctype_lat_T);
   nc_inq_vartype  (ncid_T, lonid_T, &nctype_lon_T);
 
+  is_lat_coord_T = 1;
   switch(nctype_lat_T) {
 
   case NC_DOUBLE:
-	type_lat_T = NrmStringToQuark(NhlTDouble);
-	lat_T      = (double *)calloc(nlat_T,sizeof(double));
+    strcpy(type_lat_T,"double");
+    lat_T      = (double *)calloc(nlat_T,sizeof(double));
 
-	nc_get_var_double(ncid_T,latid_T,(double*)lat_T);
-	break;
+    nc_get_var_double(ncid_T,latid_T,(double*)lat_T);
+    break;
 
   case NC_FLOAT:
-	type_lat_T = NrmStringToQuark(NhlTFloat);
-	lat_T      = (float *)calloc(nlat_T,sizeof(float));
+    strcpy(type_lat_T,"float");
+    lat_T      = (float *)calloc(nlat_T,sizeof(float));
 
-	nc_get_var_float(ncid_T,latid_T,(float*)lat_T);
+    nc_get_var_float(ncid_T,latid_T,(float*)lat_T);
 
   case NC_INT:
-	type_lat_T = NrmStringToQuark(NhlTInteger);
-	lat_T      = (int *)calloc(nlat_T,sizeof(int));
+    strcpy(type_lat_T,"integer");
+    lat_T      = (int *)calloc(nlat_T,sizeof(int));
 
-	nc_get_var_int(ncid_T,latid_T,(int*)lat_T);
-	break;
+    nc_get_var_int(ncid_T,latid_T,(int*)lat_T);
+    break;
   }
 
+  is_lon_coord_T = 1;
   switch(nctype_lon_T) {
 
   case NC_DOUBLE:
-	type_lon_T = NrmStringToQuark(NhlTDouble);
-	lon_T      = (double *)calloc(nlon_T,sizeof(double));
+    strcpy(type_lon_T,"double");
+    lon_T      = (double *)calloc(nlon_T,sizeof(double));
 
-	nc_get_var_double(ncid_T,lonid_T,(double*)lon_T);
-	break;
+    nc_get_var_double(ncid_T,lonid_T,(double*)lon_T);
+    break;
 
   case NC_FLOAT:
-	type_lon_T = NrmStringToQuark(NhlTFloat);
-	lon_T      = (float *)calloc(nlon_T,sizeof(float));
+    strcpy(type_lon_T,"float");
+    lon_T      = (float *)calloc(nlon_T,sizeof(float));
 
-	nc_get_var_float(ncid_T,lonid_T,(float*)lon_T);
+    nc_get_var_float(ncid_T,lonid_T,(float*)lon_T);
 
   case NC_INT:
-	type_lon_T = NrmStringToQuark(NhlTInteger);
-	lon_T      = (int *)calloc(nlon_T,sizeof(int));
+    strcpy(type_lon_T,"integer");
+    lon_T      = (int *)calloc(nlon_T,sizeof(int));
 
-	nc_get_var_int(ncid_T,lonid_T,(int*)lon_T);
-	break;
+    nc_get_var_int(ncid_T,lonid_T,(int*)lon_T);
+    break;
   }
 
 /*
@@ -252,115 +256,115 @@ main()
   switch(nctype_U) {
 
   case NC_DOUBLE:
-	type_U = NrmStringToQuark(NhlTDouble);
-	U      = (double *)calloc(nlat_UV*nlon_UV,sizeof(double));
+    strcpy(type_U,"double");
+    U      = (double *)calloc(nlat_UV*nlon_UV,sizeof(double));
 
 /*
  * Get double values.
  */
-	nc_get_vara_double(ncid_U,id_U,start,count,(double*)U);
+    nc_get_vara_double(ncid_U,id_U,start,count,(double*)U);
 
 /*
  * Get double missing value.
  */
     if(is_missing_U) {
-	  FillValue_U = (int *)calloc(1,sizeof(int));
-	  nc_get_att_double (ncid_U, id_U, "_FillValue", (double*)FillValue_U); 
-	}
-	break;
+      FillValue_U = (int *)calloc(1,sizeof(int));
+      nc_get_att_double (ncid_U, id_U, "_FillValue", (double*)FillValue_U); 
+    }
+    break;
 
   case NC_FLOAT:
-	type_U = NrmStringToQuark(NhlTFloat);
-	U      = (float *)calloc(nlat_UV*nlon_UV,sizeof(float));
+    strcpy(type_U,"float");
+    U      = (float *)calloc(nlat_UV*nlon_UV,sizeof(float));
 
 /*
  * Get float values.
  */
-	nc_get_vara_float(ncid_U,id_U,start,count,(float*)U);
+    nc_get_vara_float(ncid_U,id_U,start,count,(float*)U);
 
 /*
  * Get float missing value.
  */
     if(is_missing_U) {
-	  FillValue_U = (int *)calloc(1,sizeof(int));
-	  nc_get_att_float (ncid_U, id_U, "_FillValue", (float*)FillValue_U); 
-	}
-	break;
+      FillValue_U = (int *)calloc(1,sizeof(int));
+      nc_get_att_float (ncid_U, id_U, "_FillValue", (float*)FillValue_U); 
+    }
+    break;
 
   case NC_INT:
-	type_U = NrmStringToQuark(NhlTInteger);
-	U      = (int *)calloc(nlat_UV*nlon_UV,sizeof(int));
+    strcpy(type_U,"integer");
+    U      = (int *)calloc(nlat_UV*nlon_UV,sizeof(int));
 
 /*
  * Get integer values.
  */
-	nc_get_vara_int(ncid_U,id_U,start,count,(int*)U);
+    nc_get_vara_int(ncid_U,id_U,start,count,(int*)U);
 
 /*
  * Get integer missing value.
  */
     if(is_missing_U) {
-	  FillValue_U = (int *)calloc(1,sizeof(int));
-	  nc_get_att_int (ncid_U, id_U, "_FillValue", (int*)FillValue_U); 
-	}
-	break;
+      FillValue_U = (int *)calloc(1,sizeof(int));
+      nc_get_att_int (ncid_U, id_U, "_FillValue", (int*)FillValue_U); 
+    }
+    break;
   }
 
   switch(nctype_V) {
 
   case NC_DOUBLE:
-	type_V = NrmStringToQuark(NhlTDouble);
-	V      = (double *)calloc(nlat_UV*nlon_UV,sizeof(double));
+    strcpy(type_V,"double");
+    V      = (double *)calloc(nlat_UV*nlon_UV,sizeof(double));
 
 /*
  * Get double values.
  */
-	nc_get_vara_double(ncid_V,id_V,start,count,(double*)V);
+    nc_get_vara_double(ncid_V,id_V,start,count,(double*)V);
 
 /*
  * Get double missing value.
  */
     if(is_missing_V) {
-	  FillValue_V = (int *)calloc(1,sizeof(int));
-	  nc_get_att_float (ncid_V, id_V, "_FillValue", (float*)FillValue_V); 
-	}
-	break;
+      FillValue_V = (int *)calloc(1,sizeof(int));
+      nc_get_att_float (ncid_V, id_V, "_FillValue", (float*)FillValue_V); 
+    }
+    break;
 
   case NC_FLOAT:
-	type_V = NrmStringToQuark(NhlTFloat);
-	V      = (float *)calloc(nlat_UV*nlon_UV,sizeof(float));
+    strcpy(type_V,"float");
+    V      = (float *)calloc(nlat_UV*nlon_UV,sizeof(float));
 
 /*
  * Get float values.
  */
-	nc_get_vara_float(ncid_V,id_V,start,count,(float*)V);
+    nc_get_vara_float(ncid_V,id_V,start,count,(float*)V);
 
 /*
  * Get float missing value.
  */
     if(is_missing_V) {
-	  FillValue_V = (int *)calloc(1,sizeof(int));
-	  nc_get_att_float (ncid_V, id_V, "_FillValue", (float*)FillValue_V); 
-	}
-	break;
+      FillValue_V = (int *)calloc(1,sizeof(int));
+      nc_get_att_float (ncid_V, id_V, "_FillValue", (float*)FillValue_V); 
+    }
+    break;
 
   case NC_INT:
-	type_V = NrmStringToQuark(NhlTInteger);
-	V      = (int *)calloc(nlat_UV*nlon_UV,sizeof(int));
+    strcpy(type_V,"integer");
+    V      = (int *)calloc(nlat_UV*nlon_UV,sizeof(int));
 
 /*
  * Get integer values.
  */
-	nc_get_vara_int(ncid_V,id_V,start,count,(int*)V);
+    nc_get_vara_int(ncid_V,id_V,start,count,(int*)V);
 
 /*
  * Get integer missing value.
  */
     if(is_missing_V) {
-	  FillValue_V = (int *)calloc(1,sizeof(int));
-	  nc_get_att_float (ncid_V, id_V, "_FillValue", (float*)FillValue_V); 
-	}
-	break;
+      FillValue_V = (int *)calloc(1,sizeof(int));
+      nc_get_att_float (ncid_V, id_V, "_FillValue", (float*)FillValue_V); 
+    }
+    break;
   }
 
 /*
@@ -369,36 +373,37 @@ main()
 
   nc_inq_vartype  (ncid_U, latid_UV, &nctype_lat_UV);
 
+  is_lat_coord_UV = 1;
   switch(nctype_lat_UV) {
 
   case NC_DOUBLE:
-	type_lat_UV = NrmStringToQuark(NhlTDouble);
-	lat_UV      = (double *)calloc(nlat_UV,sizeof(double));
+    strcpy(type_lat_UV,"double");
+    lat_UV      = (double *)calloc(nlat_UV,sizeof(double));
 
 /*
  * Get double values.
  */
-	nc_get_var_double(ncid_U,latid_UV,(double*)lat_UV);
-	break;
+    nc_get_var_double(ncid_U,latid_UV,(double*)lat_UV);
+    break;
 
   case NC_FLOAT:
-	type_lat_UV = NrmStringToQuark(NhlTFloat);
-	lat_UV      = (float *)calloc(nlat_UV,sizeof(float));
+    strcpy(type_lat_UV,"float");
+    lat_UV      = (float *)calloc(nlat_UV,sizeof(float));
 
 /*
  * Get float values.
  */
-	nc_get_var_float(ncid_U,latid_UV,(float*)lat_UV);
+    nc_get_var_float(ncid_U,latid_UV,(float*)lat_UV);
 
   case NC_INT:
-	type_lat_UV = NrmStringToQuark(NhlTInteger);
-	lat_UV      = (int *)calloc(nlat_UV,sizeof(int));
+    strcpy(type_lat_UV,"integer");
+    lat_UV      = (int *)calloc(nlat_UV,sizeof(int));
 
 /*
  * Get integer values.
  */
-	nc_get_var_int(ncid_U,latid_UV,(int*)lat_UV);
-	break;
+    nc_get_var_int(ncid_U,latid_UV,(int*)lat_UV);
+    break;
   }
 
 /*
@@ -407,27 +412,28 @@ main()
 
   nc_inq_vartype  (ncid_U, lonid_UV, &nctype_lon_UV);
 
+  is_lon_coord_UV = 1;
   switch(nctype_lon_UV) {
 
   case NC_DOUBLE:
-	type_lon_UV = NrmStringToQuark(NhlTDouble);
-	lon_UV      = (double *)calloc(nlon_UV,sizeof(double));
+    strcpy(type_lon_UV,"double");
+    lon_UV      = (double *)calloc(nlon_UV,sizeof(double));
 
-	nc_get_var_double(ncid_U,lonid_UV,(double*)lon_UV);
-	break;
+    nc_get_var_double(ncid_U,lonid_UV,(double*)lon_UV);
+    break;
 
   case NC_FLOAT:
-	type_lon_UV = NrmStringToQuark(NhlTFloat);
-	lon_UV      = (float *)calloc(nlon_UV,sizeof(float));
+    strcpy(type_lon_UV,"float");
+    lon_UV      = (float *)calloc(nlon_UV,sizeof(float));
 
-	nc_get_var_float(ncid_U,lonid_UV,(float*)lon_UV);
+    nc_get_var_float(ncid_U,lonid_UV,(float*)lon_UV);
 
   case NC_INT:
-	type_lon_UV = NrmStringToQuark(NhlTInteger);
-	lon_UV      = (int *)calloc(nlon_UV,sizeof(int));
+    strcpy(type_lon_UV,"integer");
+    lon_UV      = (int *)calloc(nlon_UV,sizeof(int));
 
-	nc_get_var_int(ncid_U,lonid_UV,(int*)lon_UV);
-	break;
+    nc_get_var_int(ncid_U,lonid_UV,(int*)lon_UV);
+    break;
   }
 
 /*
@@ -475,30 +481,6 @@ main()
   NhlRLClear(st_rlist);
 
 /*
- * Set some scalar field resources.
- */
-
-  if(type_lat_T == NrmStringToQuark(NhlTDouble)) {
-	NhlRLSetDoubleArray(sf_rlist,"sfYArray",(double*)lat_T,nlat_T);
-  }
-  else if(type_lat_T == NrmStringToQuark(NhlTFloat)) {
-	NhlRLSetFloatArray(sf_rlist,"sfYArray",(float*)lat_T,nlat_T);
-  }
-  else if(type_lat_T == NrmStringToQuark(NhlTInteger)) {
-	NhlRLSetIntegerArray(sf_rlist,"sfYArray",(int*)lat_T,nlat_T);
-  }
-
-  if(type_lon_T == NrmStringToQuark(NhlTDouble)) {
-	NhlRLSetDoubleArray(sf_rlist,"sfXArray",(double*)lon_T,nlon_T);
-  }
-  else if(type_lon_T == NrmStringToQuark(NhlTFloat)) {
-	NhlRLSetFloatArray(sf_rlist,"sfXArray",(float*)lon_T,nlon_T);
-  }
-  else if(type_lon_T == NrmStringToQuark(NhlTInteger)) {
-	NhlRLSetIntegerArray(sf_rlist,"sfXArray",(int*)lon_T,nlon_T);
-  }
-
-/*
  * Set some contour resources.
  */
 
@@ -512,42 +494,22 @@ main()
  * Create and draw contour plot, and advance frame.
  */
 
-  contour = gsn_contour_wrap(wks, T, type_T, nlat_T, nlon_T, is_missing_T, 
-							 FillValue_T, sf_rlist, cn_rlist);
-
-/*
- * Set some vector field resources. These resources will be used for
- * both streamlines and vector plots.
- */
-
-  if(type_lat_UV == NrmStringToQuark(NhlTDouble)) {
-	NhlRLSetDoubleArray(vf_rlist,"vfYArray",(double*)lat_UV,nlat_UV);
-  }
-  else if(type_lat_UV == NrmStringToQuark(NhlTFloat)) {
-	NhlRLSetFloatArray(vf_rlist,"vfYArray",(float*)lat_UV,nlat_UV);
-  }
-  else if (type_lat_UV == NrmStringToQuark(NhlTInteger)) {
-	NhlRLSetIntegerArray(vf_rlist,"vfYArray",(int*)lat_UV,nlat_UV);
-  }
-
-  if(type_lon_UV == NrmStringToQuark(NhlTDouble)) {
-	NhlRLSetDoubleArray(vf_rlist,"vfXArray",(double*)lon_UV,nlon_UV);
-  }
-  else if(type_lon_UV == NrmStringToQuark(NhlTFloat)) {
-	NhlRLSetFloatArray(vf_rlist,"vfXArray",(float*)lon_UV,nlon_UV);
-  }
-  else if (type_lon_UV == NrmStringToQuark(NhlTInteger)) {
-	NhlRLSetIntegerArray(vf_rlist,"vfXArray",(int*)lon_UV,nlon_UV);
-  }
+  contour = gsn_contour_wrap(wks, T, type_T, nlat_T, nlon_T, 
+                             is_lat_coord_T, lat_T, type_lat_T, 
+                             is_lon_coord_T, lon_T, type_lon_T, 
+                             is_missing_T, FillValue_T, sf_rlist, cn_rlist);
 
 /*
  * Create and draw streamline plot, and advance frame.
  */
 
-  streamline = gsn_streamline_wrap(wks, U, V, type_U, type_V, nlat_UV, 
-								   nlon_UV, is_missing_U, is_missing_V, 
-								   FillValue_U, FillValue_V,
-								   vf_rlist, st_rlist);
+  streamline = gsn_streamline_wrap(wks, U, V, type_U, type_V, 
+                                   nlat_UV, nlon_UV, 
+                                   is_lat_coord_UV, lat_UV, type_lat_UV, 
+                                   is_lon_coord_UV, lon_UV, type_lon_UV, 
+                                   is_missing_U, is_missing_V, 
+                                   FillValue_U, FillValue_V,
+                                   vf_rlist, st_rlist);
 
 /*
  * Set some vector resources.
@@ -564,9 +526,11 @@ main()
  */
 
   vector = gsn_vector_wrap(wks, U, V, type_U, type_V, nlat_UV, nlon_UV, 
-						   is_missing_U, is_missing_V, 
-						   FillValue_U, FillValue_V,
-						   vf_rlist, vc_rlist);
+                           is_lat_coord_UV, lat_UV, type_lat_UV, 
+                           is_lon_coord_UV, lon_UV, type_lon_UV, 
+                           is_missing_U, is_missing_V, 
+                           FillValue_U, FillValue_V,
+                           vf_rlist, vc_rlist);
 
 /*
  * NhlDestroy destroys the given id and all of its children.
@@ -683,7 +647,7 @@ void compute_ps_device_coords(int wks, int plot)
  */
  
   if( (lc_orient == NhlPORTRAIT) || ((lc_orient == -1) &&
-	 (ph / pw) >= 1.0)) {
+     (ph / pw) >= 1.0)) {
 /*
  * If plot is higher than it is wide, then default to portrait if
  * orientation is not specified.
@@ -691,12 +655,12 @@ void compute_ps_device_coords(int wks, int plot)
     lc_orient = NhlPORTRAIT;
 
     if ( (ph/pw) > (dh/dw) ) {
-                                   	  /* paper height limits size */
+                                      /* paper height limits size */
       ndc2du = dh / ph;
-	}
-	else {
+    }
+    else {
       ndc2du = dw / pw;
-	}
+    }
 /*
  * Compute device coordinates.
  */
@@ -713,12 +677,12 @@ void compute_ps_device_coords(int wks, int plot)
     lc_orient = NhlLANDSCAPE;
 
     if ( (pw/ph) > (dh/dw) ) {
-                                  	  /* paper height limits size */
+                                      /* paper height limits size */
       ndc2du = dh / pw;
-	}
-	else {
+    }
+    else {
       ndc2du = dw / ph;
-	}
+    }
 
 /*
  * Compute device coordinates.
@@ -739,15 +703,15 @@ void compute_ps_device_coords(int wks, int plot)
 /*
  * Debug prints.
  */
-	
+    
   if(is_debug) {
-	printf("-------Device coordinates for PostScript/PDF-------\n");
-	printf("    wkDeviceLowerX = %d\n", coords[0]);
-	printf("    wkDeviceLowerY = %d\n", coords[1]);
-	printf("    wkDeviceUpperX = %d\n", coords[2]);
-	printf("    wkDeviceUpperY = %d\n", coords[3]);
-	printf("    wkOrientation  = %d\n", lc_orient);
-  }	
+    printf("-------Device coordinates for PostScript/PDF-------\n");
+    printf("    wkDeviceLowerX = %d\n", coords[0]);
+    printf("    wkDeviceLowerY = %d\n", coords[1]);
+    printf("    wkDeviceUpperX = %d\n", coords[2]);
+    printf("    wkDeviceUpperY = %d\n", coords[3]);
+    printf("    wkOrientation  = %d\n", lc_orient);
+  } 
 
 /*
  * Initialize setting and retrieving resource lists.
@@ -857,12 +821,12 @@ void maximize_plot(int wks, int plot)
   (void)NhlSetValues(plot, srlist);
 
   if(!strcmp(NhlClassName(wks),"psWorkstationClass") ||
-	 !strcmp(NhlClassName(wks),"pdfWorkstationClass")) {
+     !strcmp(NhlClassName(wks),"pdfWorkstationClass")) {
 /*
  * Compute and set device coordinates that will make plot fill the 
  * whole page.
  */
-	compute_ps_device_coords(wks,plot);
+    compute_ps_device_coords(wks,plot);
   }
 }
 
@@ -871,9 +835,10 @@ void maximize_plot(int wks, int plot)
  * used with the contour object.
  */
 
-int scalar_field(void *data, NrmQuark type_data, int ylen, int xlen, 
-				 int is_missing_data, void *FillValue_data, int sf_rlist)
-
+int scalar_field(void *data, char *type_data, int ylen, int xlen, 
+                 int is_ycoord, void *ycoord, char *type_ycoord,
+                 int is_xcoord, void *xcoord, char *type_xcoord,
+                 int is_missing_data, void *FillValue_data, int sf_rlist)
 {
   int app, field, length[2];
 
@@ -884,38 +849,68 @@ int scalar_field(void *data, NrmQuark type_data, int ylen, int xlen,
 
 /*
  * Create a scalar field object that will be used as the
- * dataset for the contour object.
+ * dataset for the contour object. Check for missing values
+ * here as well.
  */
 
   length[0] = ylen;
   length[1] = xlen;
 
-  if(type_data == NrmStringToQuark(NhlTDouble)) {
-	NhlRLSetMDDoubleArray(sf_rlist,"sfDataArray",(double*)data,2,
-						  &length[0]);
-	
-	if(is_missing_data) {
-	  NhlRLSetDouble(sf_rlist,"sfMissingValueV",((double*)FillValue_data)[0]);
-	}
+  if(!strcmp(type_data,"double")) {
+    NhlRLSetMDDoubleArray(sf_rlist,"sfDataArray",(double*)data,2,
+                          length);
+    
+    if(is_missing_data) {
+      NhlRLSetDouble(sf_rlist,"sfMissingValueV",((double*)FillValue_data)[0]);
+    }
   }
-  else if(type_data == NrmStringToQuark(NhlTFloat)) {
-	NhlRLSetMDFloatArray(sf_rlist,"sfDataArray",(float*)data,2,
-						 &length[0]);
-	if(is_missing_data) {
-	  NhlRLSetFloat(sf_rlist,"sfMissingValueV",((float*)FillValue_data)[0]);
-	}
+  else if(!strcmp(type_data,"float")) {
+    NhlRLSetMDFloatArray(sf_rlist,"sfDataArray",(float*)data,2,length);
+
+    if(is_missing_data) {
+      NhlRLSetFloat(sf_rlist,"sfMissingValueV",((float*)FillValue_data)[0]);
+    }
   }
-  else if (type_data == NrmStringToQuark(NhlTInteger)) {
-	NhlRLSetMDIntegerArray(sf_rlist,"sfDataArray",(int*)data,2,
-						   &length[0]);
-	if(is_missing_data) {
-	  NhlRLSetInteger(sf_rlist,"sfMissingValueV",((int*)FillValue_data)[0]);
-	}
+  else if(!strcmp(type_data,"integer")) {
+    NhlRLSetMDIntegerArray(sf_rlist,"sfDataArray",(int*)data,2,length);
+    if(is_missing_data) {
+      NhlRLSetInteger(sf_rlist,"sfMissingValueV",((int*)FillValue_data)[0]);
+    }
   }
 
-  NhlCreate(&field,"field",NhlscalarFieldClass,app,sf_rlist);
+/*
+ * Check for coordinate arrays.
+ */
+ 
+  if(is_ycoord) {
+    if(!strcmp(type_ycoord,"double")) {
+       NhlRLSetDoubleArray(sf_rlist,"sfYArray",(double*)ycoord,ylen);
+   }
+   else if(!strcmp(type_ycoord,"float")) {
+     NhlRLSetFloatArray(sf_rlist,"sfYArray",(float*)ycoord,ylen);
+   }
+   else if(!strcmp(type_ycoord,"integer")) {
+     NhlRLSetIntegerArray(sf_rlist,"sfYArray",(int*)ycoord,ylen);
+   }
+  }
+  if(is_xcoord) {
+    if(!strcmp(type_xcoord,"double")) {
+      NhlRLSetDoubleArray(sf_rlist,"sfXArray",(double*)xcoord,xlen);
+    }
+    else if(!strcmp(type_xcoord,"float")) {
+      NhlRLSetFloatArray(sf_rlist,"sfXArray",(float*)xcoord,xlen);
+    }
+    else if(!strcmp(type_xcoord,"integer")) {
+      NhlRLSetIntegerArray(sf_rlist,"sfXArray",(int*)xcoord,xlen);
+    }
+  }
 
-  return(field);
+/*
+ * Create the object.
+ */
+   NhlCreate(&field,"field",NhlscalarFieldClass,app,sf_rlist);
+   
+   return(field);
 }
 
 /*
@@ -923,9 +918,12 @@ int scalar_field(void *data, NrmQuark type_data, int ylen, int xlen,
  * used with the vector or streamline object.
  */
 
-int vector_field(void *u, void *v, NrmQuark type_u, NrmQuark type_v, 
-				 int ylen, int xlen, int is_missing_u, int is_missing_v,
-				 void *FillValue_u, void *FillValue_v, int vf_rlist)
+int vector_field(void *u, void *v, char *type_u, char *type_v, 
+                 int ylen, int xlen, 
+                 int is_ycoord, void *ycoord, char *type_ycoord, 
+                 int is_xcoord, void *xcoord, char *type_xcoord,
+                 int is_missing_u, int is_missing_v,
+                 void *FillValue_u, void *FillValue_v, int vf_rlist)
 {
   int app, field, length[2];
 
@@ -942,49 +940,76 @@ int vector_field(void *u, void *v, NrmQuark type_u, NrmQuark type_v,
   length[0] = ylen;
   length[1] = xlen;
 
-  if(type_u == NrmStringToQuark(NhlTDouble)) {
-	NhlRLSetMDDoubleArray(vf_rlist,"vfUDataArray",(double*)u,2,
-						  &length[0]);
-	
-	if(is_missing_u) {
-	  NhlRLSetDouble(vf_rlist,"vfMissingUValueV",((double*)FillValue_u)[0]);
-	}
+  if(!strcmp(type_u,"double")) {
+    NhlRLSetMDDoubleArray(vf_rlist,"vfUDataArray",(double*)u,2,length);
+    
+    if(is_missing_u) {
+      NhlRLSetDouble(vf_rlist,"vfMissingUValueV",((double*)FillValue_u)[0]);
+    }
   }
-  else if(type_u == NrmStringToQuark(NhlTFloat)) {
-	NhlRLSetMDFloatArray(vf_rlist,"vfUDataArray",(float*)u,2,
-						 &length[0]);
-	if(is_missing_u) {
-	  NhlRLSetFloat(vf_rlist,"vfMissingUValueV",((float*)FillValue_u)[0]);
-	}
+  else if(!strcmp(type_u,"float")) {
+    NhlRLSetMDFloatArray(vf_rlist,"vfUDataArray",(float*)u,2,length);
+
+    if(is_missing_u) {
+      NhlRLSetFloat(vf_rlist,"vfMissingUValueV",((float*)FillValue_u)[0]);
+    }
   }
-  else if (type_u == NrmStringToQuark(NhlTInteger)) {
-	NhlRLSetMDIntegerArray(vf_rlist,"vfUDataArray",(int*)u,2,
-						   &length[0]);
-	if(is_missing_u) {
-	  NhlRLSetInteger(vf_rlist,"vfMissingUValueV",((int*)FillValue_u)[0]);
-	}
+  else if(!strcmp(type_u,"integer")) {
+    NhlRLSetMDIntegerArray(vf_rlist,"vfUDataArray",(int*)u,2,length);
+
+    if(is_missing_u) {
+      NhlRLSetInteger(vf_rlist,"vfMissingUValueV",((int*)FillValue_u)[0]);
+    }
   }
 
-  if(type_v == NrmStringToQuark(NhlTDouble)) {
-	NhlRLSetMDDoubleArray(vf_rlist,"vfVDataArray",(double*)v,2,
-						  &length[0]);
-	if(is_missing_v) {
-	  NhlRLSetDouble(vf_rlist,"vfMissingVValueV",((double*)FillValue_v)[0]);
-	}
+  if(!strcmp(type_v,"double")) {
+    NhlRLSetMDDoubleArray(vf_rlist,"vfVDataArray",(double*)v,2,length);
+
+    if(is_missing_v) {
+      NhlRLSetDouble(vf_rlist,"vfMissingVValueV",((double*)FillValue_v)[0]);
+    }
   }
-  else if(type_v == NrmStringToQuark(NhlTFloat)) {
-	NhlRLSetMDFloatArray(vf_rlist,"vfVDataArray",(float*)v,2,
-						 &length[0]);
-	if(is_missing_v) {
-	  NhlRLSetFloat(vf_rlist,"vfMissingVValueV",((float*)FillValue_v)[0]);
-	}
+  else if(!strcmp(type_v,"float")) {
+    NhlRLSetMDFloatArray(vf_rlist,"vfVDataArray",(float*)v,2,length);
+
+    if(is_missing_v) {
+      NhlRLSetFloat(vf_rlist,"vfMissingVValueV",((float*)FillValue_v)[0]);
+    }
   }
-  else if (type_v == NrmStringToQuark(NhlTInteger)) {
-	NhlRLSetMDIntegerArray(vf_rlist,"vfVDataArray",(int*)v,2,
-						   &length[0]);
-	if(is_missing_v) {
-	  NhlRLSetInteger(vf_rlist,"vfMissingVValueV",((int*)FillValue_v)[0]);
-	}
+  else if(!strcmp(type_v,"integer")) {
+    NhlRLSetMDIntegerArray(vf_rlist,"vfVDataArray",(int*)v,2,length);
+
+    if(is_missing_v) {
+      NhlRLSetInteger(vf_rlist,"vfMissingVValueV",((int*)FillValue_v)[0]);
+    }
+  }
+
+/*
+ * Check for coordinate arrays.
+ */
+
+  if(is_ycoord) {
+    if(!strcmp(type_ycoord,"double")) {
+      NhlRLSetDoubleArray(vf_rlist,"vfYArray",(double*)ycoord,ylen);
+    }
+    else if(!strcmp(type_ycoord,"float")) {
+      NhlRLSetFloatArray(vf_rlist,"vfYArray",(float*)ycoord,ylen);
+    }
+    else if(!strcmp(type_ycoord,"integer")) {
+      NhlRLSetIntegerArray(vf_rlist,"vfYArray",(int*)ycoord,ylen);
+    }
+  }
+
+  if(is_xcoord) {
+    if(!strcmp(type_xcoord,"double")) {
+      NhlRLSetDoubleArray(vf_rlist,"vfXArray",(double*)xcoord,xlen);
+    }
+    else if(!strcmp(type_xcoord,"float")) {
+      NhlRLSetFloatArray(vf_rlist,"vfXArray",(float*)xcoord,xlen);
+    }
+    else if(!strcmp(type_xcoord,"integer")) {
+      NhlRLSetIntegerArray(vf_rlist,"vfXArray",(int*)xcoord,xlen);
+    }
   }
 
   NhlCreate(&field,"field",NhlvectorFieldClass,app,vf_rlist);
@@ -1047,7 +1072,7 @@ int gsn_open_wks(char *type, char *name, int wk_rlist)
 
     NhlRLSetInteger(wk_rlist,"wkPause",True);
     NhlCreate(&wks,"x11",NhlxWorkstationClass,
-			  NhlDEFAULT_APP,wk_rlist);
+              NhlDEFAULT_APP,wk_rlist);
   }
   else if(!strcmp(type,"ncgm") || !strcmp(type,"NCGM")) {
 /*
@@ -1118,9 +1143,11 @@ int gsn_open_wks(char *type, char *name, int wk_rlist)
  * This function uses the HLUs to create a contour plot.
  */
 
-int gsn_contour_wrap(int wks, void *data, NrmQuark type, int ylen, int xlen,
-					 int is_missing, void *FillValue, int sf_rlist, 
-					 int cn_rlist)
+int gsn_contour_wrap(int wks, void *data, char *type, int ylen, int xlen,
+                     int is_ycoord, void *ycoord, char *ycoord_type,
+                     int is_xcoord, void *xcoord, char *xcoord_type,
+                     int is_missing, void *FillValue, 
+                     int sf_rlist, int cn_rlist)
 {
   int field, contour;
 
@@ -1129,8 +1156,9 @@ int gsn_contour_wrap(int wks, void *data, NrmQuark type, int ylen, int xlen,
  * dataset for the contour object.
  */
 
-  field = scalar_field(data, type, ylen, xlen, is_missing, 
-					   FillValue, sf_rlist);
+  field = scalar_field(data, type, ylen, xlen, is_ycoord, ycoord,
+                       ycoord_type, is_xcoord, xcoord, xcoord_type,
+                       is_missing, FillValue, sf_rlist);
 
 /*
  * Assign the data object that was created earlier.
@@ -1165,10 +1193,13 @@ int gsn_contour_wrap(int wks, void *data, NrmQuark type, int ylen, int xlen,
  * This function uses the HLUs to create a vector plot.
  */
 
-int gsn_vector_wrap(int wks, void *u, void *v, NrmQuark type_u,
-					NrmQuark type_v, int ylen, int xlen, int is_missing_u,
-					int is_missing_v, void *FillValue_u, void *FillValue_v,
-					int vf_rlist, int vc_rlist)
+int gsn_vector_wrap(int wks, void *u, void *v, char *type_u,
+                    char *type_v, int ylen, int xlen, 
+                    int is_ycoord, void *ycoord, char *type_ycoord,
+                    int is_xcoord, void *xcoord, char *type_xcoord,
+                    int is_missing_u, int is_missing_v, 
+                    void *FillValue_u, void *FillValue_v,
+                    int vf_rlist, int vc_rlist)
 {
   int field, vector;
 
@@ -1177,8 +1208,10 @@ int gsn_vector_wrap(int wks, void *u, void *v, NrmQuark type_u,
  * dataset for the vector object.
  */
 
-  field = vector_field(u, v, type_u, type_v, ylen, xlen, is_missing_u, 
-					   is_missing_v, FillValue_u, FillValue_v, vf_rlist);
+  field = vector_field(u, v, type_u, type_v, ylen, xlen, is_ycoord,
+                       ycoord, type_ycoord, is_xcoord, xcoord, 
+                       type_xcoord, is_missing_u, is_missing_v, 
+                       FillValue_u, FillValue_v, vf_rlist);
 
 /*
  * Assign the data object that was created earlier.
@@ -1213,10 +1246,13 @@ int gsn_vector_wrap(int wks, void *u, void *v, NrmQuark type_u,
  * This function uses the HLUs to create a streamline plot.
  */
 
-int gsn_streamline_wrap(int wks, void *u, void *v, NrmQuark type_u, 
-						NrmQuark type_v, int ylen, int xlen, int is_missing_u, 
-						int is_missing_v, void *FillValue_u, 
-						void *FillValue_v, int vf_rlist, int st_rlist)
+int gsn_streamline_wrap(int wks, void *u, void *v, char *type_u,
+                        char *type_v, int ylen, int xlen, 
+                        int is_ycoord, void *ycoord, char *type_ycoord,
+                        int is_xcoord, void *xcoord, char *type_xcoord,
+                        int is_missing_u, int is_missing_v, 
+                        void *FillValue_u, void *FillValue_v, 
+                        int vf_rlist, int st_rlist)
 {
   int field, streamline;
 
@@ -1225,8 +1261,10 @@ int gsn_streamline_wrap(int wks, void *u, void *v, NrmQuark type_u,
  * dataset for the streamline object.
  */
 
-  field = vector_field(u, v, type_u, type_v, ylen, xlen, is_missing_u, 
-					   is_missing_v, FillValue_u, FillValue_v, vf_rlist);
+  field = vector_field(u, v, type_u, type_v, ylen, xlen, is_ycoord, ycoord,
+                       type_ycoord, is_xcoord, xcoord, type_xcoord, 
+                       is_missing_u, is_missing_v, FillValue_u, 
+                       FillValue_v, vf_rlist);
 
 /*
  * Assign the data object that was created earlier.

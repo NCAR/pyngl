@@ -13,17 +13,24 @@
 #include <ncarg/hlu/VectorField.h>
 #include <netcdf.h>
 
-
 #define max(x,y)   ((x) > (y) ? (x) : (y))
+
+/*
+ * The length of the variable type must be big enough to hold the 
+ * longest *numeric* type name, which in this case is "integer".
+ */
+#define TYPE_LEN 8     
 
 /*
  * Prototype GSUN and supplemental functions.
  */
 
-extern int scalar_field(void *, NrmQuark, int, int, int, void *, int);
+extern int scalar_field(void *, char *, int, int, int, void *, char *, 
+                        int, void *, char *, int, void *, int);
 
-extern int vector_field(void *, void *, NrmQuark, NrmQuark, int, int, int,
-						int, void *, void *, int);
+extern int vector_field(void *, void *, char *, char *, int, int, int, 
+                        void *, char *, int, void*, char *, int, int,
+                        void *, void *, int);
 
 extern void compute_ps_device_coords(int,int);
 
@@ -31,12 +38,15 @@ extern void maximize_plot(int, int);
 
 extern int gsn_open_wks(char *, char *, int);
 
-extern int gsn_contour_wrap(int, void *, NrmQuark, int, int, int, void *, 
-							int, int);
+extern int gsn_contour_wrap(int, void *, char *, int, int, 
+                            int, void *, char *, int, void *, char *,
+                            int, void *, int, int);
 
-extern int gsn_vector_wrap(int, void *, void *, NrmQuark, NrmQuark, int, int,
-						   int, int, void *, void *, int, int);
+extern int gsn_vector_wrap(int, void *, void *, char *, char *, int, int,
+                           int, void *, char *, int, void *, char *, int,
+                           int, void *, void *, int, int);
 
-extern int gsn_streamline_wrap(int, void *, void *, NrmQuark, NrmQuark, int,
-							   int, int, int, void *, void *, int, int);
+extern int gsn_streamline_wrap(int, void *, void *, char *, char *, int,
+                               int, int, void *, char *, int, void *, 
+                               char *, int, int, void *, void *, int, int);
 
