@@ -8,6 +8,8 @@
  */
 const char *polylinestr = "polyline";
   
+int global_wk_orientation = -1;
+
 /*
  *  This function calculates the maximum value of a 1D int array.
  */
@@ -126,14 +128,35 @@ void compute_ps_device_coords(int wks, nglPlotId *plots, int nplots,
   int lft_inv_pnl, rgt_inv_pnl, top_inv_pnl, bot_inv_pnl;
   NhlWorkOrientation paper_orient; 
 
+  is_debug     = special_res->nglDebug;
 /*
- * These four paper* resources are for PDF/PS output.
+ * This next section is for PS/PDF output.
  */
-  paper_orient = special_res->nglPaperOrientation;
+/*
+ * First, make sure we use the correction orientation. If nglPaperOrientation
+ * was set by the user, use this. Otherwise, if wkOrientation was set by
+ * the user, use this. Otherwise, default to 3 (auto).
+ */
+  paper_orient = 3;                       /* Default to 3 (auto) */
+
+  if(special_res->nglPaperOrientation == -1) {
+    if(global_wk_orientation >= 0) {
+      paper_orient = global_wk_orientation;
+    }
+  }
+  else {
+    if(special_res->nglPaperOrientation == NhlPORTRAIT || 
+       special_res->nglPaperOrientation == NhlLANDSCAPE || 
+       special_res->nglPaperOrientation == 3) { 
+      paper_orient = special_res->nglPaperOrientation;
+    }
+    else {
+      printf("Unrecognized value for nglPaperOrientation (%d).\nDefaulting to auto.\n",special_res->nglPaperOrientation);
+    }
+  }
   paper_height = special_res->nglPaperHeight;
   paper_width  = special_res->nglPaperWidth;
   paper_margin = special_res->nglPaperMargin;
-  is_debug     = special_res->nglDebug;
 
 /*
  * Check to see if any panel resources have been set. They are only 
@@ -275,7 +298,7 @@ void compute_ps_device_coords(int wks, nglPlotId *plots, int nplots,
  * on this.
  */
  
-  if( (paper_orient == NhlPORTRAIT) || ((paper_orient == -1) &&
+  if( (paper_orient == NhlPORTRAIT) || ((paper_orient == 3) &&
      (ph / pw) >= 1.0)) {
 /*
  * If plot is higher than it is wide, then default to portrait if
@@ -1190,7 +1213,7 @@ int vector_field(void *u, void *v, const char *type_u, const char *type_v,
 
 int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res)
 {
-  int wks, len, tlen, wk_rlist;
+  int i, wks, len, tlen, wk_rlist, grlist;
   char *filename = (char *) NULL;
   int srlist, app;
 
@@ -1315,6 +1338,22 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res)
   else {
     NhlPError(NhlWARNING,NhlEUNKNOWN,"spread_colors: Invalid workstation type, must be 'x11', 'ncgm', 'ps', 'png', or 'pdf'\n");
   }
+
+/*
+ * Check if wkOrientation is set. If so, set a flag so that later on,
+ * when we are maximizing the size of plot in the workstation, we use
+ * the one set by wkOrientation. However, setting nglPaperOrientation
+ * will override wkOrientation.
+ */
+  for(i = 0; i < wk_res->nstrings; i++) {
+    if(!strcmp((wk_res->strings)[i],"wkOrientation")) {
+      grlist = NhlRLCreate(NhlGETRL);
+      NhlRLClear(grlist);
+      NhlRLGetInteger(grlist,"wkOrientation",&global_wk_orientation);
+      NhlGetValues(wks,grlist);
+    }
+  }
+
 
 /*
  * Clean up and return.

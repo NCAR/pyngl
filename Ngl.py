@@ -196,7 +196,17 @@ def set_spc_res(resource_name,value):
   elif (resource_name[0:5] == "Debug"):
     set_nglRes_i(4, lval) 
   elif (resource_name[0:16] == "PaperOrientation"):
-    set_nglRes_i(5, lval) 
+    if(type(lval) == types.StringType):
+      if(string.lower(lval) == "portrait"):
+        set_nglRes_i(5, 0) 
+      elif(string.lower(lval) == "landscape"):
+        set_nglRes_i(5, 6) 
+      elif(string.lower(lval) == "auto"):
+        set_nglRes_i(5, 3) 
+      else:
+        print "set_spc_res: Unknown value for " + resource_name
+    else:
+      set_nglRes_i(5, lval) 
   elif (resource_name[0:10] == "PaperWidth"):
     set_nglRes_f(6, lval) 
   elif (resource_name[0:11] == "PaperHeight"):
@@ -836,10 +846,10 @@ def contour(wks,array,rlistc=None):
 #  is not in the resource list.
 #
     if(key[0:8] == "cnFillOn" and rlist[key] > 0):
-      if ( not (rlist.has_key("pmLabelBarDisplayMode"))):
-        rlist2["pmLabelBarDisplayMode"] = "Always"
       if ( not (rlist.has_key("cnInfoLabelOn"))):
         rlist2["cnInfoLabelOn"] = False
+      if ( not (rlist.has_key("pmLabelBarDisplayMode"))):
+        rlist2["pmLabelBarDisplayMode"] = "Always"
     if (key[0:2] == "sf"):
       rlist1[key] = rlist[key]
     elif(key[0:3] == "ngl"):

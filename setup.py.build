@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 #
-# To install PyNGL:
+# To build PyNGL:
 #
-#     python setup.py install
+#     python setup.build.py install
+#
+# Note: this script is mainly used so that the appropriate "build"
+# directory is created.  I use the yMakefile system to actually build
+# the PyNGL binary (_hlu.so), and I install this in the build directory.
 #
 
 import os
