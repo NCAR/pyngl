@@ -23,7 +23,7 @@ pyngl_dir = pkgs_pth + "/PyNGL/ncarg"
 # fonts, map databases, colormaps, and other databases.
 #
 asc_files      = os.listdir('ncarg/data/asc')
-bin_files      = os.listdir('ncarg/data/bin')
+dbin_files     = os.listdir('ncarg/data/bin')
 cdf_files      = os.listdir('ncarg/data/cdf')
 grb_files      = os.listdir('ncarg/data/grb')
 colormap_files = os.listdir('ncarg/colormaps')
@@ -31,6 +31,7 @@ database_files = os.listdir('ncarg/database')
 fontcap_files  = os.listdir('ncarg/fontcaps')
 graphcap_files = os.listdir('ncarg/graphcaps')
 pynglex_files  = os.listdir('ncarg/pynglex')
+bin_files      = os.listdir('bin')
 
 #
 # os.listdir doesn't include the relative directory path...
@@ -38,8 +39,8 @@ pynglex_files  = os.listdir('ncarg/pynglex')
 for i in xrange(len(asc_files)):
   asc_files[i] = "ncarg/data/asc/" + asc_files[i]
 
-for i in xrange(len(bin_files)):
-  bin_files[i] = "ncarg/data/bin/" + bin_files[i]
+for i in xrange(len(dbin_files)):
+  dbin_files[i] = "ncarg/data/bin/" + dbin_files[i]
 
 for i in xrange(len(cdf_files)):
   cdf_files[i] = "ncarg/data/cdf/" + cdf_files[i]
@@ -62,7 +63,8 @@ for i in xrange(len(graphcap_files)):
 for i in xrange(len(pynglex_files)):
   pynglex_files[i] = "ncarg/pynglex/" + pynglex_files[i]
 
-pynglex = ["pynglex"]
+for i in xrange(len(bin_files)):
+  bin_files[i] = "bin/" + bin_files[i]
 
 res_file = ["ncarg/sysresfile"]
 
@@ -74,12 +76,12 @@ setup (name = "PyNGL",
        long_description = "PyNGL is a Python language module designed for publication-quality visualization of data. PyNGL stands for 'Python Interface to the NCL Graphics Libraries,' and it is pronounced 'pingle.'",
        url = "http://www.pyngl.ucar.edu/",
        packages = ['PyNGL'],
-       data_files = [("bin",                   ["pynglex"]),
+       data_files = [("bin",                   bin_files),
                      (pkgs_pth,                ["PyNGL.pth"]),
                      (pkgs_pth+"/PyNGL",       ["PyNGL/_hlu.so"]),
                      (pyngl_dir,               res_file),
                      (pyngl_dir + "/data/asc", asc_files),
-                     (pyngl_dir + "/data/bin", bin_files),
+                     (pyngl_dir + "/data/bin", dbin_files),
                      (pyngl_dir + "/data/cdf", cdf_files),
                      (pyngl_dir + "/data/grb", grb_files),
                      (pyngl_dir + "/colormaps",colormap_files),

@@ -1213,7 +1213,7 @@ int vector_field(void *u, void *v, const char *type_u, const char *type_v,
 
 int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res)
 {
-  int i, wks, len, tlen, wk_rlist, grlist;
+  int i, wks, len, tlen, wk_rlist, grlist, check_orientation = 0;
   char *filename = (char *) NULL;
   int srlist, app;
 
@@ -1284,6 +1284,10 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res)
           !strcmp(type,"eps")  || !strcmp(type,"EPS") || 
           !strcmp(type,"epsi") || !strcmp(type,"EPSI")) {
 /*
+ * Flag for whether we need to check for wkOrientation later.
+ */
+    check_orientation = 1;
+/*
  * Generate PS file name.
  */
 
@@ -1303,6 +1307,10 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res)
     NhlCreate(&wks,type,NhlpsWorkstationClass,NhlDEFAULT_APP,wk_rlist);
   }
   else if(!strcmp(type,"pdf") || !strcmp(type,"PDF")) {
+/*
+ * Flag for whether we need to check for wkOrientation later.
+ */
+    check_orientation = 1;
 /*
  * Generate PDF file name.
  */
@@ -1324,7 +1332,6 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res)
  * Generate PNG file name.
  * Not yet available.
  */
-/*
   else if(!strcmp(type,"png") || !strcmp(type,"PNG")) {
     len      = strlen(name);
     filename = (char *)calloc(len+1,sizeof(char));
@@ -1334,7 +1341,6 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res)
     NhlRLSetString(wk_rlist,"wkImageFormat","png");
     NhlCreate(&wks,"png",NhlimageWorkstationClass,NhlDEFAULT_APP,wk_rlist);
   }
- */
   else {
     NhlPError(NhlWARNING,NhlEUNKNOWN,"spread_colors: Invalid workstation type, must be 'x11', 'ncgm', 'ps', 'png', or 'pdf'\n");
   }
@@ -1342,15 +1348,17 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res)
 /*
  * Check if wkOrientation is set. If so, set a flag so that later on,
  * when we are maximizing the size of plot in the workstation, we use
- * the one set by wkOrientation. However, setting nglPaperOrientation
+ * the one set by wkOrientation. Setting nglPaperOrientation
  * will override wkOrientation.
  */
-  for(i = 0; i < wk_res->nstrings; i++) {
-    if(!strcmp((wk_res->strings)[i],"wkOrientation")) {
-      grlist = NhlRLCreate(NhlGETRL);
-      NhlRLClear(grlist);
-      NhlRLGetInteger(grlist,"wkOrientation",&global_wk_orientation);
-      NhlGetValues(wks,grlist);
+  if(check_orientation) {
+    for(i = 0; i < wk_res->nstrings; i++) {
+      if(!strcmp((wk_res->strings)[i],"wkOrientation")) {
+        grlist = NhlRLCreate(NhlGETRL);
+        NhlRLClear(grlist);
+        NhlRLGetInteger(grlist,"wkOrientation",&global_wk_orientation);
+        NhlGetValues(wks,grlist);
+      }
     }
   }
 
