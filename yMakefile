@@ -10,24 +10,24 @@ LIBS = $(HLULIBS) $(NCARGLIBS) $(NGMATHLIBS)
 #endif
 
 #if (defined(IRIX) || defined(IRIX64))
-EXTRA_LIBS = -lX11 -lftn
+EXTRA_LIBS = -lX11 -lftn -lnfp
 LN_COMMANDS = $(LD) -shared
 
 #elif defined(SUN)
-EXTRA_LIBS = -R /opt/SUNWspro/lib -L/opt/SUNWspro/lib -lF77 -lM77 -lnsl -lsunmath -lm -lX11 -lXext
+EXTRA_LIBS = -R /opt/SUNWspro/lib -L/opt/SUNWspro/lib -lF77 -lM77 -lnsl -lsunmath -lm -lX11 -lXext -lnfp
 LN_COMMANDS = $(LD) -G
 CCOPTIONS = 
 
 #elif defined(AIX)
-EXTRA_LIBS = -lm -lc -lxlf90 -lxlf -lxlopt
+EXTRA_LIBS = -lm -lc -lxlf90 -lxlf -lxlopt -lnfp
 LN_COMMANDS = $(LD) -bnoquiet -G -bnoentry -bexpall
 
 #elif defined(linux)
-EXTRA_LIBS = -L/usr/X11R6/lib -lX11 -lXext -lg2c
+EXTRA_LIBS = -L/usr/X11R6/lib -lX11 -lXext -lg2c -lnfp
 LN_COMMANDS = gcc -shared
 
 #elif defined(Darwin)
-EXTRA_LIBS = -L/usr/X11R6/lib -lX11 -L/sw/lib -lg2c
+EXTRA_LIBS = -L/usr/X11R6/lib -lX11 -L/sw/lib -lg2c -lnfp
 LN_COMMANDS = $(CC_LD) -bundle -flat_namespace -undefined suppress
 CCOPTIONS = 
 #endif
