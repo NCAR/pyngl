@@ -176,7 +176,8 @@ extern void compute_ps_device_coords(int, nglPlotId *, int, nglRes *);
 
 extern void maximize_plot(int, nglPlotId *, int, int, nglRes *);
 
-extern void overlay_on_irregular(int, nglPlotId *asplot, ResInfo *, nglRes*);
+extern void overlay_on_irregular(int, nglPlotId *asplot, ResInfo *, 
+								 ResInfo *, nglRes*);
 
 extern void spread_colors(int, int, int, int, char*, char*, int);
 

@@ -535,9 +535,16 @@ void maximize_plot(int wks, nglPlotId *plot, int nplots, int ispanel,
  * so it can take an irregular axis and make it log or linear.
  * The axes types are determined by the resources nglXAxisType
  * and nglYAxisType.
+ *
+ * ir_res carries over any tm* and pmTick* resources that might have
+ * been set in the original plot.
+ *
+ * plot_res is just the full list of resources set in the original
+ * plot before it was overlaid. This is used to check for other
+ * resources that might have been set (in this case, for scaling).
  */
-void overlay_on_irregular(int wks, nglPlotId *plot, ResInfo *ir_res, 
-                          nglRes *special_res)
+void overlay_on_irregular(int wks, nglPlotId *plot, ResInfo *plot_res,
+                          ResInfo *ir_res, nglRes *special_res)
 {
   int xaxistype, yaxistype, overlay_plot, base_plot;
   float xmin, xmax, ymin, ymax, *xpts, *ypts;
@@ -592,10 +599,10 @@ void overlay_on_irregular(int wks, nglPlotId *plot, ResInfo *ir_res,
   grlist = NhlRLCreate(NhlGETRL);
   NhlRLClear(grlist);
 
-  NhlRLGetFloat(grlist,"trXMinF", &xmin);
-  NhlRLGetFloat(grlist,"trXMaxF", &xmax);
-  NhlRLGetFloat(grlist,"trYMinF", &ymin);
-  NhlRLGetFloat(grlist,"trYMaxF", &ymax);
+  NhlRLGetFloat(grlist,"trXMinF",   &xmin);
+  NhlRLGetFloat(grlist,"trXMaxF",   &xmax);
+  NhlRLGetFloat(grlist,"trYMinF",   &ymin);
+  NhlRLGetFloat(grlist,"trYMaxF",   &ymax);
   NhlRLGetInteger(grlist,"trYReverse", &yreverse);
   NhlRLGetInteger(grlist,"trXReverse", &xreverse);
   NhlGetValues(overlay_plot,grlist);
@@ -719,6 +726,12 @@ void overlay_on_irregular(int wks, nglPlotId *plot, ResInfo *ir_res,
  * Set the new base plot.
  */
   *(plot->base) = base_plot;
+
+/*
+ * We need to scale the plot again, because the old scales don't
+ * apply after you do an overlay.
+ */ 
+  if(special_res->nglScale) scale_plot(*(plot->base),plot_res);
 
   return;
 }
@@ -879,7 +892,7 @@ void scale_plot(int plot, ResInfo *res)
  * and tickmark labels the same size.  Only set it if the tickmark
  * display mode is NhlCONDITIONAL or NhlALWAYS.
  */
-  if((mode == NhlCONDITIONAL || mode == NhlALWAYS) && 
+  if((mode == NhlCONDITIONAL || mode == NhlALWAYS) &&
      !is_res_set(res,"tmEqualizeXYSizes")) {
     NhlRLSetInteger(srlist, "tmEqualizeXYSizes", 1);
   }
@@ -1683,7 +1696,7 @@ nglPlotId contour_wrap(int wks, void *data, const char *type, int ylen,
  */
 
   if(special_res->nglXAxisType > 0 || special_res->nglYAxisType > 0) {
-    overlay_on_irregular(wks,&plot,tm_res,special_res);
+    overlay_on_irregular(wks,&plot,cn_res,tm_res,special_res);
   }
 
 /*
@@ -1897,7 +1910,7 @@ nglPlotId vector_wrap(int wks, void *u, void *v, const char *type_u,
  */
 
   if(special_res->nglXAxisType > 0 || special_res->nglYAxisType > 0) {
-    overlay_on_irregular(wks,&plot,tm_res,special_res);
+    overlay_on_irregular(wks,&plot,vc_res,tm_res,special_res);
   }
 
 /*
@@ -1986,7 +1999,7 @@ nglPlotId streamline_wrap(int wks, void *u, void *v, const char *type_u,
  */
 
   if(special_res->nglXAxisType > 0 || special_res->nglYAxisType > 0) {
-    overlay_on_irregular(wks,&plot,tm_res,special_res);
+    overlay_on_irregular(wks,&plot,st_res,tm_res,special_res);
   }
 
 /*
@@ -2402,7 +2415,7 @@ nglPlotId vector_scalar_wrap(int wks, void *u, void *v, void *t,
  */
 
   if(special_res->nglXAxisType > 0 || special_res->nglYAxisType > 0) {
-    overlay_on_irregular(wks,&plot,tm_res,special_res);
+    overlay_on_irregular(wks,&plot,vc_res,tm_res,special_res);
   }
 
 /*

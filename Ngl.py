@@ -327,6 +327,15 @@ def check_res_value(resvalue,strvalue,intvalue):
   else:
     return(False)
 
+def set_tickmark_res(reslist,reslist1):
+#
+# Set tmEqualizeXYSizes to True so that tickmark lengths and font
+# heights are the same size on both axes.
+#
+  if((reslist.has_key("nglScale") and reslist["nglScale"] > 0) or
+     (not (reslist.has_key("nglScale")))):
+    reslist1["tmEqualizeXYSizes"] = True
+
 def set_contour_res(reslist,reslist1):
 #
 #  Set some contour resources of which we either don't like the NCL
@@ -364,12 +373,9 @@ def set_contour_res(reslist,reslist1):
     if (not (reslist.has_key("cnMonoLineLabelFontColor"))):
       reslist1["cnMonoLineLabelFontColor"] = False
 #
-# Set tmEqualizeXYSizes to True so that tickmark lengths and font
-# heights are the same size on both axes.
+# Set some tickmark resources.
 #
-  if((reslist.has_key("nglScale") and reslist["nglScale"] > 0) or
-     (not (reslist.has_key("nglScale")))):
-    reslist1["tmEqualizeXYSizes"] = True
+  set_tickmark_res(reslist,reslist1)
 
 def set_vector_res(reslist,reslist1):
 #
@@ -397,13 +403,9 @@ def set_vector_res(reslist,reslist1):
     if ( not (reslist.has_key("pmLabelBarDisplayMode"))):
       reslist1["pmLabelBarDisplayMode"] = "Always"
 #
-# Set tmEqualizeXYSizes to True so that tickmark lengths and font
-# heights are the same size on both axes.
+# Set some tickmark resources.
 #
-  if((reslist.has_key("nglScale") and reslist["nglScale"] > 0) or
-     (not (reslist.has_key("nglScale")))):
-    reslist1["tmEqualizeXYSizes"] = True
-
+  set_tickmark_res(reslist,reslist1)
 
 def set_streamline_res(reslist,reslist1):
 #
@@ -418,12 +420,9 @@ def set_streamline_res(reslist,reslist1):
     if (not (reslist.has_key("stMonoLineColor"))):
       reslist1["stMonoLineColor"] = False
 #
-# Set tmEqualizeXYSizes to True so that tickmark lengths and font
-# heights are the same size on both axes.
+# Set some tickmark resources.
 #
-  if((reslist.has_key("nglScale") and reslist["nglScale"] > 0) or
-     (not (reslist.has_key("nglScale")))):
-    reslist1["tmEqualizeXYSizes"] = True
+  set_tickmark_res(reslist,reslist1)
 
 def set_map_res(reslist,reslist1):
 #
@@ -1086,11 +1085,12 @@ def contour(wks,array,rlistc=None):
 # then we need to keep track of all the tickmark resources, because
 # we'll have to reapply them to the IrregularPlot class.
 #
-      if(key[0:2] == "tm" or key[0:6] == "pmTick"):
+      if(key[0:2] == "vp" or key[0:2] == "tm" or key[0:6] == "pmTick"):
         rlist3[key] = rlist[key]
 
   set_contour_res(rlist,rlist2)       # Set some addtl contour resources
   set_labelbar_res(rlist,rlist2)      # Set some addtl labelbar resources
+  set_tickmark_res(rlist,rlist3)      # Set some addtl tickmark resources
     
 #
 #  Call the wrapped function and return.
@@ -1228,10 +1228,11 @@ def streamline(wks,uarray,varray,rlistc=None):
 # then we need to keep track of all the tickmark resources, because
 # we'll have to reapply them to the IrregularPlot class.
 #
-      if(key[0:2] == "tm" or key[0:6] == "pmTick"):
+      if(key[0:2] == "vp" or key[0:2] == "tm" or key[0:6] == "pmTick"):
         rlist3[key] = rlist[key]
     
-  set_streamline_res(rlist,rlist2)        # Set some addtl streamline resources
+  set_streamline_res(rlist,rlist2)    # Set some addtl streamline resources
+  set_tickmark_res(rlist,rlist3)      # Set some addtl tickmark resources
 
 #
 #  Call the wrapped function and return.
@@ -1309,11 +1310,12 @@ def vector(wks,uarray,varray,rlistc=None):
 # then we need to keep track of all the tickmark resources, because
 # we'll have to reapply them to the IrregularPlot class.
 #
-      if(key[0:2] == "tm" or key[0:6] == "pmTick"):
+      if(key[0:2] == "vp" or key[0:2] == "tm" or key[0:6] == "pmTick"):
         rlist3[key] = rlist[key]
     
   set_vector_res(rlist,rlist2)        # Set some addtl vector resources
   set_labelbar_res(rlist,rlist2)      # Set some addtl labelbar resources
+  set_tickmark_res(rlist,rlist3)      # Set some addtl tickmark resources
 
 #
 #  Call the wrapped function and return.
@@ -1395,11 +1397,12 @@ def vector_scalar(wks,uarray,varray,tarray,rlistc=None):
 # then we need to keep track of all the tickmark resources, because
 # we'll have to reapply them to the IrregularPlot class.
 #
-      if(key[0:2] == "tm" or key[0:6] == "pmTick"):
+      if(key[0:2] == "vp" or key[0:2] == "tm" or key[0:6] == "pmTick"):
         rlist4[key] = rlist[key]
     
   set_vector_res(rlist,rlist3)        # Set some addtl vector resources
   set_labelbar_res(rlist,rlist3)      # Set some addtl labelbar resources
+  set_tickmark_res(rlist,rlist4)      # Set some addtl tickmark resources
 
 #
 #  Call the wrapped function and return.
