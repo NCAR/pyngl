@@ -8,6 +8,43 @@
  */
 const char *polylinestr = "polyline";
   
+/*
+ *  This function calculates the maximum value of a 1D int array.
+ */
+int imax_array(int *array, int npts)
+{
+  int i, imax;
+
+  imax = array[0];
+  for(i = 1; i < npts; i++) imax = max(array[i],imax);
+  return(imax);
+}
+
+/*
+ *  This function calculates the maximum value of a 1D float array.
+ */
+float xmax_array(float *array, int npts)
+{
+  int i;
+  float xmax;
+
+  xmax = array[0];
+  for(i = 1; i < npts; i++) xmax = max(array[i],xmax);
+  return(xmax);
+}
+
+/*
+ *  This function calculates the minimum value of a 1D float array.
+ */
+float xmin_array(float *array, int npts)
+{
+  int i;
+  float xmin;
+
+  xmin = array[0];
+  for(i = 1; i < npts; i++) xmin = min(array[i],xmin);
+  return(xmin);
+}
 
 /*
  * This function creates npts values from start to end.
@@ -31,7 +68,6 @@ float *fspan(float start, float end, int npts)
   return(ret_val);
 }
 
-
 /*
  * This function computes the PostScript device coordinates needed to
  * make a plot fill up the full page.
@@ -51,39 +87,130 @@ float *fspan(float start, float end, int npts)
  *                        default is 0.5)
  *
  */
-void compute_ps_device_coords(int wks, int plot, gsnRes *special_res)
+void compute_ps_device_coords(int wks, int *plots, int nplots, 
+                              gsnRes *special_res)
 {
-  NhlBoundingBox box;
+  NhlBoundingBox *box;
   float top, bot, lft, rgt, dpi_pw, dpi_ph, dpi_margin;
   float paper_width, paper_height, paper_margin;
   float pw, ph, lx, ly, ux, uy, dw, dh, ndc2du;
-  int srlist, is_debug, dpi, coords[4];
-  NhlWorkOrientation lc_orient, paper_orient; 
-
-  NhlGetBB(plot,&box);
+  int i, srlist, is_debug, dpi, coords[4];
+  int lft_pnl, rgt_pnl, top_pnl, bot_pnl;
+  int lft_inv_pnl, rgt_inv_pnl, top_inv_pnl, bot_inv_pnl;
+  NhlWorkOrientation paper_orient; 
 
 /*
- * These next four paper* variables should be settable by the user. Right
- * now, they are being hard-coded.
+ * These four paper* resources are for PDF/PS output.
  */
-  paper_orient = -1;         /* Auto */
-  paper_height = 11.0;
-  paper_width  = 8.5;
-  paper_margin = 0.5;
+  paper_orient = special_res->gsnPaperOrientation;
+  paper_height = special_res->gsnPaperHeight;
+  paper_width  = special_res->gsnPaperWidth;
+  paper_margin = special_res->gsnPaperMargin;
   is_debug     = special_res->gsnDebug;
 
 /*
- * Get the bounding box that encompasses the plot. Note that even
+ * Check to see if any panel resources have been set. They are only 
+ * used if they have been explicitly set by the user.
+ */
+  if(special_res->gsnPanelLeft != 0.) {
+    lft_pnl = 1;
+  }
+  else {
+    lft_pnl = 0;
+  }
+  if(special_res->gsnPanelRight != 1.) {
+    rgt_pnl = 1;
+  }
+  else {
+    rgt_pnl = 0;
+  }
+  if(special_res->gsnPanelBottom != 0.) {
+    bot_pnl = 1;
+  }
+  else {
+    bot_pnl = 0;
+  }
+  if(special_res->gsnPanelTop != 1.) {
+    top_pnl = 1;
+  }
+  else {
+    top_pnl = 0;
+  }
+
+  if(special_res->gsnPanelInvsblLeft == -999) {
+    lft_inv_pnl = 0;
+  }
+  else {
+    lft_inv_pnl = 1;
+  }
+  if(special_res->gsnPanelInvsblRight == -999) {
+    rgt_inv_pnl = 0;
+  }
+  else {
+    rgt_inv_pnl = 1;
+  }
+  if(special_res->gsnPanelInvsblBottom == -999) {
+    bot_inv_pnl = 0;
+  }
+  else {
+    bot_inv_pnl = 1;
+  }
+  if(special_res->gsnPanelInvsblTop == -999) {
+    top_inv_pnl = 0;
+  }
+  else {
+    top_inv_pnl = 1;
+  }
+
+/*
+ * Get the bounding box that encompasses the plot(s). Note that even
  * though the bounding box coordinates should be positive, it is
  * possible for them to be negative, and we need to keep these
  * negative values in our calculations later to preserve the 
  * aspect ratio.
  */
+  box = (NhlBoundingBox *)malloc(nplots*sizeof(NhlBoundingBox));
+  NhlGetBB(plots[0],&box[0]);
+  top = box[0].t;
+  bot = box[0].b;
+  lft = box[0].l;
+  rgt = box[0].r;
 
-  top = box.t;
-  bot = box.b;
-  lft = box.l;
-  rgt = box.r;
+/*
+ * Get largest bounding box that encompasses all non-missing graphical
+ * objects.
+ */
+  for( i = 1; i < nplots; i++ ) { 
+    NhlGetBB(plots[i],&box[i]);
+    top = max(top,box[i].t);
+    bot = min(bot,box[i].b);
+    lft = min(lft,box[i].l);
+    rgt = max(rgt,box[i].r);
+  }
+  if(top_inv_pnl) {
+    top = max(special_res->gsnPanelInvsblTop,top);
+  }
+  else if(top_pnl) {
+    top = max(1.,top);
+  }
+  if(bot_inv_pnl) {
+    bot = min(special_res->gsnPanelInvsblBottom,bot);
+  }
+  else if(bot_pnl) {
+    bot = min(0.,bot);
+  }
+  if(lft_inv_pnl) {
+    lft = min(special_res->gsnPanelInvsblLeft,lft);
+  }
+  else if(lft_pnl) {
+    lft = min(0.,lft);
+  }
+  if(rgt_inv_pnl) {
+    rgt = max(special_res->gsnPanelInvsblRight,rgt);
+  }
+  else if(rgt_pnl) {
+    rgt = max(1.,rgt);
+  }
 
 /*
  * Debug prints
@@ -121,13 +248,13 @@ void compute_ps_device_coords(int wks, int plot, gsnRes *special_res)
  * on this.
  */
  
-  if( (lc_orient == NhlPORTRAIT) || ((lc_orient == -1) &&
+  if( (paper_orient == NhlPORTRAIT) || ((paper_orient == -1) &&
      (ph / pw) >= 1.0)) {
 /*
  * If plot is higher than it is wide, then default to portrait if
  * orientation is not specified.
  */
-    lc_orient = NhlPORTRAIT;
+    paper_orient = NhlPORTRAIT;
 
     if ( (ph/pw) > (dh/dw) ) {
                                       /* paper height limits size */
@@ -149,7 +276,7 @@ void compute_ps_device_coords(int wks, int plot, gsnRes *special_res)
  * If plot is wider than it is high, then default to landscape if
  * orientation is not specified.
  */
-    lc_orient = NhlLANDSCAPE;
+    paper_orient = NhlLANDSCAPE;
 
     if ( (pw/ph) > (dh/dw) ) {
                                       /* paper height limits size */
@@ -185,7 +312,7 @@ void compute_ps_device_coords(int wks, int plot, gsnRes *special_res)
     printf("    wkDeviceLowerY = %d\n", coords[1]);
     printf("    wkDeviceUpperX = %d\n", coords[2]);
     printf("    wkDeviceUpperY = %d\n", coords[3]);
-    printf("    wkOrientation  = %d\n", lc_orient);
+    printf("    wkOrientation  = %d\n", paper_orient);
   } 
 
 /*
@@ -201,7 +328,7 @@ void compute_ps_device_coords(int wks, int plot, gsnRes *special_res)
   NhlRLSetInteger(srlist,"wkDeviceLowerY", coords[1]);
   NhlRLSetInteger(srlist,"wkDeviceUpperX", coords[2]);
   NhlRLSetInteger(srlist,"wkDeviceUpperY", coords[3]);
-  NhlRLSetInteger(srlist,"wkOrientation",  lc_orient);
+  NhlRLSetInteger(srlist,"wkOrientation",  paper_orient);
   (void)NhlSetValues(wks, srlist);
 
 }
@@ -211,7 +338,7 @@ void compute_ps_device_coords(int wks, int plot, gsnRes *special_res)
  * This function maximizes the size of the plot in the viewport.
  */
 
-void maximize_plot(int wks, int plot, gsnRes *special_res)
+void maximize_plot(int wks, int *plot, int nplots, gsnRes *special_res)
 {
   NhlBoundingBox box; 
   float top, bot, lft, rgt, uw, uh;
@@ -224,43 +351,47 @@ void maximize_plot(int wks, int plot, gsnRes *special_res)
  */
   srlist = NhlRLCreate(NhlSETRL);
   grlist = NhlRLCreate(NhlGETRL);
-  NhlRLClear(srlist);
   NhlRLClear(grlist);
 
 /*
- * Get bounding box of plot.
+ * If dealing with multiple plots, then this means we have a
+ * panel plot, and we don't need to maximize the space.
  */
 
-  NhlGetBB(plot,&box);
+  if(nplots == 1) {
+/*
+ * Get bounding box of plot.
+ */
+    NhlGetBB(plot[0],&box);
 
-  top = box.t;
-  bot = box.b;
-  lft = box.l;
-  rgt = box.r;
+    top = box.t;
+    bot = box.b;
+    lft = box.l;
+    rgt = box.r;
 
 /*
  * Get height/width of plot in NDC units.
  */
 
-  uw  = rgt - lft;
-  uh = top - bot;
+    uw  = rgt - lft;
+    uh = top - bot;
 
 /*
  * Calculate scale factor needed to make plot larger (or smaller, if it's
  * outside the viewport).
  */
 
-  scale = (1 - 2*margin)/max(uw,uh);
+    scale = (1 - 2*margin)/max(uw,uh);
 
 /*
  * Get the viewport.
  */
 
-  NhlRLGetFloat(grlist,"vpXF",     &vpx);
-  NhlRLGetFloat(grlist,"vpYF",     &vpy);
-  NhlRLGetFloat(grlist,"vpWidthF", &vpw);
-  NhlRLGetFloat(grlist,"vpHeightF",&vph);
-  (void)NhlGetValues(plot, grlist);
+    NhlRLGetFloat(grlist,"vpXF",     &vpx);
+    NhlRLGetFloat(grlist,"vpYF",     &vpy);
+    NhlRLGetFloat(grlist,"vpWidthF", &vpw);
+    NhlRLGetFloat(grlist,"vpHeightF",&vph);
+    (void)NhlGetValues(plot[0], grlist);
 
 /* 
  * Calculate distance from plot's left position to its leftmost
@@ -268,46 +399,49 @@ void maximize_plot(int wks, int plot, gsnRes *special_res)
  * annotation.
  */
 
-  dx = scale * (vpx - lft); 
-  dy = scale * (top - vpy);
+    dx = scale * (vpx - lft); 
+    dy = scale * (top - vpy);
 
 /*
  * Calculate new viewport coordinates.
  */ 
 
-  new_uw = uw * scale;
-  new_uh = uh * scale;
-  new_ux =     .5 * (1-new_uw);
-  new_uy = 1 - .5 * (1-new_uh);
+    new_uw = uw * scale;
+    new_uh = uh * scale;
+    new_ux =     .5 * (1-new_uw);
+    new_uy = 1 - .5 * (1-new_uh);
 
-  new_vpx = new_ux + dx;
-  new_vpy = new_uy - dy;
-  new_vpw = vpw * scale;
-  new_vph = vph * scale;
+    new_vpx = new_ux + dx;
+    new_vpy = new_uy - dy;
+    new_vpw = vpw * scale;
+    new_vph = vph * scale;
 
 /*
- * Return new coordinates 
+ * Set new coordinates 
  */
 
-  NhlRLSetFloat(srlist,"vpXF",      new_vpx);
-  NhlRLSetFloat(srlist,"vpYF",      new_vpy);
-  NhlRLSetFloat(srlist,"vpWidthF",  new_vpw);
-  NhlRLSetFloat(srlist,"vpHeightF", new_vph);
-  (void)NhlSetValues(plot, srlist);
+    NhlRLClear(srlist);
+    NhlRLSetFloat(srlist,"vpXF",      new_vpx);
+    NhlRLSetFloat(srlist,"vpYF",      new_vpy);
+    NhlRLSetFloat(srlist,"vpWidthF",  new_vpw);
+    NhlRLSetFloat(srlist,"vpHeightF", new_vph);
+    (void)NhlSetValues(plot[0], srlist);
 
-  if(special_res->gsnDebug) {
-    printf("vpXF      = %g\n", new_vpx);
-    printf("vpYF      = %g\n", new_vpy);
-    printf("vpWidthF  = %g\n", new_vpw);
-    printf("vpHeightF = %g\n", new_vph);
+    if(special_res->gsnDebug) {
+      printf("vpXF      = %g\n", new_vpx);
+      printf("vpYF      = %g\n", new_vpy);
+      printf("vpWidthF  = %g\n", new_vpw);
+      printf("vpHeightF = %g\n", new_vph);
+    }
   }
+
   if(!strcmp(NhlClassName(wks),"psWorkstationClass") ||
      !strcmp(NhlClassName(wks),"pdfWorkstationClass")) {
 /*
  * Compute and set device coordinates that will make plot fill the 
  * whole page.
  */
-    compute_ps_device_coords(wks, plot, special_res);
+    compute_ps_device_coords(wks, plot, nplots, special_res);
   }
 }
 
@@ -580,10 +714,17 @@ int create_graphicstyle_object(int wks)
  * This function maximizes and draws the plot, and advances the frame.
  */
 
-void draw_and_frame(int wks, int plot, gsnRes *special_res)
+void draw_and_frame(int wks, int *plots, int nplots, gsnRes *special_res)
 {
-  if(special_res->gsnMaximize) maximize_plot(wks, plot, special_res);
-  if(special_res->gsnDraw)  NhlDraw(plot);
+  int i;
+
+  if(special_res->gsnMaximize) maximize_plot(wks, plots, nplots, 
+                                             special_res);
+  if(special_res->gsnDraw)  {
+    for( i = 0; i < nplots; i++ ) {
+      NhlDraw(plots[i]);
+    }
+  }
   if(special_res->gsnFrame) NhlFrame(wks);
 }
 
@@ -910,7 +1051,7 @@ int gsn_contour_wrap(int wks, void *data, const char *type,
  * Draw contour plot and advance frame.
  */
 
-  draw_and_frame(wks, contour, special_res);
+  draw_and_frame(wks, &contour, 1, special_res);
 
 /*
  * Return.
@@ -980,7 +1121,7 @@ int gsn_xy_wrap(int wks, void *x, void *y, const char *type_x,
  * Draw xy plot and advance frame.
  */
 
-  draw_and_frame(wks, xy, special_res);
+  draw_and_frame(wks, &xy, 1, special_res);
 
 /*
  * Return.
@@ -1062,7 +1203,7 @@ int gsn_vector_wrap(int wks, void *u, void *v, const char *type_u,
  * Draw vector plot and advance frame.
  */
 
-  draw_and_frame(wks, vector, special_res);
+  draw_and_frame(wks, &vector, 1, special_res);
 
 /*
  * Return.
@@ -1118,7 +1259,7 @@ int gsn_streamline_wrap(int wks, void *u, void *v, const char *type_u,
  * Draw streamline plot and advance frame.
  */
 
-  draw_and_frame(wks, streamline, special_res);
+  draw_and_frame(wks, &streamline, 1, special_res);
 
 /*
  * Return.
@@ -1145,7 +1286,7 @@ int gsn_map_wrap(int wks, int mp_rlist, gsnRes *special_res)
  * Draw map plot and advance frame.
  */
 
-  draw_and_frame(wks, map, special_res);
+  draw_and_frame(wks, &map, 1, special_res);
 
 /*
  * Return.
@@ -1207,7 +1348,7 @@ int gsn_contour_map_wrap(int wks, void *data, const char *type,
  * Draw plots and advance frame.
  */
 
-  draw_and_frame(wks, map, special_res);
+  draw_and_frame(wks, &map, 1, special_res);
 
 /*
  * Return.
@@ -1267,7 +1408,7 @@ int gsn_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
  * Draw plots and advance frame.
  */
 
-  draw_and_frame(wks, map, special_res);
+  draw_and_frame(wks, &map, 1, special_res);
 
 /*
  * Return.
@@ -1329,7 +1470,7 @@ int gsn_streamline_map_wrap(int wks, void *u, void *v, const char *type_u,
  * Draw plots and advance frame.
  */
 
-  draw_and_frame(wks, map, special_res);
+  draw_and_frame(wks, &map, 1, special_res);
 
 /*
  * Return.
@@ -1394,7 +1535,7 @@ int gsn_vector_scalar_wrap(int wks, void *u, void *v, void *t,
  * Draw plots and advance frame.
  */
 
-  draw_and_frame(wks, vector, special_res);
+  draw_and_frame(wks, &vector, 1, special_res);
 
 /*
  * Return.
@@ -1460,7 +1601,7 @@ int gsn_vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
  * Draw plots and advance frame.
  */
 
-  draw_and_frame(wks, map, special_res);
+  draw_and_frame(wks, &map, 1, special_res);
 
 /*
  * Return.
@@ -1487,7 +1628,7 @@ int gsn_text_ndc_wrap(int wks, char* string, void *x, void *y,
  * Draw text.
  */
 
-  draw_and_frame(wks, text, special_res);
+  draw_and_frame(wks, &text, 1, special_res);
 
 /*
  * Return.
@@ -2243,5 +2384,573 @@ void gsn_draw_colormap_wrap(int wks)
     NhlRLSetMDFloatArray(srlist,"wkColorMap",&cmap[0],2,cmap_dimsizes);
     NhlSetValues(wks,srlist);
     free(cmap);
+  }
+}
+
+/*
+ * Routine for paneling same-sized plots.
+ */
+void gsn_panel_wrap(int wks, int *plots, int nplots, int *dims, 
+                    int ndims, gsnRes *special_res)
+{
+  int i, npanels, is_row_spec, nrows, ncols, draw_boxes;
+  int num_plots_left, nplot, nplot4, nr, nc, new_ncols, pplot;
+  int *row_spec, *newplots, all_ismissing;
+  int panel_save, panel_debug, panel_center, maxbb;
+  int calldraw, callframe;
+  int lft_pnl, rgt_pnl, bot_pnl, top_pnl;
+
+  float x_lft, x_rgt, y_bot, y_top;
+  float xlft, xrgt, xbot, xtop;
+  int ilft, irgt, ibot, itop;
+  float xsp, ysp, xwsp_perc, ywsp_perc, xwsp, ywsp;
+  float vpx, vpy, vpw, vph, dxl, dxr, dyt, dyb;
+  float *old_vp, *xpos, *ypos, max_rgt, max_top, max_lft, max_bot;
+  float top, bottom, left, right;
+  float newtop, newbot, newrgt, newlft;
+  float plot_width, plot_height, total_width, total_height;
+  float new_plot_width, new_plot_height, new_total_width, new_total_height;
+  float min_xpos, scaled_width, scaled_height, xrange, yrange;
+  float scale, row_scale, col_scale, max_width, max_height;
+  int grlist, srlist;
+  NhlBoundingBox bb, *newbb;
+
+/*
+ * Resource lists for getting and retrieving resources.
+ */
+
+  grlist = NhlRLCreate(NhlGETRL);
+  srlist = NhlRLCreate(NhlSETRL);
+
+/*
+ * First check if paneling is to be specified by (#rows x #columns) or
+ * by #columns per row.  The default is rows x columns, unless 
+ * resource gsnPanelRowSpec is set to True
+ */
+  is_row_spec = special_res->gsnPanelRowSpec;
+
+  if(is_row_spec) {
+    row_spec = dims;
+    npanels  = 0;
+    nrows    = ndims;
+    ncols    = imax_array(row_spec,ndims);
+    
+    for(i = 0; i <= nrows-1; i++) {
+      if(row_spec[i] < 0) {
+        printf("Error: gsn_panel: you have specified a negative value for the number of plots in a row.\n");
+        return;
+      }
+      npanels += row_spec[i];
+    }
+  }
+  else {
+    if(ndims != 2) {
+      printf("Error: gsn_panel: for the third argument of gsn_panel, you must either specify # rows by # columns or set gsnPanelRowSpec to True and set the number of plots per row.\n");
+      return;
+    }
+    nrows    = dims[0];
+    ncols    = dims[1];
+    npanels  = nrows * ncols;
+    row_spec = (int *)malloc(nrows * sizeof(int));
+    for(i = 0; i <= nrows-1; i++) row_spec[i] = ncols;
+  }
+  
+  if(nplots > npanels) {
+    printf("Warning: gsn_panel: you have more plots than you have panels.\n");
+    printf("Only %d plots will be drawn.\n", npanels);
+    nplots = npanels;
+  }
+
+/*
+ * Check for special resources.
+ */ 
+  panel_save     = special_res->gsnPanelSave;
+  panel_debug    = special_res->gsnDebug;
+  panel_center   = special_res->gsnPanelCenter;
+  calldraw       = special_res->gsnDraw;
+  callframe      = special_res->gsnFrame;
+  xwsp_perc      = special_res->gsnPanelXWhiteSpacePercent;
+  ywsp_perc      = special_res->gsnPanelYWhiteSpacePercent;
+  
+/*
+ * Check if these four have been changed from their default values.
+ */
+  x_lft          = special_res->gsnPanelLeft;
+  x_rgt          = special_res->gsnPanelRight;
+  y_bot          = special_res->gsnPanelBottom;
+  y_top          = special_res->gsnPanelTop;
+
+  if(x_lft != 0.) {
+    lft_pnl = 1;
+  }
+  else {
+    lft_pnl = 0;
+  }
+
+  if(x_rgt != 1.) {
+    rgt_pnl = 1;
+  }
+  else {
+    rgt_pnl = 0;
+  }
+
+  if(y_bot != 0.) {
+    bot_pnl = 1;
+  }
+  else {
+    bot_pnl = 0;
+  }
+
+  if(y_top != 1.) {
+    top_pnl = 1;
+  }
+  else {
+    top_pnl = 0;
+  }
+
+/*
+ * Create array to save these plot objects.
+ */
+  newplots = (int *)malloc(nplots*sizeof(int));
+
+/*
+ * We only need to set maxbb to True if the plots are being
+ * drawn to a PostScript or PDF workstation, because the
+ * bounding box is already maximized for an NCGM/X11 window.
+ */ 
+  maxbb = 1;
+  if(special_res->gsnMaximize) {
+    if( (strcmp(NhlClassName(wks),"psWorkstationClass")) && 
+        (strcmp(NhlClassName(wks),"pdfWorkstationClass"))) {
+      maxbb = 0;
+    }
+  }
+
+/*
+ * Error check the values that the user has entered, to make sure
+ * they are valid.
+ */
+  if(xwsp_perc < 0 || xwsp_perc >= 100.) {
+    printf("Warning: gsn_panel: attribute gsnPanelXWhiteSpacePercent must be >= 0 and < 100.\n");
+    printf("Defaulting to 1.\n");
+    xwsp_perc = 1.;
+  }
+
+  if(ywsp_perc < 0 || ywsp_perc >= 100.) {
+    printf("Warning: gsn_panel: attribute gsnPanelYWhiteSpacePercent must be >= 0 and < 100.\n");
+    printf("Defaulting to 1.\n");
+    ywsp_perc = 1.;
+  }
+  
+  if(x_lft < 0. || x_lft >= 1.) {
+    printf("Warning: gsn_panel: attribute gsnPanelLeft must be >= 0.0 and < 1.0\n");
+    printf("Defaulting to 0.\n");
+    x_lft = 0.0;
+  }
+  
+  if(x_rgt <= 0. || x_rgt > 1.) {
+    printf("Warning: gsn_panel: attribute gsnPanelRight must be > 0.0 and <= 1.0\n");
+    printf("Defaulting to 1.\n");
+    x_rgt = 1.0;
+  }
+  
+  if(y_top <= 0. || y_top > 1.) {
+    printf("Warning: gsn_panel: attribute gsnPanelTop must be > 0.0 and <= 1.0\n");
+    printf("Defaulting to 1.\n");
+    y_top = 1.0;
+  }
+  
+  if(y_bot < 0. || y_bot >= 1.) {
+    printf("Warning: gsn_panel: attribute gsnPanelBottom must be >= 0.0 and < 1.0\n");
+    printf("Defaulting to 0.\n");
+    y_bot = 0.0;
+  }
+  
+  if(x_rgt <= x_lft) {
+    printf("Error: gsn_panel: gsnPanelRight (%g",x_rgt,")\n must be greater");
+    printf("than gsnPanelLeft (%g",x_lft,").\n");
+    return;
+  }
+  
+  if(y_top <= y_bot) {
+    printf("Error: gsn_panel: gsnPanelTop (%g",y_top,")\n must be greater");
+    printf("than gsnPanelBottom (%g",y_bot,").\n");
+    return;
+  }
+  
+/* 
+ * We assume all plots are the same size, so if we get the size of
+ * the first one, this should be the size of all of them.
+ */
+  NhlGetBB(plots[0],&bb);
+  top    = bb.t;
+  bottom = bb.b;
+  left   = bb.l;
+  right  = bb.r;
+  
+/*
+ * plot_width  : total width of plot with all of its annotations
+ * plot_height : total height of plot with all of its annotations
+ * total_width : plot_width plus white space on both sides
+ * total_height: plot_height plus white space on top and bottom
+ * xwsp/ywsp   : white space  
+ */
+  plot_width  = right - left;
+  plot_height = top - bottom;
+  
+  xwsp = xwsp_perc/100. * plot_width;
+  ywsp = ywsp_perc/100. * plot_height;
+  
+  total_width  = 2.*xwsp + plot_width;
+  total_height = 2.*ywsp + plot_height;
+
+/*
+ * We want:
+ *
+ *   ncols * scale * total_width  <= x_rgt - x_lft (the viewport width)
+ *   nrows * scale * total_height <= y_top - y_bot (the viewport height)
+ *
+ * By taking the minimum of these two, we get the scale
+ * factor that we need to fit all plots on a page.
+ *
+ * Previously, we used to include xrange and yrange as part of the min
+ * statement. This seemed to cause problems if you set one of
+ * gsnPanelTop/Bottom/Right/Left however, so I removed it.  Initial
+ * testing on Sylvia's panel examples seems to indicate this is okay.
+ *
+ */
+  xrange = x_rgt - x_lft;
+  yrange = y_top - y_bot;
+  
+  row_scale = yrange/(nrows*total_height);
+  col_scale = xrange/(ncols*total_width);
+  scale     = min(col_scale,row_scale);
+  
+/*
+ * Calculate new width  and height.
+ */
+  new_plot_width  = scale * plot_width;
+  new_plot_height = scale * plot_height; 
+
+/*
+ * Calculate new white space.
+ */
+  xwsp = xwsp_perc/100. * new_plot_width;
+  ywsp = ywsp_perc/100. * new_plot_height;
+
+/*
+ * Calculate new total width & height w/white space.
+ */
+  new_total_width  = 2.*xwsp + new_plot_width;  
+  new_total_height = 2.*ywsp + new_plot_height; 
+
+/*
+ * Calculate total amt of white space left in both X and Y directions.
+ */
+  xsp = xrange - new_total_width*ncols;  
+  ysp = yrange - new_total_height*nrows;
+
+/*
+ * Retrieve viewport size of plot. The size of all plots are supposed
+ * to be the same, so you only need to do this for the first plot.
+ * You might break some code if you change which plot you get the 
+ * viewport sizes from, because some users knowingly make the first
+ * plot larger, and go ahead and panel them anyway.
+ */
+  NhlRLClear(grlist);
+  NhlRLGetFloat(grlist,"vpXF",     &vpx);
+  NhlRLGetFloat(grlist,"vpYF",     &vpy);
+  NhlRLGetFloat(grlist,"vpWidthF", &vpw);
+  NhlRLGetFloat(grlist,"vpHeightF",&vph);
+  (void)NhlGetValues(plots[0], grlist);
+  
+/*
+ * Calculate distances from plot's left/right/top/bottom positions
+ * to its leftmost/rightmost/topmost/bottommost annotation.
+ */
+  dxl = scale * (vpx-left); 
+  dxr = scale * (right-(vpx+vpw));
+  dyt = scale * (top-vpy);
+  dyb = scale * ((vpy-vph)-bottom);
+  
+  ypos = (float *)malloc(nrows*sizeof(float));
+  for(i = 0; i < nrows; i++) {
+    ypos[i] = y_top - ywsp - dyt - (ysp/2.+new_total_height*i);
+  }
+
+/*
+ * Variable to store rightmost location of rightmost plot, and topmost
+ * location of top plot.
+ */
+  max_rgt = 0.;
+  max_top = 0.;
+
+/*
+ * Variable to hold original viewport coordinates, and annotations (if
+ * they exist).
+ */
+  old_vp = (float *)malloc(4 * nplots * sizeof(float));
+
+/*
+ * Loop through each row and create each plot in the new scaled-down
+ * size. We will draw plots later, outside the loop.
+ */
+  num_plots_left = nplots;
+  nplot          = 0;
+  nr             = 0;
+  while(num_plots_left > 0) {
+    new_ncols = min(num_plots_left,row_spec[nr]);
+    
+/*
+ * "xsp" is space before plots.
+ */
+    if(panel_center) {
+      xsp = xrange - new_total_width * new_ncols;
+    }
+    else {
+      xsp = xrange - new_total_width * ncols;
+    }
+/*
+ * Calculate new x positions.
+ */
+    xpos = (float *)malloc(new_ncols*sizeof(float));
+    for(i = 0; i < new_ncols; i++) {
+      xpos[i] = x_lft + xwsp + dxl +(xsp/2.+new_total_width*i);
+    }
+
+    for (nc = 0; nc < new_ncols; nc++) {
+      if(plots[nplot] > 0) {
+        pplot = plots[nplot];
+        nplot4 = nplot * 4;
+/*
+ * Get the size of the plot so we can rescale it. Technically, each
+ * plot should be the exact same size, but we can't assume that.
+ */
+        NhlRLClear(grlist);
+        NhlRLGetFloat(grlist,"vpXF",     &old_vp[nplot4]);
+        NhlRLGetFloat(grlist,"vpYF",     &old_vp[nplot4+1]);
+        NhlRLGetFloat(grlist,"vpWidthF", &old_vp[nplot4+2]);
+        NhlRLGetFloat(grlist,"vpHeightF",&old_vp[nplot4+3]);
+        (void)NhlGetValues(pplot, grlist);
+        
+        if(panel_debug) {
+          printf("-------Panel viewport values for each plot-------\n");
+          printf("    plot # %d\n", nplot);
+          printf("    x,y     = %g,%g\n", xpos[nc], ypos[nr]);
+          printf("orig wdt,hgt = %g,%g\n", old_vp[nplot4+2], 
+                                          old_vp[nplot4+3]);
+          printf("    wdt,hgt = %g,%g\n", scale*old_vp[nplot4+2], 
+                                          scale*old_vp[nplot4+3]);
+        }
+
+        NhlRLClear(srlist);
+        NhlRLSetFloat(srlist,"vpXF",     xpos[nc]);
+        NhlRLSetFloat(srlist,"vpYF",     ypos[nr]);
+        NhlRLSetFloat(srlist,"vpWidthF", scale*old_vp[nplot4+2]);
+        NhlRLSetFloat(srlist,"vpHeightF",scale*old_vp[nplot4+3]);
+        (void)NhlSetValues(pplot, srlist);
+
+/*
+ * Save this plot.
+ */
+        newplots[nplot] = pplot;
+      }
+      nplot++;
+    }
+/*
+ * Retain the smallest x position.
+ */
+    if(nr == 0) {
+      min_xpos = xmin_array(xpos,new_ncols);
+    }
+    else {
+      min_xpos = min(xmin_array(xpos,new_ncols), min_xpos);
+    }
+    num_plots_left = nplots - nplot;
+    nr++;                                   /* increment rows */
+    free(xpos);
+  }
+
+/*
+ * Calculate the biggest rescaled widths and heights (technically, they
+ * should all be the same).  These values will be used a few times 
+ * throughout the rest of the code.
+ */
+  max_width  = old_vp[2];
+  max_height = old_vp[3];
+
+  for( i = 1; i < nplots; i++ ) {
+    max_width  = max(max_width,old_vp[i*nplots+2]);
+    max_height = max(max_height,old_vp[i*nplots+3]);
+  }
+  scaled_width  = scale * max_width;
+  scaled_height = scale * max_height;
+
+/*
+ * If some of the paneled plots are missing, we need to take these into
+ * account so that the maximization will still work properly.  For
+ * example, if we ask for a 2 x 2 configuration, but plots 1 and 3 (the
+ * rightmost plots) are missing, then we need to set a new resource
+ * called gsnPanelInvsblRight to whatever approximate X value it 
+ * would have been if those plots weren't missing.  Setting just 
+ * gsnPanelRight won't work in this case, because that resource is only
+ * used to control where the plots are drawn in a 0 to 1 square, and
+ * not to indicate the rightmost location of the rightmost graphic
+ * (which could be a vertical labelbar.
+ *
+ * Not dealing with the case of gsnPanelRowSpec = True yet.
+ */
+  if(!is_row_spec) {
+    newbb  = (NhlBoundingBox *)malloc(nplots*sizeof(NhlBoundingBox));
+    NhlGetBB(newplots[0],&newbb[0]);
+    newtop = newbb[0].t;
+    newbot = newbb[0].b;
+    newlft = newbb[0].l;
+    newrgt = newbb[0].r;
+
+/*
+ * Get largest bounding box that encompasses all non-missing graphical
+ * objects.
+ */
+    for( i = 1; i < nplots; i++ ) { 
+      NhlGetBB(newplots[i],&newbb[i]);
+      newtop = max(newtop,newbb[i].t);
+      newbot = min(newbot,newbb[i].b);
+      newlft = min(newlft,newbb[i].l);
+      newrgt = max(newrgt,newbb[i].r);
+    }
+    if(!rgt_pnl && nplots > ncols) {
+
+/*
+ * Double check that this little calculation doesn't yield array
+ * indices that are out-of-bounds.
+ */
+      if(((ncols-1) >= 0 && (ncols-1) <= (nplots-1))) {
+/* 
+ * Check if all plots on this end are missing.
+ */
+        all_ismissing = 1;
+        i = ncols-1;
+        while(all_ismissing && i < nplots) {
+          if(plots[i] > 0) {
+            all_ismissing = 0;
+          }
+          i += ncols;
+        }
+/*
+ * The rightmost graphical object is either the rightmost edge of
+ * the rightmost plot, or the rightmost edge of the labelbar or
+ * text string (if they exist).
+ *
+ * (ncols-1) is the first rightmost plot.
+ */
+        if(all_ismissing) {
+          irgt                      = ncols - 1;
+          xrgt                      = xpos[irgt] + scaled_width+dxr;
+          special_res->gsnPanelInvsblRight = max(xrgt,newrgt);
+        }
+      }
+    }
+
+    if(!lft_pnl) {
+      all_ismissing = 1;
+      i = 0;
+      while(all_ismissing && i < nplots) {
+        if(plots[i] > 0) {
+          all_ismissing = 0;
+        }
+        i += ncols;
+      }
+/*
+ * The leftmost graphical object is either the leftmost edge of
+ * the leftmost plot, or the leftmost edge of the labelbar or
+ * text string (if they exist).
+ *
+ * 0 is the first leftmost plot.
+ */
+      if(all_ismissing) {
+        ilft                     = 0;
+        xlft                     = xpos[ilft]-dxl;
+        special_res->gsnPanelInvsblLeft = min(xlft,newlft);
+      }
+    }
+    
+    if(!top_pnl) {
+      all_ismissing = 1;
+      i = 0;
+      while(all_ismissing && i < ncols) {
+        if(plots[i] > 0) {
+          all_ismissing = 0;
+        }
+        i++;
+      }
+/*
+ * The topmost graphical object is either the topmost edge of
+ * the topmost plot, or the topmost edge of the labelbar or
+ * text string (if they exist).
+ * 
+ * 0 is the first topmost plot.
+ */
+      if(all_ismissing) {
+        itop                    = 0;
+        xtop                    = ypos[itop]+dyt;
+        special_res->gsnPanelInvsblTop = max(xtop,newtop);
+      }
+    }
+    
+    if(!bot_pnl && nplots > (nrows-1)*ncols) {
+/*
+ * Double check that this little calculation doesn't yield array
+ * indices that are out-of-bounds.
+ */
+      if(((nplots-ncols-1) >= 0 && (nplots-ncols-1) <= (nplots-1))) {
+/* 
+ * Check if all plots on this end are missing.
+ */
+        all_ismissing = 1;
+        i = nplots-ncols-1;
+        while(all_ismissing && i < nplots) {
+          if(plots[i] > 0) {
+            all_ismissing = 0;
+          }
+          i++;
+        }
+/*
+ * The bottommost graphical object is either the bottommost edge of
+ * the bottommost plot, or the bottommost edge of the labelbar or
+ * text string (if they exist).
+ * (nplots-ncols-1) is bottommost plot.
+ */
+        if(all_ismissing) {
+          ibot                       = nplots-ncols-1;
+          xbot                       = ypos[ibot]-scaled_height-dyb;
+          special_res->gsnPanelInvsblBottom = min(xbot,newbot);
+        }
+      }
+    }
+  }
+/* 
+ * Draw plots plus labelbar and main title (if they exists). This is
+ * also where the plots will be maximized for PostScript output,
+ * if so indicated.
+ */
+  draw_and_frame(wks, newplots, nplots, special_res);
+
+/*
+ * Restore plots to original size.
+ */
+  if(!panel_save) {
+    for(i = 0; i < nplots; i++) {
+      if(plots[i] > 0) {
+        nplot4 = 4 * i;
+        
+        NhlRLClear(srlist);
+        NhlRLSetFloat(srlist,"vpXF",     old_vp[nplot4]);
+        NhlRLSetFloat(srlist,"vpYF",     old_vp[nplot4+1]);
+        NhlRLSetFloat(srlist,"vpWidthF", old_vp[nplot4+2]);
+        NhlRLSetFloat(srlist,"vpHeightF",old_vp[nplot4+3]);
+        (void)NhlSetValues(plots[i], srlist);
+      }
+    }
   }
 }

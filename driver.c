@@ -66,7 +66,7 @@ main()
  */
 
   int wks, contour, xy, vector, streamline, map, text, text1, text2;
-  int cntrmap, vctrmap, strmlnmap;
+  int cntrmap, vctrmap, strmlnmap, *vctrmap_array;
   int wk_rlist, sf_rlist, sf2_rlist, ca_rlist, vf_rlist, tx_rlist;
   int cn_rlist, xy_rlist, xyd_rlist, vc_rlist, st_rlist, mp_rlist;
   int cn2_rlist, vc2_rlist, mp2_rlist, gs_rlist, am_rlist;
@@ -76,7 +76,9 @@ main()
   int srlist, cmap_len[2];
   float xf, yf, cmap[NCOLORS][3], xm, ym;
   int   ixf, iyf, i1, i2, i3;
+  int panel_dims[2];
   gsnRes special_res, special_pres;
+
 
 /*
  * Declare variables for determining which plots to draw.
@@ -84,6 +86,7 @@ main()
   int do_colormaps, do_contour, do_xy_single, do_xy_multi, do_y, do_vector;
   int do_streamline, do_map, do_contour_map, do_contour_map2, do_vector_map;
   int do_streamline_map, do_vector_scalar, do_vector_scalar_map;
+  int do_panel;
 
 /*
  * Declare variables for getting information from netCDF file.
@@ -91,8 +94,8 @@ main()
 
   int ncid_T, ncid_U, ncid_V, ncid_P, ncid_T2;
   int id_T, id_U, id_V, id_P, id_T2;
-  int lonid_T, latid_T, lonid_UV, latid_UV;
-  int nlon_T, nlat_T, nlat_UV, nlon_UV;
+  int lonid_T, latid_T, lonid_UV, latid_UV, timeid_UV;
+  int nlon_T, nlat_T, nlat_UV, nlon_UV, ntime_UV, nlatlon_UV, ntimelatlon_UV;
   int ndims_T, dsizes_T[2], ndims_UV;
   int is_missing_T, is_missing_U, is_missing_V, is_missing_P, is_missing_T2;
   int attid, status;
@@ -101,18 +104,21 @@ main()
  * Declare variables to hold values, missing values, and types that
  * are read in from netCDF files.
  */
-  void  *T, *U, *V, *P, *T2, *lat_T, *lon_T, *lat_UV, *lon_UV;
+  void  *T, *U, *V, *P, *T2, *lat_T, *lon_T, *lat_UV, *lon_UV, *time_UV;
+  void  *Unew, *Vnew, *T2new;
   void  *FillValue_T, *FillValue_U, *FillValue_V;
   void  *FillValue_P, *FillValue_T2;
   int is_lat_coord_T, is_lon_coord_T, is_lat_coord_UV, is_lon_coord_UV;
+  int is_time_coord_UV;
 
   nc_type nctype_T, nctype_lat_T, nctype_lon_T;
   nc_type nctype_U, nctype_V, nctype_P;
-  nc_type nctype_lat_UV, nctype_lon_UV, nctype_T2;
+  nc_type nctype_lat_UV, nctype_lon_UV, nctype_time_UV, nctype_T2;
   char type_T[TYPE_LEN], type_U[TYPE_LEN], type_V[TYPE_LEN];
   char type_P[TYPE_LEN], type_T2[TYPE_LEN];
   char type_lat_T[TYPE_LEN], type_lon_T[TYPE_LEN];
   char type_lat_UV[TYPE_LEN], type_lon_UV[TYPE_LEN];
+  char type_time_UV[TYPE_LEN];
 
   size_t i, j, *start, *count;
   char  filename_T[256], filename_U[256], filename_V[256];
@@ -141,8 +147,8 @@ main()
   nc_open(filename_T2,NC_NOWRITE,&ncid_T2);
 
 /*
- * Get the lat/lon dimension ids so we can retrieve their lengths.
- * The lat/lon arrays for the U, V, and T2 data files are the same,
+ * Get the lat/lon/time dimension ids so we can retrieve their lengths.
+ * The lat/lon/time arrays for the U, V, and T2 data files are the same,
  * so we only need to retrieve one set of them.
  */
 
@@ -150,11 +156,16 @@ main()
   nc_inq_dimid(ncid_T,"lon",&lonid_T);
   nc_inq_dimid(ncid_U,"lat",&latid_UV);
   nc_inq_dimid(ncid_U,"lon",&lonid_UV);
+  nc_inq_dimid(ncid_U,"timestep",&timeid_UV);
 
   nc_inq_dimlen(ncid_T,latid_T, (size_t*)&nlat_T);
   nc_inq_dimlen(ncid_T,lonid_T, (size_t*)&nlon_T);
   nc_inq_dimlen(ncid_U,latid_UV,(size_t*)&nlat_UV);  
   nc_inq_dimlen(ncid_U,lonid_UV,(size_t*)&nlon_UV);
+  nc_inq_dimlen(ncid_U,timeid_UV,(size_t*)&ntime_UV);
+
+  nlatlon_UV     = nlat_UV * nlon_UV;
+  ntimelatlon_UV = ntime_UV * nlatlon_UV;
 
 /*
  * Get temperature, u, v, lat, and lon ids.
@@ -169,6 +180,7 @@ main()
   nc_inq_varid(ncid_T,"lon",&lonid_T);
   nc_inq_varid(ncid_U,"lat",&latid_UV);
   nc_inq_varid(ncid_U,"lon",&lonid_UV);
+  nc_inq_varid(ncid_U,"timestep",&timeid_UV);
 
 /*
  * Check if T, U, V, or T2 has a _FillValue attribute set.  If so,
@@ -225,8 +237,8 @@ main()
   nc_inq_vartype  (ncid_T, id_T, &nctype_T);
   nc_inq_varndims (ncid_T, id_T, &ndims_T);
 
-  start    = (size_t *)calloc(ndims_T,sizeof(size_t));
-  count    = (size_t *)calloc(ndims_T,sizeof(size_t));
+  start    = (size_t *)malloc(ndims_T*sizeof(size_t));
+  count    = (size_t *)malloc(ndims_T*sizeof(size_t));
   for(i = 0; i < ndims_T; i++)   start[i] = 0;
   for(i = 0; i < ndims_T-2; i++) count[i] = 1;
   count[ndims_T-2] = nlat_T;
@@ -236,7 +248,7 @@ main()
 
   case NC_DOUBLE:
     strcpy(type_T,"double");
-    T      = (double *)calloc(nlat_T,sizeof(double));
+    T      = (double *)malloc(nlat_T*sizeof(double));
 
     nc_get_vara_double(ncid_T,id_T,start,count,(double*)T);
 
@@ -244,14 +256,14 @@ main()
  * Get double missing value.
  */
     if(is_missing_T) {
-      FillValue_T = (double *)calloc(1,sizeof(double));
+      FillValue_T = (double *)malloc(sizeof(double));
       nc_get_att_double (ncid_T, id_T, "_FillValue", (double*)FillValue_T); 
     }
     break;
 
   case NC_FLOAT:
     strcpy(type_T,"float");
-    T      = (float *)calloc(nlat_T*nlon_T,sizeof(float));
+    T      = (float *)malloc(nlat_T*nlon_T*sizeof(float));
 
     nc_get_vara_float(ncid_T,id_T,start,count,(float*)T);
 
@@ -259,14 +271,14 @@ main()
  * Get float missing value.
  */
     if(is_missing_T) {
-      FillValue_T = (float *)calloc(1,sizeof(float));
+      FillValue_T = (float *)malloc(sizeof(float));
       nc_get_att_float (ncid_T, id_T, "_FillValue", (float*)FillValue_T); 
     }
     break;
 
   case NC_INT:
     strcpy(type_T,"integer");
-    T      = (int *)calloc(nlat_T*nlon_T,sizeof(int));
+    T      = (int *)malloc(nlat_T*nlon_T*sizeof(int));
 
     nc_get_vara_int(ncid_T,id_T,start,count,(int*)T);
 
@@ -274,7 +286,7 @@ main()
  * Get integer missing value.
  */
     if(is_missing_T) {
-      FillValue_T = (int *)calloc(1,sizeof(int));
+      FillValue_T = (int *)malloc(sizeof(int));
       nc_get_att_int (ncid_T, id_T, "_FillValue", (int*)FillValue_T); 
     }
     break;
@@ -292,20 +304,20 @@ main()
 
   case NC_DOUBLE:
     strcpy(type_lat_T,"double");
-    lat_T      = (double *)calloc(nlat_T,sizeof(double));
+    lat_T      = (double *)malloc(nlat_T*sizeof(double));
 
     nc_get_var_double(ncid_T,latid_T,(double*)lat_T);
     break;
 
   case NC_FLOAT:
     strcpy(type_lat_T,"float");
-    lat_T      = (float *)calloc(nlat_T,sizeof(float));
+    lat_T      = (float *)malloc(nlat_T*sizeof(float));
 
     nc_get_var_float(ncid_T,latid_T,(float*)lat_T);
 
   case NC_INT:
     strcpy(type_lat_T,"integer");
-    lat_T      = (int *)calloc(nlat_T,sizeof(int));
+    lat_T      = (int *)malloc(nlat_T*sizeof(int));
 
     nc_get_var_int(ncid_T,latid_T,(int*)lat_T);
     break;
@@ -316,20 +328,20 @@ main()
 
   case NC_DOUBLE:
     strcpy(type_lon_T,"double");
-    lon_T      = (double *)calloc(nlon_T,sizeof(double));
+    lon_T      = (double *)malloc(nlon_T*sizeof(double));
 
     nc_get_var_double(ncid_T,lonid_T,(double*)lon_T);
     break;
 
   case NC_FLOAT:
     strcpy(type_lon_T,"float");
-    lon_T      = (float *)calloc(nlon_T,sizeof(float));
+    lon_T      = (float *)malloc(nlon_T*sizeof(float));
 
     nc_get_var_float(ncid_T,lonid_T,(float*)lon_T);
 
   case NC_INT:
     strcpy(type_lon_T,"integer");
-    lon_T      = (int *)calloc(nlon_T,sizeof(int));
+    lon_T      = (int *)malloc(nlon_T*sizeof(int));
 
     nc_get_var_int(ncid_T,lonid_T,(int*)lon_T);
     break;
@@ -337,8 +349,8 @@ main()
 
 /*
  * Get type and number of dimensions of U, V, and T2, then read in first
- * nlat_UV x nlon_UV subsection of "u", "v", and "t". Also, read in missing
- * values if ones are set.
+ * ntime_UV x nlat_UV x nlon_UV subsection of "u", "v", and "t".
+ * Also, read in missing values if ones are set.
  *
  * U, V, and T2 are assumed to have the same dimensions.
  */
@@ -352,10 +364,11 @@ main()
   nc_inq_vartype  (ncid_T2, id_T2, &nctype_T2);
   nc_inq_varndims (ncid_U, id_U, &ndims_UV);
 
-  start = (size_t *)calloc(ndims_UV,sizeof(size_t));
-  count = (size_t *)calloc(ndims_UV,sizeof(size_t));
+  start = (size_t *)malloc(ndims_UV*sizeof(size_t));
+  count = (size_t *)malloc(ndims_UV*sizeof(size_t));
   for(i = 0; i < ndims_UV; i++)   start[i] = 0;
-  for(i = 0; i < ndims_UV-2; i++) count[i] = 1;
+  for(i = 0; i < ndims_UV-3; i++) count[i] = 1;
+  count[ndims_UV-3] = ntime_UV;
   count[ndims_UV-2] = nlat_UV;
   count[ndims_UV-1] = nlon_UV;
 
@@ -363,7 +376,7 @@ main()
 
   case NC_DOUBLE:
     strcpy(type_U,"double");
-    U      = (double *)calloc(nlat_UV*nlon_UV,sizeof(double));
+    U      = (double *)malloc(ntimelatlon_UV*sizeof(double));
 
 /*
  * Get double values.
@@ -374,14 +387,14 @@ main()
  * Get double missing value.
  */
     if(is_missing_U) {
-      FillValue_U = (int *)calloc(1,sizeof(int));
+      FillValue_U = (int *)malloc(sizeof(int));
       nc_get_att_double (ncid_U, id_U, "_FillValue", (double*)FillValue_U); 
     }
     break;
 
   case NC_FLOAT:
     strcpy(type_U,"float");
-    U      = (float *)calloc(nlat_UV*nlon_UV,sizeof(float));
+    U      = (float *)malloc(ntimelatlon_UV*sizeof(float));
 
 /*
  * Get float values.
@@ -392,14 +405,14 @@ main()
  * Get float missing value.
  */
     if(is_missing_U) {
-      FillValue_U = (int *)calloc(1,sizeof(int));
+      FillValue_U = (int *)malloc(sizeof(int));
       nc_get_att_float (ncid_U, id_U, "_FillValue", (float*)FillValue_U); 
     }
     break;
 
   case NC_INT:
     strcpy(type_U,"integer");
-    U      = (int *)calloc(nlat_UV*nlon_UV,sizeof(int));
+    U      = (int *)malloc(ntimelatlon_UV*sizeof(int));
 
 /*
  * Get integer values.
@@ -410,7 +423,7 @@ main()
  * Get integer missing value.
  */
     if(is_missing_U) {
-      FillValue_U = (int *)calloc(1,sizeof(int));
+      FillValue_U = (int *)malloc(sizeof(int));
       nc_get_att_int (ncid_U, id_U, "_FillValue", (int*)FillValue_U); 
     }
     break;
@@ -420,7 +433,7 @@ main()
 
   case NC_DOUBLE:
     strcpy(type_V,"double");
-    V      = (double *)calloc(nlat_UV*nlon_UV,sizeof(double));
+    V      = (double *)malloc(ntimelatlon_UV*sizeof(double));
 
 /*
  * Get double values.
@@ -431,14 +444,14 @@ main()
  * Get double missing value.
  */
     if(is_missing_V) {
-      FillValue_V = (int *)calloc(1,sizeof(int));
+      FillValue_V = (int *)malloc(sizeof(int));
       nc_get_att_float (ncid_V, id_V, "_FillValue", (float*)FillValue_V); 
     }
     break;
 
   case NC_FLOAT:
     strcpy(type_V,"float");
-    V      = (float *)calloc(nlat_UV*nlon_UV,sizeof(float));
+    V      = (float *)malloc(ntimelatlon_UV*sizeof(float));
 
 /*
  * Get float values.
@@ -449,14 +462,14 @@ main()
  * Get float missing value.
  */
     if(is_missing_V) {
-      FillValue_V = (int *)calloc(1,sizeof(int));
+      FillValue_V = (int *)malloc(sizeof(int));
       nc_get_att_float (ncid_V, id_V, "_FillValue", (float*)FillValue_V); 
     }
     break;
 
   case NC_INT:
     strcpy(type_V,"integer");
-    V      = (int *)calloc(nlat_UV*nlon_UV,sizeof(int));
+    V      = (int *)malloc(ntimelatlon_UV*sizeof(int));
 
 /*
  * Get integer values.
@@ -467,7 +480,7 @@ main()
  * Get integer missing value.
  */
     if(is_missing_V) {
-      FillValue_V = (int *)calloc(1,sizeof(int));
+      FillValue_V = (int *)malloc(sizeof(int));
       nc_get_att_float (ncid_V, id_V, "_FillValue", (float*)FillValue_V); 
     }
     break;
@@ -477,7 +490,7 @@ main()
 
   case NC_DOUBLE:
     strcpy(type_P,"double");
-    P      = (double *)calloc(nlat_UV*nlon_UV,sizeof(double));
+    P      = (double *)malloc(ntimelatlon_UV*sizeof(double));
 
 /*
  * Get double values.
@@ -488,14 +501,14 @@ main()
  * Get double missing value.
  */
     if(is_missing_P) {
-      FillValue_P = (int *)calloc(1,sizeof(int));
+      FillValue_P = (int *)malloc(sizeof(int));
       nc_get_att_float (ncid_P, id_P, "_FillValue", (float*)FillValue_P); 
     }
     break;
 
   case NC_FLOAT:
     strcpy(type_P,"float");
-    P      = (float *)calloc(nlat_UV*nlon_UV,sizeof(float));
+    P      = (float *)malloc(ntimelatlon_UV*sizeof(float));
 
 /*
  * Get float values.
@@ -506,10 +519,10 @@ main()
  * Get float missing value.
  */
     if(is_missing_P) {
-      FillValue_P = (int *)calloc(1,sizeof(int));
+      FillValue_P = (int *)malloc(sizeof(int));
       nc_get_att_float (ncid_P, id_P, "_FillValue", (float*)FillValue_P); 
     }
-    for(i = 0; i < nlat_UV*nlon_UV; i++) {
+    for(i = 0; i < ntimelatlon_UV; i++) {
       if(!is_missing_P ||
          (is_missing_P && ((float*)P)[i] != ((float*)FillValue_P)[0])) {
         ((float*)P)[i] = (((float*)P)[i] * 0.01);
@@ -519,7 +532,7 @@ main()
 
   case NC_INT:
     strcpy(type_P,"integer");
-    P      = (int *)calloc(nlat_UV*nlon_UV,sizeof(int));
+    P      = (int *)malloc(ntimelatlon_UV*sizeof(int));
 
 /*
  * Get integer values.
@@ -530,7 +543,7 @@ main()
  * Get integer missing value.
  */
     if(is_missing_P) {
-      FillValue_P = (int *)calloc(1,sizeof(int));
+      FillValue_P = (int *)malloc(sizeof(int));
       nc_get_att_float (ncid_P, id_P, "_FillValue", (float*)FillValue_P); 
     }
     break;
@@ -540,7 +553,7 @@ main()
 
   case NC_DOUBLE:
     strcpy(type_T2,"double");
-    T2      = (double *)calloc(nlat_UV*nlon_UV,sizeof(double));
+    T2      = (double *)malloc(ntimelatlon_UV*sizeof(double));
 /*
  * Get double values.
  */
@@ -550,13 +563,13 @@ main()
  * Get double missing value.
  */
     if(is_missing_T2) {
-      FillValue_T2 = (int *)calloc(1,sizeof(int));
+      FillValue_T2 = (int *)malloc(sizeof(int));
       nc_get_att_double (ncid_T2, id_T2, "_FillValue", (double*)FillValue_T2); 
     }
 /*
  * Convert from K to F.
  */
-    for(i = 0; i < nlat_UV*nlon_UV; i++) {
+    for(i = 0; i < ntimelatlon_UV; i++) {
       if(!is_missing_T2 ||
          (is_missing_T2 && ((double*)T2)[i] != ((double*)FillValue_T2)[0])) {
         ((double*)T2)[i] = (((double*)T2)[i]-273.15)*(9./5.) + 32.;
@@ -567,7 +580,7 @@ main()
 
   case NC_FLOAT:
     strcpy(type_T2,"float");
-    T2      = (float *)calloc(nlat_UV*nlon_UV,sizeof(float));
+    T2      = (float *)malloc(ntimelatlon_UV*sizeof(float));
 
 /*
  * Get float values.
@@ -578,13 +591,13 @@ main()
  * Get float missing value.
  */
     if(is_missing_T2) {
-      FillValue_T2 = (int *)calloc(1,sizeof(int));
+      FillValue_T2 = (int *)malloc(sizeof(int));
       nc_get_att_float (ncid_T2, id_T2, "_FillValue", (float*)FillValue_T2); 
     }
 /*
  * Convert from K to F.
  */
-    for(i = 0; i < nlat_UV*nlon_UV; i++) {
+    for(i = 0; i < ntimelatlon_UV; i++) {
       if(!is_missing_T2 ||
          (is_missing_T2 && ((float*)T2)[i] != ((float*)FillValue_T2)[0])) {
         ((float*)T2)[i] = (((float*)T2)[i]-273.15)*(9./5.) + 32.;
@@ -594,7 +607,7 @@ main()
 
   case NC_INT:
     strcpy(type_T2,"integer");
-    T2      = (int *)calloc(nlat_UV*nlon_UV,sizeof(int));
+    T2      = (int *)malloc(ntimelatlon_UV*sizeof(int));
 
 /*
  * Get integer values.
@@ -605,7 +618,7 @@ main()
  * Get integer missing value.
  */
     if(is_missing_T2) {
-      FillValue_T2 = (int *)calloc(1,sizeof(int));
+      FillValue_T2 = (int *)malloc(sizeof(int));
       nc_get_att_int (ncid_T2, id_T2, "_FillValue", (int*)FillValue_T2); 
     }
     break;
@@ -622,7 +635,7 @@ main()
 
   case NC_DOUBLE:
     strcpy(type_lat_UV,"double");
-    lat_UV      = (double *)calloc(nlat_UV,sizeof(double));
+    lat_UV      = (double *)malloc(nlat_UV*sizeof(double));
 
 /*
  * Get double values.
@@ -632,7 +645,7 @@ main()
 
   case NC_FLOAT:
     strcpy(type_lat_UV,"float");
-    lat_UV      = (float *)calloc(nlat_UV,sizeof(float));
+    lat_UV      = (float *)malloc(nlat_UV*sizeof(float));
 
 /*
  * Get float values.
@@ -641,7 +654,7 @@ main()
 
   case NC_INT:
     strcpy(type_lat_UV,"integer");
-    lat_UV      = (int *)calloc(nlat_UV,sizeof(int));
+    lat_UV      = (int *)malloc(nlat_UV*sizeof(int));
 
 /*
  * Get integer values.
@@ -661,22 +674,52 @@ main()
 
   case NC_DOUBLE:
     strcpy(type_lon_UV,"double");
-    lon_UV      = (double *)calloc(nlon_UV,sizeof(double));
+    lon_UV      = (double *)malloc(nlon_UV*sizeof(double));
 
     nc_get_var_double(ncid_U,lonid_UV,(double*)lon_UV);
     break;
 
   case NC_FLOAT:
     strcpy(type_lon_UV,"float");
-    lon_UV      = (float *)calloc(nlon_UV,sizeof(float));
+    lon_UV      = (float *)malloc(nlon_UV*sizeof(float));
 
     nc_get_var_float(ncid_U,lonid_UV,(float*)lon_UV);
 
   case NC_INT:
     strcpy(type_lon_UV,"integer");
-    lon_UV      = (int *)calloc(nlon_UV,sizeof(int));
+    lon_UV      = (int *)malloc(nlon_UV*sizeof(int));
 
     nc_get_var_int(ncid_U,lonid_UV,(int*)lon_UV);
+    break;
+  }
+
+/*
+ * Read in time coordinate arrays for "u" and "v".
+ */
+
+  nc_inq_vartype  (ncid_U, timeid_UV, &nctype_time_UV);
+
+  is_time_coord_UV = 1;
+  switch(nctype_time_UV) {
+
+  case NC_DOUBLE:
+    strcpy(type_time_UV,"double");
+    time_UV      = (double *)malloc(ntime_UV*sizeof(double));
+
+    nc_get_var_double(ncid_U,timeid_UV,(double*)time_UV);
+    break;
+
+  case NC_FLOAT:
+    strcpy(type_time_UV,"float");
+    time_UV      = (float *)malloc(ntime_UV*sizeof(float));
+
+    nc_get_var_float(ncid_U,timeid_UV,(float*)time_UV);
+
+  case NC_INT:
+    strcpy(type_time_UV,"integer");
+    time_UV      = (int *)malloc(ntime_UV*sizeof(int));
+
+    nc_get_var_int(ncid_U,timeid_UV,(int*)time_UV);
     break;
   }
 
@@ -715,7 +758,7 @@ main()
 /*
  * Initialize which plots to draw.
  */
-  do_colormaps         = 1;
+  do_colormaps         = 0;
   do_contour           = 0;
   do_xy_single         = 0;
   do_xy_multi          = 0;
@@ -729,6 +772,7 @@ main()
   do_streamline_map    = 0;
   do_vector_scalar     = 0;
   do_vector_scalar_map = 0;
+  do_panel             = 1;
 
 /*
  * Initialize color map for later.
@@ -756,7 +800,7 @@ main()
  */
 
   wk_rlist = NhlRLCreate(NhlSETRL);
-  wks = gsn_open_wks_wrap("ncgm","test", wk_rlist);
+  wks = gsn_open_wks_wrap("ps","test", wk_rlist);
 
 /* 
  * Set color map resource and open workstation.
@@ -774,8 +818,9 @@ main()
 /*
  * Initialize colormap back to "rainbow+gray".
  */
-    NhlRLSetString(wk_rlist,"wkColorMap","rainbow+gray");
-    (void)NhlSetValues(wks, wk_rlist);
+  NhlRLClear(wk_rlist);
+  NhlRLSetString(wk_rlist,"wkColorMap","rainbow+gray");
+  (void)NhlSetValues(wks, wk_rlist);
 
 /*
  * Initialize and clear resource lists.
@@ -1056,7 +1101,8 @@ main()
  * Create and draw vector plot, and advance frame.
  */
 
-    vector = gsn_vector_wrap(wks, U, V, type_U, type_V, nlat_UV, nlon_UV, 
+    vector = gsn_vector_wrap(wks, U, V, type_U, type_V, 
+							 nlat_UV, nlon_UV, 
                              is_lat_coord_UV, lat_UV, type_lat_UV, 
                              is_lon_coord_UV, lon_UV, type_lon_UV, 
                              is_missing_U, is_missing_V, 
@@ -1216,7 +1262,7 @@ main()
  * gsn_vector_map section
  */
 
-  if(do_vector_scalar) {
+  if(do_vector_scalar || do_panel) {
 
 /*
  * First set up some resources.
@@ -1243,33 +1289,106 @@ main()
  * Draw some polymarkers before we draw the plot.
  */
 
-    NhlRLClear(gs_rlist);
-    NhlRLSetInteger(gs_rlist,"gsMarkerIndex", 16);
-    NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 10.5);
-    NhlRLSetString (gs_rlist,"gsMarkerColor", "red");
-    gsn_polymarker_ndc_wrap(wks, (void *)xmark1, (void *)ymark1, "double",
-                            "float", 6, 0, 0, NULL, NULL, gs_rlist,
-                            &special_pres);
-    NhlRLSetString (gs_rlist,"gsMarkerColor", "green");
-    gsn_polymarker_ndc_wrap(wks, (void *)xmark2, (void *)ymark2, "float", 
-                            "double", 3, 0, 0, NULL, NULL, gs_rlist, 
-                            &special_pres);
-    NhlRLSetString (gs_rlist,"gsMarkerColor", "blue");
-    gsn_polymarker_ndc_wrap(wks, (void *)xmark3, (void *)ymark3, "float",
-                            "float", 3, 0, 0, NULL, NULL, gs_rlist,
-                            &special_pres);
+	if(do_vector_scalar) {
+	  NhlRLClear(gs_rlist);
+	  NhlRLSetInteger(gs_rlist,"gsMarkerIndex", 16);
+	  NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 10.5);
+	  NhlRLSetString (gs_rlist,"gsMarkerColor", "red");
+	  gsn_polymarker_ndc_wrap(wks, (void *)xmark1, (void *)ymark1, "double",
+							  "float", 6, 0, 0, NULL, NULL, gs_rlist,
+							  &special_pres);
+	  NhlRLSetString (gs_rlist,"gsMarkerColor", "green");
+	  gsn_polymarker_ndc_wrap(wks, (void *)xmark2, (void *)ymark2, "float", 
+							  "double", 3, 0, 0, NULL, NULL, gs_rlist, 
+							  &special_pres);
+	  NhlRLSetString (gs_rlist,"gsMarkerColor", "blue");
+	  gsn_polymarker_ndc_wrap(wks, (void *)xmark3, (void *)ymark3, "float",
+							  "float", 3, 0, 0, NULL, NULL, gs_rlist,
+							  &special_pres);
 
 /*
  * Now create and draw plot.
  */
-    vctrmap = gsn_vector_scalar_wrap(wks, U, V, T2, type_U, type_V, type_T2,
-                                     nlat_UV, nlon_UV, is_lat_coord_UV, 
-                                     lat_UV, type_lat_UV, is_lon_coord_UV, 
-                                     lon_UV, type_lon_UV, is_missing_U, 
-                                     is_missing_V, is_missing_T2,
-                                     FillValue_U, FillValue_V, FillValue_T2,
-                                     vf_rlist, sf2_rlist, vc2_rlist, 
-                                     &special_res);
+	  vctrmap = gsn_vector_scalar_wrap(wks, U, V, T2, type_U, type_V,
+									   type_T2, nlat_UV, nlon_UV, 
+									   is_lat_coord_UV, lat_UV, type_lat_UV, 
+									   is_lon_coord_UV, lon_UV, type_lon_UV,
+									   is_missing_U, is_missing_V, 
+									   is_missing_T2, FillValue_U, 
+									   FillValue_V, FillValue_T2,
+									   vf_rlist, sf2_rlist, vc2_rlist, 
+									   &special_res);
+	}
+
+	if(do_panel) {
+/*
+ * Loop across time dimension and create a vector plot for each one.
+ * Then, we'll create several panel plots.
+ */
+	  vctrmap_array = (int*)malloc(ntime_UV*sizeof(int));
+
+	  special_res.gsnMaximize = 0;
+	  special_res.gsnFrame    = 0;
+	  special_res.gsnDraw     = 0;
+	  for(i = 0; i < ntime_UV; i++) {
+		Unew  = &((float*)U)[nlatlon_UV*i];
+		Vnew  = &((float*)V)[nlatlon_UV*i];
+		T2new = &((float*)T2)[nlatlon_UV*i];
+		vctrmap_array[i] = gsn_vector_scalar_wrap(
+									     wks, Unew, Vnew, T2new, type_U, 
+										 type_V, type_T2, nlat_UV, nlon_UV, 
+										 is_lat_coord_UV, lat_UV, 
+										 type_lat_UV, is_lon_coord_UV, 
+										 lon_UV, type_lon_UV, is_missing_U, 
+										 is_missing_V, is_missing_T2, 
+										 FillValue_U, FillValue_V, 
+										 FillValue_T2, vf_rlist, sf2_rlist,
+										 vc2_rlist, &special_res);
+	  }
+	  special_res.gsnPaperOrientation = 6;   /* 0=portrait 6=landscape */
+	  special_res.gsnPaperWidth       =  8.5;
+	  special_res.gsnPaperHeight      = 11.0;
+	  special_res.gsnPaperMargin      =  0.5;
+
+/*
+ * Special resources for paneling.
+ */
+	  special_res.gsnDebug                   = 1;
+	  special_res.gsnPanelCenter             = 1;
+	  special_res.gsnPanelRowSpec            = 0;
+	  special_res.gsnPanelXWhiteSpacePercent = 1.;
+	  special_res.gsnPanelYWhiteSpacePercent = 1.;
+	  special_res.gsnPanelBoxes              = 0;
+	  special_res.gsnPanelLeft               = 0.;
+	  special_res.gsnPanelRight              = 1.;
+	  special_res.gsnPanelBottom             = 0.;
+	  special_res.gsnPanelTop                = 1.;
+	  special_res.gsnPanelInvsblTop          = -999;
+	  special_res.gsnPanelInvsblLeft         = -999;
+	  special_res.gsnPanelInvsblRight        = -999;
+	  special_res.gsnPanelInvsblBottom       = -999;
+	  special_res.gsnPanelSave               = 0;
+
+	  special_res.gsnMaximize = 1;
+	  special_res.gsnFrame    = 1;
+	  special_res.gsnDraw     = 1;
+
+	  panel_dims[0] = 3;          /* rows    */
+	  panel_dims[1] = 1;          /* columns */
+	  gsn_panel_wrap(wks, vctrmap_array, ntime_UV, panel_dims, 2, 
+					 &special_res);
+	  
+	  panel_dims[0] = 1;          /* rows    */
+	  panel_dims[1] = 3;          /* columns */
+	  gsn_panel_wrap(wks, vctrmap_array, ntime_UV, panel_dims, 2, 
+					 &special_res);
+
+	  panel_dims[0] = 2;          /* rows    */
+	  panel_dims[1] = 2;          /* columns */
+	  gsn_panel_wrap(wks, vctrmap_array, ntime_UV, panel_dims, 2, 
+					 &special_res);
+
+	}
   }
 
 /*
@@ -1323,13 +1442,13 @@ main()
                     "GeophysicalAndUSStates");
     
     special_res.gsnFrame = 0;
-    vctrmap = gsn_vector_map_wrap(wks, U, V, type_U, type_V, nlat_UV, nlon_UV, 
-                                  is_lat_coord_UV, lat_UV, type_lat_UV, 
-                                  is_lon_coord_UV, lon_UV, type_lon_UV, 
-                                  is_missing_U, is_missing_V, 
-                                  FillValue_U, FillValue_V,
-                                  vf_rlist, vc2_rlist, mp2_rlist, &special_res);
-
+    vctrmap = gsn_vector_map_wrap(wks, U, V, type_U, type_V, nlat_UV, 
+                                  nlon_UV, is_lat_coord_UV, lat_UV, 
+                                  type_lat_UV, is_lon_coord_UV, lon_UV,
+								  type_lon_UV, is_missing_U, is_missing_V,
+								  FillValue_U, FillValue_V, vf_rlist, 
+								  vc2_rlist, mp2_rlist, &special_res);
+	
   
     special_res.gsnFrame = 1;
 

@@ -30,29 +30,58 @@
 #define TYPE_LEN 8     
 
 /*
- * Define structure to hold special resources that aren't
+ * Define a structure to hold special resources that aren't
  * set in the normal HLU way (that is, via NhlRLSetxxx).
  */
 
 typedef struct {
-  int gsnMaximize;
-  int gsnDraw;
-  int gsnFrame;
-  int gsnScale;
-  int gsnDebug;
+  int   gsnMaximize;
+  int   gsnDraw;
+  int   gsnFrame;
+  int   gsnScale;
+  int   gsnDebug;
+
+/*
+ * Special resources for PS/PDF output.
+ */
+  int   gsnPaperOrientation;
+  float gsnPaperWidth;
+  float gsnPaperHeight;
+  float gsnPaperMargin;
+
+/*
+ * Special resources for paneling.
+ */
+  int   gsnPanelCenter;
+  int   gsnPanelRowSpec;
+  float gsnPanelXWhiteSpacePercent;
+  float gsnPanelYWhiteSpacePercent;
+  int   gsnPanelBoxes;
+  float gsnPanelLeft;
+  float gsnPanelRight;
+  float gsnPanelBottom;
+  float gsnPanelTop;
+  float gsnPanelInvsblTop;
+  float gsnPanelInvsblLeft;
+  float gsnPanelInvsblRight;
+  float gsnPanelInvsblBottom;
+  int   gsnPanelSave;
 } gsnRes;
 
 /*
  * Supplemental functions. 
  */
 
+extern int imax_array(int *, int);
+extern float xmax_array(float *, int);
+extern float xmin_array(float *, int);
 extern float *fspan(float, float, int);
 
-extern void compute_ps_device_coords(int, int, gsnRes *);
+extern void compute_ps_device_coords(int, int *, int, gsnRes *);
+
+extern void maximize_plot(int, int *, int, gsnRes *);
 
 extern void scale_plot(int);
-
-extern void maximize_plot(int, int, gsnRes *);
 
 extern float *coerce_to_float(void *, const char *, int);
 
@@ -68,7 +97,7 @@ extern void set_resource(char *, int, void *, const char *, int, int *);
 
 extern int create_graphicstyle_object(int);
 
-extern void draw_and_frame(int, int, gsnRes *);
+extern void draw_and_frame(int, int *, int, gsnRes *);
 
 /*
  * Data object routines.
@@ -214,3 +243,4 @@ extern int gsn_add_text_wrap(int, int, char *, void *, void *, const char *,
 
 extern void gsn_draw_colormap_wrap(int);
 
+extern void gsn_panel_wrap(int, int *, int, int *, int, gsnRes *);
