@@ -102,7 +102,7 @@ resources.cnInfoLabelOn         = False    # Turn off informational
                                              # label.
 resources.pmLabelBarDisplayMode = "Always" # Turn on label bar.
 resources.cnLinesOn             = False    # Turn off contour lines.
-resources.nglSpreadColors         = False    # Do not interpolate color space.
+resources.nglSpreadColors       = False    # Do not interpolate color space.
 
 resources.tiMainFont      = 26
 resources.tiXAxisFont     = 26
