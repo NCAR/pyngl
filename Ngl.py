@@ -476,7 +476,7 @@ def set_spc_defaults(type):
   set_nglRes_f( 6, 8.5) # nglPaperWidth
   set_nglRes_f( 7, 11.) # nglPaperHeight
   set_nglRes_f( 8, 0.5) # nglPaperMargin
-  set_nglRes_i( 9, 0)   # nglPanelCenter
+  set_nglRes_i( 9, 1)   # nglPanelCenter
   set_nglRes_i(10, 0)   # nglPanelRowSpec
   set_nglRes_f(11, 1.)  # nglPanelXWhiteSpacePercent
   set_nglRes_f(12, 1.)  # nglPanelYWhiteSpacePercent

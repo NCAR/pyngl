@@ -942,7 +942,7 @@ void initialize_resources(nglRes *res, int list_type)
  * Special resources for paneling.
  */
   res->nglPanelSave               = 0;
-  res->nglPanelCenter             = 0;
+  res->nglPanelCenter             = 1;
   res->nglPanelRowSpec            = 0;
   res->nglPanelXWhiteSpacePercent = 1.;
   res->nglPanelYWhiteSpacePercent = 1.;

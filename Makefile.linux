@@ -1,12 +1,11 @@
-_hlu.so: hlu_wrap.o gsun.o Helper.o
-	 gcc -o _hlu.so hlu_wrap.o gsun.o Helper.o -L/usr/X11R6/lib -L$(NCARG_ROOT)/lib -lhlu -lncarg -lncarg_gks -lncarg_c -lngmath -lX11 -lXext -lnetcdf -shared -lg2c
-
-hlu_wrap.o: hlu_wrap.c
-	cc -c -DNeedFuncProto -O hlu_wrap.c -L$(NCARG_ROOT)/lib -I$(NCARG_ROOT)/include -I$(NCARG_ROOT)/include/python2.3 -lhlu -lncarg -lncarg_gks -lncarg_c -lX11 -lXext -lm
+_hlu.so: gsun.o Helper.o hlu_wrap.o gsun.h
+	gcc -shared -o _hlu.so Helper.o hlu_wrap.o gsun.o -L$(NCARG_ROOT)/lib -lhlu -lncarg -lncarg_gks -lncarg_c -lngmath -L/usr/X11R6/lib -lX11 -lXext -lg2c
 
 Helper.o: Helper.c
-	cc -c -DNeedFuncProto -O Helper.c -L$(NCARG_ROOT)/lib -I$(NCARG_ROOT)/include -I$(NCARG_ROOT)/include/python2.3 -lhlu -lncarg -lncarg_gks -lncarg_c -lX11 -lXext -lm
+	gcc -ansi  -DNeedFuncProto -O -I$(NCARG_ROOT)/include -c Helper.c
 
-gsun.o: gsun.c gsun.h
-	nhlcc -g -c gsun.c
+hlu_wrap.o: hlu_wrap.c
+	gcc -ansi -DNeedFuncProto -O -I$(NCARG_ROOT)/include -I$(PYTHON)/include/python2.3 -c hlu_wrap.c
 
+gsun.o: gsun.c
+	gcc -ansi  -DNeedFuncProto -O -I$(NCARG_ROOT)/include -c gsun.c
