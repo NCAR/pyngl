@@ -545,7 +545,7 @@ def ngl_open_wks(wk_type,wk_name,wk_rlist=None):
 def ngl_draw_colormap(wks):
   ngl_draw_colormap_wrap(wks)
 
-def ngl_panel(wks,plots,dims,rlistc):
+def ngl_panel(wks,plots,dims,rlistc=None):
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
   rlist1 = {}
@@ -616,7 +616,7 @@ def ngl_panel(wks,plots,dims,rlistc):
   del rlist
   del rlist1
 
-def ngl_map(wks,rlistc):
+def ngl_map(wks,rlistc=None):
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
   rlist1 = {}
@@ -630,7 +630,7 @@ def ngl_map(wks,rlistc):
   del rlist1
   return(lst2pobj(imp))
 
-def ngl_poly(wks,plot,x,y,ptype,is_ndc,rlistc):
+def ngl_poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
   set_spc_defaults(0)
   rlist = crt_dict(rlistc)  
   rlist1 = {}
@@ -645,25 +645,25 @@ def ngl_poly(wks,plot,x,y,ptype,is_ndc,rlistc):
   del rlist1
   return None
 
-def ngl_polymarker_ndc(wks,x,y,rlistc):
+def ngl_polymarker_ndc(wks,x,y,rlistc=None):
   return(ngl_poly(wks,0,x,y,NhlPOLYMARKER,1,rlistc))
 
-def ngl_polygon_ndc(wks,x,y,rlistc):
+def ngl_polygon_ndc(wks,x,y,rlistc=None):
   return(ngl_poly(wks,0,x,y,NhlPOLYGON,1,rlistc))
 
-def ngl_polyline_ndc(wks,x,y,rlistc):
+def ngl_polyline_ndc(wks,x,y,rlistc=None):
   return(ngl_poly(wks,0,x,y,NhlPOLYLINE,1,rlistc))
 
-def ngl_polymarker(wks,plot,x,y,rlistc):  # plot converted in ngl_poly
+def ngl_polymarker(wks,plot,x,y,rlistc=None):  # plot converted in ngl_poly
   return(ngl_poly(wks,plot,x,y,NhlPOLYMARKER,0,rlistc))
 
-def ngl_polygon(wks,plot,x,y,rlistc):
+def ngl_polygon(wks,plot,x,y,rlistc=None):
   return(ngl_poly(wks,plot,x,y,NhlPOLYGON,0,rlistc))
 
-def ngl_polyline(wks,plot,x,y,rlistc):
+def ngl_polyline(wks,plot,x,y,rlistc=None):
   return(ngl_poly(wks,plot,x,y,NhlPOLYLINE,0,rlistc))
 
-def ngl_add_poly(wks,plot,x,y,ptype,rlistc):
+def ngl_add_poly(wks,plot,x,y,ptype,rlistc=None):
   rlist = crt_dict(rlistc)  
   rlist1 = {}
   for key in rlist.keys():
@@ -677,16 +677,16 @@ def ngl_add_poly(wks,plot,x,y,ptype,rlistc):
   del rlist1
   return(lst2pobj(ply))
 
-def ngl_add_polymarker(wks,plot,x,y,rlistc):
+def ngl_add_polymarker(wks,plot,x,y,rlistc=None):
   return(ngl_add_poly(wks,plot,x,y,NhlPOLYMARKER,rlistc))
 
-def ngl_add_polygon(wks,plot,x,y,rlistc):
+def ngl_add_polygon(wks,plot,x,y,rlistc=None):
   return(ngl_add_poly(wks,plot,x,y,NhlPOLYGON,rlistc))
 
-def ngl_add_polyline(wks,plot,x,y,rlistc):
+def ngl_add_polyline(wks,plot,x,y,rlistc=None):
   return(ngl_add_poly(wks,plot,x,y,NhlPOLYLINE,rlistc))
 
-def ngl_contour_map(wks,array,rlistc):
+def ngl_contour_map(wks,array,rlistc=None):
 #
 #  Make sure the array is 2D.
 #
@@ -728,7 +728,7 @@ def ngl_contour_map(wks,array,rlistc):
   del rlist3
   return(lst2pobj(icm))
 
-def ngl_contour(wks,array,rlistc):
+def ngl_contour(wks,array,rlistc=None):
 
 #
 #  Make sure the array is 2D.
@@ -773,7 +773,7 @@ def ngl_contour(wks,array,rlistc):
   del rlist2
   return(lst2pobj(icn))
 
-def ngl_xy(wks,xar,yar,rlistc):
+def ngl_xy(wks,xar,yar,rlistc=None):
   set_spc_defaults(1)
 #
 #  Get input array dimension information.
@@ -839,7 +839,7 @@ def ngl_xy(wks,xar,yar,rlistc):
   del xyd_rlist
   return(lst2pobj(ixy))
 
-def ngl_y(wks,yar,rlistc):
+def ngl_y(wks,yar,rlistc=None):
   
 #
 #  Get input array dimension information.
@@ -866,7 +866,7 @@ def ngl_y(wks,yar,rlistc):
     
   return ngl_xy(wks,range(0,npts),yar,rlistc)
 
-def ngl_streamline(wks,uarray,varray,rlistc):
+def ngl_streamline(wks,uarray,varray,rlistc=None):
 
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
@@ -897,7 +897,7 @@ def ngl_streamline(wks,uarray,varray,rlistc):
   del rlist2
   return(lst2pobj(strm))
 
-def ngl_streamline_map(wks,uarray,varray,rlistc):
+def ngl_streamline_map(wks,uarray,varray,rlistc=None):
 
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
@@ -933,7 +933,7 @@ def ngl_streamline_map(wks,uarray,varray,rlistc):
   del rlist3
   return(lst2pobj(strm))
 
-def ngl_vector(wks,uarray,varray,rlistc):
+def ngl_vector(wks,uarray,varray,rlistc=None):
 
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
@@ -964,7 +964,7 @@ def ngl_vector(wks,uarray,varray,rlistc):
   del rlist2
   return lst2pobj(ivct)
 
-def ngl_vector_map(wks,uarray,varray,rlistc):
+def ngl_vector_map(wks,uarray,varray,rlistc=None):
 
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
@@ -1001,7 +1001,7 @@ def ngl_vector_map(wks,uarray,varray,rlistc):
   del rlist3
   return lst2pobj(ivct)
 
-def ngl_vector_scalar(wks,uarray,varray,tarray,rlistc):
+def ngl_vector_scalar(wks,uarray,varray,tarray,rlistc=None):
 
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
@@ -1038,7 +1038,7 @@ def ngl_vector_scalar(wks,uarray,varray,tarray,rlistc):
   del rlist3
   return lst2pobj(ivct)
 
-def ngl_vector_scalar_map(wks,uarray,varray,tarray,rlistc):
+def ngl_vector_scalar_map(wks,uarray,varray,tarray,rlistc=None):
 
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
@@ -1080,7 +1080,7 @@ def ngl_vector_scalar_map(wks,uarray,varray,tarray,rlistc):
   del rlist4
   return lst2pobj(ivct)
 
-def ngl_text_ndc(wks, text, x, y, rlistc):
+def ngl_text_ndc(wks, text, x, y, rlistc=None):
   set_spc_defaults(0)
   rlist = crt_dict(rlistc)
   rlist1 = {}
@@ -1095,7 +1095,7 @@ def ngl_text_ndc(wks, text, x, y, rlistc):
   del rlist1
   return (lst2pobj(itxt))
 
-def ngl_add_text(wks,plot,text,x,y,rlistc):
+def ngl_add_text(wks,plot,text,x,y,rlistc=None):
   rlist = crt_dict(rlistc)  
  
 #
@@ -1120,7 +1120,7 @@ def ngl_add_text(wks,plot,text,x,y,rlistc):
   del am_rlist
   return(lst2pobj(atx))
 
-def ngl_text(wks, plot, text, x, y, rlistc):
+def ngl_text(wks, plot, text, x, y, rlistc=None):
   set_spc_defaults(0)
   rlist = crt_dict(rlistc)
   rlist1 = {}
@@ -1134,7 +1134,7 @@ def ngl_text(wks, plot, text, x, y, rlistc):
   del rlist1
   return(lst2pobj(itxt))
 
-def ngl_set_values(obj,rlistc):
+def ngl_set_values(obj,rlistc=None):
   rlist = crt_dict(rlistc)
   values = NhlSetValues(ngl_int_id(obj),rlist)
   del rlist
