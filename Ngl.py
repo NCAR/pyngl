@@ -353,13 +353,13 @@ def set_vector_res(reslist,reslist1):
 # set, because it all depends on if vcGlyphStyle is set a certain way.
 # Put the responsibility on the user
 #
-  if( (reslist.has_key("vcMonoLineArrowColor") and \
-       check_res_value(reslist["vcMonoLineArrowColor"],"False",0)) ||
-      (reslist.has_key("vcMonoFillArrowFillColor") and \
-       check_res_value(reslist["vcMonoFillArrowFillColor"],"False",0)) ||
-      (reslist.has_key("vcMonoFillArrowEdgeColor") and \
-       check_res_value(reslist["vcMonoFillArrowEdgeColor"],"False",0)) ||
-      (reslist.has_key("vcMonoWindBarbColor") and \
+  if( (reslist.has_key("vcMonoLineArrowColor") and
+       check_res_value(reslist["vcMonoLineArrowColor"],"False",0)) or
+      (reslist.has_key("vcMonoFillArrowFillColor") and
+       check_res_value(reslist["vcMonoFillArrowFillColor"],"False",0)) or
+      (reslist.has_key("vcMonoFillArrowEdgeColor") and
+       check_res_value(reslist["vcMonoFillArrowEdgeColor"],"False",0)) or
+      (reslist.has_key("vcMonoWindBarbColor") and
        check_res_value(reslist["vcMonoWindBarbColor"],"False",0))):
     if ( not (reslist.has_key("pmLabelBarDisplayMode"))):
       reslist1["pmLabelBarDisplayMode"] = "Always"
@@ -427,7 +427,7 @@ def set_legend_res(reslist,reslist1):
     if (not (reslist.has_key("lgMonoItemType"))):
       reslist1["lgMonoItemType"] = False
   if(reslist.has_key("lgLineDashSegLens")):
-    if (not (reslist.has_key(s"lgMonoLineDashSegLen"))):
+    if (not (reslist.has_key("lgMonoLineDashSegLen"))):
       reslist1["lgMonoLineDashSegLen"] = False
   if(reslist.has_key("lgLineThicknesses")):
     if (not (reslist.has_key("lgMonoLineThickness"))):
