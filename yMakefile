@@ -3,7 +3,7 @@ PYSRCS  = Ngl.py hlu.py __init__.py
 
 SRCS = Helper.c hlu_wrap.c gsun.c
 OBJS = Helper.o hlu_wrap.o gsun.o
-LIBS = -L$(NCARG_ROOT)/lib -lhlu -lncarg -lncarg_gks -lncarg_c -lngmath
+LIBS = $(HLULIBS) $(NCARGLIBS) $(NGMATHLIBS)
 
 #if (defined(Linux) || defined(LINUX)) && !defined(linux)
 #define linux
@@ -36,13 +36,13 @@ $(MYNAME): $(OBJS)
 	$(LN_COMMANDS) -o $(MYNAME) $(OBJS) $(LIBS) $(EXTRA_LIBS)
 
 hlu_wrap.o: hlu_wrap.c gsun.h
-	$(CC) $(CCOPTIONS)-DNeedFuncProto -O -I$(NCARG_ROOT)/include -I$(NCARG_ROOT)/include/python2.3 -c hlu_wrap.c
+	$(CC) $(CCOPTIONS) $(PROJECTDEFINES) -O $(ALLINCLUDES) $(PYTHONINCSEARCH) -c hlu_wrap.c
 
 Helper.o: Helper.c
-	$(CC) $(CCOPTIONS) -DNeedFuncProto -O -I$(NCARG_ROOT)/include -c Helper.c
+	$(CC) $(CCOPTIONS) $(PROJECTDEFINES) -O $(ALLINCLUDES) -c Helper.c
 
 gsun.o: gsun.c gsun.h
-	$(CC) $(CCOPTIONS) -DNeedFuncProto -O -I$(NCARG_ROOT)/include -c gsun.c
+	$(CC) $(CCOPTIONS) $(PROJECTDEFINES) -O $(ALLINCLUDES) -c gsun.c
 
 InstallTarget($(MYNAME),$(INSTALL_DB),PyNGL)
 InstallTarget($(PYSRCS),$(INSTALL_DB),PyNGL)
