@@ -8,6 +8,7 @@
 #include <ncarg/hlu/PDFWorkstation.h>
 #include <ncarg/hlu/ContourPlot.h>
 #include <ncarg/hlu/XyPlot.h>
+#include <ncarg/hlu/MapPlot.h>
 #include <ncarg/hlu/VectorPlot.h>
 #include <ncarg/hlu/StreamlinePlot.h>
 #include <ncarg/hlu/ScalarField.h>
@@ -62,3 +63,8 @@ extern int gsn_streamline_wrap(int, void *, void *, const char *,
                                const char *, int, void *, const char *, 
                                int, int, void *, void *, int, int);
 
+extern int gsn_map_wrap(int, int);
+
+extern int gsn_contour_map_wrap(int, void *, const char *, int, int, 
+                                int, void *, const char *, int, void *, 
+                                const char *, int, void *, int, int, int);

@@ -9,10 +9,12 @@ main()
  * Declare variables for the HLU routine calls.
  */
 
-  int wks, contour, xy, vector, streamline;
+  int wks, contour, xy, vector, streamline, map, cntrmap;
   int wk_rlist, sf_rlist, ca_rlist, vf_rlist;
-  int cn_rlist, xy_rlist, xyd_rlist, vc_rlist, st_rlist;
-  int colors[]  = {2,16,30,44,58,52,86,100,114,128,142,156,170};
+  int cn_rlist, xy_rlist, xyd_rlist, vc_rlist, st_rlist, mp_rlist;
+  int cn2_rlist, mp2_rlist;
+  int cncolors[]  = {2,16,30,44,58,52,86,100,114,128,142,156,170};
+  int mpcolors[]  = {0, -1, 238, -1};
   int pttrns[]  = {0,1,2,3,4,5,6,7,8,9,10,11,12};
 
 /*
@@ -463,8 +465,8 @@ main()
  * Set color map resource and open workstation.
  */
 
-  NhlRLSetString(wk_rlist,"wkColorMap","rainbow");
-  wks = gsn_open_wks("x11","test", wk_rlist);
+  NhlRLSetString(wk_rlist,"wkColorMap","rainbow+gray");
+  wks = gsn_open_wks("ncgm","test", wk_rlist);
 
 /*
  * Initialize contour, vector, scalar field, and vector field 
@@ -475,25 +477,31 @@ main()
   ca_rlist  = NhlRLCreate(NhlSETRL);
   vf_rlist  = NhlRLCreate(NhlSETRL);
   cn_rlist  = NhlRLCreate(NhlSETRL);
+  cn2_rlist = NhlRLCreate(NhlSETRL);
   xy_rlist  = NhlRLCreate(NhlSETRL);
   xyd_rlist = NhlRLCreate(NhlSETRL);
   vc_rlist  = NhlRLCreate(NhlSETRL);
   st_rlist  = NhlRLCreate(NhlSETRL);
+  mp_rlist  = NhlRLCreate(NhlSETRL);
+  mp2_rlist = NhlRLCreate(NhlSETRL);
   NhlRLClear(sf_rlist);
   NhlRLClear(ca_rlist);
   NhlRLClear(vf_rlist);
   NhlRLClear(cn_rlist);
+  NhlRLClear(cn2_rlist);
   NhlRLClear(xy_rlist);
   NhlRLClear(xyd_rlist);
   NhlRLClear(vc_rlist);
   NhlRLClear(st_rlist);
+  NhlRLClear(mp_rlist);
+  NhlRLClear(mp2_rlist);
 
 /*
  * Set some contour resources.
  */
 
   NhlRLSetString      (cn_rlist, "cnFillOn",             "True");
-  NhlRLSetIntegerArray(cn_rlist, "cnFillColors",         colors,13);
+  NhlRLSetIntegerArray(cn_rlist, "cnFillColors",         cncolors,13);
   NhlRLSetString      (cn_rlist, "cnLineLabelsOn",       "False");
   NhlRLSetString      (cn_rlist, "lbPerimOn",            "False");
   NhlRLSetString      (cn_rlist, "pmLabelBarDisplayMode","ALWAYS");
@@ -502,12 +510,10 @@ main()
  * Create and draw contour plot, and advance frame.
  */
 
-  /*
   contour = gsn_contour_wrap(wks, T, type_T, nlat_T, nlon_T, 
                              is_lat_coord_T, lat_T, type_lat_T, 
                              is_lon_coord_T, lon_T, type_lon_T, 
                              is_missing_T, FillValue_T, sf_rlist, cn_rlist);
-  */
 
 /*
  * Set some XY and XY data spec resources.
@@ -531,7 +537,7 @@ main()
  * Resources for multiple lines.
  */
   NhlRLSetString (xyd_rlist,      "xyMonoLineColor", "False");
-  NhlRLSetIntegerArray(xyd_rlist, "xyLineColors",    colors,10);
+  NhlRLSetIntegerArray(xyd_rlist, "xyLineColors",    cncolors,10);
   NhlRLSetIntegerArray(xyd_rlist, "xyDashPatterns",  pttrns,10);
 
 /*
@@ -559,7 +565,7 @@ main()
 /*
  * Create and draw streamline plot, and advance frame.
  */
-  /*
+
   streamline = gsn_streamline_wrap(wks, U, V, type_U, type_V, 
                                    nlat_UV, nlon_UV, 
                                    is_lat_coord_UV, lat_UV, type_lat_UV, 
@@ -567,7 +573,7 @@ main()
                                    is_missing_U, is_missing_V, 
                                    FillValue_U, FillValue_V,
                                    vf_rlist, st_rlist);
-  */
+
 /*
  * Set some vector resources.
  */
@@ -581,14 +587,50 @@ main()
 /*
  * Create and draw vector plot, and advance frame.
  */
-  /*
+
   vector = gsn_vector_wrap(wks, U, V, type_U, type_V, nlat_UV, nlon_UV, 
                            is_lat_coord_UV, lat_UV, type_lat_UV, 
                            is_lon_coord_UV, lon_UV, type_lon_UV, 
                            is_missing_U, is_missing_V, 
                            FillValue_U, FillValue_V,
                            vf_rlist, vc_rlist);
-  */
+
+/*
+ * Create and draw map plot, and advance frame.
+ */
+
+  NhlRLSetString  (mp_rlist, "mpGridAndLimbOn",    "False");
+  NhlRLSetInteger (mp_rlist, "mpPerimOn",          1);
+  NhlRLSetString  (mp_rlist, "pmTitleDisplayMode", "Always");
+  NhlRLSetString  (mp_rlist, "tiMainString",       "CylindricalEquidistant");
+  map = gsn_map_wrap(wks, mp_rlist);
+
+/*
+ * Create contours over a map.
+ *
+ * First set up some resources.
+ */
+
+  NhlRLSetString      (cn2_rlist, "cnFillOn",              "True");
+  NhlRLSetIntegerArray(cn2_rlist, "cnFillColors",          cncolors,13);
+  NhlRLSetString      (cn2_rlist, "cnLineLabelsOn",        "False");
+  NhlRLSetString      (cn2_rlist, "cnInfoLabelOn",         "False");
+  NhlRLSetString      (cn2_rlist, "pmLabelBarDisplayMode", "ALWAYS");
+  NhlRLSetString      (cn2_rlist, "lbOrientation",         "Horizontal");
+  NhlRLSetString      (cn2_rlist, "lbPerimOn",             "False");
+  NhlRLSetString      (cn2_rlist, "pmLabelBarSide",        "Bottom");
+
+  NhlRLSetString      (mp2_rlist, "mpFillOn",              "True");
+  NhlRLSetIntegerArray(mp2_rlist, "mpFillColors",          mpcolors,4);
+  NhlRLSetString      (mp2_rlist, "mpFillDrawOrder",       "PostDraw");
+  NhlRLSetString      (mp2_rlist, "mpGridAndLimbOn",       "False");
+  NhlRLSetInteger     (mp2_rlist, "mpPerimOn",             1);
+
+  cntrmap = gsn_contour_map_wrap(wks, T, type_T, nlat_T, nlon_T, 
+                                 is_lat_coord_T, lat_T, type_lat_T, 
+                                 is_lon_coord_T, lon_T, type_lon_T, 
+                                 is_missing_T, FillValue_T, 
+                                 sf_rlist, cn2_rlist, mp2_rlist);
 /*
  * NhlDestroy destroys the given id and all of its children.
  */
@@ -1199,12 +1241,8 @@ int gsn_open_wks(const char *type, const char *name, int wk_rlist)
  * Create an XWorkstation object.
  */
 
-/*
     NhlRLSetInteger(wk_rlist,"wkPause",True);
     NhlCreate(&wks,"x11",NhlxWorkstationClass,
-              NhlDEFAULT_APP,wk_rlist);
-*/
-    NhlCreate(&wks,"ncgm",NhlncgmWorkstationClass,
               NhlDEFAULT_APP,wk_rlist);
   }
   else if(!strcmp(type,"ncgm") || !strcmp(type,"NCGM")) {
@@ -1493,4 +1531,86 @@ int gsn_streamline_wrap(int wks, void *u, void *v, const char *type_u,
 
   return(streamline);
 }
+
+/*
+ * This function uses the HLUs to create a map plot.
+ */
+
+int gsn_map_wrap(int wks, int mp_rlist)
+{
+  int map;
+
+/*
+ * Create plot.
+ */
+
+  NhlCreate(&map,"map",NhlmapPlotClass,wks,mp_rlist);
+
+/*
+ * Draw map plot and advance frame.
+ */
+
+  maximize_plot(wks, map);
+
+  NhlDraw(map);
+  NhlFrame(wks);
+
+/*
+ * Return.
+ */
+
+  return(map);
+}
+
+
+
+/*
+ * This function uses the HLUs to overlay contours on a map.
+ */
+
+int gsn_contour_map_wrap(int wks, void *data, const char *type, 
+                        int ylen, int xlen,
+                        int is_ycoord, void *ycoord, const char *ycoord_type,
+                        int is_xcoord, void *xcoord, const char *xcoord_type,
+                        int is_missing, void *FillValue, 
+                        int sf_rlist, int cn_rlist, int mp_rlist)
+{
+  int contour, map;
+
+/*
+ * Create contour plot.
+ */
+
+  contour = gsn_contour_wrap(wks, data, type, ylen, xlen,
+                             is_ycoord, ycoord, ycoord_type,
+                             is_xcoord, xcoord, xcoord_type,
+                             is_missing, FillValue, sf_rlist, cn_rlist);
+
+
+/*
+ * Create map plot.
+ */
+  map = gsn_map_wrap(wks, mp_rlist);
+
+/*
+ * Overlay contour plot on map plot.
+ */
+  NhlAddOverlay(map,contour,-1);
+
+/*
+ * Draw plots and advance frame.
+ */
+
+  maximize_plot(wks, map);
+
+  NhlDraw(map);
+  NhlFrame(wks);
+
+/*
+ * Return.
+ */
+
+  return(map);
+}
+
 
