@@ -14,7 +14,16 @@ import Ngl
 from Scientific.IO.NetCDF import NetCDFFile
 
 #
-#  Open a netCDF file containing the Chesapeake Bay data.
+# Open a netCDF file containing the geodesic grid and data on that grid.
+#
+# This grid came to us via Dave Randall, Todd Ringler, and Ross Heikes of
+# CSU. The data for this mesh were originally downloaded from:
+#
+#   http://kiwi.atmos.colostate.edu:16080/BUGS/projects/geodesic/
+#
+# The above URL doesn't seem to be active anymore. Here's a new URL:
+#
+#   http://kiwi.atmos.colostate.edu/BUGS/geodesic/interpolate.html
 #
 dirc  = Ngl.ncargpath("data")
 cfile = NetCDFFile(dirc + "/cdf/hswm_d000000p000.g2.nc","r")
