@@ -926,7 +926,7 @@ void initialize_resources(nglRes *res, int list_type)
  * Special resources for spanning a full color map when
  * filling vectors and/or contours.
  */
-  res->nglSpreadColors     =  0;
+  res->nglSpreadColors     =  1;
   res->nglSpreadColorStart =  2;
   res->nglSpreadColorEnd   = -1;
 
@@ -3223,7 +3223,6 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
     if(panel_labelbar) {
       if(fill_on) {
         NhlRLClear(grlist);
-        NhlRLGetInteger(grlist,      "cnFillOn",          &fill_on);
         NhlRLGetIntegerArray(grlist, "cnFillColors",      &colors, &ncolors);
         NhlRLGetIntegerArray(grlist, "cnFillPatterns",    &patterns,
                                                           &npatterns);
