@@ -2804,6 +2804,17 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
     sktcolDewPt  = localOpts.sktcolDewPt
   if (hasattr(localOpts,"sktcolPpath")):
     sktcolPpath  = localOpts.sktcolPpath 
+  if (hasattr(localOpts,"sktcolZLabel")):
+    sktcolZLabel  = localOpts.sktcolZLabel 
+  if (hasattr(localOpts,"sktcolWindP")):
+    sktcolWindP  = localOpts.sktcolWindP 
+  if (hasattr(localOpts,"sktcolWindZ")):
+    sktcolWindZ  = localOpts.sktcolWindZ 
+  if (hasattr(localOpts,"sktcolWindH")):
+    sktcolWindH  = localOpts.sktcolWindH 
+  if (hasattr(localOpts,"sktcolThermoInfo")):
+    sktcolThermoInfo  = localOpts.sktcolThermoInfo 
+
 
 #
 #  Graphics style settings for the polyline draw.
