@@ -3,7 +3,7 @@ PYSRCS  = Ngl.py hlu.py __init__.py
 
 SRCS = Helper.c hlu_wrap.c gsun.c
 OBJS = Helper.o hlu_wrap.o gsun.o
-LIBS = $(NFPLIB) $(HLULIBS) $(NCARGLIBS) $(NGMATHLIBS)
+LIBS = $(NFPFORTLIB) $(HLULIBS) $(NCARGLIBS) $(NGMATHLIBS)
 
 #if (defined(Linux) || defined(LINUX)) && !defined(linux)
 #define linux
