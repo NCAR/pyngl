@@ -749,11 +749,30 @@ main()
   special_res.nglFrame    = 1;
   special_res.nglMaximize = 1;
   special_res.nglScale    = 0;
-  special_res.nglDebug    = 0;
+  special_res.nglDebug    = 1;
 
   special_res.nglSpreadColors     = 0;
   special_res.nglSpreadColorStart = 2;
   special_res.nglSpreadColorEnd   = -1;
+
+/*
+ * Special resources for paneling. These are the default values.
+ */
+  special_res.nglPanelSave               = 0;
+  special_res.nglDebug                   = 0;
+  special_res.nglPanelCenter             = 1;
+  special_res.nglPanelRowSpec            = 0;
+  special_res.nglPanelXWhiteSpacePercent = 1.;
+  special_res.nglPanelYWhiteSpacePercent = 1.;
+  special_res.nglPanelBoxes              = 0;
+  special_res.nglPanelLeft               = 0.;
+  special_res.nglPanelRight              = 1.;
+  special_res.nglPanelBottom             = 0.;
+  special_res.nglPanelTop                = 1.;
+  special_res.nglPanelInvsblTop          = -999;
+  special_res.nglPanelInvsblLeft         = -999;
+  special_res.nglPanelInvsblRight        = -999;
+  special_res.nglPanelInvsblBottom       = -999;
 
 /*
  * Paper orientation: -1 is auto, 0 is portrait, and 6 is landscape.
@@ -766,7 +785,26 @@ main()
   special_pres.nglDraw    = 1;
   special_pres.nglFrame   = 0;
   special_pres.nglMaximize= 0;
-  special_pres.nglDebug   = 0;
+  special_pres.nglDebug   = 1;
+
+/*
+ * Special resources for paneling. These are the default values.
+ */
+  special_pres.nglPanelSave               = 0;
+  special_pres.nglDebug                   = 0;
+  special_pres.nglPanelCenter             = 1;
+  special_pres.nglPanelRowSpec            = 0;
+  special_pres.nglPanelXWhiteSpacePercent = 1.;
+  special_pres.nglPanelYWhiteSpacePercent = 1.;
+  special_pres.nglPanelBoxes              = 0;
+  special_pres.nglPanelLeft               = 0.;
+  special_pres.nglPanelRight              = 1.;
+  special_pres.nglPanelBottom             = 0.;
+  special_pres.nglPanelTop                = 1.;
+  special_pres.nglPanelInvsblTop          = -999;
+  special_pres.nglPanelInvsblLeft         = -999;
+  special_pres.nglPanelInvsblRight        = -999;
+  special_pres.nglPanelInvsblBottom       = -999;
 
   special_pres.nglPaperOrientation = -1;
   special_pres.nglPaperWidth       =  8.5;
@@ -817,7 +855,7 @@ main()
  */
 
   wk_rlist = NhlRLCreate(NhlSETRL);
-  wks = ngl_open_wks_wrap("x11","driver", wk_rlist);
+  wks = ngl_open_wks_wrap("pdf","driver", wk_rlist);
 
 /* 
  * Set color map resource and open workstation.
