@@ -34,7 +34,8 @@ lon = ufile.variables["lon"]
 ua = u[0,:,:]
 va = v[0,:,:]
 
-wks = ngl_open_wks("ncgm","ngl06p")
+wks_type = "ps"
+wks = ngl_open_wks(wks_type,"ngl06p")
 
 #----------- Begin first plot -----------------------------------------
 

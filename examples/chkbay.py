@@ -31,7 +31,8 @@ depth = cfile.variables["depth"][:]
 #  Select a colormap and open an X11 window.
 rlist = Resources()
 rlist.wkColorMap = "rainbow+gray"
-wks = ngl_open_wks("x11","chkbay",rlist)
+wks_type = "ps"
+wks = ngl_open_wks(wks_type,"chkbay",rlist)
 
 #
 #  The next set of resources will apply to the contour plot.

@@ -1,7 +1,7 @@
 #
 #  Import NumPy.
 #
-import Numeric,sys
+import Numeric
 
 #
 #  Import all names from the NetCDF module.
@@ -13,12 +13,11 @@ from Scientific.IO.NetCDF import *
 #
 from Ngl import *
 #
-#  Open the netCDF file.  This file is a netCDF version of the GRIB file:
+#  Open the netCDF file.  This file is a netCDF version of the file:
 #
 #     ncargpath("data") + "/grb/ced1.lf00.t00z.eta.grb"
 #
-dirc = ncargpath("data")
-file = NetCDFFile(dirc+"/cdf/ced1.lf00.t00z.eta.nc","r")
+file = NetCDFFile(ncargpath("data") + "/cdf/ced1.lf00.t00z.eta.nc","r")
 
 names = file.variables.keys()  #  Get the variable names
 print "\nVariable names:"      #  and print them out.
@@ -44,7 +43,8 @@ print file.variables[names[1]].dimensions
 #
 #  Open a workstation.
 #
-wks = ngl_open_wks("ncgm","ngl04p")
+wks_type = "ps"
+wks = ngl_open_wks(wks_type,"ngl04p",None)
 
 #----------- Begin first plot -----------------------------------------
 resources = Resources()
@@ -109,7 +109,7 @@ spacing = ngl_get_float(plot,"stMinLineSpacingF")
 
 resources.stMinLineSpacingF = spacing * 2.0     # Set some resources based
 resources.stArrowLengthF    = arrowlength * 2.0 # on resources you retrieved.
-resources.stLineColor       = "white"           # Change line colors back to
+resources.stLineColor       = "red"             # Change line color to red
 resources.stLineThicknessF  = 1.5               # white.
 
 uvar = file.variables["U_GRD_6_GPML"]

@@ -57,7 +57,8 @@ cmap[0] = [1.,1.,1.]
 cmap[1] = [0.,0.,0.]
 rlist = Resources()
 rlist.wkColorMap = cmap
-wks = ngl_open_wks("ncgm","ngl10p",rlist)
+wks_type = "ps"
+wks = ngl_open_wks(wks_type,"ngl10p",rlist)
 
 resources = Resources()
 

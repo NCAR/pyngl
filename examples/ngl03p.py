@@ -29,7 +29,8 @@ lon = ufile.variables["lon"]
 ua = u[0,:,:]
 va = v[0,:,:]
 
-wks = ngl_open_wks("ncgm","ngl03p")
+wks_type = "ps"
+wks = ngl_open_wks(wks_type,"ngl03p")
 
 resources = Resources()
 if hasattr(u,"_FillValue"):

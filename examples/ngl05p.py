@@ -42,7 +42,8 @@ pf_nlat =  len(pf_lat)
 #
 #  Open a workstation.
 #
-wks = ngl_open_wks("ncgm","ngl05p")
+wks_type = "ps"
+wks = ngl_open_wks(wks_type,"ngl05p")
 
 #----------- Begin first plot -----------------------------------------
  

@@ -31,7 +31,8 @@ lon  = cdf_file.variables["lon"]  # longitude
 #
 #  Open a workstation.
 #
-wks = ngl_open_wks("x11","ngl02p")
+wks_type = "ps"
+wks = ngl_open_wks(wks_type,"ngl02p")
 
 resources = Resources()
 

@@ -104,7 +104,8 @@ cmap = Numeric.array([                                         \
 
 rlist = Resources()
 rlist.wkColorMap = cmap
-wks = ngl_open_wks("ncgm","ngl09p",rlist) # Open a workstation.
+wks_type = "ps"
+wks = ngl_open_wks(wks_type,"ngl09p",rlist) # Open a workstation.
 
 resources = Resources()
 resources.sfMissingValueV = fill_value

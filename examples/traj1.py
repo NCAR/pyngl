@@ -52,7 +52,8 @@ cmap = Numeric.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
 
 rlist = Resources()
 rlist.wkColorMap = cmap
-wks = ngl_open_wks ("x11","traj1",rlist)
+wks_type = "ps"
+wks = ngl_open_wks (wks_type,"traj1",rlist)
 
 #
 #  Create the plot.

@@ -60,7 +60,8 @@ cmap = Numeric.array([[1.00,1.00,1.00],[0.00,0.00,0.00],[1.00,0.00,0.00],\
                       Numeric.Float0)
 rlist = Resources()
 rlist.wkColorMap = cmap
-wks = ngl_open_wks ("x11","climdiv",rlist)
+wks_type = "ps"
+wks = ngl_open_wks (wks_type,"climdiv",rlist)
 
 #
 #  Create the plot.

@@ -40,7 +40,8 @@ cmap = Numeric.array([[1.00, 1.00, 1.00],[0.00, 0.00, 0.00], \
 #  Select a colormap and open an X11 window.
 rlist = Resources()
 rlist.wkColorMap = cmap
-wks = ngl_open_wks("ps","topo1",rlist)
+wks_type = "ps"
+wks = ngl_open_wks(wks_type,"topo1",rlist)
 
 
 res = Resources()

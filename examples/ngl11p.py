@@ -43,7 +43,8 @@ cmap[0] = [1.,1.,1.]
 cmap[1] = [0.,0.,0.]
 rlist = Resources()
 rlist.wkColorMap = cmap
-wks = ngl_open_wks("ncgm","ngl11p",rlist)
+wks_type = "ps"
+wks = ngl_open_wks(wks_type,"ngl11p",rlist)
 
 dirc     = ncargpath("data")
 data     = ngl_asciiread(dirc+"/asc/u.cocos",(39,14),"float")

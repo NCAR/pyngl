@@ -31,7 +31,8 @@ for i in xrange(npts):
 cmap = ["white","black","red","green","blue","yellow"]
 rlist = Resources()
 rlist.wkColorMap = cmap
-wks = ngl_open_wks("ncgm","ngl07p",rlist) # Open an X11 workstation.
+wks_type = "ps"
+wks = ngl_open_wks(wks_type,"ngl07p",rlist) # Open an X11 workstation.
 
 txres = Resources()   # Set up variable for TextItem resources.
 xyres = Resources()   # Set up variable for XyPlot resources.

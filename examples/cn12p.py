@@ -37,7 +37,8 @@ mask_specs =                                                                 \
 #
 #  Open a workstation.
 #
-wks = ngl_open_wks("x11","cn12p")
+wks_type = "ps"
+wks = ngl_open_wks(wks_type,"cn12p")
 
 dirc = ncargpath("data")
 z    = ngl_asciiread(dirc+"/asc/cn12n.asc",len_dims,"float")
