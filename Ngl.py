@@ -325,6 +325,9 @@ def set_contour_res(reslist,reslist1):
   if(reslist.has_key("cnLineThicknesss")):
     if (not (reslist.has_key("cnMonoLineThickness"))):
       reslist1["cnMonoLineThickness"] = False
+  if(reslist.has_key("cnLevelFlags")):
+    if (not (reslist.has_key("cnMonoLevelFlag"))):
+      reslist1["cnMonoLevelFlag"] = False
   if(reslist.has_key("cnFillPatterns")):
     if (not (reslist.has_key("cnMonoFillPattern"))):
       reslist1["cnMonoFillPattern"] = False
@@ -340,9 +343,40 @@ def set_vector_res(reslist,reslist1):
 #  Set some vector resources of which we either don't like the NCL
 #  defaults, or we want to set something on behalf of the user.
 #
-  if(reslist.has_key("vcMonoLineArrowColor") and reslist["vcMonoLineArrowColor"] == 0):
+# Vectors can be colored one of two ways, either with colored line
+# vectors or filled colored vectors, or wind barbs.  Any one of these
+# would warrant a labelbar.
+#
+# Don't bother setting the the vcMonoLineArrowColor,
+# vcMonoFillArrowEdgeColor, vcMonoFillArrowFillColor, or 
+# vcMonoWindBarbColor resources to False if vcLevelColors is
+# set, because it all depends on if vcGlyphStyle is set a certain way.
+# Put the responsibility on the user
+#
+  if( (reslist.has_key("vcMonoLineArrowColor") and \
+       check_res_value(reslist["vcMonoLineArrowColor"],"False",0)) ||
+      (reslist.has_key("vcMonoFillArrowFillColor") and \
+       check_res_value(reslist["vcMonoFillArrowFillColor"],"False",0)) ||
+      (reslist.has_key("vcMonoFillArrowEdgeColor") and \
+       check_res_value(reslist["vcMonoFillArrowEdgeColor"],"False",0)) ||
+      (reslist.has_key("vcMonoWindBarbColor") and \
+       check_res_value(reslist["vcMonoWindBarbColor"],"False",0))):
     if ( not (reslist.has_key("pmLabelBarDisplayMode"))):
       reslist1["pmLabelBarDisplayMode"] = "Always"
+
+
+def set_streamline_res(reslist,reslist1):
+#
+#  Set some streamline resources of which we either don't like the NCL
+#  defaults, or we want to set something on behalf of the user.
+#
+# stMonoLineColor is different, because there is no stLineColors resource.
+# Instead, there's an stLevelColors resource, and this is the one we
+# need to set here.
+#
+  if(reslist.has_key("stLevelColors")):
+    if (not (reslist.has_key("stMonoLineColor"))):
+      reslist1["stMonoLineColor"] = False
 
 def set_map_res(reslist,reslist1):
 #
@@ -350,6 +384,13 @@ def set_map_res(reslist,reslist1):
 #
   if ( not (reslist.has_key("pmTickMarkDisplayMode"))):
     reslist1["pmTickMarkDisplayMode"] = "Always"
+  if(reslist.has_key("mpFillPatterns")):
+    if (not (reslist.has_key("mpMonoFillPattern"))):
+      reslist1["mpMonoFillPattern"] = False
+  if(reslist.has_key("mpFillScales")):
+    if (not (reslist.has_key("mpMonoFillScale"))):
+      reslist1["mpMonoFillScale"] = False
+  
 
 def set_labelbar_res(reslist,reslist1):
 #
@@ -363,12 +404,43 @@ def set_labelbar_res(reslist,reslist1):
   if(reslist.has_key("lbLabelFontHeightF")):
     if ( not (reslist.has_key("lbAutoManage"))):
       reslist1["lbAutoManage"] = False
+  if(reslist.has_key("lbFillScales")):
+    if (not (reslist.has_key("lbMonoFillScale"))):
+      reslist1["lbMonoFillScale"] = False
   if(reslist.has_key("lbOrientation")):
     if ( not (reslist.has_key("pmLabelBarSide"))):
       if(check_res_value(reslist["lbOrientation"],"Horizontal",0)):
         reslist1["pmLabelBarSide"] = "Bottom"
       if(check_res_value(reslist["lbOrientation"],"Vertical",1)):
         reslist1["pmLabelBarSide"] = "Right"
+
+def set_legend_res(reslist,reslist1):
+#
+# Set some legend resources of which we don't like the NCL
+# defaults.  These are mostly the Mono resources which we default to
+# False if the corresponding parallel version of this resource is set.
+#
+# We may not be doing anything with these yet, since
+# we don't have a legend function yet.
+# 
+  if(reslist.has_key("lgItemTypes")):
+    if (not (reslist.has_key("lgMonoItemType"))):
+      reslist1["lgMonoItemType"] = False
+  if(reslist.has_key("lgLineDashSegLens")):
+    if (not (reslist.has_key(s"lgMonoLineDashSegLen"))):
+      reslist1["lgMonoLineDashSegLen"] = False
+  if(reslist.has_key("lgLineThicknesses")):
+    if (not (reslist.has_key("lgMonoLineThickness"))):
+      reslist1["lgMonoLineThickness"] = False
+  if(reslist.has_key("lgMarkerThicknesses")):
+    if (not (reslist.has_key("lgMonoMarkerThickness"))):
+      reslist1["lgMonoMarkerThickness"] = False
+  if(reslist.has_key("lgLineLabelFontHeights")):
+    if (not (reslist.has_key("lgMonoLineLabelFontHeight"))):
+      reslist1["lgMonoLineLabelFontHeight"] = False
+  if(reslist.has_key("lgMarkerSizes")):
+    if (not (reslist.has_key("lgMonoMarkerSize"))):
+      reslist1["lgMonoMarkerSize"] = False
 
 def change_workstation(obj,wks):
   return NhlChangeWorkstation(int_id(obj),wks)
@@ -739,11 +811,8 @@ def map(wks,rlistc=None):
       set_spc_res(key[3:],rlist[key])      
     else:
       rlist1[key] = rlist[key]
-#
-# Turn on map tickmarks.
-#
-  if ( not (rlist.has_key("pmTickMarkDisplayMode"))):
-      rlist1["pmTickMarkDisplayMode"] = "Always"
+
+  set_map_res(rlist,rlist1)           # Set some map resources
 
   imp = map_wrap(wks,rlist1,pvoid())
   del rlist
@@ -833,12 +902,8 @@ def contour_map(wks,array,rlistc=None):
       set_spc_res(key[3:],rlist[key])      
     else:
       rlist3[key] = rlist[key]
-#
-# Turn on map tickmarks.
-#
-  if ( not (rlist.has_key("pmTickMarkDisplayMode"))):
-      rlist2["pmTickMarkDisplayMode"] = "Always"
 
+  set_map_res(rlist,rlist2)           # Set some map resources
   set_contour_res(rlist,rlist3)       # Set some contour resources
   set_labelbar_res(rlist,rlist3)      # Set some labelbar resources
 
@@ -1020,6 +1085,8 @@ def streamline(wks,uarray,varray,rlistc=None):
     else:
       rlist2[key] = rlist[key]
     
+  set_streamline_res(rlist,rlist2)        # Set some streamline resources
+
 #
 #  Call the wrapped function and return.
 #
@@ -1054,11 +1121,8 @@ def streamline_map(wks,uarray,varray,rlistc=None):
     else:
       rlist2[key] = rlist[key]
 
-#
-# Turn on map tickmarks.
-#
-  if ( not (rlist.has_key("pmTickMarkDisplayMode"))):
-      rlist3["pmTickMarkDisplayMode"] = "Always"
+  set_map_res(rlist,rlist3)               # Set some map resources
+  set_streamline_res(rlist,rlist2)        # Set some streamline resources
     
 #
 #  Call the wrapped function and return.
