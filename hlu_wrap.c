@@ -1723,6 +1723,8 @@ extern void set_nglRes_f(int,float);
 extern float get_nglRes_f(int);
 extern void set_nglRes_c(int,NhlString *);
 extern NhlString *get_nglRes_c(int);
+extern void set_nglRes_s(int,NhlString);
+extern NhlString get_nglRes_s(int);
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -19989,6 +19991,36 @@ static PyObject *_wrap_get_nglRes_c(PyObject *self, PyObject *args) {
 }
 
 
+static PyObject *_wrap_set_nglRes_s(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    int arg1 ;
+    NhlString arg2 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"is:set_nglRes_s",&arg1,&arg2)) goto fail;
+    set_nglRes_s(arg1,arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_get_nglRes_s(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    int arg1 ;
+    NhlString result;
+    
+    if(!PyArg_ParseTuple(args,(char *)"i:get_nglRes_s",&arg1)) goto fail;
+    result = (NhlString)get_nglRes_s(arg1);
+    
+    resultobj = result ? PyString_FromString(result) : Py_BuildValue((char*)"");
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
 static PyMethodDef SwigMethods[] = {
 	 { (char *)"new_intp", _wrap_new_intp, METH_VARARGS },
 	 { (char *)"copy_intp", _wrap_copy_intp, METH_VARARGS },
@@ -20143,6 +20175,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"get_nglRes_f", _wrap_get_nglRes_f, METH_VARARGS },
 	 { (char *)"set_nglRes_c", _wrap_set_nglRes_c, METH_VARARGS },
 	 { (char *)"get_nglRes_c", _wrap_get_nglRes_c, METH_VARARGS },
+	 { (char *)"set_nglRes_s", _wrap_set_nglRes_s, METH_VARARGS },
+	 { (char *)"get_nglRes_s", _wrap_get_nglRes_s, METH_VARARGS },
 	 { NULL, NULL }
 };
 

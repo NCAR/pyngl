@@ -3919,7 +3919,7 @@ extern float get_nglRes_f(int);
 extern void set_nglRes_c(int, NhlString *);
 extern NhlString *get_nglRes_c(int);
 extern void set_nglRes_s(int, NhlString);
-extern NhlString get_nglRes_c(int);
+extern NhlString get_nglRes_s(int);
 
 %newobject _NGGetNCARGEnv(const char *);
 %newobject  NhlSetValues (int, int res_id);

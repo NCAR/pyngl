@@ -1684,4 +1684,8 @@ set_nglRes_c = _hlu.set_nglRes_c
 
 get_nglRes_c = _hlu.get_nglRes_c
 
+set_nglRes_s = _hlu.set_nglRes_s
+
+get_nglRes_s = _hlu.get_nglRes_s
+
 
