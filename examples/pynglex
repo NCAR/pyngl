@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys,getopt,os,re
+import sys,getopt,os,re,site
 from Ngl import *
 
 #
@@ -48,25 +48,43 @@ if (argc < 2):
   sys.exit()
 
 #
-#  Check that the root directory exists.
+#  Find the root directory that contains pynglex example scripts.
+#  The default is in site-packages/PyNGL/ncarg. Otherwise, check
+#  the NCARG_PYNGL environment variable, and then ncargpath("ncarg").
 #
-root_dir = ncargpath("root")
-if (not (os.path.exists(root_dir))):
-  print "Root directory does not exist."
-  sys.exit()
+pkgs_pth    = site.sitedirs[0]
+pyngl1_dir  = pkgs_pth + "/PyNGL/ncarg"
+pyngl2_dir  = os.environ.get("NCARG_PYNGL")
+pyngl3_dir  = ncargpath("ncarg")
+ncarg_ncarg = None
+
+if (os.path.exists(pyngl1_dir)):
+  ncarg_ncarg = pyngl1_dir
+else:
+  if (pyngl2_dir != None and os.path.exists(pyngl2_dir)):
+    ncarg_ncarg = pyngl2_dir
+  else:
+    if (pyngl3_dir != None and os.path.exists(pyngl3_dir)):
+      ncarg_ncarg = pyngl3_dir
 
 #
-#  Make sure NCARG_ROOT is set for this script
+# Only print out a message about pyngl1_dir, because the other two
+# directories are just shots in the dark.
 #
-os.environ["NCARG_ROOT"] = root_dir
+if (ncarg_ncarg == None):
+  print pyngl1_dir + " does not exist and cannot"
+  print "find alternative directory for PyNGL example scripts."
+  sys.exit()
+else:
+  example_dir = ncarg_ncarg + "/pynglex"
+  if (not (os.path.exists(example_dir))):
+    print "Example directory not found in " + ncarg_ncarg + "/pynglex"
+    sys.exit()
 
 #
-#  Check for the directory that contains the examples.
+#  Make sure NCARG_NCARG is set for this script.
 #
-example_dir = ncargpath("ncarg") + "/pynglex"
-if (not (os.path.exists(example_dir))):
-  print 'Example directory "' + example_dir + '" does not exist.'
-  sys.exit()
+os.environ["NCARG_NCARG"] = ncarg_ncarg
 
 #
 #  Parse the command line options (opts lists the options and
