@@ -1176,19 +1176,6 @@ int ngl_open_wks_wrap(const char *type, const char *name, ResInfo *wk_res)
 
   wk_rlist = wk_res->id;
 
-/*********************************************************************
- *  Print the contents of the resource name structure.
- *********************************************************************/
-  printf ("\nFrom ngl_open_wks_wrap:\n  Resource identifier = %3d\n"
-          "  number of resources = %d\n",wk_res->id, wk_res->nstrings);
-  for (len = 0; len < wk_res->nstrings; len++) {
-    printf("    string %3d = %s\n",len,(wk_res->strings)[len]);
-  }
-  printf("\n");
-/*********************************************************************
- *  End print
- *********************************************************************/
-
 /*
  * Initialize HLU library.
  */

@@ -3354,6 +3354,275 @@ import_array();
   $1 = (ResInfo *) &trname;
 }
 
+%typemap(in) int res_id {
+  int i,pos=0,list_type,list_len,count;
+  PyObject *key,*value;
+  PyArrayObject *arr;
+  char **strings;
+  double *dvals;
+  int *ivals,array_type,rlist,ndims,*len_dims;
+  ResInfo trname;
+  char **trnames;
+
+/*
+ *  Clear the resource list.
+ */
+  rlist = NhlRLCreate(NhlSETRL);
+  NhlRLClear(rlist);
+
+/*
+ *  Check on the type of the argument - it must be a dictionary.
+ */
+  if (PyDict_Check($input)) {
+    count = 0;
+    trname.nstrings = PyDict_Size($input);
+    trnames = (char **) malloc(trname.nstrings*sizeof(char *));
+    pos = 0;
+/*
+ *  Loop over the keyword/value pairs in the dictionary.
+ *  The values must be one of: tuple, int, float, long,
+ *  list, string, or array.
+ */
+    while (PyDict_Next($input, &pos, &key, &value)) {
+      trnames[count] = PyString_AsString(key);
+      count++;
+
+/*
+ *  value is a tuple.
+ */
+      if (PyTuple_Check(value)) {
+/*
+ *  Lists and tuples are not allowed as items in a tuple value.
+ */
+        if (PyList_Check(PyTuple_GetItem(value,0)) ||
+           PyTuple_Check(PyTuple_GetItem(value,0))) {
+          printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+          return NULL;
+        }
+        list_len = PyTuple_Size(value);
+/*
+ *  Determine if the tuple is a tuple of strings, ints, or floats.
+ *  
+ *    list_type = 2 (int)
+ *              = 0 (string)
+ *              = 1 (float)
+ */
+        list_type = 2;
+        if (PyString_Check(PyTuple_GetItem(value,0))) {
+/*
+ *  Check that all items in the tuple are strings.
+ */
+          for (i = 0; i < list_len ; i++) {
+            if (!PyString_Check(PyTuple_GetItem(value,i))) {
+              printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+            return NULL;
+            }
+          }
+          list_type = 0;
+        }
+        else {
+/*
+ *  If the items in the tuple value are not strings, then
+ *  they must all be ints or floats.
+ */
+          for (i = 0; i < list_len ; i++) {
+            if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
+                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
+              printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+              return NULL;
+              break;
+            }
+          }
+/*
+ *  Check to see if the tuple has all ints and, if not, type it as
+ *  a tuple of floats.
+ */
+          for (i = 0; i < list_len ; i++) {
+            if (PyFloat_Check(PyTuple_GetItem(value,i))) {
+              list_type = 1;
+              break;
+            }
+          }
+        }
+
+/*
+ *  Make the appropriate NhlRLSet calls based on the type of
+ *  tuple elements.
+ */
+        switch (list_type) {
+          case 0:
+            strings = (char **) malloc(list_len*sizeof(char *));
+            for (i = 0; i < list_len ; i++) {
+              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+            }
+            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            break;
+          case 1:
+            dvals = (double *) malloc(list_len*sizeof(double));
+            for (i = 0; i < list_len ; i++) {
+              dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
+            }
+            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            break;
+          case 2:
+            ivals = (int *) malloc(list_len*sizeof(int));
+            for (i = 0; i < list_len ; i++) {
+              ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
+            }
+            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            break;
+        }
+      }
+/*
+ *  value is a list.
+ */
+      else if (PyList_Check(value)) {
+/*
+ *  Lists and tuples are not allowed as items in a list value.
+ */
+        if (PyList_Check(PyList_GetItem(value,0)) ||
+           PyList_Check(PyList_GetItem(value,0))) {
+          printf("Use Numeric arrays for multiple dimension arrays.\n");
+          return NULL;
+        }
+        list_len = PyList_Size(value);
+/*
+ *  Determine if the list is a list of strings, ints, or floats.
+ *  
+ *    list_type = 2 (int)
+ *              = 0 (string)
+ *              = 1 (float)
+ */
+        list_type = 2;
+        if (PyString_Check(PyList_GetItem(value,0))) {
+/*
+ *  Check that all items in the list are strings.
+ */
+          for (i = 0; i < list_len ; i++) {
+            if (!PyString_Check(PyList_GetItem(value,i))) {
+              printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              return NULL;
+              break;
+            }
+          }
+          list_type = 0;
+        }
+        else {
+/*
+ *  If the items in the list value are not strings, then
+ *  they must all be ints or floats.
+ */
+          for (i = 0; i < list_len ; i++) {
+            if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
+                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
+              printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+              return NULL;
+            }
+          }
+/*
+ *  Check to see if the list has all ints and, if not, type it as
+ *  a list of floats.
+ */
+          for (i = 0; i < list_len ; i++) {
+            if (PyFloat_Check(PyList_GetItem(value,i))) {
+              list_type = 1;
+            }
+          }
+        }
+        switch (list_type) {
+          case 0:
+            strings = (char **) malloc(list_len*sizeof(char *));
+            for (i = 0; i < list_len ; i++) {
+              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+            }
+            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            break;
+          case 1:
+            dvals = (double *) malloc(list_len*sizeof(double));
+            for (i = 0; i < list_len ; i++) {
+              dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
+            }
+            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            break;
+          case 2:
+            ivals = (int *) malloc(list_len*sizeof(int));
+            for (i = 0; i < list_len ; i++) {
+              ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
+            }
+            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            break;
+        }
+      }
+/*
+ *  value is an int.
+ */
+      else if (PyInt_Check(value)) {
+        NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
+      }
+/*
+ *  value is a float.
+ */
+      else if (PyFloat_Check(value)) {
+        NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
+      }
+/*
+ *  value is a long.
+ */
+      else if (PyLong_Check(value)) {
+        NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
+      }
+/*
+ *  value is a string
+ */
+      else if (PyString_Check(value)) {
+        NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
+      }
+/*
+ *  value is an array.
+ */
+      else if (PyArray_Check(value)) {
+        
+        array_type = (int) ((PyArrayObject *)value)->descr->type_num;
+/*
+ *  Process the legal array types.
+ */
+        if (array_type == PyArray_LONG || array_type == PyArray_INT) {
+          arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+                 ((PyObject *) value,PyArray_LONG,0,0);
+          ivals = (int *)arr->data;
+          ndims = arr->nd;
+          len_dims = arr->dimensions;
+  
+          NhlRLSetMDIntegerArray(rlist,PyString_AsString(key),ivals,ndims,len_dims);
+        }
+        else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
+          arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+                 ((PyObject *) value,PyArray_DOUBLE,0,0);
+          dvals = (double *)arr->data;
+          ndims = arr->nd;
+          len_dims = arr->dimensions;
+          NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+        }
+        else {
+          printf(
+            "Numeric arrays must be of type int, int32, float, float0, float32, or float64.\n");
+            return NULL;
+        }
+      }
+      else {
+        printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+        return NULL;
+      }
+    }
+    trname.strings = trnames;
+  }
+  else {
+    printf("Resource lists must be dictionaries\n");
+  }
+  trname.id = rlist;
+  $1 = rlist;
+}
+
 typedef char *NhlString;
 typedef int   NhlBoolean;
 typedef int NhlFillIndexFullEnum;
@@ -3387,7 +3656,7 @@ extern const char *_NGGetNCARGEnv(const char *);
 extern void NhlInitialize();
 extern void NhlClose();
 extern void NhlRLClear(int);
-extern NhlErrorTypes NhlSetValues (int, int res_list);
+extern NhlErrorTypes NhlSetValues (int, int res_id);
 extern NhlErrorTypes NhlRLSetString (int, NhlString, NhlString);
 extern NhlErrorTypes NhlRLSetFloat (int, NhlString, float);
 extern NhlErrorTypes NhlRLSetDouble (int, NhlString, double);
@@ -3432,7 +3701,7 @@ extern NhlErrorTypes NhlRLSetMDFloatArray(int, char *, float *sequence_as_float,
 extern NhlErrorTypes NhlRLSetFloatArray(int, char *, float *sequence_as_float, int);
 extern NhlErrorTypes NhlRLSetIntegerArray(int, char *, int *sequence_as_int, int);
 extern NhlErrorTypes NhlRLSetStringArray(int, NhlString, NhlString *, int);
-extern NhlErrorTypes NhlGetValues(int, int res_list);
+extern NhlErrorTypes NhlGetValues(int, int res_id);
 extern float NhlGetFloat(int oid, char *name);
 extern float *NhlGetFloatArray(int oid, char *name, int *numberf);
 extern int NhlGetInteger(int oid, char *name);
@@ -3507,83 +3776,83 @@ extern nglPlotId ngl_contour_wrap(int, void *sequence_as_void,
                             const char *, int, int,
                             int, void *, const char *, int, void *, 
                             const char *,
-                            int, void *, int res_list, int res_list, 
+                            int, void *, ResInfo *rlist, ResInfo *rlist, 
                             nglRes *ngl_rlist);
-extern nglPlotId ngl_map_wrap(int, int res_list, nglRes *ngl_rlist);
+extern nglPlotId ngl_map_wrap(int, ResInfo *rlist, nglRes *ngl_rlist);
 extern nglPlotId ngl_contour_map_wrap(int, void *sequence_as_void, 
                             const char *, int, int,
                             int, void *, const char *, int, void *, 
                             const char *, int,
-                            void *, int res_list, int res_list, int res_list,
+                            void *, ResInfo *rlist, ResInfo *rlist, ResInfo *rlist,
                             nglRes *ngl_rlist);
 extern nglPlotId ngl_xy_wrap(int, void *sequence_as_void, void *sequence_as_void, 
                 const char *, const char *, int, int *sequence_as_int,
                 int, int *sequence_as_int, int, int, void *, void *,
-                int res_list, int res_list, int res_list, nglRes *ngl_rlist);
+                ResInfo *rlist, ResInfo *rlist, ResInfo *rlist, nglRes *ngl_rlist);
 extern nglPlotId ngl_y_wrap(int, void *sequence_as_void, 
                 const char *, int, int *sequence_as_int, int, void *,
-                int res_list, int res_list, int res_list, nglRes *ngl_rlist);
+                ResInfo *rlist, ResInfo *rlist, ResInfo *rlist, nglRes *ngl_rlist);
 extern nglPlotId ngl_vector_wrap(int, void *sequence_as_void, 
                            void *sequence_as_void, const char *,
                            const char *, int, int, int, void *, 
                            const char *, int, void *, const char *, int, int,
-                           void *, void *, int res_list, int res_list,
+                           void *, void *, ResInfo *rlist, ResInfo *rlist,
                            nglRes *ngl_rlist);
 extern nglPlotId ngl_vector_map_wrap(int, void *sequence_as_void, 
                            void *sequence_as_void, const char *, 
                            const char *, int, int, int, void *, 
                            const char *, int, void *, const char *, int, int, 
-                           void *, void *, int res_list, int res_list, 
-                           int res_list, nglRes *ngl_rlist);
+                           void *, void *, ResInfo *rlist, ResInfo *rlist, 
+                           ResInfo *rlist, nglRes *ngl_rlist);
 extern nglPlotId ngl_vector_scalar_wrap(int, void *sequence_as_void, 
                            void *sequence_as_void,
                            void *sequence_as_void, const char *, 
                            const char *, const char *, int, int, int, void *, 
                            const char *, int, void *, const char *, int, int, 
                            int, void *, void *, void *, 
-                           int res_list, int res_list, 
-                           int res_list, nglRes *ngl_rlist);
+                           ResInfo *rlist, ResInfo *rlist, 
+                           ResInfo *rlist, nglRes *ngl_rlist);
 extern nglPlotId ngl_vector_scalar_map_wrap(int, void *sequence_as_void, 
                            void *sequence_as_void, 
                            void *sequence_as_void, const char *, 
                            const char *, const char *, int, int, int, void *,
                            const char *, int, void *, const char *, int, int,
                            int, void *, void *, void *,
-                           int res_list, int res_list, 
-                           int res_list, int res_list, nglRes *ngl_rlist);
+                           ResInfo *rlist, ResInfo *rlist, 
+                           ResInfo *rlist, ResInfo *rlist, nglRes *ngl_rlist);
 extern nglPlotId ngl_streamline_wrap(int, void *sequence_as_void, 
                            void *sequence_as_void, const char *,
                            const char *, int, int, int, void *,
                            const char *, int, void *, const char *, 
                            int, int,
-                           void *, void *, int res_list, int res_list, 
+                           void *, void *, ResInfo *rlist, ResInfo *rlist, 
                            nglRes *ngl_rlist);
 extern nglPlotId ngl_streamline_map_wrap(int, void *sequence_as_void, 
                             void *sequence_as_void, const char *,
                             const char *, int, int, int, void *,
                             const char *, int, void *, const char *, 
                             int, int,
-                            void *, void *, int res_list, int res_list, 
-                            int res_list, nglRes *ngl_rlist);
+                            void *, void *, ResInfo *rlist, ResInfo *rlist, 
+                            ResInfo *rlist, nglRes *ngl_rlist);
 extern nglPlotId ngl_text_ndc_wrap(int, NhlString, void *sequence_as_void,
                              void *sequence_as_void, const char *,
-                             const char *, int res_list, nglRes *ngl_rlist);
+                             const char *, ResInfo *rlist, nglRes *ngl_rlist);
 extern nglPlotId ngl_text_wrap(int, nglPlotId *plot, NhlString, void *sequence_as_void,
                              void *sequence_as_void, const char *,
-                             const char *, int res_list, nglRes *ngl_rlist);
+                             const char *, ResInfo *rlist, nglRes *ngl_rlist);
 extern nglPlotId ngl_add_text_wrap(int, nglPlotId *plot, NhlString, void *sequence_as_void,
                              void *sequence_as_void, const char *,
-                             const char *, int res_list, int res_list,
+                             const char *, ResInfo *rlist, ResInfo *rlist,
                              nglRes *ngl_rlist);
 extern void ngl_poly_wrap(int, nglPlotId *plot, void *sequence_as_void, 
                        void *sequence_as_void, const char *type_x,
                        const char *type_y, int, int, int, void *, void*,
-                       NhlPolyType, int res_list, nglRes *ngl_rlist);
+                       NhlPolyType, ResInfo *rlist, nglRes *ngl_rlist);
 extern nglPlotId ngl_add_poly_wrap(int, nglPlotId *plot, void *sequence_as_void,                       void *sequence_as_void, const char *type_x,
                        const char *type_y, int, int, int, void *, void*,
-                       NhlPolyType, int res_list, nglRes *ngl_rlist);
+                       NhlPolyType, ResInfo *rlist, nglRes *ngl_rlist);
 void ngl_panel_wrap(int, nglPlotId *plot_seq, int, int *sequence_as_int, int, 
-                 int res_list, int res_list, nglRes *ngl_rlist);
+                 ResInfo *rlist, ResInfo *rlist, nglRes *ngl_rlist);
 extern void ngl_draw_colormap_wrap(int);
 extern void natgridc(int, float *sequence_as_float, float *sequence_as_float,
                        float *sequence_as_float, int, int, 

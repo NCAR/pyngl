@@ -513,7 +513,7 @@ def set_spc_defaults(type):
   set_nglRes_i(44, 0)   # nglPanelFigureStringsBackgroundFillColor
   set_nglRes_f(45, -999.)   # nglPanelFigureStringsFontHeightF
 
-def ngl_open_wks(wk_type,wk_name,wk_rlist):
+def ngl_open_wks(wk_type,wk_name,wk_rlist=None):
   global first_call_to_open_wks
   rlist = crt_dict(wk_rlist)
 
