@@ -423,6 +423,9 @@ def set_legend_res(reslist,reslist1):
 # We may not be doing anything with these yet, since
 # we don't have a legend function yet.
 # 
+  if(reslist.has_key("lgLabelFontHeightF")):
+    if ( not (reslist.has_key("lgAutoManage"))):
+      reslist1["lgAutoManage"] = False
   if(reslist.has_key("lgItemTypes")):
     if (not (reslist.has_key("lgMonoItemType"))):
       reslist1["lgMonoItemType"] = False
