@@ -2419,7 +2419,8 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
   float newtop, newbot, newrgt, newlft;
   float plot_width, plot_height, total_width, total_height;
   float new_plot_width, new_plot_height, new_total_width, new_total_height;
-  float min_xpos, max_xpos, scaled_width, scaled_height, xrange, yrange;
+  float min_xpos, max_xpos, min_ypos, max_ypos;
+  float scaled_width, scaled_height, xrange, yrange;
   float scale, row_scale, col_scale, max_width, max_height;
   int grlist, srlist;
   NhlBoundingBox bb, *newbb;
@@ -2708,6 +2709,14 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
   ypos = (float *)malloc(nrows*sizeof(float));
   for(i = 0; i < nrows; i++) {
     ypos[i] = y_top - ywsp - dyt - (ysp/2.+new_total_height*i);
+    if(i) {
+      min_ypos = min(min_ypos,ypos[i]); 
+      max_ypos = max(max_ypos,ypos[i]); 
+    }
+    else {
+      min_ypos = ypos[i]; 
+      max_ypos = ypos[i]; 
+    }
   }
 
 /*
@@ -2874,16 +2883,16 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
  * that we can calculate the distances between the viewport
  * coordinates and the edges of the bounding boxes.
  */
-		NhlRLClear(grlist);
-		NhlRLGetFloat(grlist,"vpXF",      &vpx);
-		NhlRLGetFloat(grlist,"vpYF",      &vpy);
-		NhlRLGetFloat(grlist,"vpWidthF",  &vpw);
-		NhlRLGetFloat(grlist,"vpHeightF", &vph);
-		(void)NhlGetValues(newplots[i], grlist);
-		dxl = vpx-newbb[i].l;
-		dxr = newbb[i].r-(vpx+vpw);
-		dyt = (newbb[i].t-vpy);
-		dyb = (vpy-vph)-newbb[i].b;
+        NhlRLClear(grlist);
+        NhlRLGetFloat(grlist,"vpXF",      &vpx);
+        NhlRLGetFloat(grlist,"vpYF",      &vpy);
+        NhlRLGetFloat(grlist,"vpWidthF",  &vpw);
+        NhlRLGetFloat(grlist,"vpHeightF", &vph);
+        (void)NhlGetValues(newplots[i], grlist);
+        dxl = vpx-newbb[i].l;
+        dxr = newbb[i].r-(vpx+vpw);
+        dyt = (newbb[i].t-vpy);
+        dyb = (vpy-vph)-newbb[i].b;
       }
     }
 
@@ -2892,108 +2901,48 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
  * missing, we still keep the original bounding box as if all of the
  * plots had been present. This is necessary so that the maximization
  * for PS/PDF output is done properly.
+ *
+ * We don't know the bounding box values for the possible missing
+ * plots, so we have to estimate them based on viewport sizes and
+ * bounding box values from existing plots. We can do this because 
+ * all plots are supposed to be the same size.
  */
-    if(!rgt_pnl && 0 < ncols && ncols <= nplots) {
-/* 
- * Check if all plots on this end are missing.
- */
-      all_ismissing = 1;
-      i = ncols-1;
-      while(all_ismissing && i < nplots) {
-        if(plots[i] > 0) {
-          all_ismissing = 0;
-        }
-        i += ncols;
-      }
-/*
- * The rightmost graphical object is either the rightmost edge of
- * the rightmost plot, or the rightmost edge of the labelbar or
- * text string (if they exist).
- */
-      if(all_ismissing) {
-        xrgt                             = max_xpos + vpw + dxr;
-        special_res->nglPanelInvsblRight = max(xrgt,newrgt);
-        if(panel_debug) {
-          printf("nglPanelInvsblRight = %g\n", special_res->nglPanelInvsblRight);
-        }
+    xrgt = max_xpos + vpw + dxr;
+    xlft = min_xpos - dxl;
+    xtop = max_ypos + dyt;
+    xbot = min_ypos - vph - dyb;
+
+    if(!rgt_pnl && xrgt > newrgt) {
+      special_res->nglPanelInvsblRight = xrgt;
+      if(panel_debug) {
+        printf("nglPanelInvsblRight = %g\n", special_res->nglPanelInvsblRight);
       }
     }
 
-    if(!lft_pnl) {
-      all_ismissing = 1;
-      i = 0;
-      while(all_ismissing && i < nplots) {
-        if(plots[i] > 0) {
-          all_ismissing = 0;
-        }
-        i += ncols;
-      }
-/*
- * The leftmost graphical object is either the leftmost edge of
- * the leftmost plot, or the leftmost edge of the labelbar or
- * text string (if they exist).
- */
-      if(all_ismissing) {
-        xlft                            = min_xpos-dxl;
-        special_res->nglPanelInvsblLeft = min(xlft,newlft);
-        if(panel_debug) {
-          printf("nglPanelInvsblLeft = %g\n", special_res->nglPanelInvsblLeft);
-        }
+    if(!lft_pnl && xlft < newlft) {
+      special_res->nglPanelInvsblLeft = xlft;
+      if(panel_debug) {
+        printf("nglPanelInvsblLeft = %g\n", special_res->nglPanelInvsblLeft);
       }
     }
     
-    if(!top_pnl) {
-      all_ismissing = 1;
-      i = 0;
-      while(all_ismissing && i < ncols) {
-        if(plots[i] > 0) {
-          all_ismissing = 0;
-        }
-        i++;
-      }
-/*
- * The topmost graphical object is either the topmost edge of
- * the topmost plot, or the topmost edge of the labelbar or
- * text string (if they exist).
- */
-      if(all_ismissing) {
-        xtop                           = ypos[0]+dyt;
-        special_res->nglPanelInvsblTop = max(xtop,newtop);
-        if(panel_debug) {
-          printf("nglPanelInvsblTop = %g\n", special_res->nglPanelInvsblTop);
-        }
+    if(!top_pnl && xtop > newtop) {
+      special_res->nglPanelInvsblTop = xtop;
+      if(panel_debug) {
+        printf("nglPanelInvsblTop = %g\n", special_res->nglPanelInvsblTop);
       }
     }
     
-    if(!bot_pnl && nplots > (nrows-1)*ncols && 0 <= (nplots-ncols) && 
-       (nplots-ncols) < nplots) {
-/* 
- * Check if all plots on this end are missing.
- */
-      all_ismissing = 1;
-      i = nplots-ncols;
-      while(all_ismissing && i < nplots) {
-        if(plots[i] > 0) {
-          all_ismissing = 0;
-        }
-        i++;
-      }
-/*
- * The bottommost graphical object is either the bottommost edge of
- * the bottommost plot, or the bottommost edge of the labelbar or
- * text string (if they exist).
- */
-      if(all_ismissing) {
-        xbot                              = ypos[nrows-1]-vph-dyb;
-        special_res->nglPanelInvsblBottom = min(xbot,newbot);
-        if(panel_debug) {
-          printf("nglPanelInvsblBottom = %g\n", special_res->nglPanelInvsblBottom);
-        }
+    if(!bot_pnl && xbot < newbot) {
+      special_res->nglPanelInvsblBottom = xbot;
+      if(panel_debug) {
+        printf("nglPanelInvsblBottom = %g\n", special_res->nglPanelInvsblBottom);
       }
     }
   }
+
 /* 
- * Draw plots plus labelbar and main title (if they exists). This is
+ * Draw plots plus labelbar and main title (if they exist). This is
  * also where the plots will be maximized for PostScript output,
  * if so indicated.
  */
