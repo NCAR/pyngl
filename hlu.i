@@ -18,7 +18,6 @@
 #include <ncarg/hlu/LabelBar.h>
 #include <ncarg/hlu/TextItem.h>
 
-
 /***********************************************************************
  *
  *  Include gsun header
