@@ -15,7 +15,7 @@ main()
   int cn2_rlist, mp2_rlist;
   int cncolors[]  = {2,16,30,44,58,52,86,100,114,128,142,156,170};
   int mpcolors[]  = {0, -1, 238, -1};
-  int pttrns[]  = {0,1,2,3,4,5,6,7,8,9,10,11,12};
+  int pttrns[]    = {0,1,2,3,4,5,6,7,8,9,10,11,12};
 
 /*
  * Declare variables for getting information from netCDF file.
@@ -1568,6 +1568,8 @@ int gsn_map_wrap(int wks, int mp_rlist)
 
 /*
  * This function uses the HLUs to overlay contours on a map.
+ * It is the user's responsibility to set the sfXArray/sfYArray
+ * (or equivalent) coordinate arrays to the approprate lat/lon values.
  */
 
 int gsn_contour_map_wrap(int wks, void *data, const char *type, 
