@@ -2147,11 +2147,11 @@ def skewt_bkg(wks, Opts):
 #  edges of the diagram.  These are computed by inserting the appropriate
 #  pressures and temperatures at the corners of the diagram.
 #
-                  # xmin = skewtx ( -33.60,skewty(1050.)) [t=deg C]
-  xmin = -19.000  # xmin = skewtx (-109.10,skewty( 100.)) [t=deg C]
-  xmax =  27.100  # xmax = skewtx (  51.75,skewty(1050.)) [t=deg C]
-  ymax =  -0.935  # ymax = skewty (1050.)
-  ymin =  44.061  # ymin = skewty ( 100.)
+                    # xmin = skewtx ( -33.60,skewty(1050.)) [t=deg C]
+  xmin = -18.9551048  # xmin = skewtx (-109.10,skewty( 100.)) [t=deg C]
+  xmax =  27.0973729  # xmax = skewtx (  51.75,skewty(1050.)) [t=deg C]
+  ymax =  -0.9346217  # ymax = skewty (1050.)
+  ymin =  44.0600000  # ymin = skewty ( 100.)
 
 #
 #  Specify arrays to hold corners of the diagram in x,y space.
@@ -2382,7 +2382,7 @@ def skewt_bkg(wks, Opts):
       else:
         gsOpts.gsFillColor = color2
 
-      nx    = 3     # this handles most cases
+      nx = 3
       sy[0] = skewty(lendt[i  ])
       sx[0] = skewtx( temp[i  ], sy[0])
       sy[1] = skewty(lendt[i+1] )
@@ -2391,6 +2391,16 @@ def skewt_bkg(wks, Opts):
       sx[2] = skewtx( temp[i+1], sy[2])
       sy[3] = skewty(rendt[i  ] )   
       sx[3] = skewtx( temp[i  ], sy[3])
+
+#
+#  Make sure the right sides line up with vertical line x=18.6 
+#  and the left sides line up with vertical line x=xmin.
+#
+      if (i > 6 and i < 10):
+        sx[2] = sx[3] = 18.6
+      if (i < 6):
+        sx[0] = sx[1] = -18.955
+
 #
 #  Special cases.
 #
@@ -2398,31 +2408,31 @@ def skewt_bkg(wks, Opts):
         nx = 5
         sy[0:nx+1] = Numeric.array(                               \
                      [                                            \
-                         3.00, ymax, -0.935, 38.32, 44.06, 44.06  \
+                       2.9966, ymax, ymax, 38.317, ymin, ymin     \
                      ], Numeric.Float0)                         
         sx[0:nx+1] = Numeric.array(                               \
                      [                                            \
-                       -18.88, xmin, -17.05, 18.55, 18.55, 18.36  \
+                       xmin, xmin, -17.0476, 18.60, 18.60, 18.359 \
                      ], Numeric.Float0)                         
       if (temp[i] ==   0.):
         nx = 4
         sy[0:nx+1] = Numeric.array(                               \
                      [                                            \
-                        -0.935, -0.935, 16.15, 17.53, 20.53       \
+                        ymax, ymax, 16.148, 17.53, 20.53          \
                      ], Numeric.Float0)                         
         sx[0:nx+1] = Numeric.array(                               \
                      [                                            \
-                       -0.850, 4.55, 20.05, 18.55, 18.55          \
+                       -0.8476, 4.5523, 20.045, 18.60, 18.60      \
                      ], Numeric.Float0)                         
       if (temp[i] == 30.):
         nx = 4
         sy[0:nx+1] = Numeric.array(                               \
                      [                                            \
-                       -0.935, -0.935,  6.02,  9.0 , 10.42        \
+                       ymax, ymax, 6.021, 9.0, 10.422             \
                      ], Numeric.Float0)                         
         sx[0:nx+1] = Numeric.array(                               \
                      [                                            \
-                       15.35 , 20.75 , 27.06, 27.06, 25.65        \
+                       15.3523 , 20.7523 , 27.0974, 27.0974, 25.6525  \
                      ], Numeric.Float0)                         
       polygon(wks, xyplot, sx[0:nx+1], sy[0:nx+1], gsOpts)
 #
@@ -2431,11 +2441,11 @@ def skewt_bkg(wks, Opts):
     gsOpts.gsFillColor = color2
     sy[0:3] = Numeric.array(              \
                  [                        \
-                   44.06, 44.06, 38.75    \
+                   ymin, ymin, 38.747     \
                  ], Numeric.Float0)
     sx[0:3] = Numeric.array(              \
                  [                        \
-                   -14.04, -18.96, -18.86 \
+                   -14.04, -18.955, -18.955 \
                  ], Numeric.Float0)                         
     polygon(wks, xyplot, sx[0:3], sy[0:3], gsOpts)
 #
@@ -2444,11 +2454,11 @@ def skewt_bkg(wks, Opts):
     gsOpts.gsFillColor = color2
     sy[0:3] = Numeric.array(              \
                  [                        \
-                   ymax, 0.13, ymax       \
+                   ymax, 0.1334, ymax     \
                  ], Numeric.Float0)
     sx[0:3] = Numeric.array(              \
                  [                        \
-                   xmax, xmax, 27.0       \
+                   xmax, xmax, 26.1523    \
                  ], Numeric.Float0)                         
     polygon(wks, xyplot, sx[0:3],sy[0:3],gsOpts)
     del gsOpts
