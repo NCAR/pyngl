@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "gsun.h"
+#include <netcdf.h>
 
 #define NCOLORS 17
 #define min(x,y) ((x) < (y) ? (x) : (y))

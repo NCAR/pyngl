@@ -19,7 +19,6 @@
 #include <ncarg/hlu/GraphicStyle.h>
 #include <ncarg/hlu/LogLinPlot.h>
 #include <ncarg/hlu/Primitive.h>
-#include <netcdf.h>
 
 #define min(x,y)   ((x) < (y) ? (x) : (y))
 #define max(x,y)   ((x) > (y) ? (x) : (y))
