@@ -50,8 +50,9 @@ cmap = Numeric.array([[1.00,1.00,1.00],[0.00,0.00,0.00],[1.00,.000,.000],\
 #
 # Set the color map and open a workstation.
 #
-rlist            = Ngl.Resources()
-rlist.wkColorMap = cmap
+rlist               = Ngl.Resources()
+rlist.wkColorMap    = cmap
+rlist.wkOrientation = "Portrait"      # For PS or PDF output only.
 wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"panel1",rlist)  # Open an X11 workstation.
 
@@ -142,10 +143,17 @@ panelres.nglPanelLabelBar                 = True     # Turn on panel labelbar
 panelres.nglPanelLabelBarLabelFontHeightF = 0.015    # Labelbar font height
 panelres.nglPanelLabelBarHeightF          = 0.1750   # Height of labelbar
 panelres.nglPanelLabelBarWidthF           = 0.700    # Width of labelbar
+panelres.lbLabelFont                      = "helvetica-bold" # Labelbar font
 panelres.nglPanelTop                      = 0.935
 panelres.nglPanelFigureStrings            = ["A","B","C","D","E","F"]
 panelres.nglPanelFigureStringsJust        = "BottomRight"
-panelres.lbLabelFont                      = "helvetica-bold" # Labelbar font
+
+#
+# You can have PyNGL selection the best paper orientation for
+# the shape of plots you are drawing.  This resource is for PDF or
+# PS output only.
+#
+panelres.nglPaperOrientation = "Auto"   
 
 #
 # Draw 3 rows and 2 columns of plots.
