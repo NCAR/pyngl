@@ -39,6 +39,12 @@ wks = Ngl.open_wks(wks_type, "skewt3")
 #
 skewtOpts                 = Ngl.Resources()
 skewtOpts.sktDrawColAreaFill = True    # default is False
+
+#
+#  Change the title function code flag to "~" (away from
+#  colon), since there will be colons in the titles.
+#
+skewtOpts.tiMainFuncCode  = "~"
 skewtOpts.tiMainString    = "ATS Rawindsonde: default dataOpts" 
 
 skewt_bkgd = Ngl.skewt_bkg(wks, skewtOpts)
