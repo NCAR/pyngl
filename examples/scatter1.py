@@ -16,6 +16,10 @@ from Scientific.Functions.LeastSquares import polynomialLeastSquaresFit
 import Ngl
 
 #
+# This plot is very similar to one done by Joel Norris of GFDL. The
+# original data is no longer available, so dummy data is used in this
+# case.
+#
 #  Read the scattered data and extract the x, y, and color variables.
 #
 dirc  = Ngl.ncargpath("data")

@@ -14,7 +14,10 @@ import Ngl
 from Scientific.IO.NetCDF import NetCDFFile
 
 #
-#  Open a netCDF file containing the Chesapeake Bay data.
+#  Open a netCDF file containing the grid and data from the HOMME
+#  (High-Order Multiscale Modeling Environment) model, formerly
+#  called SEAM (Spectral Element Atmosphere Model). This grid came
+#  to us from Steve Thomas of NCAR.
 #
 dirc  = Ngl.ncargpath("data")
 cfile = NetCDFFile(dirc + "/cdf/seam.nc")
