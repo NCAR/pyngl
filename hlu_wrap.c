@@ -1048,6 +1048,7 @@ PyObject *ftcurvc(int n, float *x, float *y, int m, float *xo)
   obj1 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
                                               (char *) yo);
   resultobj = Py_None;
+  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,status);
   resultobj = t_output_helper(resultobj,obj1);
   return resultobj;
@@ -1067,6 +1068,7 @@ PyObject *ftcurvpc(int n, float *x, float *y, float p, int m, float *xo)
   obj1 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
                                               (char *) yo);
   resultobj = Py_None;
+  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,status);
   resultobj = t_output_helper(resultobj,obj1);
   return resultobj;
@@ -1082,6 +1084,7 @@ PyObject *ftcurvpic(float xl, float xr, float p, int m, float *xi, float *yi)
   ier = c_ftcurvpi(xl,xr,p,m,xi,yi,&yo);
   status = (PyObject *) PyInt_FromLong((long) ier);
   resultobj = Py_None;
+  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,status);
   resultobj = t_output_helper(resultobj,
                  (PyObject *) PyFloat_FromDouble((double) yo));
@@ -1258,6 +1261,7 @@ PyObject *NhlPNDCToData(int pid, float *x, float *y, int n, float xmissing,
   range = (PyObject *) PyFloat_FromDouble((double) out_of_range); 
 
   resultobj = Py_None;
+  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,nhlerr);
   resultobj = t_output_helper(resultobj,obj1);
   resultobj = t_output_helper(resultobj,obj2);
@@ -1313,6 +1317,7 @@ PyObject *NhlPDataToNDC(int pid, float *x, float *y, int n, float xmissing,
   range = (PyObject *) PyFloat_FromDouble((double) out_of_range); 
 
   resultobj = Py_None;
+  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,nhlerr);
   resultobj = t_output_helper(resultobj,obj1);
   resultobj = t_output_helper(resultobj,obj2);
@@ -1337,6 +1342,7 @@ PyObject *NhlGetMDFloatArray(int pid, char *name) {
   nhlerr = (PyObject *) PyInt_FromLong((long) rval); 
 
   resultobj = Py_None;
+  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,nhlerr);
   resultobj = t_output_helper(resultobj,obj1);
   return resultobj;
@@ -1358,6 +1364,7 @@ PyObject *NhlGetMDDoubleArray(int pid, char *name) {
   nhlerr = (PyObject *) PyInt_FromLong((long) rval); 
 
   resultobj = Py_None;
+  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,nhlerr);
   resultobj = t_output_helper(resultobj,obj1);
   return resultobj;
@@ -1379,6 +1386,7 @@ PyObject *NhlGetMDIntegerArray(int pid, char *name) {
   nhlerr = (PyObject *) PyInt_FromLong((long) rval); 
 
   resultobj = Py_None;
+  Py_XINCREF(Py_None);
   resultobj = t_output_helper(resultobj,nhlerr);
   resultobj = t_output_helper(resultobj,obj1);
   return resultobj;
