@@ -59,7 +59,27 @@ contour = ngl_contour(wks,depth,resources)
 #  The next set of resources will apply to the map plot.
 #
 resources.mpProjection          = "CylindricalEquidistant"
-resources.mpDataBaseVersion     = "HighRes"     # "MediumRes" will run faster.
+
+#
+# If you want high resolution map coastlines,download the RANGS/GSHHS
+# files from:
+#
+#     http://www.io-warnemuende.de/homepages/rfeistel/index.html
+#
+# The files you need are:
+#
+#   rangs(0).zip    gshhs(0).zip
+#   rangs(1).zip    gshhs(1).zip
+#   rangs(2).zip    gshhs(2).zip
+#   rangs(3).zip    gshhs(3).zip
+#   rangs(4).zip    gshhs(4).zip
+#
+# Once you unzip these files, put them in the directory
+# $python_prefx/pythonx.y/site-packages/PyNGL/ncarg/database/rangs
+#
+# Now you can change the following resource to "HighRes".
+#
+resources.mpDataBaseVersion     = "MediumRes"
 
 #
 # Retrieve the actual lat/lon end points of the scalar array so
