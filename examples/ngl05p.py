@@ -4,7 +4,7 @@
 import Numeric
 
 #
-#  Import all names from the NetCDF module.
+#  Import the NetCDF reader.
 #
 from Scientific.IO.NetCDF import NetCDFFile
 
@@ -210,7 +210,7 @@ resources.cnLevels             = Numeric.arange(985.,1046.,5.)
 
 resources.lbTitleString  = ":F25:pressure (mb)" # Title for label bar.
 resources.cnLinesOn      = False         # Turn off contour lines.
-resources.lbOrientation  = "Horizontal"  # label bar.
+resources.lbOrientation  = "Horizontal"  # Label bar orientation.
 
 #
 #  Extract the dataset from pf and scale by 0.01, making sure to
