@@ -782,7 +782,8 @@ def open_wks(wk_type,wk_name,wk_rlist=None):
 #  in site-packages/PyNGL/ncarg. Otherwise, check the NCARG_PYNGL
 #  environment variable, and then ncargpath("ncarg").
 #
-    pkgs_pth    = site.sitedirs[0]
+    pkgs_pth  = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
+                             'site-packages')
     pyngl1_dir  = pkgs_pth + "/PyNGL/ncarg"
     pyngl2_dir  = os.environ.get("NCARG_PYNGL")
     pyngl3_dir  = ncargpath("ncarg")
