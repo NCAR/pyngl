@@ -6,7 +6,25 @@
 #define NCOLORS 17
 #define min(x,y) ((x) < (y) ? (x) : (y))
 #define max(x,y) ((x) > (y) ? (x) : (y))
- 
+
+#define NG  5
+
+float xmark1[6] = {0.02,0.03,0.04,0.05,0.06,0.07};
+float ymark1[6] = {0.01,0.01,0.01,0.01,0.01,0.01};
+float xmark2[3] = {0.06,0.05,0.04};
+float ymark2[3] = {0.02,0.03,0.04};
+float xmark3[3] = {0.03,0.02,0.01};
+float ymark3[3] = {0.03,0.02,0.01};
+
+float xline[2] = {0.01,0.99};
+float yline[2] = {0.05,0.05};
+
+float xgon[NG] = {0.80,0.90,0.90,0.80,0.80};
+float ygon[NG] = {0.05,0.05,0.10,0.10,0.05};
+
+float latgon[5] = {  20.,  60.,  60.,  20.,  20.};
+float longon[5] = {-125.,-125., -65., -65.,-125.};
+
 main()
 {
 /*
@@ -17,13 +35,13 @@ main()
   int cntrmap, vctrmap, strmlnmap;
   int wk_rlist, sf_rlist, sf2_rlist, ca_rlist, vf_rlist, tx_rlist;
   int cn_rlist, xy_rlist, xyd_rlist, vc_rlist, st_rlist, mp_rlist;
-  int cn2_rlist, vc2_rlist, mp2_rlist;
+  int cn2_rlist, vc2_rlist, mp2_rlist, gs_rlist;
   int cncolors[]  = {2,16,30,44,58,52,86,100,114,128,142,156,170};
   int mpcolors[]  = {0, -1, 238, -1};
   int pttrns[]    = {0,1,2,3,4,5,6,7,8,9,10,11,12};
   int srlist, cmap_len[2];
   float cmap[NCOLORS][3];
-  gsnRes special_res;
+  gsnRes special_res, special_pres;
 
 /*
  * Declare variables for determining which plots to draw.
@@ -58,7 +76,7 @@ main()
   char type_lat_T[TYPE_LEN], type_lon_T[TYPE_LEN];
   char type_lat_UV[TYPE_LEN], type_lon_UV[TYPE_LEN];
 
-  size_t i, *start, *count;
+  size_t i, j, *start, *count;
   char  filename_T[256], filename_U[256], filename_V[256], filename_T2[256];
   const char *dir = _NGGetNCARGEnv("data");
 
@@ -559,20 +577,35 @@ main()
  *
  *----------------------------------------------------------------------*/
 /*
+ * Initialize special resources.  For the plotting routines, draw, frame,
+ * and maximize default to True (1).  For primitive and text routines,
+ * only draw defaults to True.
+ */
+  special_res.gsnDraw     = 1;
+  special_res.gsnFrame    = 1;
+  special_res.gsnMaximize = 1;
+  special_res.gsnDebug    = 0;
+
+  special_pres.gsnDraw    = 1;
+  special_pres.gsnFrame   = 0;
+  special_pres.gsnMaximize= 0;
+  special_pres.gsnDebug   = 0;
+
+/*
  * Initialize which plots to draw.
  */
   do_contour           = 0;
-  do_xy_single         = 1;
-  do_xy_multi          = 1;
+  do_xy_single         = 0;
+  do_xy_multi          = 0;
   do_y                 = 0;
   do_vector            = 0;
   do_streamline        = 0;
   do_map               = 0;
   do_contour_map       = 0;
   do_vector_map        = 0;
-  do_streamline_map    = 1;
+  do_streamline_map    = 0;
   do_vector_scalar     = 0;
-  do_vector_scalar_map = 0;
+  do_vector_scalar_map = 1;
 
 /*
  * Initialize color map for later.
@@ -614,7 +647,7 @@ main()
  */
 
   NhlRLSetString(wk_rlist,"wkColorMap","rainbow+gray");
-  wks = gsn_open_wks("x11","test", wk_rlist);
+  wks = gsn_open_wks("ncgm","test", wk_rlist);
 
 /*
  * Initialize and clear resource lists.
@@ -634,6 +667,7 @@ main()
   st_rlist  = NhlRLCreate(NhlSETRL);
   mp_rlist  = NhlRLCreate(NhlSETRL);
   mp2_rlist = NhlRLCreate(NhlSETRL);
+  gs_rlist  = NhlRLCreate(NhlSETRL);
   NhlRLClear(sf_rlist);
   NhlRLClear(sf2_rlist);
   NhlRLClear(ca_rlist);
@@ -648,6 +682,7 @@ main()
   NhlRLClear(st_rlist);
   NhlRLClear(mp_rlist);
   NhlRLClear(mp2_rlist);
+  NhlRLClear(gs_rlist);
 
 /*
  * gsn_contour section
@@ -675,7 +710,17 @@ main()
     NhlRLSetString (tx_rlist,"txFuncCode"   , "~");
 
     text = gsn_text_ndc_wrap(wks,"gsn_text_ndc: bottom feeder",
-                             0.01,0.05, tx_rlist,&special_res);
+                             0.01,0.05, tx_rlist,&special_pres);
+
+/*
+ * Draw a polygon before we draw the plot.
+ */
+
+    NhlRLClear(gs_rlist);
+    NhlRLSetString (gs_rlist,"gsFillColor"     , "SlateBlue");
+    NhlRLSetString (gs_rlist,"gsEdgesOn"       , "True");
+    NhlRLSetString (gs_rlist,"gsEdgeColor"     , "Salmon");
+    gsn_polygon_ndc_wrap(wks, xgon, ygon, NG, gs_rlist, &special_pres);
 
 /*
  * Create and draw contour plot, and advance frame.
@@ -700,8 +745,8 @@ main()
     NhlRLSetString (tx_rlist,"txJust"      , "TopLeft");
     NhlRLSetString(tx_rlist,"txDirection"  , "Down");
     text = gsn_text_ndc_wrap(wks,"gsn_text_ndc",0.3,0.8, tx_rlist,
-                             &special_res);
-    text = gsn_text_ndc_wrap(wks,"Down",0.35,0.8, tx_rlist,&special_res);
+                             &special_pres);
+    text = gsn_text_ndc_wrap(wks,"Down",0.35,0.8, tx_rlist,&special_pres);
 
     xy = gsn_y_wrap(wks, T, type_T, 1, &nlon_T, is_missing_T, FillValue_T, 
                     ca_rlist, xy_rlist, xyd_rlist, &special_res);
@@ -753,7 +798,7 @@ main()
     NhlRLSetString(tx_rlist,"txFuncCode"   , "~");
 
     text = gsn_text_wrap(wks, xy, "~F26~gsn_text:~C~sideways", -130, 268,
-                         tx_rlist,&special_res);
+                         tx_rlist,&special_pres);
 
     NhlFrame(wks);
   }
@@ -910,7 +955,23 @@ main()
     NhlRLSetString (vc2_rlist,"vcMonoLineArrowColor"    , "False");
     NhlRLSetFloat  (vc2_rlist,"vcRefLengthF"            , 0.045);
     NhlRLSetFloat  (vc2_rlist,"vcRefMagnitudeF"         , 20.0);
+/*
+ * Draw some polymarkers before we draw the plot.
+ */
 
+    NhlRLClear(gs_rlist);
+    NhlRLSetInteger(gs_rlist,"gsMarkerIndex", 16);
+    NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 10.5);
+    NhlRLSetString (gs_rlist,"gsMarkerColor", "red");
+    gsn_polymarker_ndc_wrap(wks, xmark1, ymark1, 6, gs_rlist, &special_pres);
+    NhlRLSetString (gs_rlist,"gsMarkerColor", "green");
+    gsn_polymarker_ndc_wrap(wks, xmark2, ymark2, 3, gs_rlist, &special_pres);
+    NhlRLSetString (gs_rlist,"gsMarkerColor", "blue");
+    gsn_polymarker_ndc_wrap(wks, xmark3, ymark3, 3, gs_rlist, &special_pres);
+
+/*
+ * Now create and draw plot.
+ */
     vctrmap = gsn_vector_scalar_wrap(wks, U, V, T2, type_U, type_V, type_T2,
                                      nlat_UV, nlon_UV, is_lat_coord_UV, 
                                      lat_UV, type_lat_UV, is_lon_coord_UV, 
@@ -983,6 +1044,15 @@ main()
     special_res.gsnFrame = 1;
 
 /*
+ * Draw a polyline before we draw the plot.
+ */
+
+    NhlRLClear(gs_rlist);
+    NhlRLSetString (gs_rlist,"gsLineColor"     , "red");
+    NhlRLSetFloat  (gs_rlist,"gsLineThicknessF", 2.5);
+    gsn_polyline_ndc_wrap(wks, xline, yline, 2, gs_rlist, &special_pres);
+
+/*
  * Set some text resources and draw a text string.
  */
 
@@ -992,7 +1062,7 @@ main()
     NhlRLSetString (tx_rlist,"txFuncCode"   , "~");
 
     text = gsn_text_ndc_wrap(wks,"gsn_text_ndc: I'm a big labelbar",
-                             0.5,0.16, tx_rlist,&special_res);
+                             0.5,0.16, tx_rlist,&special_pres);
     NhlFrame(wks);
 
   }
@@ -1054,7 +1124,23 @@ main()
     NhlRLSetString (tx_rlist,"txBackgroundFillColor", "LightGray");
     
     text = gsn_text_wrap(wks,strmlnmap,"gsn_text: lat=65,lon=-93",
-                         -93, 65, tx_rlist,&special_res);
+                         -93, 65, tx_rlist,&special_pres);
+/*
+ * Draw a polygon, markers, and line.
+ */
+
+    NhlRLClear(gs_rlist);
+    NhlRLSetString (gs_rlist,"gsFillColor", "LightGray");
+    gsn_polygon_ndc_wrap(wks, xgon, ygon, NG, gs_rlist, &special_pres);
+
+    NhlRLClear(gs_rlist);
+    NhlRLSetString (gs_rlist,"gsMarkerColor", "red");
+    gsn_polymarker_ndc_wrap(wks, xgon, ygon, NG, gs_rlist, &special_pres);
+
+    NhlRLClear(gs_rlist);
+    NhlRLSetString (gs_rlist,"gsLineColor", "Blue");
+    gsn_polyline_ndc_wrap(wks, xgon, ygon, NG, gs_rlist, &special_pres);
+
     NhlFrame(wks);
   }
 
@@ -1111,6 +1197,7 @@ main()
     NhlRLSetFloat  (vc2_rlist,"vcRefMagnitudeF"         , 20.0);
     NhlRLSetString (vc2_rlist,"vcGlyphStyle"            , "CurlyVector");
 
+    special_res.gsnFrame = 0;
     vctrmap = gsn_vector_scalar_map_wrap(wks, U, V, T2, type_U, type_V, 
                                          type_T2, nlat_UV, nlon_UV, 
                                          is_lat_coord_UV, lat_UV, type_lat_UV,
@@ -1120,7 +1207,50 @@ main()
                                          FillValue_V, FillValue_T2, vf_rlist,
                                          sf2_rlist, vc2_rlist, mp2_rlist,
                                          &special_res);
+    special_res.gsnFrame = 1;
 
+/*
+ * Draw a polygon and outline it using a polyline. Note: it is possible
+ * to outline a polygon by setting the polygon resource "gsEdgesOn" to 
+ * True.  We're doing it using a polyline for test purposes.
+ */
+    NhlRLClear(gs_rlist);
+    NhlRLSetInteger (gs_rlist,"gsFillIndex", 17);
+    gsn_polygon_wrap(wks, vctrmap, longon, latgon, 5, gs_rlist,
+					 &special_pres);
+    NhlRLSetInteger (gs_rlist,"gsLineThicknessF", 2.0);
+    gsn_polyline_wrap(wks, vctrmap, longon, latgon, 5, gs_rlist,
+					  &special_pres);
+/*
+ * Mark the four corners of the polygon with polymarkers.
+ */
+    NhlRLSetInteger(gs_rlist,"gsMarkerIndex", 16);
+    NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 10.5);
+    gsn_polymarker_wrap(wks, vctrmap, longon, latgon, 4, gs_rlist, 
+						&special_pres);
+
+/*
+ * Label the four corners of the polygon with text.
+ */
+    NhlRLClear(tx_rlist);
+    NhlRLSetFloat  (tx_rlist,"txFontHeightF"        , 0.02);
+    NhlRLSetString (tx_rlist,"txFont"               , "helvetica");
+    
+    NhlRLSetString (tx_rlist,"txJust", "TopRight");
+    text = gsn_text_wrap(wks,vctrmap,"lat=  20:C:lon=-125",
+                         -125, 20, tx_rlist,&special_pres);
+    NhlRLSetString (tx_rlist,"txJust", "BottomRight");
+    text = gsn_text_wrap(wks,vctrmap,"lat=  60:C:lon=-125",
+                         -125, 60, tx_rlist,&special_pres);
+
+    NhlRLSetString (tx_rlist,"txJust", "TopLeft");
+    text = gsn_text_wrap(wks,vctrmap,"lat= 20:C:lon=-65",
+                         -65, 20, tx_rlist,&special_pres);
+    NhlRLSetString (tx_rlist,"txJust", "BottomLeft");
+    text = gsn_text_wrap(wks,vctrmap,"lat= 60:C:lon=-65",
+                         -65, 60, tx_rlist,&special_pres);
+
+	NhlFrame(wks);
   }
 /*
  * NhlDestroy destroys the given id and all of its children.

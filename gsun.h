@@ -15,7 +15,14 @@
 #include <ncarg/hlu/CoordArrays.h>
 #include <ncarg/hlu/VectorField.h>
 #include <ncarg/hlu/TextItem.h>
+#include <ncarg/hlu/GraphicStyle.h>
 #include <netcdf.h>
+
+typedef enum _PolyType {
+  POLYLINE, 
+  POLYMARKER, 
+  POLYGON
+} PolyType;
 
 #define max(x,y)   ((x) > (y) ? (x) : (y))
 
@@ -38,7 +45,7 @@ typedef struct {
 } gsnRes;
 
 /*
- * Prototype GSUN and supplemental functions.
+ * Supplemental functions. 
  */
 
 extern int scalar_field(void *, const char *, int, int, int, void *, 
@@ -46,30 +53,41 @@ extern int scalar_field(void *, const char *, int, int, int, void *,
                         void *, int);
 
 extern int coord_array(void *, void *, const char *, const char *, 
-					   int, int *, int, int *, int, int, void *, void *, int);
+                       int, int *, int, int *, int, int, void *, void *,
+                       int);
 
 extern int vector_field(void *, void *, const char *, const char *, int,
                         int, int, void *, const char *, int, void*, 
                         const char *, int, int, void *, void *, int);
 
-extern void compute_ps_device_coords(int,int);
+extern void compute_ps_device_coords(int, int, gsnRes *);
 
-extern void maximize_plot(int, int);
+extern void maximize_plot(int, int, gsnRes *);
+
+extern int create_graphicstyle_object(int);
 
 extern void draw_and_frame(int, int, gsnRes *);
 
+/*
+ * Workstation routine.
+ */
+
 extern int gsn_open_wks(const char *, const char *, int);
+
+/*
+ * Plotting routines.
+ */
 
 extern int gsn_contour_wrap(int, void *, const char *, int, int, 
                             int, void *, const char *, int, void *, 
                             const char *, int, void *, int, int, gsnRes *);
 
 extern int gsn_xy_wrap(int, void *, void *, const char *,
-					   const char *, int, int *, int, int *, int, int,
-					   void *, void *, int, int, int, gsnRes *);
+                       const char *, int, int *, int, int *, int, int,
+                       void *, void *, int, int, int, gsnRes *);
 
 extern int gsn_y_wrap(int, void *, const char *, int, int *, int, void *,
-					  int, int, int, gsnRes *);
+                      int, int, int, gsnRes *);
 
 extern int gsn_vector_wrap(int, void *, void *, const char *, 
                            const char *, int, int, int, void *, 
@@ -86,7 +104,7 @@ extern int gsn_map_wrap(int, int, gsnRes *);
 extern int gsn_contour_map_wrap(int, void *, const char *, int, int, 
                                 int, void *, const char *, int, void *, 
                                 const char *, int, void *, int, int, int,
-								gsnRes *);
+                                gsnRes *);
 
 extern int gsn_vector_map_wrap(int, void *, void *, const char *, 
                            const char *, int, int, int, void *, 
@@ -94,25 +112,44 @@ extern int gsn_vector_map_wrap(int, void *, void *, const char *,
                            int, void *, void *, int, int, int, gsnRes *);
 
 extern int gsn_streamline_map_wrap(int, void *, void *, const char *, 
-								   const char *, int, int, int, void *, 
-								   const char *, int, void *, const char *, 
-								   int, int, void *, void *, int, int,
-								   int, gsnRes *);
+                                   const char *, int, int, int, void *, 
+                                   const char *, int, void *, const char *, 
+                                   int, int, void *, void *, int, int,
+                                   int, gsnRes *);
 
 extern int gsn_vector_scalar_wrap(int, void *, void *, void *, const char *, 
-								  const char *, const char *, int, int, int, 
-								  void *, const char *, int, void *, 
-								  const char *, int, int, int, void *, 
-								  void *, void *, int, int, int, gsnRes *);
+                                  const char *, const char *, int, int, int, 
+                                  void *, const char *, int, void *, 
+                                  const char *, int, int, int, void *, 
+                                  void *, void *, int, int, int, gsnRes *);
 
 extern int gsn_vector_scalar_map_wrap(int, void *, void *, void *, 
-									  const char *, const char *, 
-									  const char *, int, int, int, void *,
-									  const char *, int, void *,
-									  const char *, int, int, int, void *, 
-									  void *, void *, int, int, int, int,
-									  gsnRes *);
+                                      const char *, const char *, 
+                                      const char *, int, int, int, void *,
+                                      const char *, int, void *,
+                                      const char *, int, int, int, void *, 
+                                      void *, void *, int, int, int, int,
+                                      gsnRes *);
 
+
+/*
+ * Text routines.
+ */
 
 extern int gsn_text_ndc_wrap(int, char *, float, float, int, gsnRes *);
 extern int gsn_text_wrap(int, int, char *, float, float, int, gsnRes *);
+
+/*
+ * Primitive drawing routines.
+ */
+
+extern void gsn_poly_wrap(int, int, float *, float *, int, PolyType,
+                          int, int, gsnRes *);
+extern void gsn_polymarker_ndc_wrap(int, float *, float *, int, int, 
+                                    gsnRes *);
+extern void gsn_polyline_ndc_wrap(int, float *, float *, int, int, gsnRes *);
+extern void gsn_polygon_ndc_wrap(int, float *, float *, int, int, gsnRes *);
+extern void gsn_polymarker_wrap(int, int, float *, float *, int, int, 
+                                gsnRes *);
+extern void gsn_polyline_wrap(int, int, float *, float *, int, int, gsnRes *);
+extern void gsn_polygon_wrap(int, int, float *, float *, int, int, gsnRes *);

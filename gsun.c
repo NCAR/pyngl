@@ -22,7 +22,7 @@
  *                        default is 0.5)
  *
  */
-void compute_ps_device_coords(int wks, int plot)
+void compute_ps_device_coords(int wks, int plot, gsnRes *special_res)
 {
   NhlBoundingBox box;
   float top, bot, lft, rgt, dpi_pw, dpi_ph, dpi_margin;
@@ -41,7 +41,7 @@ void compute_ps_device_coords(int wks, int plot)
   paper_height = 11.0;
   paper_width  = 8.5;
   paper_margin = 0.5;
-  is_debug     = 0;
+  is_debug     = special_res->gsnDebug;
 
 /*
  * Get the bounding box that encompasses the plot. Note that even
@@ -182,7 +182,7 @@ void compute_ps_device_coords(int wks, int plot)
  * This function maximizes the size of the plot in the viewport.
  */
 
-void maximize_plot(int wks, int plot)
+void maximize_plot(int wks, int plot, gsnRes *special_res)
 {
   NhlBoundingBox box; 
   float top, bot, lft, rgt, uw, uh;
@@ -266,14 +266,42 @@ void maximize_plot(int wks, int plot)
   NhlRLSetFloat(srlist,"vpHeightF", new_vph);
   (void)NhlSetValues(plot, srlist);
 
+  if(special_res->gsnDebug) {
+    printf("vpXF      = %g\n", new_vpx);
+    printf("vpYF      = %g\n", new_vpy);
+    printf("vpWidthF  = %g\n", new_vpw);
+    printf("vpHeightF = %g\n", new_vph);
+  }
   if(!strcmp(NhlClassName(wks),"psWorkstationClass") ||
      !strcmp(NhlClassName(wks),"pdfWorkstationClass")) {
 /*
  * Compute and set device coordinates that will make plot fill the 
  * whole page.
  */
-    compute_ps_device_coords(wks,plot);
+    compute_ps_device_coords(wks, plot, special_res);
   }
+}
+
+/*
+ * Create a graphic style object so we can draw primitives on it.
+ * We could have retrieved the one that is created when you create
+ * a workstation object, but then if you draw a bunch of primitives, 
+ * the resources that were previously set will still apply, even if
+ * you create a new resource list.
+ *
+ * Creating a brand new graphic style object for each primitive
+ * seems like the way to go.
+ */
+
+int create_graphicstyle_object(int wks)
+{
+  int srlist, gsid;
+
+  srlist = NhlRLCreate(NhlSETRL);
+  NhlRLClear(srlist);
+  NhlCreate(&gsid,"GraphicStyle",NhlgraphicStyleClass,wks,srlist);
+
+  return(gsid);
 }
 
 /*
@@ -282,7 +310,7 @@ void maximize_plot(int wks, int plot)
 
 void draw_and_frame(int wks, int plot, gsnRes *special_res)
 {
-  if(special_res->gsnMaximize) maximize_plot(wks, plot);
+  if(special_res->gsnMaximize) maximize_plot(wks, plot, special_res);
   if(special_res->gsnDraw)  NhlDraw(plot);
   if(special_res->gsnFrame) NhlFrame(wks);
 }
@@ -957,8 +985,11 @@ int gsn_contour_map_wrap(int wks, void *data, const char *type,
  * Create contour plot.
  */
 
-  special_res2.gsnDraw  = 0;
-  special_res2.gsnFrame = 0;
+  special_res2.gsnDraw     = 0;
+  special_res2.gsnFrame    = 0;
+  special_res2.gsnMaximize = 0;
+  special_res2.gsnDebug    = special_res->gsnDebug;
+
   contour = gsn_contour_wrap(wks, data, type, ylen, xlen,
                              is_ycoord, ycoord, ycoord_type,
                              is_xcoord, xcoord, xcoord_type,
@@ -1008,8 +1039,11 @@ int gsn_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
  * Create vector plot.
  */
 
-  special_res2.gsnDraw  = 0;
-  special_res2.gsnFrame = 0;
+  special_res2.gsnDraw     = 0;
+  special_res2.gsnFrame    = 0;
+  special_res2.gsnMaximize = 0;
+  special_res2.gsnDebug    = special_res->gsnDebug;
+
   vector = gsn_vector_wrap(wks, u, v, type_u, type_v, ylen, xlen, is_ycoord,
                            ycoord, type_ycoord, is_xcoord, xcoord, 
                            type_xcoord, is_missing_u, is_missing_v, 
@@ -1060,8 +1094,11 @@ int gsn_streamline_map_wrap(int wks, void *u, void *v, const char *type_u,
  * Create streamline plot.
  */
 
-  special_res2.gsnDraw  = 0;
-  special_res2.gsnFrame = 0;
+  special_res2.gsnDraw     = 0;
+  special_res2.gsnFrame    = 0;
+  special_res2.gsnMaximize = 0;
+  special_res2.gsnDebug    = special_res->gsnDebug;
+
   streamline = gsn_streamline_wrap(wks, u, v, type_u, type_v, ylen, xlen, 
                                    is_ycoord, ycoord, type_ycoord, 
                                    is_xcoord, xcoord, type_xcoord, 
@@ -1175,8 +1212,11 @@ int gsn_vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
  * Create vector plot.
  */
 
-  special_res2.gsnDraw  = 0;
-  special_res2.gsnFrame = 0;
+  special_res2.gsnDraw     = 0;
+  special_res2.gsnFrame    = 0;
+  special_res2.gsnMaximize = 0;
+  special_res2.gsnDebug    = special_res->gsnDebug;
+
   vector = gsn_vector_scalar_wrap(wks, u, v, t, type_u, type_v, type_t,
                                   ylen, xlen, is_ycoord, ycoord, 
                                   type_ycoord, is_xcoord, xcoord, 
@@ -1212,7 +1252,6 @@ int gsn_text_ndc_wrap(int wks, char* string, float x, float y,
                       int tx_rlist, gsnRes *special_res)
 {
   int text;
-  gsnRes special_res2;
 
   if(special_res->gsnDebug) {
     printf("gsn_text_ndc: string = %s x = %g y = %g\n", string, x, y);
@@ -1223,14 +1262,10 @@ int gsn_text_ndc_wrap(int wks, char* string, float x, float y,
   NhlRLSetFloat (tx_rlist, "txPosYF" , y);
   NhlCreate(&text,"text",NhltextItemClass,wks,tx_rlist);
 /*
- * Draw plots and advance frame.
+ * Draw text.
  */
 
-  special_res2.gsnMaximize = 0;
-  special_res2.gsnFrame    = 0;
-  special_res2.gsnDraw     = 1;
-
-  draw_and_frame(wks, text, &special_res2);
+  draw_and_frame(wks, text, special_res);
 
 /*
  * Return.
@@ -1266,3 +1301,125 @@ int gsn_text_wrap(int wks, int plot, char* string, float x, float y,
   return(text);
 }
 
+/*
+ * Routine for drawing any kind of primitive in NDC or data space.
+ */
+void gsn_poly_wrap(int wks, int plot, float *x, float *y, int len,
+                   PolyType polytype, int is_ndc, int gs_rlist, 
+                   gsnRes *special_res)
+{
+  int gsid;
+
+/*
+ * Create graphic style object on which to draw primitives.
+ */
+  gsid = create_graphicstyle_object(wks);
+
+/*
+ * Set the graphic style resources, if any.
+ */
+
+  NhlSetValues(gsid,gs_rlist);
+
+/*
+ * Draw the appropriate primitive.
+ */
+  if(special_res->gsnDraw) {
+    if(is_ndc) {
+      switch(polytype) {
+
+      case POLYLINE:
+        NhlNDCPolyline(wks,gsid,x,y,len);
+        break;
+
+      case POLYMARKER:
+        NhlNDCPolymarker(wks,gsid,x,y,len);
+        break;
+
+      case POLYGON:
+        NhlNDCPolygon(wks,gsid,x,y,len);
+        break;
+      }
+    }
+    else {
+      switch(polytype) {
+
+      case POLYLINE:
+        NhlDataPolyline(plot,gsid,x,y,len);
+        break;
+
+      case POLYMARKER:
+        NhlDataPolymarker(plot,gsid,x,y,len);
+        break;
+
+      case POLYGON:
+        NhlDataPolygon(plot,gsid,x,y,len);
+        break;
+      }
+    }
+  }
+    
+  if(special_res->gsnFrame) NhlFrame(wks);
+
+}
+
+
+/*
+ * Routine for drawing markers in NDC space.
+ */
+void gsn_polymarker_ndc_wrap(int wks, float *x, float *y, int len,
+                             int gs_rlist, gsnRes *special_res)
+{
+  gsn_poly_wrap(wks,0,x,y,len,POLYMARKER,1,gs_rlist,special_res);
+}
+
+
+/*
+ * Routine for drawing lines in NDC space.
+ */
+void gsn_polyline_ndc_wrap(int wks, float *x, float *y, int len,
+                           int gs_rlist, gsnRes *special_res)
+{
+  gsn_poly_wrap(wks,0,x,y,len,POLYLINE,1,gs_rlist,special_res);
+}
+
+
+/*
+ * Routine for drawing polygons in NDC space.
+ */
+void gsn_polygon_ndc_wrap(int wks, float *x, float *y, int len,
+                          int gs_rlist, gsnRes *special_res)
+{
+  gsn_poly_wrap(wks,0,x,y,len,POLYGON,1,gs_rlist,special_res);
+}
+
+
+
+/*
+ * Routine for drawing markers in data space.
+ */
+void gsn_polymarker_wrap(int wks, int plot, float *x, float *y, int len,
+                         int gs_rlist, gsnRes *special_res)
+{
+  gsn_poly_wrap(wks,plot,x,y,len,POLYMARKER,0,gs_rlist,special_res);
+}
+
+
+/*
+ * Routine for drawing lines in data space.
+ */
+void gsn_polyline_wrap(int wks, int plot, float *x, float *y, int len,
+                           int gs_rlist, gsnRes *special_res)
+{
+  gsn_poly_wrap(wks,plot,x,y,len,POLYLINE,0,gs_rlist,special_res);
+}
+
+
+/*
+ * Routine for drawing polygons in data space.
+ */
+void gsn_polygon_wrap(int wks, int plot, float *x, float *y, int len,
+                      int gs_rlist, gsnRes *special_res)
+{
+  gsn_poly_wrap(wks,plot,x,y,len,POLYGON,0,gs_rlist,special_res);
+}
