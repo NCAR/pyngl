@@ -1524,16 +1524,15 @@ def asciiread(filename,dims,type):
       if (type == "integer"):
         try:
           ar[count] = string.atoi(str)
+          count = count+1
         except:
-          print "asciiread: data must be integer"
-          return None
+          pass
       elif ((type == "float") or (type == "double")):
         try:
           ar[count] = string.atof(str)
+          count = count+1
         except:
-          print "asciiread: data must be floating point"
-          return None
-      count = count+1
+          pass
       if (count >= nnum):
         file.close()
         return Numeric.reshape(ar,dims)
