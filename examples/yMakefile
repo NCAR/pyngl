@@ -1,13 +1,14 @@
 #
-#   $Id: yMakefile,v 1.11 2004-12-12 20:44:52 haley Exp $
+#   $Id: yMakefile,v 1.12 2004-12-12 21:29:04 haley Exp $
 #
 #   Makefile for pyngl examples
 #
 
-EXAMPLES = chkbay.py clmdiv.py cn12p.py ctnccl.py meteogram.py geodesic.py \
-	irregular.py ngl01p.py ngl02p.py ngl03p.py ngl04p.py ngl05p.py \
-	ngl06p.py ngl07p.py ngl08p.py ngl09p.py ngl10p.py ngl11p.py \
-	panel1.py topo1.py traj1.py scatter1.py seam.py streamline.py
+EXAMPLES = chkbay.py clmdiv.py cn12p.py cns01p.py color1.py ctnccl.py \
+	geodesic.py irregular.py meteogram.py ngl01p.py ngl02p.py ngl03p.py \
+	ngl04p.py ngl05p.py ngl06p.py ngl07p.py ngl08p.py ngl09p.py \
+	ngl10p.py ngl11p.py panel1.py scatter1.py seam.py streamline.py \
+	topo1.py traj1.py
 
 RESFILES = chkbay.res cn12p.res ctnccl.res geodesic.res irregular.res \
 	ngl08p.res ngl09p.res seam.res topo1.res streamline.res
