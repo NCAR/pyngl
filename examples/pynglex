@@ -62,6 +62,8 @@ if (argc < 2):
 #  The default is in site-packages/PyNGL/ncarg. Otherwise, check
 #  the NCARG_PYNGL environment variable, and then ncargpath("ncarg").
 #
+sitedirs    = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
+                           'site-packages')
 pkgs_pth    = site.sitedirs[0]
 pyngl1_dir  = pkgs_pth + "/PyNGL/ncarg"
 pyngl2_dir  = os.environ.get("NCARG_PYNGL")
