@@ -2729,7 +2729,6 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
   panel_save     = special_res->nglPanelSave;
   panel_debug    = special_res->nglDebug;
   panel_center   = special_res->nglPanelCenter;
-  panel_labelbar = special_res->nglPanelLabelBar;
   main_string_on = is_figure_strings = 0;
   panel_labelbar = special_res->nglPanelLabelBar;
   calldraw       = special_res->nglDraw;
@@ -3267,7 +3266,12 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
  */
       labelbar_height      = scale * labelbar_height;
       labelbar_width       = scale * labelbar_width;
-      labelbar_font_height = font_height;
+      if(special_res->nglPanelLabelBarFontHeightF > 0.) {
+		labelbar_font_height = special_res->nglPanelLabelBarFontHeightF;
+	  }
+	  else {
+		labelbar_font_height = font_height;
+	  }
 /*
  * Set some labelbar resources.  If pmLabelBarWidth/Height are set,
  * use these no matter what, for the labelbar width and height. Otherwise,
@@ -3333,11 +3337,11 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
       if(special_res->nglPanelLabelBarParallelPosF > -1.) {
         lb_x += special_res->nglPanelLabelBarOrthogonalPosF;
       }
+	  NhlRLSetFloat(lb_rlist,"lbLabelFontHeightF",labelbar_font_height);
       NhlRLSetFloat(lb_rlist,"vpXF",lb_x);
       NhlRLSetFloat(lb_rlist,"vpYF",lb_y);
       NhlRLSetFloat(lb_rlist,"vpWidthF",lb_w);
       NhlRLSetFloat(lb_rlist,"vpHeightF",lb_h);
-      NhlRLSetFloat(lb_rlist,"lbLabelFontHeightF",labelbar_font_height);
 /*
  * Check if we want different fill patterns or fill scales.  If so, we
  * have to pass these on to the labelbar.

@@ -79,6 +79,7 @@ typedef struct {
   int   nglPanelLabelBar;  
   float nglPanelLabelBarXF;
   float nglPanelLabelBarYF;
+  float nglPanelLabelBarFontHeightF;
   float nglPanelLabelBarWidthF;
   float nglPanelLabelBarHeightF;
   float nglPanelLabelBarOrthogonalPosF;
