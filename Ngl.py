@@ -1498,11 +1498,43 @@ def get_tokens(line):
   return tokens
 
 
-def asciiread(filename,dims,type):
+def asciiread(filename,dims,type="float"):
   file = open(filename)
-  nnum = 1
-  for m in xrange(len(dims)):
-    nnum = nnum*dims[m]
+#
+#  If dims = -1, determine the number of valid tokens in
+#  the input file, otherwise calculate the number from
+#  the dims value.  If dims = -1 the return value will be
+#  a Numeric array containing of all the legal values,
+#  all other values are ignored.
+#
+  if (dims == -1):
+    nnum = 0
+    while (1):
+      line = file.readline()[0:-1]
+      if len(line) == 0:
+        break
+      toks = get_tokens(line)
+      for str in toks:
+        if (type == "integer"):
+          try:
+            string.atoi(str)
+            nnum = nnum+1
+          except:
+            pass
+        elif ((type == "float") or (type == "double")):
+          try:
+            string.atof(str)
+            nnum = nnum+1
+          except:
+            pass
+  else:
+    nnum = 1
+    if (not (isinstance(dims,types.ListType)) and \
+        not (isinstance(dims,types.TupleType))):
+      print 'asciiread: dims must be a list or a tuple'
+      return None
+    for m in xrange(len(dims)):
+      nnum = nnum*dims[m]
  
   if (type == "integer"):
     ar = Numeric.zeros(nnum,Numeric.int) 
@@ -1515,6 +1547,7 @@ def asciiread(filename,dims,type):
     sys.exit()
 
   count = 0
+  file.seek(0,0)
   while (1):
     line = file.readline()[0:-1]
     if len(line) == 0:
@@ -1533,15 +1566,15 @@ def asciiread(filename,dims,type):
           count = count+1
         except:
           pass
-      if (count >= nnum):
-        file.close()
-        return Numeric.reshape(ar,dims)
 
-  if (count < nnum):
+  if (count < nnum and dims != -1):
     print "asciiread: Warning, fewer data items than specified array size."
 
   file.close()
-  return Numeric.reshape(ar,dims)
+  if (dims == -1):
+    return ar
+  else:
+    return Numeric.reshape(ar,dims)
 
 def get_workspace_id():
   return NhlGetWorkspaceObjectId()
