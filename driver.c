@@ -77,7 +77,7 @@ main()
   float xf, yf, cmap[NCOLORS][3], xm, ym;
   int   ixf, iyf, i1, i2, i3;
   int panel_dims[2];
-  gsnRes special_res, special_pres;
+  nglRes special_res, special_pres;
 
 
 /*
@@ -744,16 +744,16 @@ main()
  * and maximize default to True (1).  For primitive and text routines,
  * only draw defaults to True.
  */
-  special_res.gsnDraw     = 1;
-  special_res.gsnFrame    = 1;
-  special_res.gsnMaximize = 1;
-  special_res.gsnScale    = 0;
-  special_res.gsnDebug    = 0;
+  special_res.nglDraw     = 1;
+  special_res.nglFrame    = 1;
+  special_res.nglMaximize = 1;
+  special_res.nglScale    = 0;
+  special_res.nglDebug    = 0;
 
-  special_pres.gsnDraw    = 1;
-  special_pres.gsnFrame   = 0;
-  special_pres.gsnMaximize= 0;
-  special_pres.gsnDebug   = 0;
+  special_pres.nglDraw    = 1;
+  special_pres.nglFrame   = 0;
+  special_pres.nglMaximize= 0;
+  special_pres.nglDebug   = 0;
 
 /*
  * Initialize which plots to draw.
@@ -933,12 +933,12 @@ main()
                              &special_pres);
 
 
-    special_res.gsnFrame = 0;
+    special_res.nglFrame = 0;
 
     xy = ngl_y_wrap(wks, T, type_T, 1, &nlon_T, is_missing_T, FillValue_T, 
                     ca_rlist, xy_rlist, xyd_rlist, &special_res);
 
-    special_res.gsnFrame = 1;
+    special_res.nglFrame = 1;
 
     NhlRLClear(gs_rlist);
     NhlRLSetString (gs_rlist,"gsLineColor",       "red");
@@ -978,15 +978,15 @@ main()
     dsizes_T[1] = nlon_T;
 
 
-    special_res.gsnFrame = 0;
-    special_res.gsnDraw  = 0;
+    special_res.nglFrame = 0;
+    special_res.nglDraw  = 0;
 
     xy = ngl_xy_wrap(wks, lon_T, T, type_lon_T, type_T, 1, &nlon_T, 
                      2, &dsizes_T[0], 0, is_missing_T, NULL, FillValue_T, 
                      ca_rlist, xy_rlist, xyd_rlist, &special_res);
 
-    special_res.gsnDraw  = 1;
-    special_res.gsnFrame = 1;
+    special_res.nglDraw  = 1;
+    special_res.nglFrame = 1;
 
 /*
  * Set some text resources and draw a text string.
@@ -1023,13 +1023,13 @@ main()
     NhlRLSetString (xyd_rlist, "xyLineColor"     , "green");
     NhlRLSetFloat  (xyd_rlist, "xyLineThicknessF", 3.0);
 
-    special_res.gsnFrame = 0;
+    special_res.nglFrame = 0;
 
     xy = ngl_xy_wrap(wks, lat_T, T, type_lat_T, type_T, 1, &nlat_T, 
                      1, &nlon_T, 0, 0, NULL, NULL, 
                      ca_rlist, xy_rlist, xyd_rlist, &special_res);
 
-    special_res.gsnFrame = 1;
+    special_res.nglFrame = 1;
 
     NhlRLClear(gs_rlist);
     NhlRLSetString (gs_rlist,"gsMarkerColor", "Red");
@@ -1220,9 +1220,9 @@ main()
     NhlRLSetFloat(mp_rlist,"vpWidthF"  , 0.7);
     NhlRLSetFloat(mp_rlist,"vpHeightF" , 0.7);
 
-    special_res.gsnScale    = 1;
-    special_res.gsnFrame    = 0;
-    special_res.gsnMaximize = 0;
+    special_res.nglScale    = 1;
+    special_res.nglFrame    = 0;
+    special_res.nglMaximize = 0;
 
     cntrmap = ngl_contour_map_wrap(wks, P, type_P, nlat_UV, nlon_UV, 
                                    is_lat_coord_UV, lat_UV, type_lat_UV, 
@@ -1230,9 +1230,9 @@ main()
                                    is_missing_P, FillValue_P, 
                                    sf_rlist, cn_rlist, mp_rlist,
                                    &special_res);
-    special_res.gsnMaximize = 1;
-    special_res.gsnFrame    = 1;
-    special_res.gsnScale    = 0;
+    special_res.nglMaximize = 1;
+    special_res.nglFrame    = 1;
+    special_res.nglScale    = 0;
 
 /*
  * Set some text resources.
@@ -1330,9 +1330,9 @@ main()
       varray      = (int*)malloc(ntime_UV*sizeof(int));
       varray_copy = (int*)malloc(ntime_UV*sizeof(int));
 
-      special_res.gsnMaximize = 0;
-      special_res.gsnFrame    = 0;
-      special_res.gsnDraw     = 0;
+      special_res.nglMaximize = 0;
+      special_res.nglFrame    = 0;
+      special_res.nglDraw     = 0;
       for(i = 0; i < ntime_UV; i++) {
         Unew  = &((float*)U)[nlatlon_UV*i];
         Vnew  = &((float*)V)[nlatlon_UV*i];
@@ -1354,33 +1354,33 @@ main()
 /*
  * Paper orientation: -1 is auto, 0 is portrait, and 6 is landscape.
  */
-      special_res.gsnPaperOrientation = -1;
-      special_res.gsnPaperWidth       =  8.5;
-      special_res.gsnPaperHeight      = 11.0;
-      special_res.gsnPaperMargin      =  0.5;
+      special_res.nglPaperOrientation = -1;
+      special_res.nglPaperWidth       =  8.5;
+      special_res.nglPaperHeight      = 11.0;
+      special_res.nglPaperMargin      =  0.5;
 
 /*
  * Special resources for paneling.
  */
-      special_res.gsnDebug                   = 1;
-      special_res.gsnPanelCenter             = 1;
-      special_res.gsnPanelRowSpec            = 0;
-      special_res.gsnPanelXWhiteSpacePercent = 1.;
-      special_res.gsnPanelYWhiteSpacePercent = 1.;
-      special_res.gsnPanelBoxes              = 0;
-      special_res.gsnPanelLeft               = 0.;
-      special_res.gsnPanelRight              = 1.;
-      special_res.gsnPanelBottom             = 0.;
-      special_res.gsnPanelTop                = 1.;
-      special_res.gsnPanelInvsblTop          = -999;
-      special_res.gsnPanelInvsblLeft         = -999;
-      special_res.gsnPanelInvsblRight        = -999;
-      special_res.gsnPanelInvsblBottom       = -999;
-      special_res.gsnPanelSave               = 0;
+      special_res.nglDebug                   = 1;
+      special_res.nglPanelCenter             = 1;
+      special_res.nglPanelRowSpec            = 0;
+      special_res.nglPanelXWhiteSpacePercent = 1.;
+      special_res.nglPanelYWhiteSpacePercent = 1.;
+      special_res.nglPanelBoxes              = 0;
+      special_res.nglPanelLeft               = 0.;
+      special_res.nglPanelRight              = 1.;
+      special_res.nglPanelBottom             = 0.;
+      special_res.nglPanelTop                = 1.;
+      special_res.nglPanelInvsblTop          = -999;
+      special_res.nglPanelInvsblLeft         = -999;
+      special_res.nglPanelInvsblRight        = -999;
+      special_res.nglPanelInvsblBottom       = -999;
+      special_res.nglPanelSave               = 0;
 
-      special_res.gsnMaximize = 1;
-      special_res.gsnFrame    = 1;
-      special_res.gsnDraw     = 1;
+      special_res.nglMaximize = 1;
+      special_res.nglFrame    = 1;
+      special_res.nglDraw     = 1;
 
 /*
  * This first loop is to do an initial run-through where no plots
@@ -1400,8 +1400,8 @@ main()
  * the paneled plots, we need to turn off frame for the paneled plots,
  * and turn it on for the text strings.
  */
-          special_res.gsnFrame  = 0;
-          special_pres.gsnFrame = 1;
+          special_res.nglFrame  = 0;
+          special_pres.nglFrame = 1;
         }
 
         panel_dims[0] = 3;          /* rows    */
@@ -1474,19 +1474,19 @@ main()
  *   - adding a string at the top, bottom, left, and right
  *   - changing the margins
  *   - changing the spacing around the plots
- *   - playing w/gsnPanelCenter when you have missing plots
- *   - gsnPanelRowSpec
+ *   - playing w/nglPanelCenter when you have missing plots
+ *   - nglPanelRowSpec
  */
-        special_res.gsnFrame  = 0;
-        special_pres.gsnFrame = 1;
+        special_res.nglFrame  = 0;
+        special_pres.nglFrame = 1;
         NhlRLClear(tx_rlist);
         NhlRLSetFloat(tx_rlist,"txFontHeightF" , 0.020);
 /*
- * Testing gsnPanelBottom.
+ * Testing nglPanelBottom.
  */
-        printf("Testing gsnPanelBottom...\n");
+        printf("Testing nglPanelBottom...\n");
 
-        special_res.gsnPanelBottom = 0.07;
+        special_res.nglPanelBottom = 0.07;
         panel_dims[0] = 2;          /* rows    */
         panel_dims[1] = 3;          /* columns */
 
@@ -1516,12 +1516,12 @@ main()
         }
 
 /*
- * Testing gsnPanelTop.
+ * Testing nglPanelTop.
  */
-        printf("Testing gsnPanelTop...\n");
+        printf("Testing nglPanelTop...\n");
 
-        special_res.gsnPanelTop    = 0.94;
-        special_res.gsnPanelBottom = 0.0;
+        special_res.nglPanelTop    = 0.94;
+        special_res.nglPanelBottom = 0.0;
         panel_dims[0] = 4;          /* rows    */
         panel_dims[1] = 2;          /* columns */
 
@@ -1547,12 +1547,12 @@ main()
         }
 
 /*
- * Testing gsnPanelRight.
+ * Testing nglPanelRight.
  */
-        printf("Testing gsnPanelRight...\n");
+        printf("Testing nglPanelRight...\n");
 
-        special_res.gsnPanelTop    = 1.0;
-        special_res.gsnPanelRight  = 0.94;
+        special_res.nglPanelTop    = 1.0;
+        special_res.nglPanelRight  = 0.94;
         panel_dims[0] = 2;          /* rows    */
         panel_dims[1] = 4;          /* columns */
         if(i) {
@@ -1578,12 +1578,12 @@ main()
         }
 
 /*
- * Testing gsnPanelLeft.
+ * Testing nglPanelLeft.
  */
-        printf("Testing gsnPanelLeft...\n");
+        printf("Testing nglPanelLeft...\n");
 
-        special_res.gsnPanelRight  = 1.0;
-        special_res.gsnPanelLeft   = 0.07;
+        special_res.nglPanelRight  = 1.0;
+        special_res.nglPanelLeft   = 0.07;
         panel_dims[0] = 3;          /* rows    */
         panel_dims[1] = 4;          /* columns */
 
@@ -1613,12 +1613,12 @@ main()
                                    &special_pres);
         }
         
-        special_res.gsnPanelTop    = 1.0;
-        special_res.gsnPanelBottom = 0.0;
-        special_res.gsnPanelRight  = 1.0;
-        special_res.gsnPanelLeft   = 0.0;
-        special_pres.gsnFrame      = 0;
-        special_res.gsnFrame       = 1;
+        special_res.nglPanelTop    = 1.0;
+        special_res.nglPanelBottom = 0.0;
+        special_res.nglPanelRight  = 1.0;
+        special_res.nglPanelLeft   = 0.0;
+        special_pres.nglFrame      = 0;
+        special_res.nglFrame       = 1;
       }
     }
   }
@@ -1673,7 +1673,7 @@ main()
     NhlRLSetString (mp2_rlist,"mpOutlineBoundarySets"  ,
                     "GeophysicalAndUSStates");
     
-    special_res.gsnFrame = 0;
+    special_res.nglFrame = 0;
     vctrmap = ngl_vector_map_wrap(wks, U, V, type_U, type_V, nlat_UV, 
                                   nlon_UV, is_lat_coord_UV, lat_UV, 
                                   type_lat_UV, is_lon_coord_UV, lon_UV,
@@ -1682,7 +1682,7 @@ main()
                                   vc2_rlist, mp2_rlist, &special_res);
     
   
-    special_res.gsnFrame = 1;
+    special_res.nglFrame = 1;
 
 /*
  * Draw a polyline before we draw the plot.
@@ -1746,7 +1746,7 @@ main()
     NhlRLSetString (st_rlist,"tiMainString"            , "Green Streams");
     NhlRLSetInteger(st_rlist,"tiMainFont"              , 25);
 
-    special_res.gsnFrame = 0;
+    special_res.nglFrame = 0;
 
     strmlnmap = ngl_streamline_map_wrap(wks, U, V, type_U, type_V, nlat_UV, 
                                         nlon_UV, is_lat_coord_UV, lat_UV, 
@@ -1756,7 +1756,7 @@ main()
                                         vf_rlist, st_rlist, mp2_rlist, 
                                         &special_res);
 
-    special_res.gsnFrame = 1;
+    special_res.nglFrame = 1;
 /*
  * Set some text resources and draw a text string.
  */
@@ -1850,8 +1850,8 @@ main()
     NhlRLSetFloat  (vc2_rlist,"vcRefMagnitudeF"         , 20.0);
     NhlRLSetString (vc2_rlist,"vcGlyphStyle"            , "CurlyVector");
 
-    special_res.gsnFrame = 0;
-    special_res.gsnDraw  = 0;
+    special_res.nglFrame = 0;
+    special_res.nglDraw  = 0;
 
     vctrmap = ngl_vector_scalar_map_wrap(wks, U, V, T2, type_U, type_V, 
                                          type_T2, nlat_UV, nlon_UV, 
@@ -1862,8 +1862,8 @@ main()
                                          FillValue_V, FillValue_T2, vf_rlist,
                                          sf2_rlist, vc2_rlist, mp2_rlist,
                                          &special_res);
-    special_res.gsnFrame = 1;
-    special_res.gsnDraw  = 1;
+    special_res.nglFrame = 1;
+    special_res.nglDraw  = 1;
 
 /*
  * Attach a polygon and outline it using a polyline. Note: it is possible

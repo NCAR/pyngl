@@ -35,38 +35,38 @@
  */
 
 typedef struct {
-  int   gsnMaximize;
-  int   gsnDraw;
-  int   gsnFrame;
-  int   gsnScale;
-  int   gsnDebug;
+  int   nglMaximize;
+  int   nglDraw;
+  int   nglFrame;
+  int   nglScale;
+  int   nglDebug;
 
 /*
  * Special resources for PS/PDF output.
  */
-  int   gsnPaperOrientation;
-  float gsnPaperWidth;
-  float gsnPaperHeight;
-  float gsnPaperMargin;
+  int   nglPaperOrientation;
+  float nglPaperWidth;
+  float nglPaperHeight;
+  float nglPaperMargin;
 
 /*
  * Special resources for paneling.
  */
-  int   gsnPanelCenter;
-  int   gsnPanelRowSpec;
-  float gsnPanelXWhiteSpacePercent;
-  float gsnPanelYWhiteSpacePercent;
-  int   gsnPanelBoxes;
-  float gsnPanelLeft;
-  float gsnPanelRight;
-  float gsnPanelBottom;
-  float gsnPanelTop;
-  float gsnPanelInvsblTop;
-  float gsnPanelInvsblLeft;
-  float gsnPanelInvsblRight;
-  float gsnPanelInvsblBottom;
-  int   gsnPanelSave;
-} gsnRes;
+  int   nglPanelCenter;
+  int   nglPanelRowSpec;
+  float nglPanelXWhiteSpacePercent;
+  float nglPanelYWhiteSpacePercent;
+  int   nglPanelBoxes;
+  float nglPanelLeft;
+  float nglPanelRight;
+  float nglPanelBottom;
+  float nglPanelTop;
+  float nglPanelInvsblTop;
+  float nglPanelInvsblLeft;
+  float nglPanelInvsblRight;
+  float nglPanelInvsblBottom;
+  int   nglPanelSave;
+} nglRes;
 
 /*
  * Supplemental functions. 
@@ -77,9 +77,9 @@ extern float xmax_array(float *, int);
 extern float xmin_array(float *, int);
 extern float *fspan(float, float, int);
 
-extern void compute_ps_device_coords(int, int *, int, gsnRes *);
+extern void compute_ps_device_coords(int, int *, int, nglRes *);
 
-extern void maximize_plot(int, int *, int, gsnRes *);
+extern void maximize_plot(int, int *, int, nglRes *);
 
 extern void scale_plot(int);
 
@@ -97,7 +97,7 @@ extern void set_resource(char *, int, void *, const char *, int, int *);
 
 extern int create_graphicstyle_object(int);
 
-extern void draw_and_frame(int, int *, int, gsnRes *);
+extern void draw_and_frame(int, int *, int, nglRes *);
 
 /*
  * Data object routines.
@@ -127,48 +127,48 @@ extern int ngl_open_wks_wrap(const char *, const char *, int);
 
 extern int ngl_contour_wrap(int, void *, const char *, int, int, 
                             int, void *, const char *, int, void *, 
-                            const char *, int, void *, int, int, gsnRes *);
+                            const char *, int, void *, int, int, nglRes *);
 
 extern int ngl_xy_wrap(int, void *, void *, const char *,
                        const char *, int, int *, int, int *, int, int,
-                       void *, void *, int, int, int, gsnRes *);
+                       void *, void *, int, int, int, nglRes *);
 
 extern int ngl_y_wrap(int, void *, const char *, int, int *, int, void *,
-                      int, int, int, gsnRes *);
+                      int, int, int, nglRes *);
 
 extern int ngl_vector_wrap(int, void *, void *, const char *, 
                            const char *, int, int, int, void *, 
                            const char *, int, void *, const char *, int,
-                           int, void *, void *, int, int, gsnRes *);
+                           int, void *, void *, int, int, nglRes *);
 
 extern int ngl_streamline_wrap(int, void *, void *, const char *, 
                                const char *, int, int, int, void *, 
                                const char *, int, void *, const char *, 
-                               int, int, void *, void *, int, int, gsnRes *);
+                               int, int, void *, void *, int, int, nglRes *);
 
-extern int ngl_map_wrap(int, int, gsnRes *);
+extern int ngl_map_wrap(int, int, nglRes *);
 
 extern int ngl_contour_map_wrap(int, void *, const char *, int, int, 
                                 int, void *, const char *, int, void *, 
                                 const char *, int, void *, int, int, int,
-                                gsnRes *);
+                                nglRes *);
 
 extern int ngl_vector_map_wrap(int, void *, void *, const char *, 
                            const char *, int, int, int, void *, 
                            const char *, int, void *, const char *, int,
-                           int, void *, void *, int, int, int, gsnRes *);
+                           int, void *, void *, int, int, int, nglRes *);
 
 extern int ngl_streamline_map_wrap(int, void *, void *, const char *, 
                                    const char *, int, int, int, void *, 
                                    const char *, int, void *, const char *, 
                                    int, int, void *, void *, int, int,
-                                   int, gsnRes *);
+                                   int, nglRes *);
 
 extern int ngl_vector_scalar_wrap(int, void *, void *, void *, const char *, 
                                   const char *, const char *, int, int, int, 
                                   void *, const char *, int, void *, 
                                   const char *, int, int, int, void *, 
-                                  void *, void *, int, int, int, gsnRes *);
+                                  void *, void *, int, int, int, nglRes *);
 
 extern int ngl_vector_scalar_map_wrap(int, void *, void *, void *, 
                                       const char *, const char *, 
@@ -176,7 +176,7 @@ extern int ngl_vector_scalar_map_wrap(int, void *, void *, void *,
                                       const char *, int, void *,
                                       const char *, int, int, int, void *, 
                                       void *, void *, int, int, int, int,
-                                      gsnRes *);
+                                      nglRes *);
 
 
 /*
@@ -184,9 +184,9 @@ extern int ngl_vector_scalar_map_wrap(int, void *, void *, void *,
  */
 
 extern int ngl_text_ndc_wrap(int, char *, void *, void *, const char *, 
-                             const char *, int, gsnRes *);
+                             const char *, int, nglRes *);
 extern int ngl_text_wrap(int, int, char *, void *, void *, const char *,
-                         const char *, int, gsnRes *);
+                         const char *, int, nglRes *);
 
 /*
  * Primitive drawing routines.
@@ -194,53 +194,53 @@ extern int ngl_text_wrap(int, int, char *, void *, void *, const char *,
 
 extern void ngl_poly_wrap(int, int, void *, void *, const char *type_x,
                           const char *type_y, int, int, int, void *, void*,
-                          NhlPolyType, int, int, gsnRes *);
+                          NhlPolyType, int, int, nglRes *);
 
 
 extern int ngl_add_poly_wrap(int, int, void *, void *, const char *, 
                              const char *, int, int, int, void *, void *,
-                             NhlPolyType, int, gsnRes *);
+                             NhlPolyType, int, nglRes *);
 
 extern void ngl_polymarker_ndc_wrap(int, void *, void *, const char *, 
                                     const char *, int, int, int, void *,
-                                    void *, int, gsnRes *);
+                                    void *, int, nglRes *);
 
 extern void ngl_polyline_ndc_wrap(int, void *, void *, const char *, 
                                   const char *, int, int, int, void *,
-                                  void *, int, gsnRes *);
+                                  void *, int, nglRes *);
 
 extern void ngl_polygon_ndc_wrap(int, void *, void *, const char *, 
                                  const char *, int, int, int, void *, 
-                                 void *, int, gsnRes *);
+                                 void *, int, nglRes *);
 
 extern void ngl_polymarker_wrap(int, int, void *, void *, const char *, 
                                 const char *, int, int, int, void *, void *, 
-                                int, gsnRes *);
+                                int, nglRes *);
 
 extern void ngl_polyline_wrap(int, int, void *, void *, const char *, 
                               const char *, int, int, int, void *, void *, 
-                              int, gsnRes *);
+                              int, nglRes *);
 
 extern void ngl_polygon_wrap(int, int, void *, void *, const char *, 
                              const char *, int, int, int, void *, void *, 
-                             int, gsnRes *);
+                             int, nglRes *);
 
 extern int ngl_add_polyline_wrap(int, int, void *, void *, const char *, 
                                  const char *, int, int, int, void *, 
-                                 void *, int, gsnRes *);
+                                 void *, int, nglRes *);
 
 extern int ngl_add_polymarker_wrap(int, int, void *, void *, const char *, 
                                    const char *, int, int, int, void *, 
-                                   void *, int, gsnRes *);
+                                   void *, int, nglRes *);
 
 extern int ngl_add_polygon_wrap(int, int, void *, void *, const char *, 
                                 const char *, int, int, int, void *, 
-                                void *, int, gsnRes *);
+                                void *, int, nglRes *);
 
 extern int ngl_add_text_wrap(int, int, char *, void *, void *, const char *, 
-                             const char *, int, int, gsnRes *special_res);
+                             const char *, int, int, nglRes *special_res);
 
 
 extern void ngl_draw_colormap_wrap(int);
 
-extern void ngl_panel_wrap(int, int *, int, int *, int, gsnRes *);
+extern void ngl_panel_wrap(int, int *, int, int *, int, nglRes *);

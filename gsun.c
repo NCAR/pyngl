@@ -78,17 +78,17 @@ float *fspan(float start, float end, int npts)
  *
  * res : list of optional resources. Ones accepted include:
  *
- * "gsnPaperOrientation" - orientation of paper. Can be "landscape",
+ * "nglPaperOrientation" - orientation of paper. Can be "landscape",
  *                         "portrait", or "auto". Default is "auto".
  *
- *       "gsnPaperWidth"  - width of paper (in inches, default is 8.5)
- *       "gsnPaperHeight" - height of paper (in inches, default is 11.0)
- *       "gsnPaperMargin" - margin to leave around plots (in inches,
+ *       "nglPaperWidth"  - width of paper (in inches, default is 8.5)
+ *       "nglPaperHeight" - height of paper (in inches, default is 11.0)
+ *       "nglPaperMargin" - margin to leave around plots (in inches,
  *                        default is 0.5)
  *
  */
 void compute_ps_device_coords(int wks, int *plots, int nplots, 
-                              gsnRes *special_res)
+                              nglRes *special_res)
 {
   NhlBoundingBox *box;
   float top, bot, lft, rgt, dpi_pw, dpi_ph, dpi_margin;
@@ -102,60 +102,60 @@ void compute_ps_device_coords(int wks, int *plots, int nplots,
 /*
  * These four paper* resources are for PDF/PS output.
  */
-  paper_orient = special_res->gsnPaperOrientation;
-  paper_height = special_res->gsnPaperHeight;
-  paper_width  = special_res->gsnPaperWidth;
-  paper_margin = special_res->gsnPaperMargin;
-  is_debug     = special_res->gsnDebug;
+  paper_orient = special_res->nglPaperOrientation;
+  paper_height = special_res->nglPaperHeight;
+  paper_width  = special_res->nglPaperWidth;
+  paper_margin = special_res->nglPaperMargin;
+  is_debug     = special_res->nglDebug;
 
 /*
  * Check to see if any panel resources have been set. They are only 
  * used if they have been explicitly set by the user.
  */
-  if(special_res->gsnPanelLeft != 0.) {
+  if(special_res->nglPanelLeft != 0.) {
     lft_pnl = 1;
   }
   else {
     lft_pnl = 0;
   }
-  if(special_res->gsnPanelRight != 1.) {
+  if(special_res->nglPanelRight != 1.) {
     rgt_pnl = 1;
   }
   else {
     rgt_pnl = 0;
   }
-  if(special_res->gsnPanelBottom != 0.) {
+  if(special_res->nglPanelBottom != 0.) {
     bot_pnl = 1;
   }
   else {
     bot_pnl = 0;
   }
-  if(special_res->gsnPanelTop != 1.) {
+  if(special_res->nglPanelTop != 1.) {
     top_pnl = 1;
   }
   else {
     top_pnl = 0;
   }
 
-  if(special_res->gsnPanelInvsblLeft == -999) {
+  if(special_res->nglPanelInvsblLeft == -999) {
     lft_inv_pnl = 0;
   }
   else {
     lft_inv_pnl = 1;
   }
-  if(special_res->gsnPanelInvsblRight == -999) {
+  if(special_res->nglPanelInvsblRight == -999) {
     rgt_inv_pnl = 0;
   }
   else {
     rgt_inv_pnl = 1;
   }
-  if(special_res->gsnPanelInvsblBottom == -999) {
+  if(special_res->nglPanelInvsblBottom == -999) {
     bot_inv_pnl = 0;
   }
   else {
     bot_inv_pnl = 1;
   }
-  if(special_res->gsnPanelInvsblTop == -999) {
+  if(special_res->nglPanelInvsblTop == -999) {
     top_inv_pnl = 0;
   }
   else {
@@ -188,25 +188,25 @@ void compute_ps_device_coords(int wks, int *plots, int nplots,
     rgt = max(rgt,box[i].r);
   }
   if(top_inv_pnl) {
-    top = max(special_res->gsnPanelInvsblTop,top);
+    top = max(special_res->nglPanelInvsblTop,top);
   }
   else if(top_pnl) {
     top = max(1.,top);
   }
   if(bot_inv_pnl) {
-    bot = min(special_res->gsnPanelInvsblBottom,bot);
+    bot = min(special_res->nglPanelInvsblBottom,bot);
   }
   else if(bot_pnl) {
     bot = min(0.,bot);
   }
   if(lft_inv_pnl) {
-    lft = min(special_res->gsnPanelInvsblLeft,lft);
+    lft = min(special_res->nglPanelInvsblLeft,lft);
   }
   else if(lft_pnl) {
     lft = min(0.,lft);
   }
   if(rgt_inv_pnl) {
-    rgt = max(special_res->gsnPanelInvsblRight,rgt);
+    rgt = max(special_res->nglPanelInvsblRight,rgt);
   }
   else if(rgt_pnl) {
     rgt = max(1.,rgt);
@@ -347,7 +347,7 @@ void compute_ps_device_coords(int wks, int *plots, int nplots,
  * This function maximizes the size of the plot in the viewport.
  */
 
-void maximize_plot(int wks, int *plot, int nplots, gsnRes *special_res)
+void maximize_plot(int wks, int *plot, int nplots, nglRes *special_res)
 {
   NhlBoundingBox box; 
   float top, bot, lft, rgt, uw, uh;
@@ -436,7 +436,7 @@ void maximize_plot(int wks, int *plot, int nplots, gsnRes *special_res)
     NhlRLSetFloat(srlist,"vpHeightF", new_vph);
     (void)NhlSetValues(plot[0], srlist);
 
-    if(special_res->gsnDebug) {
+    if(special_res->nglDebug) {
       printf("vpXF      = %g\n", new_vpx);
       printf("vpYF      = %g\n", new_vpy);
       printf("vpWidthF  = %g\n", new_vpw);
@@ -723,18 +723,18 @@ int create_graphicstyle_object(int wks)
  * This function maximizes and draws the plot, and advances the frame.
  */
 
-void draw_and_frame(int wks, int *plots, int nplots, gsnRes *special_res)
+void draw_and_frame(int wks, int *plots, int nplots, nglRes *special_res)
 {
   int i;
 
-  if(special_res->gsnMaximize) maximize_plot(wks, plots, nplots, 
+  if(special_res->nglMaximize) maximize_plot(wks, plots, nplots, 
                                              special_res);
-  if(special_res->gsnDraw)  {
+  if(special_res->nglDraw)  {
     for( i = 0; i < nplots; i++ ) {
       NhlDraw(plots[i]);
     }
   }
-  if(special_res->gsnFrame) NhlFrame(wks);
+  if(special_res->nglFrame) NhlFrame(wks);
 }
 
 /*
@@ -1025,7 +1025,7 @@ int ngl_contour_wrap(int wks, void *data, const char *type,
                      int is_ycoord, void *ycoord, const char *ycoord_type,
                      int is_xcoord, void *xcoord, const char *xcoord_type,
                      int is_missing, void *FillValue, 
-                     int sf_rlist, int cn_rlist, gsnRes *special_res)
+                     int sf_rlist, int cn_rlist, nglRes *special_res)
 {
   int field, contour;
 
@@ -1054,7 +1054,7 @@ int ngl_contour_wrap(int wks, void *data, const char *type,
  * Make tickmarks and axis labels the same size.
  */
 
-  if(special_res->gsnScale) scale_plot(contour);
+  if(special_res->nglScale) scale_plot(contour);
 
 /*
  * Draw contour plot and advance frame.
@@ -1080,7 +1080,7 @@ int ngl_xy_wrap(int wks, void *x, void *y, const char *type_x,
                 int is_missing_x, int is_missing_y, 
                 void *FillValue_x, void *FillValue_y,
                 int ca_rlist, int xy_rlist, int xyd_rlist,
-                gsnRes *special_res)
+                nglRes *special_res)
 {
   int carray, xy, grlist;
   int num_dspec, *xyds;
@@ -1124,7 +1124,7 @@ int ngl_xy_wrap(int wks, void *x, void *y, const char *type_x,
  * Make tickmarks and axis labels the same size.
  */
 
-  if(special_res->gsnScale) scale_plot(xy);
+  if(special_res->nglScale) scale_plot(xy);
 
 /*
  * Draw xy plot and advance frame.
@@ -1147,7 +1147,7 @@ int ngl_xy_wrap(int wks, void *x, void *y, const char *type_x,
 int ngl_y_wrap(int wks, void *y, const char *type_y, int ndims_y, 
                int *dsizes_y, int is_missing_y, void *FillValue_y,
                int ca_rlist, int xy_rlist, int xyd_rlist,
-               gsnRes *special_res)
+               nglRes *special_res)
 {
   int xy;
 
@@ -1176,7 +1176,7 @@ int ngl_vector_wrap(int wks, void *u, void *v, const char *type_u,
                     int is_xcoord, void *xcoord, const char *type_xcoord,
                     int is_missing_u, int is_missing_v, 
                     void *FillValue_u, void *FillValue_v,
-                    int vf_rlist, int vc_rlist, gsnRes *special_res)
+                    int vf_rlist, int vc_rlist, nglRes *special_res)
 {
   int field, vector;
 
@@ -1206,7 +1206,7 @@ int ngl_vector_wrap(int wks, void *u, void *v, const char *type_u,
  * Make tickmarks and axis labels the same size.
  */
 
-  if(special_res->gsnScale) scale_plot(vector);
+  if(special_res->nglScale) scale_plot(vector);
 
 /*
  * Draw vector plot and advance frame.
@@ -1232,7 +1232,7 @@ int ngl_streamline_wrap(int wks, void *u, void *v, const char *type_u,
                         int is_xcoord, void *xcoord, const char *type_xcoord,
                         int is_missing_u, int is_missing_v, 
                         void *FillValue_u, void *FillValue_v, 
-                        int vf_rlist, int st_rlist, gsnRes *special_res)
+                        int vf_rlist, int st_rlist, nglRes *special_res)
 {
   int field, streamline;
 
@@ -1262,7 +1262,7 @@ int ngl_streamline_wrap(int wks, void *u, void *v, const char *type_u,
  * Make tickmarks and axis labels the same size.
  */
 
-  if(special_res->gsnScale) scale_plot(streamline);
+  if(special_res->nglScale) scale_plot(streamline);
 
 /*
  * Draw streamline plot and advance frame.
@@ -1281,7 +1281,7 @@ int ngl_streamline_wrap(int wks, void *u, void *v, const char *type_u,
  * This function uses the HLUs to create a map plot.
  */
 
-int ngl_map_wrap(int wks, int mp_rlist, gsnRes *special_res)
+int ngl_map_wrap(int wks, int mp_rlist, nglRes *special_res)
 {
   int map;
 
@@ -1318,19 +1318,19 @@ int ngl_contour_map_wrap(int wks, void *data, const char *type,
                          int is_xcoord, void *xcoord, const char *xcoord_type,
                          int is_missing, void *FillValue, 
                          int sf_rlist, int cn_rlist, int mp_rlist,
-                         gsnRes *special_res)
+                         nglRes *special_res)
 {
   int contour, map;
-  gsnRes special_res2;
+  nglRes special_res2;
 
 /*
  * Create contour plot.
  */
 
-  special_res2.gsnDraw     = 0;
-  special_res2.gsnFrame    = 0;
-  special_res2.gsnMaximize = 0;
-  special_res2.gsnDebug    = special_res->gsnDebug;
+  special_res2.nglDraw     = 0;
+  special_res2.nglFrame    = 0;
+  special_res2.nglMaximize = 0;
+  special_res2.nglDebug    = special_res->nglDebug;
 
   contour = ngl_contour_wrap(wks, data, type, ylen, xlen,
                              is_ycoord, ycoord, ycoord_type,
@@ -1351,7 +1351,7 @@ int ngl_contour_map_wrap(int wks, void *data, const char *type,
 /*
  * Make tickmarks and axis labels the same size.
  */
-  if(special_res->gsnScale) scale_plot(contour);
+  if(special_res->nglScale) scale_plot(contour);
 
 /*
  * Draw plots and advance frame.
@@ -1377,19 +1377,19 @@ int ngl_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
                         int is_missing_u, int is_missing_v, 
                         void *FillValue_u, void *FillValue_v,
                         int vf_rlist, int vc_rlist, int mp_rlist,
-                        gsnRes *special_res)
+                        nglRes *special_res)
 {
   int vector, map;
-  gsnRes special_res2;
+  nglRes special_res2;
 
 /*
  * Create vector plot.
  */
 
-  special_res2.gsnDraw     = 0;
-  special_res2.gsnFrame    = 0;
-  special_res2.gsnMaximize = 0;
-  special_res2.gsnDebug    = special_res->gsnDebug;
+  special_res2.nglDraw     = 0;
+  special_res2.nglFrame    = 0;
+  special_res2.nglMaximize = 0;
+  special_res2.nglDebug    = special_res->nglDebug;
 
   vector = ngl_vector_wrap(wks, u, v, type_u, type_v, ylen, xlen, is_ycoord,
                            ycoord, type_ycoord, is_xcoord, xcoord, 
@@ -1411,7 +1411,7 @@ int ngl_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
  * Make tickmarks and axis labels the same size.
  */
 
-  if(special_res->gsnScale) scale_plot(vector);
+  if(special_res->nglScale) scale_plot(vector);
 
 /*
  * Draw plots and advance frame.
@@ -1438,19 +1438,19 @@ int ngl_streamline_map_wrap(int wks, void *u, void *v, const char *type_u,
                             int is_missing_u, int is_missing_v, 
                             void *FillValue_u, void *FillValue_v,
                             int vf_rlist, int vc_rlist, int mp_rlist,
-                            gsnRes *special_res)
+                            nglRes *special_res)
 {
   int streamline, map;
-  gsnRes special_res2;
+  nglRes special_res2;
 
 /*
  * Create streamline plot.
  */
 
-  special_res2.gsnDraw     = 0;
-  special_res2.gsnFrame    = 0;
-  special_res2.gsnMaximize = 0;
-  special_res2.gsnDebug    = special_res->gsnDebug;
+  special_res2.nglDraw     = 0;
+  special_res2.nglFrame    = 0;
+  special_res2.nglMaximize = 0;
+  special_res2.nglDebug    = special_res->nglDebug;
 
   streamline = ngl_streamline_wrap(wks, u, v, type_u, type_v, ylen, xlen, 
                                    is_ycoord, ycoord, type_ycoord, 
@@ -1473,7 +1473,7 @@ int ngl_streamline_map_wrap(int wks, void *u, void *v, const char *type_u,
  * Make tickmarks and axis labels the same size.
  */
 
-  if(special_res->gsnScale) scale_plot(streamline);
+  if(special_res->nglScale) scale_plot(streamline);
 
 /*
  * Draw plots and advance frame.
@@ -1504,7 +1504,7 @@ int ngl_vector_scalar_wrap(int wks, void *u, void *v, void *t,
                            int is_missing_t, void *FillValue_u, 
                            void *FillValue_v, void *FillValue_t,
                            int vf_rlist, int sf_rlist, int vc_rlist, 
-                           gsnRes *special_res)
+                           nglRes *special_res)
 {
   int vfield, sfield, vector;
 
@@ -1538,7 +1538,7 @@ int ngl_vector_scalar_wrap(int wks, void *u, void *v, void *t,
  * Make tickmarks and axis labels the same size.
  */
 
-  if(special_res->gsnScale) scale_plot(vector);
+  if(special_res->nglScale) scale_plot(vector);
 
 /*
  * Draw plots and advance frame.
@@ -1568,19 +1568,19 @@ int ngl_vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
                                int is_missing_t, void *FillValue_u, 
                                void *FillValue_v, void *FillValue_t,
                                int vf_rlist, int sf_rlist, int vc_rlist, 
-                               int mp_rlist, gsnRes *special_res)
+                               int mp_rlist, nglRes *special_res)
 {
   int vector, map;
-  gsnRes special_res2;
+  nglRes special_res2;
 
 /*
  * Create vector plot.
  */
 
-  special_res2.gsnDraw     = 0;
-  special_res2.gsnFrame    = 0;
-  special_res2.gsnMaximize = 0;
-  special_res2.gsnDebug    = special_res->gsnDebug;
+  special_res2.nglDraw     = 0;
+  special_res2.nglFrame    = 0;
+  special_res2.nglMaximize = 0;
+  special_res2.nglDebug    = special_res->nglDebug;
 
   vector = ngl_vector_scalar_wrap(wks, u, v, t, type_u, type_v, type_t,
                                   ylen, xlen, is_ycoord, ycoord, 
@@ -1604,7 +1604,7 @@ int ngl_vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
  * Make tickmarks and axis labels the same size.
  */
 
-  if(special_res->gsnScale) scale_plot(vector);
+  if(special_res->nglScale) scale_plot(vector);
 
 /*
  * Draw plots and advance frame.
@@ -1621,7 +1621,7 @@ int ngl_vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
 
 int ngl_text_ndc_wrap(int wks, char* string, void *x, void *y,
                       const char *type_x, const char *type_y,
-                      int tx_rlist, gsnRes *special_res)
+                      int tx_rlist, nglRes *special_res)
 {
   int text, length[1];
 
@@ -1649,7 +1649,7 @@ int ngl_text_ndc_wrap(int wks, char* string, void *x, void *y,
 
 int ngl_text_wrap(int wks, int plot, char* string, void *x, void *y, 
                   const char *type_x, const char *type_y, int tx_rlist, 
-                  gsnRes *special_res)
+                  nglRes *special_res)
 {
   float *xf, *yf, xndc, yndc, oor = 0.;
   int text, status;
@@ -1667,7 +1667,7 @@ int ngl_text_wrap(int wks, int plot, char* string, void *x, void *y,
 
   (void)NhlDataToNDC(plot,xf,yf,1,&xndc,&yndc,NULL,NULL,&status,&oor);
 
-  if(special_res->gsnDebug) {
+  if(special_res->nglDebug) {
     printf("ngl_text: string = %s x = %g y = %g xndc = %g yndc = %g\n", 
            string, *xf, *yf, xndc, yndc);
   }
@@ -1689,7 +1689,7 @@ void ngl_poly_wrap(int wks, int plot, void *x, void *y, const char *type_x,
                    const char *type_y, int len, int is_missing_x, 
                    int is_missing_y, void *FillValue_x, 
                    void *FillValue_y, NhlPolyType polytype, int is_ndc,
-                   int gs_rlist, gsnRes *special_res)
+                   int gs_rlist, nglRes *special_res)
 {
   int gsid, newlen;
   float *xf, *yf, *xfmsg, *yfmsg;
@@ -1722,7 +1722,7 @@ void ngl_poly_wrap(int wks, int plot, void *x, void *y, const char *type_x,
 /*
  * Draw the appropriate primitive.
  */
-  if(special_res->gsnDraw) {
+  if(special_res->nglDraw) {
     if(is_ndc) {
       switch(polytype) {
 
@@ -1757,7 +1757,7 @@ void ngl_poly_wrap(int wks, int plot, void *x, void *y, const char *type_x,
     }
   }
     
-  if(special_res->gsnFrame) NhlFrame(wks);
+  if(special_res->nglFrame) NhlFrame(wks);
 
 }
 
@@ -1773,7 +1773,7 @@ int ngl_add_poly_wrap(int wks, int plot, void *x, void *y,
                       const char *type_x, const char *type_y, int len, 
                       int is_missing_x, int is_missing_y, void *FillValue_x, 
                       void *FillValue_y, NhlPolyType polytype, 
-                      int gs_rlist, gsnRes *special_res)
+                      int gs_rlist, nglRes *special_res)
 {
   int *primitive_object, gsid, pr_rlist, grlist;
   int i, newlen, *indices, nlines, ibeg, iend, npts;
@@ -1918,7 +1918,7 @@ void ngl_polymarker_ndc_wrap(int wks, void *x, void *y, const char *type_x,
                              const char *type_y,  int len,
                              int is_missing_x, int is_missing_y, 
                              void *FillValue_x, void *FillValue_y, 
-                             int gs_rlist, gsnRes *special_res)
+                             int gs_rlist, nglRes *special_res)
 {
   ngl_poly_wrap(wks, 0, x, y, type_x, type_y, len, is_missing_x, 
                 is_missing_y, FillValue_x, FillValue_y, NhlPOLYMARKER, 1,
@@ -1933,7 +1933,7 @@ void ngl_polyline_ndc_wrap(int wks, void *x, void *y, const char *type_x,
                            const char *type_y, int len,
                            int is_missing_x, int is_missing_y, 
                            void *FillValue_x, void *FillValue_y, 
-                           int gs_rlist, gsnRes *special_res)
+                           int gs_rlist, nglRes *special_res)
 {
   ngl_poly_wrap(wks, 0, x, y, type_x, type_y, len, is_missing_x, 
                 is_missing_y, FillValue_x, FillValue_y, NhlPOLYLINE, 1, 
@@ -1948,7 +1948,7 @@ void ngl_polygon_ndc_wrap(int wks, void *x, void *y, const char *type_x,
                           const char *type_y, int len,
                           int is_missing_x, int is_missing_y, 
                           void *FillValue_x, void *FillValue_y, 
-                          int gs_rlist, gsnRes *special_res)
+                          int gs_rlist, nglRes *special_res)
 {
   ngl_poly_wrap(wks, 0, x, y, type_x, type_y, len, is_missing_x,
                 is_missing_y, FillValue_x, FillValue_y, NhlPOLYGON, 1,
@@ -1962,7 +1962,7 @@ void ngl_polymarker_wrap(int wks, int plot, void *x, void *y,
                          const char *type_x, const char *type_y, int len,
                          int is_missing_x, int is_missing_y, 
                          void *FillValue_x, void *FillValue_y, 
-                         int gs_rlist, gsnRes *special_res)
+                         int gs_rlist, nglRes *special_res)
 {
   ngl_poly_wrap(wks,plot,x,y,type_x,type_y,len,is_missing_x,is_missing_y,
                 FillValue_x,FillValue_y,NhlPOLYMARKER,0,gs_rlist,special_res);
@@ -1976,7 +1976,7 @@ void ngl_polyline_wrap(int wks, int plot, void *x, void *y,
                        const char *type_x, const char *type_y, int len, 
                        int is_missing_x, int is_missing_y, 
                        void *FillValue_x, void *FillValue_y, 
-                       int gs_rlist, gsnRes *special_res)
+                       int gs_rlist, nglRes *special_res)
 {
   ngl_poly_wrap(wks,plot,x,y,type_x,type_y,len,is_missing_x,is_missing_y,
                 FillValue_x,FillValue_y,NhlPOLYLINE,0,gs_rlist,special_res);
@@ -1989,7 +1989,7 @@ void ngl_polygon_wrap(int wks, int plot, void *x, void *y,
                       const char *type_x, const char *type_y, int len, 
                       int is_missing_x, int is_missing_y, 
                       void *FillValue_x, void *FillValue_y, 
-                      int gs_rlist, gsnRes *special_res)
+                      int gs_rlist, nglRes *special_res)
 {
   ngl_poly_wrap(wks, plot, x, y, type_x, type_y, len, is_missing_x, 
                 is_missing_y, FillValue_x, FillValue_y, NhlPOLYGON, 0,
@@ -2003,7 +2003,7 @@ int ngl_add_polyline_wrap(int wks, int plot, void *x, void *y,
                           const char *type_x, const char *type_y, int len, 
                           int is_missing_x, int is_missing_y, 
                           void *FillValue_x, void *FillValue_y, 
-                          int gs_rlist, gsnRes *special_res)
+                          int gs_rlist, nglRes *special_res)
 {
   int ipoly;
 
@@ -2023,7 +2023,7 @@ int ngl_add_polymarker_wrap(int wks, int plot, void *x, void *y,
                           const char *type_x, const char *type_y, int len, 
                           int is_missing_x, int is_missing_y, 
                           void *FillValue_x, void *FillValue_y, 
-                          int gs_rlist, gsnRes *special_res)
+                          int gs_rlist, nglRes *special_res)
 {
   int ipoly;
 
@@ -2043,7 +2043,7 @@ int ngl_add_polygon_wrap(int wks, int plot, void *x, void *y,
                           const char *type_x, const char *type_y, int len, 
                           int is_missing_x, int is_missing_y, 
                           void *FillValue_x, void *FillValue_y, 
-                          int gs_rlist, gsnRes *special_res)
+                          int gs_rlist, nglRes *special_res)
 {
   int ipoly;
 
@@ -2066,7 +2066,7 @@ int ngl_add_polygon_wrap(int wks, int plot, void *x, void *y,
  */
 int ngl_add_text_wrap(int wks, int plot, char *string, void *x, void *y,
                       const char *type_x, const char *type_y,
-                      int tx_rlist, int am_rlist, gsnRes *special_res)
+                      int tx_rlist, int am_rlist, nglRes *special_res)
 {
 /*
  * We need to make this "100" number be the maximum number of annotations
@@ -2178,15 +2178,15 @@ void ngl_draw_colormap_wrap(int wks)
   float txpos, typos;
   float *cmap, *cmapnew, font_height, font_space;
   char tmpstr[5];
-  gsnRes special_res2;
+  nglRes special_res2;
 
 /*
  * Initialize special_res2.
  */
-  special_res2.gsnDraw     = 1;
-  special_res2.gsnFrame    = 0;
-  special_res2.gsnMaximize = 0;
-  special_res2.gsnDebug    = 0;
+  special_res2.nglDraw     = 1;
+  special_res2.nglFrame    = 0;
+  special_res2.nglMaximize = 0;
+  special_res2.nglDebug    = 0;
 
   nrows   = 16;                   /* # of rows of colors per page. */
   maxcols = 256;                  /* max # of colors per color table. */
@@ -2400,7 +2400,7 @@ void ngl_draw_colormap_wrap(int wks)
  * Routine for paneling same-sized plots.
  */
 void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims, 
-                    int ndims, gsnRes *special_res)
+                    int ndims, nglRes *special_res)
 {
   int i, nplots, npanels, is_row_spec, nrows, ncols, draw_boxes;
   int num_plots_left, nplot, nplot4, nr, nc, new_ncols, pplot;
@@ -2434,9 +2434,9 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
 /*
  * First check if paneling is to be specified by (#rows x #columns) or
  * by #columns per row.  The default is rows x columns, unless 
- * resource gsnPanelRowSpec is set to True
+ * resource nglPanelRowSpec is set to True
  */
-  is_row_spec = special_res->gsnPanelRowSpec;
+  is_row_spec = special_res->nglPanelRowSpec;
 
   if(is_row_spec) {
     row_spec = dims;
@@ -2454,7 +2454,7 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
   }
   else {
     if(ndims != 2) {
-      printf("Error: ngl_panel: for the third argument of ngl_panel, you must either specify # rows by # columns or set gsnPanelRowSpec to True and set the number of plots per row.\n");
+      printf("Error: ngl_panel: for the third argument of ngl_panel, you must either specify # rows by # columns or set nglPanelRowSpec to True and set the number of plots per row.\n");
       return;
     }
     nrows    = dims[0];
@@ -2476,21 +2476,21 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
 /*
  * Check for special resources.
  */ 
-  panel_save     = special_res->gsnPanelSave;
-  panel_debug    = special_res->gsnDebug;
-  panel_center   = special_res->gsnPanelCenter;
-  calldraw       = special_res->gsnDraw;
-  callframe      = special_res->gsnFrame;
-  xwsp_perc      = special_res->gsnPanelXWhiteSpacePercent;
-  ywsp_perc      = special_res->gsnPanelYWhiteSpacePercent;
+  panel_save     = special_res->nglPanelSave;
+  panel_debug    = special_res->nglDebug;
+  panel_center   = special_res->nglPanelCenter;
+  calldraw       = special_res->nglDraw;
+  callframe      = special_res->nglFrame;
+  xwsp_perc      = special_res->nglPanelXWhiteSpacePercent;
+  ywsp_perc      = special_res->nglPanelYWhiteSpacePercent;
   
 /*
  * Check if these four have been changed from their default values.
  */
-  x_lft          = special_res->gsnPanelLeft;
-  x_rgt          = special_res->gsnPanelRight;
-  y_bot          = special_res->gsnPanelBottom;
-  y_top          = special_res->gsnPanelTop;
+  x_lft          = special_res->nglPanelLeft;
+  x_rgt          = special_res->nglPanelRight;
+  y_bot          = special_res->nglPanelBottom;
+  y_top          = special_res->nglPanelTop;
 
   if(x_lft != 0.) {
     lft_pnl = 1;
@@ -2531,7 +2531,7 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
  * bounding box is already maximized for an NCGM/X11 window.
  */ 
   maxbb = 1;
-  if(special_res->gsnMaximize) {
+  if(special_res->nglMaximize) {
     if( (strcmp(NhlClassName(wks),"psWorkstationClass")) && 
         (strcmp(NhlClassName(wks),"pdfWorkstationClass"))) {
       maxbb = 0;
@@ -2543,50 +2543,50 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
  * they are valid.
  */
   if(xwsp_perc < 0 || xwsp_perc >= 100.) {
-    printf("Warning: ngl_panel: attribute gsnPanelXWhiteSpacePercent must be >= 0 and < 100.\n");
+    printf("Warning: ngl_panel: attribute nglPanelXWhiteSpacePercent must be >= 0 and < 100.\n");
     printf("Defaulting to 1.\n");
     xwsp_perc = 1.;
   }
 
   if(ywsp_perc < 0 || ywsp_perc >= 100.) {
-    printf("Warning: ngl_panel: attribute gsnPanelYWhiteSpacePercent must be >= 0 and < 100.\n");
+    printf("Warning: ngl_panel: attribute nglPanelYWhiteSpacePercent must be >= 0 and < 100.\n");
     printf("Defaulting to 1.\n");
     ywsp_perc = 1.;
   }
   
   if(x_lft < 0. || x_lft >= 1.) {
-    printf("Warning: ngl_panel: attribute gsnPanelLeft must be >= 0.0 and < 1.0\n");
+    printf("Warning: ngl_panel: attribute nglPanelLeft must be >= 0.0 and < 1.0\n");
     printf("Defaulting to 0.\n");
     x_lft = 0.0;
   }
   
   if(x_rgt <= 0. || x_rgt > 1.) {
-    printf("Warning: ngl_panel: attribute gsnPanelRight must be > 0.0 and <= 1.0\n");
+    printf("Warning: ngl_panel: attribute nglPanelRight must be > 0.0 and <= 1.0\n");
     printf("Defaulting to 1.\n");
     x_rgt = 1.0;
   }
   
   if(y_top <= 0. || y_top > 1.) {
-    printf("Warning: ngl_panel: attribute gsnPanelTop must be > 0.0 and <= 1.0\n");
+    printf("Warning: ngl_panel: attribute nglPanelTop must be > 0.0 and <= 1.0\n");
     printf("Defaulting to 1.\n");
     y_top = 1.0;
   }
   
   if(y_bot < 0. || y_bot >= 1.) {
-    printf("Warning: ngl_panel: attribute gsnPanelBottom must be >= 0.0 and < 1.0\n");
+    printf("Warning: ngl_panel: attribute nglPanelBottom must be >= 0.0 and < 1.0\n");
     printf("Defaulting to 0.\n");
     y_bot = 0.0;
   }
   
   if(x_rgt <= x_lft) {
-    printf("Error: ngl_panel: gsnPanelRight (%g",x_rgt,")\n must be greater");
-    printf("than gsnPanelLeft (%g",x_lft,").\n");
+    printf("Error: ngl_panel: nglPanelRight (%g",x_rgt,")\n must be greater");
+    printf("than nglPanelLeft (%g",x_lft,").\n");
     return;
   }
   
   if(y_top <= y_bot) {
-    printf("Error: ngl_panel: gsnPanelTop (%g",y_top,")\n must be greater");
-    printf("than gsnPanelBottom (%g",y_bot,").\n");
+    printf("Error: ngl_panel: nglPanelTop (%g",y_top,")\n must be greater");
+    printf("than nglPanelBottom (%g",y_bot,").\n");
     return;
   }
   
@@ -2646,7 +2646,7 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
  *
  * Previously, we used to include xrange and yrange as part of the min
  * statement. This seemed to cause problems if you set one of
- * gsnPanelTop/Bottom/Right/Left however, so I removed it.  Initial
+ * nglPanelTop/Bottom/Right/Left however, so I removed it.  Initial
  * testing on Sylvia's panel examples seems to indicate this is okay.
  *
  */
@@ -2822,14 +2822,14 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
  * account so that the maximization will still work properly.  For
  * example, if we ask for a 2 x 2 configuration, but plots 1 and 3 (the
  * rightmost plots) are missing, then we need to set a new resource
- * called gsnPanelInvsblRight to whatever approximate X value it 
+ * called nglPanelInvsblRight to whatever approximate X value it 
  * would have been if those plots weren't missing.  Setting just 
- * gsnPanelRight won't work in this case, because that resource is only
+ * nglPanelRight won't work in this case, because that resource is only
  * used to control where the plots are drawn in a 0 to 1 square, and
  * not to indicate the rightmost location of the rightmost graphic
  * (which could be a vertical labelbar.
  *
- * Not dealing with the case of gsnPanelRowSpec = True yet.
+ * Not dealing with the case of nglPanelRowSpec = True yet.
  */
   if(!is_row_spec) {
     newbb  = (NhlBoundingBox *)malloc(nplots*sizeof(NhlBoundingBox));
@@ -2878,7 +2878,7 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
         if(all_ismissing) {
           irgt                      = ncols - 1;
           xrgt                      = xpos[irgt] + scaled_width+dxr;
-          special_res->gsnPanelInvsblRight = max(xrgt,newrgt);
+          special_res->nglPanelInvsblRight = max(xrgt,newrgt);
         }
       }
     }
@@ -2902,7 +2902,7 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
       if(all_ismissing) {
         ilft                     = 0;
         xlft                     = xpos[ilft]-dxl;
-        special_res->gsnPanelInvsblLeft = min(xlft,newlft);
+        special_res->nglPanelInvsblLeft = min(xlft,newlft);
       }
     }
     
@@ -2925,7 +2925,7 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
       if(all_ismissing) {
         itop                    = 0;
         xtop                    = ypos[itop]+dyt;
-        special_res->gsnPanelInvsblTop = max(xtop,newtop);
+        special_res->nglPanelInvsblTop = max(xtop,newtop);
       }
     }
     
@@ -2955,7 +2955,7 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
         if(all_ismissing) {
           ibot                       = nplots-ncols-1;
           xbot                       = ypos[ibot]-scaled_height-dyb;
-          special_res->gsnPanelInvsblBottom = min(xbot,newbot);
+          special_res->nglPanelInvsblBottom = min(xbot,newbot);
         }
       }
     }
