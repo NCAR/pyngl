@@ -5,7 +5,7 @@
 #     python setup.py install
 #
 
-import os
+import os,sys
 from os.path import join
 import site
 import shutil
@@ -21,7 +21,7 @@ from distutils.core import setup, Extension
 #
 # These variables are for internal use only.
 #
-copy_files = True
+copy_files = False
 copy_rangs = False
 
 #
@@ -29,6 +29,8 @@ copy_rangs = False
 # data files (fontcaps, graphcaps, map databases, example
 # scripts, etc)
 #
+sitedirs  = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
+            'site-packages')
 pkgs_pth  = site.sitedirs[0]
 pyngl_dir = pkgs_pth + "/PyNGL/ncarg"
 
@@ -142,7 +144,7 @@ for i in xrange(len(bin_files)):
 res_file = ["ncarg/sysresfile"]
 
 setup (name = "PyNGL",
-       version="0.1.1b3",
+       version="0.1.1b5",
        author="Fred Clare and Mary Haley",
        author_email="fred@ucar.edu,haley@ucar.edu",
        description = "2D visualization library",
