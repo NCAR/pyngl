@@ -312,7 +312,6 @@ void compute_ps_device_coords(int wks, int *plots, int nplots,
     printf("    wkDeviceLowerY = %d\n", coords[1]);
     printf("    wkDeviceUpperX = %d\n", coords[2]);
     printf("    wkDeviceUpperY = %d\n", coords[3]);
-    printf("    wkOrientation  = %d\n", paper_orient);
     if(paper_orient == NhlLANDSCAPE) {
       printf("    wkOrientation  = landscape\n");
     }     
@@ -364,7 +363,8 @@ void maximize_plot(int wks, int *plot, int nplots, nglRes *special_res)
 
 /*
  * If dealing with multiple plots, then this means we have a
- * panel plot, and we don't need to maximize the space.
+ * panel plot, and we don't need to maximize the space for
+ * NCGM or X11 output.
  */
 
   if(nplots == 1) {
@@ -2404,14 +2404,14 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
 {
   int i, nplots, npanels, is_row_spec, nrows, ncols, draw_boxes;
   int num_plots_left, nplot, nplot4, nr, nc, new_ncols, pplot;
-  int *row_spec, *newplots, all_ismissing, nvalid_plots, valid_plot;
+  int *row_spec, *newplots, all_ismissing, first_time;
+  int nvalid_plot, nvalid_plots, valid_plot;
   int panel_save, panel_debug, panel_center, maxbb;
   int calldraw, callframe;
   int lft_pnl, rgt_pnl, bot_pnl, top_pnl;
 
   float x_lft, x_rgt, y_bot, y_top;
   float xlft, xrgt, xbot, xtop;
-  int ilft, irgt, ibot, itop;
   float xsp, ysp, xwsp_perc, ywsp_perc, xwsp, ywsp;
   float vpx, vpy, vpw, vph, dxl, dxr, dyt, dyb;
   float *old_vp, *xpos, *ypos, max_rgt, max_top, max_lft, max_bot;
@@ -2419,7 +2419,7 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
   float newtop, newbot, newrgt, newlft;
   float plot_width, plot_height, total_width, total_height;
   float new_plot_width, new_plot_height, new_total_width, new_total_height;
-  float min_xpos, scaled_width, scaled_height, xrange, yrange;
+  float min_xpos, max_xpos, scaled_width, scaled_height, xrange, yrange;
   float scale, row_scale, col_scale, max_width, max_height;
   int grlist, srlist;
   NhlBoundingBox bb, *newbb;
@@ -2521,11 +2521,6 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
   }
 
 /*
- * Create array to save these plot objects.
- */
-  newplots = (int *)malloc(nplots*sizeof(int));
-
-/*
  * We only need to set maxbb to True if the plots are being
  * drawn to a PostScript or PDF workstation, because the
  * bounding box is already maximized for an NCGM/X11 window.
@@ -2614,11 +2609,17 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
     printf("Error: ngl_panel: all of the plots passed to ngl_panel appear to be invalid\n");
     return;
   }  
-  else if(nvalid_plots != nplots) {
-    printf("Error: ngl_panel: some of the plots passed to ngl_panel appear to be invalid\n");
-    return;
+  else {
+    if(panel_debug) {
+      printf("There are %d valid plots out of %d total plots\n",nvalid_plots, nplots);
+    }
   }
-  
+
+/*
+ * Create array to save the valid plot objects.
+ */
+  newplots = (int *)malloc(nvalid_plots*sizeof(int));
+
 /*
  * plot_width  : total width of plot with all of its annotations
  * plot_height : total height of plot with all of its annotations
@@ -2728,6 +2729,7 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
  */
   num_plots_left = nplots;
   nplot          = 0;
+  nvalid_plot    = 0;
   nr             = 0;
   while(num_plots_left > 0) {
     new_ncols = min(num_plots_left,row_spec[nr]);
@@ -2769,7 +2771,7 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
           printf("    plot # %d\n", nplot);
           printf("    x,y     = %g,%g\n", xpos[nc], ypos[nr]);
           printf("orig wdt,hgt = %g,%g\n", old_vp[nplot4+2], 
-                                          old_vp[nplot4+3]);
+                                           old_vp[nplot4+3]);
           printf("    wdt,hgt = %g,%g\n", scale*old_vp[nplot4+2], 
                                           scale*old_vp[nplot4+3]);
         }
@@ -2784,18 +2786,27 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
 /*
  * Save this plot.
  */
-        newplots[nplot] = pplot;
+        newplots[nvalid_plot] = pplot;
+        nvalid_plot++;
+      }
+      else {
+        if(panel_debug) {
+          printf("    plot %d is missing\n", nplot);
+        }
       }
       nplot++;
     }
 /*
- * Retain the smallest x position.
+ * Retain the smallest and largest x positions, since xpos gets
+ * recalculated every time inside the loop.
  */
     if(nr == 0) {
+      max_xpos = xmax_array(xpos,new_ncols);
       min_xpos = xmin_array(xpos,new_ncols);
     }
     else {
       min_xpos = min(xmin_array(xpos,new_ncols), min_xpos);
+      max_xpos = max(xmax_array(xpos,new_ncols), max_xpos);
     }
     num_plots_left = nplots - nplot;
     nr++;                                   /* increment rows */
@@ -2807,12 +2818,19 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
  * should all be the same).  These values will be used a few times 
  * throughout the rest of the code.
  */
-  max_width  = old_vp[2];
-  max_height = old_vp[3];
-
-  for( i = 1; i < nplots; i++ ) {
-    max_width  = max(max_width,old_vp[i*nplots+2]);
-    max_height = max(max_height,old_vp[i*nplots+3]);
+  first_time = 1;
+  for( i = 0; i < nplots; i++ ) {
+    if(plots[i] > 0) {
+      if(!first_time) {
+        max_width  = max(max_width, old_vp[i*nplots+2]);
+        max_height = max(max_height,old_vp[i*nplots+3]);
+      }
+      else {
+        max_width  = old_vp[i*nplots+2];
+        max_height = old_vp[i*nplots+3];
+        first_time = 0;
+      }
+    }
   }
   scaled_width  = scale * max_width;
   scaled_height = scale * max_height;
@@ -2832,53 +2850,77 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
  * Not dealing with the case of nglPanelRowSpec = True yet.
  */
   if(!is_row_spec) {
-    newbb  = (NhlBoundingBox *)malloc(nplots*sizeof(NhlBoundingBox));
-    NhlGetBB(newplots[0],&newbb[0]);
-    newtop = newbb[0].t;
-    newbot = newbb[0].b;
-    newlft = newbb[0].l;
-    newrgt = newbb[0].r;
-
+    newbb  = (NhlBoundingBox *)malloc(nvalid_plots*sizeof(NhlBoundingBox));
 /*
  * Get largest bounding box that encompasses all non-missing graphical
  * objects.
  */
-    for( i = 1; i < nplots; i++ ) { 
+    first_time = 1;
+    for( i = 0; i < nvalid_plots; i++ ) { 
       NhlGetBB(newplots[i],&newbb[i]);
-      newtop = max(newtop,newbb[i].t);
-      newbot = min(newbot,newbb[i].b);
-      newlft = min(newlft,newbb[i].l);
-      newrgt = max(newrgt,newbb[i].r);
+
+      if(!first_time) {
+        newtop = max(newtop,newbb[i].t);
+        newbot = min(newbot,newbb[i].b);
+        newlft = min(newlft,newbb[i].l);
+        newrgt = max(newrgt,newbb[i].r);
+      }
+      else {
+        first_time = 0;
+        newtop = newbb[i].t;
+        newbot = newbb[i].b;
+        newlft = newbb[i].l;
+        newrgt = newbb[i].r;
+/*
+ * Get viewport coordinates of one of the scaled plots so
+ * that we can calculate the distances between the viewport
+ * coordinates and the edges of the bounding boxes.
+ */
+        if(nvalid_plots < nplots) {
+          NhlRLClear(grlist);
+          NhlRLGetFloat(grlist,"vpXF",      &vpx);
+          NhlRLGetFloat(grlist,"vpYF",      &vpy);
+          NhlRLGetFloat(grlist,"vpWidthF",  &vpw);
+          NhlRLGetFloat(grlist,"vpHeightF", &vph);
+          (void)NhlGetValues(newplots[i], grlist);
+          dxl = vpx-newbb[i].l;
+          dxr = newbb[i].r-(vpx+vpw);
+          dyt = (newbb[i].t-vpy);
+          dyb = (vpy-vph)-newbb[i].b;
+        }
+      }
     }
-    if(!rgt_pnl && nplots > ncols) {
 
 /*
- * Double check that this little calculation doesn't yield array
- * indices that are out-of-bounds.
+ * This section checks to see if all plots along one side are 
+ * missing, because if they are, we have to pretend like they
+ * are just invisible (i.e. do the maximization as if the invisible
+ * plots were really there).  This section needs to take
+ * place even if no plots are missing, because it's possible the
+ * user specified fewer plots than panels.
  */
-      if(((ncols-1) >= 0 && (ncols-1) <= (nplots-1))) {
+    if(!rgt_pnl && 0 < ncols && ncols <= nplots) {
 /* 
  * Check if all plots on this end are missing.
  */
-        all_ismissing = 1;
-        i = ncols-1;
-        while(all_ismissing && i < nplots) {
-          if(plots[i] > 0) {
-            all_ismissing = 0;
-          }
-          i += ncols;
+      all_ismissing = 1;
+      i = ncols-1;
+      while(all_ismissing && i < nplots) {
+        if(plots[i] > 0) {
+          all_ismissing = 0;
         }
+        i += ncols;
+      }
 /*
  * The rightmost graphical object is either the rightmost edge of
  * the rightmost plot, or the rightmost edge of the labelbar or
  * text string (if they exist).
- *
- * (ncols-1) is the first rightmost plot.
  */
-        if(all_ismissing) {
-          irgt                      = ncols - 1;
-          xrgt                      = xpos[irgt] + scaled_width+dxr;
-          special_res->nglPanelInvsblRight = max(xrgt,newrgt);
+      if(all_ismissing) {
+        xrgt                             = max_xpos + vpw + dxr;
+        special_res->nglPanelInvsblRight = max(xrgt,newrgt);
+        if(panel_debug) {
+          printf("nglPanelInvsblRight = %g\n", special_res->nglPanelInvsblRight);
         }
       }
     }
@@ -2896,13 +2938,13 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
  * The leftmost graphical object is either the leftmost edge of
  * the leftmost plot, or the leftmost edge of the labelbar or
  * text string (if they exist).
- *
- * 0 is the first leftmost plot.
  */
       if(all_ismissing) {
-        ilft                     = 0;
-        xlft                     = xpos[ilft]-dxl;
+        xlft                            = min_xpos-dxl;
         special_res->nglPanelInvsblLeft = min(xlft,newlft);
+        if(panel_debug) {
+          printf("nglPanelInvsblLeft = %g\n", special_res->nglPanelInvsblLeft);
+        }
       }
     }
     
@@ -2919,43 +2961,39 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
  * The topmost graphical object is either the topmost edge of
  * the topmost plot, or the topmost edge of the labelbar or
  * text string (if they exist).
- * 
- * 0 is the first topmost plot.
  */
       if(all_ismissing) {
-        itop                    = 0;
-        xtop                    = ypos[itop]+dyt;
+        xtop                           = ypos[0]+dyt;
         special_res->nglPanelInvsblTop = max(xtop,newtop);
+        if(panel_debug) {
+          printf("nglPanelInvsblTop = %g\n", special_res->nglPanelInvsblTop);
+        }
       }
     }
     
-    if(!bot_pnl && nplots > (nrows-1)*ncols) {
-/*
- * Double check that this little calculation doesn't yield array
- * indices that are out-of-bounds.
- */
-      if(((nplots-ncols-1) >= 0 && (nplots-ncols-1) <= (nplots-1))) {
+    if(!bot_pnl && nplots > (nrows-1)*ncols && 0 <= (nplots-ncols) && 
+       (nplots-ncols) < nplots) {
 /* 
  * Check if all plots on this end are missing.
  */
-        all_ismissing = 1;
-        i = nplots-ncols-1;
-        while(all_ismissing && i < nplots) {
-          if(plots[i] > 0) {
-            all_ismissing = 0;
-          }
-          i++;
+      all_ismissing = 1;
+      i = nplots-ncols;
+      while(all_ismissing && i < nplots) {
+        if(plots[i] > 0) {
+          all_ismissing = 0;
         }
+        i++;
+      }
 /*
  * The bottommost graphical object is either the bottommost edge of
  * the bottommost plot, or the bottommost edge of the labelbar or
  * text string (if they exist).
- * (nplots-ncols-1) is bottommost plot.
  */
-        if(all_ismissing) {
-          ibot                       = nplots-ncols-1;
-          xbot                       = ypos[ibot]-scaled_height-dyb;
-          special_res->nglPanelInvsblBottom = min(xbot,newbot);
+      if(all_ismissing) {
+        xbot                              = ypos[nrows-1]-vph-dyb;
+        special_res->nglPanelInvsblBottom = min(xbot,newbot);
+        if(panel_debug) {
+          printf("nglPanelInvsblBottom = %g\n", special_res->nglPanelInvsblBottom);
         }
       }
     }
@@ -2965,7 +3003,16 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
  * also where the plots will be maximized for PostScript output,
  * if so indicated.
  */
-  draw_and_frame(wks, newplots, nplots, special_res);
+  draw_and_frame(wks, newplots, nvalid_plots, special_res);
+
+/*
+ * Restore nglPanelInvslb* resources because these should only
+ * be set internally.
+ */
+  special_res->nglPanelInvsblRight  = -999.;
+  special_res->nglPanelInvsblLeft   = -999.;
+  special_res->nglPanelInvsblTop    = -999.;
+  special_res->nglPanelInvsblBottom = -999.;
 
 /*
  * Restore plots to original size.
@@ -2984,4 +3031,7 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
       }
     }
   }
+  free(old_vp);
+  free(ypos);
+  free(newbb);
 }

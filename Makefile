@@ -1,6 +1,12 @@
 gsun: gsun.o driver.o gsun.h
 	nhlcc -g -o gsun driver.o gsun.o -lnetcdf
 
+panel: gsun.o panel.o gsun.h
+	nhlcc -g -o panel panel.o gsun.o -lnetcdf
+
+panel.o: panel.c gsun.h
+	nhlcc -g -c panel.c
+
 driver.o: driver.c gsun.h
 	nhlcc -g -c driver.c
 

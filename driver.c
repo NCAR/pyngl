@@ -86,7 +86,6 @@ main()
   int do_colormaps, do_contour, do_xy_single, do_xy_multi, do_y, do_vector;
   int do_streamline, do_map, do_contour_map, do_contour_map2, do_vector_map;
   int do_streamline_map, do_vector_scalar, do_vector_scalar_map;
-  int do_panel;
 
 /*
  * Declare variables for getting information from netCDF file.
@@ -748,31 +747,69 @@ main()
   special_res.nglFrame    = 1;
   special_res.nglMaximize = 1;
   special_res.nglScale    = 0;
-  special_res.nglDebug    = 0;
+  special_res.nglDebug    = 1;
+/*
+ * Paper orientation: -1 is auto, 0 is portrait, and 6 is landscape.
+ */
+  special_res.nglPaperOrientation = -1;
+  special_res.nglPaperWidth       =  8.5;
+  special_res.nglPaperHeight      = 11.0;
+  special_res.nglPaperMargin      =  0.5;
+  special_res.nglPanelCenter             = 1;
+  special_res.nglPanelRowSpec            = 0;
+  special_res.nglPanelXWhiteSpacePercent = 1.;
+  special_res.nglPanelYWhiteSpacePercent = 1.;
+  special_res.nglPanelBoxes              = 0;
+  special_res.nglPanelLeft               = 0.;
+  special_res.nglPanelRight              = 1.;
+  special_res.nglPanelBottom             = 0.;
+  special_res.nglPanelTop                = 1.;
+  special_res.nglPanelInvsblTop          = -999;
+  special_res.nglPanelInvsblLeft         = -999;
+  special_res.nglPanelInvsblRight        = -999;
+  special_res.nglPanelInvsblBottom       = -999;
+  special_res.nglPanelSave               = 0;
 
   special_pres.nglDraw    = 1;
   special_pres.nglFrame   = 0;
   special_pres.nglMaximize= 0;
-  special_pres.nglDebug   = 0;
+  special_pres.nglDebug   = 1;
+  special_pres.nglPanelCenter             = 1;
+  special_pres.nglPanelRowSpec            = 0;
+  special_pres.nglPanelXWhiteSpacePercent = 1.;
+  special_pres.nglPanelYWhiteSpacePercent = 1.;
+  special_pres.nglPanelBoxes              = 0;
+  special_pres.nglPanelLeft               = 0.;
+  special_pres.nglPanelRight              = 1.;
+  special_pres.nglPanelBottom             = 0.;
+  special_pres.nglPanelTop                = 1.;
+  special_pres.nglPanelInvsblTop          = -999;
+  special_pres.nglPanelInvsblLeft         = -999;
+  special_pres.nglPanelInvsblRight        = -999;
+  special_pres.nglPanelInvsblBottom       = -999;
+  special_pres.nglPanelSave               = 0;
+  special_pres.nglPaperOrientation = -1;
+  special_pres.nglPaperWidth       =  8.5;
+  special_pres.nglPaperHeight      = 11.0;
+  special_pres.nglPaperMargin      =  0.5;
 
 /*
  * Initialize which plots to draw.
  */
   do_colormaps         = 0;
-  do_contour           = 0;
-  do_xy_single         = 0;
-  do_xy_multi          = 0;
-  do_y                 = 0;
-  do_vector            = 0;
-  do_streamline        = 0;
-  do_map               = 0;
-  do_contour_map       = 0;
-  do_contour_map2      = 0;
-  do_vector_map        = 0;
-  do_streamline_map    = 0;
-  do_vector_scalar     = 0;
-  do_vector_scalar_map = 0;
-  do_panel             = 1;
+  do_contour           = 1;
+  do_xy_single         = 1;
+  do_xy_multi          = 1;
+  do_y                 = 1;
+  do_vector            = 1;
+  do_streamline        = 1;
+  do_map               = 1;
+  do_contour_map       = 1;
+  do_contour_map2      = 1;
+  do_vector_map        = 1;
+  do_streamline_map    = 1;
+  do_vector_scalar     = 1;
+  do_vector_scalar_map = 1;
 
 /*
  * Initialize color map for later.
@@ -800,7 +837,7 @@ main()
  */
 
   wk_rlist = NhlRLCreate(NhlSETRL);
-  wks = ngl_open_wks_wrap("ps","test", wk_rlist);
+  wks = ngl_open_wks_wrap("pdf","test", wk_rlist);
 
 /* 
  * Set color map resource and open workstation.
@@ -1262,7 +1299,7 @@ main()
  * ngl_vector_map section
  */
 
-  if(do_vector_scalar || do_panel) {
+ if(do_vector_scalar) {
 
 /*
  * First set up some resources.
@@ -1318,308 +1355,6 @@ main()
                                        FillValue_V, FillValue_T2,
                                        vf_rlist, sf2_rlist, vc2_rlist, 
                                        &special_res);
-    }
-
-    if(do_panel) {
-/*
- * Loop across time dimension and create a vector plot for each one.
- * Then, we'll create several panel plots.
- * Create a separate array to hold the same plots, but set some of
- * them to "0" (missing).
- */
-      varray      = (int*)malloc(ntime_UV*sizeof(int));
-      varray_copy = (int*)malloc(ntime_UV*sizeof(int));
-
-      special_res.nglMaximize = 0;
-      special_res.nglFrame    = 0;
-      special_res.nglDraw     = 0;
-      for(i = 0; i < ntime_UV; i++) {
-        Unew  = &((float*)U)[nlatlon_UV*i];
-        Vnew  = &((float*)V)[nlatlon_UV*i];
-        T2new = &((float*)T2)[nlatlon_UV*i];
-        varray[i] = ngl_vector_scalar_wrap(wks, Unew, Vnew, T2new,
-                           type_U, type_V, type_T2,
-                           nlat_UV, nlon_UV, 
-                           is_lat_coord_UV, lat_UV, 
-                           type_lat_UV, is_lon_coord_UV, 
-                           lon_UV, type_lon_UV, 
-                           is_missing_U, is_missing_V, 
-                           is_missing_T2, FillValue_U, 
-                           FillValue_V, FillValue_T2, 
-                           vf_rlist, sf2_rlist,
-                           vc2_rlist, &special_res);
-
-      }
-      varray_copy[i] = varray[i];
-/*
- * Paper orientation: -1 is auto, 0 is portrait, and 6 is landscape.
- */
-      special_res.nglPaperOrientation = -1;
-      special_res.nglPaperWidth       =  8.5;
-      special_res.nglPaperHeight      = 11.0;
-      special_res.nglPaperMargin      =  0.5;
-
-/*
- * Special resources for paneling.
- */
-      special_res.nglDebug                   = 1;
-      special_res.nglPanelCenter             = 1;
-      special_res.nglPanelRowSpec            = 0;
-      special_res.nglPanelXWhiteSpacePercent = 1.;
-      special_res.nglPanelYWhiteSpacePercent = 1.;
-      special_res.nglPanelBoxes              = 0;
-      special_res.nglPanelLeft               = 0.;
-      special_res.nglPanelRight              = 1.;
-      special_res.nglPanelBottom             = 0.;
-      special_res.nglPanelTop                = 1.;
-      special_res.nglPanelInvsblTop          = -999;
-      special_res.nglPanelInvsblLeft         = -999;
-      special_res.nglPanelInvsblRight        = -999;
-      special_res.nglPanelInvsblBottom       = -999;
-      special_res.nglPanelSave               = 0;
-
-      special_res.nglMaximize = 1;
-      special_res.nglFrame    = 1;
-      special_res.nglDraw     = 1;
-
-/*
- * This first loop is to do an initial run-through where no plots
- * are missing, and then the second run-through will set some plots
- * to missing.
- */
-      for(i = 0; i <= 1; i++) {
-/*
- * Make sure text strings default to horizontal orientation.
- */
-        NhlRLSetFloat(tx_rlist,"txAngleF" , 0.);
-
-        if(i) {
-/*
- * We're going to be doing missing plots, so for these, we always
- * want a text string. Since the text string has to be drawn after
- * the paneled plots, we need to turn off frame for the paneled plots,
- * and turn it on for the text strings.
- */
-          special_res.nglFrame  = 0;
-          special_pres.nglFrame = 1;
-        }
-
-        panel_dims[0] = 3;          /* rows    */
-        panel_dims[1] = 1;          /* columns */
-        if(i) {
-          varray[0] = 0;
-        }
-        ngl_panel_wrap(wks, varray, 3, panel_dims, 2, 
-                       &special_res);
-
-/*
-        ngl_panel_wrap(wks, varray, ntime_UV, panel_dims, 2, 
-                       &special_res);
- */
-        if(i) {
-          varray[0] = varray_copy[0];
-          xf = 0.5;
-          yf = 0.80;
-          text = ngl_text_ndc_wrap(wks,":F25:3 rows/1 column:C:plot 0 is missing",
-                       &xf,&yf,"float","float",
-                       tx_rlist,&special_pres);
-        }
-      
-        panel_dims[0] = 1;          /* rows    */
-        panel_dims[1] = 3;          /* columns */
-        if(i) {
-          varray[0] = 0;
-        }
-        ngl_panel_wrap(wks, varray, 3, panel_dims, 2, 
-                   &special_res);
-/*
-        ngl_panel_wrap(wks, varray, ntime_UV, panel_dims, 2, 
-                   &special_res);
- */
-
-        if(i) {
-          varray[0] = varray_copy[0];
-          xf = 0.5;
-          yf = 0.98;
-          text = ngl_text_ndc_wrap(wks,":F25:1 row/3 columns:C:Plot 0 is missing",
-                       &xf,&yf,"float","float",tx_rlist,
-                       &special_pres);
-        }
-
-        panel_dims[0] = 2;          /* rows    */
-        panel_dims[1] = 2;          /* columns */
-
-        if(i) {
-          varray[2] = varray[3] = 0;
-        }
-        ngl_panel_wrap(wks, varray, 4, panel_dims, 2, 
-                       &special_res);
-
-/*
-        ngl_panel_wrap(wks, varray, ntime_UV, panel_dims, 2, 
-                       &special_res);
-*/
-        if(i) {
-          varray[2] = varray_copy[2];
-          varray[3] = varray_copy[3];
-          xf = 0.5;
-          yf = 0.98;
-          text = ngl_text_ndc_wrap(wks,":F25:2 rows/2 columns:C:Plots 2/3 are missing",
-                                   &xf,&yf,"float","float",tx_rlist,
-                                   &special_pres);
-        }
-
-/*
- * We need to test various aspects of panelling:
- *   - adding a string at the top, bottom, left, and right
- *   - changing the margins
- *   - changing the spacing around the plots
- *   - playing w/nglPanelCenter when you have missing plots
- *   - nglPanelRowSpec
- */
-        special_res.nglFrame  = 0;
-        special_pres.nglFrame = 1;
-        NhlRLClear(tx_rlist);
-        NhlRLSetFloat(tx_rlist,"txFontHeightF" , 0.020);
-/*
- * Testing nglPanelBottom.
- */
-        printf("Testing nglPanelBottom...\n");
-
-        special_res.nglPanelBottom = 0.07;
-        panel_dims[0] = 2;          /* rows    */
-        panel_dims[1] = 3;          /* columns */
-
-        if(i) {
-          varray[0] = varray[2] = 0;
-        }
-
-        ngl_panel_wrap(wks, varray, 6, panel_dims, 2, 
-                       &special_res);
-/*
-        ngl_panel_wrap(wks, varray, ntime_UV, panel_dims, 2, 
-                       &special_res);
- */
-        xf = 0.5;
-        yf = 0.04;
-        if(i) {
-          varray[0] = varray_copy[0];
-          varray[2] = varray_copy[2];
-          text = ngl_text_ndc_wrap(wks,":F25:2 rows/3 columns:C:Plots 0/2 are missing",
-                                   &xf,&yf,"float","float",tx_rlist,
-                                   &special_pres);
-        }
-        else {
-          text = ngl_text_ndc_wrap(wks,":F26:2 rows/3 columns:C:Panel string at the bottom",
-                                   &xf,&yf,"float","float",tx_rlist,
-                                   &special_pres);
-        }
-
-/*
- * Testing nglPanelTop.
- */
-        printf("Testing nglPanelTop...\n");
-
-        special_res.nglPanelTop    = 0.94;
-        special_res.nglPanelBottom = 0.0;
-        panel_dims[0] = 4;          /* rows    */
-        panel_dims[1] = 2;          /* columns */
-
-        if(i) {
-          varray[4] = varray[5] = 0;
-        }
-
-        ngl_panel_wrap(wks, varray, 8, panel_dims, 2, &special_res);
-
-        xf = 0.5;
-        yf = 0.97;
-        if(i) {
-          varray[4] = varray_copy[4];
-          varray[5] = varray_copy[5];
-          text = ngl_text_ndc_wrap(wks,":F25:4 rows/2 columns:C:Plots 4/5 are missing",
-                                   &xf,&yf,"float","float",tx_rlist,
-                                   &special_pres);
-        }
-        else {
-          text = ngl_text_ndc_wrap(wks,":F26:4 rows/2 columns:C:Panel string at the top",
-                                   &xf,&yf,"float","float",tx_rlist,
-                                   &special_pres);
-        }
-
-/*
- * Testing nglPanelRight.
- */
-        printf("Testing nglPanelRight...\n");
-
-        special_res.nglPanelTop    = 1.0;
-        special_res.nglPanelRight  = 0.94;
-        panel_dims[0] = 2;          /* rows    */
-        panel_dims[1] = 4;          /* columns */
-        if(i) {
-          varray[3] = 0;
-          varray[7] = 0;
-        }
-        ngl_panel_wrap(wks, varray, 8, panel_dims, 2, &special_res);
-        
-        xf = 0.97;
-        yf = 0.5;
-        NhlRLSetFloat(tx_rlist,"txAngleF" , 90.);
-        if(i) {
-          varray[3] = varray_copy[3];
-          varray[7] = varray_copy[7];
-          text = ngl_text_ndc_wrap(wks,":F25:2 rows/4 columns:C:Plots 3/7 are missing",
-                                   &xf,&yf,"float","float",tx_rlist,
-                                   &special_pres);
-        }
-        else {
-          text = ngl_text_ndc_wrap(wks,":F26:2 rows/4 columns:C:Panel string on the right",
-                                   &xf,&yf,"float","float",tx_rlist,
-                                   &special_pres);
-        }
-
-/*
- * Testing nglPanelLeft.
- */
-        printf("Testing nglPanelLeft...\n");
-
-        special_res.nglPanelRight  = 1.0;
-        special_res.nglPanelLeft   = 0.07;
-        panel_dims[0] = 3;          /* rows    */
-        panel_dims[1] = 4;          /* columns */
-
-        if(i) {
-          varray[2] = 0;
-          varray[5] = 0;
-          varray[7] = 0;
-          varray[11] = 0;
-        }
-
-        ngl_panel_wrap(wks, varray, 12, panel_dims, 2, &special_res);
-        
-        xf = 0.04;
-        yf = 0.5;
-        if(i) {
-          varray[2] = varray_copy[2];
-          varray[5] = varray_copy[5];
-          varray[7] = varray_copy[7];
-          varray[11] = varray_copy[11];
-          text = ngl_text_ndc_wrap(wks,":F25:3 rows/4 columns:C:Plots 2/5/7/11 are missing",
-                                   &xf,&yf,"float","float",tx_rlist,
-                                   &special_pres);
-        }
-        else {
-          text = ngl_text_ndc_wrap(wks,":F26:3 rows/4 columns:C:Panel string on the left",
-                                   &xf,&yf,"float","float",tx_rlist,
-                                   &special_pres);
-        }
-        
-        special_res.nglPanelTop    = 1.0;
-        special_res.nglPanelBottom = 0.0;
-        special_res.nglPanelRight  = 1.0;
-        special_res.nglPanelLeft   = 0.0;
-        special_pres.nglFrame      = 0;
-        special_res.nglFrame       = 1;
-      }
     }
   }
 
