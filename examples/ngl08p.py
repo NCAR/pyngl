@@ -46,10 +46,10 @@ cmap = Numeric.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
                       [0.60, 0.80, 0.40], [1.00, 0.60, 0.80]],Numeric.Float0)
 rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
-xwks   = Ngl.open_wks(   "x11","ngl08p",rlist) # Open an X11 workstation.
-cgmwks = Ngl.open_wks(  "ncgm","ngl08p",rlist) # Open an NCGM workstation.
-pswks  = Ngl.open_wks(    "ps","ngl08p",rlist) # Open a PS workstation.
-pdfwks = Ngl.open_wks(   "pdf","ngl08p",rlist) # Open a PDF workstation.
+xwks   = Ngl.open_wks( "x11","ngl08p",rlist) # Open an X11 workstation.
+cgmwks = Ngl.open_wks("ncgm","ngl08p",rlist) # Open an NCGM workstation.
+pswks  = Ngl.open_wks(  "ps","ngl08p",rlist) # Open a PS workstation.
+pdfwks = Ngl.open_wks( "pdf","ngl08p",rlist) # Open a PDF workstation.
 
 #----------- Begin first plot -----------------------------------------
 
