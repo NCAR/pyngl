@@ -1974,6 +1974,7 @@ def skewt_bkg(wks, Opts):
   localOpts.vpWidthF              = 0.85
   localOpts.vpHeightF             = 0.85
 
+
 #
 #  Override localOpts attributes with Opts attributes for
 #  Opts attributes that overlap localOpts attributes; set
@@ -1987,6 +1988,7 @@ def skewt_bkg(wks, Opts):
   if (len(crt_dict(Opts)) != 0):
     for key in OptsAtts.keys():
       setattr(localOpts,key,OptsAtts[key])
+
 
 #
 #  Declare isotherm values (Celcius) and pressures (hPa) where 
@@ -2257,6 +2259,16 @@ def skewt_bkg(wks, Opts):
   xyOpts.tiYAxisFontColor     = "Foreground"   # colTan
   xyOpts.tiYAxisFontHeightF   = xyOpts.tiXAxisFontHeightF
   xyOpts.tiMainString         = localOpts.tiMainString
+  if (hasattr(localOpts,"tiMainFuncCode")):
+    xyOpts.tiMainFuncCode     = localOpts.tiMainFuncCode
+#
+#  Uncomment if X or Y axis labels are allowed to be set by the user.
+#
+# if (hasattr(localOpts,"tiXAxisFuncCode")):
+#   xyOpts.tiXAxisFuncCode    = localOpts.tiXAxisFuncCode
+# if (hasattr(localOpts,"tiYAxisFuncCode")):
+#   xyOpts.tiYAxisFuncCode    = localOpts.tiYAxisFuncCode
+ 
   xyOpts.tiMainFont           = localOpts.Font
   xyOpts.tiMainFontColor      = "Foreground"
   xyOpts.tiMainFontHeightF    = 0.025
