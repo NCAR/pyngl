@@ -1,12 +1,11 @@
 
 from hlu import *
 import hlu
-import sys
+import sys, os
 import site
 import types
 import string
 import Numeric
-from Scientific.IO.NetCDF import *
 
 first_call_to_open_wks = 0
 
@@ -16,7 +15,7 @@ class Resources:
 class PlotIds:
   pass
 
-def ngl_int_id(plot_id):
+def int_id(plot_id):
 #
 #  Convert PlotIds objects to integer plot ids.
 #
@@ -36,8 +35,8 @@ def ngl_int_id(plot_id):
     print "plot id is not valid"
     return None
 
-def ngl_overlay(plot_id1,plot_id2):
-  NhlAddOverlay(ngl_int_id(plot_id1),ngl_int_id(plot_id2),-1)
+def overlay(plot_id1,plot_id2):
+  NhlAddOverlay(int_id(plot_id1),int_id(plot_id2),-1)
 
 def lst2pobj(lst):
 #
@@ -172,7 +171,7 @@ def pseq2lst(pseq):
     lst.append(pobj2lst(pseq[i]))
   return lst
 
-def set_ngl_spc_res(resource_name,value):
+def set_spc_res(resource_name,value):
 #
 #  Change True and False values to 1 and 0 and leave all other
 #  values unchaged.
@@ -279,18 +278,18 @@ def set_ngl_spc_res(resource_name,value):
   elif (resource_name[0:29] == "PanelFigureStringsFontHeightF"):
     set_nglRes_f(45, lval) 
   else:
-    print "set_ngl_spc_res: Unknown special resource " + resource_name
+    print "set_spc_res: Unknown special resource " + resource_name
 
-def ngl_change_workstation(obj,wks):
-  return NhlChangeWorkstation(ngl_int_id(obj),wks)
+def change_workstation(obj,wks):
+  return NhlChangeWorkstation(int_id(obj),wks)
 
-def ngl_end():
+def end():
   NhlClose()
 
 #
 #  Get indices of a list where the list values are true.
 #
-def ngl_ind(seq):
+def ind(seq):
   inds = []
   for i in xrange(len(seq)):
     if (seq[i] != 0):
@@ -432,18 +431,6 @@ def natgrid(x,y,z,xo,yo):
   else:
     return zo
 
-def coord_variables(nfile):
-  if (type(nfile).__name__ != "NetCDFFile"):
-    print "coord_variables: input file must be a NetCDF file"
-    return None
-
-  coord_vars = []
-  for var in nfile.variables.keys():
-    dim_names = nfile.variables[var].dimensions
-    if (var == dim_names[0]) and (len(dim_names) == 1):
-      coord_vars.append(var)
-  return coord_vars
-
 def ncargpath(type):
   return NGGetNCARGEnv(type)
 
@@ -514,7 +501,7 @@ def set_spc_defaults(type):
   set_nglRes_i(44, 0)   # nglPanelFigureStringsBackgroundFillColor
   set_nglRes_f(45, -999.)   # nglPanelFigureStringsFontHeightF
 
-def ngl_open_wks(wk_type,wk_name,wk_rlist=None):
+def open_wks(wk_type,wk_name,wk_rlist=None):
   global first_call_to_open_wks
   rlist = crt_dict(wk_rlist)
 
@@ -575,14 +562,14 @@ def ngl_open_wks(wk_type,wk_name,wk_rlist=None):
 #
 #  Call the wrapped function and return.
 #
-  iopn = ngl_open_wks_wrap(wk_type,wk_name,rlist)
+  iopn = open_wks_wrap(wk_type,wk_name,rlist)
   del rlist
   return(iopn)
 
-def ngl_draw_colormap(wks):
-  ngl_draw_colormap_wrap(wks)
+def draw_colormap(wks):
+  draw_colormap_wrap(wks)
 
-def ngl_panel(wks,plots,dims,rlistc=None):
+def panel(wks,plots,dims,rlistc=None):
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
   rlist1 = {}
@@ -590,145 +577,145 @@ def ngl_panel(wks,plots,dims,rlistc=None):
   for key in rlist.keys():
     if (key[0:3] == "ngl"):
       if (key[0:21] == "nglPanelFigureStrings" and len(key) == 21):
-        set_ngl_spc_res(key[3:],rlist[key])
-        set_ngl_spc_res("PanelFigureStringsCount",len(rlist[key]))
+        set_spc_res(key[3:],rlist[key])
+        set_spc_res("PanelFigureStringsCount",len(rlist[key]))
       elif (key[0:25] == "nglPanelFigureStringsJust"):
         if(rlist[key] == "TopLeft"):
-          set_ngl_spc_res(key[3:],0)
+          set_spc_res(key[3:],0)
         elif(rlist[key] == "CenterLeft"): 
-          set_ngl_spc_res(key[3:],1)
+          set_spc_res(key[3:],1)
         elif(rlist[key] == "BottomLeft"): 
-          set_ngl_spc_res(key[3:],2)
+          set_spc_res(key[3:],2)
         elif(rlist[key] == "TopCenter"): 
-          set_ngl_spc_res(key[3:],3)
+          set_spc_res(key[3:],3)
         elif(rlist[key] == "CenterCenter"): 
-          set_ngl_spc_res(key[3:],4)
+          set_spc_res(key[3:],4)
         elif(rlist[key] == "BottomCenter"): 
-          set_ngl_spc_res(key[3:],5)
+          set_spc_res(key[3:],5)
         elif(rlist[key] == "TopRight"):
-          set_ngl_spc_res(key[3:],6)
+          set_spc_res(key[3:],6)
         elif(rlist[key] == "CenterRight"): 
-          set_ngl_spc_res(key[3:],7)
+          set_spc_res(key[3:],7)
         elif(rlist[key] == "BottomRight"): 
-          set_ngl_spc_res(key[3:],8)
+          set_spc_res(key[3:],8)
       else:
-        set_ngl_spc_res(key[3:],rlist[key])
+        set_spc_res(key[3:],rlist[key])
     elif (key[0:2] == "lb"):
       if (key == "lbLabelAlignment"):
         if (rlist[key] == "BoxCenters"):
-          set_ngl_spc_res("PanelLabelBarAlignment",0)
+          set_spc_res("PanelLabelBarAlignment",0)
         elif (rlist[key] == "InteriorEdges"):
-          set_ngl_spc_res("PanelLabelBarAlignment",1)
+          set_spc_res("PanelLabelBarAlignment",1)
         elif (rlist[key] == "ExternalEdges"):
-          set_ngl_spc_res("PanelLabelBarAlignment",2)
+          set_spc_res("PanelLabelBarAlignment",2)
         else:
-          set_ngl_spc_res("PanelLabelBarAlignment",rlist[key])
+          set_spc_res("PanelLabelBarAlignment",rlist[key])
       elif (key == "lbPerimOn"):
         if (rlist[key] == 1):
-          set_ngl_spc_res("PanelLabelBarPerimOn",1)
+          set_spc_res("PanelLabelBarPerimOn",1)
         elif (rlist[key] == 0):
-          set_ngl_spc_res("PanelLabelBarPerimOn",0)
+          set_spc_res("PanelLabelBarPerimOn",0)
         else:
-          set_ngl_spc_res("PanelLabelBarPerimOn",rlist[key])
+          set_spc_res("PanelLabelBarPerimOn",rlist[key])
       elif (key == "lbLabelAutoStride"):
         if (rlist[key] == 1):
-          set_ngl_spc_res("PanelLabelBarAutoStride",1)
+          set_spc_res("PanelLabelBarAutoStride",1)
         elif (rlist[key] == 0):
-          set_ngl_spc_res("PanelLabelBarAutoStride",0)
+          set_spc_res("PanelLabelBarAutoStride",0)
         else:
-          set_ngl_spc_res("PanelLabelBarAutoStride",rlist[key])
+          set_spc_res("PanelLabelBarAutoStride",rlist[key])
       elif (key == "lbLabelFontHeightF"):
-        set_ngl_spc_res("PanelLabelBarFontHeightF",rlist[key])
+        set_spc_res("PanelLabelBarFontHeightF",rlist[key])
       elif (key == "lbOrientation"):
         if (rlist[key] == "Vertical"):
-          set_ngl_spc_res("PanelLabelBarOrientation",1)
+          set_spc_res("PanelLabelBarOrientation",1)
         elif (rlist[key] == "Horizontal"):
-          set_ngl_spc_res("PanelLabelBarOrientation",0)
+          set_spc_res("PanelLabelBarOrientation",0)
         else:
-          set_ngl_spc_res("PanelLabelBarOrientation",rlist[key])
+          set_spc_res("PanelLabelBarOrientation",rlist[key])
         
 
       rlist1[key] = rlist[key]
-  ngl_panel_wrap(wks,pseq2lst(plots),len(plots),dims,len(dims),rlist1,rlist2,pvoid())
+  panel_wrap(wks,pseq2lst(plots),len(plots),dims,len(dims),rlist1,rlist2,pvoid())
   del rlist
   del rlist1
 
-def ngl_map(wks,rlistc=None):
+def map(wks,rlistc=None):
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
   rlist1 = {}
   for key in rlist.keys():
     if (key[0:3] == "ngl"):
-      set_ngl_spc_res(key[3:],rlist[key])      
+      set_spc_res(key[3:],rlist[key])      
     else:
       rlist1[key] = rlist[key]
-  imp = ngl_map_wrap(wks,rlist1,pvoid())
+  imp = map_wrap(wks,rlist1,pvoid())
   del rlist
   del rlist1
   return(lst2pobj(imp))
 
-def ngl_poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
+def poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
   set_spc_defaults(0)
   rlist = crt_dict(rlistc)  
   rlist1 = {}
   for key in rlist.keys():
     if (key[0:3] == "ngl"):
-      set_ngl_spc_res(key[3:],rlist[key])      
+      set_spc_res(key[3:],rlist[key])      
     else:
       rlist1[key] = rlist[key]
-  ply = ngl_poly_wrap(wks,pobj2lst(plot),x,y,"double","double",len(x),0,0,pvoid(), \
+  ply = poly_wrap(wks,pobj2lst(plot),x,y,"double","double",len(x),0,0,pvoid(), \
                       pvoid(),ptype,rlist1,pvoid())
   del rlist
   del rlist1
   return None
 
-def ngl_polymarker_ndc(wks,x,y,rlistc=None):
-  return(ngl_poly(wks,0,x,y,NhlPOLYMARKER,1,rlistc))
+def polymarker_ndc(wks,x,y,rlistc=None):
+  return(poly(wks,0,x,y,NhlPOLYMARKER,1,rlistc))
 
-def ngl_polygon_ndc(wks,x,y,rlistc=None):
-  return(ngl_poly(wks,0,x,y,NhlPOLYGON,1,rlistc))
+def polygon_ndc(wks,x,y,rlistc=None):
+  return(poly(wks,0,x,y,NhlPOLYGON,1,rlistc))
 
-def ngl_polyline_ndc(wks,x,y,rlistc=None):
-  return(ngl_poly(wks,0,x,y,NhlPOLYLINE,1,rlistc))
+def polyline_ndc(wks,x,y,rlistc=None):
+  return(poly(wks,0,x,y,NhlPOLYLINE,1,rlistc))
 
-def ngl_polymarker(wks,plot,x,y,rlistc=None):  # plot converted in ngl_poly
-  return(ngl_poly(wks,plot,x,y,NhlPOLYMARKER,0,rlistc))
+def polymarker(wks,plot,x,y,rlistc=None):  # plot converted in poly
+  return(poly(wks,plot,x,y,NhlPOLYMARKER,0,rlistc))
 
-def ngl_polygon(wks,plot,x,y,rlistc=None):
-  return(ngl_poly(wks,plot,x,y,NhlPOLYGON,0,rlistc))
+def polygon(wks,plot,x,y,rlistc=None):
+  return(poly(wks,plot,x,y,NhlPOLYGON,0,rlistc))
 
-def ngl_polyline(wks,plot,x,y,rlistc=None):
-  return(ngl_poly(wks,plot,x,y,NhlPOLYLINE,0,rlistc))
+def polyline(wks,plot,x,y,rlistc=None):
+  return(poly(wks,plot,x,y,NhlPOLYLINE,0,rlistc))
 
-def ngl_add_poly(wks,plot,x,y,ptype,rlistc=None):
+def add_poly(wks,plot,x,y,ptype,rlistc=None):
   rlist = crt_dict(rlistc)  
   rlist1 = {}
   for key in rlist.keys():
     if (key[0:3] == "ngl"):
-      set_ngl_spc_res(key[3:],rlist[key])      
+      set_spc_res(key[3:],rlist[key])      
     else:
       rlist1[key] = rlist[key]
-  ply = ngl_add_poly_wrap(wks,pobj2lst(plot), x,y, "double","double",
+  ply = add_poly_wrap(wks,pobj2lst(plot), x,y, "double","double",
             len(x),0,0,pvoid(), pvoid(),ptype,rlist1,pvoid())
   del rlist
   del rlist1
   return(lst2pobj(ply))
 
-def ngl_add_polymarker(wks,plot,x,y,rlistc=None):
-  return(ngl_add_poly(wks,plot,x,y,NhlPOLYMARKER,rlistc))
+def add_polymarker(wks,plot,x,y,rlistc=None):
+  return(add_poly(wks,plot,x,y,NhlPOLYMARKER,rlistc))
 
-def ngl_add_polygon(wks,plot,x,y,rlistc=None):
-  return(ngl_add_poly(wks,plot,x,y,NhlPOLYGON,rlistc))
+def add_polygon(wks,plot,x,y,rlistc=None):
+  return(add_poly(wks,plot,x,y,NhlPOLYGON,rlistc))
 
-def ngl_add_polyline(wks,plot,x,y,rlistc=None):
-  return(ngl_add_poly(wks,plot,x,y,NhlPOLYLINE,rlistc))
+def add_polyline(wks,plot,x,y,rlistc=None):
+  return(add_poly(wks,plot,x,y,NhlPOLYLINE,rlistc))
 
-def ngl_contour_map(wks,array,rlistc=None):
+def contour_map(wks,array,rlistc=None):
 #
 #  Make sure the array is 2D.
 #
   if (len(array.shape) != 1 and len(array.shape) != 2):
-    print "ngl_contour_map - array must be 1D or 2D"
+    print "contour_map - array must be 1D or 2D"
     return NULL
 
   set_spc_defaults(1)
@@ -759,7 +746,7 @@ def ngl_contour_map(wks,array,rlistc=None):
           (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:2] == "tm") ):
       rlist2[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      set_ngl_spc_res(key[3:],rlist[key])      
+      set_spc_res(key[3:],rlist[key])      
     else:
       rlist3[key] = rlist[key]
     
@@ -767,12 +754,12 @@ def ngl_contour_map(wks,array,rlistc=None):
 #  Call the wrapped function and return.
 #
   if (len(array.shape) == 2):
-        icm = ngl_contour_map_wrap(wks,array,"double", \
+        icm = contour_map_wrap(wks,array,"double", \
                                 array.shape[0],array.shape[1],0, \
                                 pvoid(),"",0,pvoid(),"", 0, pvoid(), \
                                 rlist1,rlist3,rlist2,pvoid())
   else:
-        icm = ngl_contour_map_wrap(wks,array,"double", \
+        icm = contour_map_wrap(wks,array,"double", \
                                 array.shape[0],-1,0, \
                                 pvoid(),"",0,pvoid(),"", 0, pvoid(), \
                                 rlist1,rlist3,rlist2,pvoid())
@@ -783,13 +770,13 @@ def ngl_contour_map(wks,array,rlistc=None):
   del rlist3
   return(lst2pobj(icm))
 
-def ngl_contour(wks,array,rlistc=None):
+def contour(wks,array,rlistc=None):
 
 #
 #  Make sure the array is 2D.
 #
   if (len(array.shape) != 1 and len(array.shape) != 2):
-    print "ngl_contour - array must be 1D or 2D"
+    print "contour - array must be 1D or 2D"
     return NULL
 
   set_spc_defaults(1)
@@ -816,7 +803,7 @@ def ngl_contour(wks,array,rlistc=None):
     if (key[0:2] == "sf"):
       rlist1[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      set_ngl_spc_res(key[3:],rlist[key])      
+      set_spc_res(key[3:],rlist[key])      
     else:
       rlist2[key] = rlist[key]
     
@@ -824,11 +811,11 @@ def ngl_contour(wks,array,rlistc=None):
 #  Call the wrapped function and return.
 #
   if (len(array.shape) == 2):
-    icn = ngl_contour_wrap(wks,array,"double",array.shape[0],array.shape[1], \
+    icn = contour_wrap(wks,array,"double",array.shape[0],array.shape[1], \
                            0, pvoid(),"",0,pvoid(),"", 0, pvoid(), rlist1, \
                           rlist2,pvoid())
   else:
-    icn = ngl_contour_wrap(wks,array,"double",array.shape[0],-1, \
+    icn = contour_wrap(wks,array,"double",array.shape[0],-1, \
                            0, pvoid(),"",0,pvoid(),"", 0, pvoid(), rlist1, \
                           rlist2,pvoid())
 
@@ -837,7 +824,7 @@ def ngl_contour(wks,array,rlistc=None):
   del rlist2
   return(lst2pobj(icn))
 
-def ngl_xy(wks,xar,yar,rlistc=None):
+def xy(wks,xar,yar,rlistc=None):
   set_spc_defaults(1)
 #
 #  Get input array dimension information.
@@ -850,7 +837,7 @@ def ngl_xy(wks,xar,yar,rlistc=None):
     dsizes_x = xar.shape
   else:
     print \
-      "ngl_xy: type of argument 2 must be one of: list, tuple, or Numeric array"
+      "xy: type of argument 2 must be one of: list, tuple, or Numeric array"
     return None
 
   if ( ((type(yar) == types.ListType) or (type(yar) == types.TupleType)) ):
@@ -861,7 +848,7 @@ def ngl_xy(wks,xar,yar,rlistc=None):
     dsizes_y = yar.shape
   else:
     print \
-      "ngl_xy: type of argument 3 must be one of: list, tuple, or Numeric array"
+      "xy: type of argument 3 must be one of: list, tuple, or Numeric array"
     return None
 
   rlist = crt_dict(rlistc)  
@@ -886,14 +873,14 @@ def ngl_xy(wks,xar,yar,rlistc=None):
       else:
         xyd_rlist[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      set_ngl_spc_res(key[3:],rlist[key])      
+      set_spc_res(key[3:],rlist[key])      
     else:
       xy_rlist[key] = rlist[key]
 
 #
 #  Call the wrapped function and return.
 #
-  ixy = ngl_xy_wrap(wks,xar,yar,"double","double",ndims_x,dsizes_x,ndims_y, \
+  ixy = xy_wrap(wks,xar,yar,"double","double",ndims_x,dsizes_x,ndims_y, \
                     dsizes_y,0,0,pvoid(),pvoid(),ca_rlist,xy_rlist,xyd_rlist,
                     pvoid())
 
@@ -903,7 +890,7 @@ def ngl_xy(wks,xar,yar,rlistc=None):
   del xyd_rlist
   return(lst2pobj(ixy))
 
-def ngl_y(wks,yar,rlistc=None):
+def y(wks,yar,rlistc=None):
   
 #
 #  Get input array dimension information.
@@ -916,7 +903,7 @@ def ngl_y(wks,yar,rlistc=None):
     dsizes_y = yar.shape
   else:
     print \
-      "ngl_xy: type of argument 3 must be one of: list, tuple, or Numeric array"
+      "xy: type of argument 3 must be one of: list, tuple, or Numeric array"
     return None
 
   if (len(dsizes_y) == 1):
@@ -925,12 +912,12 @@ def ngl_y(wks,yar,rlistc=None):
     npts = dsizes_y[1]
   else:
     print \
-      "ngl_y: array can have at most two dimensions"
+      "y: array can have at most two dimensions"
     return None
     
-  return ngl_xy(wks,range(0,npts),yar,rlistc)
+  return xy(wks,range(0,npts),yar,rlistc)
 
-def ngl_streamline(wks,uarray,varray,rlistc=None):
+def streamline(wks,uarray,varray,rlistc=None):
 
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
@@ -945,14 +932,14 @@ def ngl_streamline(wks,uarray,varray,rlistc=None):
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      set_ngl_spc_res(key[3:],rlist[key])      
+      set_spc_res(key[3:],rlist[key])      
     else:
       rlist2[key] = rlist[key]
     
 #
 #  Call the wrapped function and return.
 #
-  strm = ngl_streamline_wrap(wks,uarray,varray,"double","double",         \
+  strm = streamline_wrap(wks,uarray,varray,"double","double",         \
                          uarray.shape[0],uarray.shape[1],0,               \
                          pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(), \
                          rlist1,rlist2,pvoid())
@@ -961,7 +948,7 @@ def ngl_streamline(wks,uarray,varray,rlistc=None):
   del rlist2
   return(lst2pobj(strm))
 
-def ngl_streamline_map(wks,uarray,varray,rlistc=None):
+def streamline_map(wks,uarray,varray,rlistc=None):
 
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
@@ -980,14 +967,14 @@ def ngl_streamline_map(wks,uarray,varray,rlistc=None):
           (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:2] == "tm")):
       rlist3[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      set_ngl_spc_res(key[3:],rlist[key])      
+      set_spc_res(key[3:],rlist[key])      
     else:
       rlist2[key] = rlist[key]
     
 #
 #  Call the wrapped function and return.
 #
-  strm = ngl_streamline_map_wrap(wks,uarray,varray,"double","double",         \
+  strm = streamline_map_wrap(wks,uarray,varray,"double","double",         \
                          uarray.shape[0],uarray.shape[1],0,               \
                          pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(), \
                          rlist1,rlist2,rlist3,pvoid())
@@ -997,7 +984,7 @@ def ngl_streamline_map(wks,uarray,varray,rlistc=None):
   del rlist3
   return(lst2pobj(strm))
 
-def ngl_vector(wks,uarray,varray,rlistc=None):
+def vector(wks,uarray,varray,rlistc=None):
 
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
@@ -1012,14 +999,14 @@ def ngl_vector(wks,uarray,varray,rlistc=None):
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      set_ngl_spc_res(key[3:],rlist[key])      
+      set_spc_res(key[3:],rlist[key])      
     else:
       rlist2[key] = rlist[key]
     
 #
 #  Call the wrapped function and return.
 #
-  ivct = ngl_vector_wrap(wks,uarray,varray,"double","double",         \
+  ivct = vector_wrap(wks,uarray,varray,"double","double",         \
                      uarray.shape[0],uarray.shape[1],0,               \
                      pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(), \
                      rlist1,rlist2,pvoid())
@@ -1028,7 +1015,7 @@ def ngl_vector(wks,uarray,varray,rlistc=None):
   del rlist2
   return lst2pobj(ivct)
 
-def ngl_vector_map(wks,uarray,varray,rlistc=None):
+def vector_map(wks,uarray,varray,rlistc=None):
 
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
@@ -1047,14 +1034,14 @@ def ngl_vector_map(wks,uarray,varray,rlistc=None):
           (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:2] == "tm") ):
       rlist3[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      set_ngl_spc_res(key[3:],rlist[key])      
+      set_spc_res(key[3:],rlist[key])      
     else:
       rlist2[key] = rlist[key]
     
 #
 #  Call the wrapped function and return.
 #
-  ivct = ngl_vector_map_wrap(wks,uarray,varray,"double","double",         \
+  ivct = vector_map_wrap(wks,uarray,varray,"double","double",         \
                      uarray.shape[0],uarray.shape[1],0,               \
                      pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(), \
                      rlist1,rlist2,rlist3,pvoid())
@@ -1065,7 +1052,7 @@ def ngl_vector_map(wks,uarray,varray,rlistc=None):
   del rlist3
   return lst2pobj(ivct)
 
-def ngl_vector_scalar(wks,uarray,varray,tarray,rlistc=None):
+def vector_scalar(wks,uarray,varray,tarray,rlistc=None):
 
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
@@ -1083,14 +1070,14 @@ def ngl_vector_scalar(wks,uarray,varray,tarray,rlistc=None):
     elif(key[0:2] == "sf"):
       rlist2[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      set_ngl_spc_res(key[3:],rlist[key])      
+      set_spc_res(key[3:],rlist[key])      
     else:
       rlist3[key] = rlist[key]
     
 #
 #  Call the wrapped function and return.
 #
-  ivct = ngl_vector_scalar_wrap(wks,uarray,varray,tarray,  \
+  ivct = vector_scalar_wrap(wks,uarray,varray,tarray,  \
                      "double","double","double",         \
                      uarray.shape[0],uarray.shape[1],0,               \
                      pvoid(),"",0,pvoid(),"", 0, 0, 0, pvoid(), pvoid(), \
@@ -1102,7 +1089,7 @@ def ngl_vector_scalar(wks,uarray,varray,tarray,rlistc=None):
   del rlist3
   return lst2pobj(ivct)
 
-def ngl_vector_scalar_map(wks,uarray,varray,tarray,rlistc=None):
+def vector_scalar_map(wks,uarray,varray,tarray,rlistc=None):
 
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
@@ -1124,14 +1111,14 @@ def ngl_vector_scalar_map(wks,uarray,varray,tarray,rlistc=None):
           (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:2] == "tm") ):
       rlist4[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      set_ngl_spc_res(key[3:],rlist[key])      
+      set_spc_res(key[3:],rlist[key])      
     else:
       rlist3[key] = rlist[key]
     
 #
 #  Call the wrapped function and return.
 #
-  ivct = ngl_vector_scalar_map_wrap(wks,uarray,varray,tarray,  \
+  ivct = vector_scalar_map_wrap(wks,uarray,varray,tarray,  \
                      "double","double","double",         \
                      uarray.shape[0],uarray.shape[1],0,               \
                      pvoid(),"",0,pvoid(),"", 0, 0, 0, pvoid(), pvoid(), \
@@ -1144,22 +1131,22 @@ def ngl_vector_scalar_map(wks,uarray,varray,tarray,rlistc=None):
   del rlist4
   return lst2pobj(ivct)
 
-def ngl_text_ndc(wks, text, x, y, rlistc=None):
+def text_ndc(wks, text, x, y, rlistc=None):
   set_spc_defaults(0)
   rlist = crt_dict(rlistc)
   rlist1 = {}
   for key in rlist.keys():
     if(key[0:3] == "ngl"):
-      set_ngl_spc_res(key[3:],rlist[key])      
+      set_spc_res(key[3:],rlist[key])      
     else:
       rlist1[key] = rlist[key]
 
-  itxt = ngl_text_ndc_wrap(wks,text,x,y,"double","double",rlist1,pvoid())
+  itxt = text_ndc_wrap(wks,text,x,y,"double","double",rlist1,pvoid())
   del rlist
   del rlist1
   return (lst2pobj(itxt))
 
-def ngl_add_text(wks,plot,text,x,y,rlistc=None):
+def add_text(wks,plot,text,x,y,rlistc=None):
   rlist = crt_dict(rlistc)  
  
 #
@@ -1177,93 +1164,93 @@ def ngl_add_text(wks,plot,text,x,y,rlistc=None):
 #
 #  Call the wrapped function and return.
 #
-  atx = ngl_add_text_wrap(wks,pobj2lst(plot),text,x,y,"double","double",  \
+  atx = add_text_wrap(wks,pobj2lst(plot),text,x,y,"double","double",  \
                           tx_rlist,am_rlist, pvoid())
   del rlist
   del tx_rlist
   del am_rlist
   return(lst2pobj(atx))
 
-def ngl_text(wks, plot, text, x, y, rlistc=None):
+def text(wks, plot, text, x, y, rlistc=None):
   set_spc_defaults(0)
   rlist = crt_dict(rlistc)
   rlist1 = {}
   for key in rlist.keys():
     if(key[0:3] == "ngl"):
-      set_ngl_spc_res(key[3:],rlist[key])      
+      set_spc_res(key[3:],rlist[key])      
     else:
       rlist1[key] = rlist[key]
-  itxt = ngl_text_wrap(wks,pobj2lst(plot),text,x,y,"double","double",rlist1,pvoid())
+  itxt = text_wrap(wks,pobj2lst(plot),text,x,y,"double","double",rlist1,pvoid())
   del rlist
   del rlist1
   return(lst2pobj(itxt))
 
-def ngl_set_values(obj,rlistc=None):
+def set_values(obj,rlistc=None):
   rlist = crt_dict(rlistc)
-  values = NhlSetValues(ngl_int_id(obj),rlist)
+  values = NhlSetValues(int_id(obj),rlist)
   del rlist
   return values
 
-def ngl_retrieve_colormap(wks):
-  return ngl_get_MDfloat_array(wks,"wkColorMap")
+def retrieve_colormap(wks):
+  return get_MDfloat_array(wks,"wkColorMap")
 
-def ngl_get_values(obj,rlistc):
+def get_values(obj,rlistc):
   rlist = crt_dict(rlistc)
-  values = NhlGetValues(ngl_int_id(obj),rlist)
+  values = NhlGetValues(int_id(obj),rlist)
   del rlist
   return (values)
 
-def ngl_destroy(obj):
-  NhlDestroy(ngl_int_id(obj))
+def destroy(obj):
+  NhlDestroy(int_id(obj))
 
-def ngl_clear_workstation(obj):
-  NhlClearWorkstation(ngl_int_id(obj))
+def clear_workstation(obj):
+  NhlClearWorkstation(int_id(obj))
 
-def ngl_update_workstation(obj):
-  NhlUpdateWorkstation(ngl_int_id(obj))
+def update_workstation(obj):
+  NhlUpdateWorkstation(int_id(obj))
 
-def ngl_get_float(obj,name):
-  return(NhlGetFloat(ngl_int_id(obj),name))
+def get_float(obj,name):
+  return(NhlGetFloat(int_id(obj),name))
 
-def ngl_get_integer(obj,name):
-  return(NhlGetInteger(ngl_int_id(obj),name))
+def get_integer(obj,name):
+  return(NhlGetInteger(int_id(obj),name))
 
-def ngl_get_string(obj,name):
-  return(NhlGetString(ngl_int_id(obj),name))
+def get_string(obj,name):
+  return(NhlGetString(int_id(obj),name))
 
-def ngl_get_double(obj,name):
-  return(NhlGetDouble(ngl_int_id(obj),name))
+def get_double(obj,name):
+  return(NhlGetDouble(int_id(obj),name))
 
-def ngl_get_integer_array(obj,name):
-  return(NhlGetIntegerArray(ngl_int_id(obj),name))
+def get_integer_array(obj,name):
+  return(NhlGetIntegerArray(int_id(obj),name))
 
-def ngl_get_float_array(obj,name):
-  return(NhlGetFloatArray(ngl_int_id(obj),name))
+def get_float_array(obj,name):
+  return(NhlGetFloatArray(int_id(obj),name))
 
-def ngl_get_double_array(obj,name):
-  return(NhlGetDoubleArray(ngl_int_id(obj),name))
+def get_double_array(obj,name):
+  return(NhlGetDoubleArray(int_id(obj),name))
 
-def ngl_get_string_array(obj,name):
-  return(NhlGetStringArray(ngl_int_id(obj),name))
+def get_string_array(obj,name):
+  return(NhlGetStringArray(int_id(obj),name))
 
-def ngl_get_MDfloat_array(obj,name):
-  rval = NhlGetMDFloatArray(ngl_int_id(obj),name)
+def get_MDfloat_array(obj,name):
+  rval = NhlGetMDFloatArray(int_id(obj),name)
   if (rval[0] != -1):
-    print "ngl_get_MDfloat_array: error number %d" % (rval[0])
+    print "get_MDfloat_array: error number %d" % (rval[0])
     return None
   return(rval[1])
 
-def ngl_get_MDdouble_array(obj,name):
-  return(NhlGetMDDoubleArray(ngl_int_id(obj),name))
+def get_MDdouble_array(obj,name):
+  return(NhlGetMDDoubleArray(int_id(obj),name))
 
-def ngl_get_MDinteger_array(obj,name):
-  return(NhlGetMDIntegerArray(ngl_int_id(obj),name))
+def get_MDinteger_array(obj,name):
+  return(NhlGetMDIntegerArray(int_id(obj),name))
 
-def ngl_frame(wks):
+def frame(wks):
   return(NhlFrame(wks))
 
-def ngl_draw(obj):
-  return(NhlDraw(ngl_int_id(obj)))
+def draw(obj):
+  return(NhlDraw(int_id(obj)))
 
 def get_tokens(line):
   tstart = []
@@ -1286,7 +1273,7 @@ def get_tokens(line):
   return tokens
 
 
-def ngl_asciiread(filename,dims,type):
+def asciiread(filename,dims,type):
   file = open(filename)
   nnum = 1
   for m in xrange(len(dims)):
@@ -1332,7 +1319,7 @@ def ngl_asciiread(filename,dims,type):
   file.close()
   return Numeric.reshape(ar,dims)
 
-def ngl_get_workspace_id():
+def get_workspace_id():
   return NhlGetWorkspaceObjectId()
 
 def rgbhls(r,g,b):

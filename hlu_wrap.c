@@ -1661,24 +1661,24 @@ extern void c_set(float,float,float,float,float,float,float,float,int);
 extern void c_cprect(float *,int,int,int,float *,int,int *,int);
 extern void c_cpcldr(float *,float *,int *);
 extern void c_plchhq(float,float,NhlString,float,float,float);
-extern int ngl_open_wks_wrap(char const *,char const *,ResInfo *);
-extern nglPlotId ngl_contour_wrap(int,void *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,void *,ResInfo *,ResInfo *,nglRes *);
-extern nglPlotId ngl_map_wrap(int,ResInfo *,nglRes *);
-extern nglPlotId ngl_contour_map_wrap(int,void *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,void *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
-extern nglPlotId ngl_xy_wrap(int,void *,void *,char const *,char const *,int,int *,int,int *,int,int,void *,void *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
-extern nglPlotId ngl_y_wrap(int,void *,char const *,int,int *,int,void *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
-extern nglPlotId ngl_vector_wrap(int,void *,void *,char const *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,int,void *,void *,ResInfo *,ResInfo *,nglRes *);
-extern nglPlotId ngl_vector_map_wrap(int,void *,void *,char const *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,int,void *,void *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
-extern nglPlotId ngl_vector_scalar_wrap(int,void *,void *,void *,char const *,char const *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,int,int,void *,void *,void *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
-extern nglPlotId ngl_vector_scalar_map_wrap(int,void *,void *,void *,char const *,char const *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,int,int,void *,void *,void *,ResInfo *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
-extern nglPlotId ngl_streamline_wrap(int,void *,void *,char const *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,int,void *,void *,ResInfo *,ResInfo *,nglRes *);
-extern nglPlotId ngl_streamline_map_wrap(int,void *,void *,char const *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,int,void *,void *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
-extern nglPlotId ngl_text_ndc_wrap(int,NhlString,void *,void *,char const *,char const *,ResInfo *,nglRes *);
-extern nglPlotId ngl_text_wrap(int,nglPlotId *,NhlString,void *,void *,char const *,char const *,ResInfo *,nglRes *);
-extern nglPlotId ngl_add_text_wrap(int,nglPlotId *,NhlString,void *,void *,char const *,char const *,ResInfo *,ResInfo *,nglRes *);
-extern void ngl_poly_wrap(int,nglPlotId *,void *,void *,char const *,char const *,int,int,int,void *,void *,NhlPolyType,ResInfo *,nglRes *);
-extern nglPlotId ngl_add_poly_wrap(int,nglPlotId *,void *,void *,char const *,char const *,int,int,int,void *,void *,NhlPolyType,ResInfo *,nglRes *);
-extern void ngl_draw_colormap_wrap(int);
+extern int open_wks_wrap(char const *,char const *,ResInfo *);
+extern nglPlotId contour_wrap(int,void *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,void *,ResInfo *,ResInfo *,nglRes *);
+extern nglPlotId map_wrap(int,ResInfo *,nglRes *);
+extern nglPlotId contour_map_wrap(int,void *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,void *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
+extern nglPlotId xy_wrap(int,void *,void *,char const *,char const *,int,int *,int,int *,int,int,void *,void *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
+extern nglPlotId y_wrap(int,void *,char const *,int,int *,int,void *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
+extern nglPlotId vector_wrap(int,void *,void *,char const *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,int,void *,void *,ResInfo *,ResInfo *,nglRes *);
+extern nglPlotId vector_map_wrap(int,void *,void *,char const *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,int,void *,void *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
+extern nglPlotId vector_scalar_wrap(int,void *,void *,void *,char const *,char const *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,int,int,void *,void *,void *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
+extern nglPlotId vector_scalar_map_wrap(int,void *,void *,void *,char const *,char const *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,int,int,void *,void *,void *,ResInfo *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
+extern nglPlotId streamline_wrap(int,void *,void *,char const *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,int,void *,void *,ResInfo *,ResInfo *,nglRes *);
+extern nglPlotId streamline_map_wrap(int,void *,void *,char const *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,int,void *,void *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
+extern nglPlotId text_ndc_wrap(int,NhlString,void *,void *,char const *,char const *,ResInfo *,nglRes *);
+extern nglPlotId text_wrap(int,nglPlotId *,NhlString,void *,void *,char const *,char const *,ResInfo *,nglRes *);
+extern nglPlotId add_text_wrap(int,nglPlotId *,NhlString,void *,void *,char const *,char const *,ResInfo *,ResInfo *,nglRes *);
+extern void poly_wrap(int,nglPlotId *,void *,void *,char const *,char const *,int,int,int,void *,void *,NhlPolyType,ResInfo *,nglRes *);
+extern nglPlotId add_poly_wrap(int,nglPlotId *,void *,void *,char const *,char const *,int,int,int,void *,void *,NhlPolyType,ResInfo *,nglRes *);
+extern void draw_colormap_wrap(int);
 extern void natgridc(int,float *,float *,float *,int,int,float *,float *,int *,int,int,float *[]);
 extern PyObject *ftcurvc(int,float *,float *,int,float *);
 extern PyObject *ftcurvpc(int,float *,float *,float,int,float *);
@@ -4698,7 +4698,7 @@ static PyObject *_wrap_c_plchhq(PyObject *self, PyObject *args) {
 }
 
 
-static PyObject *_wrap_ngl_open_wks_wrap(PyObject *self, PyObject *args) {
+static PyObject *_wrap_open_wks_wrap(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     char *arg1 ;
     char *arg2 ;
@@ -4706,7 +4706,7 @@ static PyObject *_wrap_ngl_open_wks_wrap(PyObject *self, PyObject *args) {
     int result;
     PyObject * obj2  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"ssO:ngl_open_wks_wrap",&arg1,&arg2,&obj2)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"ssO:open_wks_wrap",&arg1,&arg2,&obj2)) goto fail;
     {
         int i,pos=0,list_type,list_len,count;
         PyObject *key,*value;
@@ -4974,7 +4974,7 @@ static PyObject *_wrap_ngl_open_wks_wrap(PyObject *self, PyObject *args) {
         trname.id = rlist;
         arg3 = (ResInfo *) &trname;
     }
-    result = (int)ngl_open_wks_wrap((char const *)arg1,(char const *)arg2,arg3);
+    result = (int)open_wks_wrap((char const *)arg1,(char const *)arg2,arg3);
     
     resultobj = PyInt_FromLong((long)result);
     return resultobj;
@@ -4983,7 +4983,7 @@ static PyObject *_wrap_ngl_open_wks_wrap(PyObject *self, PyObject *args) {
 }
 
 
-static PyObject *_wrap_ngl_contour_wrap(PyObject *self, PyObject *args) {
+static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     int arg1 ;
     void *arg2 = (void *) 0 ;
@@ -5010,7 +5010,7 @@ static PyObject *_wrap_ngl_contour_wrap(PyObject *self, PyObject *args) {
     PyObject * obj14  = 0 ;
     PyObject * obj15  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"iOsiiiOsiOsiOOOO:ngl_contour_wrap",&arg1,&obj1,&arg3,&arg4,&arg5,&arg6,&obj6,&arg8,&arg9,&obj9,&arg11,&arg12,&obj12,&obj13,&obj14,&obj15)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"iOsiiiOsiOsiOOOO:contour_wrap",&arg1,&obj1,&arg3,&arg4,&arg5,&arg6,&obj6,&arg8,&arg9,&obj9,&arg11,&arg12,&obj12,&obj13,&obj14,&obj15)) goto fail;
     {
         PyArrayObject *arr;
         arr =
@@ -5557,7 +5557,7 @@ static PyObject *_wrap_ngl_contour_wrap(PyObject *self, PyObject *args) {
     {
         arg16 = (void *) &nglRlist;
     }
-    result = ngl_contour_wrap(arg1,arg2,(char const *)arg3,arg4,arg5,arg6,arg7,(char const *)arg8,arg9,arg10,(char const *)arg11,arg12,arg13,arg14,arg15,arg16);
+    result = contour_wrap(arg1,arg2,(char const *)arg3,arg4,arg5,arg6,arg7,(char const *)arg8,arg9,arg10,(char const *)arg11,arg12,arg13,arg14,arg15,arg16);
     
     {
         PyObject *return_list;
@@ -5711,7 +5711,7 @@ static PyObject *_wrap_ngl_contour_wrap(PyObject *self, PyObject *args) {
 }
 
 
-static PyObject *_wrap_ngl_map_wrap(PyObject *self, PyObject *args) {
+static PyObject *_wrap_map_wrap(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     int arg1 ;
     ResInfo *arg2 = (ResInfo *) 0 ;
@@ -5720,7 +5720,7 @@ static PyObject *_wrap_ngl_map_wrap(PyObject *self, PyObject *args) {
     PyObject * obj1  = 0 ;
     PyObject * obj2  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"iOO:ngl_map_wrap",&arg1,&obj1,&obj2)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"iOO:map_wrap",&arg1,&obj1,&obj2)) goto fail;
     {
         int i,pos=0,list_type,list_len,count;
         PyObject *key,*value;
@@ -5991,7 +5991,7 @@ static PyObject *_wrap_ngl_map_wrap(PyObject *self, PyObject *args) {
     {
         arg3 = (void *) &nglRlist;
     }
-    result = ngl_map_wrap(arg1,arg2,arg3);
+    result = map_wrap(arg1,arg2,arg3);
     
     {
         PyObject *return_list;
@@ -6145,7 +6145,7 @@ static PyObject *_wrap_ngl_map_wrap(PyObject *self, PyObject *args) {
 }
 
 
-static PyObject *_wrap_ngl_contour_map_wrap(PyObject *self, PyObject *args) {
+static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     int arg1 ;
     void *arg2 = (void *) 0 ;
@@ -6174,7 +6174,7 @@ static PyObject *_wrap_ngl_contour_map_wrap(PyObject *self, PyObject *args) {
     PyObject * obj15  = 0 ;
     PyObject * obj16  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"iOsiiiOsiOsiOOOOO:ngl_contour_map_wrap",&arg1,&obj1,&arg3,&arg4,&arg5,&arg6,&obj6,&arg8,&arg9,&obj9,&arg11,&arg12,&obj12,&obj13,&obj14,&obj15,&obj16)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"iOsiiiOsiOsiOOOOO:contour_map_wrap",&arg1,&obj1,&arg3,&arg4,&arg5,&arg6,&obj6,&arg8,&arg9,&obj9,&arg11,&arg12,&obj12,&obj13,&obj14,&obj15,&obj16)) goto fail;
     {
         PyArrayObject *arr;
         arr =
@@ -6988,7 +6988,7 @@ static PyObject *_wrap_ngl_contour_map_wrap(PyObject *self, PyObject *args) {
     {
         arg17 = (void *) &nglRlist;
     }
-    result = ngl_contour_map_wrap(arg1,arg2,(char const *)arg3,arg4,arg5,arg6,arg7,(char const *)arg8,arg9,arg10,(char const *)arg11,arg12,arg13,arg14,arg15,arg16,arg17);
+    result = contour_map_wrap(arg1,arg2,(char const *)arg3,arg4,arg5,arg6,arg7,(char const *)arg8,arg9,arg10,(char const *)arg11,arg12,arg13,arg14,arg15,arg16,arg17);
     
     {
         PyObject *return_list;
@@ -7142,7 +7142,7 @@ static PyObject *_wrap_ngl_contour_map_wrap(PyObject *self, PyObject *args) {
 }
 
 
-static PyObject *_wrap_ngl_xy_wrap(PyObject *self, PyObject *args) {
+static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     int arg1 ;
     void *arg2 = (void *) 0 ;
@@ -7173,7 +7173,7 @@ static PyObject *_wrap_ngl_xy_wrap(PyObject *self, PyObject *args) {
     PyObject * obj15  = 0 ;
     PyObject * obj16  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"iOOssiOiOiiOOOOOO:ngl_xy_wrap",&arg1,&obj1,&obj2,&arg4,&arg5,&arg6,&obj6,&arg8,&obj8,&arg10,&arg11,&obj11,&obj12,&obj13,&obj14,&obj15,&obj16)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"iOOssiOiOiiOOOOOO:xy_wrap",&arg1,&obj1,&obj2,&arg4,&arg5,&arg6,&obj6,&arg8,&obj8,&arg10,&arg11,&obj11,&obj12,&obj13,&obj14,&obj15,&obj16)) goto fail;
     {
         PyArrayObject *arr;
         arr =
@@ -8004,7 +8004,7 @@ static PyObject *_wrap_ngl_xy_wrap(PyObject *self, PyObject *args) {
     {
         arg17 = (void *) &nglRlist;
     }
-    result = ngl_xy_wrap(arg1,arg2,arg3,(char const *)arg4,(char const *)arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13,arg14,arg15,arg16,arg17);
+    result = xy_wrap(arg1,arg2,arg3,(char const *)arg4,(char const *)arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13,arg14,arg15,arg16,arg17);
     
     {
         PyObject *return_list;
@@ -8158,7 +8158,7 @@ static PyObject *_wrap_ngl_xy_wrap(PyObject *self, PyObject *args) {
 }
 
 
-static PyObject *_wrap_ngl_y_wrap(PyObject *self, PyObject *args) {
+static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     int arg1 ;
     void *arg2 = (void *) 0 ;
@@ -8180,7 +8180,7 @@ static PyObject *_wrap_ngl_y_wrap(PyObject *self, PyObject *args) {
     PyObject * obj9  = 0 ;
     PyObject * obj10  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"iOsiOiOOOOO:ngl_y_wrap",&arg1,&obj1,&arg3,&arg4,&obj4,&arg6,&obj6,&obj7,&obj8,&obj9,&obj10)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"iOsiOiOOOOO:y_wrap",&arg1,&obj1,&arg3,&arg4,&obj4,&arg6,&obj6,&obj7,&obj8,&obj9,&obj10)) goto fail;
     {
         PyArrayObject *arr;
         arr =
@@ -8998,7 +8998,7 @@ static PyObject *_wrap_ngl_y_wrap(PyObject *self, PyObject *args) {
     {
         arg11 = (void *) &nglRlist;
     }
-    result = ngl_y_wrap(arg1,arg2,(char const *)arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11);
+    result = y_wrap(arg1,arg2,(char const *)arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11);
     
     {
         PyObject *return_list;
@@ -9152,7 +9152,7 @@ static PyObject *_wrap_ngl_y_wrap(PyObject *self, PyObject *args) {
 }
 
 
-static PyObject *_wrap_ngl_vector_wrap(PyObject *self, PyObject *args) {
+static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     int arg1 ;
     void *arg2 = (void *) 0 ;
@@ -9185,7 +9185,7 @@ static PyObject *_wrap_ngl_vector_wrap(PyObject *self, PyObject *args) {
     PyObject * obj18  = 0 ;
     PyObject * obj19  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"iOOssiiiOsiOsiiOOOOO:ngl_vector_wrap",&arg1,&obj1,&obj2,&arg4,&arg5,&arg6,&arg7,&arg8,&obj8,&arg10,&arg11,&obj11,&arg13,&arg14,&arg15,&obj15,&obj16,&obj17,&obj18,&obj19)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"iOOssiiiOsiOsiiOOOOO:vector_wrap",&arg1,&obj1,&obj2,&arg4,&arg5,&arg6,&arg7,&arg8,&obj8,&arg10,&arg11,&obj11,&arg13,&arg14,&arg15,&obj15,&obj16,&obj17,&obj18,&obj19)) goto fail;
     {
         PyArrayObject *arr;
         arr =
@@ -9739,7 +9739,7 @@ static PyObject *_wrap_ngl_vector_wrap(PyObject *self, PyObject *args) {
     {
         arg20 = (void *) &nglRlist;
     }
-    result = ngl_vector_wrap(arg1,arg2,arg3,(char const *)arg4,(char const *)arg5,arg6,arg7,arg8,arg9,(char const *)arg10,arg11,arg12,(char const *)arg13,arg14,arg15,arg16,arg17,arg18,arg19,arg20);
+    result = vector_wrap(arg1,arg2,arg3,(char const *)arg4,(char const *)arg5,arg6,arg7,arg8,arg9,(char const *)arg10,arg11,arg12,(char const *)arg13,arg14,arg15,arg16,arg17,arg18,arg19,arg20);
     
     {
         PyObject *return_list;
@@ -9893,7 +9893,7 @@ static PyObject *_wrap_ngl_vector_wrap(PyObject *self, PyObject *args) {
 }
 
 
-static PyObject *_wrap_ngl_vector_map_wrap(PyObject *self, PyObject *args) {
+static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     int arg1 ;
     void *arg2 = (void *) 0 ;
@@ -9928,7 +9928,7 @@ static PyObject *_wrap_ngl_vector_map_wrap(PyObject *self, PyObject *args) {
     PyObject * obj19  = 0 ;
     PyObject * obj20  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"iOOssiiiOsiOsiiOOOOOO:ngl_vector_map_wrap",&arg1,&obj1,&obj2,&arg4,&arg5,&arg6,&arg7,&arg8,&obj8,&arg10,&arg11,&obj11,&arg13,&arg14,&arg15,&obj15,&obj16,&obj17,&obj18,&obj19,&obj20)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"iOOssiiiOsiOsiiOOOOOO:vector_map_wrap",&arg1,&obj1,&obj2,&arg4,&arg5,&arg6,&arg7,&arg8,&obj8,&arg10,&arg11,&obj11,&arg13,&arg14,&arg15,&obj15,&obj16,&obj17,&obj18,&obj19,&obj20)) goto fail;
     {
         PyArrayObject *arr;
         arr =
@@ -10749,7 +10749,7 @@ static PyObject *_wrap_ngl_vector_map_wrap(PyObject *self, PyObject *args) {
     {
         arg21 = (void *) &nglRlist;
     }
-    result = ngl_vector_map_wrap(arg1,arg2,arg3,(char const *)arg4,(char const *)arg5,arg6,arg7,arg8,arg9,(char const *)arg10,arg11,arg12,(char const *)arg13,arg14,arg15,arg16,arg17,arg18,arg19,arg20,arg21);
+    result = vector_map_wrap(arg1,arg2,arg3,(char const *)arg4,(char const *)arg5,arg6,arg7,arg8,arg9,(char const *)arg10,arg11,arg12,(char const *)arg13,arg14,arg15,arg16,arg17,arg18,arg19,arg20,arg21);
     
     {
         PyObject *return_list;
@@ -10903,7 +10903,7 @@ static PyObject *_wrap_ngl_vector_map_wrap(PyObject *self, PyObject *args) {
 }
 
 
-static PyObject *_wrap_ngl_vector_scalar_wrap(PyObject *self, PyObject *args) {
+static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     int arg1 ;
     void *arg2 = (void *) 0 ;
@@ -10944,7 +10944,7 @@ static PyObject *_wrap_ngl_vector_scalar_wrap(PyObject *self, PyObject *args) {
     PyObject * obj23  = 0 ;
     PyObject * obj24  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"iOOOsssiiiOsiOsiiiOOOOOOO:ngl_vector_scalar_wrap",&arg1,&obj1,&obj2,&obj3,&arg5,&arg6,&arg7,&arg8,&arg9,&arg10,&obj10,&arg12,&arg13,&obj13,&arg15,&arg16,&arg17,&arg18,&obj18,&obj19,&obj20,&obj21,&obj22,&obj23,&obj24)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"iOOOsssiiiOsiOsiiiOOOOOOO:vector_scalar_wrap",&arg1,&obj1,&obj2,&obj3,&arg5,&arg6,&arg7,&arg8,&arg9,&arg10,&obj10,&arg12,&arg13,&obj13,&arg15,&arg16,&arg17,&arg18,&obj18,&obj19,&obj20,&obj21,&obj22,&obj23,&obj24)) goto fail;
     {
         PyArrayObject *arr;
         arr =
@@ -11772,7 +11772,7 @@ static PyObject *_wrap_ngl_vector_scalar_wrap(PyObject *self, PyObject *args) {
     {
         arg25 = (void *) &nglRlist;
     }
-    result = ngl_vector_scalar_wrap(arg1,arg2,arg3,arg4,(char const *)arg5,(char const *)arg6,(char const *)arg7,arg8,arg9,arg10,arg11,(char const *)arg12,arg13,arg14,(char const *)arg15,arg16,arg17,arg18,arg19,arg20,arg21,arg22,arg23,arg24,arg25);
+    result = vector_scalar_wrap(arg1,arg2,arg3,arg4,(char const *)arg5,(char const *)arg6,(char const *)arg7,arg8,arg9,arg10,arg11,(char const *)arg12,arg13,arg14,(char const *)arg15,arg16,arg17,arg18,arg19,arg20,arg21,arg22,arg23,arg24,arg25);
     
     {
         PyObject *return_list;
@@ -11926,7 +11926,7 @@ static PyObject *_wrap_ngl_vector_scalar_wrap(PyObject *self, PyObject *args) {
 }
 
 
-static PyObject *_wrap_ngl_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
+static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     int arg1 ;
     void *arg2 = (void *) 0 ;
@@ -11969,7 +11969,7 @@ static PyObject *_wrap_ngl_vector_scalar_map_wrap(PyObject *self, PyObject *args
     PyObject * obj24  = 0 ;
     PyObject * obj25  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"iOOOsssiiiOsiOsiiiOOOOOOOO:ngl_vector_scalar_map_wrap",&arg1,&obj1,&obj2,&obj3,&arg5,&arg6,&arg7,&arg8,&arg9,&arg10,&obj10,&arg12,&arg13,&obj13,&arg15,&arg16,&arg17,&arg18,&obj18,&obj19,&obj20,&obj21,&obj22,&obj23,&obj24,&obj25)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"iOOOsssiiiOsiOsiiiOOOOOOOO:vector_scalar_map_wrap",&arg1,&obj1,&obj2,&obj3,&arg5,&arg6,&arg7,&arg8,&arg9,&arg10,&obj10,&arg12,&arg13,&obj13,&arg15,&arg16,&arg17,&arg18,&obj18,&obj19,&obj20,&obj21,&obj22,&obj23,&obj24,&obj25)) goto fail;
     {
         PyArrayObject *arr;
         arr =
@@ -13064,7 +13064,7 @@ static PyObject *_wrap_ngl_vector_scalar_map_wrap(PyObject *self, PyObject *args
     {
         arg26 = (void *) &nglRlist;
     }
-    result = ngl_vector_scalar_map_wrap(arg1,arg2,arg3,arg4,(char const *)arg5,(char const *)arg6,(char const *)arg7,arg8,arg9,arg10,arg11,(char const *)arg12,arg13,arg14,(char const *)arg15,arg16,arg17,arg18,arg19,arg20,arg21,arg22,arg23,arg24,arg25,arg26);
+    result = vector_scalar_map_wrap(arg1,arg2,arg3,arg4,(char const *)arg5,(char const *)arg6,(char const *)arg7,arg8,arg9,arg10,arg11,(char const *)arg12,arg13,arg14,(char const *)arg15,arg16,arg17,arg18,arg19,arg20,arg21,arg22,arg23,arg24,arg25,arg26);
     
     {
         PyObject *return_list;
@@ -13218,7 +13218,7 @@ static PyObject *_wrap_ngl_vector_scalar_map_wrap(PyObject *self, PyObject *args
 }
 
 
-static PyObject *_wrap_ngl_streamline_wrap(PyObject *self, PyObject *args) {
+static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     int arg1 ;
     void *arg2 = (void *) 0 ;
@@ -13251,7 +13251,7 @@ static PyObject *_wrap_ngl_streamline_wrap(PyObject *self, PyObject *args) {
     PyObject * obj18  = 0 ;
     PyObject * obj19  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"iOOssiiiOsiOsiiOOOOO:ngl_streamline_wrap",&arg1,&obj1,&obj2,&arg4,&arg5,&arg6,&arg7,&arg8,&obj8,&arg10,&arg11,&obj11,&arg13,&arg14,&arg15,&obj15,&obj16,&obj17,&obj18,&obj19)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"iOOssiiiOsiOsiiOOOOO:streamline_wrap",&arg1,&obj1,&obj2,&arg4,&arg5,&arg6,&arg7,&arg8,&obj8,&arg10,&arg11,&obj11,&arg13,&arg14,&arg15,&obj15,&obj16,&obj17,&obj18,&obj19)) goto fail;
     {
         PyArrayObject *arr;
         arr =
@@ -13805,7 +13805,7 @@ static PyObject *_wrap_ngl_streamline_wrap(PyObject *self, PyObject *args) {
     {
         arg20 = (void *) &nglRlist;
     }
-    result = ngl_streamline_wrap(arg1,arg2,arg3,(char const *)arg4,(char const *)arg5,arg6,arg7,arg8,arg9,(char const *)arg10,arg11,arg12,(char const *)arg13,arg14,arg15,arg16,arg17,arg18,arg19,arg20);
+    result = streamline_wrap(arg1,arg2,arg3,(char const *)arg4,(char const *)arg5,arg6,arg7,arg8,arg9,(char const *)arg10,arg11,arg12,(char const *)arg13,arg14,arg15,arg16,arg17,arg18,arg19,arg20);
     
     {
         PyObject *return_list;
@@ -13959,7 +13959,7 @@ static PyObject *_wrap_ngl_streamline_wrap(PyObject *self, PyObject *args) {
 }
 
 
-static PyObject *_wrap_ngl_streamline_map_wrap(PyObject *self, PyObject *args) {
+static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     int arg1 ;
     void *arg2 = (void *) 0 ;
@@ -13994,7 +13994,7 @@ static PyObject *_wrap_ngl_streamline_map_wrap(PyObject *self, PyObject *args) {
     PyObject * obj19  = 0 ;
     PyObject * obj20  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"iOOssiiiOsiOsiiOOOOOO:ngl_streamline_map_wrap",&arg1,&obj1,&obj2,&arg4,&arg5,&arg6,&arg7,&arg8,&obj8,&arg10,&arg11,&obj11,&arg13,&arg14,&arg15,&obj15,&obj16,&obj17,&obj18,&obj19,&obj20)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"iOOssiiiOsiOsiiOOOOOO:streamline_map_wrap",&arg1,&obj1,&obj2,&arg4,&arg5,&arg6,&arg7,&arg8,&obj8,&arg10,&arg11,&obj11,&arg13,&arg14,&arg15,&obj15,&obj16,&obj17,&obj18,&obj19,&obj20)) goto fail;
     {
         PyArrayObject *arr;
         arr =
@@ -14815,7 +14815,7 @@ static PyObject *_wrap_ngl_streamline_map_wrap(PyObject *self, PyObject *args) {
     {
         arg21 = (void *) &nglRlist;
     }
-    result = ngl_streamline_map_wrap(arg1,arg2,arg3,(char const *)arg4,(char const *)arg5,arg6,arg7,arg8,arg9,(char const *)arg10,arg11,arg12,(char const *)arg13,arg14,arg15,arg16,arg17,arg18,arg19,arg20,arg21);
+    result = streamline_map_wrap(arg1,arg2,arg3,(char const *)arg4,(char const *)arg5,arg6,arg7,arg8,arg9,(char const *)arg10,arg11,arg12,(char const *)arg13,arg14,arg15,arg16,arg17,arg18,arg19,arg20,arg21);
     
     {
         PyObject *return_list;
@@ -14969,7 +14969,7 @@ static PyObject *_wrap_ngl_streamline_map_wrap(PyObject *self, PyObject *args) {
 }
 
 
-static PyObject *_wrap_ngl_text_ndc_wrap(PyObject *self, PyObject *args) {
+static PyObject *_wrap_text_ndc_wrap(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     int arg1 ;
     NhlString arg2 ;
@@ -14985,7 +14985,7 @@ static PyObject *_wrap_ngl_text_ndc_wrap(PyObject *self, PyObject *args) {
     PyObject * obj6  = 0 ;
     PyObject * obj7  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"isOOssOO:ngl_text_ndc_wrap",&arg1,&arg2,&obj2,&obj3,&arg5,&arg6,&obj6,&obj7)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"isOOssOO:text_ndc_wrap",&arg1,&arg2,&obj2,&obj3,&arg5,&arg6,&obj6,&obj7)) goto fail;
     {
         PyArrayObject *arr;
         arr =
@@ -15268,7 +15268,7 @@ static PyObject *_wrap_ngl_text_ndc_wrap(PyObject *self, PyObject *args) {
     {
         arg8 = (void *) &nglRlist;
     }
-    result = ngl_text_ndc_wrap(arg1,arg2,arg3,arg4,(char const *)arg5,(char const *)arg6,arg7,arg8);
+    result = text_ndc_wrap(arg1,arg2,arg3,arg4,(char const *)arg5,(char const *)arg6,arg7,arg8);
     
     {
         PyObject *return_list;
@@ -15422,7 +15422,7 @@ static PyObject *_wrap_ngl_text_ndc_wrap(PyObject *self, PyObject *args) {
 }
 
 
-static PyObject *_wrap_ngl_text_wrap(PyObject *self, PyObject *args) {
+static PyObject *_wrap_text_wrap(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     int arg1 ;
     nglPlotId *arg2 = (nglPlotId *) 0 ;
@@ -15440,7 +15440,7 @@ static PyObject *_wrap_ngl_text_wrap(PyObject *self, PyObject *args) {
     PyObject * obj7  = 0 ;
     PyObject * obj8  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"iOsOOssOO:ngl_text_wrap",&arg1,&obj1,&arg3,&obj3,&obj4,&arg6,&arg7,&obj7,&obj8)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"iOsOOssOO:text_wrap",&arg1,&obj1,&arg3,&obj3,&obj4,&arg6,&arg7,&obj7,&obj8)) goto fail;
     {
         int i;
         nglPlotId inlist;
@@ -15968,7 +15968,7 @@ static PyObject *_wrap_ngl_text_wrap(PyObject *self, PyObject *args) {
     {
         arg9 = (void *) &nglRlist;
     }
-    result = ngl_text_wrap(arg1,arg2,arg3,arg4,arg5,(char const *)arg6,(char const *)arg7,arg8,arg9);
+    result = text_wrap(arg1,arg2,arg3,arg4,arg5,(char const *)arg6,(char const *)arg7,arg8,arg9);
     
     {
         PyObject *return_list;
@@ -16122,7 +16122,7 @@ static PyObject *_wrap_ngl_text_wrap(PyObject *self, PyObject *args) {
 }
 
 
-static PyObject *_wrap_ngl_add_text_wrap(PyObject *self, PyObject *args) {
+static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     int arg1 ;
     nglPlotId *arg2 = (nglPlotId *) 0 ;
@@ -16142,7 +16142,7 @@ static PyObject *_wrap_ngl_add_text_wrap(PyObject *self, PyObject *args) {
     PyObject * obj8  = 0 ;
     PyObject * obj9  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"iOsOOssOOO:ngl_add_text_wrap",&arg1,&obj1,&arg3,&obj3,&obj4,&arg6,&arg7,&obj7,&obj8,&obj9)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"iOsOOssOOO:add_text_wrap",&arg1,&obj1,&arg3,&obj3,&obj4,&arg6,&arg7,&obj7,&obj8,&obj9)) goto fail;
     {
         int i;
         nglPlotId inlist;
@@ -16937,7 +16937,7 @@ static PyObject *_wrap_ngl_add_text_wrap(PyObject *self, PyObject *args) {
     {
         arg10 = (void *) &nglRlist;
     }
-    result = ngl_add_text_wrap(arg1,arg2,arg3,arg4,arg5,(char const *)arg6,(char const *)arg7,arg8,arg9,arg10);
+    result = add_text_wrap(arg1,arg2,arg3,arg4,arg5,(char const *)arg6,(char const *)arg7,arg8,arg9,arg10);
     
     {
         PyObject *return_list;
@@ -17091,7 +17091,7 @@ static PyObject *_wrap_ngl_add_text_wrap(PyObject *self, PyObject *args) {
 }
 
 
-static PyObject *_wrap_ngl_poly_wrap(PyObject *self, PyObject *args) {
+static PyObject *_wrap_poly_wrap(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     int arg1 ;
     nglPlotId *arg2 = (nglPlotId *) 0 ;
@@ -17115,7 +17115,7 @@ static PyObject *_wrap_ngl_poly_wrap(PyObject *self, PyObject *args) {
     PyObject * obj12  = 0 ;
     PyObject * obj13  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"iOOOssiiiOOiOO:ngl_poly_wrap",&arg1,&obj1,&obj2,&obj3,&arg5,&arg6,&arg7,&arg8,&arg9,&obj9,&obj10,&arg12,&obj12,&obj13)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"iOOOssiiiOOiOO:poly_wrap",&arg1,&obj1,&obj2,&obj3,&arg5,&arg6,&arg7,&arg8,&arg9,&obj9,&obj10,&arg12,&obj12,&obj13)) goto fail;
     {
         int i;
         nglPlotId inlist;
@@ -17645,7 +17645,7 @@ static PyObject *_wrap_ngl_poly_wrap(PyObject *self, PyObject *args) {
     {
         arg14 = (void *) &nglRlist;
     }
-    ngl_poly_wrap(arg1,arg2,arg3,arg4,(char const *)arg5,(char const *)arg6,arg7,arg8,arg9,arg10,arg11,(NhlPolyType )arg12,arg13,arg14);
+    poly_wrap(arg1,arg2,arg3,arg4,(char const *)arg5,(char const *)arg6,arg7,arg8,arg9,arg10,arg11,(NhlPolyType )arg12,arg13,arg14);
     
     Py_INCREF(Py_None); resultobj = Py_None;
     return resultobj;
@@ -17654,7 +17654,7 @@ static PyObject *_wrap_ngl_poly_wrap(PyObject *self, PyObject *args) {
 }
 
 
-static PyObject *_wrap_ngl_add_poly_wrap(PyObject *self, PyObject *args) {
+static PyObject *_wrap_add_poly_wrap(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     int arg1 ;
     nglPlotId *arg2 = (nglPlotId *) 0 ;
@@ -17679,7 +17679,7 @@ static PyObject *_wrap_ngl_add_poly_wrap(PyObject *self, PyObject *args) {
     PyObject * obj12  = 0 ;
     PyObject * obj13  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"iOOOssiiiOOiOO:ngl_add_poly_wrap",&arg1,&obj1,&obj2,&obj3,&arg5,&arg6,&arg7,&arg8,&arg9,&obj9,&obj10,&arg12,&obj12,&obj13)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"iOOOssiiiOOiOO:add_poly_wrap",&arg1,&obj1,&obj2,&obj3,&arg5,&arg6,&arg7,&arg8,&arg9,&obj9,&obj10,&arg12,&obj12,&obj13)) goto fail;
     {
         int i;
         nglPlotId inlist;
@@ -18209,7 +18209,7 @@ static PyObject *_wrap_ngl_add_poly_wrap(PyObject *self, PyObject *args) {
     {
         arg14 = (void *) &nglRlist;
     }
-    result = ngl_add_poly_wrap(arg1,arg2,arg3,arg4,(char const *)arg5,(char const *)arg6,arg7,arg8,arg9,arg10,arg11,(NhlPolyType )arg12,arg13,arg14);
+    result = add_poly_wrap(arg1,arg2,arg3,arg4,(char const *)arg5,(char const *)arg6,arg7,arg8,arg9,arg10,arg11,(NhlPolyType )arg12,arg13,arg14);
     
     {
         PyObject *return_list;
@@ -18363,7 +18363,7 @@ static PyObject *_wrap_ngl_add_poly_wrap(PyObject *self, PyObject *args) {
 }
 
 
-static PyObject *_wrap_ngl_panel_wrap(PyObject *self, PyObject *args) {
+static PyObject *_wrap_panel_wrap(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     int arg1 ;
     nglPlotId *arg2 = (nglPlotId *) 0 ;
@@ -18379,7 +18379,7 @@ static PyObject *_wrap_ngl_panel_wrap(PyObject *self, PyObject *args) {
     PyObject * obj6  = 0 ;
     PyObject * obj7  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"iOiOiOOO:ngl_panel_wrap",&arg1,&obj1,&arg3,&obj3,&arg5,&obj5,&obj6,&obj7)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"iOiOiOOO:panel_wrap",&arg1,&obj1,&arg3,&obj3,&arg5,&obj5,&obj6,&obj7)) goto fail;
     {
         nglPlotId *inlist;
         PyObject *ptmp;
@@ -19175,7 +19175,7 @@ static PyObject *_wrap_ngl_panel_wrap(PyObject *self, PyObject *args) {
     {
         arg8 = (void *) &nglRlist;
     }
-    ngl_panel_wrap(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);
+    panel_wrap(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);
     
     Py_INCREF(Py_None); resultobj = Py_None;
     return resultobj;
@@ -19184,12 +19184,12 @@ static PyObject *_wrap_ngl_panel_wrap(PyObject *self, PyObject *args) {
 }
 
 
-static PyObject *_wrap_ngl_draw_colormap_wrap(PyObject *self, PyObject *args) {
+static PyObject *_wrap_draw_colormap_wrap(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     int arg1 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"i:ngl_draw_colormap_wrap",&arg1)) goto fail;
-    ngl_draw_colormap_wrap(arg1);
+    if(!PyArg_ParseTuple(args,(char *)"i:draw_colormap_wrap",&arg1)) goto fail;
+    draw_colormap_wrap(arg1);
     
     Py_INCREF(Py_None); resultobj = Py_None;
     return resultobj;
@@ -19927,25 +19927,25 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"c_cprect", _wrap_c_cprect, METH_VARARGS },
 	 { (char *)"c_cpcldr", _wrap_c_cpcldr, METH_VARARGS },
 	 { (char *)"c_plchhq", _wrap_c_plchhq, METH_VARARGS },
-	 { (char *)"ngl_open_wks_wrap", _wrap_ngl_open_wks_wrap, METH_VARARGS },
-	 { (char *)"ngl_contour_wrap", _wrap_ngl_contour_wrap, METH_VARARGS },
-	 { (char *)"ngl_map_wrap", _wrap_ngl_map_wrap, METH_VARARGS },
-	 { (char *)"ngl_contour_map_wrap", _wrap_ngl_contour_map_wrap, METH_VARARGS },
-	 { (char *)"ngl_xy_wrap", _wrap_ngl_xy_wrap, METH_VARARGS },
-	 { (char *)"ngl_y_wrap", _wrap_ngl_y_wrap, METH_VARARGS },
-	 { (char *)"ngl_vector_wrap", _wrap_ngl_vector_wrap, METH_VARARGS },
-	 { (char *)"ngl_vector_map_wrap", _wrap_ngl_vector_map_wrap, METH_VARARGS },
-	 { (char *)"ngl_vector_scalar_wrap", _wrap_ngl_vector_scalar_wrap, METH_VARARGS },
-	 { (char *)"ngl_vector_scalar_map_wrap", _wrap_ngl_vector_scalar_map_wrap, METH_VARARGS },
-	 { (char *)"ngl_streamline_wrap", _wrap_ngl_streamline_wrap, METH_VARARGS },
-	 { (char *)"ngl_streamline_map_wrap", _wrap_ngl_streamline_map_wrap, METH_VARARGS },
-	 { (char *)"ngl_text_ndc_wrap", _wrap_ngl_text_ndc_wrap, METH_VARARGS },
-	 { (char *)"ngl_text_wrap", _wrap_ngl_text_wrap, METH_VARARGS },
-	 { (char *)"ngl_add_text_wrap", _wrap_ngl_add_text_wrap, METH_VARARGS },
-	 { (char *)"ngl_poly_wrap", _wrap_ngl_poly_wrap, METH_VARARGS },
-	 { (char *)"ngl_add_poly_wrap", _wrap_ngl_add_poly_wrap, METH_VARARGS },
-	 { (char *)"ngl_panel_wrap", _wrap_ngl_panel_wrap, METH_VARARGS },
-	 { (char *)"ngl_draw_colormap_wrap", _wrap_ngl_draw_colormap_wrap, METH_VARARGS },
+	 { (char *)"open_wks_wrap", _wrap_open_wks_wrap, METH_VARARGS },
+	 { (char *)"contour_wrap", _wrap_contour_wrap, METH_VARARGS },
+	 { (char *)"map_wrap", _wrap_map_wrap, METH_VARARGS },
+	 { (char *)"contour_map_wrap", _wrap_contour_map_wrap, METH_VARARGS },
+	 { (char *)"xy_wrap", _wrap_xy_wrap, METH_VARARGS },
+	 { (char *)"y_wrap", _wrap_y_wrap, METH_VARARGS },
+	 { (char *)"vector_wrap", _wrap_vector_wrap, METH_VARARGS },
+	 { (char *)"vector_map_wrap", _wrap_vector_map_wrap, METH_VARARGS },
+	 { (char *)"vector_scalar_wrap", _wrap_vector_scalar_wrap, METH_VARARGS },
+	 { (char *)"vector_scalar_map_wrap", _wrap_vector_scalar_map_wrap, METH_VARARGS },
+	 { (char *)"streamline_wrap", _wrap_streamline_wrap, METH_VARARGS },
+	 { (char *)"streamline_map_wrap", _wrap_streamline_map_wrap, METH_VARARGS },
+	 { (char *)"text_ndc_wrap", _wrap_text_ndc_wrap, METH_VARARGS },
+	 { (char *)"text_wrap", _wrap_text_wrap, METH_VARARGS },
+	 { (char *)"add_text_wrap", _wrap_add_text_wrap, METH_VARARGS },
+	 { (char *)"poly_wrap", _wrap_poly_wrap, METH_VARARGS },
+	 { (char *)"add_poly_wrap", _wrap_add_poly_wrap, METH_VARARGS },
+	 { (char *)"panel_wrap", _wrap_panel_wrap, METH_VARARGS },
+	 { (char *)"draw_colormap_wrap", _wrap_draw_colormap_wrap, METH_VARARGS },
 	 { (char *)"natgridc", _wrap_natgridc, METH_VARARGS },
 	 { (char *)"ftcurvc", _wrap_ftcurvc, METH_VARARGS },
 	 { (char *)"ftcurvpc", _wrap_ftcurvpc, METH_VARARGS },

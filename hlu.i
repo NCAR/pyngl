@@ -2215,7 +2215,7 @@ import_array();
   $1 = (float *) d2f(tdims, (double *) arr->data);
 }
 
-%typemap (in) nglRes *ngl_rlist {
+%typemap (in) nglRes *rlist {
   $1 = (void *) &nglRlist;
 }
 
@@ -3770,89 +3770,89 @@ extern void c_cprect(float *sequence_as_float, int, int, int, float *sequence_as
 extern void c_cpcldr(float *sequence_as_float, float *sequence_as_float, int *sequence_as_int);
 extern void c_plchhq(float, float, NhlString, float, float, float);
 
-extern int ngl_open_wks_wrap(const char *, const char *, ResInfo *rlist);
-extern nglPlotId ngl_contour_wrap(int, void *sequence_as_void, 
+extern int open_wks_wrap(const char *, const char *, ResInfo *rlist);
+extern nglPlotId contour_wrap(int, void *sequence_as_void, 
                             const char *, int, int,
                             int, void *, const char *, int, void *, 
                             const char *,
                             int, void *, ResInfo *rlist, ResInfo *rlist, 
-                            nglRes *ngl_rlist);
-extern nglPlotId ngl_map_wrap(int, ResInfo *rlist, nglRes *ngl_rlist);
-extern nglPlotId ngl_contour_map_wrap(int, void *sequence_as_void, 
+                            nglRes *rlist);
+extern nglPlotId map_wrap(int, ResInfo *rlist, nglRes *rlist);
+extern nglPlotId contour_map_wrap(int, void *sequence_as_void, 
                             const char *, int, int,
                             int, void *, const char *, int, void *, 
                             const char *, int,
                             void *, ResInfo *rlist, ResInfo *rlist, ResInfo *rlist,
-                            nglRes *ngl_rlist);
-extern nglPlotId ngl_xy_wrap(int, void *sequence_as_void, void *sequence_as_void, 
+                            nglRes *rlist);
+extern nglPlotId xy_wrap(int, void *sequence_as_void, void *sequence_as_void, 
                 const char *, const char *, int, int *sequence_as_int,
                 int, int *sequence_as_int, int, int, void *, void *,
-                ResInfo *rlist, ResInfo *rlist, ResInfo *rlist, nglRes *ngl_rlist);
-extern nglPlotId ngl_y_wrap(int, void *sequence_as_void, 
+                ResInfo *rlist, ResInfo *rlist, ResInfo *rlist, nglRes *rlist);
+extern nglPlotId y_wrap(int, void *sequence_as_void, 
                 const char *, int, int *sequence_as_int, int, void *,
-                ResInfo *rlist, ResInfo *rlist, ResInfo *rlist, nglRes *ngl_rlist);
-extern nglPlotId ngl_vector_wrap(int, void *sequence_as_void, 
+                ResInfo *rlist, ResInfo *rlist, ResInfo *rlist, nglRes *rlist);
+extern nglPlotId vector_wrap(int, void *sequence_as_void, 
                            void *sequence_as_void, const char *,
                            const char *, int, int, int, void *, 
                            const char *, int, void *, const char *, int, int,
                            void *, void *, ResInfo *rlist, ResInfo *rlist,
-                           nglRes *ngl_rlist);
-extern nglPlotId ngl_vector_map_wrap(int, void *sequence_as_void, 
+                           nglRes *rlist);
+extern nglPlotId vector_map_wrap(int, void *sequence_as_void, 
                            void *sequence_as_void, const char *, 
                            const char *, int, int, int, void *, 
                            const char *, int, void *, const char *, int, int, 
                            void *, void *, ResInfo *rlist, ResInfo *rlist, 
-                           ResInfo *rlist, nglRes *ngl_rlist);
-extern nglPlotId ngl_vector_scalar_wrap(int, void *sequence_as_void, 
+                           ResInfo *rlist, nglRes *rlist);
+extern nglPlotId vector_scalar_wrap(int, void *sequence_as_void, 
                            void *sequence_as_void,
                            void *sequence_as_void, const char *, 
                            const char *, const char *, int, int, int, void *, 
                            const char *, int, void *, const char *, int, int, 
                            int, void *, void *, void *, 
                            ResInfo *rlist, ResInfo *rlist, 
-                           ResInfo *rlist, nglRes *ngl_rlist);
-extern nglPlotId ngl_vector_scalar_map_wrap(int, void *sequence_as_void, 
+                           ResInfo *rlist, nglRes *rlist);
+extern nglPlotId vector_scalar_map_wrap(int, void *sequence_as_void, 
                            void *sequence_as_void, 
                            void *sequence_as_void, const char *, 
                            const char *, const char *, int, int, int, void *,
                            const char *, int, void *, const char *, int, int,
                            int, void *, void *, void *,
                            ResInfo *rlist, ResInfo *rlist, 
-                           ResInfo *rlist, ResInfo *rlist, nglRes *ngl_rlist);
-extern nglPlotId ngl_streamline_wrap(int, void *sequence_as_void, 
+                           ResInfo *rlist, ResInfo *rlist, nglRes *rlist);
+extern nglPlotId streamline_wrap(int, void *sequence_as_void, 
                            void *sequence_as_void, const char *,
                            const char *, int, int, int, void *,
                            const char *, int, void *, const char *, 
                            int, int,
                            void *, void *, ResInfo *rlist, ResInfo *rlist, 
-                           nglRes *ngl_rlist);
-extern nglPlotId ngl_streamline_map_wrap(int, void *sequence_as_void, 
+                           nglRes *rlist);
+extern nglPlotId streamline_map_wrap(int, void *sequence_as_void, 
                             void *sequence_as_void, const char *,
                             const char *, int, int, int, void *,
                             const char *, int, void *, const char *, 
                             int, int,
                             void *, void *, ResInfo *rlist, ResInfo *rlist, 
-                            ResInfo *rlist, nglRes *ngl_rlist);
-extern nglPlotId ngl_text_ndc_wrap(int, NhlString, void *sequence_as_void,
+                            ResInfo *rlist, nglRes *rlist);
+extern nglPlotId text_ndc_wrap(int, NhlString, void *sequence_as_void,
                              void *sequence_as_void, const char *,
-                             const char *, ResInfo *rlist, nglRes *ngl_rlist);
-extern nglPlotId ngl_text_wrap(int, nglPlotId *plot, NhlString, void *sequence_as_void,
+                             const char *, ResInfo *rlist, nglRes *rlist);
+extern nglPlotId text_wrap(int, nglPlotId *plot, NhlString, void *sequence_as_void,
                              void *sequence_as_void, const char *,
-                             const char *, ResInfo *rlist, nglRes *ngl_rlist);
-extern nglPlotId ngl_add_text_wrap(int, nglPlotId *plot, NhlString, void *sequence_as_void,
+                             const char *, ResInfo *rlist, nglRes *rlist);
+extern nglPlotId add_text_wrap(int, nglPlotId *plot, NhlString, void *sequence_as_void,
                              void *sequence_as_void, const char *,
                              const char *, ResInfo *rlist, ResInfo *rlist,
-                             nglRes *ngl_rlist);
-extern void ngl_poly_wrap(int, nglPlotId *plot, void *sequence_as_void, 
+                             nglRes *rlist);
+extern void poly_wrap(int, nglPlotId *plot, void *sequence_as_void, 
                        void *sequence_as_void, const char *type_x,
                        const char *type_y, int, int, int, void *, void*,
-                       NhlPolyType, ResInfo *rlist, nglRes *ngl_rlist);
-extern nglPlotId ngl_add_poly_wrap(int, nglPlotId *plot, void *sequence_as_void,                       void *sequence_as_void, const char *type_x,
+                       NhlPolyType, ResInfo *rlist, nglRes *rlist);
+extern nglPlotId add_poly_wrap(int, nglPlotId *plot, void *sequence_as_void,                       void *sequence_as_void, const char *type_x,
                        const char *type_y, int, int, int, void *, void*,
-                       NhlPolyType, ResInfo *rlist, nglRes *ngl_rlist);
-void ngl_panel_wrap(int, nglPlotId *plot_seq, int, int *sequence_as_int, int, 
-                 ResInfo *rlist, ResInfo *rlist, nglRes *ngl_rlist);
-extern void ngl_draw_colormap_wrap(int);
+                       NhlPolyType, ResInfo *rlist, nglRes *rlist);
+void panel_wrap(int, nglPlotId *plot_seq, int, int *sequence_as_int, int, 
+                 ResInfo *rlist, ResInfo *rlist, nglRes *rlist);
+extern void draw_colormap_wrap(int);
 extern void natgridc(int, float *sequence_as_float, float *sequence_as_float,
                        float *sequence_as_float, int, int, 
                        float *sequence_as_float, float *sequence_as_float,

@@ -112,7 +112,7 @@ typedef struct {
 
 /*
  * Define a structure to hold all the possible types of objects
- * that the ngl_* functions create.
+ * that the functions create.
  */
 
 typedef struct {
@@ -217,61 +217,61 @@ extern int vector_field(void *, void *, const char *, const char *, int,
  * Workstation routine.
  */
 
-extern int ngl_open_wks_wrap(const char *, const char *, ResInfo *);
+extern int open_wks_wrap(const char *, const char *, ResInfo *);
 
 /*
  * Plotting routines.
  */
 
-extern nglPlotId ngl_contour_wrap(int, void *, const char *, int, int, 
+extern nglPlotId contour_wrap(int, void *, const char *, int, int, 
                                   int, void *, const char *, int, void *, 
                                   const char *, int, void *, ResInfo *,
                                   ResInfo *, nglRes *);
 
-extern nglPlotId ngl_xy_wrap(int, void *, void *, const char *,
+extern nglPlotId xy_wrap(int, void *, void *, const char *,
                              const char *, int, int *, int, int *, int, int,
                              void *, void *, ResInfo *, ResInfo *,
                              ResInfo *, nglRes *);
 
-extern nglPlotId ngl_y_wrap(int, void *, const char *, int, int *, int, 
+extern nglPlotId y_wrap(int, void *, const char *, int, int *, int, 
                             void *, ResInfo *, ResInfo *, ResInfo *,
                             nglRes *);
 
-extern nglPlotId ngl_vector_wrap(int, void *, void *, const char *, 
+extern nglPlotId vector_wrap(int, void *, void *, const char *, 
                                  const char *, int, int, int, void *, 
                                  const char *, int, void *, const char *, 
                                  int, int, void *, void *, ResInfo *,
                                  ResInfo *, nglRes *);
 
-extern nglPlotId ngl_streamline_wrap(int, void *, void *, const char *, 
+extern nglPlotId streamline_wrap(int, void *, void *, const char *, 
                                      const char *, int, int, int, void *, 
                                      const char *, int, void *, 
                                      const char *, int, int, void *, void *,
                                      ResInfo *, ResInfo *, nglRes *);
 
-extern nglPlotId ngl_map_wrap(int, ResInfo *, nglRes *);
+extern nglPlotId map_wrap(int, ResInfo *, nglRes *);
 
-extern nglPlotId ngl_contour_map_wrap(int, void *, const char *, int, int, 
+extern nglPlotId contour_map_wrap(int, void *, const char *, int, int, 
                                       int, void *, const char *, int, 
                                       void *, const char *, int, void *, 
                                       ResInfo *, ResInfo *, ResInfo *,
                                       nglRes *);
 
-extern nglPlotId ngl_vector_map_wrap(int, void *, void *, const char *, 
+extern nglPlotId vector_map_wrap(int, void *, void *, const char *, 
                                      const char *, int, int, int, void *, 
                                      const char *, int, void *, 
                                      const char *, int, int, void *, void *,
                                      ResInfo *, ResInfo *, ResInfo *,
                                      nglRes *);
 
-extern nglPlotId ngl_streamline_map_wrap(int, void *, void *, const char *, 
+extern nglPlotId streamline_map_wrap(int, void *, void *, const char *, 
                                          const char *, int, int, int, 
                                          void *, const char *, int, void *,
                                          const char *, int, int, void *, 
                                          void *, ResInfo *, ResInfo *,
                                          ResInfo *, nglRes *);
 
-extern nglPlotId ngl_vector_scalar_wrap(int, void *, void *, void *, 
+extern nglPlotId vector_scalar_wrap(int, void *, void *, void *, 
                                         const char *, const char *, 
                                         const char *, int, int, int, 
                                         void *, const char *, int, void *, 
@@ -279,7 +279,7 @@ extern nglPlotId ngl_vector_scalar_wrap(int, void *, void *, void *,
                                         void *, void *, ResInfo *,
                                         ResInfo *, ResInfo *, nglRes *);
 
-extern nglPlotId ngl_vector_scalar_map_wrap(int, void *, void *, void *, 
+extern nglPlotId vector_scalar_map_wrap(int, void *, void *, void *, 
                                             const char *, const char *, 
                                             const char *, int, int, int,
                                             void *, const char *, int, 
@@ -292,11 +292,11 @@ extern nglPlotId ngl_vector_scalar_map_wrap(int, void *, void *, void *,
  * Text routines.
  */
 
-extern nglPlotId ngl_text_ndc_wrap(int, char *, void *, void *,
+extern nglPlotId text_ndc_wrap(int, char *, void *, void *,
                                    const char *, const char *, ResInfo *,
                                    nglRes *);
 
-extern nglPlotId ngl_text_wrap(int, nglPlotId *, char *, void *, void *,
+extern nglPlotId text_wrap(int, nglPlotId *, char *, void *, void *,
                                const char *, const char *, ResInfo *,
                                nglRes *);
 
@@ -304,61 +304,61 @@ extern nglPlotId ngl_text_wrap(int, nglPlotId *, char *, void *, void *,
  * Primitive drawing routines.
  */
 
-extern void ngl_poly_wrap(int, nglPlotId *, void *, void *,
+extern void poly_wrap(int, nglPlotId *, void *, void *,
                           const char *type_x, const char *type_y, int, int,
                           int, void *, void*, NhlPolyType, ResInfo *,
                           nglRes *);
 
 
-extern nglPlotId ngl_add_poly_wrap(int, nglPlotId *, void *, void *, 
+extern nglPlotId add_poly_wrap(int, nglPlotId *, void *, void *, 
                                    const char *, const char *, int, int,
                                    int, void *, void *,NhlPolyType,
                                    ResInfo *, nglRes *);
 
-extern void ngl_polymarker_ndc_wrap(int, void *, void *, const char *, 
+extern void polymarker_ndc_wrap(int, void *, void *, const char *, 
                                     const char *, int, int, int, void *,
                                     void *, ResInfo *, nglRes *);
 
-extern void ngl_polyline_ndc_wrap(int, void *, void *, const char *, 
+extern void polyline_ndc_wrap(int, void *, void *, const char *, 
                                   const char *, int, int, int, void *,
                                   void *, ResInfo *, nglRes *);
 
-extern void ngl_polygon_ndc_wrap(int, void *, void *, const char *, 
+extern void polygon_ndc_wrap(int, void *, void *, const char *, 
                                  const char *, int, int, int, void *, 
                                  void *, ResInfo *, nglRes *);
 
-extern void ngl_polymarker_wrap(int, nglPlotId *, void *, void *,
+extern void polymarker_wrap(int, nglPlotId *, void *, void *,
                                 const char *, const char *, int, int, int,
                                 void *, void *, ResInfo *, nglRes *);
 
-extern void ngl_polyline_wrap(int, nglPlotId *, void *, void *,
+extern void polyline_wrap(int, nglPlotId *, void *, void *,
                               const char *,  const char *, int, int, int,
                               void *, void *, ResInfo *, nglRes *);
 
-extern void ngl_polygon_wrap(int, nglPlotId *, void *, void *, const char *, 
+extern void polygon_wrap(int, nglPlotId *, void *, void *, const char *, 
                              const char *, int, int, int, void *, void *, 
                              ResInfo *, nglRes *);
 
-extern nglPlotId ngl_add_polyline_wrap(int, nglPlotId *, void *, void *, 
+extern nglPlotId add_polyline_wrap(int, nglPlotId *, void *, void *, 
                                        const char *, const char *, int, int, 
                                        int, void *, void *, ResInfo*,
                                        nglRes *);
 
-extern nglPlotId ngl_add_polymarker_wrap(int, nglPlotId *, void *, void *, 
+extern nglPlotId add_polymarker_wrap(int, nglPlotId *, void *, void *, 
                                          const char *, const char *, int, 
                                          int, int, void *, void *,
                                          ResInfo *, nglRes *);
 
-extern nglPlotId ngl_add_polygon_wrap(int, nglPlotId *, void *, void *, 
+extern nglPlotId add_polygon_wrap(int, nglPlotId *, void *, void *, 
                                       const char *, const char *, int, int,
                                       int, void *, void *, ResInfo *,
                                       nglRes *);
 
-extern nglPlotId ngl_add_text_wrap(int, nglPlotId *, char *, void *, void *, 
+extern nglPlotId add_text_wrap(int, nglPlotId *, char *, void *, void *, 
                                    const char *, const char *, ResInfo *,
                                    ResInfo *, nglRes *);
 
-extern void ngl_draw_colormap_wrap(int);
+extern void draw_colormap_wrap(int);
 
-extern void ngl_panel_wrap(int, nglPlotId *, int, int *, int, ResInfo *,
+extern void panel_wrap(int, nglPlotId *, int, int *, int, ResInfo *,
                            ResInfo *, nglRes *);

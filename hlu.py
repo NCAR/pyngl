@@ -1610,43 +1610,43 @@ c_cpcldr = _hlu.c_cpcldr
 
 c_plchhq = _hlu.c_plchhq
 
-ngl_open_wks_wrap = _hlu.ngl_open_wks_wrap
+open_wks_wrap = _hlu.open_wks_wrap
 
-ngl_contour_wrap = _hlu.ngl_contour_wrap
+contour_wrap = _hlu.contour_wrap
 
-ngl_map_wrap = _hlu.ngl_map_wrap
+map_wrap = _hlu.map_wrap
 
-ngl_contour_map_wrap = _hlu.ngl_contour_map_wrap
+contour_map_wrap = _hlu.contour_map_wrap
 
-ngl_xy_wrap = _hlu.ngl_xy_wrap
+xy_wrap = _hlu.xy_wrap
 
-ngl_y_wrap = _hlu.ngl_y_wrap
+y_wrap = _hlu.y_wrap
 
-ngl_vector_wrap = _hlu.ngl_vector_wrap
+vector_wrap = _hlu.vector_wrap
 
-ngl_vector_map_wrap = _hlu.ngl_vector_map_wrap
+vector_map_wrap = _hlu.vector_map_wrap
 
-ngl_vector_scalar_wrap = _hlu.ngl_vector_scalar_wrap
+vector_scalar_wrap = _hlu.vector_scalar_wrap
 
-ngl_vector_scalar_map_wrap = _hlu.ngl_vector_scalar_map_wrap
+vector_scalar_map_wrap = _hlu.vector_scalar_map_wrap
 
-ngl_streamline_wrap = _hlu.ngl_streamline_wrap
+streamline_wrap = _hlu.streamline_wrap
 
-ngl_streamline_map_wrap = _hlu.ngl_streamline_map_wrap
+streamline_map_wrap = _hlu.streamline_map_wrap
 
-ngl_text_ndc_wrap = _hlu.ngl_text_ndc_wrap
+text_ndc_wrap = _hlu.text_ndc_wrap
 
-ngl_text_wrap = _hlu.ngl_text_wrap
+text_wrap = _hlu.text_wrap
 
-ngl_add_text_wrap = _hlu.ngl_add_text_wrap
+add_text_wrap = _hlu.add_text_wrap
 
-ngl_poly_wrap = _hlu.ngl_poly_wrap
+poly_wrap = _hlu.poly_wrap
 
-ngl_add_poly_wrap = _hlu.ngl_add_poly_wrap
+add_poly_wrap = _hlu.add_poly_wrap
 
-ngl_panel_wrap = _hlu.ngl_panel_wrap
+panel_wrap = _hlu.panel_wrap
 
-ngl_draw_colormap_wrap = _hlu.ngl_draw_colormap_wrap
+draw_colormap_wrap = _hlu.draw_colormap_wrap
 
 natgridc = _hlu.natgridc
 
