@@ -1,5 +1,5 @@
 #
-#   $Id: yMakefile,v 1.15 2005-03-17 00:11:32 haley Exp $
+#   $Id: yMakefile,v 1.16 2005-03-26 03:11:42 haley Exp $
 #
 #   Makefile for pyngl examples
 #
@@ -21,4 +21,7 @@ InstallTarget($(RESFILES),$(INSTALL_LIB),$(PYNGLEXROOT))
 InstallTarget(pynglex,$(INSTALL_BIN),../src/bin)
 InstallTarget($(EXAMPLES),$(INSTALL_LIB),../src/ncarg/pynglex)
 InstallTarget($(RESFILES),$(INSTALL_LIB),../src/ncarg/pynglex)
+
+InstallTarget($(EXAMPLES),$(INSTALL_LIB),$(PYNGLWEBROOT)/examples)
+InstallTarget($(RESFILES),$(INSTALL_LIB),$(PYNGLWEBROOT)/examples)
 
