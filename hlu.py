@@ -1524,6 +1524,8 @@ NhlGetStringArray = _hlu.NhlGetStringArray
 
 NhlRLDestroy = _hlu.NhlRLDestroy
 
+NhlGetNamedColorIndex = _hlu.NhlGetNamedColorIndex
+
 NhlGetBB = _hlu.NhlGetBB
 
 NhlChangeWorkstation = _hlu.NhlChangeWorkstation

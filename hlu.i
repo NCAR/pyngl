@@ -3727,6 +3727,7 @@ extern NhlErrorTypes NhlRemoveData(int, NhlString, int);
 extern NhlErrorTypes NhlRemoveOverlay(int, int, NhlBoolean);
 extern NhlString *NhlGetStringArray(int oid, char *name, int *numbers);
 extern void NhlRLDestroy(int);
+extern int NhlGetNamedColorIndex(int, const char *);
 extern NhlErrorTypes NhlGetBB(int, NhlBoundingBox *);
 extern NhlErrorTypes NhlChangeWorkstation(int, int);
 extern NhlErrorTypes NhlPGetBB(int, float *OUTPUT, float *OUTPUT, float *OUTPUT,

@@ -1626,6 +1626,7 @@ extern NhlErrorTypes NhlRemoveData(int,NhlString,int);
 extern NhlErrorTypes NhlRemoveOverlay(int,int,NhlBoolean);
 extern NhlString *NhlGetStringArray(int,char *,int *);
 extern void NhlRLDestroy(int);
+extern int NhlGetNamedColorIndex(int,char const *);
 extern NhlErrorTypes NhlGetBB(int,NhlBoundingBox *);
 extern NhlErrorTypes NhlChangeWorkstation(int,int);
 extern NhlErrorTypes NhlPGetBB(int,float *,float *,float *,float *);
@@ -3775,6 +3776,22 @@ static PyObject *_wrap_NhlRLDestroy(PyObject *self, PyObject *args) {
     NhlRLDestroy(arg1);
     
     Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_NhlGetNamedColorIndex(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    int arg1 ;
+    char *arg2 ;
+    int result;
+    
+    if(!PyArg_ParseTuple(args,(char *)"is:NhlGetNamedColorIndex",&arg1,&arg2)) goto fail;
+    result = (int)NhlGetNamedColorIndex(arg1,(char const *)arg2);
+    
+    resultobj = PyInt_FromLong((long)result);
     return resultobj;
     fail:
     return NULL;
@@ -19892,6 +19909,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"NhlRemoveOverlay", _wrap_NhlRemoveOverlay, METH_VARARGS },
 	 { (char *)"NhlGetStringArray", _wrap_NhlGetStringArray, METH_VARARGS },
 	 { (char *)"NhlRLDestroy", _wrap_NhlRLDestroy, METH_VARARGS },
+	 { (char *)"NhlGetNamedColorIndex", _wrap_NhlGetNamedColorIndex, METH_VARARGS },
 	 { (char *)"NhlGetBB", _wrap_NhlGetBB, METH_VARARGS },
 	 { (char *)"NhlChangeWorkstation", _wrap_NhlChangeWorkstation, METH_VARARGS },
 	 { (char *)"NhlPGetBB", _wrap_NhlPGetBB, METH_VARARGS },
