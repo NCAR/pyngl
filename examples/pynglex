@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys,getopt,os,re,site,commands,string
+import sys,getopt,os,re,site,commands,string,fileinput
 import Ngl
 
 #
@@ -36,7 +36,17 @@ def print_usage():
 def crt_dic(olist):
   d = {}
   for i in xrange(len(olist)):
-    d[olist[i][0]] = olist[i][1]
+    key = olist[i][0]
+    value = olist[i][1]
+#
+#  Check that the value for a -w option is valid.
+#
+    if (key == "-w"):
+      if (value != "x11" and value != "ncgm" and value != "png"  and \
+          value != "ps"  and value != "pdf"):
+        print "Invalid workstation type indicated with -w: ",value
+        sys.exit()
+    d[key] = value
   return d
 
 #
@@ -172,47 +182,17 @@ for i in xrange(len(pargs)):
 #
     if (odict.has_key("-w")):
 #
-#  This if clause does nothing but create a temporary file
-#  in the ncargpath("tmp") directory named pynglex_file_tmp.py.
-#  This temporary file has the workstation type set as per that
-#  specified by the -w option.
+#  Replace the output workstation type with that requested.
 #
-      tmp_dir = Ngl.ncargpath("tmp")
-      if ( (not (os.path.exists(tmp_dir))) and \
-                  (odict.has_key("-a") or odict.has_key("-w") or
-                   odict.has_key("-l")) ):
-        tmp_dir = "."
-      tfile = open(pargs[i] + ".py")
-      example_src = tfile.readlines()
-      tmp_file_name = tmp_dir + "/pynglex_file_tmp.py"
-      cmd = "/bin/rm -f " + tmp_file_name
-      os.system(cmd)
-      tmp_file = open(tmp_file_name,"w")
-      for j in xrange(len(example_src)):
-        if (re.search("wks_type =",example_src[j]) != None):
-          new_line = 'wks_type = "' + odict["-w"] + '"\n'
+      for line in fileinput.input([pargs[i] + ".py"],1):
+        if (re.search("wks_type =",line) != None):
+          print 'wks_type = "' + odict["-w"] + '"'
         else:
-          new_line = example_src[j]
-        tmp_file.write(new_line)
-      tmp_file.flush()
+          print line,
+
 #
-#  The following print is not exactly correct if a -w option
-#  has been specified, since in that case we are actually
-#  executing the temporary python file.  But it is less
-#  confusing to indicate that we are executing the specified
-#  example file.
-#
-    orig_example_name = pargs[i]
-    print 'Executing "' + "python " + orig_example_name + ".py" + '"'
-#
-#  If a -w option was specified, then put the name of the
-#  temporary file into pargs, otherwise pargs has the name
-#  of the original source for the specified example.
-#  
-    if (odict.has_key("-w")):
-      pargs[i] = os.path.dirname(tmp_file_name) + "/" + \
-                    os.path.splitext(os.path.basename(tmp_file_name))[0]
     cmd = "python " + pargs[i] + ".py"
+    print 'Executing "' + cmd + '"'
 #
 #  Execute python.
 #
@@ -223,10 +203,4 @@ for i in xrange(len(pargs)):
    A -w option on pynglex is ignored for ngl08p.
       """
  
-    print 'Finished "' + "python " + orig_example_name + ".py" + '"'
-    
-#
-#  Close the temporary file if a -w option was specified.
-#
-    if (odict.has_key("-w")):
-      tmp_file.close()
+    print 'Finished "' + cmd + '"'
