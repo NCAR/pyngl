@@ -634,13 +634,6 @@ main()
    cmap[16][0] = .800;   cmap[16][1] = .800;   cmap[16][2] = .800;
 
 /*
- * Initialize special resources.
- */
-  special_res.gsnDraw     = 1;
-  special_res.gsnFrame    = 1;
-  special_res.gsnMaximize = 1;
-
-/*
  * Set up workstation resource list.
  */
 
