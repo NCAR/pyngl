@@ -2,7 +2,7 @@
 #  Import the Masked array module from 
 #  Numerical Python; import sys
 #
-import Numeric, MA,sys
+import Numeric,MA,sys
 
 #
 #  Import Ngl support functions.
@@ -10,7 +10,7 @@ import Numeric, MA,sys
 import Ngl
 
 #
-#  Import all names from the NetCDF module.
+#  Import the NetCDF reader.
 #
 from Scientific.IO.NetCDF import NetCDFFile
 
