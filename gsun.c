@@ -1275,8 +1275,23 @@ int ngl_open_wks_wrap(const char *type, const char *name, int wk_rlist)
     NhlRLSetString(wk_rlist,"wkPDFFileName",filename);
     NhlCreate(&wks,"pdf",NhlpdfWorkstationClass,NhlDEFAULT_APP,wk_rlist);
   }
+  else if(!strcmp(type,"png") || !strcmp(type,"PNG")) {
+/*
+ * Generate PNG file name.
+ */
+    len      = strlen(name);
+    filename = (char *)calloc(len+1,sizeof(char));
+    strncpy(filename,name,len);
+    filename[len] = '\0';
+/*
+ * Create a PNG workstation.
+ */
+    NhlRLSetString(wk_rlist,"wkImageFileName",filename);
+    NhlRLSetString(wk_rlist,"wkImageFormat","png");
+    NhlCreate(&wks,"png",NhlimageWorkstationClass,NhlDEFAULT_APP,wk_rlist);
+  }
   else {
-    NhlPError(NhlWARNING,NhlEUNKNOWN,"spread_colors: Invalid workstation type, must be 'x11', 'ncgm', 'ps', or 'pdf'\n");
+    NhlPError(NhlWARNING,NhlEUNKNOWN,"spread_colors: Invalid workstation type, must be 'x11', 'ncgm', 'ps', 'png', or 'pdf'\n");
   }
 
 /*
