@@ -16,6 +16,12 @@ from Scientific.IO.NetCDF import *
 #
 #  Open a netCDF file containing data off the coast of North Carolina.
 #
+#  This data is from the Naval Research Laboratory at the Stennis
+#  Space Center. For more information about this grid, see the
+#  article "Application of a Shelf-Scale Modeul to Wave-Induced
+#  Circulation: Rip Currents" (Mark Cobb and Cheryl Ann Blain,
+#  Ocean Dynamics and Prediction Branch).
+#
 dirc  = Ngl.ncargpath("data")
 cfile = NetCDFFile(dirc + "/cdf/ctnccl.nc","r")
 
