@@ -12,12 +12,12 @@ import Numeric
 #
 #  Import all names from the NetCDF module.
 #
-from Scientific.IO.NetCDF import *
+from Scientific.IO.NetCDF import NetCDFFile
 
 #
 #  Import Ngl support functions.
 #
-from Ngl import *
+import Ngl
 
 #
 #  nint returns the nearest integer to a given floating value.
@@ -35,7 +35,7 @@ def nint(r):
 #
 #  Open the netCDF file containing the salinity data for the trajectories.
 #
-dirc = ncargpath("data")
+dirc = Ngl.ncargpath("data")
 ncdf = NetCDFFile(dirc+"/cdf/traj_data.nc","r")
 
 #
@@ -50,10 +50,10 @@ cmap = Numeric.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
                       [0.80, 0.80, 1.00], [0.00, 0.00, 0.00]],\
                       Numeric.Float0)
 
-rlist = Resources()
+rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
 wks_type = "ps"
-wks = ngl_open_wks (wks_type,"traj1",rlist)
+wks = Ngl.open_wks (wks_type,"traj1",rlist)
 
 #
 #  Create the plot.
@@ -62,7 +62,7 @@ wks = ngl_open_wks (wks_type,"traj1",rlist)
 #
 #  Map resources.
 #
-res            = Resources()   # map resources
+res            = Ngl.Resources()   # map resources
 res.nglFrame   = False         # don't advance frame
 res.vpWidthF   = 0.80          # make map bigger
 res.vpHeightF  = 0.80
@@ -89,29 +89,29 @@ res.tmXTOn  = True
 res.tmXBLabelFontHeightF = 0.02
 res.tmYLLabelFontHeightF = 0.02
 res.mpProjection = "CylindricalEquidistant"
-map = ngl_map(wks,res)    # Draw map.
+map = Ngl.map(wks,res)    # Draw map.
 
 #
 #  Main title.
 #
-txres = Resources()
+txres = Ngl.Resources()
 txres.txFontHeightF = 0.025
 txres.txFontColor   =  1
 txres.txFont        = 22
-ngl_text_ndc(wks,"Trajectories colored by salinity (ppt)",0.52,0.90,txres)
+Ngl.text_ndc(wks,"Trajectories colored by salinity (ppt)",0.52,0.90,txres)
 del txres
 
 
 #
 #  Manually draw a labelbar using colors 4-12.
 #
-gsres = Resources()      # Line resources.
+gsres = Ngl.Resources()      # Line resources.
 gsres.gsLineColor = 1    # Draw black boundaries around the label bar boxes.
 delx = 0.06
 dely = 0.03
 startx = 0.30
 starty = 0.25
-txres = Resources()          # For labelling the label bar.
+txres = Ngl.Resources()          # For labelling the label bar.
 txres.txFontHeightF = 0.018 
 txres.txFontColor   = 1
 txres.txFont   = 22
@@ -129,28 +129,28 @@ for i in xrange(4,14,1):
   y4 = y0
   y = [y0,y1,y2,y3,y4]
   gsres.gsFillColor = i    # Change fill color.
-  ngl_polygon_ndc(wks,x,y,gsres) 
-  ngl_polyline_ndc(wks,x,y,gsres)
+  Ngl.polygon_ndc(wks,x,y,gsres) 
+  Ngl.polyline_ndc(wks,x,y,gsres)
   if (i == 4):
-    ngl_text_ndc(wks,"34.55",x0,y0-dely,txres)
+    Ngl.text_ndc(wks,"34.55",x0,y0-dely,txres)
   elif(i == 6):
-    ngl_text_ndc(wks,"34.61",x0,y0-dely,txres)
+    Ngl.text_ndc(wks,"34.61",x0,y0-dely,txres)
   elif(i == 8):
-    ngl_text_ndc(wks,"34.67",x0,y0-dely,txres)
+    Ngl.text_ndc(wks,"34.67",x0,y0-dely,txres)
   elif(i == 10):
-    ngl_text_ndc(wks,"34.73",x0,y0-dely,txres)
+    Ngl.text_ndc(wks,"34.73",x0,y0-dely,txres)
   elif(i == 12):
-    ngl_text_ndc(wks,"34.79",x0,y0-dely,txres)
-  ngl_text_ndc(wks,"34.85",startx+10*delx,y0-dely,txres)
+    Ngl.text_ndc(wks,"34.79",x0,y0-dely,txres)
+  Ngl.text_ndc(wks,"34.85",startx+10*delx,y0-dely,txres)
 
 #
 #  Draw the trajectories.
 #
 traj = [1,10,53,67,80]   # choose which trajectories to plot
    
-pres                  = Resources()        # polyline resources
+pres                  = Ngl.Resources()        # polyline resources
 pres.gsLineThicknessF = 3.0                # line thickness
-mres  = Resources()                        # marker resources
+mres  = Ngl.Resources()                        # marker resources
 mres.gsMarkerSizeF  = 17.0        # marker size
 mres.gsMarkerColor  = "black"     # marker color
 
@@ -177,13 +177,13 @@ for i in xrange(len(traj)):
     elif (cindex > 13):
       cindex = 13
     pres.gsLineColor = cindex
-    ngl_polyline(wks,map,[xpt[j],xpt[j+1]],[ypt[j],ypt[j+1]],pres)
+    Ngl.polyline(wks,map,[xpt[j],xpt[j+1]],[ypt[j],ypt[j+1]],pres)
 
 #
 #  Draw a polymarker at the beginning of each trajectory.
 #
-    ngl_polymarker(wks,map,[xpt[0]],[ypt[0]],mres) 
+    Ngl.polymarker(wks,map,[xpt[0]],[ypt[0]],mres) 
 
-ngl_frame(wks)
+Ngl.frame(wks)
 
-ngl_end()
+Ngl.end()

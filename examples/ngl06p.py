@@ -6,16 +6,16 @@ import Numeric
 #
 #  Import all names from the NetCDF module.
 #
-from Scientific.IO.NetCDF import *
+from Scientific.IO.NetCDF import NetCDFFile
 
 #
 #  Import PyNGL support functions.
 #
-from Ngl import *
+import Ngl
 #
 #  Open netCDF files.
 #
-dirc = ncargpath("data")
+dirc = Ngl.ncargpath("data")
 
 #
 #  Open the netCDF file.
@@ -35,11 +35,11 @@ ua = u[0,:,:]
 va = v[0,:,:]
 
 wks_type = "ps"
-wks = ngl_open_wks(wks_type,"ngl06p")
+wks = Ngl.open_wks(wks_type,"ngl06p")
 
 #----------- Begin first plot -----------------------------------------
 
-resources = Resources()
+resources = Ngl.Resources()
 if hasattr(u,"_FillValue"):
   resources.vfMissingUValueV = u._FillValue
 if hasattr(v,"_FillValue"):
@@ -52,7 +52,7 @@ resources.vfXCEndV    = lon[len(lon[:])-1][0] # for vector plot.
 resources.vfYCStartV  = lat[0][0]
 resources.vfYCEndV    = lat[len(lat[:])-1][0]
 
-map = ngl_vector_map(wks,ua,va,resources)  # Draw a vector plot of u and v
+map = Ngl.vector_map(wks,ua,va,resources)  # Draw a vector plot of u and v
 
 #----------- Begin second plot -----------------------------------------
 
@@ -76,7 +76,7 @@ resources.vcRefLengthF         = 0.045
 resources.vcRefMagnitudeF      = 20.0
 resources.nglSpreadColors = False    # Do not interpolate color space.
 
-map = ngl_vector_map(wks,ua,va,resources)  # Draw a vector plot.
+map = Ngl.vector_map(wks,ua,va,resources)  # Draw a vector plot.
 
 #----------- Begin third plot -----------------------------------------
 
@@ -103,9 +103,9 @@ cmap = Numeric.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
                       [.870, .050, .000], [1.00, .000, .000], \
                       [.700, .700, .700]],Numeric.Float0)
 
-rlist = Resources()
+rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
-ngl_set_values(wks,rlist)
+Ngl.set_values(wks,rlist)
 
 resources.mpProjection = "Mercator"  # Change the map projection.
 resources.mpCenterLonF = -100.0
@@ -140,7 +140,7 @@ resources.lbTitleFont            = 25                       # label bar.
 
 resources.mpOutlineBoundarySets = "GeophysicalAndUSStates"
 
-map = ngl_vector_scalar_map(wks,ua[::2,::2],va[::2,::2],  \
+map = Ngl.vector_scalar_map(wks,ua[::2,::2],va[::2,::2],  \
                             tempa[::2,::2],resources)
 
 del map
@@ -149,4 +149,4 @@ del v
 del temp
 del tempa
 
-ngl_end()
+Ngl.end()

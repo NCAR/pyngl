@@ -7,7 +7,7 @@ import copy
 #
 #  Import all names from the NetCDF module.
 #
-from Scientific.IO.NetCDF import *
+from Scientific.IO.NetCDF import NetCDFFile
 
 #
 #  Import Numeric and sys.
@@ -17,7 +17,7 @@ import Numeric,sys
 #
 #  Import the PyNGL module names.
 #
-from Ngl import *
+import Ngl
 
 #
 #  9-point smoother function.
@@ -74,7 +74,7 @@ def smth9(x,p,q):
 #
 #  Read in the data variables from the NetCDF file.
 #
-cdf_file   = NetCDFFile(ncargpath("data") + "/cdf/meteo_data.nc","r")
+cdf_file   = NetCDFFile(Ngl.ncargpath("data") + "/cdf/meteo_data.nc","r")
 tempisobar = cdf_file.variables["tempisobar"][:,:]  # temperature
 levels     = cdf_file.variables["levels"][:]        # levels
 taus       = cdf_file.variables["taus"][:]          # taus
@@ -100,20 +100,20 @@ colors = Numeric.array([                                               \
                          [ 80,255, 80], [ 50,200, 50], [ 20,150, 20],  \
                          [255,  0,  0]                                 \
                        ],Numeric.Float0) / 255.
-rlist = Resources()
+rlist = Ngl.Resources()
 rlist.wkColorMap = colors
 wks_type = "ps"
-wks = ngl_open_wks(wks_type,"meteogram",rlist)
+wks = Ngl.open_wks(wks_type,"meteogram",rlist)
 
 #
 # Create a different resource list for every plot created.
 #
-rh_res      = Resources()
-rain_res    = Resources()
-tempsfc_res = Resources()
+rh_res      = Ngl.Resources()
+rain_res    = Ngl.Resources()
+tempsfc_res = Ngl.Resources()
 
 #
-#  Resources that rh_res, temp_res, and uv_res share.
+#  Ngl.Resources that rh_res, temp_res, and uv_res share.
 #
 rh_res.trYReverse   = True     # Reverse the Y values.
 rh_res.nglDraw      = False    # Don't draw individual plot.
@@ -260,16 +260,16 @@ tempsfc_res.nglMaximize     = False    # Do not maximize plot in frame
 #  Create the four plots (they won't get drawn here, because nglDraw
 #  was set to False for all three of them.
 #
-rhfill    = ngl_contour(wks,smothrh,rh_res)
-templine  = ngl_contour(wks,smothtemp,temp_res)
-windlayer = ngl_vector(wks,ugrid,vgrid,uv_res)
-rainhist  = ngl_xy(wks,taus,rain03,rain_res)
+rhfill    = Ngl.contour(wks,smothrh,rh_res)
+templine  = Ngl.contour(wks,smothtemp,temp_res)
+windlayer = Ngl.vector(wks,ugrid,vgrid,uv_res)
+rainhist  = Ngl.xy(wks,taus,rain03,rain_res)
 
 #
 # For the rain plot, we want filled bars instead of a curve, so create
 # a dummy plot with all the Y values equal to rain_res.trYMinF. This
 # will insure no curve gets drawn. Then, add the bars and bar outlines
-# later with ngl_add_polygon and ngl_add_polyline.
+# later with Ngl.add_polygon and Ngl.add_polyline.
 #
 #
 # Make dummy data equal to min Y axis value.
@@ -287,7 +287,7 @@ rain_res.trXMaxF = max(taus) + dx/2.
 #
 # Create dummy plot.
 #
-rainhist  = ngl_xy(wks,taus,dummy,rain_res)
+rainhist  = Ngl.xy(wks,taus,dummy,rain_res)
 
 #
 # Get indices where rain data is above zero. Draw filled bars for each
@@ -309,7 +309,7 @@ py = Numeric.zeros(5*num_above,rain03.typecode())
 #
 # Create resource list for polygons.
 #
-pgres             = Resources()
+pgres             = Ngl.Resources()
 pgres.gsFillColor = "green"
 
 taus_above_zero = Numeric.take(taus,ind_above_zero)
@@ -323,21 +323,21 @@ py[1::5] = Numeric.take(rain03,ind_above_zero)
 py[2::5] = Numeric.take(rain03,ind_above_zero)
 py[3::5] = rain_res.trYMinF
 py[4::5] = rain_res.trYMinF
-polyg    = ngl_add_polygon(wks,rainhist,px,py,pgres)
+polyg    = Ngl.add_polygon(wks,rainhist,px,py,pgres)
 
 #
 # For the outlines, we don't need the fifth point.
 #
-polyl    = ngl_add_polyline(wks,rainhist,px,py,pgres)
-temptmsz  = ngl_xy(wks,taus,tempht,tempsfc_res)
+polyl    = Ngl.add_polyline(wks,rainhist,px,py,pgres)
+temptmsz  = Ngl.xy(wks,taus,tempht,tempsfc_res)
 
 # ---------------------- overlay, draw, and advance frame ---------
-ngl_overlay(rhfill,templine)   # Overlay temperature contour on rh plot.
-ngl_overlay(rhfill,windlayer)  # Overlay windbarbs on rh plot.
+Ngl.overlay(rhfill,templine)   # Overlay temperature contour on rh plot.
+Ngl.overlay(rhfill,windlayer)  # Overlay windbarbs on rh plot.
 
-ngl_draw(rhfill)
-ngl_draw(rainhist)
-ngl_draw(temptmsz)
-ngl_frame(wks)
+Ngl.draw(rhfill)
+Ngl.draw(rainhist)
+Ngl.draw(temptmsz)
+Ngl.frame(wks)
 
-ngl_end()
+Ngl.end()

@@ -11,17 +11,17 @@ import Numeric,whrandom
 #
 #  Import all names from the NetCDF module.
 #
-from Scientific.IO.NetCDF import *
+from Scientific.IO.NetCDF import NetCDFFile
 
 #
 #  Import Ngl support functions.
 #
-from Ngl import *
+import Ngl
 
 #
 #  Open the netCDF file containing the climate divisions polygons.
 #
-dirc = ncargpath("data")
+dirc = Ngl.ncargpath("data")
 ncdf = NetCDFFile(dirc + "/cdf/climdiv_polygons.nc","r")
 
 #
@@ -58,10 +58,10 @@ cmap = Numeric.array([[1.00,1.00,1.00],[0.00,0.00,0.00],[1.00,0.00,0.00],\
                       [0.20,0.80,0.00],[0.55,0.55,0.00],[0.00,0.70,0.00],\
                       [0.62,0.62,0.00],[0.25,0.25,0.25]],
                       Numeric.Float0)
-rlist = Resources()
+rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
 wks_type = "ps"
-wks = ngl_open_wks (wks_type,"climdiv",rlist)
+wks = Ngl.open_wks (wks_type,"climdiv",rlist)
 
 #
 #  Create the plot.
@@ -70,7 +70,7 @@ wks = ngl_open_wks (wks_type,"climdiv",rlist)
 #
 #  Map resources.
 #
-res = Resources()
+res = Ngl.Resources()
 res.mpLambertParallel1F = 33.0         # two parallels
 res.mpLambertParallel2F = 45.0
 res.mpLambertMeridianF  = -95.0        # central meridian
@@ -104,12 +104,12 @@ res.nglDraw  = False       # don't draw the plots now
 res.nglFrame = False       # or advance the frame
 
 res.mpProjection = "LambertConformal"
-plot = ngl_map(wks,res) # create the map plot
+plot = Ngl.map(wks,res) # create the map plot
 
 #
 #  Polygon resources.
 #
-res_poly             = Resources()
+res_poly             = Ngl.Resources()
 res_poly.gsEdgesOn   = True       # draw border around polygons.
 res_poly.gsEdgeColor = "black"
 
@@ -134,7 +134,7 @@ for st in xrange(npoly):
     varstr = statenames[st]+"_CD" + str(cd+1)
     x = ncdf.variables[varstr].lon
     y = ncdf.variables[varstr].lat
-    ngl_polygon (wks,plot,x,y,res_poly)
+    Ngl.polygon (wks,plot,x,y,res_poly)
     del(varstr)
     del(x)
     del(y)
@@ -142,11 +142,11 @@ for st in xrange(npoly):
 #
 # Add a title.
 #
-res_txt               = Resources()         # text resources
+res_txt               = Ngl.Resources()         # text resources
 res_txt.txFontHeightF = 0.03                # select font size
 res_txt.txFont        = 22                  # font
-ngl_text_ndc (wks, "Climate Division Polygons", 0.5, 0.78, res_txt)
+Ngl.text_ndc (wks, "Climate Division Polygons", 0.5, 0.78, res_txt)
 
-ngl_frame(wks)
+Ngl.frame(wks)
 
-ngl_end()
+Ngl.end()

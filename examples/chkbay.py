@@ -6,17 +6,17 @@ import Numeric
 #
 #  Import Ngl support functions.
 #
-from Ngl import *
+import Ngl
 
 #
 #  Import all names from the NetCDF module.
 #
-from Scientific.IO.NetCDF import *
+from Scientific.IO.NetCDF import NetCDFFile
 
 #
 #  Open a netCDF file containing the Chesapeake Bay data.
 #
-dirc  = ncargpath("data")
+dirc  = Ngl.ncargpath("data")
 cfile = NetCDFFile(dirc + "/cdf/ctcbay.nc","r")
 
 #
@@ -29,15 +29,15 @@ depth = cfile.variables["depth"][:]
 
 #
 #  Select a colormap and open an X11 window.
-rlist = Resources()
+rlist = Ngl.Resources()
 rlist.wkColorMap = "rainbow+gray"
 wks_type = "ps"
-wks = ngl_open_wks(wks_type,"chkbay",rlist)
+wks = Ngl.open_wks(wks_type,"chkbay",rlist)
 
 #
 #  The next set of resources will apply to the contour plot.
 #
-resources = Resources()
+resources = Ngl.Resources()
 
 resources.nglSpreadColorStart = 15
 resources.nglSpreadColorEnd   = -2 
@@ -53,7 +53,7 @@ resources.cnLineLabelsOn   = False
 
 resources.lbOrientation    = "Vertical"
 
-contour = ngl_contour(wks,depth,resources)
+contour = Ngl.contour(wks,depth,resources)
 
 #
 #  The next set of resources will apply to the map plot.
@@ -85,10 +85,10 @@ resources.mpDataBaseVersion     = "MediumRes"
 # Retrieve the actual lat/lon end points of the scalar array so
 # we know where to overlay on map.
 #
-xs = ngl_get_float(contour.sffield,"sfXCActualStartF")
-xe = ngl_get_float(contour.sffield,"sfXCActualEndF")
-ys = ngl_get_float(contour.sffield,"sfYCActualStartF")
-ye = ngl_get_float(contour.sffield,"sfYCActualEndF")
+xs = Ngl.get_float(contour.sffield,"sfXCActualStartF")
+xe = Ngl.get_float(contour.sffield,"sfXCActualEndF")
+ys = Ngl.get_float(contour.sffield,"sfYCActualStartF")
+ye = Ngl.get_float(contour.sffield,"sfYCActualEndF")
 
 resources.mpLimitMode           = "LatLon"
 resources.mpMinLonF             = xs     # -77.3244
@@ -104,6 +104,6 @@ resources.lbAutoManage          = False
 
 resources.pmTickMarkDisplayMode = "Always"
 
-map = ngl_contour_map(wks,depth,resources)
+map = Ngl.contour_map(wks,depth,resources)
 
-ngl_end()
+Ngl.end()

@@ -6,17 +6,17 @@ import Numeric
 #
 #  Import Ngl support functions.
 #
-from Ngl import *
+import Ngl
 
 #
 #  Import all names from the NetCDF module.
 #
-from Scientific.IO.NetCDF import *
+from Scientific.IO.NetCDF import NetCDFFile
 
 #
 # Open a netCDF file containing storm data.
 #
-dirc  = ncargpath("data")
+dirc  = Ngl.ncargpath("data")
 tfile = NetCDFFile(dirc + "/cdf/Tstorm.cdf","r")
 
 #
@@ -47,15 +47,15 @@ cmap = Numeric.array([[1.00,1.00,1.00],[0.00,0.00,0.00],[1.00,.000,.000],\
                       [.560,.500,.700],[.610,.600,.700],[.700,.700,.700]],
                       Numeric.Float0)
                    
-rlist = Resources()
+rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
 wks_type = "ps"
-wks = ngl_open_wks(wks_type,"panel1",rlist)  # Open an X11 workstation.
+wks = Ngl.open_wks(wks_type,"panel1",rlist)  # Open an X11 workstation.
 
 #
 # The next set of resources will apply to four plots.
 #
-resources = Resources()
+resources = Ngl.Resources()
 resources.nglDraw  = False
 resources.nglFrame = False
 
@@ -74,10 +74,10 @@ resources.cnFillOn       = True    # Turn on contour fill.
 
 for i in range(0,nplots):
   resources.tiMainString  = "Temperature at time = " + str(i)
-  plot.append(ngl_contour(wks,temp[i,:,:],resources))
+  plot.append(Ngl.contour(wks,temp[i,:,:],resources))
 
 
-ngl_panel(wks,plot[0:4],[2,2]) # Draw 2 rows/2 columns of plots.
+Ngl.panel(wks,plot[0:4],[2,2]) # Draw 2 rows/2 columns of plots.
 
 #
 # This section will set resources for drawing contour plots over a map.
@@ -108,9 +108,9 @@ resources.mpGridAndLimbOn = False   # Turn off map grid.
 
 plot = []
 for i in range(0,nplots):
-  plot.append(ngl_contour_map(wks,temp[i,:,:],resources))
+  plot.append(Ngl.contour_map(wks,temp[i,:,:],resources))
 
-panelres                = Resources()
+panelres                = Ngl.Resources()
 panelres.nglFrame       = False # Don't advance the frame.
 
 #
@@ -136,20 +136,20 @@ panelres.nglPanelFigureStringsJust = "BottomRight"
 #
 # Draw 3 rows and 2 columns of plots.
 #
-ngl_panel(wks,plot[0:nplots],[3,2],panelres)  
+Ngl.panel(wks,plot[0:nplots],[3,2],panelres)  
 
 #
 # Draw two titles at the top.
 #
-textres               = Resources()
+textres               = Ngl.Resources()
 textres.txFontHeightF = 0.025   # Size of title.
 
-ngl_text_ndc(wks,":F26:Temperature (K) at every six hours",0.5,.97,textres)
+Ngl.text_ndc(wks,":F26:Temperature (K) at every six hours",0.5,.97,textres)
 
 textres.txFontHeightF = 0.02    # Make second title slightly smaller.
 
-ngl_text_ndc(wks,":F26:January 1996",0.5,.935,textres)
+Ngl.text_ndc(wks,":F26:January 1996",0.5,.935,textres)
 
-ngl_frame(wks)   # Advance the frame.
+Ngl.frame(wks)   # Advance the frame.
 
-ngl_end()
+Ngl.end()

@@ -2,17 +2,17 @@
 #  Import the Masked array module from 
 #  Numerical Python; import sys
 #
-import MA,sys
+import Numeric, MA,sys
 
 #
 #  Import Ngl support functions.
 #
-from Ngl import *
+import Ngl
 
 #
 #  Import all names from the NetCDF module.
 #
-from Scientific.IO.NetCDF import *
+from Scientific.IO.NetCDF import NetCDFFile
 
 def addcyclic(data,coord_array):
 #
@@ -47,8 +47,8 @@ def addcyclic(data,coord_array):
 #
 #  Open the netCDF files, get variables.
 #
-data_dir = ncargpath("data")
-ice1 = NetCDFFile(data_dir + "/cdf/fice.nc","r")
+data_dir = Ngl.ncargpath("data")
+ice1     = NetCDFFile(data_dir + "/cdf/fice.nc","r")
 
 #
 #  Create a masked array to accommodate missing values in the fice variable.
@@ -102,12 +102,12 @@ cmap = Numeric.array([                                         \
          [1.00,0.50,0.50], [0.00,1.00,0.50], [0.50,0.50,0.50], \
          [0.625,0.625,0.625] ],MA.Float0)
 
-rlist = Resources()
+rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
 wks_type = "ps"
-wks = ngl_open_wks(wks_type,"ngl09p",rlist) # Open a workstation.
+wks = Ngl.open_wks(wks_type,"ngl09p",rlist) # Open a workstation.
 
-resources = Resources()
+resources = Ngl.Resources()
 resources.sfMissingValueV = fill_value
 
 icemonnew,hlonnew = addcyclic(icemon[0:nsub+1,:],hlon[:])
@@ -117,7 +117,7 @@ resources.nglSpreadColors = False    # Do not interpolate color space.
 
 resources.tiMainString = "CSM Y00-99 Mean Ice Fraction Month =" + str(month)
 
-map = ngl_contour_map(wks,icemonnew,resources) # Draw a contour
+map = Ngl.contour_map(wks,icemonnew,resources) # Draw a contour
                                                # over a map.
 
 nmos = 12    # Specify the number of months in the loop (max 120).
@@ -131,10 +131,10 @@ for nmo in range(1,nmos):
 
   resources.tiMainString = "CSM Y00-99 Mean Ice Fraction Month =" + str(month)
   map = \
-    ngl_contour_map(wks,(addcyclic(icemon[0:nsub+1,:],hlon[:]))[0],resources)
+    Ngl.contour_map(wks,(addcyclic(icemon[0:nsub+1,:],hlon[:]))[0],resources)
 
 del icemon       # Clean up.
 del icemonnew 
 del map 
 
-ngl_end()
+Ngl.end()

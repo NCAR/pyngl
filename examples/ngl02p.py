@@ -6,17 +6,17 @@ import Numeric,sys,os
 #
 #  Import all names from the NetCDF module.
 #
-from Scientific.IO.NetCDF import *
+from Scientific.IO.NetCDF import NetCDFFile
 
 #
 #  Import Ngl support functions.
 #
-from Ngl import *
+import Ngl
 
 #  
 #  Open the netCDF file.
 #  
-cdf_file = NetCDFFile(ncargpath("data") + "/cdf/contour.cdf","r")
+cdf_file = NetCDFFile(Ngl.ncargpath("data") + "/cdf/contour.cdf","r")
 
 #
 #  Associate Python variables with NetCDF variables.
@@ -32,9 +32,9 @@ lon  = cdf_file.variables["lon"]  # longitude
 #  Open a workstation.
 #
 wks_type = "ps"
-wks = ngl_open_wks(wks_type,"ngl02p")
+wks = Ngl.open_wks(wks_type,"ngl02p")
 
-resources = Resources()
+resources = Ngl.Resources()
 
 #
 #  Define a Numeric data array containing the temperature
@@ -67,14 +67,14 @@ if hasattr(temp,"_FillValue"):
 if hasattr(temp,"long_name"):
   resources.tiMainString = temp.long_name
 
-plot = ngl_contour(wks,tempa,resources)
+plot = Ngl.contour(wks,tempa,resources)
 
 #----------- Begin second plot -----------------------------------------
 
 resources.cnMonoLineColor = False  # Allow multiple colors for contour lines.
 resources.tiMainString    = "Temperature (C)"
 
-plot = ngl_contour(wks,tempa,resources)  # Draw a contour plot.
+plot = Ngl.contour(wks,tempa,resources)  # Draw a contour plot.
 
 #----------- Begin third plot -----------------------------------------
 
@@ -91,7 +91,7 @@ resources.sfXArray        = lon[:]
 resources.sfYArray        = lat[:]
 resources.pmLabelBarDisplayMode = "Never" # Turn off label bar.
 
-plot = ngl_contour(wks,tempa,resources)   # Draw a contour plot.
+plot = Ngl.contour(wks,tempa,resources)   # Draw a contour plot.
 
 #---------- Begin fourth plot ------------------------------------------
 
@@ -115,7 +115,7 @@ if hasattr(Z,"_FillValue"):
   resources.sfMissingValueV = Z._FillValue
 if hasattr(Z,"long_name"):
   resources.tiMainString = Z.long_name
-plot = ngl_contour(wks,Z[0,0,:,:],resources)    # Draw a contour plot.
+plot = Ngl.contour(wks,Z[0,0,:,:],resources)    # Draw a contour plot.
 
 #---------- Begin fifth plot ------------------------------------------
 
@@ -132,9 +132,9 @@ cmap = Numeric.array([[0.00, 0.00, 0.00], [1.00, 1.00, 1.00], \
 #
 #  Specify a new color map.
 #
-rlist = Resources()
+rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
-ngl_set_values(wks,rlist)
+Ngl.set_values(wks,rlist)
 
 #
 #  If the pressure field has a long_name attribute, use it for a title.
@@ -152,7 +152,7 @@ if hasattr(pres,"_FillValue"):
 else:
   presa = 0.01*presa
 
-plot = ngl_contour(wks,presa,resources)  # Draw a contour plot.
+plot = Ngl.contour(wks,presa,resources)  # Draw a contour plot.
 
 print "\nSubset [2:6,7:10] of temp array:" # Print subset of "temp" variable.
 print tempa[2:6,7:10]
@@ -180,4 +180,4 @@ del plot
 del resources
 del temp
 
-ngl_end()
+Ngl.end()

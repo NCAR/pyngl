@@ -6,13 +6,13 @@ import Numeric
 #
 #  Import Ngl support functions.
 #
-from Ngl import *
+import Ngl
 
 #  
 #  Open the ASCII file.
 #  
-dirc = ncargpath("data")
-seismic = ngl_asciiread(dirc + "/asc/seismic.asc" ,[52,3],"float")
+dirc    = Ngl.ncargpath("data")
+seismic = Ngl.asciiread(dirc + "/asc/seismic.asc" ,[52,3],"float")
 
 x = Numeric.array(seismic[:,0],Numeric.Float0)
 y = Numeric.array(seismic[:,1],Numeric.Float0)
@@ -30,7 +30,7 @@ yc      = (ymax-ymin)/(numyout-1)
 
 xo = xmin + xc*Numeric.arange(0,numxout)
 yo = ymin + yc*Numeric.arange(0,numxout)
-zo = natgrid(x, y, z, xo, yo)   # Interpolate.
+zo = Ngl.natgrid(x, y, z, xo, yo)   # Interpolate.
 
 #
 #  Define a color map and open four different types of workstations.
@@ -44,16 +44,16 @@ cmap = Numeric.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
                       [0.20, 0.45, 0.40], [0.20, 0.40, 0.80], \
                       [0.60, 0.40, 0.80], [0.60, 0.80, 0.80], \
                       [0.60, 0.80, 0.40], [1.00, 0.60, 0.80]],Numeric.Float0)
-rlist = Resources()
+rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
-xwks   = ngl_open_wks(   "x11","ngl08p",rlist) # Open an X11 workstation.
-cgmwks = ngl_open_wks(  "ncgm","ngl08p",rlist) # Open an NCGM workstation.
-pswks  = ngl_open_wks(    "ps","ngl08p",rlist) # Open a PS workstation.
-pdfwks = ngl_open_wks(   "pdf","ngl08p",rlist) # Open a PDF workstation.
+xwks   = Ngl.open_wks(   "x11","ngl08p",rlist) # Open an X11 workstation.
+cgmwks = Ngl.open_wks(  "ncgm","ngl08p",rlist) # Open an NCGM workstation.
+pswks  = Ngl.open_wks(    "ps","ngl08p",rlist) # Open a PS workstation.
+pdfwks = Ngl.open_wks(   "pdf","ngl08p",rlist) # Open a PDF workstation.
 
 #----------- Begin first plot -----------------------------------------
 
-resources                       = Resources()
+resources                       = Ngl.Resources()
 resources.sfXArray              = xo            # X axes data points
 resources.sfYArray              = yo            # Y axes data points
 
@@ -75,12 +75,12 @@ resources.nglSpreadColors = False    # Do not interpolate color space.
 resources.vpYF = 0.9   # Change Y location of plot.
 
 zt = Numeric.transpose(zo)
-contour = ngl_contour(xwks,zt,resources) 
+contour = Ngl.contour(xwks,zt,resources) 
 
 #----------- Begin second plot -----------------------------------------
 
 del resources
-resources = Resources()
+resources = Ngl.Resources()
 resources.tiMainString        = ":F26:slices"   # Define a title.
 
 resources.xyLineColors        = [2,8,10,14]    # Define line colors.
@@ -106,32 +106,32 @@ resources.trYMaxF = 980  # Set the maximum value for the Y axes.
 
 resources.tiYAxisString = "Depth of a subsurface stratum"
 
-xy = ngl_xy(xwks,xo,zt[2:9:2,:],resources) # Draw an XY plot.
+xy = Ngl.xy(xwks,xo,zt[2:9:2,:],resources) # Draw an XY plot.
 
 #----------- Draw to other workstations  ------------------------------
 
-ngl_change_workstation(contour,cgmwks)  # Change the workstation that the
-ngl_change_workstation(xy,cgmwks)        # contour and XY plot is drawn to.
-ngl_draw(contour)                       # Draw the contour plot to the new
-ngl_frame(cgmwks)                        # workstation and advance the frame.
-ngl_draw(xy)                            # Draw the XY plot to the new
-ngl_frame(cgmwks)                        # workstation and advance the frame.
+Ngl.change_workstation(contour,cgmwks)   # Change the workstation that the
+Ngl.change_workstation(xy,cgmwks)        # contour and XY plot is drawn to.
+Ngl.draw(contour)                        # Draw the contour plot to the new
+Ngl.frame(cgmwks)                        # workstation and advance the frame.
+Ngl.draw(xy)                             # Draw the XY plot to the new
+Ngl.frame(cgmwks)                        # workstation and advance the frame.
 
-ngl_change_workstation(contour,pswks)  # Do the same for the PostScript
-ngl_change_workstation(xy,pswks)       # workstation.
-ngl_draw(contour)
-ngl_frame(pswks)
-ngl_draw(xy)
-ngl_frame(pswks)
+Ngl.change_workstation(contour,pswks)  # Do the same for the PostScript
+Ngl.change_workstation(xy,pswks)       # workstation.
+Ngl.draw(contour)
+Ngl.frame(pswks)
+Ngl.draw(xy)
+Ngl.frame(pswks)
 
-ngl_change_workstation(contour,pdfwks)  # And for the PDF workstation...
-ngl_change_workstation(xy,pdfwks) 
-ngl_draw(contour)
-ngl_frame(pdfwks)
-ngl_draw(xy)
-ngl_frame(pdfwks)
+Ngl.change_workstation(contour,pdfwks)  # And for the PDF workstation...
+Ngl.change_workstation(xy,pdfwks) 
+Ngl.draw(contour)
+Ngl.frame(pdfwks)
+Ngl.draw(xy)
+Ngl.frame(pdfwks)
 
 del xy
 del contour
 
-ngl_end()
+Ngl.end()

@@ -6,16 +6,16 @@ import Numeric
 #
 #  Import all names from the NetCDF module.
 #
-from Scientific.IO.NetCDF import *
+from Scientific.IO.NetCDF import NetCDFFile
 
 #
 #  Import Ngl support functions.
 #
-from Ngl import *
+import Ngl
 #
 #  Open the netCDF files.
 #
-dirc = ncargpath("data")
+dirc  = Ngl.ncargpath("data")
 ufile = NetCDFFile(dirc + "/cdf/Ustorm.cdf","r")  # Open two netCDF files.
 vfile = NetCDFFile(dirc + "/cdf/Vstorm.cdf","r")
 
@@ -30,15 +30,15 @@ ua = u[0,:,:]
 va = v[0,:,:]
 
 wks_type = "ps"
-wks = ngl_open_wks(wks_type,"ngl03p")
+wks = Ngl.open_wks(wks_type,"ngl03p")
 
-resources = Resources()
+resources = Ngl.Resources()
 if hasattr(u,"_FillValue"):
   resources.vfMissingUValueV = u._FillValue
 if hasattr(v,"_FillValue"):
   resources.vfMissingVValueV = v._FillValue
 
-vc = ngl_vector(wks,ua,va,resources)
+vc = Ngl.vector(wks,ua,va,resources)
 
 #----------- Begin second plot -----------------------------------------
 
@@ -48,7 +48,7 @@ resources.vcRefLengthF     = 0.045
 resources.vcMonoLineArrowColor  = False   # Draw vectors in color.
 resources.nglSpreadColors = False    # Do not interpolate color space.
 
-vc = ngl_vector(wks,ua,va,resources)
+vc = Ngl.vector(wks,ua,va,resources)
 
 #----------- Begin third plot -----------------------------------------
 
@@ -65,7 +65,7 @@ resources.pmLabelBarDisplayMode    = "Always"   # Turn on a label bar.
 resources.pmLabelBarWidthF         = 0.1
 resources.lbPerimOn                = False
 
-vc = ngl_vector(wks,ua,va,resources)
+vc = Ngl.vector(wks,ua,va,resources)
 
 #---------- Begin fourth plot ------------------------------------------
 
@@ -99,9 +99,9 @@ cmap = Numeric.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
                       [.870, .050, .000], [1.00, .000, .000], \
                       [.700, .700, .700]],Numeric.Float0)
 
-rlist = Resources()
+rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
-ngl_set_values(wks,rlist)
+Ngl.set_values(wks,rlist)
 
 resources.vcFillArrowsOn           = True  # Fill the vector arrows
 resources.vcMonoFillArrowFillColor = False # in different colors
@@ -112,7 +112,7 @@ resources.tiMainString      = ":F26:wind velocity vectors colored by temperature
 resources.tiMainFontHeightF = 0.02  # Make font slightly smaller.
 resources.lbLabelFont       = 21    # Change font of label bar labels.
 
-vc = ngl_vector_scalar(wks,ua,va,tempa,resources) # Draw a vector plot of
+vc = Ngl.vector_scalar(wks,ua,va,tempa,resources) # Draw a vector plot of
 
 del vc
 del u
@@ -120,4 +120,4 @@ del v
 del temp
 del tempa
 
-ngl_end()
+Ngl.end()

@@ -6,7 +6,7 @@ import Numeric,sys
 #
 #  Import NGL support functions.
 #
-from Ngl import *
+import Ngl
 
 def addcyclic(data):
 #
@@ -41,13 +41,13 @@ def addcyclic(data):
 cmap = Numeric.zeros((2,3),Numeric.Float0)
 cmap[0] = [1.,1.,1.]
 cmap[1] = [0.,0.,0.]
-rlist = Resources()
+rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
 wks_type = "ps"
-wks = ngl_open_wks(wks_type,"ngl11p",rlist)
+wks = Ngl.open_wks(wks_type,"ngl11p",rlist)
 
-dirc     = ncargpath("data")
-data     = ngl_asciiread(dirc+"/asc/u.cocos",(39,14),"float")
+dirc     = Ngl.ncargpath("data")
+data     = Ngl.asciiread(dirc+"/asc/u.cocos",(39,14),"float")
 
 pressure  = data[:,0]    # First column of data is pressure (mb).
 height    = data[:,1]    # Second column is height (km).
@@ -57,7 +57,7 @@ unew = addcyclic(u)  # Copy fi
 
 #----------- Begin first plot -----------------------------------------
 
-resources = Resources()
+resources = Ngl.Resources()
 
 resources.tiMainString   = ":F26:Cocos Island"   # Main title.
 resources.tiYAxisString  = ":F25:Pressure (mb)"  # Y axes label.
@@ -85,7 +85,7 @@ resources.tmYRMinorOn   = False      # No minor tick marks.
 
 resources.tmYRMode      = "Explicit"  # Define own tick mark labels.
 hnice = range(0,23,2)                 # Set range of "nice" height values.
-pnice = ftcurv(height,pressure,hnice) # Calculate "nice" pressure values.
+pnice = Ngl.ftcurv(height,pressure,hnice) # Calculate "nice" pressure values.
 resources.tmYRValues    = pnice       # At each "nice" pressure value,
 resources.tmYRLabels    = hnice       # put a "height" value label.
 
@@ -105,13 +105,13 @@ resources.cnLineLabelAngleF = 0. # Draw contour line labels right-side up.
 resources.cnLevelSpacingF   = 1.0
 
 resources.nglDraw  = False  # Don't draw the plot or advance the
-resources.nglFrame = False  # frame in the call to ngl_contour.
+resources.nglFrame = False  # frame in the call to Ngl.contour.
 
 resources.nglMaximize = False
 resources.pmLabelBarDisplayMode = "Never"    # Turn off label bar.
-contour = ngl_contour(wks, unew, resources)  # Create a contour plot.
+contour = Ngl.contour(wks, unew, resources)  # Create a contour plot.
 
-levels = ngl_get_float_array(contour,"cnLevels")
+levels = Ngl.get_float_array(contour,"cnLevels")
 
 patterns = Numeric.zeros((len(levels)+1),Numeric.Int)
 patterns[:] = -1
@@ -124,29 +124,29 @@ for i in xrange(len(levels)):
       patterns[i] = 17.
 patterns[-1]  = 17 # last pattern
 
-rlist = Resources()
+rlist = Ngl.Resources()
 rlist.cnFillPatterns = patterns
 rlist.cnFillScaleF = 0.8
-ngl_set_values(contour,rlist)
+Ngl.set_values(contour,rlist)
 
-ngl_draw(contour)  # Draw the contour plot.
+Ngl.draw(contour)  # Draw the contour plot.
 
-txres               = Resources()    # Annotate plot with some text.
+txres               = Ngl.Resources()    # Annotate plot with some text.
 txres.txFontHeightF = 0.015
-ngl_text_ndc(wks,":F25:U Component",  .270,.815,txres)
-ngl_text_ndc(wks,":F25:(m-s:S:-1:N:)",.765,.815,txres)
+Ngl.text_ndc(wks,":F25:U Component",  .270,.815,txres)
+Ngl.text_ndc(wks,":F25:(m-s:S:-1:N:)",.765,.815,txres)
 
 
 txres.txFontHeightF = 0.025   # Label right Y axis.
 txres.txAngleF      = 90.
-ngl_text_ndc(wks,":F25:Height (km)",.89,.5,txres)
+Ngl.text_ndc(wks,":F25:Height (km)",.89,.5,txres)
 
-ngl_frame(wks) # Advance the frame.
+Ngl.frame(wks) # Advance the frame.
 
 #----------- Begin second plot -----------------------------------------
 
 del resources 
-resources = Resources()
+resources = Ngl.Resources()
 
 resources.tiMainString  = ":F26:Cocos Island"
 resources.tiXAxisString = ":F25:Month"
@@ -160,6 +160,6 @@ resources.tmXBValues    = range(0,13,1)# Values from 0 to 12.
 resources.tmXBLabels    = ["Jan","Feb","Mar","Apr","May","Jun",\
                            "Jul","Aug","Sep","Oct","Nov","Dec","Jan"]
 
-xy = ngl_xy(wks,range(0,13,1),unew,resources) # Create and draw an XY plot.
+xy = Ngl.xy(wks,range(0,13,1),unew,resources) # Create and draw an XY plot.
 
-ngl_end()
+Ngl.end()

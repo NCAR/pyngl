@@ -1,23 +1,24 @@
 #
 #  Import NumPy.
 #
-import Numeric
+import Numeric, types
 
 #
 #  Import all names from the NetCDF module.
 #
-from Scientific.IO.NetCDF import *
+from Scientific.IO.NetCDF import NetCDFFile
 
 #
 #  Import Ngl support functions.
 #
-from Ngl import *
+import Ngl
+
 #
 #  Open the netCDF file.  This file is a netCDF version of the file:
 #
-#     ncargpath("data") + "/grb/ced1.lf00.t00z.eta.grb"
+#     Ngl.ncargpath("data") + "/grb/ced1.lf00.t00z.eta.grb"
 #
-file = NetCDFFile(ncargpath("data") + "/cdf/ced1.lf00.t00z.eta.nc","r")
+file = NetCDFFile(Ngl.ncargpath("data") + "/cdf/ced1.lf00.t00z.eta.nc","r")
 
 names = file.variables.keys()  #  Get the variable names
 print "\nVariable names:"      #  and print them out.
@@ -44,10 +45,10 @@ print file.variables[names[1]].dimensions
 #  Open a workstation.
 #
 wks_type = "ps"
-wks = ngl_open_wks(wks_type,"ngl04p",None)
+wks = Ngl.open_wks(wks_type,"ngl04p",None)
 
 #----------- Begin first plot -----------------------------------------
-resources = Resources()
+resources = Ngl.Resources()
 #
 #  Get the u/v variables.
 #
@@ -71,7 +72,7 @@ if hasattr(vvar,"_FillValue"):
 resources.tiMainFont    = "Times-Roman"
 resources.tiXAxisString = "streamlines"
 
-plot = ngl_streamline(wks,uvar[0,::2,::2],vvar[0,::2,::2],resources) 
+plot = Ngl.streamline(wks,uvar[0,::2,::2],vvar[0,::2,::2],resources) 
 
 #----------- Begin second plot -----------------------------------------
 
@@ -100,12 +101,12 @@ resources.tmYLLabelFont = "Times-Roman"
 
 resources.stLineColor = "green"  # Change streamlines to green.
 
-plot = ngl_streamline(wks,uvar[::2,::2],vvar[::2,::2],resources) 
+plot = Ngl.streamline(wks,uvar[::2,::2],vvar[::2,::2],resources) 
 
 #----------- Begin third plot -----------------------------------------
 
-arrowlength = ngl_get_float(plot,"stArrowLengthF")
-spacing = ngl_get_float(plot,"stMinLineSpacingF")
+arrowlength = Ngl.get_float(plot,"stArrowLengthF")
+spacing = Ngl.get_float(plot,"stMinLineSpacingF")
 
 resources.stMinLineSpacingF = spacing * 2.0     # Set some resources based
 resources.stArrowLengthF    = arrowlength * 2.0 # on resources you retrieved.
@@ -128,10 +129,10 @@ if hasattr(uvar,"_FillValue"):
 if hasattr(vvar,"_FillValue"):
   resources.vfMissingVValueV = vvar._FillValue
 
-plot = ngl_streamline(wks,uvar[0,::2,::2],vvar[0,::2,::2],resources)
+plot = Ngl.streamline(wks,uvar[0,::2,::2],vvar[0,::2,::2],resources)
 
 del uvar
 del vvar
 del plot
 
-ngl_end()
+Ngl.end()

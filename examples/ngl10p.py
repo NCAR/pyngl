@@ -6,7 +6,7 @@ import Numeric
 #
 #  Import PyNGL support functions.
 #
-from Ngl import *
+import Ngl
 
 #
 #  The function "wigley" performs computations on the input array
@@ -55,12 +55,12 @@ time[1,0:time2.shape[0]] = time2.astype(Numeric.Float0)
 cmap = Numeric.zeros((2,3),Numeric.Float0)
 cmap[0] = [1.,1.,1.]
 cmap[1] = [0.,0.,0.]
-rlist = Resources()
+rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
 wks_type = "ps"
-wks = ngl_open_wks(wks_type,"ngl10p",rlist)
+wks = Ngl.open_wks(wks_type,"ngl10p",rlist)
 
-resources = Resources()
+resources = Ngl.Resources()
 
 resources.caXMissingV = -999.
 resources.caYMissingV = -999.
@@ -85,9 +85,9 @@ resources.xyMarkerSizeF        = 0.05 # Default is 0.01
 resources.nglFrame             = False # Don't advance the frame.
 resources.nglScale             = True  # Draw X/Y axes labels in same size.
 
-xy = ngl_xy(wks,time,y,resources)  # Create and draw XY plot.
+xy = Ngl.xy(wks,time,y,resources)  # Create and draw XY plot.
 
-txresources               = Resources()
+txresources               = Ngl.Resources()
 txresources.txFontHeightF = 0.015
 txresources.txJust        = "CenterLeft" # Default is "CenterCenter".
 txresources.txFuncCode    = "~"          # Default is ":"
@@ -103,8 +103,8 @@ ypos = [30.,18.,70.]
 #  Loop through text strings and plot them.
 #
 for i in xrange(0,len(strings)):
-  ngl_text(wks,xy,strings[i],xpos[i],ypos[i],txresources)
+  Ngl.text(wks,xy,strings[i],xpos[i],ypos[i],txresources)
 
-ngl_frame(wks)
+Ngl.frame(wks)
 
-ngl_end()
+Ngl.end()

@@ -3,15 +3,15 @@ import Numeric
 #
 #  Import all names from the NetCDF module.
 #
-from Scientific.IO.NetCDF import *
+from Scientific.IO.NetCDF import NetCDFFile
 
 #
 #  Import Ngl support functions.
 #
-from Ngl import *
+import Ngl
 
 # Open netCDF file and read variables
-dirc  = ncargpath("data")
+dirc  = Ngl.ncargpath("data")
 cfile = NetCDFFile(dirc+"/cdf/trinidad.nc","r")
 
 data = cfile.variables["data"]
@@ -38,13 +38,13 @@ cmap = Numeric.array([[1.00, 1.00, 1.00],[0.00, 0.00, 0.00], \
 
 #
 #  Select a colormap and open an X11 window.
-rlist = Resources()
+rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
 wks_type = "ps"
-wks = ngl_open_wks(wks_type,"topo1",rlist)
+wks = Ngl.open_wks(wks_type,"topo1",rlist)
 
 
-res = Resources()
+res = Ngl.Resources()
 res.mpFillOn              = False
 res.mpLimitMode           = "Corners"
 res.mpDataBaseVersion     = "Ncarg4_1"
@@ -87,19 +87,19 @@ res.tiMainFontHeightF = 0.015
 
 res.nglFrame = False
 
-plot = ngl_contour_map(wks,data,res)
+plot = Ngl.contour_map(wks,data,res)
 
 #
 # Draw three text strings afterwards to make sure plot
 # gets maximized properly.
 #
-txres               = Resources()
+txres               = Ngl.Resources()
 txres.txFontHeightF = 0.015
-ngl_text_ndc(wks,"Min Elevation: 1359", 0.22,0.775,txres)
-ngl_text_ndc(wks,"Scale 1:250,000",     0.50,0.775,txres)
-ngl_text_ndc(wks,"Max Elevation: 4322", 0.85,0.775,txres)
+Ngl.text_ndc(wks,"Min Elevation: 1359", 0.22,0.775,txres)
+Ngl.text_ndc(wks,"Scale 1:250,000",     0.50,0.775,txres)
+Ngl.text_ndc(wks,"Max Elevation: 4322", 0.85,0.775,txres)
 
-ngl_frame(wks)
+Ngl.frame(wks)
 
-ngl_end()
+Ngl.end()
 

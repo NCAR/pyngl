@@ -6,7 +6,7 @@ import Numeric
 #
 #  Import Ngl support functions.
 #
-from Ngl import *
+import Ngl
 
 #
 #  Define coordinate data for an XY plot.
@@ -15,9 +15,9 @@ x = [10., 20.00, 30., 40.0, 50.000, 60.00, 70., 80.00, 90.000]
 y = [ 0.,  0.71,  1.,  0.7,  0.002, -0.71, -1., -0.71, -0.003]
 
 wks_type = "ps"
-wks = ngl_open_wks(wks_type,"ngl01p")  # Open a workstation.
+wks = Ngl.open_wks(wks_type,"ngl01p")  # Open a workstation.
 
-plot = ngl_xy(wks,x,y)   # Draw an XY plot.
+plot = Ngl.xy(wks,x,y)   # Draw an XY plot.
   
 #
 #  Define three curves for an XY plot.  Any arrays in PyNGL codes
@@ -34,11 +34,11 @@ y2 = Numeric.array([[0., 0.7, 1., 0.7, 0., -0.7, -1., -0.7, 0.],  \
 #
 #  Set resources for titling.
 #
-resources = Resources()
+resources = Ngl.Resources()
 resources.tiXAxisString = "X"
 resources.tiYAxisString = "Y"
   
-plot = ngl_xy(wks,x,y2,resources)    # Draw the plot.
+plot = Ngl.xy(wks,x,y2,resources)    # Draw the plot.
   
 #----------- Begin third plot -----------------------------------------
   
@@ -46,7 +46,7 @@ resources.xyLineColors        = [2,3,4]    # Define line colors.
 resources.xyLineThicknesses   = [1.,2.,5.] # Define line thicknesses
                                            # (1.0 is the default).
   
-plot = ngl_xy(wks,x,y2,resources)         
+plot = Ngl.xy(wks,x,y2,resources)         
   
 #---------- Begin fourth plot ------------------------------------------
   
@@ -63,12 +63,12 @@ resources.xyMarkerColor   = 3           # Marker color
 resources.xyMarkerSizeF   = 0.03        # Marker size (default
                                           # is 0.01)
   
-plot = ngl_xy(wks,x,y2,resources)       # Draw an XY plot.
+plot = Ngl.xy(wks,x,y2,resources)       # Draw an XY plot.
   
 #---------- Begin fifth plot ------------------------------------------
   
-filename = ncargpath("data") + "/asc/xy.asc"
-data = ngl_asciiread(filename,(129,4),"float")
+filename = Ngl.ncargpath("data") + "/asc/xy.asc"
+data     = Ngl.asciiread(filename,(129,4),"float")
   
 #
 #  Define a two-dimensional array of data values based on
@@ -87,7 +87,7 @@ lon     = data[:,0]
 lon     = (lon-1) * 360./128.
   
 del resources            # Start with new list of resources.
-resources = Resources()
+resources = Ngl.Resources()
 
 resources.tiMainString           = "U/V components of wind"
 resources.tiXAxisString          = "longitude"
@@ -103,10 +103,10 @@ resources.xyExplicitLabels       = ["U","V"]   # Labels for curves
 resources.xyLineLabelFontHeightF = 0.02        # Font size and color
 resources.xyLineLabelFontColor   = 2           # for line labels
   
-plot = ngl_xy(wks,lon,uv,resources) # Draw an XY plot with 2 curves.
+plot = Ngl.xy(wks,lon,uv,resources) # Draw an XY plot with 2 curves.
 
 # Clean up.
 del plot 
 del resources
 
-ngl_end()
+Ngl.end()

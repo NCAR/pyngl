@@ -6,16 +6,16 @@ import Numeric
 #
 #  Import all names from the NetCDF module.
 #
-from Scientific.IO.NetCDF import *
+from Scientific.IO.NetCDF import NetCDFFile
 
 #
 #  Import Ngl support functions.
 #
-from Ngl import *
+import Ngl
 #
 #  Open three netCDF files and get variables.
 #
-data_dir = ncargpath("data")
+data_dir  = Ngl.ncargpath("data")
 cdf_file1 = NetCDFFile(data_dir + "/cdf/941110_P.cdf","r")
 cdf_file2 = NetCDFFile(data_dir + "/cdf/sstdata_netcdf.nc","r")
 cdf_file3 = NetCDFFile(data_dir + "/cdf/Pstorm.cdf","r")
@@ -43,28 +43,28 @@ pf_nlat =  len(pf_lat)
 #  Open a workstation.
 #
 wks_type = "ps"
-wks = ngl_open_wks(wks_type,"ngl05p")
+wks = Ngl.open_wks(wks_type,"ngl05p")
 
 #----------- Begin first plot -----------------------------------------
  
-resources = Resources()
+resources = Ngl.Resources()
 
 resources.sfXCStartV = min(psl_lon)
 resources.sfXCEndV   = max(psl_lon)
 resources.sfYCStartV = min(psl_lat)
 resources.sfYCEndV   = max(psl_lat)
 
-map = ngl_contour_map(wks,psl,resources)
+map = Ngl.contour_map(wks,psl,resources)
 
 #----------- Begin second plot -----------------------------------------
 
-cmap = ngl_get_MDfloat_array(wks,"wkColorMap")
+cmap = Ngl.get_MDfloat_array(wks,"wkColorMap")
 cmap[0] = [1.,1.,1.]
 cmap[1] = [0.,0.,0.]
 
-rlist = Resources()
+rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
-ngl_set_values(wks,rlist)
+Ngl.set_values(wks,rlist)
 
 resources.mpProjection = "Orthographic" # Change the map projection.
 resources.mpCenterLonF = 180.           # Rotate the projection.
@@ -106,12 +106,12 @@ resources.sfXCEndV   = max(sst_lon)   # should lie on the map plot.
 resources.sfYCStartV = min(sst_lat)
 resources.sfYCEndV   = max(sst_lat)
 
-map = ngl_contour_map(wks,sst[0,:,:],resources) # Draw contours over a map.
+map = Ngl.contour_map(wks,sst[0,:,:],resources) # Draw contours over a map.
 
 #----------- Begin third plot -----------------------------------------
 
 del resources
-resources = Resources()
+resources = Ngl.Resources()
 
 if hasattr(pf,"_FillValue"):
   resources.sfMissingValueV = pf._FillValue
@@ -165,13 +165,13 @@ else:
 #
 # draw contours over map.
 #
-map = ngl_contour_map(wks,pfa,resources) # Convert pf to "mb" and
+map = Ngl.contour_map(wks,pfa,resources) # Convert pf to "mb" and
 
-txres = Resources()
+txres = Ngl.Resources()
 txres.txFontHeightF = 0.025  # for a text string.
 txres.txFontColor   = 4
-ngl_text_ndc(wks,":F25:Pressure (mb)",.41,.185,txres)
-ngl_frame(wks)   # Advance the frame.
+Ngl.text_ndc(wks,":F25:Pressure (mb)",.41,.185,txres)
+Ngl.frame(wks)   # Advance the frame.
 
 #---------- Begin fourth plot ------------------------------------------
 
@@ -191,9 +191,9 @@ cmap = Numeric.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
                       [1.00, .000, .000], [0.00, 1.00, 1.00], \
                       [.700, .700, .700]],Numeric.Float0)
 
-rlist = Resources()
+rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
-ngl_set_values(wks,rlist)
+Ngl.set_values(wks,rlist)
 
 resources.mpFillOn              = True         # Turn on map fill.
 resources.mpFillAreaSpecifiers  = ["Water","Land","USStatesWater"]
@@ -222,11 +222,11 @@ if hasattr(pf,"_FillValue"):
         pf._FillValue*Numeric.equal(pfa,pf._FillValue)
 else:
   pfa = 0.01*pfa
-map = ngl_contour_map(wks,pfa,resources)
+map = Ngl.contour_map(wks,pfa,resources)
 
 del map
 del resources
 del rlist
 del txres
 
-ngl_end()
+Ngl.end()

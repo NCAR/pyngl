@@ -8,7 +8,7 @@ import Numeric,sys
 #
 #  Import Ngl support functions.
 #
-from Ngl import *
+import Ngl
 
 N = 40
 len_dims = [N,N]
@@ -33,12 +33,12 @@ mask_specs =                                                                 \
 #  Open a workstation.
 #
 wks_type = "ps"
-wks = ngl_open_wks(wks_type,"cn12p")
+wks = Ngl.open_wks(wks_type,"cn12p")
 
-dirc = ncargpath("data")
-z    = ngl_asciiread(dirc+"/asc/cn12n.asc",len_dims,"float")
+dirc = Ngl.ncargpath("data")
+z    = Ngl.asciiread(dirc+"/asc/cn12n.asc",len_dims,"float")
  
-resources = Resources()
+resources = Ngl.Resources()
 resources.sfXCStartV  = -18.0
 resources.sfXCEndV    =  52.0
 resources.sfYCStartV  = -35.0
@@ -47,7 +47,7 @@ resources.vpXF        =   0.1
 resources.mpMaskAreaSpecifiers  =  mask_specs
 resources.mpFillAreaSpecifiers  =  fill_specs
 resources.pmLabelBarDisplayMode =  "always"
-ngl_contour_map(wks,z[:,:],resources)
+Ngl.contour_map(wks,z[:,:],resources)
 
 del resources
-ngl_end()
+Ngl.end()
