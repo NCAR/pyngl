@@ -1942,13 +1942,6 @@ nglPlotId streamline_wrap(int wks, void *u, void *v, const char *type_u,
   if(special_res->nglScale) scale_plot(streamline,st_res);
 
 /*
- * Overlay on an irregular plot object if it is desired to log
- * or linearize either of the axes.
- */
-
-  overlay_on_irregular(wks,&plot,special_res);
-
-/*
  * Set up plot id structure to return.
  */
   initialize_ids(&plot);
@@ -1960,6 +1953,13 @@ nglPlotId streamline_wrap(int wks, void *u, void *v, const char *type_u,
   plot.nvffield      = 1;
   plot.nstreamline   = 1;
   plot.nbase         = plot.nstreamline;
+
+/*
+ * Overlay on an irregular plot object if it is desired to log
+ * or linearize either of the axes.
+ */
+
+  overlay_on_irregular(wks,&plot,special_res);
 
 /*
  * Draw streamline plot and advance frame.
