@@ -102,7 +102,7 @@ colors = Numeric.array([                                               \
                        ],Numeric.Float0) / 255.
 rlist = Resources()
 rlist.wkColorMap = colors
-wks_type = "xxx"
+wks_type = "x11"
 wks = ngl_open_wks(wks_type,"meteogram",rlist)
 
 #
