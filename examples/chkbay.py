@@ -16,6 +16,15 @@ from Scientific.IO.NetCDF import NetCDFFile
 #
 #  Open a netCDF file containing the Chesapeake Bay data.
 #
+#  This data is from the Chesapeake Community Model Program Quoddy
+#  model:
+#
+#    http://ccmp.chesapeake.org
+#
+#  using the NOAA/NOS standardized hydrodynamic model NetCDF format:
+#
+#    https://sourceforge.net/projects/oceanmodelfiles
+#
 dirc  = Ngl.ncargpath("data")
 cfile = NetCDFFile(dirc + "/cdf/ctcbay.nc","r")
 

@@ -14,7 +14,7 @@ import Ngl
 from Scientific.IO.NetCDF import *
 
 #
-#  Open a netCDF file containing the Chesapeake Bay data.
+#  Open a netCDF file containing data off the coast of North Carolina.
 #
 dirc  = Ngl.ncargpath("data")
 cfile = NetCDFFile(dirc + "/cdf/ctnccl.nc","r")

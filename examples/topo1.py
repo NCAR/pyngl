@@ -10,7 +10,17 @@ from Scientific.IO.NetCDF import NetCDFFile
 #
 import Ngl
 
+#
+#  The data is from the 1-degree (1:250,000) Digital Elevation
+#  Models (DEM) from the US Geological Survey Earth Resources
+#  Observation System (EROS) Data Center:
+#
+#    http://edc.usgs.gov/geodata/
+#
+#  It is freely available to anyone to download.
+#
 # Open netCDF file and read variables
+#
 dirc  = Ngl.ncargpath("data")
 cfile = NetCDFFile(dirc+"/cdf/trinidad.nc","r")
 
