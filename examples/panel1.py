@@ -52,8 +52,11 @@ cmap = Numeric.array([[1.00,1.00,1.00],[0.00,0.00,0.00],[1.00,.000,.000],\
 #
 rlist               = Ngl.Resources()
 rlist.wkColorMap    = cmap
-rlist.wkOrientation = "Portrait"      # For PS or PDF output only.
+
 wks_type = "ps"
+if(wks_type == "ps" or wks_type == "pdf"):
+  rlist.wkOrientation = "Portrait"      # For PS or PDF output only.
+
 wks = Ngl.open_wks(wks_type,"panel1",rlist)  # Open an X11 workstation.
 
 #
@@ -153,7 +156,8 @@ panelres.nglPanelFigureStringsJust        = "BottomRight"
 # the shape of plots you are drawing.  This resource is for PDF or
 # PS output only.
 #
-panelres.nglPaperOrientation = "Auto"   
+if(wks_type == "ps" or wks_type == "pdf"):
+  panelres.nglPaperOrientation = "Auto"   
 
 #
 # Draw 3 rows and 2 columns of plots.
