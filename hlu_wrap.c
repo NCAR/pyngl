@@ -672,7 +672,6 @@ static swig_type_info *swig_types[12];
 #include <ncarg/hlu/LabelBar.h>
 #include <ncarg/hlu/TextItem.h>
 
-
 /***********************************************************************
  *
  *  Include gsun header
@@ -4715,7 +4714,7 @@ static PyObject *_wrap_ngl_open_wks_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -5028,7 +5027,7 @@ static PyObject *_wrap_ngl_contour_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -5295,7 +5294,7 @@ static PyObject *_wrap_ngl_contour_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -5729,7 +5728,7 @@ static PyObject *_wrap_ngl_map_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -6192,7 +6191,7 @@ static PyObject *_wrap_ngl_contour_map_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -6459,7 +6458,7 @@ static PyObject *_wrap_ngl_contour_map_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -6726,7 +6725,7 @@ static PyObject *_wrap_ngl_contour_map_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -7208,7 +7207,7 @@ static PyObject *_wrap_ngl_xy_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -7475,7 +7474,7 @@ static PyObject *_wrap_ngl_xy_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -7742,7 +7741,7 @@ static PyObject *_wrap_ngl_xy_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -8202,7 +8201,7 @@ static PyObject *_wrap_ngl_y_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -8469,7 +8468,7 @@ static PyObject *_wrap_ngl_y_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -8736,7 +8735,7 @@ static PyObject *_wrap_ngl_y_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -9210,7 +9209,7 @@ static PyObject *_wrap_ngl_vector_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -9477,7 +9476,7 @@ static PyObject *_wrap_ngl_vector_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -9953,7 +9952,7 @@ static PyObject *_wrap_ngl_vector_map_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -10220,7 +10219,7 @@ static PyObject *_wrap_ngl_vector_map_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -10487,7 +10486,7 @@ static PyObject *_wrap_ngl_vector_map_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -10976,7 +10975,7 @@ static PyObject *_wrap_ngl_vector_scalar_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -11243,7 +11242,7 @@ static PyObject *_wrap_ngl_vector_scalar_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -11510,7 +11509,7 @@ static PyObject *_wrap_ngl_vector_scalar_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -12001,7 +12000,7 @@ static PyObject *_wrap_ngl_vector_scalar_map_wrap(PyObject *self, PyObject *args
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -12268,7 +12267,7 @@ static PyObject *_wrap_ngl_vector_scalar_map_wrap(PyObject *self, PyObject *args
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -12535,7 +12534,7 @@ static PyObject *_wrap_ngl_vector_scalar_map_wrap(PyObject *self, PyObject *args
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -12802,7 +12801,7 @@ static PyObject *_wrap_ngl_vector_scalar_map_wrap(PyObject *self, PyObject *args
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -13276,7 +13275,7 @@ static PyObject *_wrap_ngl_streamline_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -13543,7 +13542,7 @@ static PyObject *_wrap_ngl_streamline_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -14019,7 +14018,7 @@ static PyObject *_wrap_ngl_streamline_map_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -14286,7 +14285,7 @@ static PyObject *_wrap_ngl_streamline_map_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -14553,7 +14552,7 @@ static PyObject *_wrap_ngl_streamline_map_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -15006,7 +15005,7 @@ static PyObject *_wrap_ngl_text_ndc_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -15706,7 +15705,7 @@ static PyObject *_wrap_ngl_text_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -16408,7 +16407,7 @@ static PyObject *_wrap_ngl_add_text_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -16675,7 +16674,7 @@ static PyObject *_wrap_ngl_add_text_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -17383,7 +17382,7 @@ static PyObject *_wrap_ngl_poly_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -17947,7 +17946,7 @@ static PyObject *_wrap_ngl_add_poly_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -18646,7 +18645,7 @@ static PyObject *_wrap_ngl_panel_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*
@@ -18913,7 +18912,7 @@ static PyObject *_wrap_ngl_panel_wrap(PyObject *self, PyObject *args) {
         char **strings;
         double *dvals;
         int *ivals,array_type,rlist,ndims,*len_dims;
-        ResInfo trname;
+        static ResInfo trname;
         char **trnames;
         
         /*

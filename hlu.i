@@ -3091,7 +3091,7 @@ import_array();
   char **strings;
   double *dvals;
   int *ivals,array_type,rlist,ndims,*len_dims;
-  ResInfo trname;
+  static ResInfo trname;
   char **trnames;
 
 /*
