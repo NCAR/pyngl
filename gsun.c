@@ -569,7 +569,7 @@ void spread_colors(int wks, int plot, int min_index, int max_index,
     for(i = 0; i <= lcount; i++) icols[i] = (int)(fcols[i] + 0.5);
   }
   else {
-    for(i = lcount; i >= 0; i--) icols[i] = (int)(fcols[i] + 0.5);
+    for(i = lcount; i >= 0; i--) icols[lcount-i] = (int)(fcols[i] + 0.5);
   }
 
   if(debug) {

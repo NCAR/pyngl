@@ -1191,7 +1191,6 @@ main()
  * Set up some resources.
  */
     NhlRLSetString      (cn2_rlist, "cnFillOn",              "True");
-    NhlRLSetIntegerArray(cn2_rlist, "cnFillColors",          cncolors,13);
     NhlRLSetString      (cn2_rlist, "cnLinesOn",             "False");
     NhlRLSetString      (cn2_rlist, "cnLineLabelsOn",        "False");
     NhlRLSetString      (cn2_rlist, "cnInfoLabelOn",         "False");
@@ -1209,8 +1208,13 @@ main()
     NhlRLSetInteger     (mp2_rlist, "mpPerimOn",             1);
 
     special_res.nglSpreadColors      = 1;
+/*
+ * The last color in the colormap is gray, which we don't want, so end
+ * at color before it.
+ */
     special_res.nglSpreadColorStart  = 3;
     special_res.nglSpreadColorEnd    = -2;
+
     cntrmap = ngl_contour_map_wrap(wks, T, type_T, nlat_T, nlon_T, 
                                    is_lat_coord_T, lat_T, type_lat_T, 
                                    is_lon_coord_T, lon_T, type_lon_T, 
