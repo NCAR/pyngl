@@ -1642,43 +1642,6 @@ def frame(wks):
 def draw(obj):
   return(NhlDraw(int_id(obj)))
 
-#
-#  isspace_l returns "1" if the character specified in its
-#  argument is a whitespace character and "0" otherwise.
-#  This is implemented here since the string method "isspace"
-#  is not implemented in older versions of Python.
-#
-def isspace_l(char):
-  if (string.find(string.whitespace,char) >= 0):
-    return 1
-  else:
-    return 0
-
-#
-#  get_tokens returns those substrings in an input line that are
-#  delineated by whitespace.
-#
-def get_tokens(line):
-  tstart = []
-  tend   = []
-  tokens = []
-  llen = len(line)
-  if (not isspace_l(line[0])):
-    tstart.append(0)
-  for chr_num in xrange(0,llen-1):
-    if (isspace_l(line[chr_num]) and \
-              (not isspace_l(line[chr_num+1]))):
-      tstart.append(chr_num+1)
-    if (not isspace_l(line[chr_num]) and isspace_l(line[chr_num+1])):
-      tend.append(chr_num+1)
-  if (not isspace_l(line[llen-1])):
-    tend.append(llen)
-
-  for i in xrange(len(tstart)):
-    tokens.append(line[tstart[i]:tend[i]])
-
-  return tokens
-
 def asciiread(filename,dims,type="float"):
   file = open(filename)
 #
@@ -1694,7 +1657,7 @@ def asciiread(filename,dims,type="float"):
       line = file.readline()[0:-1]
       if len(line) == 0:
         break
-      toks = get_tokens(line)
+      toks = string.split(line)
       for str in toks:
         if (type == "integer"):
           try:
@@ -1733,7 +1696,7 @@ def asciiread(filename,dims,type="float"):
     line = file.readline()[0:-1]
     if len(line) == 0:
       break
-    toks = get_tokens(line)
+    toks = string.split(line)
     for str in toks:
       if (type == "integer"):
         try:
@@ -1886,28 +1849,6 @@ def wmbarbmap(wks,x,y,u,v):
   wmbarb(wks,x,y,u,v)
   wmsetp("ezf",ezf)
   wmsetp("wdf",wdf)
-
-def indf(arr):
-#   
-#  Returns a list of those indices where arr has
-#  zero (False) values.
-# 
-  indices = [] 
-  for i in xrange(len(arr)):
-    if (arr[i] == 0):
-      indices.append(i)
-  return indices
-
-def indt(arr):
-# 
-#  Returns a list of those indices where arr has
-#  non-zero (True) values.
-#
-  indices = []
-  for i in xrange(len(arr)):
-    if (arr[i] != 0):     
-      indices.append(i)   
-  return indices
 
 def ck_type(fcn,arg,typ):
 #
@@ -2749,7 +2690,7 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
                             Numeric.logical_not(ismissing(TC,TCmissing)))
   mv1 = Numeric.logical_and(mv0,Numeric.logical_not(ismissing(TDC,TDCmissing)))
   mv2 = Numeric.logical_and(mv1,Numeric.greater_equal(P,100.))
-  idx = indt(mv2)
+  idx = ind(mv2)
   del mv0,mv1,mv2
   p   = Numeric.take(  P,idx)
   tc  = Numeric.take( TC,idx)
@@ -2947,7 +2888,7 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
       mv1 = Numeric.logical_and(mv0,  \
                      Numeric.logical_not(ismissing(WDIR,WDIRmissing)))
       mv2 = Numeric.logical_and(mv1,Numeric.greater_equal(P,100.))
-      IDW = indt(mv2)
+      IDW = ind(mv2)
       if (hasattr(localOpts,"sktWthin") and localOpts.sktWthin > 1):
         nThin = localOpts.sktWthin
         idw   = IDW[::nThin]
@@ -2986,7 +2927,7 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
       mv1 = Numeric.logical_and(mv0, \
                       Numeric.logical_not(ismissing(WDIR,WDIRmissing)))
       mv2 = Numeric.logical_and(mv1,ismissing(P,Pmissing))
-      idz = indt(mv2)
+      idz = ind(mv2)
 
       if (len(idz) > 0):
         zw  = Numeric.take(Z,idz)
@@ -3004,7 +2945,7 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
         mv0  = Numeric.logical_not(ismissing(P,Pmissing))
         mv1  = Numeric.logical_not(ismissing(Z,Zmissing))
         mv2  = Numeric.logical_and(mv0,mv1)
-        idzp = indt(mv2)
+        idzp = ind(mv2)
         Zv   = Numeric.take(Z,idzp)
         Pv   = Numeric.take(P,idzp)
         pz   = ftcurv(Zv,Pv,zw)               # map zw to p levels.
@@ -3040,7 +2981,7 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
         mv0  = Numeric.logical_not(ismissing(P,Pmissing))
         mv1  = Numeric.logical_not(ismissing(Z,Zmissing))
         mv2  = Numeric.logical_and(mv0,mv1)
-        idzp = indt(mv2)
+        idzp = ind(mv2)
         Zv   = Numeric.take(Z,idzp)
         if (len(Zv) == 0):
           print "Warning - skewt_plt: attempt to plot wind barbs at specified heights when there are no coordinates where pressure and geopotential are both defined."
