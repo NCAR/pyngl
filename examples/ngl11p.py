@@ -26,7 +26,7 @@ pressure  = data[:,0]    # First column of data is pressure (mb).
 height    = data[:,1]    # Second column is height (km).
 u         = data[:,2:14] # Rest of columns are climatological zonal winds
                            # (u: m/s)
-unew = Ngl.add_cyclic(u)  # Copy fi
+unew = Ngl.add_cyclic(u)  # Add cyclic points to u.
 
 #----------- Begin first plot -----------------------------------------
 
