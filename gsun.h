@@ -32,7 +32,7 @@ extern int scalar_field(void *, const char *, int, int, int, void *,
                         void *, int);
 
 extern int coord_array(void *, void *, const char *, const char *, 
-					   int, int, int, int, void *, void *, int);
+					   int, int *, int, int *, int, int, void *, void *, int);
 
 extern int vector_field(void *, void *, const char *, const char *, int,
                         int, int, void *, const char *, int, void*, 
@@ -49,7 +49,7 @@ extern int gsn_contour_wrap(int, void *, const char *, int, int,
                             const char *, int, void *, int, int);
 
 extern int gsn_xy_wrap(int, void *, void *, const char *,
-					   const char *, int, int, int, int,
+					   const char *, int, int *, int, int *, int, int,
 					   void *, void *, int, int, int);
 
 extern int gsn_vector_wrap(int, void *, void *, const char *, 

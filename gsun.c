@@ -11,8 +11,9 @@ main()
 
   int wks, contour, xy, vector, streamline;
   int wk_rlist, sf_rlist, ca_rlist, vf_rlist;
-  int cn_rlist, xy_rlist, xyds_rlist, vc_rlist, st_rlist;
-  int colors[] = {2,16,30,44,58,52,86,100,114,128,142,156,170};
+  int cn_rlist, xy_rlist, xyd_rlist, vc_rlist, st_rlist;
+  int colors[]  = {2,16,30,44,58,52,86,100,114,128,142,156,170};
+  int pttrns[]  = {0,1,2,3,4,5,6,7,8,9,10,11,12};
 
 /*
  * Declare variables for getting information from netCDF file.
@@ -22,7 +23,7 @@ main()
   int id_T, id_U, id_V;
   int lonid_T, latid_T, lonid_UV, latid_UV;
   int nlon_T, nlat_T, nlat_UV, nlon_UV;
-  int ndims_T, ndims_UV;
+  int ndims_T, dsizes_T[2], ndims_UV;
   int is_missing_T, is_missing_U, is_missing_V;
   int attid, status;
 
@@ -122,8 +123,8 @@ main()
   nc_inq_vartype  (ncid_T, id_T, &nctype_T);
   nc_inq_varndims (ncid_T, id_T, &ndims_T);
 
-  start = (size_t *)calloc(ndims_T,sizeof(size_t));
-  count = (size_t *)calloc(ndims_T,sizeof(size_t));
+  start    = (size_t *)calloc(ndims_T,sizeof(size_t));
+  count    = (size_t *)calloc(ndims_T,sizeof(size_t));
   for(i = 0; i < ndims_T; i++)   start[i] = 0;
   for(i = 0; i < ndims_T-2; i++) count[i] = 1;
   count[ndims_T-2] = nlat_T;
@@ -470,20 +471,20 @@ main()
  * resource lists.
  */
 
-  sf_rlist   = NhlRLCreate(NhlSETRL);
-  ca_rlist   = NhlRLCreate(NhlSETRL);
-  vf_rlist   = NhlRLCreate(NhlSETRL);
-  cn_rlist   = NhlRLCreate(NhlSETRL);
-  xy_rlist   = NhlRLCreate(NhlSETRL);
-  xyds_rlist = NhlRLCreate(NhlSETRL);
-  vc_rlist   = NhlRLCreate(NhlSETRL);
-  st_rlist   = NhlRLCreate(NhlSETRL);
+  sf_rlist  = NhlRLCreate(NhlSETRL);
+  ca_rlist  = NhlRLCreate(NhlSETRL);
+  vf_rlist  = NhlRLCreate(NhlSETRL);
+  cn_rlist  = NhlRLCreate(NhlSETRL);
+  xy_rlist  = NhlRLCreate(NhlSETRL);
+  xyd_rlist = NhlRLCreate(NhlSETRL);
+  vc_rlist  = NhlRLCreate(NhlSETRL);
+  st_rlist  = NhlRLCreate(NhlSETRL);
   NhlRLClear(sf_rlist);
   NhlRLClear(ca_rlist);
   NhlRLClear(vf_rlist);
   NhlRLClear(cn_rlist);
   NhlRLClear(xy_rlist);
-  NhlRLClear(xyds_rlist);
+  NhlRLClear(xyd_rlist);
   NhlRLClear(vc_rlist);
   NhlRLClear(st_rlist);
 
@@ -509,18 +510,51 @@ main()
   */
 
 /*
- * Set some XY (data spec) resources.
+ * Set some XY and XY data spec resources.
  */
 
-  NhlRLSetString(xyds_rlist, "xyLineColor",      "green");
-  NhlRLSetFloat (xyds_rlist, "xyLineThicknessF", 5.0);
+  NhlRLSetFloat  (xy_rlist,  "trXMinF",          -180);
+  NhlRLSetFloat  (xy_rlist,  "trXMaxF",           180);
+  NhlRLSetString (xy_rlist,  "tiMainFont",       "helvetica-bold");
+  NhlRLSetString (xy_rlist,  "tiMainFontColor",  "red");
+  NhlRLSetString (xy_rlist,  "tiMainString",     "This is a boring red title");
 
 /*
- * Create and draw XY plot, and advance frame.
+ * Resources for a single line. 
+ */
+/*
+   NhlRLSetString (xyd_rlist, "xyLineColor",      "green");
+   NhlRLSetFloat  (xyd_rlist, "xyLineThicknessF", 3.0);
  */
 
-  xy = gsn_xy_wrap(wks, lon_T, lat_T, type_lon_T, type_lat_T, nlon_T, nlat_T,
-				   0, 0, NULL, NULL, ca_rlist, xy_rlist, xyds_rlist);
+/*
+ * Resources for multiple lines.
+ */
+  NhlRLSetString (xyd_rlist,      "xyMonoLineColor", "False");
+  NhlRLSetIntegerArray(xyd_rlist, "xyLineColors",    colors,10);
+  NhlRLSetIntegerArray(xyd_rlist, "xyDashPatterns",  pttrns,10);
+
+/*
+ * Create and draw XY plot, and advance frame. In this case, the X data
+ * contains no missing values, but the Y data possibly does.
+ *
+ * Plot only the first 10 lines.
+ */
+  dsizes_T[0] = 10;           /* Could be up to nlat_T lines. */
+  dsizes_T[1] = nlon_T;
+
+  xy = gsn_xy_wrap(wks, lon_T, T, type_lon_T, type_T, 1, &nlon_T, 
+                   2, &dsizes_T[0], 0, is_missing_T, NULL, FillValue_T, 
+                   ca_rlist, xy_rlist, xyd_rlist);
+
+/* 
+ * To plot just a single line.
+ */
+/*
+  xy = gsn_xy_wrap(wks, lon_T, lat_T, type_lon_T, type_lat_T, 1, &nlon_T, 
+                   1, &nlat_T, 0, 0, NULL, NULL, 
+                   ca_rlist, xy_rlist, xyd_rlist);
+ */
 
 /*
  * Create and draw streamline plot, and advance frame.
@@ -942,7 +976,8 @@ int scalar_field(void *data, const char *type_data, int ylen, int xlen,
  */
 
 int coord_array(void *x, void *y, const char *type_x, const char *type_y, 
-                int xlen, int ylen, int is_missing_x, int is_missing_y,
+                int ndims_x, int *dsizes_x, int ndims_y, int *dsizes_y, 
+                int is_missing_x, int is_missing_y,
                 void *FillValue_x, void *FillValue_y, int ca_rlist)
 {
   int app, carray;
@@ -958,21 +993,21 @@ int coord_array(void *x, void *y, const char *type_x, const char *type_y,
  */
 
   if(!strcmp(type_x,"double")) {
-    NhlRLSetDoubleArray(ca_rlist,"caXArray",(double*)x,xlen);
+    NhlRLSetMDDoubleArray(ca_rlist,"caXArray",(double*)x,ndims_x,dsizes_x);
     
     if(is_missing_x) {
       NhlRLSetDouble(ca_rlist,"caXMissingV",((double*)FillValue_x)[0]);
     }
   }
   else if(!strcmp(type_x,"float")) {
-    NhlRLSetFloatArray(ca_rlist,"caXArray",(float*)x,xlen);
+    NhlRLSetMDFloatArray(ca_rlist,"caXArray",(float*)x,ndims_x,dsizes_x);
 
     if(is_missing_x) {
       NhlRLSetFloat(ca_rlist,"caXMissingV",((float*)FillValue_x)[0]);
     }
   }
   else if(!strcmp(type_x,"integer")) {
-    NhlRLSetIntegerArray(ca_rlist,"caXArray",(int*)x,xlen);
+    NhlRLSetMDIntegerArray(ca_rlist,"caXArray",(int*)x,ndims_x,dsizes_x);
 
     if(is_missing_x) {
       NhlRLSetInteger(ca_rlist,"caXMissingV",((int*)FillValue_x)[0]);
@@ -980,21 +1015,21 @@ int coord_array(void *x, void *y, const char *type_x, const char *type_y,
   }
 
   if(!strcmp(type_y,"double")) {
-    NhlRLSetDoubleArray(ca_rlist,"caYArray",(double*)y,ylen);
+    NhlRLSetMDDoubleArray(ca_rlist,"caYArray",(double*)y,ndims_y,dsizes_y);
 
     if(is_missing_y) {
       NhlRLSetDouble(ca_rlist,"caYMissingV",((double*)FillValue_y)[0]);
     }
   }
   else if(!strcmp(type_y,"float")) {
-    NhlRLSetFloatArray(ca_rlist,"caYArray",(float*)y,ylen);
+    NhlRLSetMDFloatArray(ca_rlist,"caYArray",(float*)y,ndims_y,dsizes_y);
 
     if(is_missing_y) {
       NhlRLSetFloat(ca_rlist,"caYMissingV",((float*)FillValue_y)[0]);
     }
   }
   else if(!strcmp(type_y,"integer")) {
-    NhlRLSetIntegerArray(ca_rlist,"caYArray",(int*)y,ylen);
+    NhlRLSetMDIntegerArray(ca_rlist,"caYArray",(int*)y,ndims_y,dsizes_y);
 
     if(is_missing_y) {
       NhlRLSetInteger(ca_rlist,"caYMissingV",((int*)FillValue_y)[0]);
@@ -1293,10 +1328,11 @@ int gsn_contour_wrap(int wks, void *data, const char *type,
  */
 
 int gsn_xy_wrap(int wks, void *x, void *y, const char *type_x,
-                const char *type_y, int xlen, int ylen, 
+                const char *type_y, int ndims_x, int *dsizes_x,
+                int ndims_y, int *dsizes_y, 
                 int is_missing_x, int is_missing_y, 
                 void *FillValue_x, void *FillValue_y,
-                int ca_rlist, int xy_rlist, int xyds_rlist)
+                int ca_rlist, int xy_rlist, int xyd_rlist)
 {
   int carray, xy, grlist;
   int num_dspec, *xyds;
@@ -1306,9 +1342,9 @@ int gsn_xy_wrap(int wks, void *x, void *y, const char *type_x,
  * dataset for the xy object.
  */
 
-  carray = coord_array(x, y, type_x, type_y, xlen, ylen, 
-					  is_missing_x, is_missing_y, 
-                      FillValue_x, FillValue_y, ca_rlist);
+  carray = coord_array(x, y, type_x, type_y, ndims_x, dsizes_x, 
+                       ndims_y, dsizes_y, is_missing_x, is_missing_y, 
+                       FillValue_x, FillValue_y, ca_rlist);
 
 /*
  * Assign the data object that was created earlier.
@@ -1334,8 +1370,8 @@ int gsn_xy_wrap(int wks, void *x, void *y, const char *type_x,
 /*
  * Now apply the data spec resources.
  */
-    NhlSetValues(*xyds,xyds_rlist);
-	NhlFree(xyds);
+    NhlSetValues(*xyds,xyd_rlist);
+    NhlFree(xyds);
 /*
  * Draw xy plot and advance frame.
  */
@@ -1457,5 +1493,4 @@ int gsn_streamline_wrap(int wks, void *u, void *v, const char *type_u,
 
   return(streamline);
 }
-
 
