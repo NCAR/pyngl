@@ -5290,7 +5290,9 @@ static PyObject *_wrap_open_wks_wrap(PyObject *self, PyObject *args) {
         trname.id = rlist;
         arg4 = (ResInfo *) &trname;
     }
-    if ((SWIG_ConvertPtr(obj4,(void **) &arg5, SWIGTYPE_p_nglRes,SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
+    {
+        arg5 = (void *) &nglRlist;
+    }
     result = (int)open_wks_wrap((char const *)arg1,(char const *)arg2,arg3,arg4,arg5);
     
     resultobj = PyInt_FromLong((long)result);

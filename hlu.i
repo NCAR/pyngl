@@ -3808,7 +3808,7 @@ extern void c_cpcldr(float *sequence_as_float, float *sequence_as_float, int *se
 extern void c_plchhq(float, float, NhlString, float, float, float);
 
 extern int open_wks_wrap(const char *, const char *, ResInfo *rlist,
-                         ResInfo *rlist, nglRes *);
+                         ResInfo *rlist, nglRes *rlist);
 extern nglPlotId contour_wrap(int, void *sequence_as_void, 
                             const char *, int, int,
                             int, void *, const char *, int, void *, 
