@@ -41,20 +41,20 @@ wks = Ngl.open_wks(wks_type,"seam",rlist)
 #
 resources = Ngl.Resources()
 
-resources.sfXArray          = lon
-resources.sfYArray          = lat
+resources.sfXArray            = lon
+resources.sfYArray            = lat
 
 resources.nglSpreadColorStart = 176
 resources.nglSpreadColorEnd   = 2
 
-resources.cnFillOn              = True
-resources.cnFillMode            = "AreaFill"
-resources.cnLinesOn             = False
-resources.cnLineLabelsOn        = False
+resources.cnFillOn            = True
+resources.cnFillMode          = "AreaFill"
+resources.cnLinesOn           = False
+resources.cnLineLabelsOn      = False
 
-resources.lbBoxLinesOn          = False
-resources.lbLabelFontHeightF    = 0.02
-resources.tiMainString          = "SEAM grid - surface pressure"
+resources.lbBoxLinesOn        = False
+resources.lbLabelFontHeightF  = 0.015
+resources.tiMainString        = "SEAM grid - surface pressure"
 
 #
 # The contour plot is not very interesting, so don't draw it.
@@ -94,9 +94,10 @@ resources.cnMaxLevelCount = 255
 
 map = Ngl.contour_map(wks,ps,resources)
 
-resources.lbOrientation = "Horizontal"
-resources.mpProjection  = "CylindricalEquidistant"
-resources.mpCenterLatF  = 0
+resources.lbOrientation      = "Horizontal"
+#resources.lbLabelFontHeightF = 0.015
+resources.mpProjection       = "CylindricalEquidistant"
+resources.mpCenterLatF       = 0
 
 map = Ngl.contour_map(wks,ps,resources)
 
@@ -104,6 +105,8 @@ resources.cnRasterSmoothingOn = True
 resources.tiMainString        = "Surface pressure with smoothing on" 
 
 map = Ngl.contour_map(wks,ps,resources)
+
+del resources.lbLabelFontHeightF        # Let PyNGL set font height.
 
 resources.lbOrientation = "Vertical"
 resources.tiMainString  = "SEAM grid: Surface pressure w/smoothing"
