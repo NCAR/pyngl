@@ -544,7 +544,7 @@ void overlay_on_irregular(int wks, nglPlotId *plot, nglRes *special_res)
   int srlist, grlist;
 
   overlay_plot = *(plot->base);
-  
+
 /*
  * Get the values of the special resources.
  */
@@ -1651,9 +1651,10 @@ nglPlotId contour_wrap(int wks, void *data, const char *type, int ylen,
   initialize_ids(&plot);
   plot.sffield    = (int *)malloc(sizeof(int));
   plot.contour    = (int *)malloc(sizeof(int));
-  plot.base       = plot.contour;
+  plot.base       = (int *)malloc(sizeof(int));
   *(plot.sffield) = field;
   *(plot.contour) = contour;
+  *(plot.base)    = contour;
   plot.nsffield   = 1;
   plot.ncontour   = 1;
   plot.nbase      = plot.ncontour;
@@ -1749,9 +1750,10 @@ nglPlotId xy_wrap(int wks, void *x, void *y, const char *type_x,
   initialize_ids(&plot);
   plot.cafield    = (int *)malloc(sizeof(int));
   plot.xy         = (int *)malloc(sizeof(int));
-  plot.base       = plot.xy;
+  plot.base       = (int *)malloc(sizeof(int));
   *(plot.cafield) = cafield;
   *(plot.xy)      = xy;
+  *(plot.base)    = xy;
   plot.ncafield   = 1;
   plot.nxy        = 1;
   plot.nbase      = plot.nxy;
@@ -1861,9 +1863,10 @@ nglPlotId vector_wrap(int wks, void *u, void *v, const char *type_u,
   initialize_ids(&plot);
   plot.vffield    = (int *)malloc(sizeof(int));
   plot.vector     = (int *)malloc(sizeof(int));
-  plot.base       = plot.vector;
+  plot.base       = (int *)malloc(sizeof(int));
   *(plot.vffield) = field;
   *(plot.vector)  = vector;
+  *(plot.base)    = vector;
   plot.nvffield   = 1;
   plot.nvector    = 1;
   plot.nbase      = plot.nvector;
@@ -1947,9 +1950,10 @@ nglPlotId streamline_wrap(int wks, void *u, void *v, const char *type_u,
   initialize_ids(&plot);
   plot.vffield       = (int *)malloc(sizeof(int));
   plot.streamline    = (int *)malloc(sizeof(int));
-  plot.base          = plot.streamline;
+  plot.base          = (int *)malloc(sizeof(int));
   *(plot.vffield)    = field;
   *(plot.streamline) = streamline;
+  *(plot.base)       = streamline;
   plot.nvffield      = 1;
   plot.nstreamline   = 1;
   plot.nbase         = plot.nstreamline;
@@ -2000,8 +2004,9 @@ nglPlotId map_wrap(int wks, ResInfo *mp_res, nglRes *special_res)
  */
   initialize_ids(&plot);
   plot.map    = (int *)malloc(sizeof(int));
-  plot.base   = plot.map;
+  plot.base   = (int *)malloc(sizeof(int));
   *(plot.map) = map;
+  *(plot.base)= map;
   plot.nmap   = 1;
   plot.nbase  = plot.nmap;
 
@@ -2074,10 +2079,11 @@ nglPlotId contour_map_wrap(int wks, void *data, const char *type,
   plot.sffield    = (int *)malloc(sizeof(int));
   plot.contour    = (int *)malloc(sizeof(int));
   plot.map        = (int *)malloc(sizeof(int));
-  plot.base       = plot.map;
+  plot.base       = (int *)malloc(sizeof(int));
   *(plot.sffield) = *(contour.sffield);
   *(plot.contour) = *(contour.base);
   *(plot.map)     = *(map.base);
+  *(plot.base)    = *(map.base);
   plot.nsffield   = 1;
   plot.ncontour   = 1;
   plot.nmap       = 1;
@@ -2155,10 +2161,11 @@ nglPlotId vector_map_wrap(int wks, void *u, void *v, const char *type_u,
   plot.vffield    = (int *)malloc(sizeof(int));
   plot.vector     = (int *)malloc(sizeof(int));
   plot.map        = (int *)malloc(sizeof(int));
-  plot.base       = plot.map;
+  plot.base       = (int *)malloc(sizeof(int));
   *(plot.vffield) = *(vector.vffield);
   *(plot.vector)  = *(vector.base);
   *(plot.map)     = *(map.base);
+  *(plot.base)    = *(map.base);
   plot.nvffield   = 1;
   plot.nvector    = 1;
   plot.nmap       = 1;
@@ -2237,10 +2244,11 @@ nglPlotId streamline_map_wrap(int wks, void *u, void *v,
   plot.vffield       = (int *)malloc(sizeof(int));
   plot.streamline    = (int *)malloc(sizeof(int));
   plot.map           = (int *)malloc(sizeof(int));
-  plot.base          = plot.map;
+  plot.base          = (int *)malloc(sizeof(int));
   *(plot.vffield)    = *(streamline.vffield);
   *(plot.streamline) = *(streamline.base);
   *(plot.map)        = *(map.base);
+  *(plot.base)       = *(map.base);
 
   plot.nvffield    = 1;
   plot.nstreamline = 1;
@@ -2339,10 +2347,11 @@ nglPlotId vector_scalar_wrap(int wks, void *u, void *v, void *t,
   plot.vffield    = (int *)malloc(sizeof(int));
   plot.sffield    = (int *)malloc(sizeof(int));
   plot.vector     = (int *)malloc(sizeof(int));
-  plot.base       = plot.vector;
+  plot.base       = (int *)malloc(sizeof(int));
   *(plot.vffield) = vffield;
   *(plot.sffield) = sffield;
   *(plot.vector)  = vector;
+  *(plot.base)    = vector;
   plot.nvffield = 1;
   plot.nsffield = 1;
   plot.nvector  = 1;
@@ -2428,11 +2437,12 @@ nglPlotId vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
   plot.sffield    = (int *)malloc(sizeof(int));
   plot.vector     = (int *)malloc(sizeof(int));
   plot.map        = (int *)malloc(sizeof(int));
-  plot.base       = plot.map;
+  plot.base       = (int *)malloc(sizeof(int));
   *(plot.vffield) = *(vector.vffield);
   *(plot.sffield) = *(vector.sffield);
   *(plot.vector)  = *(vector.base);
   *(plot.map)     = *(map.base);
+  *(plot.base)    = *(map.base);
 
   plot.nvffield = 1;
   plot.nsffield = 1;
