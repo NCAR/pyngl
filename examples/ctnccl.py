@@ -18,7 +18,7 @@ from Scientific.IO.NetCDF import *
 #
 #  This data is from the Naval Research Laboratory at the Stennis
 #  Space Center. For more information about this grid, see the
-#  article "Application of a Shelf-Scale Modeul to Wave-Induced
+#  article "Application of a Shelf-Scale Model to Wave-Induced
 #  Circulation: Rip Currents" (Mark Cobb and Cheryl Ann Blain,
 #  Ocean Dynamics and Prediction Branch).
 #
