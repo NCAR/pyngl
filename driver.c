@@ -646,6 +646,12 @@ main()
                              special_res);
   */
 /*
+ * Plot an XY plot, in which index values are used for the X axis.
+ */
+  xy = gsn_y_wrap(wks, T, type_T, 1, &nlon_T, is_missing_T, FillValue_T, 
+				  ca_rlist, xy_rlist, xyd_rlist, special_res);
+
+/*
  * Set some XY and XY data spec resources.
  */
 
@@ -684,6 +690,7 @@ main()
                    2, &dsizes_T[0], 0, is_missing_T, NULL, FillValue_T, 
                    ca_rlist, xy_rlist, xyd_rlist, special_res);
   */
+
 /* 
  * To plot just a single line.
  */

@@ -66,6 +66,9 @@ extern int gsn_xy_wrap(int, void *, void *, const char *,
 					   const char *, int, int *, int, int *, int, int,
 					   void *, void *, int, int, int, gsnRes);
 
+extern int gsn_y_wrap(int, void *, const char *, int, int *, int, void *,
+					  int, int, int, gsnRes);
+
 extern int gsn_vector_wrap(int, void *, void *, const char *, 
                            const char *, int, int, int, void *, 
                            const char *, int, void *, const char *, int,

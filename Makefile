@@ -1,12 +1,9 @@
-gsun: gsun.c gsun.h
-	nhlcc -o gsun gsun.c -lnetcdf
-
-pygsun: pygsun.o driver.o gsun.h
-	nhlcc -o pygsun driver.o pygsun.o -lnetcdf
+gsun: gsun.o driver.o gsun.h
+	nhlcc -o gsun driver.o gsun.o -lnetcdf
 
 driver.o: driver.c
 	nhlcc -c driver.c
 
-pygsun.o: pygsun.c
-	nhlcc -c pygsun.c
+gsun.o: gsun.c
+	nhlcc -c gsun.c
 

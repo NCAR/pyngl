@@ -393,26 +393,28 @@ int coord_array(void *x, void *y, const char *type_x, const char *type_y,
  * dataset for an XY object.
  */
 
-  if(!strcmp(type_x,"double")) {
-    NhlRLSetMDDoubleArray(ca_rlist,"caXArray",(double*)x,ndims_x,dsizes_x);
-    
-    if(is_missing_x) {
-      NhlRLSetDouble(ca_rlist,"caXMissingV",((double*)FillValue_x)[0]);
-    }
-  }
-  else if(!strcmp(type_x,"float")) {
-    NhlRLSetMDFloatArray(ca_rlist,"caXArray",(float*)x,ndims_x,dsizes_x);
-
-    if(is_missing_x) {
-      NhlRLSetFloat(ca_rlist,"caXMissingV",((float*)FillValue_x)[0]);
-    }
-  }
-  else if(!strcmp(type_x,"integer")) {
-    NhlRLSetMDIntegerArray(ca_rlist,"caXArray",(int*)x,ndims_x,dsizes_x);
-
-    if(is_missing_x) {
-      NhlRLSetInteger(ca_rlist,"caXMissingV",((int*)FillValue_x)[0]);
-    }
+  if(x != NULL) {
+	if(!strcmp(type_x,"double")) {
+	  NhlRLSetMDDoubleArray(ca_rlist,"caXArray",(double*)x,ndims_x,dsizes_x);
+ 
+	  if(is_missing_x) {
+		NhlRLSetDouble(ca_rlist,"caXMissingV",((double*)FillValue_x)[0]);
+	  }
+	}
+	else if(!strcmp(type_x,"float")) {
+	  NhlRLSetMDFloatArray(ca_rlist,"caXArray",(float*)x,ndims_x,dsizes_x);
+	  
+	  if(is_missing_x) {
+		NhlRLSetFloat(ca_rlist,"caXMissingV",((float*)FillValue_x)[0]);
+	  }
+	}
+	else if(!strcmp(type_x,"integer")) {
+	  NhlRLSetMDIntegerArray(ca_rlist,"caXArray",(int*)x,ndims_x,dsizes_x);
+	  
+	  if(is_missing_x) {
+		NhlRLSetInteger(ca_rlist,"caXMissingV",((int*)FillValue_x)[0]);
+	  }
+	}
   }
 
   if(!strcmp(type_y,"double")) {
@@ -772,6 +774,32 @@ int gsn_xy_wrap(int wks, void *x, void *y, const char *type_x,
  */
 
   draw_and_frame(wks, xy, special_res);
+
+/*
+ * Return.
+ */
+
+  return(xy);
+}
+
+
+/*
+ * This function uses the HLUs to create an XY plot.
+ */
+
+int gsn_y_wrap(int wks, void *y, const char *type_y, int ndims_y, 
+			   int *dsizes_y, int is_missing_y, void *FillValue_y,
+               int ca_rlist, int xy_rlist, int xyd_rlist,
+			   gsnRes special_res)
+{
+  int xy;
+
+/*
+ * Call gsn_xy_wrap, only using NULLs for the X values.
+ */
+  xy = gsn_xy_wrap(wks, NULL, y, NULL, type_y, 0, NULL,
+                   ndims_y, &dsizes_y[0], 0, is_missing_y, NULL, 
+				   FillValue_y, ca_rlist, xy_rlist, xyd_rlist, special_res);
 
 /*
  * Return.
