@@ -233,9 +233,9 @@ rain_res.nglMaximize     = False     # Do not maximize plot in frame
 rain_res.nglScale        = True      # Scale fonts on axes to be same size
 
 # -------------- temp sfc time series ------------------------
-tempsfc_res.vpXF            = 0.175  # The left side of the box
+tempsfc_res.vpXF            = 0.15   # The left side of the box
 tempsfc_res.vpYF            = 0.17   # The top side of the plot box
-tempsfc_res.vpWidthF        = 0.70   # The Width of the plot box
+tempsfc_res.vpWidthF        = 0.72   # The Width of the plot box
 tempsfc_res.vpHeightF       = 0.10   # The height of the plot box
 
 tempsfc_res.tiXAxisString  = ""            # X axes label.
