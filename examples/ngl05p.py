@@ -106,6 +106,8 @@ resources.sfXCEndV   = max(sst_lon)   # should lie on the map plot.
 resources.sfYCStartV = min(sst_lat)
 resources.sfYCEndV   = max(sst_lat)
 
+resources.pmLabelBarDisplayMode = "Never"  # Turn off the label bar.
+
 map = Ngl.contour_map(wks,sst[0,:,:],resources) # Draw contours over a map.
 
 #----------- Begin third plot -----------------------------------------
