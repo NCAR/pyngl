@@ -66,7 +66,7 @@ main()
  */
 
   int wks, contour, xy, vector, streamline, map, text, text1, text2;
-  int cntrmap, vctrmap, strmlnmap, *vctrmap_array;
+  int cntrmap, vctrmap, strmlnmap, *varray, *varray_copy;
   int wk_rlist, sf_rlist, sf2_rlist, ca_rlist, vf_rlist, tx_rlist;
   int cn_rlist, xy_rlist, xyd_rlist, vc_rlist, st_rlist, mp_rlist;
   int cn2_rlist, vc2_rlist, mp2_rlist, gs_rlist, am_rlist;
@@ -800,7 +800,7 @@ main()
  */
 
   wk_rlist = NhlRLCreate(NhlSETRL);
-  wks = gsn_open_wks_wrap("ps","test", wk_rlist);
+  wks = ngl_open_wks_wrap("ps","test", wk_rlist);
 
 /* 
  * Set color map resource and open workstation.
@@ -811,7 +811,7 @@ main()
       NhlRLClear(wk_rlist);
       NhlRLSetString(wk_rlist,"wkColorMap",colormaps[i]);
       (void)NhlSetValues(wks, wk_rlist);
-      gsn_draw_colormap_wrap(wks);
+      ngl_draw_colormap_wrap(wks);
     }
   }
 
@@ -860,7 +860,7 @@ main()
   NhlRLClear(gs_rlist);
 
 /*
- * gsn_contour section
+ * ngl_contour section
  */
 
   if(do_contour) {
@@ -886,7 +886,7 @@ main()
 
     xf = 0.01;
     yf = 0.05;
-    text = gsn_text_ndc_wrap(wks,"gsn_text_ndc: bottom feeder",
+    text = ngl_text_ndc_wrap(wks,"ngl_text_ndc: bottom feeder",
                              &xf,&yf,"float","float",tx_rlist,&special_pres);
 
 /*
@@ -898,13 +898,13 @@ main()
     NhlRLSetString (gs_rlist,"gsEdgesOn"       , "True");
     NhlRLSetFloat  (gs_rlist,"gsEdgeThicknessF", 3.0);
     NhlRLSetString (gs_rlist,"gsEdgeColor"     , "Salmon");
-    gsn_polygon_ndc_wrap(wks, (void *)xgon, (void *)ygon, "float", "float", 
+    ngl_polygon_ndc_wrap(wks, (void *)xgon, (void *)ygon, "float", "float", 
                          NG, 0, 0, NULL, NULL, gs_rlist, &special_pres);
 
 /*
  * Create and draw contour plot, and advance frame.
  */
-    contour = gsn_contour_wrap(wks, T, type_T, nlat_T, nlon_T, 
+    contour = ngl_contour_wrap(wks, T, type_T, nlat_T, nlon_T, 
                                is_lat_coord_T, lat_T, type_lat_T, 
                                is_lon_coord_T, lon_T, type_lon_T, 
                                is_missing_T, FillValue_T, sf_rlist, cn_rlist,
@@ -912,7 +912,7 @@ main()
   }
 
 /*
- * gsn_y section
+ * ngl_y section
  *
  * Index values are used for the X axis.
  */
@@ -926,16 +926,16 @@ main()
 
     xf = 0.3;
     yf = 0.8;
-    text = gsn_text_ndc_wrap(wks,"gsn_text_ndc",&xf,&yf,"float","float",
+    text = ngl_text_ndc_wrap(wks,"ngl_text_ndc",&xf,&yf,"float","float",
                              tx_rlist,&special_pres);
     xf = 0.35;
-    text = gsn_text_ndc_wrap(wks,"Down",&xf,&yf,"float","float",tx_rlist,
+    text = ngl_text_ndc_wrap(wks,"Down",&xf,&yf,"float","float",tx_rlist,
                              &special_pres);
 
 
     special_res.gsnFrame = 0;
 
-    xy = gsn_y_wrap(wks, T, type_T, 1, &nlon_T, is_missing_T, FillValue_T, 
+    xy = ngl_y_wrap(wks, T, type_T, 1, &nlon_T, is_missing_T, FillValue_T, 
                     ca_rlist, xy_rlist, xyd_rlist, &special_res);
 
     special_res.gsnFrame = 1;
@@ -943,7 +943,7 @@ main()
     NhlRLClear(gs_rlist);
     NhlRLSetString (gs_rlist,"gsLineColor",       "red");
     NhlRLSetInteger(gs_rlist,"gsLineDashPattern", 11);
-    gsn_polyline_wrap(wks, xy, (void *)xline2, (void *)yline2, "float",
+    ngl_polyline_wrap(wks, xy, (void *)xline2, (void *)yline2, "float",
                       "float", 5, 0, 0, NULL, NULL, 
                       gs_rlist, &special_pres);
 
@@ -951,7 +951,7 @@ main()
   }
 
 /*
- * gsn_xy section
+ * ngl_xy section
  */
 
   if(do_xy_multi) {
@@ -981,7 +981,7 @@ main()
     special_res.gsnFrame = 0;
     special_res.gsnDraw  = 0;
 
-    xy = gsn_xy_wrap(wks, lon_T, T, type_lon_T, type_T, 1, &nlon_T, 
+    xy = ngl_xy_wrap(wks, lon_T, T, type_lon_T, type_T, 1, &nlon_T, 
                      2, &dsizes_T[0], 0, is_missing_T, NULL, FillValue_T, 
                      ca_rlist, xy_rlist, xyd_rlist, &special_res);
 
@@ -998,7 +998,7 @@ main()
 
     ixf = -130;
     iyf =  268;
-    text1 = gsn_add_text_wrap(wks, xy, "~F26~gsn_add_text:~C~sideways", 
+    text1 = ngl_add_text_wrap(wks, xy, "~F26~ngl_add_text:~C~sideways", 
                              &ixf, &iyf, "integer","integer",tx_rlist,
                              am_rlist, &special_pres);
 
@@ -1007,7 +1007,7 @@ main()
     NhlRLSetFloat  (tx_rlist,"txAngleF",     270.);
     NhlRLSetString (tx_rlist,"txFontColor",  "green");
     ixf = -80;
-    text2 = gsn_text_wrap(wks, xy, "~F26~gsn_text:~C~green, sideways", 
+    text2 = ngl_text_wrap(wks, xy, "~F26~ngl_text:~C~green, sideways", 
                          &ixf, &iyf,"integer","integer",tx_rlist,
                           &special_pres);
 
@@ -1025,7 +1025,7 @@ main()
 
     special_res.gsnFrame = 0;
 
-    xy = gsn_xy_wrap(wks, lat_T, T, type_lat_T, type_T, 1, &nlat_T, 
+    xy = ngl_xy_wrap(wks, lat_T, T, type_lat_T, type_T, 1, &nlat_T, 
                      1, &nlon_T, 0, 0, NULL, NULL, 
                      ca_rlist, xy_rlist, xyd_rlist, &special_res);
 
@@ -1037,35 +1037,35 @@ main()
     NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 0.02);
     xm = -70.;
     ym = 271.5;
-    gsn_polymarker_wrap(wks, xy, (void *)&xm, (void *)&ym, "float", "float", 
+    ngl_polymarker_wrap(wks, xy, (void *)&xm, (void *)&ym, "float", "float", 
                         1, 0, 0, NULL, NULL,  gs_rlist, &special_pres);
 
     xm = -50.;
     NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 0.03);
-    gsn_polymarker_wrap(wks, xy, (void *)&xm, (void *)&ym, "float", "float", 
+    ngl_polymarker_wrap(wks, xy, (void *)&xm, (void *)&ym, "float", "float", 
                         1, 0, 0, NULL, NULL,  gs_rlist, &special_pres);
 
     xm = -30.;
     NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 0.04);
-    gsn_polymarker_wrap(wks, xy, (void *)&xm, (void *)&ym, "float", "float", 
+    ngl_polymarker_wrap(wks, xy, (void *)&xm, (void *)&ym, "float", "float", 
                         1, 0, 0, NULL, NULL,  gs_rlist, &special_pres);
 
     xm = -10.;
     NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 0.05);
-    gsn_polymarker_wrap(wks, xy, (void *)&xm, (void *)&ym, "float", "float", 
+    ngl_polymarker_wrap(wks, xy, (void *)&xm, (void *)&ym, "float", "float", 
                         1, 0, 0, NULL, NULL,  gs_rlist, &special_pres);
 
 
     xm =  10.;
     NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 0.06);
-    gsn_polymarker_wrap(wks, xy, (void *)&xm, (void *)&ym, "float", "float", 
+    ngl_polymarker_wrap(wks, xy, (void *)&xm, (void *)&ym, "float", "float", 
                         1, 0, 0, NULL, NULL,  gs_rlist, &special_pres);
 
     NhlFrame(wks);
   }
 
 /*
- * gsn_streamline section
+ * ngl_streamline section
  */
 
   if(do_streamline) {
@@ -1073,7 +1073,7 @@ main()
 /*
  * Create and draw streamline plot, and advance frame.
  */
-    streamline = gsn_streamline_wrap(wks, U, V, type_U, type_V, 
+    streamline = ngl_streamline_wrap(wks, U, V, type_U, type_V, 
                                      nlat_UV, nlon_UV, 
                                      is_lat_coord_UV, lat_UV, type_lat_UV, 
                                      is_lon_coord_UV, lon_UV, type_lon_UV, 
@@ -1083,7 +1083,7 @@ main()
   }
 
 /*
- * gsn_vector section
+ * ngl_vector section
  */
 
   if(do_vector) {
@@ -1101,8 +1101,8 @@ main()
  * Create and draw vector plot, and advance frame.
  */
 
-    vector = gsn_vector_wrap(wks, U, V, type_U, type_V, 
-							 nlat_UV, nlon_UV, 
+    vector = ngl_vector_wrap(wks, U, V, type_U, type_V, 
+                             nlat_UV, nlon_UV, 
                              is_lat_coord_UV, lat_UV, type_lat_UV, 
                              is_lon_coord_UV, lon_UV, type_lon_UV, 
                              is_missing_U, is_missing_V, 
@@ -1111,7 +1111,7 @@ main()
   }
 
 /*
- * gsn_map section
+ * ngl_map section
  */
 
   if(do_map) {
@@ -1129,11 +1129,11 @@ main()
  * Create and draw map plot, and advance frame.
  */
 
-    map = gsn_map_wrap(wks, mp_rlist, &special_res);
+    map = ngl_map_wrap(wks, mp_rlist, &special_res);
   }
 
 /*
- * gsn_contour_map section
+ * ngl_contour_map section
  */
 
   if(do_contour_map) {
@@ -1158,7 +1158,7 @@ main()
     NhlRLSetString      (mp2_rlist, "mpGeophysicalLineColor","black");
     NhlRLSetInteger     (mp2_rlist, "mpPerimOn",             1);
 
-    cntrmap = gsn_contour_map_wrap(wks, T, type_T, nlat_T, nlon_T, 
+    cntrmap = ngl_contour_map_wrap(wks, T, type_T, nlat_T, nlon_T, 
                                    is_lat_coord_T, lat_T, type_lat_T, 
                                    is_lon_coord_T, lon_T, type_lon_T, 
                                    is_missing_T, FillValue_T, 
@@ -1167,7 +1167,7 @@ main()
   }
 
 /*
- * gsn_contour_map section
+ * ngl_contour_map section
  */
 
   if(do_contour_map2) {
@@ -1224,7 +1224,7 @@ main()
     special_res.gsnFrame    = 0;
     special_res.gsnMaximize = 0;
 
-    cntrmap = gsn_contour_map_wrap(wks, P, type_P, nlat_UV, nlon_UV, 
+    cntrmap = ngl_contour_map_wrap(wks, P, type_P, nlat_UV, nlon_UV, 
                                    is_lat_coord_UV, lat_UV, type_lat_UV, 
                                    is_lon_coord_UV, lon_UV, type_lon_UV, 
                                    is_missing_P, FillValue_P, 
@@ -1243,7 +1243,7 @@ main()
     NhlRLSetInteger(tx_rlist,"txFontColor"   , 4);
     xf = 0.45;
     yf = 0.25;
-    text = gsn_text_ndc_wrap(wks,":F25:Pressure (mb)",&xf,&yf,"float",
+    text = ngl_text_ndc_wrap(wks,":F25:Pressure (mb)",&xf,&yf,"float",
                              "float", tx_rlist,&special_pres);
     
     NhlFrame(wks);
@@ -1259,7 +1259,7 @@ main()
   NhlRLSetMDFloatArray(srlist,NhlNwkColorMap,&cmap[0][0],2,cmap_len);
  (void)NhlSetValues(wks, srlist);
 /*
- * gsn_vector_map section
+ * ngl_vector_map section
  */
 
   if(do_vector_scalar || do_panel) {
@@ -1289,110 +1289,342 @@ main()
  * Draw some polymarkers before we draw the plot.
  */
 
-	if(do_vector_scalar) {
-	  NhlRLClear(gs_rlist);
-	  NhlRLSetInteger(gs_rlist,"gsMarkerIndex", 16);
-	  NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 10.5);
-	  NhlRLSetString (gs_rlist,"gsMarkerColor", "red");
-	  gsn_polymarker_ndc_wrap(wks, (void *)xmark1, (void *)ymark1, "double",
-							  "float", 6, 0, 0, NULL, NULL, gs_rlist,
-							  &special_pres);
-	  NhlRLSetString (gs_rlist,"gsMarkerColor", "green");
-	  gsn_polymarker_ndc_wrap(wks, (void *)xmark2, (void *)ymark2, "float", 
-							  "double", 3, 0, 0, NULL, NULL, gs_rlist, 
-							  &special_pres);
-	  NhlRLSetString (gs_rlist,"gsMarkerColor", "blue");
-	  gsn_polymarker_ndc_wrap(wks, (void *)xmark3, (void *)ymark3, "float",
-							  "float", 3, 0, 0, NULL, NULL, gs_rlist,
-							  &special_pres);
+    if(do_vector_scalar) {
+      NhlRLClear(gs_rlist);
+      NhlRLSetInteger(gs_rlist,"gsMarkerIndex", 16);
+      NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 10.5);
+      NhlRLSetString (gs_rlist,"gsMarkerColor", "red");
+      ngl_polymarker_ndc_wrap(wks, (void *)xmark1, (void *)ymark1, "double",
+                              "float", 6, 0, 0, NULL, NULL, gs_rlist,
+                              &special_pres);
+      NhlRLSetString (gs_rlist,"gsMarkerColor", "green");
+      ngl_polymarker_ndc_wrap(wks, (void *)xmark2, (void *)ymark2, "float", 
+                              "double", 3, 0, 0, NULL, NULL, gs_rlist, 
+                              &special_pres);
+      NhlRLSetString (gs_rlist,"gsMarkerColor", "blue");
+      ngl_polymarker_ndc_wrap(wks, (void *)xmark3, (void *)ymark3, "float",
+                              "float", 3, 0, 0, NULL, NULL, gs_rlist,
+                              &special_pres);
 
 /*
  * Now create and draw plot.
  */
-	  vctrmap = gsn_vector_scalar_wrap(wks, U, V, T2, type_U, type_V,
-									   type_T2, nlat_UV, nlon_UV, 
-									   is_lat_coord_UV, lat_UV, type_lat_UV, 
-									   is_lon_coord_UV, lon_UV, type_lon_UV,
-									   is_missing_U, is_missing_V, 
-									   is_missing_T2, FillValue_U, 
-									   FillValue_V, FillValue_T2,
-									   vf_rlist, sf2_rlist, vc2_rlist, 
-									   &special_res);
-	}
+      vctrmap = ngl_vector_scalar_wrap(wks, U, V, T2, type_U, type_V,
+                                       type_T2, nlat_UV, nlon_UV, 
+                                       is_lat_coord_UV, lat_UV, type_lat_UV, 
+                                       is_lon_coord_UV, lon_UV, type_lon_UV,
+                                       is_missing_U, is_missing_V, 
+                                       is_missing_T2, FillValue_U, 
+                                       FillValue_V, FillValue_T2,
+                                       vf_rlist, sf2_rlist, vc2_rlist, 
+                                       &special_res);
+    }
 
-	if(do_panel) {
+    if(do_panel) {
 /*
  * Loop across time dimension and create a vector plot for each one.
  * Then, we'll create several panel plots.
+ * Create a separate array to hold the same plots, but set some of
+ * them to "0" (missing).
  */
-	  vctrmap_array = (int*)malloc(ntime_UV*sizeof(int));
+      varray      = (int*)malloc(ntime_UV*sizeof(int));
+      varray_copy = (int*)malloc(ntime_UV*sizeof(int));
 
-	  special_res.gsnMaximize = 0;
-	  special_res.gsnFrame    = 0;
-	  special_res.gsnDraw     = 0;
-	  for(i = 0; i < ntime_UV; i++) {
-		Unew  = &((float*)U)[nlatlon_UV*i];
-		Vnew  = &((float*)V)[nlatlon_UV*i];
-		T2new = &((float*)T2)[nlatlon_UV*i];
-		vctrmap_array[i] = gsn_vector_scalar_wrap(
-									     wks, Unew, Vnew, T2new, type_U, 
-										 type_V, type_T2, nlat_UV, nlon_UV, 
-										 is_lat_coord_UV, lat_UV, 
-										 type_lat_UV, is_lon_coord_UV, 
-										 lon_UV, type_lon_UV, is_missing_U, 
-										 is_missing_V, is_missing_T2, 
-										 FillValue_U, FillValue_V, 
-										 FillValue_T2, vf_rlist, sf2_rlist,
-										 vc2_rlist, &special_res);
-	  }
-	  special_res.gsnPaperOrientation = 6;   /* 0=portrait 6=landscape */
-	  special_res.gsnPaperWidth       =  8.5;
-	  special_res.gsnPaperHeight      = 11.0;
-	  special_res.gsnPaperMargin      =  0.5;
+      special_res.gsnMaximize = 0;
+      special_res.gsnFrame    = 0;
+      special_res.gsnDraw     = 0;
+      for(i = 0; i < ntime_UV; i++) {
+        Unew  = &((float*)U)[nlatlon_UV*i];
+        Vnew  = &((float*)V)[nlatlon_UV*i];
+        T2new = &((float*)T2)[nlatlon_UV*i];
+        varray[i] = ngl_vector_scalar_wrap(wks, Unew, Vnew, T2new,
+                           type_U, type_V, type_T2,
+                           nlat_UV, nlon_UV, 
+                           is_lat_coord_UV, lat_UV, 
+                           type_lat_UV, is_lon_coord_UV, 
+                           lon_UV, type_lon_UV, 
+                           is_missing_U, is_missing_V, 
+                           is_missing_T2, FillValue_U, 
+                           FillValue_V, FillValue_T2, 
+                           vf_rlist, sf2_rlist,
+                           vc2_rlist, &special_res);
+
+      }
+      varray_copy[i] = varray[i];
+/*
+ * Paper orientation: -1 is auto, 0 is portrait, and 6 is landscape.
+ */
+      special_res.gsnPaperOrientation = -1;
+      special_res.gsnPaperWidth       =  8.5;
+      special_res.gsnPaperHeight      = 11.0;
+      special_res.gsnPaperMargin      =  0.5;
 
 /*
  * Special resources for paneling.
  */
-	  special_res.gsnDebug                   = 1;
-	  special_res.gsnPanelCenter             = 1;
-	  special_res.gsnPanelRowSpec            = 0;
-	  special_res.gsnPanelXWhiteSpacePercent = 1.;
-	  special_res.gsnPanelYWhiteSpacePercent = 1.;
-	  special_res.gsnPanelBoxes              = 0;
-	  special_res.gsnPanelLeft               = 0.;
-	  special_res.gsnPanelRight              = 1.;
-	  special_res.gsnPanelBottom             = 0.;
-	  special_res.gsnPanelTop                = 1.;
-	  special_res.gsnPanelInvsblTop          = -999;
-	  special_res.gsnPanelInvsblLeft         = -999;
-	  special_res.gsnPanelInvsblRight        = -999;
-	  special_res.gsnPanelInvsblBottom       = -999;
-	  special_res.gsnPanelSave               = 0;
+      special_res.gsnDebug                   = 1;
+      special_res.gsnPanelCenter             = 1;
+      special_res.gsnPanelRowSpec            = 0;
+      special_res.gsnPanelXWhiteSpacePercent = 1.;
+      special_res.gsnPanelYWhiteSpacePercent = 1.;
+      special_res.gsnPanelBoxes              = 0;
+      special_res.gsnPanelLeft               = 0.;
+      special_res.gsnPanelRight              = 1.;
+      special_res.gsnPanelBottom             = 0.;
+      special_res.gsnPanelTop                = 1.;
+      special_res.gsnPanelInvsblTop          = -999;
+      special_res.gsnPanelInvsblLeft         = -999;
+      special_res.gsnPanelInvsblRight        = -999;
+      special_res.gsnPanelInvsblBottom       = -999;
+      special_res.gsnPanelSave               = 0;
 
-	  special_res.gsnMaximize = 1;
-	  special_res.gsnFrame    = 1;
-	  special_res.gsnDraw     = 1;
+      special_res.gsnMaximize = 1;
+      special_res.gsnFrame    = 1;
+      special_res.gsnDraw     = 1;
 
-	  panel_dims[0] = 3;          /* rows    */
-	  panel_dims[1] = 1;          /* columns */
-	  gsn_panel_wrap(wks, vctrmap_array, ntime_UV, panel_dims, 2, 
-					 &special_res);
-	  
-	  panel_dims[0] = 1;          /* rows    */
-	  panel_dims[1] = 3;          /* columns */
-	  gsn_panel_wrap(wks, vctrmap_array, ntime_UV, panel_dims, 2, 
-					 &special_res);
+/*
+ * This first loop is to do an initial run-through where no plots
+ * are missing, and then the second run-through will set some plots
+ * to missing.
+ */
+      for(i = 0; i <= 1; i++) {
+/*
+ * Make sure text strings default to horizontal orientation.
+ */
+        NhlRLSetFloat(tx_rlist,"txAngleF" , 0.);
 
-	  panel_dims[0] = 2;          /* rows    */
-	  panel_dims[1] = 2;          /* columns */
-	  gsn_panel_wrap(wks, vctrmap_array, ntime_UV, panel_dims, 2, 
-					 &special_res);
+        if(i) {
+/*
+ * We're going to be doing missing plots, so for these, we always
+ * want a text string. Since the text string has to be drawn after
+ * the paneled plots, we need to turn off frame for the paneled plots,
+ * and turn it on for the text strings.
+ */
+          special_res.gsnFrame  = 0;
+          special_pres.gsnFrame = 1;
+        }
 
-	}
+        panel_dims[0] = 3;          /* rows    */
+        panel_dims[1] = 1;          /* columns */
+        if(i) {
+          varray[0] = 0;
+        }
+        ngl_panel_wrap(wks, varray, 3, panel_dims, 2, 
+                       &special_res);
+
+/*
+        ngl_panel_wrap(wks, varray, ntime_UV, panel_dims, 2, 
+                       &special_res);
+ */
+        if(i) {
+          varray[0] = varray_copy[0];
+          xf = 0.5;
+          yf = 0.80;
+          text = ngl_text_ndc_wrap(wks,":F25:3 rows/1 column:C:plot 0 is missing",
+                       &xf,&yf,"float","float",
+                       tx_rlist,&special_pres);
+        }
+      
+        panel_dims[0] = 1;          /* rows    */
+        panel_dims[1] = 3;          /* columns */
+        if(i) {
+          varray[0] = 0;
+        }
+        ngl_panel_wrap(wks, varray, 3, panel_dims, 2, 
+                   &special_res);
+/*
+        ngl_panel_wrap(wks, varray, ntime_UV, panel_dims, 2, 
+                   &special_res);
+ */
+
+        if(i) {
+          varray[0] = varray_copy[0];
+          xf = 0.5;
+          yf = 0.98;
+          text = ngl_text_ndc_wrap(wks,":F25:1 row/3 columns:C:Plot 0 is missing",
+                       &xf,&yf,"float","float",tx_rlist,
+                       &special_pres);
+        }
+
+        panel_dims[0] = 2;          /* rows    */
+        panel_dims[1] = 2;          /* columns */
+
+        if(i) {
+          varray[2] = varray[3] = 0;
+        }
+        ngl_panel_wrap(wks, varray, 4, panel_dims, 2, 
+                       &special_res);
+
+/*
+        ngl_panel_wrap(wks, varray, ntime_UV, panel_dims, 2, 
+                       &special_res);
+*/
+        if(i) {
+          varray[2] = varray_copy[2];
+          varray[3] = varray_copy[3];
+          xf = 0.5;
+          yf = 0.98;
+          text = ngl_text_ndc_wrap(wks,":F25:2 rows/2 columns:C:Plots 2/3 are missing",
+                                   &xf,&yf,"float","float",tx_rlist,
+                                   &special_pres);
+        }
+
+/*
+ * We need to test various aspects of panelling:
+ *   - adding a string at the top, bottom, left, and right
+ *   - changing the margins
+ *   - changing the spacing around the plots
+ *   - playing w/gsnPanelCenter when you have missing plots
+ *   - gsnPanelRowSpec
+ */
+        special_res.gsnFrame  = 0;
+        special_pres.gsnFrame = 1;
+        NhlRLClear(tx_rlist);
+        NhlRLSetFloat(tx_rlist,"txFontHeightF" , 0.020);
+/*
+ * Testing gsnPanelBottom.
+ */
+        printf("Testing gsnPanelBottom...\n");
+
+        special_res.gsnPanelBottom = 0.07;
+        panel_dims[0] = 2;          /* rows    */
+        panel_dims[1] = 3;          /* columns */
+
+        if(i) {
+          varray[0] = varray[2] = 0;
+        }
+
+        ngl_panel_wrap(wks, varray, 6, panel_dims, 2, 
+                       &special_res);
+/*
+        ngl_panel_wrap(wks, varray, ntime_UV, panel_dims, 2, 
+                       &special_res);
+ */
+        xf = 0.5;
+        yf = 0.04;
+        if(i) {
+          varray[0] = varray_copy[0];
+          varray[2] = varray_copy[2];
+          text = ngl_text_ndc_wrap(wks,":F25:2 rows/3 columns:C:Plots 0/2 are missing",
+                                   &xf,&yf,"float","float",tx_rlist,
+                                   &special_pres);
+        }
+        else {
+          text = ngl_text_ndc_wrap(wks,":F26:2 rows/3 columns:C:Panel string at the bottom",
+                                   &xf,&yf,"float","float",tx_rlist,
+                                   &special_pres);
+        }
+
+/*
+ * Testing gsnPanelTop.
+ */
+        printf("Testing gsnPanelTop...\n");
+
+        special_res.gsnPanelTop    = 0.94;
+        special_res.gsnPanelBottom = 0.0;
+        panel_dims[0] = 4;          /* rows    */
+        panel_dims[1] = 2;          /* columns */
+
+        if(i) {
+          varray[4] = varray[5] = 0;
+        }
+
+        ngl_panel_wrap(wks, varray, 8, panel_dims, 2, &special_res);
+
+        xf = 0.5;
+        yf = 0.97;
+        if(i) {
+          varray[4] = varray_copy[4];
+          varray[5] = varray_copy[5];
+          text = ngl_text_ndc_wrap(wks,":F25:4 rows/2 columns:C:Plots 4/5 are missing",
+                                   &xf,&yf,"float","float",tx_rlist,
+                                   &special_pres);
+        }
+        else {
+          text = ngl_text_ndc_wrap(wks,":F26:4 rows/2 columns:C:Panel string at the top",
+                                   &xf,&yf,"float","float",tx_rlist,
+                                   &special_pres);
+        }
+
+/*
+ * Testing gsnPanelRight.
+ */
+        printf("Testing gsnPanelRight...\n");
+
+        special_res.gsnPanelTop    = 1.0;
+        special_res.gsnPanelRight  = 0.94;
+        panel_dims[0] = 2;          /* rows    */
+        panel_dims[1] = 4;          /* columns */
+        if(i) {
+          varray[3] = 0;
+          varray[7] = 0;
+        }
+        ngl_panel_wrap(wks, varray, 8, panel_dims, 2, &special_res);
+        
+        xf = 0.97;
+        yf = 0.5;
+        NhlRLSetFloat(tx_rlist,"txAngleF" , 90.);
+        if(i) {
+          varray[3] = varray_copy[3];
+          varray[7] = varray_copy[7];
+          text = ngl_text_ndc_wrap(wks,":F25:2 rows/4 columns:C:Plots 3/7 are missing",
+                                   &xf,&yf,"float","float",tx_rlist,
+                                   &special_pres);
+        }
+        else {
+          text = ngl_text_ndc_wrap(wks,":F26:2 rows/4 columns:C:Panel string on the right",
+                                   &xf,&yf,"float","float",tx_rlist,
+                                   &special_pres);
+        }
+
+/*
+ * Testing gsnPanelLeft.
+ */
+        printf("Testing gsnPanelLeft...\n");
+
+        special_res.gsnPanelRight  = 1.0;
+        special_res.gsnPanelLeft   = 0.07;
+        panel_dims[0] = 3;          /* rows    */
+        panel_dims[1] = 4;          /* columns */
+
+        if(i) {
+          varray[2] = 0;
+          varray[5] = 0;
+          varray[7] = 0;
+          varray[11] = 0;
+        }
+
+        ngl_panel_wrap(wks, varray, 12, panel_dims, 2, &special_res);
+        
+        xf = 0.04;
+        yf = 0.5;
+        if(i) {
+          varray[2] = varray_copy[2];
+          varray[5] = varray_copy[5];
+          varray[7] = varray_copy[7];
+          varray[11] = varray_copy[11];
+          text = ngl_text_ndc_wrap(wks,":F25:3 rows/4 columns:C:Plots 2/5/7/11 are missing",
+                                   &xf,&yf,"float","float",tx_rlist,
+                                   &special_pres);
+        }
+        else {
+          text = ngl_text_ndc_wrap(wks,":F26:3 rows/4 columns:C:Panel string on the left",
+                                   &xf,&yf,"float","float",tx_rlist,
+                                   &special_pres);
+        }
+        
+        special_res.gsnPanelTop    = 1.0;
+        special_res.gsnPanelBottom = 0.0;
+        special_res.gsnPanelRight  = 1.0;
+        special_res.gsnPanelLeft   = 0.0;
+        special_pres.gsnFrame      = 0;
+        special_res.gsnFrame       = 1;
+      }
+    }
   }
 
 /*
- * gsn_vector_map section
+ * ngl_vector_map section
  */
 
   if(do_vector_map) {
@@ -1442,13 +1674,13 @@ main()
                     "GeophysicalAndUSStates");
     
     special_res.gsnFrame = 0;
-    vctrmap = gsn_vector_map_wrap(wks, U, V, type_U, type_V, nlat_UV, 
+    vctrmap = ngl_vector_map_wrap(wks, U, V, type_U, type_V, nlat_UV, 
                                   nlon_UV, is_lat_coord_UV, lat_UV, 
                                   type_lat_UV, is_lon_coord_UV, lon_UV,
-								  type_lon_UV, is_missing_U, is_missing_V,
-								  FillValue_U, FillValue_V, vf_rlist, 
-								  vc2_rlist, mp2_rlist, &special_res);
-	
+                                  type_lon_UV, is_missing_U, is_missing_V,
+                                  FillValue_U, FillValue_V, vf_rlist, 
+                                  vc2_rlist, mp2_rlist, &special_res);
+    
   
     special_res.gsnFrame = 1;
 
@@ -1459,7 +1691,7 @@ main()
     NhlRLClear(gs_rlist);
     NhlRLSetString (gs_rlist,"gsLineColor"     , "red");
     NhlRLSetFloat  (gs_rlist,"gsLineThicknessF", 2.5);
-    gsn_polyline_ndc_wrap(wks, (void *)xline1, (void *)yline2, "float",
+    ngl_polyline_ndc_wrap(wks, (void *)xline1, (void *)yline2, "float",
                           "float", 2, 0, 0, NULL, NULL, gs_rlist,
                           &special_pres);
 
@@ -1474,14 +1706,14 @@ main()
 
     xf = 0.5;
     yf = 0.16;
-    text = gsn_text_ndc_wrap(wks,"gsn_text_ndc: I'm a big labelbar",
+    text = ngl_text_ndc_wrap(wks,"ngl_text_ndc: I'm a big labelbar",
                              &xf,&yf,"float","float", tx_rlist,&special_pres);
     NhlFrame(wks);
 
   }
 
 /*
- * gsn_streamline_map section
+ * ngl_streamline_map section
  */
 
   if(do_streamline_map) {
@@ -1516,7 +1748,7 @@ main()
 
     special_res.gsnFrame = 0;
 
-    strmlnmap = gsn_streamline_map_wrap(wks, U, V, type_U, type_V, nlat_UV, 
+    strmlnmap = ngl_streamline_map_wrap(wks, U, V, type_U, type_V, nlat_UV, 
                                         nlon_UV, is_lat_coord_UV, lat_UV, 
                                         type_lat_UV, is_lon_coord_UV, lon_UV,
                                         type_lon_UV, is_missing_U, 
@@ -1538,7 +1770,7 @@ main()
     
     ixf = -93;
     iyf =  65;
-    text = gsn_text_wrap(wks,strmlnmap,"gsn_text: lat=65,lon=-93",
+    text = ngl_text_wrap(wks,strmlnmap,"ngl_text: lat=65,lon=-93",
                          &ixf, &iyf, "integer", "integer", tx_rlist,
                          &special_pres);
 /*
@@ -1547,18 +1779,18 @@ main()
 
     NhlRLClear(gs_rlist);
     NhlRLSetString (gs_rlist,"gsFillColor", "LightGray");
-    gsn_polygon_ndc_wrap(wks, (void *)xgon, (void *)ygon, "float", "float",
+    ngl_polygon_ndc_wrap(wks, (void *)xgon, (void *)ygon, "float", "float",
                          NG, 0, 0, NULL, NULL, gs_rlist, &special_pres);
 
     NhlRLClear(gs_rlist);
     NhlRLSetString (gs_rlist,"gsMarkerColor", "red");
-    gsn_polymarker_ndc_wrap(wks, (void *)xgon, (void *)ygon, "float",
+    ngl_polymarker_ndc_wrap(wks, (void *)xgon, (void *)ygon, "float",
                             "float", NG, 0, 0, NULL, NULL, gs_rlist,
                             &special_pres);
 
     NhlRLClear(gs_rlist);
     NhlRLSetString (gs_rlist,"gsLineColor", "Blue");
-    gsn_polyline_ndc_wrap(wks, (void *)xgon, (void *)ygon, "float", 
+    ngl_polyline_ndc_wrap(wks, (void *)xgon, (void *)ygon, "float", 
                           "float", NG, 0, 0, NULL, NULL, gs_rlist,
                           &special_pres);
 
@@ -1566,7 +1798,7 @@ main()
   }
 
 /*
- * gsn_vector_scalar_map section
+ * ngl_vector_scalar_map section
  */
 
   if(do_vector_scalar_map) {
@@ -1621,7 +1853,7 @@ main()
     special_res.gsnFrame = 0;
     special_res.gsnDraw  = 0;
 
-    vctrmap = gsn_vector_scalar_map_wrap(wks, U, V, T2, type_U, type_V, 
+    vctrmap = ngl_vector_scalar_map_wrap(wks, U, V, T2, type_U, type_V, 
                                          type_T2, nlat_UV, nlon_UV, 
                                          is_lat_coord_UV, lat_UV, type_lat_UV,
                                          is_lon_coord_UV, lon_UV, type_lon_UV,
@@ -1640,11 +1872,11 @@ main()
  */
     NhlRLClear(gs_rlist);
     NhlRLSetInteger (gs_rlist,"gsFillIndex", 17);
-    i1 = gsn_add_polygon_wrap(wks, vctrmap, (void *)longon, (void *)latgon,
+    i1 = ngl_add_polygon_wrap(wks, vctrmap, (void *)longon, (void *)latgon,
                               "integer", "integer", 5, 0, 0, NULL, NULL, 
                               gs_rlist, &special_pres);
     NhlRLSetInteger (gs_rlist,"gsLineThicknessF", 2.0);
-    i2 = gsn_add_polyline_wrap(wks, vctrmap, (void *)longon, (void *)latgon,
+    i2 = ngl_add_polyline_wrap(wks, vctrmap, (void *)longon, (void *)latgon,
                                "integer", "integer", 5, 0, 0, NULL, NULL, 
                                gs_rlist, &special_pres);
 
@@ -1653,7 +1885,7 @@ main()
  */
     NhlRLSetInteger(gs_rlist,"gsMarkerIndex", 16);
     NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 10.5);
-    i3 = gsn_add_polymarker_wrap(wks, vctrmap, (void *)longon, 
+    i3 = ngl_add_polymarker_wrap(wks, vctrmap, (void *)longon, 
                                  (void *)latgon, "integer", "integer", 4, 0,
                                  0, NULL, NULL, gs_rlist,&special_pres);
 
@@ -1667,14 +1899,14 @@ main()
     NhlRLSetString (tx_rlist,"txFont"       , "helvetica");
     NhlRLSetString (tx_rlist,"txJust"       , "BottomRight");
 
-    text1 = gsn_add_text_wrap(wks, vctrmap, "lat=  60:C:lon=-125", &ixf, 
+    text1 = ngl_add_text_wrap(wks, vctrmap, "lat=  60:C:lon=-125", &ixf, 
                              &yf, "integer", "float", tx_rlist, am_rlist,
                              &special_pres);
 
     ixf = -65;
     yf  =  60;
     NhlRLSetString (tx_rlist,"txJust", "BottomLeft");
-    text2 = gsn_add_text_wrap(wks,vctrmap,"lat= 60:C:lon=-65",
+    text2 = ngl_add_text_wrap(wks,vctrmap,"lat= 60:C:lon=-65",
                              &ixf, &yf, "integer", "float", tx_rlist,
                              am_rlist, &special_pres);
 /*
@@ -1692,13 +1924,13 @@ main()
     NhlRLSetString (tx_rlist,"txJust", "TopRight");
     ixf = -125;
     yf  =   20;
-    text = gsn_text_wrap(wks,vctrmap,"lat=  20:C:lon=-125",
+    text = ngl_text_wrap(wks,vctrmap,"lat=  20:C:lon=-125",
                          &ixf, &yf, "integer", "float", tx_rlist,
                          &special_pres);
     ixf = -65;
     yf  =  20;
     NhlRLSetString (tx_rlist,"txJust", "TopLeft");
-    text = gsn_text_wrap(wks,vctrmap,"lat= 20:C:lon=-65", &ixf, &yf,
+    text = ngl_text_wrap(wks,vctrmap,"lat= 20:C:lon=-65", &ixf, &yf,
                          "integer", "float", tx_rlist, &special_pres);
 
     NhlFrame(wks);

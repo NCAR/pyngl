@@ -119,58 +119,58 @@ extern int vector_field(void *, void *, const char *, const char *, int,
  * Workstation routine.
  */
 
-extern int gsn_open_wks_wrap(const char *, const char *, int);
+extern int ngl_open_wks_wrap(const char *, const char *, int);
 
 /*
  * Plotting routines.
  */
 
-extern int gsn_contour_wrap(int, void *, const char *, int, int, 
+extern int ngl_contour_wrap(int, void *, const char *, int, int, 
                             int, void *, const char *, int, void *, 
                             const char *, int, void *, int, int, gsnRes *);
 
-extern int gsn_xy_wrap(int, void *, void *, const char *,
+extern int ngl_xy_wrap(int, void *, void *, const char *,
                        const char *, int, int *, int, int *, int, int,
                        void *, void *, int, int, int, gsnRes *);
 
-extern int gsn_y_wrap(int, void *, const char *, int, int *, int, void *,
+extern int ngl_y_wrap(int, void *, const char *, int, int *, int, void *,
                       int, int, int, gsnRes *);
 
-extern int gsn_vector_wrap(int, void *, void *, const char *, 
+extern int ngl_vector_wrap(int, void *, void *, const char *, 
                            const char *, int, int, int, void *, 
                            const char *, int, void *, const char *, int,
                            int, void *, void *, int, int, gsnRes *);
 
-extern int gsn_streamline_wrap(int, void *, void *, const char *, 
+extern int ngl_streamline_wrap(int, void *, void *, const char *, 
                                const char *, int, int, int, void *, 
                                const char *, int, void *, const char *, 
                                int, int, void *, void *, int, int, gsnRes *);
 
-extern int gsn_map_wrap(int, int, gsnRes *);
+extern int ngl_map_wrap(int, int, gsnRes *);
 
-extern int gsn_contour_map_wrap(int, void *, const char *, int, int, 
+extern int ngl_contour_map_wrap(int, void *, const char *, int, int, 
                                 int, void *, const char *, int, void *, 
                                 const char *, int, void *, int, int, int,
                                 gsnRes *);
 
-extern int gsn_vector_map_wrap(int, void *, void *, const char *, 
+extern int ngl_vector_map_wrap(int, void *, void *, const char *, 
                            const char *, int, int, int, void *, 
                            const char *, int, void *, const char *, int,
                            int, void *, void *, int, int, int, gsnRes *);
 
-extern int gsn_streamline_map_wrap(int, void *, void *, const char *, 
+extern int ngl_streamline_map_wrap(int, void *, void *, const char *, 
                                    const char *, int, int, int, void *, 
                                    const char *, int, void *, const char *, 
                                    int, int, void *, void *, int, int,
                                    int, gsnRes *);
 
-extern int gsn_vector_scalar_wrap(int, void *, void *, void *, const char *, 
+extern int ngl_vector_scalar_wrap(int, void *, void *, void *, const char *, 
                                   const char *, const char *, int, int, int, 
                                   void *, const char *, int, void *, 
                                   const char *, int, int, int, void *, 
                                   void *, void *, int, int, int, gsnRes *);
 
-extern int gsn_vector_scalar_map_wrap(int, void *, void *, void *, 
+extern int ngl_vector_scalar_map_wrap(int, void *, void *, void *, 
                                       const char *, const char *, 
                                       const char *, int, int, int, void *,
                                       const char *, int, void *,
@@ -183,64 +183,64 @@ extern int gsn_vector_scalar_map_wrap(int, void *, void *, void *,
  * Text routines.
  */
 
-extern int gsn_text_ndc_wrap(int, char *, void *, void *, const char *, 
+extern int ngl_text_ndc_wrap(int, char *, void *, void *, const char *, 
                              const char *, int, gsnRes *);
-extern int gsn_text_wrap(int, int, char *, void *, void *, const char *,
+extern int ngl_text_wrap(int, int, char *, void *, void *, const char *,
                          const char *, int, gsnRes *);
 
 /*
  * Primitive drawing routines.
  */
 
-extern void gsn_poly_wrap(int, int, void *, void *, const char *type_x,
+extern void ngl_poly_wrap(int, int, void *, void *, const char *type_x,
                           const char *type_y, int, int, int, void *, void*,
                           NhlPolyType, int, int, gsnRes *);
 
 
-extern int gsn_add_poly_wrap(int, int, void *, void *, const char *, 
+extern int ngl_add_poly_wrap(int, int, void *, void *, const char *, 
                              const char *, int, int, int, void *, void *,
                              NhlPolyType, int, gsnRes *);
 
-extern void gsn_polymarker_ndc_wrap(int, void *, void *, const char *, 
+extern void ngl_polymarker_ndc_wrap(int, void *, void *, const char *, 
                                     const char *, int, int, int, void *,
                                     void *, int, gsnRes *);
 
-extern void gsn_polyline_ndc_wrap(int, void *, void *, const char *, 
+extern void ngl_polyline_ndc_wrap(int, void *, void *, const char *, 
                                   const char *, int, int, int, void *,
                                   void *, int, gsnRes *);
 
-extern void gsn_polygon_ndc_wrap(int, void *, void *, const char *, 
+extern void ngl_polygon_ndc_wrap(int, void *, void *, const char *, 
                                  const char *, int, int, int, void *, 
                                  void *, int, gsnRes *);
 
-extern void gsn_polymarker_wrap(int, int, void *, void *, const char *, 
+extern void ngl_polymarker_wrap(int, int, void *, void *, const char *, 
                                 const char *, int, int, int, void *, void *, 
                                 int, gsnRes *);
 
-extern void gsn_polyline_wrap(int, int, void *, void *, const char *, 
+extern void ngl_polyline_wrap(int, int, void *, void *, const char *, 
                               const char *, int, int, int, void *, void *, 
                               int, gsnRes *);
 
-extern void gsn_polygon_wrap(int, int, void *, void *, const char *, 
+extern void ngl_polygon_wrap(int, int, void *, void *, const char *, 
                              const char *, int, int, int, void *, void *, 
                              int, gsnRes *);
 
-extern int gsn_add_polyline_wrap(int, int, void *, void *, const char *, 
+extern int ngl_add_polyline_wrap(int, int, void *, void *, const char *, 
                                  const char *, int, int, int, void *, 
                                  void *, int, gsnRes *);
 
-extern int gsn_add_polymarker_wrap(int, int, void *, void *, const char *, 
+extern int ngl_add_polymarker_wrap(int, int, void *, void *, const char *, 
                                    const char *, int, int, int, void *, 
                                    void *, int, gsnRes *);
 
-extern int gsn_add_polygon_wrap(int, int, void *, void *, const char *, 
+extern int ngl_add_polygon_wrap(int, int, void *, void *, const char *, 
                                 const char *, int, int, int, void *, 
                                 void *, int, gsnRes *);
 
-extern int gsn_add_text_wrap(int, int, char *, void *, void *, const char *, 
+extern int ngl_add_text_wrap(int, int, char *, void *, void *, const char *, 
                              const char *, int, int, gsnRes *special_res);
 
 
-extern void gsn_draw_colormap_wrap(int);
+extern void ngl_draw_colormap_wrap(int);
 
-extern void gsn_panel_wrap(int, int *, int, int *, int, gsnRes *);
+extern void ngl_panel_wrap(int, int *, int, int *, int, gsnRes *);

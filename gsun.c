@@ -313,6 +313,15 @@ void compute_ps_device_coords(int wks, int *plots, int nplots,
     printf("    wkDeviceUpperX = %d\n", coords[2]);
     printf("    wkDeviceUpperY = %d\n", coords[3]);
     printf("    wkOrientation  = %d\n", paper_orient);
+    if(paper_orient == NhlLANDSCAPE) {
+      printf("    wkOrientation  = landscape\n");
+    }     
+    else if(paper_orient == NhlPORTRAIT) {
+      printf("    wkOrientation  = portrait\n");
+    }
+    else {
+      printf("    wkOrientation  = unknown\n");
+    }
   } 
 
 /*
@@ -892,7 +901,7 @@ int vector_field(void *u, void *v, const char *type_u, const char *type_v,
  * and to open a workstation.
  */
 
-int gsn_open_wks_wrap(const char *type, const char *name, int wk_rlist)
+int ngl_open_wks_wrap(const char *type, const char *name, int wk_rlist)
 {
   int wks, len;
   char *filename = (char *) NULL;
@@ -1011,7 +1020,7 @@ int gsn_open_wks_wrap(const char *type, const char *name, int wk_rlist)
  * This function uses the HLUs to create a contour plot.
  */
 
-int gsn_contour_wrap(int wks, void *data, const char *type, 
+int ngl_contour_wrap(int wks, void *data, const char *type, 
                      int ylen, int xlen,
                      int is_ycoord, void *ycoord, const char *ycoord_type,
                      int is_xcoord, void *xcoord, const char *xcoord_type,
@@ -1065,7 +1074,7 @@ int gsn_contour_wrap(int wks, void *data, const char *type,
  * This function uses the HLUs to create an XY plot.
  */
 
-int gsn_xy_wrap(int wks, void *x, void *y, const char *type_x,
+int ngl_xy_wrap(int wks, void *x, void *y, const char *type_x,
                 const char *type_y, int ndims_x, int *dsizes_x,
                 int ndims_y, int *dsizes_y, 
                 int is_missing_x, int is_missing_y, 
@@ -1135,7 +1144,7 @@ int gsn_xy_wrap(int wks, void *x, void *y, const char *type_x,
  * This function uses the HLUs to create an XY plot.
  */
 
-int gsn_y_wrap(int wks, void *y, const char *type_y, int ndims_y, 
+int ngl_y_wrap(int wks, void *y, const char *type_y, int ndims_y, 
                int *dsizes_y, int is_missing_y, void *FillValue_y,
                int ca_rlist, int xy_rlist, int xyd_rlist,
                gsnRes *special_res)
@@ -1143,9 +1152,9 @@ int gsn_y_wrap(int wks, void *y, const char *type_y, int ndims_y,
   int xy;
 
 /*
- * Call gsn_xy_wrap, only using NULLs for the X values.
+ * Call ngl_xy_wrap, only using NULLs for the X values.
  */
-  xy = gsn_xy_wrap(wks, NULL, y, NULL, type_y, 0, NULL,
+  xy = ngl_xy_wrap(wks, NULL, y, NULL, type_y, 0, NULL,
                    ndims_y, &dsizes_y[0], 0, is_missing_y, NULL, 
                    FillValue_y, ca_rlist, xy_rlist, xyd_rlist, special_res);
 
@@ -1161,7 +1170,7 @@ int gsn_y_wrap(int wks, void *y, const char *type_y, int ndims_y,
  * This function uses the HLUs to create a vector plot.
  */
 
-int gsn_vector_wrap(int wks, void *u, void *v, const char *type_u,
+int ngl_vector_wrap(int wks, void *u, void *v, const char *type_u,
                     const char *type_v, int ylen, int xlen, 
                     int is_ycoord, void *ycoord, const char *type_ycoord,
                     int is_xcoord, void *xcoord, const char *type_xcoord,
@@ -1217,7 +1226,7 @@ int gsn_vector_wrap(int wks, void *u, void *v, const char *type_u,
  * This function uses the HLUs to create a streamline plot.
  */
 
-int gsn_streamline_wrap(int wks, void *u, void *v, const char *type_u,
+int ngl_streamline_wrap(int wks, void *u, void *v, const char *type_u,
                         const char *type_v, int ylen, int xlen, 
                         int is_ycoord, void *ycoord, const char *type_ycoord,
                         int is_xcoord, void *xcoord, const char *type_xcoord,
@@ -1272,7 +1281,7 @@ int gsn_streamline_wrap(int wks, void *u, void *v, const char *type_u,
  * This function uses the HLUs to create a map plot.
  */
 
-int gsn_map_wrap(int wks, int mp_rlist, gsnRes *special_res)
+int ngl_map_wrap(int wks, int mp_rlist, gsnRes *special_res)
 {
   int map;
 
@@ -1303,7 +1312,7 @@ int gsn_map_wrap(int wks, int mp_rlist, gsnRes *special_res)
  * (or equivalent) coordinate arrays to the approprate lat/lon values.
  */
 
-int gsn_contour_map_wrap(int wks, void *data, const char *type, 
+int ngl_contour_map_wrap(int wks, void *data, const char *type, 
                          int ylen, int xlen,
                          int is_ycoord, void *ycoord, const char *ycoord_type,
                          int is_xcoord, void *xcoord, const char *xcoord_type,
@@ -1323,7 +1332,7 @@ int gsn_contour_map_wrap(int wks, void *data, const char *type,
   special_res2.gsnMaximize = 0;
   special_res2.gsnDebug    = special_res->gsnDebug;
 
-  contour = gsn_contour_wrap(wks, data, type, ylen, xlen,
+  contour = ngl_contour_wrap(wks, data, type, ylen, xlen,
                              is_ycoord, ycoord, ycoord_type,
                              is_xcoord, xcoord, xcoord_type,
                              is_missing, FillValue, sf_rlist, cn_rlist,
@@ -1332,7 +1341,7 @@ int gsn_contour_map_wrap(int wks, void *data, const char *type,
 /*
  * Create map plot.
  */
-  map = gsn_map_wrap(wks, mp_rlist, &special_res2);
+  map = ngl_map_wrap(wks, mp_rlist, &special_res2);
 
 /*
  * Overlay contour plot on map plot.
@@ -1361,7 +1370,7 @@ int gsn_contour_map_wrap(int wks, void *data, const char *type,
  * This function uses the HLUs to create a vector plot over a map.
  */
 
-int gsn_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
+int ngl_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
                         const char *type_v, int ylen, int xlen, 
                         int is_ycoord, void *ycoord, const char *type_ycoord,
                         int is_xcoord, void *xcoord, const char *type_xcoord,
@@ -1382,7 +1391,7 @@ int gsn_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
   special_res2.gsnMaximize = 0;
   special_res2.gsnDebug    = special_res->gsnDebug;
 
-  vector = gsn_vector_wrap(wks, u, v, type_u, type_v, ylen, xlen, is_ycoord,
+  vector = ngl_vector_wrap(wks, u, v, type_u, type_v, ylen, xlen, is_ycoord,
                            ycoord, type_ycoord, is_xcoord, xcoord, 
                            type_xcoord, is_missing_u, is_missing_v, 
                            FillValue_u, FillValue_v, vf_rlist, vc_rlist,
@@ -1391,7 +1400,7 @@ int gsn_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
 /*
  * Create map plot.
  */
-  map = gsn_map_wrap(wks, mp_rlist, &special_res2);
+  map = ngl_map_wrap(wks, mp_rlist, &special_res2);
 
 /*
  * Overlay vector plot on map plot.
@@ -1421,7 +1430,7 @@ int gsn_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
  * This function uses the HLUs to create a streamline plot over a map.
  */
 
-int gsn_streamline_map_wrap(int wks, void *u, void *v, const char *type_u,
+int ngl_streamline_map_wrap(int wks, void *u, void *v, const char *type_u,
                             const char *type_v, int ylen, int xlen, 
                             int is_ycoord, void *ycoord, 
                             const char *type_ycoord, int is_xcoord, 
@@ -1443,7 +1452,7 @@ int gsn_streamline_map_wrap(int wks, void *u, void *v, const char *type_u,
   special_res2.gsnMaximize = 0;
   special_res2.gsnDebug    = special_res->gsnDebug;
 
-  streamline = gsn_streamline_wrap(wks, u, v, type_u, type_v, ylen, xlen, 
+  streamline = ngl_streamline_wrap(wks, u, v, type_u, type_v, ylen, xlen, 
                                    is_ycoord, ycoord, type_ycoord, 
                                    is_xcoord, xcoord, type_xcoord, 
                                    is_missing_u, is_missing_v, FillValue_u, 
@@ -1453,7 +1462,7 @@ int gsn_streamline_map_wrap(int wks, void *u, void *v, const char *type_u,
 /*
  * Create map plot.
  */
-  map = gsn_map_wrap(wks, mp_rlist, &special_res2);
+  map = ngl_map_wrap(wks, mp_rlist, &special_res2);
 
 /*
  * Overlay streamline plot on map plot.
@@ -1485,7 +1494,7 @@ int gsn_streamline_map_wrap(int wks, void *u, void *v, const char *type_u,
  * a scalar field.
  */
 
-int gsn_vector_scalar_wrap(int wks, void *u, void *v, void *t, 
+int ngl_vector_scalar_wrap(int wks, void *u, void *v, void *t, 
                            const char *type_u, const char *type_v, 
                            const char *type_t, int ylen, int xlen, 
                            int is_ycoord, void *ycoord, 
@@ -1549,7 +1558,7 @@ int gsn_vector_scalar_wrap(int wks, void *u, void *v, void *t,
  * a scalar field overlaid on a map.
  */
 
-int gsn_vector_scalar_map_wrap(int wks, void *u, void *v, void *t, 
+int ngl_vector_scalar_map_wrap(int wks, void *u, void *v, void *t, 
                                const char *type_u, const char *type_v, 
                                const char *type_t, int ylen, int xlen, 
                                int is_ycoord, void *ycoord, 
@@ -1573,7 +1582,7 @@ int gsn_vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
   special_res2.gsnMaximize = 0;
   special_res2.gsnDebug    = special_res->gsnDebug;
 
-  vector = gsn_vector_scalar_wrap(wks, u, v, t, type_u, type_v, type_t,
+  vector = ngl_vector_scalar_wrap(wks, u, v, t, type_u, type_v, type_t,
                                   ylen, xlen, is_ycoord, ycoord, 
                                   type_ycoord, is_xcoord, xcoord, 
                                   type_xcoord, is_missing_u, is_missing_v, 
@@ -1584,7 +1593,7 @@ int gsn_vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
 /*
  * Create map plot.
  */
-  map = gsn_map_wrap(wks, mp_rlist, &special_res2);
+  map = ngl_map_wrap(wks, mp_rlist, &special_res2);
 
 /*
  * Overlay vector plot on map plot.
@@ -1610,7 +1619,7 @@ int gsn_vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
   return(map);
 }
 
-int gsn_text_ndc_wrap(int wks, char* string, void *x, void *y,
+int ngl_text_ndc_wrap(int wks, char* string, void *x, void *y,
                       const char *type_x, const char *type_y,
                       int tx_rlist, gsnRes *special_res)
 {
@@ -1638,7 +1647,7 @@ int gsn_text_ndc_wrap(int wks, char* string, void *x, void *y,
 }
 
 
-int gsn_text_wrap(int wks, int plot, char* string, void *x, void *y, 
+int ngl_text_wrap(int wks, int plot, char* string, void *x, void *y, 
                   const char *type_x, const char *type_y, int tx_rlist, 
                   gsnRes *special_res)
 {
@@ -1659,11 +1668,11 @@ int gsn_text_wrap(int wks, int plot, char* string, void *x, void *y,
   (void)NhlDataToNDC(plot,xf,yf,1,&xndc,&yndc,NULL,NULL,&status,&oor);
 
   if(special_res->gsnDebug) {
-    printf("gsn_text: string = %s x = %g y = %g xndc = %g yndc = %g\n", 
+    printf("ngl_text: string = %s x = %g y = %g xndc = %g yndc = %g\n", 
            string, *xf, *yf, xndc, yndc);
   }
 
-  text = gsn_text_ndc_wrap(wks, string, &xndc, &yndc, "float", "float",
+  text = ngl_text_ndc_wrap(wks, string, &xndc, &yndc, "float", "float",
                            tx_rlist, special_res);
 
 /*
@@ -1676,7 +1685,7 @@ int gsn_text_wrap(int wks, int plot, char* string, void *x, void *y,
 /*
  * Routine for drawing any kind of primitive in NDC or data space.
  */
-void gsn_poly_wrap(int wks, int plot, void *x, void *y, const char *type_x,
+void ngl_poly_wrap(int wks, int plot, void *x, void *y, const char *type_x,
                    const char *type_y, int len, int is_missing_x, 
                    int is_missing_y, void *FillValue_x, 
                    void *FillValue_y, NhlPolyType polytype, int is_ndc,
@@ -1760,7 +1769,7 @@ void gsn_poly_wrap(int wks, int plot, void *x, void *y, const char *type_x,
  * only get drawn when you draw the plot, and it will also be scaled
  * if you scale the plot. 
  */
-int gsn_add_poly_wrap(int wks, int plot, void *x, void *y,
+int ngl_add_poly_wrap(int wks, int plot, void *x, void *y,
                       const char *type_x, const char *type_y, int len, 
                       int is_missing_x, int is_missing_y, void *FillValue_x, 
                       void *FillValue_y, NhlPolyType polytype, 
@@ -1905,13 +1914,13 @@ int gsn_add_poly_wrap(int wks, int plot, void *x, void *y,
 /*
  * Routine for drawing markers in NDC space.
  */
-void gsn_polymarker_ndc_wrap(int wks, void *x, void *y, const char *type_x, 
+void ngl_polymarker_ndc_wrap(int wks, void *x, void *y, const char *type_x, 
                              const char *type_y,  int len,
                              int is_missing_x, int is_missing_y, 
                              void *FillValue_x, void *FillValue_y, 
                              int gs_rlist, gsnRes *special_res)
 {
-  gsn_poly_wrap(wks, 0, x, y, type_x, type_y, len, is_missing_x, 
+  ngl_poly_wrap(wks, 0, x, y, type_x, type_y, len, is_missing_x, 
                 is_missing_y, FillValue_x, FillValue_y, NhlPOLYMARKER, 1,
                 gs_rlist,special_res);
 }
@@ -1920,13 +1929,13 @@ void gsn_polymarker_ndc_wrap(int wks, void *x, void *y, const char *type_x,
 /*
  * Routine for drawing lines in NDC space.
  */
-void gsn_polyline_ndc_wrap(int wks, void *x, void *y, const char *type_x,
+void ngl_polyline_ndc_wrap(int wks, void *x, void *y, const char *type_x,
                            const char *type_y, int len,
                            int is_missing_x, int is_missing_y, 
                            void *FillValue_x, void *FillValue_y, 
                            int gs_rlist, gsnRes *special_res)
 {
-  gsn_poly_wrap(wks, 0, x, y, type_x, type_y, len, is_missing_x, 
+  ngl_poly_wrap(wks, 0, x, y, type_x, type_y, len, is_missing_x, 
                 is_missing_y, FillValue_x, FillValue_y, NhlPOLYLINE, 1, 
                 gs_rlist, special_res);
 }
@@ -1935,13 +1944,13 @@ void gsn_polyline_ndc_wrap(int wks, void *x, void *y, const char *type_x,
 /*
  * Routine for drawing polygons in NDC space.
  */
-void gsn_polygon_ndc_wrap(int wks, void *x, void *y, const char *type_x, 
+void ngl_polygon_ndc_wrap(int wks, void *x, void *y, const char *type_x, 
                           const char *type_y, int len,
                           int is_missing_x, int is_missing_y, 
                           void *FillValue_x, void *FillValue_y, 
                           int gs_rlist, gsnRes *special_res)
 {
-  gsn_poly_wrap(wks, 0, x, y, type_x, type_y, len, is_missing_x,
+  ngl_poly_wrap(wks, 0, x, y, type_x, type_y, len, is_missing_x,
                 is_missing_y, FillValue_x, FillValue_y, NhlPOLYGON, 1,
                 gs_rlist, special_res);
 }
@@ -1949,13 +1958,13 @@ void gsn_polygon_ndc_wrap(int wks, void *x, void *y, const char *type_x,
 /*
  * Routine for drawing markers in data space.
  */
-void gsn_polymarker_wrap(int wks, int plot, void *x, void *y, 
+void ngl_polymarker_wrap(int wks, int plot, void *x, void *y, 
                          const char *type_x, const char *type_y, int len,
                          int is_missing_x, int is_missing_y, 
                          void *FillValue_x, void *FillValue_y, 
                          int gs_rlist, gsnRes *special_res)
 {
-  gsn_poly_wrap(wks,plot,x,y,type_x,type_y,len,is_missing_x,is_missing_y,
+  ngl_poly_wrap(wks,plot,x,y,type_x,type_y,len,is_missing_x,is_missing_y,
                 FillValue_x,FillValue_y,NhlPOLYMARKER,0,gs_rlist,special_res);
 }
 
@@ -1963,26 +1972,26 @@ void gsn_polymarker_wrap(int wks, int plot, void *x, void *y,
 /*
  * Routine for drawing lines in data space.
  */
-void gsn_polyline_wrap(int wks, int plot, void *x, void *y, 
+void ngl_polyline_wrap(int wks, int plot, void *x, void *y, 
                        const char *type_x, const char *type_y, int len, 
                        int is_missing_x, int is_missing_y, 
                        void *FillValue_x, void *FillValue_y, 
                        int gs_rlist, gsnRes *special_res)
 {
-  gsn_poly_wrap(wks,plot,x,y,type_x,type_y,len,is_missing_x,is_missing_y,
+  ngl_poly_wrap(wks,plot,x,y,type_x,type_y,len,is_missing_x,is_missing_y,
                 FillValue_x,FillValue_y,NhlPOLYLINE,0,gs_rlist,special_res);
 }
 
 /*
  * Routine for drawing polygons in data space.
  */
-void gsn_polygon_wrap(int wks, int plot, void *x, void *y, 
+void ngl_polygon_wrap(int wks, int plot, void *x, void *y, 
                       const char *type_x, const char *type_y, int len, 
                       int is_missing_x, int is_missing_y, 
                       void *FillValue_x, void *FillValue_y, 
                       int gs_rlist, gsnRes *special_res)
 {
-  gsn_poly_wrap(wks, plot, x, y, type_x, type_y, len, is_missing_x, 
+  ngl_poly_wrap(wks, plot, x, y, type_x, type_y, len, is_missing_x, 
                 is_missing_y, FillValue_x, FillValue_y, NhlPOLYGON, 0,
                 gs_rlist, special_res);
 }
@@ -1990,7 +1999,7 @@ void gsn_polygon_wrap(int wks, int plot, void *x, void *y,
 /*
  * Routine for adding polylines to a plot (in the plot's data space).
  */
-int gsn_add_polyline_wrap(int wks, int plot, void *x, void *y, 
+int ngl_add_polyline_wrap(int wks, int plot, void *x, void *y, 
                           const char *type_x, const char *type_y, int len, 
                           int is_missing_x, int is_missing_y, 
                           void *FillValue_x, void *FillValue_y, 
@@ -1998,7 +2007,7 @@ int gsn_add_polyline_wrap(int wks, int plot, void *x, void *y,
 {
   int ipoly;
 
-  ipoly = gsn_add_poly_wrap(wks, plot, x, y, type_x, type_y, len, 
+  ipoly = ngl_add_poly_wrap(wks, plot, x, y, type_x, type_y, len, 
                             is_missing_x, is_missing_y, FillValue_x, 
                             FillValue_y, NhlPOLYLINE, gs_rlist, 
                             special_res);
@@ -2010,7 +2019,7 @@ int gsn_add_polyline_wrap(int wks, int plot, void *x, void *y,
 /*
  * Routine for adding polymarkers to a plot (in the plot's data space).
  */
-int gsn_add_polymarker_wrap(int wks, int plot, void *x, void *y, 
+int ngl_add_polymarker_wrap(int wks, int plot, void *x, void *y, 
                           const char *type_x, const char *type_y, int len, 
                           int is_missing_x, int is_missing_y, 
                           void *FillValue_x, void *FillValue_y, 
@@ -2018,7 +2027,7 @@ int gsn_add_polymarker_wrap(int wks, int plot, void *x, void *y,
 {
   int ipoly;
 
-  ipoly = gsn_add_poly_wrap(wks, plot, x, y, type_x, type_y, len, 
+  ipoly = ngl_add_poly_wrap(wks, plot, x, y, type_x, type_y, len, 
                             is_missing_x, is_missing_y, FillValue_x, 
                             FillValue_y, NhlPOLYMARKER, gs_rlist, 
                             special_res);
@@ -2030,7 +2039,7 @@ int gsn_add_polymarker_wrap(int wks, int plot, void *x, void *y,
 /*
  * Routine for adding polygons to a plot (in the plot's data space).
  */
-int gsn_add_polygon_wrap(int wks, int plot, void *x, void *y, 
+int ngl_add_polygon_wrap(int wks, int plot, void *x, void *y, 
                           const char *type_x, const char *type_y, int len, 
                           int is_missing_x, int is_missing_y, 
                           void *FillValue_x, void *FillValue_y, 
@@ -2038,7 +2047,7 @@ int gsn_add_polygon_wrap(int wks, int plot, void *x, void *y,
 {
   int ipoly;
 
-  ipoly = gsn_add_poly_wrap(wks, plot, x, y, type_x, type_y, len, 
+  ipoly = ngl_add_poly_wrap(wks, plot, x, y, type_x, type_y, len, 
                             is_missing_x, is_missing_y, FillValue_x, 
                             FillValue_y, NhlPOLYGON, gs_rlist, 
                             special_res);
@@ -2055,7 +2064,7 @@ int gsn_add_polygon_wrap(int wks, int plot, void *x, void *y,
  * only get drawn when you draw the plot. It will also be scaled
  * appropriately if you scale the plot. 
  */
-int gsn_add_text_wrap(int wks, int plot, char *string, void *x, void *y,
+int ngl_add_text_wrap(int wks, int plot, char *string, void *x, void *y,
                       const char *type_x, const char *type_y,
                       int tx_rlist, int am_rlist, gsnRes *special_res)
 {
@@ -2160,7 +2169,7 @@ int gsn_add_text_wrap(int wks, int plot, char *string, void *x, void *y,
  * Routine for drawing the current color map. This is mostly for
  * debugging purposes.
  */
-void gsn_draw_colormap_wrap(int wks)
+void ngl_draw_colormap_wrap(int wks)
 {
   int i, j, k, ii, jj, ibox, nrows, ncols, ncolors, maxcols, ntotal, offset;
   int grlist, srlist, txrlist, lnrlist, gnrlist;
@@ -2352,18 +2361,18 @@ void gsn_draw_colormap_wrap(int wks)
  */
         NhlRLSetInteger(gnrlist,"gsFillColor", offset + (i-1));
                                                                     
-        gsn_polygon_ndc_wrap(wks, xbox2, ybox2, "float","float", 5,
+        ngl_polygon_ndc_wrap(wks, xbox2, ybox2, "float","float", 5,
                              0, 0, NULL, NULL, gnrlist, &special_res2);
 /*
  * Outline box in black.
  */
-        gsn_polyline_ndc_wrap(wks, xbox2, ybox2, "float","float", 5,
+        ngl_polyline_ndc_wrap(wks, xbox2, ybox2, "float","float", 5,
                               0, 0, NULL, NULL, lnrlist, &special_res2);
 /*
  * Draw text string indicating color index value.
  */
         sprintf(tmpstr,"%d",i-1);
-        gsn_text_ndc_wrap(wks, tmpstr, &txpos, &typos, "float", "float",
+        ngl_text_ndc_wrap(wks, tmpstr, &txpos, &typos, "float", "float",
                           txrlist, &special_res2);
         ii++;
       }
@@ -2390,12 +2399,12 @@ void gsn_draw_colormap_wrap(int wks)
 /*
  * Routine for paneling same-sized plots.
  */
-void gsn_panel_wrap(int wks, int *plots, int nplots, int *dims, 
+void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims, 
                     int ndims, gsnRes *special_res)
 {
-  int i, npanels, is_row_spec, nrows, ncols, draw_boxes;
+  int i, nplots, npanels, is_row_spec, nrows, ncols, draw_boxes;
   int num_plots_left, nplot, nplot4, nr, nc, new_ncols, pplot;
-  int *row_spec, *newplots, all_ismissing;
+  int *row_spec, *newplots, all_ismissing, nvalid_plots, valid_plot;
   int panel_save, panel_debug, panel_center, maxbb;
   int calldraw, callframe;
   int lft_pnl, rgt_pnl, bot_pnl, top_pnl;
@@ -2437,7 +2446,7 @@ void gsn_panel_wrap(int wks, int *plots, int nplots, int *dims,
     
     for(i = 0; i <= nrows-1; i++) {
       if(row_spec[i] < 0) {
-        printf("Error: gsn_panel: you have specified a negative value for the number of plots in a row.\n");
+        printf("Error: ngl_panel: you have specified a negative value for the number of plots in a row.\n");
         return;
       }
       npanels += row_spec[i];
@@ -2445,7 +2454,7 @@ void gsn_panel_wrap(int wks, int *plots, int nplots, int *dims,
   }
   else {
     if(ndims != 2) {
-      printf("Error: gsn_panel: for the third argument of gsn_panel, you must either specify # rows by # columns or set gsnPanelRowSpec to True and set the number of plots per row.\n");
+      printf("Error: ngl_panel: for the third argument of ngl_panel, you must either specify # rows by # columns or set gsnPanelRowSpec to True and set the number of plots per row.\n");
       return;
     }
     nrows    = dims[0];
@@ -2455,10 +2464,13 @@ void gsn_panel_wrap(int wks, int *plots, int nplots, int *dims,
     for(i = 0; i <= nrows-1; i++) row_spec[i] = ncols;
   }
   
-  if(nplots > npanels) {
-    printf("Warning: gsn_panel: you have more plots than you have panels.\n");
+  if(nplots_orig > npanels) {
+    printf("Warning: ngl_panel: you have more plots than you have panels.\n");
     printf("Only %d plots will be drawn.\n", npanels);
     nplots = npanels;
+  }
+  else {
+    nplots = nplots_orig;
   }
 
 /*
@@ -2531,62 +2543,81 @@ void gsn_panel_wrap(int wks, int *plots, int nplots, int *dims,
  * they are valid.
  */
   if(xwsp_perc < 0 || xwsp_perc >= 100.) {
-    printf("Warning: gsn_panel: attribute gsnPanelXWhiteSpacePercent must be >= 0 and < 100.\n");
+    printf("Warning: ngl_panel: attribute gsnPanelXWhiteSpacePercent must be >= 0 and < 100.\n");
     printf("Defaulting to 1.\n");
     xwsp_perc = 1.;
   }
 
   if(ywsp_perc < 0 || ywsp_perc >= 100.) {
-    printf("Warning: gsn_panel: attribute gsnPanelYWhiteSpacePercent must be >= 0 and < 100.\n");
+    printf("Warning: ngl_panel: attribute gsnPanelYWhiteSpacePercent must be >= 0 and < 100.\n");
     printf("Defaulting to 1.\n");
     ywsp_perc = 1.;
   }
   
   if(x_lft < 0. || x_lft >= 1.) {
-    printf("Warning: gsn_panel: attribute gsnPanelLeft must be >= 0.0 and < 1.0\n");
+    printf("Warning: ngl_panel: attribute gsnPanelLeft must be >= 0.0 and < 1.0\n");
     printf("Defaulting to 0.\n");
     x_lft = 0.0;
   }
   
   if(x_rgt <= 0. || x_rgt > 1.) {
-    printf("Warning: gsn_panel: attribute gsnPanelRight must be > 0.0 and <= 1.0\n");
+    printf("Warning: ngl_panel: attribute gsnPanelRight must be > 0.0 and <= 1.0\n");
     printf("Defaulting to 1.\n");
     x_rgt = 1.0;
   }
   
   if(y_top <= 0. || y_top > 1.) {
-    printf("Warning: gsn_panel: attribute gsnPanelTop must be > 0.0 and <= 1.0\n");
+    printf("Warning: ngl_panel: attribute gsnPanelTop must be > 0.0 and <= 1.0\n");
     printf("Defaulting to 1.\n");
     y_top = 1.0;
   }
   
   if(y_bot < 0. || y_bot >= 1.) {
-    printf("Warning: gsn_panel: attribute gsnPanelBottom must be >= 0.0 and < 1.0\n");
+    printf("Warning: ngl_panel: attribute gsnPanelBottom must be >= 0.0 and < 1.0\n");
     printf("Defaulting to 0.\n");
     y_bot = 0.0;
   }
   
   if(x_rgt <= x_lft) {
-    printf("Error: gsn_panel: gsnPanelRight (%g",x_rgt,")\n must be greater");
+    printf("Error: ngl_panel: gsnPanelRight (%g",x_rgt,")\n must be greater");
     printf("than gsnPanelLeft (%g",x_lft,").\n");
     return;
   }
   
   if(y_top <= y_bot) {
-    printf("Error: gsn_panel: gsnPanelTop (%g",y_top,")\n must be greater");
+    printf("Error: ngl_panel: gsnPanelTop (%g",y_top,")\n must be greater");
     printf("than gsnPanelBottom (%g",y_bot,").\n");
     return;
   }
   
 /* 
  * We assume all plots are the same size, so if we get the size of
- * the first one, this should be the size of all of them.
+ * one of them, then this should represent the size of the rest
+ * of them.  Also, count the number of non-missing plots for later.
  */
-  NhlGetBB(plots[0],&bb);
-  top    = bb.t;
-  bottom = bb.b;
-  left   = bb.l;
-  right  = bb.r;
+  valid_plot   = -1;
+  nvalid_plots = 0;
+  for(i = 0; i < nplots; i++) {
+    if(plots[i] > 0) {
+      if(valid_plot < 0) {
+        NhlGetBB(plots[i],&bb);
+        top    = bb.t;
+        bottom = bb.b;
+        left   = bb.l;
+        right  = bb.r;
+        valid_plot = i;
+      }
+      nvalid_plots++;
+    }
+  }
+  if(nvalid_plots == 0) {
+    printf("Error: ngl_panel: all of the plots passed to ngl_panel appear to be invalid\n");
+    return;
+  }  
+  else if(nvalid_plots != nplots) {
+    printf("Error: ngl_panel: some of the plots passed to ngl_panel appear to be invalid\n");
+    return;
+  }
   
 /*
  * plot_width  : total width of plot with all of its annotations
@@ -2662,7 +2693,7 @@ void gsn_panel_wrap(int wks, int *plots, int nplots, int *dims,
   NhlRLGetFloat(grlist,"vpYF",     &vpy);
   NhlRLGetFloat(grlist,"vpWidthF", &vpw);
   NhlRLGetFloat(grlist,"vpHeightF",&vph);
-  (void)NhlGetValues(plots[0], grlist);
+  (void)NhlGetValues(plots[valid_plot], grlist);
   
 /*
  * Calculate distances from plot's left/right/top/bottom positions
