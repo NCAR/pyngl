@@ -1155,6 +1155,9 @@ def ngl_destroy(obj):
 def ngl_clear_workstation(obj):
   NhlClearWorkstation(ngl_int_id(obj))
 
+def ngl_update_workstation(obj):
+  NhlUpdateWorkstation(ngl_int_id(obj))
+
 def ngl_get_float(obj,name):
   return(NhlGetFloat(ngl_int_id(obj),name))
 
