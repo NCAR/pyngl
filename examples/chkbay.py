@@ -29,7 +29,8 @@ depth = cfile.variables["depth"][:]
 
 #
 #  Select a colormap and open an X11 window.
-rlist = Ngl.Resources()
+#
+rlist            = Ngl.Resources()
 rlist.wkColorMap = "rainbow+gray"
 wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"chkbay",rlist)
@@ -51,15 +52,21 @@ resources.cnFillOn         = True
 resources.cnLinesOn        = False
 resources.cnLineLabelsOn   = False
 
+#
+# This plot isn't very interesting because it isn't overlaid on a map.
+# We are only creating it so we can retrieve information that we need
+# to overlay it on a map plot later. You can turn off this plot
+# by setting the nglDraw and nglFrame resources to False.
+#
 contour = Ngl.contour(wks,depth,resources)
 
 #
 #  The next set of resources will apply to the map plot.
 #
-resources.mpProjection          = "CylindricalEquidistant"
+resources.mpProjection = "CylindricalEquidistant"
 
 #
-# If you want high resolution map coastlines,download the RANGS/GSHHS
+# If you want high resolution map coastlines, download the RANGS/GSHHS
 # files from:
 #
 #     http://www.io-warnemuende.de/homepages/rfeistel/index.html
@@ -77,7 +84,7 @@ resources.mpProjection          = "CylindricalEquidistant"
 #
 # Now you can change the following resource to "HighRes".
 #
-resources.mpDataBaseVersion     = "MediumRes"
+resources.mpDataBaseVersion = "MediumRes"
 
 #
 # Retrieve the actual lat/lon end points of the scalar array so
@@ -94,10 +101,16 @@ resources.mpMaxLonF             = xe     # -75.5304
 resources.mpMinLatF             = ys     #  36.6342
 resources.mpMaxLatF             = ye     #  39.6212
 
-resources.tiMainString          = "                    Chesapeake Bay~C~Bathymetry                               meters"
-resources.pmTitleZone           = 3
+#
+# In the chkbay.res file, a resource is being set to indicate the "~"
+# character is to represent a function code. A function code signals an
+# operation you want to apply to the following text.  In this case,
+# ~H10Q~ inserts 10 horizontal spaces before the text, and ~C~ causes
+# a line feed (carriage return.
+#
 
-resources.lbLabelFontHeightF    = 0.02
+resources.tiMainString       = "~H10Q~Chesapeake Bay~C~Bathymetry~H16Q~meters"
+resources.lbLabelFontHeightF = 0.02
 
 map = Ngl.contour_map(wks,depth,resources)
 

@@ -47,15 +47,19 @@ cmap = Numeric.array([[1.00,1.00,1.00],[0.00,0.00,0.00],[1.00,.000,.000],\
                       [.560,.500,.700],[.610,.600,.700],[.700,.700,.700]],
                       Numeric.Float0)
                    
-rlist = Ngl.Resources()
+#
+# Set the color map and open a workstation.
+#
+rlist            = Ngl.Resources()
 rlist.wkColorMap = cmap
 wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"panel1",rlist)  # Open an X11 workstation.
 
 #
-# The next set of resources will apply to four plots.
+# Turn off draw for the individual plots, since we are going to
+# panel them later.
 #
-resources = Ngl.Resources()
+resources          = Ngl.Resources()
 resources.nglDraw  = False
 resources.nglFrame = False
 
@@ -66,18 +70,29 @@ if hasattr(temp,"_FillValue"):
   resources.sfMissingValueV = temp._FillValue
 
 #
-# Loop through four of the timesteps and create each plot. Title each
-# plot according to which timestep it is.
+# Loop through the timesteps and create each plot, titling each
+# one according to which timestep it is.
 #
 plot = []
-resources.cnFillOn       = True    # Turn on contour fill.
+resources.cnFillOn            = True    # Turn on contour fill.
+resources.lbLabelStride       = 2       # Label every other box
+resources.lbLabelFontHeightF  = 0.02
 
 for i in range(0,nplots):
   resources.tiMainString  = "Temperature at time = " + str(i)
   plot.append(Ngl.contour(wks,temp[i,:,:],resources))
 
 
-Ngl.panel(wks,plot[0:4],[2,2]) # Draw 2 rows/2 columns of plots.
+Ngl.panel(wks,plot[0:4],[2,2])    # Draw 2 rows/2 columns of plots.
+
+#
+# Now add some extra white space around each plot.
+#
+
+panelres  = Ngl.Resources()
+panelres.nglPanelYWhiteSpacePercent = 5.
+panelres.nglPanelXWhiteSpacePercent = 5.
+Ngl.panel(wks,plot[0:4],[2,2],panelres)    # Draw 2 rows/2 columns of plots.
 
 #
 # This section will set resources for drawing contour plots over a map.
@@ -101,37 +116,36 @@ resources.mpMinLatF      = min(lat)
 resources.mpMaxLatF      = max(lat)
 resources.mpMinLonF      = min(lon)
 resources.mpMaxLonF      = max(lon)
-resources.pmLabelBarDisplayMode = "Never"
+resources.pmLabelBarDisplayMode = "Never"   # Turn off labelbar, since we
+                                            # will use a global labelbar
+                                            # in the panel.
 
-resources.mpPerimOn       = True    # Turn on map perimeter.
-resources.mpGridAndLimbOn = False   # Turn off map grid.
+resources.mpPerimOn       = True            # Turn on map perimeter.
+resources.mpGridAndLimbOn = False           # Turn off map grid.
 
 plot = []
 for i in range(0,nplots):
   plot.append(Ngl.contour_map(wks,temp[i,:,:],resources))
 
-panelres                = Ngl.Resources()
-panelres.nglFrame       = False # Don't advance the frame.
+#
+# Set some resources for the paneled plots.
+#
+panelres          = Ngl.Resources()
+panelres.nglFrame = False                   # Don't advance the frame.
 
 #
 # Set up some labelbar resources.  Set nglPanelLabelBar to True to
 # indicate you want to draw a common labelbar at the bottom of the
 # plots. 
 #
-panelres.nglPanelLabelBar   = True
-panelres.lbLabelFont        = "helvetica-bold" # Labelbar font
-panelres.lbLabelStride      = 2                # Draw every other label
-panelres.nglPanelLabelBarLabelFontHeightF = 0.015   # Labelbar font height
-panelres.nglPanelLabelBarHeightF     = 0.1750   # Height of labelbar
-panelres.nglPanelLabelBarWidthF      = 0.700   # Width of labelbar
-panelres.nglPanelTop                 = 0.935
-panelres.nglPanelFigureStrings     = ["A","B","C","D","E","F"]
-panelres.nglPanelFigureStringsJust = "BottomRight"
-# panelres.nglPanelLabelBarLabelAutoStride     = False
-# panelres.nglPanelFigureStringsOrthogonalPosF = 0.05
-# panelres.nglPanelFigureStringsFontHeightF    = 0.05
-# panelres.nglPanelFigureStringsBackgroundFillColor = 1
-# panelres.nglPanelFigureStringsParallelPosF   = 0.025
+panelres.nglPanelLabelBar                 = True     # Turn on panel labelbar
+panelres.nglPanelLabelBarLabelFontHeightF = 0.015    # Labelbar font height
+panelres.nglPanelLabelBarHeightF          = 0.1750   # Height of labelbar
+panelres.nglPanelLabelBarWidthF           = 0.700    # Width of labelbar
+panelres.nglPanelTop                      = 0.935
+panelres.nglPanelFigureStrings            = ["A","B","C","D","E","F"]
+panelres.nglPanelFigureStringsJust        = "BottomRight"
+panelres.lbLabelFont                      = "helvetica-bold" # Labelbar font
 
 #
 # Draw 3 rows and 2 columns of plots.

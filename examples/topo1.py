@@ -14,9 +14,9 @@ import Ngl
 dirc  = Ngl.ncargpath("data")
 cfile = NetCDFFile(dirc+"/cdf/trinidad.nc","r")
 
-data = cfile.variables["data"]
-lat = cfile.variables["lat"][:]
-lon = cfile.variables["lon"][:]
+data         = cfile.variables["data"]
+lat          = cfile.variables["lat"][:]
+lon          = cfile.variables["lon"][:]
 minmax_elevE = cfile.variables["minmax_elevE"][:]
 minmax_elevW = cfile.variables["minmax_elevW"][:]
 map_cornersW = cfile.variables["map_cornersW"][:]
@@ -37,24 +37,34 @@ cmap = Numeric.array([[1.00, 1.00, 1.00],[0.00, 0.00, 0.00], \
                       Numeric.Float0)
 
 #
-#  Select a colormap and open an X11 window.
-rlist = Ngl.Resources()
+#  Set the colormap and open a PostScript workstation.
+#
+rlist            = Ngl.Resources()
 rlist.wkColorMap = cmap
+
 wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"topo1",rlist)
 
-
+#
+# Variable to hold list of plot resources.
+#
 res = Ngl.Resources()
+
+#
+# Map resources
+#
 res.mpFillOn              = False
 res.mpLimitMode           = "Corners"
-res.mpDataBaseVersion     = "Ncarg4_1"
-res.mpOutlineBoundarySets = "AllBoundaries"
 res.mpLeftCornerLonF      = map_cornersW[0] 
 res.mpLeftCornerLatF      = map_cornersW[1]
 res.mpRightCornerLonF     = map_cornersE[2]
 res.mpRightCornerLatF     = map_cornersE[3]
+res.mpDataBaseVersion     = "MediumRes"
+res.mpOutlineBoundarySets = "AllBoundaries"
 
-# contour resources
+#
+# Contour resources
+#
 res.sfXArray             = lon
 res.sfYArray             = lat
 res.cnFillOn             = True
@@ -64,12 +74,9 @@ res.cnLevelSelectionMode = "ExplicitLevels"
 res.cnLevels             = [ 5000., 6000., 7000., 8000., 8500., 9000., \
                              9500.,10000.,10500.,11000.,11500.,12000., \
                             12500.,13000.,13500.]
-
-# tickmark resources
-
-res.tmXBLabelFontHeightF  = 0.010
-
-# label resources
+#
+# Labelbar resources
+#
 res.lbTitleString             = "elevation above mean sea level (feet)"
 res.lbTitleFontHeightF        = 0.012
 res.lbLabelFontHeightF        = 0.008
@@ -78,7 +85,9 @@ res.lbBoxMinorExtentF         = 0.15
 res.pmLabelBarOrthogonalPosF  = -0.01
 res.lbOrientation             = "Horizontal"
 
-# title resources
+#
+# Title resources
+#
 res.tiMainString      = "USGS DEM TRINIDAD (1 x 2 degrees)"
 res.tiMainFont        = "Helvetica-bold"
 res.tiMainOffsetYF    = 0.025
@@ -89,14 +98,15 @@ res.nglFrame = False
 plot = Ngl.contour_map(wks,data,res)
 
 #
-# Draw three text strings afterwards to make sure plot
+# Draw three text strings after the plot is drawn to make sure plot
 # gets maximized properly.
 #
 txres               = Ngl.Resources()
 txres.txFontHeightF = 0.015
-Ngl.text_ndc(wks,"Min Elevation: 1359", 0.22,0.775,txres)
-Ngl.text_ndc(wks,"Scale 1:250,000",     0.50,0.775,txres)
-Ngl.text_ndc(wks,"Max Elevation: 4322", 0.85,0.775,txres)
+
+Ngl.text_ndc(wks,"Min Elevation: 1359", 0.22, 0.775, txres)
+Ngl.text_ndc(wks,"Scale 1:250,000",     0.50, 0.775, txres)
+Ngl.text_ndc(wks,"Max Elevation: 4322", 0.85, 0.775, txres)
 
 Ngl.frame(wks)
 

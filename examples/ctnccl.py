@@ -98,7 +98,7 @@ ye = Ngl.get_float(contour.sffield,"sfYCActualEndF")
 resources.mpProjection          = "CylindricalEquidistant"
 
 #
-# If you want high resolution map coastlines,download the RANGS/GSHHS
+# If you want high resolution map coastlines, download the RANGS/GSHHS
 # files from:
 #
 #     http://www.io-warnemuende.de/homepages/rfeistel/index.html
@@ -112,7 +112,7 @@ resources.mpProjection          = "CylindricalEquidistant"
 #   rangs(4).zip    gshhs(4).zip
 #
 # Once you unzip these files, put them in the directory
-# $python_prefx/pythonx.y/site-packages/PyNGL/ncarg/database/rangs
+# $python_prefx/pythonX.Y/site-packages/PyNGL/ncarg/database/rangs
 #
 # Now you can change the following resource to "HighRes".
 #

@@ -42,20 +42,21 @@ wks = Ngl.open_wks(wks_type,"geodesic",rlist)
 #
 resources = Ngl.Resources()
 
-resources.sfXArray          = x
-resources.sfYArray          = y
-resources.sfXCellBounds     = cx
+resources.sfXArray          = x      # These four resources define
+resources.sfYArray          = y      # the type of grid we want to 
+resources.sfXCellBounds     = cx     # contour.
 resources.sfYCellBounds     = cy
 
 resources.cnFillOn          = True
-resources.cnLinesOn         = False
 resources.cnFillMode        = "RasterFill"
+resources.cnLinesOn         = False
 resources.cnLineLabelsOn    = False
 resources.cnMaxLevelCount   = 22
 
+resources.tiMainString      = "2562 Element Geodesic grid"
+
 resources.lbBoxLinesOn      = False
 resources.lbTitleString     = "kinetic energy"
-resources.tiMainString      = "2562 Element Geodesic grid"
 
 resources.nglDraw           = False   # Just create the plot. Don't
 resources.nglFrame          = False   # draw it or advance the frame.
@@ -71,8 +72,9 @@ xe = Ngl.get_float(contour.sffield,"sfXCActualEndF")
 ys = Ngl.get_float(contour.sffield,"sfYCActualStartF")
 ye = Ngl.get_float(contour.sffield,"sfYCActualEndF")
 
-resources.nglDraw           = True
-resources.nglFrame          = True
+resources.nglDraw           = True      # Now we want to draw the plot
+resources.nglFrame          = True      # and advance the frame.
+
 resources.mpGridAndLimbOn   = False
 resources.mpProjection      = "Orthographic"
 resources.mpDataBaseVersion = "MediumRes"
