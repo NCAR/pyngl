@@ -91,7 +91,6 @@ if (odict.has_key("-h")):
 #  The -a, -w, and -l  options require a tmp directory.
 #
 tmp_dir = ncargpath("tmp")
-tmp_dir = "xx" 
 if ( (not (os.path.exists(tmp_dir))) and \
             (odict.has_key("-a") or odict.has_key("-w") or
              odict.has_key("-l")) ):
