@@ -15,7 +15,7 @@ from distutils.core import setup, Extension
 pyngl_inc = [os.getenv("NCARG_ROOT") + "/include"]
 pyngl_lib = [os.getenv("NCARG_ROOT") + "/lib", "/usr/X11R6/lib", "/sw/lib"]
 setup (name = "PyNGL",
-       version="0.2.0b1",
+       version="0.1.1b1",
        author="Fred Clare and Mary Haley",
        description = "2D visualization library",
        long_description = "PyNGL is a Python language module designed for publication-quality visualization of data. PyNGL stands for 'Python Interface to the NCL Graphics Libraries,' and it is pronounced 'pingle.'",
