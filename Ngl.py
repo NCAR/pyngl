@@ -690,8 +690,8 @@ def ngl_contour_map(wks,array,rlistc=None):
 #
 #  Make sure the array is 2D.
 #
-  if (len(array.shape) != 2):
-    print "ngl_contour - array must be 2D."
+  if (len(array.shape) != 1 and len(array.shape) != 2):
+    print "ngl_contour_map - array must be 1D or 2D"
     return NULL
 
   set_spc_defaults(1)
@@ -718,10 +718,17 @@ def ngl_contour_map(wks,array,rlistc=None):
 #
 #  Call the wrapped function and return.
 #
-  icm = ngl_contour_map_wrap(wks,array,"double", \
-                          array.shape[0],array.shape[1],0, \
-                          pvoid(),"",0,pvoid(),"", 0, pvoid(), \
-                          rlist1,rlist3,rlist2,pvoid())
+  if (len(array.shape) == 2):
+        icm = ngl_contour_map_wrap(wks,array,"double", \
+                                array.shape[0],array.shape[1],0, \
+                                pvoid(),"",0,pvoid(),"", 0, pvoid(), \
+                                rlist1,rlist3,rlist2,pvoid())
+  else:
+        icm = ngl_contour_map_wrap(wks,array,"double", \
+                                array.shape[0],-1,0, \
+                                pvoid(),"",0,pvoid(),"", 0, pvoid(), \
+                                rlist1,rlist3,rlist2,pvoid())
+
   del rlist
   del rlist1
   del rlist2
@@ -733,8 +740,8 @@ def ngl_contour(wks,array,rlistc=None):
 #
 #  Make sure the array is 2D.
 #
-  if (len(array.shape) != 2):
-    print "ngl_contour - array must be 2D."
+  if (len(array.shape) != 1 and len(array.shape) != 2):
+    print "ngl_contour - array must be 1D or 2D"
     return NULL
 
   set_spc_defaults(1)
@@ -765,9 +772,15 @@ def ngl_contour(wks,array,rlistc=None):
 #
 #  Call the wrapped function and return.
 #
-  icn = ngl_contour_wrap(wks,array,"double",array.shape[0],array.shape[1],0, \
-                          pvoid(),"",0,pvoid(),"", 0, pvoid(), rlist1,rlist2,
-                          pvoid())
+  if (len(array.shape) == 2):
+    icn = ngl_contour_wrap(wks,array,"double",array.shape[0],array.shape[1], \
+                           0, pvoid(),"",0,pvoid(),"", 0, pvoid(), rlist1, \
+                          rlist2,pvoid())
+  else:
+    icn = ngl_contour_wrap(wks,array,"double",array.shape[0],-1, \
+                           0, pvoid(),"",0,pvoid(),"", 0, pvoid(), rlist1, \
+                          rlist2,pvoid())
+
   del rlist
   del rlist1
   del rlist2

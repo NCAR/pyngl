@@ -14,6 +14,7 @@
 #include <ncarg/hlu/LabelBar.h>
 #include <ncarg/hlu/StreamlinePlot.h>
 #include <ncarg/hlu/ScalarField.h>
+#include <ncarg/hlu/MeshScalarField.h>
 #include <ncarg/hlu/CoordArrays.h>
 #include <ncarg/hlu/VectorField.h>
 #include <ncarg/hlu/TextItem.h>

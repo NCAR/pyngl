@@ -1014,7 +1014,7 @@ int scalar_field(void *data, const char *type_data, int ylen, int xlen,
                  int is_xcoord, void *xcoord, const char *type_xcoord,
                  int is_missing_data, void *FillValue_data, int sf_rlist)
 {
-  int app, field, length1[1], length2[2];
+  int app, field, rank, length[2];
 
 /*
  * Retrieve application id.
@@ -1023,39 +1023,56 @@ int scalar_field(void *data, const char *type_data, int ylen, int xlen,
 
 /*
  * Create a scalar field object that will be used as the
- * dataset for the contour object. Check for missing values
- * here as well.
+ * dataset for the contour object.
+ *
+ * If xlen is -1, this means the data is 1D, and that (hopefully) the
+ * user has also already set sfXArray and sfYArray to 1D arrays of 
+ * the same length.
  */
 
-  length2[0] = ylen;
-  length2[1] = xlen;
-  length1[0] = 1;
-
-  set_resource("sfDataArray", sf_rlist, data, type_data, 2, length2 );
-
-  if(is_missing_data) {
-    set_resource("sfMissingValueV", sf_rlist, FillValue_data, type_data, 1, 
-                 length1);
+  length[0] = ylen;
+  if(xlen == -1) {
+    rank      = 1;
+    length[1] = ylen;
   }
+  else {
+    rank      = 2;
+    length[1] = xlen;
+  }
+  set_resource("sfDataArray", sf_rlist, data, type_data, rank, length);
 
 /*
  * Check for coordinate arrays.
  */
  
   if(is_ycoord) {
-    set_resource("sfYArray", sf_rlist, ycoord, type_ycoord, 1, &length2[0] );
+    set_resource("sfYArray", sf_rlist, ycoord, type_ycoord, 1, &length[0] );
   }
 
-  if(is_ycoord) {
-    set_resource("sfXArray", sf_rlist, xcoord, type_xcoord, 1, &length2[1] );
+  if(is_xcoord) {
+    set_resource("sfXArray", sf_rlist, xcoord, type_xcoord, 1, &length[1] );
+  }
+
+/*
+ * Check for missing values.
+ */
+  if(is_missing_data) {
+    length[0] = 1;
+    set_resource("sfMissingValueV", sf_rlist, FillValue_data, type_data, 1, 
+                 length);
   }
 
 /*
  * Create the object.
  */
-   NhlCreate(&field,"field",NhlscalarFieldClass,app,sf_rlist);
+  if(rank == 2) {
+    NhlCreate(&field,"field",NhlscalarFieldClass,app,sf_rlist);
+  }
+  else {
+    NhlCreate(&field,"field",NhlmeshScalarFieldClass,app,sf_rlist);
+  }
    
-   return(field);
+  return(field);
 }
 
 /*
@@ -1116,7 +1133,7 @@ int vector_field(void *u, void *v, const char *type_u, const char *type_v,
                  int is_missing_u, int is_missing_v,
                  void *FillValue_u, void *FillValue_v, int vf_rlist)
 {
-  int app, field, length1[1], length2[2];
+  int app, field, length[2];
 
 /*
  * Retrieve application id.
@@ -1128,33 +1145,36 @@ int vector_field(void *u, void *v, const char *type_u, const char *type_v,
  * dataset for the vector or streamline object.
  */
 
-  length2[0] = ylen;
-  length2[1] = xlen;
+  length[0] = ylen;
+  length[1] = xlen;
 
-  set_resource("vfUDataArray", vf_rlist, u, type_u, 2, length2 );
-  set_resource("vfVDataArray", vf_rlist, v, type_v, 2, length2 );
-
-  length1[0] = 1;
-  if(is_missing_u) {
-    set_resource("vfMissingUValueV", vf_rlist, FillValue_u, type_u, 1, 
-                 &length1[0] );
-  }
-
-  if(is_missing_v) {
-    set_resource("vfMissingVValueV", vf_rlist, FillValue_v, type_v, 1, 
-                 &length1[0] );
-  }
+  set_resource("vfUDataArray", vf_rlist, u, type_u, 2, length );
+  set_resource("vfVDataArray", vf_rlist, v, type_v, 2, length );
 
 /*
  * Check for coordinate arrays.
  */
 
   if(is_ycoord) {
-    set_resource("vfYArray", vf_rlist, ycoord, type_ycoord, 1, &length2[0] );
+    set_resource("vfYArray", vf_rlist, ycoord, type_ycoord, 1, &length[0] );
   }
 
   if(is_xcoord) {
-    set_resource("vfXArray", vf_rlist, xcoord, type_xcoord, 1, &length2[1] );
+    set_resource("vfXArray", vf_rlist, xcoord, type_xcoord, 1, &length[1] );
+  }
+
+/*
+ * Check for missing values.
+ */
+  length[0] = 1;
+  if(is_missing_u) {
+    set_resource("vfMissingUValueV", vf_rlist, FillValue_u, type_u, 1, 
+                 &length[0] );
+  }
+
+  if(is_missing_v) {
+    set_resource("vfMissingVValueV", vf_rlist, FillValue_v, type_v, 1, 
+                 &length[0] );
   }
 
   NhlCreate(&field,"field",NhlvectorFieldClass,app,vf_rlist);
