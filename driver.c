@@ -40,12 +40,12 @@ char *colormaps[NCOLORMAPS] = { \
  * purposes.
  */
 
-double xmark1[6] = {0.02,0.03,0.04,0.05,0.06,0.07};
-float  ymark1[6] = {0.01,0.01,0.01,0.01,0.01,0.01};
-float  xmark2[3] = {0.06,0.05,0.04};
-double ymark2[3] = {0.02,0.03,0.04};
-float  xmark3[3] = {0.03,0.02,0.01};
-float  ymark3[3] = {0.03,0.02,0.01};
+double xmark1[6] = {0.32,0.33,0.34,0.35,0.36,0.37};
+float  ymark1[6] = {0.15,0.15,0.15,0.15,0.15,0.15};
+float  xmark2[3] = {0.36,0.35,0.34};
+double ymark2[3] = {0.16,0.17,0.18};
+float  xmark3[3] = {0.33,0.32,0.31};
+float  ymark3[3] = {0.17,0.16,0.15};
 
 float xline1[2]  = {0.01,0.99};
 float yline1[2]  = {0.05,0.05};
@@ -55,6 +55,7 @@ float yline2[5]  = { 271.5, 271.5, 273.1, 273.1, 271.5 };
 
 float xgon[NG] = {0.80,0.90,0.90,0.80,0.80};
 float ygon[NG] = {0.05,0.05,0.10,0.10,0.05};
+float ygon2[NG] = {0.75,0.75,0.80,0.80,0.75};
 
 float mapxgon[NG] = {-120, -65, -65, -120, -120};
 float mapygon[NG] = {  60,  60,  59,   59 ,  60};
@@ -865,7 +866,7 @@ main()
  */
 
   wk_rlist = NhlRLCreate(NhlSETRL);
-  wks = ngl_open_wks_wrap("x11","driver", wk_rlist);
+  wks = ngl_open_wks_wrap("pdf","driver", wk_rlist);
 
 /* 
  * Set color map resource and open workstation.
@@ -1390,31 +1391,13 @@ main()
     NhlRLSetString (vc2_rlist,"vcMonoLineArrowColor"    , "False");
     NhlRLSetFloat  (vc2_rlist,"vcRefLengthF"            , 0.045);
     NhlRLSetFloat  (vc2_rlist,"vcRefMagnitudeF"         , 20.0);
-/*
- * Draw some polymarkers before we draw the plot.
- */
-
-    NhlRLClear(gs_rlist);
-    NhlRLSetInteger(gs_rlist,"gsMarkerIndex", 16);
-    NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 10.5);
-    NhlRLSetString (gs_rlist,"gsMarkerColor", "red");
-    ngl_polymarker_ndc_wrap(wks, (void *)xmark1, (void *)ymark1, "double",
-                            "float", 6, 0, 0, NULL, NULL, gs_rlist,
-                            &special_pres);
-    NhlRLSetString (gs_rlist,"gsMarkerColor", "green");
-    ngl_polymarker_ndc_wrap(wks, (void *)xmark2, (void *)ymark2, "float", 
-                            "double", 3, 0, 0, NULL, NULL, gs_rlist, 
-                            &special_pres);
-    NhlRLSetString (gs_rlist,"gsMarkerColor", "blue");
-    ngl_polymarker_ndc_wrap(wks, (void *)xmark3, (void *)ymark3, "float",
-                            "float", 3, 0, 0, NULL, NULL, gs_rlist,
-                            &special_pres);
 
 /*
- * Now create and draw plot.
+ * Create and draw plot; don't advance frame.
  */
     special_res.nglSpreadColors     = 1;
     special_res.nglSpreadColorEnd   = -2;
+    special_res.nglFrame            = 0;
     vctrscalar = ngl_vector_scalar_wrap(wks, U, V, T2, type_U, type_V,
                                         type_T2, nlat_UV, nlon_UV, 
                                         is_lat_coord_UV, lat_UV,
@@ -1427,6 +1410,31 @@ main()
 
     special_res.nglSpreadColors     = 0;
     special_res.nglSpreadColorEnd   = -1;
+    special_res.nglFrame            = 1;
+
+/*
+ * Draw some polymarkers on canvas.
+ */
+
+    NhlRLClear(gs_rlist);
+    NhlRLSetInteger(gs_rlist,"gsMarkerIndex", 16);
+    NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 10.5);
+    NhlRLSetString (gs_rlist,"gsMarkerColor", "red");
+    ngl_polymarker_ndc_wrap(wks, (void *)xmark1, (void *)ymark1, "double",
+                            "float", 6, 0, 0, NULL, NULL, gs_rlist,
+                            &special_pres);
+
+    NhlRLSetString (gs_rlist,"gsMarkerColor", "green");
+    ngl_polymarker_ndc_wrap(wks, (void *)xmark2, (void *)ymark2, "float", 
+                            "double", 3, 0, 0, NULL, NULL, gs_rlist, 
+                            &special_pres);
+
+    NhlRLSetString (gs_rlist,"gsMarkerColor", "blue");
+    ngl_polymarker_ndc_wrap(wks, (void *)xmark3, (void *)ymark3, "float",
+                            "float", 3, 0, 0, NULL, NULL, gs_rlist,
+                            &special_pres);
+
+    NhlFrame(wks);
   }
 
 /*
@@ -1600,19 +1608,19 @@ main()
  */
 
     NhlRLClear(gs_rlist);
-    NhlRLSetString (gs_rlist,"gsFillColor", "LightGray");
-    ngl_polygon_ndc_wrap(wks, (void *)xgon, (void *)ygon, "float", "float",
+    NhlRLSetString (gs_rlist,"gsFillColor", "orange");
+    ngl_polygon_ndc_wrap(wks, (void *)xgon, (void *)ygon2, "float", "float",
                          NG, 0, 0, NULL, NULL, gs_rlist, &special_pres);
 
     NhlRLClear(gs_rlist);
     NhlRLSetString (gs_rlist,"gsMarkerColor", "red");
-    ngl_polymarker_ndc_wrap(wks, (void *)xgon, (void *)ygon, "float",
+    ngl_polymarker_ndc_wrap(wks, (void *)xgon, (void *)ygon2, "float",
                             "float", NG, 0, 0, NULL, NULL, gs_rlist,
                             &special_pres);
 
     NhlRLClear(gs_rlist);
     NhlRLSetString (gs_rlist,"gsLineColor", "Blue");
-    ngl_polyline_ndc_wrap(wks, (void *)xgon, (void *)ygon, "float", 
+    ngl_polyline_ndc_wrap(wks, (void *)xgon, (void *)ygon2, "float", 
                           "float", NG, 0, 0, NULL, NULL, gs_rlist,
                           &special_pres);
 
@@ -1750,7 +1758,12 @@ main()
  */
     
     NhlRLSetString (tx_rlist,"txJust", "TopRight");
-    ixf = -125;
+/*
+ * Don't use -125 here, because this put the label on the far left edge of
+ * the plot, and it will be cut if you go to PS/PDF output with maximize on.
+ *    ixf = -125;
+ */
+    ixf = -120;
     yf  =   20;
     text = ngl_text_wrap(wks, &vctrmap,"lat=  20:C:lon=-125",
                          &ixf, &yf, "integer", "float", tx_rlist,

@@ -1586,7 +1586,6 @@ nglPlotId ngl_contour_map_wrap(int wks, void *data, const char *type,
 /*
  * Create map plot.
  */
-  special_res2.nglMaximize         = special_res->nglMaximize;
   map = ngl_map_wrap(wks, mp_rlist, &special_res2);
 
 /*
@@ -1667,7 +1666,6 @@ nglPlotId ngl_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
 /*
  * Create map plot.
  */
-  special_res2.nglMaximize         = special_res->nglMaximize;
   map = ngl_map_wrap(wks, mp_rlist, &special_res2);
 
 /*
@@ -1753,7 +1751,6 @@ nglPlotId ngl_streamline_map_wrap(int wks, void *u, void *v,
 /*
  * Create map plot.
  */
-  special_res2.nglMaximize = special_res->nglMaximize;
   map = ngl_map_wrap(wks, mp_rlist, &special_res2);
 
 /*
@@ -1934,7 +1931,6 @@ nglPlotId ngl_vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
 /*
  * Create map plot.
  */
-  special_res2.nglMaximize = special_res->nglMaximize;
   map = ngl_map_wrap(wks, mp_rlist, &special_res2);
 
 /*
