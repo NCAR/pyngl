@@ -1777,7 +1777,7 @@ def yiqrgb(r,g,b):
 #  Returns the color index whose associated color on the given
 #  workstation is closest to the color name supplied.
 #
-def GetNamedColorIndex(wkid,name):
+def get_named_color_index(wkid,name):
   return(NhlGetNamedColorIndex(wkid,name))
 
 def wmsetp(pname,val):
@@ -2950,7 +2950,7 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
         vp   = Numeric.take(WDIR,idw)
 
       wbcol = wmgetp("col")                # get current wbarb color
-      wmsetp("col",GetNamedColorIndex(wks,sktcolWindP)) # set new color
+      wmsetp("col",get_named_color_index(wks,sktcolWindP)) # set new color
       ypWind = skewty(pw)
       xpWind = Numeric.ones(len(pw),Numeric.Float0)
 #
@@ -2989,7 +2989,7 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
         pz   = ftcurv(Zv,Pv,zw)               # map zw to p levels.
 
         wbcol = wmgetp("col")
-        wmsetp("col",GetNamedColorIndex(wks,sktcolWindZ)) 
+        wmsetp("col",get_named_color_index(wks,sktcolWindZ)) 
         yzWind = skewty(pz)
         xzWind = Numeric.ones(len(pz),Numeric.Float0)
         xzWind = skewtx(45., skewty(1013.)) * xzWind
@@ -3028,7 +3028,7 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
           ph   = ftcurv(Zv,Pv,dataOpts.sktHeight)
 
           wbcol = wmgetp("col")             # get current color index
-          wmsetp("col",GetNamedColorIndex(wks,sktcolWindH)) # set new color
+          wmsetp("col",get_named_color_index(wks,sktcolWindH)) # set new color
   
           yhWind = skewty(ph)
           xhWind = Numeric.ones(len(ph), Numeric.Float0)
