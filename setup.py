@@ -6,80 +6,138 @@
 #
 
 import os
+from os.path import join
 import site
+import shutil
 from distutils.core import setup, Extension
 
 #
-# Set from_src to True only if you are building PyNGL
-# and all of its supplemental files from source code.
+# Set copy_files to True only if you first need to copy over
+# PyNGL supplemental files.  You should only do this if you
+# have built NCARG/NCL/PyNGL from source code.
 #
-from_src = False
+# Set copy_rangs to True if you want to copy over the RANGS/GSHHS
+# database. This database takes up about 100 megabytes.
+#
+copy_files = True
+copy_rangs = False
 
 #
 # Get the root of where PyNGL will live, and the extra PyNGL
 # data files (fontcaps, graphcaps, map databases, example
 # scripts, etc)
 #
-pkgs_pth   = site.sitedirs[0]
-pyngl_dir  = pkgs_pth + "/PyNGL/ncarg"
+pkgs_pth  = site.sitedirs[0]
+pyngl_dir = pkgs_pth + "/PyNGL/ncarg"
 
-if(from_src):
+#
+# List directories that we need to get supplemental files from.
+#
+main_dirs   = ["ncarg","bin"]
+ncarg_dirs  = ["data","colormaps","database","fontcaps","graphcaps",\
+               "pynglex"]
+ncarg_files = ["sysresfile"]
+bin_files   = ["ctrans","psplit","pynglex"]
+
+if(copy_files):
+#
+# Get root directory of the files.
+#
   ncl_root = os.getenv("NCARG_ROOT") + "/"
   ncl_lib  = ncl_root + "lib/"
-else:
-  ncl_root = ""
-  ncl_lib  = ""
 
+  moved_rangs    = False
+  rangs_dir_from = ncl_lib + "ncarg/database/rangs"
+  rangs_dir_to   = ncl_lib + "ncarg/rangs"
+  if(not copy_rangs and os.path.exists(rangs_dir_from)):
+    print "Moving rangs database out of the way..."
+    os.rename(rangs_dir_from,rangs_dir_to)
+    moved_rangs = True
+#
+# Remove local directories if they exist, so we can start anew.
+#
+  for i in xrange(len(main_dirs)):
+    shutil.rmtree(main_dirs[i],ignore_errors=True)
+    os.mkdir(main_dirs[i])
+
+#
+# Copy over the files.
+#
+  for i in xrange(len(ncarg_dirs)):
+    shutil.copytree(ncl_lib + "ncarg/" + ncarg_dirs[i],"ncarg/"+ncarg_dirs[i])
+  for i in xrange(len(ncarg_files)):
+    shutil.copy(ncl_lib + "ncarg/" + ncarg_files[i],"ncarg/")
+  for i in xrange(len(bin_files)):
+    shutil.copy(ncl_root + "bin/" + bin_files[i],"bin/")
+#
+# Copy rangs dir back, if necessary.
+#
+  if(moved_rangs):
+    print "Moving rangs database back..."
+    os.rename(rangs_dir_to,rangs_dir_from)
+
+del bin_files
+
+#
 #
 # List all the extra files that need to be installed with PyNGL.
 # These files include example PyNGL scripts, data for the scripts,
 # fonts, map databases, colormaps, and other databases.
 #
-asc_files      = os.listdir(ncl_lib + "ncarg/data/asc")
-dbin_files     = os.listdir(ncl_lib + "ncarg/data/bin")
-cdf_files      = os.listdir(ncl_lib + "ncarg/data/cdf")
-grb_files      = os.listdir(ncl_lib + "ncarg/data/grb")
-colormap_files = os.listdir(ncl_lib + "ncarg/colormaps")
-database_files = os.listdir(ncl_lib + "ncarg/database")
-fontcap_files  = os.listdir(ncl_lib + "ncarg/fontcaps")
-graphcap_files = os.listdir(ncl_lib + "ncarg/graphcaps")
-pynglex_files  = os.listdir(ncl_lib + "ncarg/pynglex")
-bin_files      = ["ctrans","pynglex","psplit"]
+# os.listdir doesn't include the relative directory path
+#
+# We need a way to recursively list all files in the "ncarg"
+# directory, rather than having to list each directory 
+# individually. I think "os.walk" might be something to look into
+# here.
+#
+
+asc_files      = os.listdir("ncarg/data/asc")
+dbin_files     = os.listdir("ncarg/data/bin")
+cdf_files      = os.listdir("ncarg/data/cdf")
+grb_files      = os.listdir("ncarg/data/grb")
+colormap_files = os.listdir("ncarg/colormaps")
+database_files = os.listdir("ncarg/database")
+fontcap_files  = os.listdir("ncarg/fontcaps")
+graphcap_files = os.listdir("ncarg/graphcaps")
+pynglex_files  = os.listdir("ncarg/pynglex")
+bin_files      = os.listdir("bin")
 
 #
 # os.listdir doesn't include the relative directory path...
 #
 for i in xrange(len(asc_files)):
-  asc_files[i] = ncl_lib + "ncarg/data/asc/" + asc_files[i]
+  asc_files[i] = "ncarg/data/asc/" + asc_files[i]
 
 for i in xrange(len(dbin_files)):
-  dbin_files[i] = ncl_lib + "ncarg/data/bin/" + dbin_files[i]
+  dbin_files[i] = "ncarg/data/bin/" + dbin_files[i]
 
 for i in xrange(len(cdf_files)):
-  cdf_files[i] = ncl_lib + "ncarg/data/cdf/" + cdf_files[i]
+  cdf_files[i] = "ncarg/data/cdf/" + cdf_files[i]
 
 for i in xrange(len(grb_files)):
-  grb_files[i] = ncl_lib + "ncarg/data/grb/" + grb_files[i]
+  grb_files[i] = "ncarg/data/grb/" + grb_files[i]
 
 for i in xrange(len(colormap_files)):
-  colormap_files[i] = ncl_lib + "ncarg/colormaps/" + colormap_files[i]
+  colormap_files[i] = "ncarg/colormaps/" + colormap_files[i]
 
 for i in xrange(len(database_files)):
-  database_files[i] = ncl_lib + "ncarg/database/" + database_files[i]
+  database_files[i] = "ncarg/database/" + database_files[i]
 
 for i in xrange(len(fontcap_files)):
-  fontcap_files[i] = ncl_lib + "ncarg/fontcaps/" + fontcap_files[i]
+  fontcap_files[i] = "ncarg/fontcaps/" + fontcap_files[i]
 
 for i in xrange(len(graphcap_files)):
-  graphcap_files[i] = ncl_lib + "ncarg/graphcaps/" + graphcap_files[i]
+  graphcap_files[i] = "ncarg/graphcaps/" + graphcap_files[i]
+
 
 for i in xrange(len(pynglex_files)):
-  pynglex_files[i] = ncl_lib + "ncarg/pynglex/" + pynglex_files[i]
+  pynglex_files[i] = "ncarg/pynglex/" + pynglex_files[i]
 
 for i in xrange(len(bin_files)):
-  bin_files[i] = ncl_root + "bin/" + bin_files[i]
+  bin_files[i] = "bin/" + bin_files[i]
 
-res_file = [ncl_lib + "ncarg/sysresfile"]
+res_file = ["ncarg/sysresfile"]
 
 setup (name = "PyNGL",
        version="0.1.1b3",

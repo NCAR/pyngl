@@ -184,17 +184,17 @@ def set_spc_res(resource_name,value):
 #
 #  Set the special resource values.
 #
-  if (resource_name[0:8]   == "Maximize"):
+  if (resource_name   == "Maximize"):
     set_nglRes_i(0, lval) 
-  elif (resource_name[0:4] == "Draw"):
+  elif (resource_name == "Draw"):
     set_nglRes_i(1, lval) 
-  elif (resource_name[0:5] == "Frame"):
+  elif (resource_name == "Frame"):
     set_nglRes_i(2, lval) 
-  elif (resource_name[0:5] == "Scale"):
+  elif (resource_name == "Scale"):
     set_nglRes_i(3, lval) 
-  elif (resource_name[0:5] == "Debug"):
+  elif (resource_name == "Debug"):
     set_nglRes_i(4, lval) 
-  elif (resource_name[0:16] == "PaperOrientation"):
+  elif (resource_name == "PaperOrientation"):
     if(type(lval) == types.StringType):
       if(string.lower(lval) == "portrait"):
         set_nglRes_i(5, 0) 
@@ -206,88 +206,88 @@ def set_spc_res(resource_name,value):
         print "set_spc_res: Unknown value for " + resource_name
     else:
       set_nglRes_i(5, lval) 
-  elif (resource_name[0:10] == "PaperWidth"):
+  elif (resource_name == "PaperWidth"):
     set_nglRes_f(6, lval) 
-  elif (resource_name[0:11] == "PaperHeight"):
+  elif (resource_name == "PaperHeight"):
     set_nglRes_f(7, lval) 
-  elif (resource_name[0:11] == "PaperMargin"):
+  elif (resource_name == "PaperMargin"):
     set_nglRes_f(8, lval) 
-  elif (resource_name[0:11] == "PanelCenter"):
+  elif (resource_name == "PanelCenter"):
     set_nglRes_i(9, lval) 
-  elif (resource_name[0:12] == "PanelRowSpec"):
+  elif (resource_name == "PanelRowSpec"):
     set_nglRes_i(10, lval) 
-  elif (resource_name[0:23] == "PanelXWhiteSpacePercent"):
+  elif (resource_name == "PanelXWhiteSpacePercent"):
     set_nglRes_f(11, lval) 
-  elif (resource_name[0:23] == "PanelYWhiteSpacePercent"):
+  elif (resource_name == "PanelYWhiteSpacePercent"):
     set_nglRes_f(12, lval) 
-  elif (resource_name[0:10] == "PanelBoxes"):
+  elif (resource_name == "PanelBoxes"):
     set_nglRes_i(13, lval) 
-  elif (resource_name[0:9] == "PanelLeft"):
+  elif (resource_name == "PanelLeft"):
     set_nglRes_f(14, lval) 
-  elif (resource_name[0:10] == "PanelRight"):
+  elif (resource_name == "PanelRight"):
     set_nglRes_f(15, lval) 
-  elif (resource_name[0:11] == "PanelBottom"):
+  elif (resource_name == "PanelBottom"):
     set_nglRes_f(16, lval) 
-  elif (resource_name[0:8] == "PanelTop"):
+  elif (resource_name == "PanelTop"):
     set_nglRes_f(17, lval) 
-  elif (resource_name[0:14] == "PanelInvsblTop"):
+  elif (resource_name == "PanelInvsblTop"):
     set_nglRes_f(18, lval) 
-  elif (resource_name[0:15] == "PanelInvsblLeft"):
+  elif (resource_name == "PanelInvsblLeft"):
     set_nglRes_f(19, lval) 
-  elif (resource_name[0:16] == "PanelInvsblRight"):
+  elif (resource_name == "PanelInvsblRight"):
     set_nglRes_f(20, lval) 
-  elif (resource_name[0:17] == "PanelInvsblBottom"):
+  elif (resource_name == "PanelInvsblBottom"):
     set_nglRes_f(21, lval) 
-  elif (resource_name[0:9] == "PanelSave"):
+  elif (resource_name == "PanelSave"):
     set_nglRes_i(22, lval) 
-  elif (resource_name[0:12] == "SpreadColors"):
+  elif (resource_name == "SpreadColors"):
     set_nglRes_i(23, lval) 
-  elif (resource_name[0:16] == "SpreadColorStart"):
+  elif (resource_name == "SpreadColorStart"):
     set_nglRes_i(24, lval) 
-  elif (resource_name[0:14] == "SpreadColorEnd"):
+  elif (resource_name == "SpreadColorEnd"):
     set_nglRes_i(25, lval) 
-  elif (resource_name[0:24] == "PanelLabelBarOrientation"):
+  elif (resource_name == "PanelLabelBarOrientation"):
     set_nglRes_i(26, lval) 
-  elif (resource_name[0:13] == "PanelLabelBar" and len(resource_name) == 13):
+  elif (resource_name == "PanelLabelBar" and len(resource_name) == 13):
     set_nglRes_i(27, lval) 
-  elif (resource_name[0:15] == "PanelLabelBarXF"):
+  elif (resource_name == "PanelLabelBarXF"):
     set_nglRes_f(28, lval) 
-  elif (resource_name[0:15] == "PanelLabelBarYF"):
+  elif (resource_name == "PanelLabelBarYF"):
     set_nglRes_f(29, lval) 
-  elif (resource_name[0:29] == "PanelLabelBarLabelFontHeightF"):
+  elif (resource_name == "PanelLabelBarLabelFontHeightF"):
     set_nglRes_f(30, lval) 
-  elif (resource_name[0:19] == "PanelLabelBarWidthF"):
+  elif (resource_name == "PanelLabelBarWidthF"):
     set_nglRes_f(31, lval) 
-  elif (resource_name[0:20] == "PanelLabelBarHeightF"):
+  elif (resource_name == "PanelLabelBarHeightF"):
     set_nglRes_f(32, lval) 
-  elif (resource_name[0:27] == "PanelLabelBarOrthogonalPosF"):
+  elif (resource_name == "PanelLabelBarOrthogonalPosF"):
     set_nglRes_f(33, lval) 
-  elif (resource_name[0:25] == "PanelLabelBarParallelPosF"):
+  elif (resource_name == "PanelLabelBarParallelPosF"):
     set_nglRes_f(34, lval) 
-  elif (resource_name[0:20] == "PanelLabelBarPerimOn"):
+  elif (resource_name == "PanelLabelBarPerimOn"):
     set_nglRes_i(35, lval) 
-  elif (resource_name[0:22] == "PanelLabelBarAlignment"):
+  elif (resource_name == "PanelLabelBarAlignment"):
     set_nglRes_i(36, lval) 
-  elif (resource_name[0:28] == "PanelLabelBarLabelAutoStride"):
+  elif (resource_name == "PanelLabelBarLabelAutoStride"):
     set_nglRes_i(37, lval) 
-  elif (resource_name[0:18] == "PanelFigureStrings" and len(resource_name) == 18):
+  elif (resource_name == "PanelFigureStrings" and len(resource_name) == 18):
     set_nglRes_c(38, lval) 
-  elif (resource_name[0:23] == "PanelFigureStringsCount"):
+  elif (resource_name == "PanelFigureStringsCount"):
     set_nglRes_i(39, lval) 
-  elif (resource_name[0:22] == "PanelFigureStringsJust"):
+  elif (resource_name == "PanelFigureStringsJust"):
     set_nglRes_i(40, lval) 
-  elif (resource_name[0:32] == "PanelFigureStringsOrthogonalPosF"):
+  elif (resource_name == "PanelFigureStringsOrthogonalPosF"):
     set_nglRes_f(41, lval) 
-  elif (resource_name[0:30] == "PanelFigureStringsParallelPosF"):
+  elif (resource_name == "PanelFigureStringsParallelPosF"):
     set_nglRes_f(42, lval) 
-  elif (resource_name[0:25] == "PanelFigureStringsPerimOn"):
+  elif (resource_name == "PanelFigureStringsPerimOn"):
     set_nglRes_i(43, lval) 
-  elif (resource_name[0:37] == "PanelFigureStringsBackgroundFillColor"):
+  elif (resource_name == "PanelFigureStringsBackgroundFillColor"):
     set_nglRes_i(44, lval) 
-  elif (resource_name[0:29] == "PanelFigureStringsFontHeightF"):
+  elif (resource_name == "PanelFigureStringsFontHeightF"):
     set_nglRes_f(45, lval) 
   else:
-    print "set_spc_res: Unknown special resource " + resource_name
+    print "set_spc_res: Unknown special resource ngl" + resource_name
 
 def check_res_value(resvalue,strvalue,intvalue):
 #
@@ -306,34 +306,50 @@ def set_contour_res(reslist,reslist1):
 #  Set some contour resources of which we either don't like the NCL
 #  defaults, or we want to set something on behalf of the user.
 #
-    if(reslist.has_key("cnFillOn") and reslist["cnFillOn"] > 0):
-      if ( not (reslist.has_key("cnInfoLabelOn"))):
-        reslist1["cnInfoLabelOn"] = False
-      if ( not (reslist.has_key("pmLabelBarDisplayMode"))):
-        reslist1["pmLabelBarDisplayMode"] = "Always"
+  if(reslist.has_key("cnFillOn") and reslist["cnFillOn"] > 0):
+    if ( not (reslist.has_key("cnInfoLabelOn"))):
+      reslist1["cnInfoLabelOn"] = False
+    if ( not (reslist.has_key("pmLabelBarDisplayMode"))):
+      reslist1["pmLabelBarDisplayMode"] = "Always"
 #
 #  Check for "plural" resources that only take effect if their
 #  corresponding "Mono" resource is set to False, and set the
 #  Mono resource on behalf of the user.
 #
-    if(reslist.has_key("cnLineDashPatterns")):
-      if ( not (reslist.has_key("cnMonoLineDashPattern"))):
-        reslist1["cnMonoLineDashPattern"] = False
-    if(reslist.has_key("cnLineColors")):
-      if (not (reslist.has_key("cnMonoLineColor"))):
-        reslist1["cnMonoLineColor"] = False
-    if(reslist.has_key("cnLineThicknesss")):
-      if (not (reslist.has_key("cnMonoLineThickness"))):
-        reslist1["cnMonoLineThickness"] = False
-    if(reslist.has_key("cnFillPatterns")):
-      if (not (reslist.has_key("cnMonoFillPattern"))):
-        reslist1["cnMonoFillPattern"] = False
-    if(reslist.has_key("cnFillScales")):
-      if (not (reslist.has_key("cnMonoFillScale"))):
-        reslist1["cnMonoFillScale"] = False
-    if(reslist.has_key("cnLineLabelFontColors")):
-      if (not (reslist.has_key("cnMonoLineLabelFontColor"))):
-        reslist1["cnMonoLineLabelFontColor"] = False
+  if(reslist.has_key("cnLineDashPatterns")):
+    if ( not (reslist.has_key("cnMonoLineDashPattern"))):
+      reslist1["cnMonoLineDashPattern"] = False
+  if(reslist.has_key("cnLineColors")):
+    if (not (reslist.has_key("cnMonoLineColor"))):
+      reslist1["cnMonoLineColor"] = False
+  if(reslist.has_key("cnLineThicknesss")):
+    if (not (reslist.has_key("cnMonoLineThickness"))):
+      reslist1["cnMonoLineThickness"] = False
+  if(reslist.has_key("cnFillPatterns")):
+    if (not (reslist.has_key("cnMonoFillPattern"))):
+      reslist1["cnMonoFillPattern"] = False
+  if(reslist.has_key("cnFillScales")):
+    if (not (reslist.has_key("cnMonoFillScale"))):
+      reslist1["cnMonoFillScale"] = False
+  if(reslist.has_key("cnLineLabelFontColors")):
+    if (not (reslist.has_key("cnMonoLineLabelFontColor"))):
+      reslist1["cnMonoLineLabelFontColor"] = False
+
+def set_vector_res(reslist,reslist1):
+#
+#  Set some vector resources of which we either don't like the NCL
+#  defaults, or we want to set something on behalf of the user.
+#
+  if(reslist.has_key("vcMonoLineArrowColor") and reslist["vcMonoLineArrowColor"] == 0):
+    if ( not (reslist.has_key("pmLabelBarDisplayMode"))):
+      reslist1["pmLabelBarDisplayMode"] = "Always"
+
+def set_map_res(reslist,reslist1):
+#
+# Turn on map tickmarks.
+#
+  if ( not (reslist.has_key("pmTickMarkDisplayMode"))):
+    reslist1["pmTickMarkDisplayMode"] = "Always"
 
 def set_labelbar_res(reslist,reslist1):
 #
@@ -1069,9 +1085,6 @@ def vector(wks,uarray,varray,rlistc=None):
   rlist1 = {}
   rlist2 = {}
   for key in rlist.keys():
-    if(key[0:20] == "vcMonoLineArrowColor" and rlist[key] == 0):
-      if ( not (rlist.has_key("pmLabelBarDisplayMode"))):
-        rlist2["pmLabelBarDisplayMode"] = "Always"
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:3] == "ngl"):
@@ -1079,6 +1092,7 @@ def vector(wks,uarray,varray,rlistc=None):
     else:
       rlist2[key] = rlist[key]
     
+  set_vector_res(rlist,rlist2)        # Set some vector resources
   set_labelbar_res(rlist,rlist2)      # Set some labelbar resources
 
 #
@@ -1105,9 +1119,6 @@ def vector_map(wks,uarray,varray,rlistc=None):
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
-    if(key[0:20] == "vcMonoLineArrowColor" and rlist[key] == 0):
-      if ( not (rlist.has_key("pmLabelBarDisplayMode"))):
-        rlist2["pmLabelBarDisplayMode"] = "Always"
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
@@ -1117,12 +1128,9 @@ def vector_map(wks,uarray,varray,rlistc=None):
       set_spc_res(key[3:],rlist[key])      
     else:
       rlist2[key] = rlist[key]
-#
-# Turn on map tickmarks.
-#
-  if ( not (rlist.has_key("pmTickMarkDisplayMode"))):
-      rlist3["pmTickMarkDisplayMode"] = "Always"
 
+  set_map_res(rlist,rlist3)           # Set some map resources
+  set_vector_res(rlist,rlist2)        # Set some vector resources
   set_labelbar_res(rlist,rlist2)      # Set some labelbar resources
     
 #
@@ -1151,9 +1159,6 @@ def vector_scalar(wks,uarray,varray,tarray,rlistc=None):
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
-    if(key[0:20] == "vcMonoLineArrowColor" and rlist[key] == 0):
-      if ( not (rlist.has_key("pmLabelBarDisplayMode"))):
-        rlist3["pmLabelBarDisplayMode"] = "Always"
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:2] == "sf"):
@@ -1163,6 +1168,7 @@ def vector_scalar(wks,uarray,varray,tarray,rlistc=None):
     else:
       rlist3[key] = rlist[key]
     
+  set_vector_res(rlist,rlist3)        # Set some vector resources
   set_labelbar_res(rlist,rlist3)      # Set some labelbar resources
 
 #
@@ -1194,9 +1200,6 @@ def vector_scalar_map(wks,uarray,varray,tarray,rlistc=None):
   rlist3 = {}
   rlist4 = {}
   for key in rlist.keys():
-    if(key[0:20] == "vcMonoLineArrowColor" and rlist[key] == 0):
-      if ( not (rlist.has_key("pmLabelBarDisplayMode"))):
-        rlist3["pmLabelBarDisplayMode"] = "Always"
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:2] == "sf"):
@@ -1209,12 +1212,8 @@ def vector_scalar_map(wks,uarray,varray,tarray,rlistc=None):
     else:
       rlist3[key] = rlist[key]
     
-#
-# Turn on map tickmarks.
-#
-  if ( not (rlist.has_key("pmTickMarkDisplayMode"))):
-    rlist4["pmTickMarkDisplayMode"] = "Always"
-
+  set_map_res(rlist,rlist4)           # Set some map resources
+  set_vector_res(rlist,rlist3)        # Set some vector resources
   set_labelbar_res(rlist,rlist3)      # Set some labelbar resources
 
 #
