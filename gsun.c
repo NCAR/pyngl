@@ -4,6 +4,12 @@
 #include "gsun.h"
 
 /*
+ * Define some global strings.
+ */
+const char *polylinestr = "polyline";
+  
+
+/*
  * This function computes the PostScript device coordinates needed to
  * make a plot fill up the full page.
  *
@@ -283,6 +289,63 @@ void maximize_plot(int wks, int plot, gsnRes *special_res)
 }
 
 /*
+ * This function "scales" the tickmarks and labels on the axes
+ * so they are the same size/length.
+ */
+
+void scale_plot(int plot)
+{
+  int srlist, grlist;
+  float xfont, yfont, xbfont, ylfont;
+  float xlength, ylength, xmlength, ymlength;
+  float major_length, minor_length;
+
+  srlist = NhlRLCreate(NhlSETRL);
+  grlist = NhlRLCreate(NhlGETRL);
+
+  NhlRLClear(grlist);
+  NhlRLGetFloat(grlist,"tiXAxisFontHeightF",    &xfont);
+  NhlRLGetFloat(grlist,"tiYAxisFontHeightF",    &yfont);
+  NhlRLGetFloat(grlist,"tmXBLabelFontHeightF",  &xbfont);
+  NhlRLGetFloat(grlist,"tmXBMajorLengthF",      &xlength);
+  NhlRLGetFloat(grlist,"tmXBMinorLengthF",      &xmlength);
+  NhlRLGetFloat(grlist,"tmYLLabelFontHeightF",  &ylfont);
+  NhlRLGetFloat(grlist,"tmYLMajorLengthF",      &ylength);
+  NhlRLGetFloat(grlist,"tmYLMinorLengthF",      &ymlength);
+  NhlGetValues(plot,grlist);
+
+  if(xlength != 0. && ylength != 0.) {
+    major_length = (ylength+xlength)/2.;
+    xlength = major_length;
+    ylength = major_length;
+  }
+
+  if(xmlength != 0. && ymlength != 0.) {
+    minor_length = (ymlength+xmlength)/2.;
+    xmlength = minor_length;
+    ymlength = minor_length;
+  }
+
+/*
+ * Reset all these resources, making the values the same for
+ * both axes.
+ */
+
+  NhlRLClear(srlist);
+  NhlRLSetFloat(srlist, "tiXAxisFontHeightF",   (xfont+yfont)/2.);
+  NhlRLSetFloat(srlist, "tiYAxisFontHeightF",   (xfont+yfont)/2.);
+  NhlRLSetFloat(srlist, "tmXBLabelFontHeightF", (xbfont+ylfont)/2.);
+  NhlRLSetFloat(srlist, "tmXBMajorLengthF",     xlength);
+  NhlRLSetFloat(srlist, "tmXBMinorLengthF",     xmlength);
+  NhlRLSetFloat(srlist, "tmYLLabelFontHeightF", (xbfont+ylfont)/2.);
+  NhlRLSetFloat(srlist, "tmYLMajorLengthF",     ylength);
+  NhlRLSetFloat(srlist, "tmYLMinorLengthF",     ymlength);
+  NhlSetValues(plot,srlist);
+
+  return;
+}
+
+/*
  * This function coerces a void array to a float array (for routines
  * like NhlDataPolygon that expect floats).
  */
@@ -329,6 +392,55 @@ float *coerce_to_float(void *x, const char *type_x, int len)
     }
   }
   return(xf);
+}
+
+
+/*
+ * This function returns the indices of all the non-missing pairs of 
+ * points in two float arrays.
+ */
+int *get_non_missing_pairs(float *xf, float *yf, int is_missing_x,
+                           int is_missing_y, float *xmsg, float *ymsg,
+                           int len, int *nlines)
+{
+  int i, *indices, *new_indices, ibeg, iend, is_missing_any;
+
+  indices = calloc(len*2,sizeof(int));
+
+  *nlines = 0;
+  ibeg = -1;
+  for(i = 0; i < len; i++ ) {
+    if((!is_missing_x || (is_missing_x && xf[i] != *xmsg)) && 
+       (!is_missing_y || (is_missing_y && yf[i] != *ymsg))) {
+/*
+ * ibeg < 0 ==> on the first point of the line
+ */
+      if(ibeg < 0) {
+        ibeg = i;
+        iend = i;
+      }
+      else {
+        iend = i;
+      }
+      is_missing_any = 0;
+    }
+    else {
+      is_missing_any = 1;
+    }
+    if(ibeg >= 0 && (is_missing_any || iend == (len-1))) {
+      indices[*nlines*2]   = ibeg;
+      indices[*nlines*2+1] = iend;
+/*
+ * Reinitialize
+ */
+      ibeg = -1;
+      (*nlines)++;
+    }
+  }
+  new_indices = malloc(*nlines*2*sizeof(int));
+  memcpy((void *)new_indices,(const void *)indices,*nlines*2*sizeof(int));
+  free(indices);
+  return(new_indices);
 }
 
 
@@ -585,12 +697,12 @@ int vector_field(void *u, void *v, const char *type_u, const char *type_v,
   length1[0] = 1;
   if(is_missing_u) {
     set_resource("vfMissingUValueV", vf_rlist, FillValue_u, type_u, 1, 
-				 &length1[0] );
+                 &length1[0] );
   }
 
   if(is_missing_v) {
     set_resource("vfMissingVValueV", vf_rlist, FillValue_v, type_v, 1, 
-				 &length1[0] );
+                 &length1[0] );
   }
 
 /*
@@ -672,7 +784,7 @@ int gsn_open_wks(const char *type, const char *name, int wk_rlist)
  */
 
     len      = strlen(name);
-    filename = (char *)malloc((len+6)*sizeof(char));
+    filename = (char *)calloc(len+6,sizeof(char));
 
     strncpy(filename,name,len);
     strcat(filename,".ncgm");
@@ -689,7 +801,7 @@ int gsn_open_wks(const char *type, const char *name, int wk_rlist)
  */
 
     len      = strlen(name);
-    filename = (char *)malloc((len+4)*sizeof(char));
+    filename = (char *)calloc(len+4,sizeof(char));
 
     strncpy(filename,name,len);
     strcat(filename,".ps");
@@ -707,7 +819,7 @@ int gsn_open_wks(const char *type, const char *name, int wk_rlist)
  */
 
     len      = strlen(name);
-    filename = (char *)malloc((len+5)*sizeof(char));
+    filename = (char *)calloc(len+5,sizeof(char));
 
     strncpy(filename,name,len);
     strcat(filename,".pdf");
@@ -766,6 +878,12 @@ int gsn_contour_wrap(int wks, void *data, const char *type,
   NhlCreate(&contour,"contour",NhlcontourPlotClass,wks,cn_rlist);
 
 /*
+ * Make tickmarks and axis labels the same size.
+ */
+
+  if(special_res->gsnScale) scale_plot(contour);
+
+/*
  * Draw contour plot and advance frame.
  */
 
@@ -820,15 +938,21 @@ int gsn_xy_wrap(int wks, void *x, void *y, const char *type_x,
  * set some of the XY resources, like line color, thickness, dash
  * patterns, etc. 
  */
-    grlist = NhlRLCreate(NhlGETRL);
-    NhlRLClear(grlist);
-    NhlRLGetIntegerArray(grlist,NhlNxyCoordDataSpec,&xyds,&num_dspec);
-    NhlGetValues(xy,grlist);
+  grlist = NhlRLCreate(NhlGETRL);
+  NhlRLClear(grlist);
+  NhlRLGetIntegerArray(grlist,NhlNxyCoordDataSpec,&xyds,&num_dspec);
+  NhlGetValues(xy,grlist);
 /*
  * Now apply the data spec resources.
  */
-    NhlSetValues(*xyds,xyd_rlist);
-    NhlFree(xyds);
+  NhlSetValues(*xyds,xyd_rlist);
+  NhlFree(xyds);
+/*
+ * Make tickmarks and axis labels the same size.
+ */
+
+  if(special_res->gsnScale) scale_plot(xy);
+
 /*
  * Draw xy plot and advance frame.
  */
@@ -906,6 +1030,12 @@ int gsn_vector_wrap(int wks, void *u, void *v, const char *type_u,
   NhlCreate(&vector,"vector",NhlvectorPlotClass,wks,vc_rlist);
 
 /*
+ * Make tickmarks and axis labels the same size.
+ */
+
+  if(special_res->gsnScale) scale_plot(vector);
+
+/*
  * Draw vector plot and advance frame.
  */
 
@@ -954,6 +1084,12 @@ int gsn_streamline_wrap(int wks, void *u, void *v, const char *type_u,
  */
 
   NhlCreate(&streamline,"streamline",NhlstreamlinePlotClass,wks,st_rlist);
+
+/*
+ * Make tickmarks and axis labels the same size.
+ */
+
+  if(special_res->gsnScale) scale_plot(streamline);
 
 /*
  * Draw streamline plot and advance frame.
@@ -1040,6 +1176,11 @@ int gsn_contour_map_wrap(int wks, void *data, const char *type,
   NhlAddOverlay(map,contour,-1);
 
 /*
+ * Make tickmarks and axis labels the same size.
+ */
+  if(special_res->gsnScale) scale_plot(contour);
+
+/*
  * Draw plots and advance frame.
  */
 
@@ -1092,6 +1233,12 @@ int gsn_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
  * Overlay vector plot on map plot.
  */
   NhlAddOverlay(map,vector,-1);
+
+/*
+ * Make tickmarks and axis labels the same size.
+ */
+
+  if(special_res->gsnScale) scale_plot(vector);
 
 /*
  * Draw plots and advance frame.
@@ -1148,6 +1295,12 @@ int gsn_streamline_map_wrap(int wks, void *u, void *v, const char *type_u,
  * Overlay streamline plot on map plot.
  */
   NhlAddOverlay(map,streamline,-1);
+
+/*
+ * Make tickmarks and axis labels the same size.
+ */
+
+  if(special_res->gsnScale) scale_plot(streamline);
 
 /*
  * Draw plots and advance frame.
@@ -1209,6 +1362,12 @@ int gsn_vector_scalar_wrap(int wks, void *u, void *v, void *t,
   NhlCreate(&vector,"vector",NhlvectorPlotClass,wks,vc_rlist);
 
 /*
+ * Make tickmarks and axis labels the same size.
+ */
+
+  if(special_res->gsnScale) scale_plot(vector);
+
+/*
  * Draw plots and advance frame.
  */
 
@@ -1267,6 +1426,12 @@ int gsn_vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
  * Overlay vector plot on map plot.
  */
   NhlAddOverlay(map,vector,-1);
+
+/*
+ * Make tickmarks and axis labels the same size.
+ */
+
+  if(special_res->gsnScale) scale_plot(vector);
 
 /*
  * Draw plots and advance frame.
@@ -1350,7 +1515,7 @@ int gsn_text_wrap(int wks, int plot, char* string, void *x, void *y,
 void gsn_poly_wrap(int wks, int plot, void *x, void *y, const char *type_x,
                    const char *type_y, int len, int is_missing_x, 
                    int is_missing_y, void *FillValue_x, 
-                   void *FillValue_y, PolyType polytype, int is_ndc, 
+                   void *FillValue_y, NhlPolyType polytype, int is_ndc,
                    int gs_rlist, gsnRes *special_res)
 {
   int gsid, newlen;
@@ -1388,15 +1553,15 @@ void gsn_poly_wrap(int wks, int plot, void *x, void *y, const char *type_x,
     if(is_ndc) {
       switch(polytype) {
 
-      case POLYLINE:
+      case NhlPOLYLINE:
         NhlNDCPolyline(wks,gsid,xf,yf,newlen);
         break;
 
-      case POLYMARKER:
+      case NhlPOLYMARKER:
         NhlNDCPolymarker(wks,gsid,xf,yf,newlen);
         break;
 
-      case POLYGON:
+      case NhlPOLYGON:
         NhlNDCPolygon(wks,gsid,xf,yf,newlen);
         break;
       }
@@ -1404,15 +1569,15 @@ void gsn_poly_wrap(int wks, int plot, void *x, void *y, const char *type_x,
     else {
       switch(polytype) {
 
-      case POLYLINE:
+      case NhlPOLYLINE:
         NhlDataPolyline(plot,gsid,xf,yf,newlen);
         break;
 
-      case POLYMARKER:
+      case NhlPOLYMARKER:
         NhlDataPolymarker(plot,gsid,xf,yf,newlen);
         break;
 
-      case POLYGON:
+      case NhlPOLYGON:
         NhlDataPolygon(plot,gsid,xf,yf,newlen);
         break;
       }
@@ -1421,6 +1586,156 @@ void gsn_poly_wrap(int wks, int plot, void *x, void *y, const char *type_x,
     
   if(special_res->gsnFrame) NhlFrame(wks);
 
+}
+
+
+/*
+ * Routine for adding any kind of primitive (in data space only).
+ * The difference between adding a primitive, and just drawing a 
+ * primitive, is that when you add a primitive to a plot, then it will
+ * only get drawn when you draw the plot, and it will also be scaled
+ * if you scale the plot. 
+ */
+int gsn_add_poly_wrap(int wks, int plot, void *x, void *y,
+                      const char *type_x, const char *type_y, int len, 
+                      int is_missing_x, int is_missing_y, void *FillValue_x, 
+                      void *FillValue_y, NhlPolyType polytype, 
+                      int gs_rlist, gsnRes *special_res)
+{
+  int *primitive_object, gsid, pr_rlist, grlist;
+  int i, newlen, *indices, nlines, ibeg, iend, npts;
+  float *xf, *yf, *xfmsg, *yfmsg;
+  char *astring;
+
+/*
+ * Create resource list for primitive object.
+ */
+
+  pr_rlist = NhlRLCreate(NhlSETRL);
+
+/*
+ * Create graphic style object on which to draw primitives.
+ */
+
+  gsid = create_graphicstyle_object(wks);
+
+/*
+ * Set the graphic style (primitive) resources, if any.
+ */
+
+  NhlSetValues(gsid,gs_rlist);
+
+/*
+ * Convert x and/or y (and their missing values) to float, if necessary.
+ */
+  xf  = coerce_to_float(x,type_x,len);
+  yf  = coerce_to_float(y,type_y,len);
+  if(is_missing_x) xfmsg = coerce_to_float(FillValue_x,type_x,1);
+  if(is_missing_y) yfmsg = coerce_to_float(FillValue_y,type_y,1);
+
+/*
+ * If the poly type is polymarkers or polygons, then remove all
+ * missing values, and plot.
+ */
+
+  if(polytype != NhlPOLYLINE) {
+/*
+ * Remove missing values, if any.
+ */
+    collapse_nomsg_xy(xf, yf, len, is_missing_x, is_missing_y, 
+                      xfmsg, yfmsg, &newlen);
+/*
+ * Set some primitive object resources.  Namely, the location of
+ * the X/Y points, and the type of primitive (polymarker or polygon
+ * in this case).
+ */
+    NhlRLSetFloatArray(pr_rlist,"prXArray",       xf, newlen);
+    NhlRLSetFloatArray(pr_rlist,"prYArray",       yf, newlen);
+    NhlRLSetInteger   (pr_rlist,"prPolyType",     polytype);
+    NhlRLSetInteger   (pr_rlist,"prGraphicStyle", gsid);
+
+/*
+ * Allocate a variable to hold the primitive object, and create it.
+ */
+
+    primitive_object = (int*)calloc(1,sizeof(int));
+    NhlCreate(primitive_object,"Primitive",NhlprimitiveClass,wks,pr_rlist);
+
+/*
+ * Attach primitive object to the plot.
+ */
+
+    NhlAddPrimitive(plot,*primitive_object,-1);
+  }
+  else {
+/*
+ * If the primitive is a polyline, then retrieve the indices of the 
+ * non-missing points, and plot them individually.  This may result
+ * in several primitive objects being created.  If there's only one
+ * point in a section, then plot a marker.
+ */
+    indices = get_non_missing_pairs(xf, yf, is_missing_x, is_missing_y,
+                                    xfmsg, yfmsg, len, &nlines);
+
+    if(nlines > 0) {
+      primitive_object = (int*)calloc(nlines,sizeof(int));
+      astring = calloc(strlen(polylinestr)+8,sizeof(char));
+      for(i = 0; i < nlines; i++) {
+/*
+ * Get the begin and end indices of the non-missing section of points.
+ */
+        ibeg = indices[i*2];
+        iend = indices[i*2+1];
+/*
+ * Create a unique string to name this polyline. 
+ */
+        sprintf(astring,"%s%d", polylinestr, i);
+
+/*
+ * If iend=ibeg, then this means we only have one point, and thus
+ * we need to create a marker.
+ */
+        if(iend == ibeg) {
+/*
+ * Create primitive object.
+ */
+          NhlRLSetFloat  (pr_rlist,"prXArray",       xf[ibeg]);
+          NhlRLSetFloat  (pr_rlist,"prYArray",       yf[ibeg]);
+          NhlRLSetInteger(pr_rlist,"prPolyType",     NhlPOLYMARKER);
+          NhlRLSetInteger(pr_rlist,"prGraphicStyle", gsid);
+          NhlCreate(&primitive_object[i],astring,NhlprimitiveClass,wks,
+                    pr_rlist);
+        }
+        else {
+          npts = iend - ibeg + 1;
+/*
+ * We have more than one point, so create a polyline.
+ */
+
+          NhlRLSetFloatArray(pr_rlist,"prXArray",       xf, npts);
+          NhlRLSetFloatArray(pr_rlist,"prYArray",       yf, npts);
+          NhlRLSetInteger   (pr_rlist,"prPolyType",     polytype);
+          NhlRLSetInteger   (pr_rlist,"prGraphicStyle", gsid);
+        }
+
+/*
+ * Create the polyline or marker, and  attach it to the plot.
+ */
+        NhlCreate(&primitive_object[i],"Primitive",NhlprimitiveClass,
+                  wks,pr_rlist);
+
+        NhlAddPrimitive(plot,primitive_object[i],-1);
+      }
+    }
+    else {
+/*
+ * Create a NULL primitive object.
+ */
+      primitive_object = (int*)calloc(1,sizeof(int));
+    }     
+  }
+
+  return(*primitive_object);
 }
 
 /*
@@ -1432,8 +1747,9 @@ void gsn_polymarker_ndc_wrap(int wks, void *x, void *y, const char *type_x,
                              void *FillValue_x, void *FillValue_y, 
                              int gs_rlist, gsnRes *special_res)
 {
-  gsn_poly_wrap(wks,0,x,y,type_x,type_y,len,is_missing_x,is_missing_y,
-                FillValue_x,FillValue_y,POLYMARKER,1,gs_rlist,special_res);
+  gsn_poly_wrap(wks, 0, x, y, type_x, type_y, len, is_missing_x, 
+                is_missing_y, FillValue_x, FillValue_y, NhlPOLYMARKER, 1,
+                gs_rlist,special_res);
 }
 
 
@@ -1446,8 +1762,9 @@ void gsn_polyline_ndc_wrap(int wks, void *x, void *y, const char *type_x,
                            void *FillValue_x, void *FillValue_y, 
                            int gs_rlist, gsnRes *special_res)
 {
-  gsn_poly_wrap(wks,0,x,y,type_x,type_y,len,is_missing_x,is_missing_y,
-                FillValue_x,FillValue_y,POLYLINE,1,gs_rlist,special_res);
+  gsn_poly_wrap(wks, 0, x, y, type_x, type_y, len, is_missing_x, 
+                is_missing_y, FillValue_x, FillValue_y, NhlPOLYLINE, 1, 
+                gs_rlist, special_res);
 }
 
 
@@ -1460,8 +1777,9 @@ void gsn_polygon_ndc_wrap(int wks, void *x, void *y, const char *type_x,
                           void *FillValue_x, void *FillValue_y, 
                           int gs_rlist, gsnRes *special_res)
 {
-  gsn_poly_wrap(wks,0,x,y,type_x,type_y,len,is_missing_x,is_missing_y,
-                FillValue_x,FillValue_y,POLYGON,1,gs_rlist,special_res);
+  gsn_poly_wrap(wks, 0, x, y, type_x, type_y, len, is_missing_x,
+                is_missing_y, FillValue_x, FillValue_y, NhlPOLYGON, 1,
+                gs_rlist, special_res);
 }
 
 /*
@@ -1474,7 +1792,7 @@ void gsn_polymarker_wrap(int wks, int plot, void *x, void *y,
                          int gs_rlist, gsnRes *special_res)
 {
   gsn_poly_wrap(wks,plot,x,y,type_x,type_y,len,is_missing_x,is_missing_y,
-                FillValue_x,FillValue_y,POLYMARKER,0,gs_rlist,special_res);
+                FillValue_x,FillValue_y,NhlPOLYMARKER,0,gs_rlist,special_res);
 }
 
 
@@ -1488,7 +1806,7 @@ void gsn_polyline_wrap(int wks, int plot, void *x, void *y,
                        int gs_rlist, gsnRes *special_res)
 {
   gsn_poly_wrap(wks,plot,x,y,type_x,type_y,len,is_missing_x,is_missing_y,
-                FillValue_x,FillValue_y,POLYLINE,0,gs_rlist,special_res);
+                FillValue_x,FillValue_y,NhlPOLYLINE,0,gs_rlist,special_res);
 }
 
 /*
@@ -1500,6 +1818,67 @@ void gsn_polygon_wrap(int wks, int plot, void *x, void *y,
                       void *FillValue_x, void *FillValue_y, 
                       int gs_rlist, gsnRes *special_res)
 {
-  gsn_poly_wrap(wks,plot,x,y,type_x,type_y,len,is_missing_x,is_missing_y,
-                FillValue_x,FillValue_y,POLYGON,0,gs_rlist,special_res);
+  gsn_poly_wrap(wks, plot, x, y, type_x, type_y, len, is_missing_x, 
+                is_missing_y, FillValue_x, FillValue_y, NhlPOLYGON, 0,
+                gs_rlist, special_res);
 }
+
+/*
+ * Routine for adding polylines to a plot (in the plot's data space).
+ */
+int gsn_add_polyline_wrap(int wks, int plot, void *x, void *y, 
+                          const char *type_x, const char *type_y, int len, 
+                          int is_missing_x, int is_missing_y, 
+                          void *FillValue_x, void *FillValue_y, 
+                          int gs_rlist, gsnRes *special_res)
+{
+  int ipoly;
+
+  ipoly = gsn_add_poly_wrap(wks, plot, x, y, type_x, type_y, len, 
+                            is_missing_x, is_missing_y, FillValue_x, 
+                            FillValue_y, NhlPOLYLINE, gs_rlist, 
+                            special_res);
+  return(ipoly);
+
+}
+
+
+/*
+ * Routine for adding polymarkers to a plot (in the plot's data space).
+ */
+int gsn_add_polymarker_wrap(int wks, int plot, void *x, void *y, 
+                          const char *type_x, const char *type_y, int len, 
+                          int is_missing_x, int is_missing_y, 
+                          void *FillValue_x, void *FillValue_y, 
+                          int gs_rlist, gsnRes *special_res)
+{
+  int ipoly;
+
+  ipoly = gsn_add_poly_wrap(wks, plot, x, y, type_x, type_y, len, 
+                            is_missing_x, is_missing_y, FillValue_x, 
+                            FillValue_y, NhlPOLYMARKER, gs_rlist, 
+                            special_res);
+  return(ipoly);
+
+}
+
+
+/*
+ * Routine for adding polygons to a plot (in the plot's data space).
+ */
+int gsn_add_polygon_wrap(int wks, int plot, void *x, void *y, 
+                          const char *type_x, const char *type_y, int len, 
+                          int is_missing_x, int is_missing_y, 
+                          void *FillValue_x, void *FillValue_y, 
+                          int gs_rlist, gsnRes *special_res)
+{
+  int ipoly;
+
+  ipoly = gsn_add_poly_wrap(wks, plot, x, y, type_x, type_y, len, 
+                            is_missing_x, is_missing_y, FillValue_x, 
+                            FillValue_y, NhlPOLYGON, gs_rlist, 
+                            special_res);
+  return(ipoly);
+
+}
+

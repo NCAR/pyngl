@@ -13,6 +13,7 @@
  * The type is being mixed here (double & float) for testing
  * purposes.
  */
+
 double xmark1[6] = {0.02,0.03,0.04,0.05,0.06,0.07};
 float  ymark1[6] = {0.01,0.01,0.01,0.01,0.01,0.01};
 float  xmark2[3] = {0.06,0.05,0.04};
@@ -20,8 +21,11 @@ double ymark2[3] = {0.02,0.03,0.04};
 float  xmark3[3] = {0.03,0.02,0.01};
 float  ymark3[3] = {0.03,0.02,0.01};
 
-float xline[2] = {0.01,0.99};
-float yline[2] = {0.05,0.05};
+float xline1[2]  = {0.01,0.99};
+float yline1[2]  = {0.05,0.05};
+float xline2[5]  = { 6, 15, 15, 6, 6 };
+float yline2[5]  = { 271.5, 271.5, 273.1, 273.1, 271.5 };
+
 
 float xgon[NG] = {0.80,0.90,0.90,0.80,0.80};
 float ygon[NG] = {0.05,0.05,0.10,0.10,0.05};
@@ -44,8 +48,8 @@ main()
   int mpcolors[]  = {0, -1, 238, -1};
   int pttrns[]    = {0,1,2,3,4,5,6,7,8,9,10,11,12};
   int srlist, cmap_len[2];
-  float xf, yf, cmap[NCOLORS][3];
-  int   ixf, iyf;
+  float xf, yf, cmap[NCOLORS][3], xm, ym;
+  int   ixf, iyf, i1, i2, i3;
   gsnRes special_res, special_pres;
 
 /*
@@ -88,6 +92,11 @@ main()
   char  filename_T[256], filename_U[256], filename_V[256];
   char  filename_P[256], filename_T2[256];
   const char *dir = _NGGetNCARGEnv("data");
+
+  float xmsg, ymsg;
+  int nlines, *indices;
+
+  xmsg = ymsg = -999;
 
 /*
  * Open the netCDF files for contour and vector data.
@@ -479,7 +488,7 @@ main()
          (is_missing_P && ((float*)P)[i] != ((float*)FillValue_P)[0])) {
         ((float*)P)[i] = (((float*)P)[i] * 0.01);
       }
-	}
+    }
     break;
 
   case NC_INT:
@@ -669,6 +678,7 @@ main()
   special_res.gsnDraw     = 1;
   special_res.gsnFrame    = 1;
   special_res.gsnMaximize = 1;
+  special_res.gsnScale    = 0;
   special_res.gsnDebug    = 0;
 
   special_pres.gsnDraw    = 1;
@@ -679,19 +689,19 @@ main()
 /*
  * Initialize which plots to draw.
  */
-  do_contour           = 0;
-  do_xy_single         = 0;
-  do_xy_multi          = 0;
-  do_y                 = 0;
-  do_vector            = 0;
-  do_streamline        = 0;
-  do_map               = 0;
-  do_contour_map       = 0;
+  do_contour           = 1;
+  do_xy_single         = 1;
+  do_xy_multi          = 1;
+  do_y                 = 1;
+  do_vector            = 1;
+  do_streamline        = 1;
+  do_map               = 1;
+  do_contour_map       = 1;
   do_contour_map2      = 1;
-  do_vector_map        = 0;
-  do_streamline_map    = 0;
-  do_vector_scalar     = 0;
-  do_vector_scalar_map = 0;
+  do_vector_map        = 1;
+  do_streamline_map    = 1;
+  do_vector_scalar     = 1;
+  do_vector_scalar_map = 1;
 
 /*
  * Initialize color map for later.
@@ -726,7 +736,7 @@ main()
  */
 
   NhlRLSetString(wk_rlist,"wkColorMap","rainbow+gray");
-  wks = gsn_open_wks("ncgm","test", wk_rlist);
+  wks = gsn_open_wks("x11","test", wk_rlist);
 
 /*
  * Initialize and clear resource lists.
@@ -800,6 +810,7 @@ main()
     NhlRLClear(gs_rlist);
     NhlRLSetString (gs_rlist,"gsFillColor"     , "SlateBlue");
     NhlRLSetString (gs_rlist,"gsEdgesOn"       , "True");
+    NhlRLSetFloat  (gs_rlist,"gsEdgeThicknessF", 3.0);
     NhlRLSetString (gs_rlist,"gsEdgeColor"     , "Salmon");
     gsn_polygon_ndc_wrap(wks, (void *)xgon, (void *)ygon, "float", "float", 
                          NG, 0, 0, NULL, NULL, gs_rlist, &special_pres);
@@ -835,9 +846,22 @@ main()
     text = gsn_text_ndc_wrap(wks,"Down",&xf,&yf,"float","float",tx_rlist,
                              &special_pres);
 
+
+    special_res.gsnFrame = 0;
+
     xy = gsn_y_wrap(wks, T, type_T, 1, &nlon_T, is_missing_T, FillValue_T, 
                     ca_rlist, xy_rlist, xyd_rlist, &special_res);
 
+    special_res.gsnFrame = 1;
+
+    NhlRLClear(gs_rlist);
+    NhlRLSetString (gs_rlist,"gsLineColor",       "red");
+    NhlRLSetInteger(gs_rlist,"gsLineDashPattern", 11);
+    gsn_polyline_wrap(wks, xy, (void *)xline2, (void *)yline2, "float",
+                      "float", 5, 0, 0, NULL, NULL, 
+                      gs_rlist, &special_pres);
+
+    NhlFrame(wks);
   }
 
 /*
@@ -901,9 +925,45 @@ main()
     NhlRLSetString (xyd_rlist, "xyLineColor"     , "green");
     NhlRLSetFloat  (xyd_rlist, "xyLineThicknessF", 3.0);
 
+    special_res.gsnFrame = 0;
+
     xy = gsn_xy_wrap(wks, lat_T, T, type_lat_T, type_T, 1, &nlat_T, 
                      1, &nlon_T, 0, 0, NULL, NULL, 
                      ca_rlist, xy_rlist, xyd_rlist, &special_res);
+
+    special_res.gsnFrame = 1;
+
+    NhlRLClear(gs_rlist);
+    NhlRLSetString (gs_rlist,"gsMarkerColor", "Red");
+    NhlRLSetInteger(gs_rlist,"gsMarkerIndex", 17);
+    NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 0.02);
+    xm = -70.;
+    ym = 271.5;
+    gsn_polymarker_wrap(wks, xy, (void *)&xm, (void *)&ym, "float", "float", 
+                        1, 0, 0, NULL, NULL,  gs_rlist, &special_pres);
+
+    xm = -50.;
+    NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 0.03);
+    gsn_polymarker_wrap(wks, xy, (void *)&xm, (void *)&ym, "float", "float", 
+                        1, 0, 0, NULL, NULL,  gs_rlist, &special_pres);
+
+    xm = -30.;
+    NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 0.04);
+    gsn_polymarker_wrap(wks, xy, (void *)&xm, (void *)&ym, "float", "float", 
+                        1, 0, 0, NULL, NULL,  gs_rlist, &special_pres);
+
+    xm = -10.;
+    NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 0.05);
+    gsn_polymarker_wrap(wks, xy, (void *)&xm, (void *)&ym, "float", "float", 
+                        1, 0, 0, NULL, NULL,  gs_rlist, &special_pres);
+
+
+    xm =  10.;
+    NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 0.06);
+    gsn_polymarker_wrap(wks, xy, (void *)&xm, (void *)&ym, "float", "float", 
+                        1, 0, 0, NULL, NULL,  gs_rlist, &special_pres);
+
+    NhlFrame(wks);
   }
 
 /*
@@ -1015,53 +1075,54 @@ main()
 /* 
  * Ser color map back to the default.
  */
-	srlist = NhlRLCreate(NhlSETRL);
-	NhlRLClear(srlist);
-	NhlRLSetString(srlist,NhlNwkColorMap,"hlu_default");
-	NhlRLSetString(srlist,NhlNwkForegroundColor,"black");
-	NhlRLSetString(srlist,NhlNwkBackgroundColor,"white");
-	(void)NhlSetValues(wks, srlist);
+    srlist = NhlRLCreate(NhlSETRL);
+    NhlRLClear(srlist);
+    NhlRLSetString(srlist,NhlNwkColorMap,"hlu_default");
+    NhlRLSetString(srlist,NhlNwkForegroundColor,"black");
+    NhlRLSetString(srlist,NhlNwkBackgroundColor,"white");
+    (void)NhlSetValues(wks, srlist);
 
-	NhlRLClear(cn_rlist);
-	NhlRLClear(sf_rlist);
-	NhlRLClear(mp_rlist);
+    NhlRLClear(cn_rlist);
+    NhlRLClear(sf_rlist);
+    NhlRLClear(mp_rlist);
 
 /*
  * Set up some resources.
  */
-	NhlRLSetString(cn_rlist,"tiXAxisString" , ":F25:longitude");
-	NhlRLSetString(cn_rlist,"tiYAxisString" , ":F25:latitude");
+    NhlRLSetString(cn_rlist,"tiXAxisString" , ":F25:longitude");
+    NhlRLSetString(cn_rlist,"tiYAxisString" , ":F25:latitude");
 
-	NhlRLSetString(cn_rlist,"cnFillOn"              , "True");
-	NhlRLSetString(cn_rlist,"cnLineLabelsOn"        , "False");
-	NhlRLSetString(cn_rlist,"cnInfoLabelOn"         , "False");
-	NhlRLSetString(cn_rlist,"pmLabelBarDisplayMode" , "Always");
-	NhlRLSetString(cn_rlist,"lbPerimOn"             , "False");
+    NhlRLSetString(cn_rlist,"cnFillOn"              , "True");
+    NhlRLSetString(cn_rlist,"cnLineLabelsOn"        , "False");
+    NhlRLSetString(cn_rlist,"cnInfoLabelOn"         , "False");
+    NhlRLSetString(cn_rlist,"pmLabelBarDisplayMode" , "Always");
+    NhlRLSetString(cn_rlist,"lbPerimOn"             , "False");
 
-	NhlRLSetFloat(sf_rlist,"sfXCStartV" , -140.0);
-	NhlRLSetFloat(sf_rlist,"sfXCEndV"   ,  -52.5);
-	NhlRLSetFloat(sf_rlist,"sfYCStartV" ,   20.0);
-	NhlRLSetFloat(sf_rlist,"sfYCEndV"   ,   60.0);
+    NhlRLSetFloat(sf_rlist,"sfXCStartV" , -140.0);
+    NhlRLSetFloat(sf_rlist,"sfXCEndV"   ,  -52.5);
+    NhlRLSetFloat(sf_rlist,"sfYCStartV" ,   20.0);
+    NhlRLSetFloat(sf_rlist,"sfYCEndV"   ,   60.0);
 
-	NhlRLSetString(mp_rlist,"mpProjection" , "LambertEqualArea");
-	NhlRLSetFloat(mp_rlist,"mpCenterLonF" , -96.25);
-	NhlRLSetFloat(mp_rlist,"mpCenterLatF" ,  40.0);
+    NhlRLSetString(mp_rlist,"mpProjection" , "LambertEqualArea");
+    NhlRLSetFloat(mp_rlist,"mpCenterLonF" , -96.25);
+    NhlRLSetFloat(mp_rlist,"mpCenterLatF" ,  40.0);
 
-	NhlRLSetString(mp_rlist,"mpLimitMode" , "LatLon");
-	NhlRLSetFloat(mp_rlist,"mpMinLonF"   , -140.0);
-	NhlRLSetFloat(mp_rlist,"mpMaxLonF"   ,  -52.5);
-	NhlRLSetFloat(mp_rlist,"mpMinLatF"   ,   20.0);
-	NhlRLSetFloat(mp_rlist,"mpMaxLatF"   ,   60.0);
-	NhlRLSetString(mp_rlist,"mpPerimOn"  , "True");
+    NhlRLSetString(mp_rlist,"mpLimitMode" , "LatLon");
+    NhlRLSetFloat(mp_rlist,"mpMinLonF"   , -140.0);
+    NhlRLSetFloat(mp_rlist,"mpMaxLonF"   ,  -52.5);
+    NhlRLSetFloat(mp_rlist,"mpMinLatF"   ,   20.0);
+    NhlRLSetFloat(mp_rlist,"mpMaxLatF"   ,   60.0);
+    NhlRLSetString(mp_rlist,"mpPerimOn"  , "True");
 
-	NhlRLSetString(cn_rlist,"tiMainString" , ":F26:January 1996 storm");
+    NhlRLSetString(cn_rlist,"tiMainString" , ":F26:January 1996 storm");
 
-	NhlRLSetFloat(mp_rlist,"vpXF"      , 0.1);
-	NhlRLSetFloat(mp_rlist,"vpYF"      , 0.9);
-	NhlRLSetFloat(mp_rlist,"vpWidthF"  , 0.7);
-	NhlRLSetFloat(mp_rlist,"vpHeightF" , 0.7);
+    NhlRLSetFloat(mp_rlist,"vpXF"      , 0.1);
+    NhlRLSetFloat(mp_rlist,"vpYF"      , 0.9);
+    NhlRLSetFloat(mp_rlist,"vpWidthF"  , 0.7);
+    NhlRLSetFloat(mp_rlist,"vpHeightF" , 0.7);
 
-    special_res.gsnFrame = 0;
+    special_res.gsnScale    = 1;
+    special_res.gsnFrame    = 0;
     special_res.gsnMaximize = 0;
 
     cntrmap = gsn_contour_map_wrap(wks, P, type_P, nlat_UV, nlon_UV, 
@@ -1071,20 +1132,22 @@ main()
                                    sf_rlist, cn_rlist, mp_rlist,
                                    &special_res);
     special_res.gsnMaximize = 1;
-    special_res.gsnFrame = 1;
+    special_res.gsnFrame    = 1;
+    special_res.gsnScale    = 0;
+
 /*
  * Set some text resources.
  */
 
     NhlRLClear (tx_rlist);
-	NhlRLSetFloat(tx_rlist,"txFontHeightF" , 0.025);
-	NhlRLSetInteger(tx_rlist,"txFontColor"   , 4);
-	xf = 0.45;
-	yf = 0.25;
+    NhlRLSetFloat(tx_rlist,"txFontHeightF" , 0.025);
+    NhlRLSetInteger(tx_rlist,"txFontColor"   , 4);
+    xf = 0.45;
+    yf = 0.25;
     text = gsn_text_ndc_wrap(wks,":F25:Pressure (mb)",&xf,&yf,"float",
-							 "float", tx_rlist,&special_pres);
-	
-	NhlFrame(wks);
+                             "float", tx_rlist,&special_pres);
+    
+    NhlFrame(wks);
   }
 
 /* 
@@ -1224,7 +1287,7 @@ main()
     NhlRLClear(gs_rlist);
     NhlRLSetString (gs_rlist,"gsLineColor"     , "red");
     NhlRLSetFloat  (gs_rlist,"gsLineThicknessF", 2.5);
-    gsn_polyline_ndc_wrap(wks, (void *)xline, (void *)yline, "float",
+    gsn_polyline_ndc_wrap(wks, (void *)xline1, (void *)yline2, "float",
                           "float", 2, 0, 0, NULL, NULL, gs_rlist,
                           &special_pres);
 
@@ -1384,6 +1447,8 @@ main()
     NhlRLSetString (vc2_rlist,"vcGlyphStyle"            , "CurlyVector");
 
     special_res.gsnFrame = 0;
+    special_res.gsnDraw  = 0;
+
     vctrmap = gsn_vector_scalar_map_wrap(wks, U, V, T2, type_U, type_V, 
                                          type_T2, nlat_UV, nlon_UV, 
                                          is_lat_coord_UV, lat_UV, type_lat_UV,
@@ -1394,30 +1459,39 @@ main()
                                          sf2_rlist, vc2_rlist, mp2_rlist,
                                          &special_res);
     special_res.gsnFrame = 1;
+    special_res.gsnDraw  = 1;
 
 /*
- * Draw a polygon and outline it using a polyline. Note: it is possible
+ * Attach a polygon and outline it using a polyline. Note: it is possible
  * to outline a polygon by setting the polygon resource "gsEdgesOn" to 
  * True.  We're doing it using a polyline for test purposes.
  */
     NhlRLClear(gs_rlist);
     NhlRLSetInteger (gs_rlist,"gsFillIndex", 17);
-    gsn_polygon_wrap(wks, vctrmap, (void *)longon, (void *)latgon,
-                     "integer", "integer", 5, 0, 0, NULL, NULL, gs_rlist,
-                     &special_pres);
+    i1 = gsn_add_polygon_wrap(wks, vctrmap, (void *)longon, (void *)latgon,
+                              "integer", "integer", 5, 0, 0, NULL, NULL, 
+                              gs_rlist, &special_pres);
     NhlRLSetInteger (gs_rlist,"gsLineThicknessF", 2.0);
-    gsn_polyline_wrap(wks, vctrmap, (void *)longon, (void *)latgon,
-                      "integer", "integer", 5, 0, 0, NULL, NULL, gs_rlist,
-                      &special_pres);
+    i2 = gsn_add_polyline_wrap(wks, vctrmap, (void *)longon, (void *)latgon,
+                               "integer", "integer", 5, 0, 0, NULL, NULL, 
+                               gs_rlist, &special_pres);
+
 /*
  * Mark the four corners of the polygon with polymarkers.
  */
     NhlRLSetInteger(gs_rlist,"gsMarkerIndex", 16);
     NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 10.5);
-    gsn_polymarker_wrap(wks, vctrmap, (void *)longon, (void *)latgon,
-                        "integer", "integer", 4, 0, 0, NULL, NULL, gs_rlist,
-                        &special_pres);
+    i3 = gsn_add_polymarker_wrap(wks, vctrmap, (void *)longon, 
+                                 (void *)latgon, "integer", "integer", 4, 0,
+                                 0, NULL, NULL, gs_rlist,&special_pres);
 
+/*
+ * Once you've "attached" all the primitives and text you want, go
+ * ahead and draw the map.  You will see all the primitives and text
+ * drawn too, since they are attached to the map.
+ */
+
+    NhlDraw(vctrmap);
 /*
  * Label the four corners of the polygon with text.
  */

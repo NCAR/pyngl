@@ -16,13 +16,9 @@
 #include <ncarg/hlu/VectorField.h>
 #include <ncarg/hlu/TextItem.h>
 #include <ncarg/hlu/GraphicStyle.h>
+#include <ncarg/hlu/LogLinPlot.h>
+#include <ncarg/hlu/Primitive.h>
 #include <netcdf.h>
-
-typedef enum _PolyType {
-  POLYLINE, 
-  POLYMARKER, 
-  POLYGON
-} PolyType;
 
 #define max(x,y)   ((x) > (y) ? (x) : (y))
 
@@ -41,6 +37,7 @@ typedef struct {
   int gsnMaximize;
   int gsnDraw;
   int gsnFrame;
+  int gsnScale;
   int gsnDebug;
 } gsnRes;
 
@@ -50,9 +47,14 @@ typedef struct {
 
 extern void compute_ps_device_coords(int, int, gsnRes *);
 
+extern void scale_plot(int);
+
 extern void maximize_plot(int, int, gsnRes *);
 
 extern float *coerce_to_float(void *, const char *, int);
+
+extern int *get_non_missing_pairs(float *, float *, int, int, float *, 
+                                  float *, int, int *);
 
 extern void collapse_nomsg(float *, float *, int, int *);
 
@@ -160,7 +162,12 @@ extern int gsn_text_wrap(int, int, char *, void *, void *, const char *,
 
 extern void gsn_poly_wrap(int, int, void *, void *, const char *type_x,
                           const char *type_y, int, int, int, void *, void*,
-                          PolyType, int, int, gsnRes *);
+                          NhlPolyType, int, int, gsnRes *);
+
+
+extern int gsn_add_poly_wrap(int, int, void *, void *, const char *, 
+                             const char *, int, int, int, void *, void *,
+                             NhlPolyType, int, gsnRes *);
 
 extern void gsn_polymarker_ndc_wrap(int, void *, void *, const char *, 
                                     const char *, int, int, int, void *,
@@ -186,3 +193,14 @@ extern void gsn_polygon_wrap(int, int, void *, void *, const char *,
                              const char *, int, int, int, void *, void *, 
                              int, gsnRes *);
 
+extern int gsn_add_polyline_wrap(int, int, void *, void *, const char *, 
+                                 const char *, int, int, int, void *, 
+                                 void *, int, gsnRes *);
+
+extern int gsn_add_polymarker_wrap(int, int, void *, void *, const char *, 
+                                   const char *, int, int, int, void *, 
+                                   void *, int, gsnRes *);
+
+extern int gsn_add_polygon_wrap(int, int, void *, void *, const char *, 
+                                const char *, int, int, int, void *, 
+                                void *, int, gsnRes *);
