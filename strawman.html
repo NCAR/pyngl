@@ -1,0 +1,407 @@
+<html>
+<body>
+
+<p>Author: Dave Brown
+
+<h3>Introduction</h3>
+
+This document presents a design document strawman for the data
+handling and processing interface components of a proposed Python Ncl
+module. It does not attempt to address an interface for graphics. It
+proposes a design which maintains the indentity of the Ncl environment
+within the Python context, while attempting to bridge the gap between
+the two environments gracefully. This design proposal borrows from and
+extends the current Python NetCDF interface
+(Scientific.IO.NetCDF). Initially, for simplicity, it suggests an
+implementation that does not allow sharing of data memory locations,
+but requires that data be transferred between environments by
+copying. Once this implementation is stable, sharing of data in memory
+may be investigated more confidently. 
+
+<p>The current <a
+href="http://ngwww.ucar.edu/ngdoc/ng4.1/ref/ncl/NclApi.html">Ncl
+API</a> contains most of the functions necessary to implement the
+Python Ncl module interface discussed here. There are API calls to
+submit commands to the interpreter, query the symbol tables, and
+obtain information about open files, file variables and regular
+variables. There are calls to retrieve data. Still
+missing are functions to copy external data into the Ncl environment.
+
+<h3>Rationale</h3>
+
+NCL and Python are both interpreted environments with their own complex
+memory management schemes. In order to coordinate the
+task of sharing this memory -- and hence sharing a single copy of 
+variable data -- adequate knowledge of the internals of both Python
+and NCL would be required. Even with this knowledge, there is reason to
+expect that it could be difficult to work out all the kinks, and
+obscure memory-related bugs might crop up for some time to come.
+
+<p>In light of this difficulty, I propose that, at least for the initial
+implementation of PyNcl, data transfer between the Python and
+NCL environments should occur by copying values only.
+
+<p>To minimize the effect on performance, unnecessary or unconscious
+data transfers between environments must be avoided. This means that
+the user must be aware at some level of a separation between
+environments, and what it takes for data to cross the boundary. The
+data boundary should be plainly delineated, yet easy to negociate.
+
+<p>Fortunately it turns out that there is a pertinent data access model 
+which may be worth emulating: the Scientific Python NetCDF module.   
+
+<h3>The Python NetCDF module interface</h3>
+
+An essential feature of the NetCDF module is that assignment of a
+NetCDF variable (contained in a NetCDF file) to a Python NetCDF variable
+object creates a reference only. Information about the data, including
+dimensions and attributes, is transferred into the Python environment,
+but not the data itself. For example, in Python you would say:
+  
+<pre>
+        temp = ncfile_var.variables["temp"]
+</pre>
+        
+to create a NetCDF variable object.
+
+<p>Since temp is only a reference to the data it would be an error to say:
+
+<pre>
+        temp_doubled = 2.0 * temp
+</pre>
+
+But you can say things like: 
+<pre>
+        print temp.shape
+</pre>
+to get the variable shape, e.g.: (1, 40, 383, 320),
+<p>or
+<pre>
+        print temp.dimensions
+</pre>
+
+to get a list of the dimension names, e.g.: ('time', 'lev', 'lat', 'lon').
+        
+<p>When you do need the data, you give a special signal that can in
+some ways be compared to dereferencing a C pointer but is actually a
+standard Python list index operator:
+
+<pre>
+        temp_values = temp[:]
+</pre>
+          
+<p>This is the default index specification; it specifies all
+dimensions, all values: in other words the complete variable. If
+'temp' is a 4D variable it is equivalent to specifying: 
+
+<pre>
+        temp_values = temp[:,:,:,:]
+</pre>
+
+<p>Of course, you can also specify a proper subset of the variable,e.g.:
+
+<pre>
+        temp_values_subset = temp[0,12,3:13,:]
+</pre>
+
+<p>In all cases the value is returned as a Numeric Python (NumPy) array.
+This means that the index notation is actually an operator that, when
+applied to a NetCDF variable object, causes the variable values to be
+read from the file and converted into a NumPy array,
+a numerical type which supports operations such as add or multiply.   
+
+<h3>The NetCDF module compared to the proposed Ncl module</h3>
+
+One can make an analogy between Python's relationship to a NetCDF file
+and Python's relationship to the NCL runtime environment. NetCDF files
+and NCL have, by design, similar data interfaces; both are separate from
+the Python environment. In either case there is a cost for transferring
+data between environments. The NetCDF file interface is designed simply
+to facilitate reading and writing data. One could think of NCL as simply
+a more dynamic elaboration of this interface where it's also possible to
+ingest data in other formats, process data, and cause side-effects
+such as graphics. The simililarities suggest that it might be reasonable
+to model the Python NCL module, at least with respect to data
+manipulation, on the existing Python NetCDF module. As an extra benefit,
+this would present NCL using a model with which existing users of the
+Python NetCDF interface are already familiar.
+
+<h3>Constructing the NCL Python module data interface</h3>
+
+I propose the following guiding principles:
+
+<ol>
+<li>Initially, push the existing NclAPI as far as it can get us
+comfortably.
+
+<li>The Python NCL interface should be 'read-mostly' and 'copy-on-demand'.
+</ol>
+
+<p>'Read-mostly' means attempting to do as much as possible within the
+NCL environment. Similar to the Python NetCDF interface, data variables
+returned into the Python environment should be references to NCL
+variables, and in general variable values should not be copied until
+needed. However, function parameters that are simple strings or scalar
+variables may be exempted from this rule.
+
+<p>In place of the NetCDF file object constructor, "NetCDFFile", the
+Python Ncl module will use the addfile method, e.g.:
+
+<pre>
+        file_ref_var = Ncl.addfile("path/file.nc","r")
+</pre>
+
+<p>The file_ref_var is an Ncl file object, very similar to a NetCDF file
+object (perhaps subclassed from it??). It will have the same python
+attributes, such as "dimensions" and "variables".
+Like the NetCDF interface, file variables are referenced relative to the
+file ref variable, e.g.:
+
+<pre>
+        temp = file_ref_var.variables["temp"]
+</pre>
+
+creates an Ncl variable object that references the variable "temp" in
+the file "path/file.nc".
+Regular Ncl variables are referenced relative to the Ncl module itself,
+e.g.:   
+
+<pre>
+        var = Ncl.variables["var"]
+</pre>
+
+creates an Ncl variable object that references the NCL variable "var".
+
+<p>Python Ncl variable objects will contain a python attribute that names
+the NCL variable being referenced.
+
+<p>As with the NetCDF module, applying an index to an NCL variable object
+results in a data copy, e.g.:
+
+<pre>
+        temp_doubled = 2 * temp[:]
+</pre>
+
+would assign to "temp_doubled" a NumPy array of the same shape and
+twice the value as "temp".
+
+<p>Actually, since the concept of a <em>missing</em> or <em>fill
+value</em> plays such an important role in Ncl data processing
+routines, the Ncl Python module will need to use the "nearly
+work-alike replacement" for NumPy arrays, the <a
+href="http://www.pfdubois.com/numpy/html2/numpy-22.html">Masked
+Arrays</a> module. When data is copied between the Ncl and Python
+environments, a conversion will be necessary between the Ncl missing
+value format and the Masked Array format. The details of this
+conversion need to be worked out, but do not alter the substance of
+this discussion, which will still refer to these Python objects as
+"NumPy arrays".
+
+<h4>Subscripted variable references</h4>
+
+At this point, the requirements of the Python Ncl module begin to
+exceed the facilities offered by the NetCDF module. Because NCL is a
+dynamic enviroment, it will be desirable to have the ability to
+perform a sequence of operations on a data entity without moving the
+data out of the Ncl environment. One implication of this is that there
+needs to be a way to specify a reference to a subset of data. Since
+the index operator causes a data copy and conversion to a NumPy array,
+it will be necessary to create a new construct.  Perhaps this could be
+a new method, "subscript", e.g.:
+
+<pre>
+        temp_subset = file_ref_var.variables["temp"].subscript("(0,14,{20:50},{-120:-50})") 
+</pre>
+
+where the argument is a string representing an Ncl-style indexed or
+coordinate variable subscript that may even involve dimension
+reordering. Like any Python Ncl variable object, "temp_subset" is
+simply a reference. The subscript method stores the subscript string as
+an attribute. But as with any Ncl variable object, applying a Python
+indexing operator produces a NumPy array, in this case subsetted by
+the Ncl environment. For instance, if you say:
+
+<pre>
+        t = temp_subset[:]
+</pre>
+
+the resulting NumPy array "t" would be a subset of file variable
+"temp" produced by Ncl using the subscript attribute stored in "temp_subset".
+
+<h4>Ncl data processing functions</h4>
+
+One might imagine that the best way to expose Ncl's built-in data
+processing functions in the Python environment would be to simply to
+wrap them using standard Python wrapping methods and make them
+available for use within the Python environment. But this approach
+would be difficult for at least three reasons. First, all the built-in
+functions have been constructed to pull their arguments from Ncl's
+stack. Second, they expect to find information about the arguments and
+their values within internal Ncl-defined data structures. Third, in 
+general they expect to handle missing values using the Ncl model where
+the missing value has been stored in a <em>_FillValue</em> attribute
+associated with the data. Since the Masked Arrays module uses a different
+model for representing missing values, the functions would need to be
+modified to accept Masked Arrays as input arguments. 
+
+<p>So how should Ncl functions be exposed to the Python environment?
+As a simple example, consider the Ncl <strong>dim_avg</strong> function. It
+averages the values along the last dimension of an array of arbitrary
+dimensionality and returns an array of rank one less than the input
+array. The interface would look like this:
+
+<pre>
+	temp_averaged = Ncl.dim_avg(temp)
+</pre>
+
+where temp could either be a Python Ncl variable object (a reference)
+or a NumPy array containing actual values. The interface function
+would check to see which kind of argument has been supplied. 
+
+<p>If the argument is an Ncl variable object, the interface function
+would extract from its attributes the Ncl variable name plus the
+subscript value if set. It would then create a Ncl command string to
+call the function with the correct Ncl argument and return into the
+Ncl environment a new variable containing the result. The command
+would be executed using the NclAPI function
+<strong>NclSubmitCommand</strong>. Finally a new Ncl variable object
+referencing the new Ncl variable would be created and returned as the
+value of "temp_averaged".
+
+<p>If the argument is a NumPy array, its data would be converted (with
+respect to missing value models, among other things), then copied into
+the Ncl environment, and associated with a temporary Ncl
+variable. This name of this variable would be written into the command
+string as the argument to <strong>dim_avg</strong>. Events would then
+proceed as above, except that before returning, the temporary
+variable would be deleted.
+
+
+<p>A large number of the data processing functions could be handled in
+a similar fashion. Scalar input parameters, including strings, could be
+converting to literals in the command string. Interfaces for
+procedures and functions with output parameters would need to be developed
+on a case-by-case basis.
+
+<h4>Creating a reference from a NumPy array</h4>
+
+From the description above, you can see that supplying a NumPy array
+to an Ncl function results in the creation of variable containing a
+copy that is deleted immediately before the interface function
+returns.  If you intend to use this data again within the Ncl
+environment, it would be better to create a reference to the Ncl var
+containing the data so you could use an Ncl variable object as the
+function argument. Therefore there needs to be an interface function
+that simply copies a NumPy array into the Ncl environment, assigns it
+to a new Ncl variable, and returns a reference as an Ncl variable
+object. Perhaps: 
+
+<pre>
+	temp_ref = Ncl.var_object(temp)
+</pre>
+
+where "temp" is a NumPy array (or any Python object that can be 
+coerced into a NumPy array).   
+
+
+<h4>Evaluating Ncl expressions</h4>
+
+Evaluating expressions will require an Ncl version of the Python
+"eval" method:
+
+<pre>
+	temp_subset_doubled = Ncl.eval("2 * temp_subset")
+</pre>
+
+Implementation of this method is complicated by the fact that the
+interface function must modify the input command string before passing
+it to the Ncl interpreter. Depending on the type represented by the
+Python variable names found in the expression, temporary Ncl variables
+may need to be created with copied data, and appropriate Ncl variable
+names must be substituted into the string.
+
+<p>From the user's perspective, however, the effect is simply that a 
+data manipulation occurs in the Ncl environment, and the return value
+is, as usual, a Python Ncl variable reference.
+
+<p>Like the built-in Python <strong>eval</strong>, the
+<strong>Ncl.eval</strong> method may allow optional "globals" and
+"locals" dictionary arguments. Essentially, <strong>Ncl.eval</strong>
+must search its string argument for valid matches to symbol strings
+defined as keys in the Python namespace dictionaries. Given a matching
+key, it can get the actual Python Ncl variable object, and from its
+attributes determine an NCL variable name and subscript to substitute
+for the symbol. In the example above, the substitution might look
+like:
+
+<pre>
+	"2 * file_var->temp(0,14,{20:50},{-120:-50})"
+</pre>
+
+However, in order to have something to return to the Python environment, 
+a new Ncl unique variable would need to be created, and therefore the
+expression would need to be made into an assigment statement before
+calling the NclAPI function "NclSubmitCommand":
+
+<pre>
+	"_NclVar0 =  2 * file_var->temp(0,14,{20:50},{-120:-50})"
+</pre>
+
+After executing "NclSubmitCommand", the "eval" method will create an
+Ncl variable object, set the "Ncl_name" attribute to "_NclVar0" and 
+return the object to the Python environment. No data is passed between
+the Ncl environment and Python, but note that it is always available 
+simply by invoking the Python indexing operator:
+
+<pre>
+	print temp_subset_doubled[:]
+</pre>
+
+<p>Note: actually it is unclear to me at this point how one would
+retrieve the locals and globals dictionaries from within the interface
+function. The closest I can find in the Python C API reference is the
+function PyObject_Dir, which, if called with an empty argument list,
+returns the equivalent of the Python function dir: the names of the
+symbols in the local namespace. This is not enough, because one needs
+the dictionary with the symbol names as keys and the actual variable
+object references as values. The built-in "eval" function uses private
+functions to retrieve these dictionary objects.  Another possibility
+is to call the Python functions "locals" and/or "globals" from the
+C interface. I don't know enough to know if they would return the correct
+information when called from within the interface function.
+If this last option does not work, the only other possibility would be
+to make at least one of the "locals"/"globals" arguments mandatory.
+
+
+<h3>Prototype Python Interface</h3>
+
+Given the implementation outlined above, everything in Fred Clare's
+Prototype Python interface example could be executed without 
+copying data between the Python and Ncl environments. Of course, this
+discussion has not touched on graphics requirements, which raises other
+issues.
+        
+<pre>
+        nc_file = Ncl.addfile("NCARG_ROOT/lib/ncarg/data/cdf/contour.cdf","r")
+        temp = nc_file.variables["T"].subset("0,0,:,:")
+        lat = nc_file.variables["lat"]
+        lon = nc_file.variables["lon"]
+
+        tempf = Ncl.eval("(temp-273.15) * 9./5. + 32.")
+        res = Ncl.resources
+        res.sfXArray = lon
+        res.sfYArray = lat
+	res.tiMainString = "Temperature (F)"
+        res.tiXAxisString = lon.long_name
+        res.tiYAxisString = lat.long_name
+
+	res.cnFillOn = True
+	res.cnMonoFillPattern = False
+	res.cnMonoFillColor = True
+
+        wks = Ncl.open_wks("x11","name")
+        Ncl.contour(wks,tempf,res)
+</pre>
+
+</body>
+</html>
