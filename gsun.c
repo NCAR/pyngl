@@ -382,6 +382,44 @@ void collapse_nomsg_xy(float *xf, float *yf, int len, int is_missing_x,
 }
 
 /*
+ * This procedure sets a resource, given its name, and type and size
+ * of its data. 
+ */
+
+void set_resource(char *resname, int rlist, void *x, 
+                  const char *type_x, int ndims_x, int *dsizes_x)
+{
+
+/*
+ * Check if scalar or multi-dimensional array. (A 1D array is treated
+ * as a multi-d array.)
+ */
+
+  if(ndims_x == 1 && dsizes_x[0] == 1) {
+    if(!strcmp(type_x,"double")) {
+      NhlRLSetDouble  (rlist, resname, ((double*)x)[0]);
+    }
+    else if(!strcmp(type_x,"float")) {
+      NhlRLSetFloat   (rlist, resname, ((float*)x)[0]);
+    }
+    else if(!strcmp(type_x,"integer")) {
+      NhlRLSetInteger (rlist, resname, ((int*)x)[0]);
+    }
+  }
+  else {
+    if(!strcmp(type_x,"double")) {
+      NhlRLSetMDDoubleArray  (rlist, resname, (double*)x, ndims_x, dsizes_x);
+    }
+    else if(!strcmp(type_x,"float")) {
+      NhlRLSetMDFloatArray   (rlist, resname, (float*)x , ndims_x, dsizes_x);
+    }
+    else if(!strcmp(type_x,"integer")) {
+      NhlRLSetMDIntegerArray (rlist, resname, (int*)x   , ndims_x, dsizes_x);
+    }
+  }
+}
+
+/*
  * Create a graphic style object so we can draw primitives on it.
  * We could have retrieved the one that is created when you create
  * a workstation object, but then if you draw a bunch of primitives, 
@@ -424,7 +462,7 @@ int scalar_field(void *data, const char *type_data, int ylen, int xlen,
                  int is_xcoord, void *xcoord, const char *type_xcoord,
                  int is_missing_data, void *FillValue_data, int sf_rlist)
 {
-  int app, field, length[2];
+  int app, field, length1[1], length2[2];
 
 /*
  * Retrieve application id.
@@ -437,29 +475,15 @@ int scalar_field(void *data, const char *type_data, int ylen, int xlen,
  * here as well.
  */
 
-  length[0] = ylen;
-  length[1] = xlen;
+  length2[0] = ylen;
+  length2[1] = xlen;
+  length1[0] = 1;
 
-  if(!strcmp(type_data,"double")) {
-    NhlRLSetMDDoubleArray(sf_rlist,"sfDataArray",(double*)data,2,
-                          length);
-    
-    if(is_missing_data) {
-      NhlRLSetDouble(sf_rlist,"sfMissingValueV",((double*)FillValue_data)[0]);
-    }
-  }
-  else if(!strcmp(type_data,"float")) {
-    NhlRLSetMDFloatArray(sf_rlist,"sfDataArray",(float*)data,2,length);
+  set_resource("sfDataArray", sf_rlist, data, type_data, 2, length2 );
 
-    if(is_missing_data) {
-      NhlRLSetFloat(sf_rlist,"sfMissingValueV",((float*)FillValue_data)[0]);
-    }
-  }
-  else if(!strcmp(type_data,"integer")) {
-    NhlRLSetMDIntegerArray(sf_rlist,"sfDataArray",(int*)data,2,length);
-    if(is_missing_data) {
-      NhlRLSetInteger(sf_rlist,"sfMissingValueV",((int*)FillValue_data)[0]);
-    }
+  if(is_missing_data) {
+    set_resource("sfMissingValueV", sf_rlist, FillValue_data, type_data, 1, 
+                 length1);
   }
 
 /*
@@ -467,26 +491,11 @@ int scalar_field(void *data, const char *type_data, int ylen, int xlen,
  */
  
   if(is_ycoord) {
-    if(!strcmp(type_ycoord,"double")) {
-       NhlRLSetDoubleArray(sf_rlist,"sfYArray",(double*)ycoord,ylen);
-   }
-   else if(!strcmp(type_ycoord,"float")) {
-     NhlRLSetFloatArray(sf_rlist,"sfYArray",(float*)ycoord,ylen);
-   }
-   else if(!strcmp(type_ycoord,"integer")) {
-     NhlRLSetIntegerArray(sf_rlist,"sfYArray",(int*)ycoord,ylen);
-   }
+    set_resource("sfYArray", sf_rlist, ycoord, type_ycoord, 1, &length2[0] );
   }
-  if(is_xcoord) {
-    if(!strcmp(type_xcoord,"double")) {
-      NhlRLSetDoubleArray(sf_rlist,"sfXArray",(double*)xcoord,xlen);
-    }
-    else if(!strcmp(type_xcoord,"float")) {
-      NhlRLSetFloatArray(sf_rlist,"sfXArray",(float*)xcoord,xlen);
-    }
-    else if(!strcmp(type_xcoord,"integer")) {
-      NhlRLSetIntegerArray(sf_rlist,"sfXArray",(int*)xcoord,xlen);
-    }
+
+  if(is_ycoord) {
+    set_resource("sfXArray", sf_rlist, xcoord, type_xcoord, 1, &length2[1] );
   }
 
 /*
@@ -508,7 +517,7 @@ int coord_array(void *x, void *y, const char *type_x, const char *type_y,
                 int is_missing_x, int is_missing_y,
                 void *FillValue_x, void *FillValue_y, int ca_rlist)
 {
-  int app, carray;
+  int app, carray, length[1];
 
 /*
  * Retrieve application id.
@@ -521,49 +530,20 @@ int coord_array(void *x, void *y, const char *type_x, const char *type_y,
  */
 
   if(x != NULL) {
-    if(!strcmp(type_x,"double")) {
-      NhlRLSetMDDoubleArray(ca_rlist,"caXArray",(double*)x,ndims_x,dsizes_x);
+    set_resource("caXArray", ca_rlist, x, type_x, ndims_x, dsizes_x );
  
-      if(is_missing_x) {
-        NhlRLSetDouble(ca_rlist,"caXMissingV",((double*)FillValue_x)[0]);
-      }
-    }
-    else if(!strcmp(type_x,"float")) {
-      NhlRLSetMDFloatArray(ca_rlist,"caXArray",(float*)x,ndims_x,dsizes_x);
-      
-      if(is_missing_x) {
-        NhlRLSetFloat(ca_rlist,"caXMissingV",((float*)FillValue_x)[0]);
-      }
-    }
-    else if(!strcmp(type_x,"integer")) {
-      NhlRLSetMDIntegerArray(ca_rlist,"caXArray",(int*)x,ndims_x,dsizes_x);
-      
-      if(is_missing_x) {
-        NhlRLSetInteger(ca_rlist,"caXMissingV",((int*)FillValue_x)[0]);
-      }
+    if(is_missing_x) {
+      length[1] = 1;
+      set_resource("caXMissingV", ca_rlist, FillValue_x, type_x, 1, 
+                   &length[0]);
     }
   }
 
-  if(!strcmp(type_y,"double")) {
-    NhlRLSetMDDoubleArray(ca_rlist,"caYArray",(double*)y,ndims_y,dsizes_y);
-
-    if(is_missing_y) {
-      NhlRLSetDouble(ca_rlist,"caYMissingV",((double*)FillValue_y)[0]);
-    }
-  }
-  else if(!strcmp(type_y,"float")) {
-    NhlRLSetMDFloatArray(ca_rlist,"caYArray",(float*)y,ndims_y,dsizes_y);
-
-    if(is_missing_y) {
-      NhlRLSetFloat(ca_rlist,"caYMissingV",((float*)FillValue_y)[0]);
-    }
-  }
-  else if(!strcmp(type_y,"integer")) {
-    NhlRLSetMDIntegerArray(ca_rlist,"caYArray",(int*)y,ndims_y,dsizes_y);
-
-    if(is_missing_y) {
-      NhlRLSetInteger(ca_rlist,"caYMissingV",((int*)FillValue_y)[0]);
-    }
+  set_resource("caYArray", ca_rlist, y, type_y, ndims_y, dsizes_y );
+  
+  if(is_missing_y) {
+    length[1] = 1;
+    set_resource("caYMissingV", ca_rlist, FillValue_y, type_y, 1, &length[0]);
   }
 
   NhlCreate(&carray,"carray",NhlcoordArraysClass,app,ca_rlist);
@@ -584,7 +564,7 @@ int vector_field(void *u, void *v, const char *type_u, const char *type_v,
                  int is_missing_u, int is_missing_v,
                  void *FillValue_u, void *FillValue_v, int vf_rlist)
 {
-  int app, field, length[2];
+  int app, field, length1[1], length2[2];
 
 /*
  * Retrieve application id.
@@ -596,51 +576,21 @@ int vector_field(void *u, void *v, const char *type_u, const char *type_v,
  * dataset for the vector or streamline object.
  */
 
-  length[0] = ylen;
-  length[1] = xlen;
+  length2[0] = ylen;
+  length2[1] = xlen;
 
-  if(!strcmp(type_u,"double")) {
-    NhlRLSetMDDoubleArray(vf_rlist,"vfUDataArray",(double*)u,2,length);
-    
-    if(is_missing_u) {
-      NhlRLSetDouble(vf_rlist,"vfMissingUValueV",((double*)FillValue_u)[0]);
-    }
-  }
-  else if(!strcmp(type_u,"float")) {
-    NhlRLSetMDFloatArray(vf_rlist,"vfUDataArray",(float*)u,2,length);
+  set_resource("vfUDataArray", vf_rlist, u, type_u, 2, length2 );
+  set_resource("vfVDataArray", vf_rlist, v, type_v, 2, length2 );
 
-    if(is_missing_u) {
-      NhlRLSetFloat(vf_rlist,"vfMissingUValueV",((float*)FillValue_u)[0]);
-    }
-  }
-  else if(!strcmp(type_u,"integer")) {
-    NhlRLSetMDIntegerArray(vf_rlist,"vfUDataArray",(int*)u,2,length);
-
-    if(is_missing_u) {
-      NhlRLSetInteger(vf_rlist,"vfMissingUValueV",((int*)FillValue_u)[0]);
-    }
+  length1[0] = 1;
+  if(is_missing_u) {
+    set_resource("vfMissingUValueV", vf_rlist, FillValue_u, type_u, 1, 
+				 &length1[0] );
   }
 
-  if(!strcmp(type_v,"double")) {
-    NhlRLSetMDDoubleArray(vf_rlist,"vfVDataArray",(double*)v,2,length);
-
-    if(is_missing_v) {
-      NhlRLSetDouble(vf_rlist,"vfMissingVValueV",((double*)FillValue_v)[0]);
-    }
-  }
-  else if(!strcmp(type_v,"float")) {
-    NhlRLSetMDFloatArray(vf_rlist,"vfVDataArray",(float*)v,2,length);
-
-    if(is_missing_v) {
-      NhlRLSetFloat(vf_rlist,"vfMissingVValueV",((float*)FillValue_v)[0]);
-    }
-  }
-  else if(!strcmp(type_v,"integer")) {
-    NhlRLSetMDIntegerArray(vf_rlist,"vfVDataArray",(int*)v,2,length);
-
-    if(is_missing_v) {
-      NhlRLSetInteger(vf_rlist,"vfMissingVValueV",((int*)FillValue_v)[0]);
-    }
+  if(is_missing_v) {
+    set_resource("vfMissingVValueV", vf_rlist, FillValue_v, type_v, 1, 
+				 &length1[0] );
   }
 
 /*
@@ -648,27 +598,11 @@ int vector_field(void *u, void *v, const char *type_u, const char *type_v,
  */
 
   if(is_ycoord) {
-    if(!strcmp(type_ycoord,"double")) {
-      NhlRLSetDoubleArray(vf_rlist,"vfYArray",(double*)ycoord,ylen);
-    }
-    else if(!strcmp(type_ycoord,"float")) {
-      NhlRLSetFloatArray(vf_rlist,"vfYArray",(float*)ycoord,ylen);
-    }
-    else if(!strcmp(type_ycoord,"integer")) {
-      NhlRLSetIntegerArray(vf_rlist,"vfYArray",(int*)ycoord,ylen);
-    }
+    set_resource("vfYArray", vf_rlist, ycoord, type_ycoord, 1, &length2[0] );
   }
 
   if(is_xcoord) {
-    if(!strcmp(type_xcoord,"double")) {
-      NhlRLSetDoubleArray(vf_rlist,"vfXArray",(double*)xcoord,xlen);
-    }
-    else if(!strcmp(type_xcoord,"float")) {
-      NhlRLSetFloatArray(vf_rlist,"vfXArray",(float*)xcoord,xlen);
-    }
-    else if(!strcmp(type_xcoord,"integer")) {
-      NhlRLSetIntegerArray(vf_rlist,"vfXArray",(int*)xcoord,xlen);
-    }
+    set_resource("vfXArray", vf_rlist, xcoord, type_xcoord, 1, &length2[1] );
   }
 
   NhlCreate(&field,"field",NhlvectorFieldClass,app,vf_rlist);
@@ -1347,18 +1281,19 @@ int gsn_vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
   return(map);
 }
 
-int gsn_text_ndc_wrap(int wks, char* string, float x, float y, 
+int gsn_text_ndc_wrap(int wks, char* string, void *x, void *y,
+                      const char *type_x, const char *type_y,
                       int tx_rlist, gsnRes *special_res)
 {
-  int text;
+  int text, length[1];
 
-  if(special_res->gsnDebug) {
-    printf("gsn_text_ndc: string = %s x = %g y = %g\n", string, x, y);
-  }
+  length[1] = 1;
+
+  set_resource("txPosXF", tx_rlist, x, type_x, 1, &length[1] );
+  set_resource("txPosYF", tx_rlist, y, type_y, 1, &length[1] );
+
 
   NhlRLSetString(tx_rlist, "txString", string);
-  NhlRLSetFloat (tx_rlist, "txPosXF" , x);
-  NhlRLSetFloat (tx_rlist, "txPosYF" , y);
   NhlCreate(&text,"text",NhltextItemClass,wks,tx_rlist);
 /*
  * Draw text.
@@ -1374,24 +1309,33 @@ int gsn_text_ndc_wrap(int wks, char* string, float x, float y,
 }
 
 
-int gsn_text_wrap(int wks, int plot, char* string, float x, float y, 
-                  int tx_rlist, gsnRes *special_res)
+int gsn_text_wrap(int wks, int plot, char* string, void *x, void *y, 
+                  const char *type_x, const char *type_y, int tx_rlist, 
+                  gsnRes *special_res)
 {
-  float xndc, yndc, oor = 0.;
+  float *xf, *yf, xndc, yndc, oor = 0.;
   int text, status;
+
+/*
+ * Convert x and y to float, since NhlDatatoNDC routine only accepts 
+ * floats.
+ */
+  xf = coerce_to_float(x,type_x,1);
+  yf = coerce_to_float(y,type_y,1);
 
 /*
  * Convert from plot's data space to NDC space.
  */
 
-  (void)NhlDataToNDC(plot,&x,&y,1,&xndc,&yndc,NULL,NULL,&status,&oor);
+  (void)NhlDataToNDC(plot,xf,yf,1,&xndc,&yndc,NULL,NULL,&status,&oor);
 
   if(special_res->gsnDebug) {
     printf("gsn_text: string = %s x = %g y = %g xndc = %g yndc = %g\n", 
-           string, x, y, xndc, yndc);
+           string, *xf, *yf, xndc, yndc);
   }
 
-  text = gsn_text_ndc_wrap(wks, string, xndc, yndc, tx_rlist, special_res);
+  text = gsn_text_ndc_wrap(wks, string, &xndc, &yndc, "float", "float",
+                           tx_rlist, special_res);
 
 /*
  * Return.

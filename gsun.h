@@ -59,6 +59,8 @@ extern void collapse_nomsg(float *, float *, int, int *);
 extern void collapse_nomsg_xy(float *, float *, int, int, int, float *,
                               float *, int *);
 
+extern void set_resource(char *, int, void *, const char *, int, int *);
+
 extern int create_graphicstyle_object(int);
 
 extern void draw_and_frame(int, int, gsnRes *);
@@ -147,8 +149,10 @@ extern int gsn_vector_scalar_map_wrap(int, void *, void *, void *,
  * Text routines.
  */
 
-extern int gsn_text_ndc_wrap(int, char *, float, float, int, gsnRes *);
-extern int gsn_text_wrap(int, int, char *, float, float, int, gsnRes *);
+extern int gsn_text_ndc_wrap(int, char *, void *, void *, const char *, 
+                             const char *, int, gsnRes *);
+extern int gsn_text_wrap(int, int, char *, void *, void *, const char *,
+                         const char *, int, gsnRes *);
 
 /*
  * Primitive drawing routines.

@@ -44,7 +44,8 @@ main()
   int mpcolors[]  = {0, -1, 238, -1};
   int pttrns[]    = {0,1,2,3,4,5,6,7,8,9,10,11,12};
   int srlist, cmap_len[2];
-  float cmap[NCOLORS][3];
+  float xf, yf, cmap[NCOLORS][3];
+  int   ixf, iyf;
   gsnRes special_res, special_pres;
 
 /*
@@ -599,16 +600,16 @@ main()
  * Initialize which plots to draw.
  */
   do_contour           = 1;
-  do_xy_single         = 0;
+  do_xy_single         = 1;
   do_xy_multi          = 1;
   do_y                 = 1;
-  do_vector            = 0;
+  do_vector            = 1;
   do_streamline        = 1;
-  do_map               = 0;
-  do_contour_map       = 0;
+  do_map               = 1;
+  do_contour_map       = 1;
   do_vector_map        = 1;
   do_streamline_map    = 1;
-  do_vector_scalar     = 0;
+  do_vector_scalar     = 1;
   do_vector_scalar_map = 1;
 
 /*
@@ -651,7 +652,7 @@ main()
  */
 
   NhlRLSetString(wk_rlist,"wkColorMap","rainbow+gray");
-  wks = gsn_open_wks("x11","test", wk_rlist);
+  wks = gsn_open_wks("ncgm","test", wk_rlist);
 
 /*
  * Initialize and clear resource lists.
@@ -713,8 +714,10 @@ main()
     NhlRLSetString (tx_rlist,"txJust"       , "CenterLeft");
     NhlRLSetString (tx_rlist,"txFuncCode"   , "~");
 
+    xf = 0.01;
+    yf = 0.05;
     text = gsn_text_ndc_wrap(wks,"gsn_text_ndc: bottom feeder",
-                             0.01,0.05, tx_rlist,&special_pres);
+                             &xf,&yf,"float","float",tx_rlist,&special_pres);
 
 /*
  * Draw a polygon before we draw the plot.
@@ -749,9 +752,14 @@ main()
     NhlRLSetFloat (tx_rlist,"txFontHeightF", 0.03);
     NhlRLSetString (tx_rlist,"txJust"      , "TopLeft");
     NhlRLSetString(tx_rlist,"txDirection"  , "Down");
-    text = gsn_text_ndc_wrap(wks,"gsn_text_ndc",0.3,0.8, tx_rlist,
+
+    xf = 0.3;
+    yf = 0.8;
+    text = gsn_text_ndc_wrap(wks,"gsn_text_ndc",&xf,&yf,"float","float",
+                             tx_rlist,&special_pres);
+    xf = 0.35;
+    text = gsn_text_ndc_wrap(wks,"Down",&xf,&yf,"float","float",tx_rlist,
                              &special_pres);
-    text = gsn_text_ndc_wrap(wks,"Down",0.35,0.8, tx_rlist,&special_pres);
 
     xy = gsn_y_wrap(wks, T, type_T, 1, &nlon_T, is_missing_T, FillValue_T, 
                     ca_rlist, xy_rlist, xyd_rlist, &special_res);
@@ -802,8 +810,10 @@ main()
     NhlRLSetFloat (tx_rlist,"txFontHeightF", 0.03);
     NhlRLSetString(tx_rlist,"txFuncCode"   , "~");
 
-    text = gsn_text_wrap(wks, xy, "~F26~gsn_text:~C~sideways", -130, 268,
-                         tx_rlist,&special_pres);
+    ixf = -130;
+    iyf =  268;
+    text = gsn_text_wrap(wks, xy, "~F26~gsn_text:~C~sideways", &ixf, &iyf,
+                         "integer","integer",tx_rlist,&special_pres);
 
     NhlFrame(wks);
   }
@@ -1074,8 +1084,10 @@ main()
     NhlRLSetInteger(tx_rlist,"txFont"       , 22);
     NhlRLSetString (tx_rlist,"txFuncCode"   , "~");
 
+    xf = 0.5;
+    yf = 0.16;
     text = gsn_text_ndc_wrap(wks,"gsn_text_ndc: I'm a big labelbar",
-                             0.5,0.16, tx_rlist,&special_pres);
+                             &xf,&yf,"float","float", tx_rlist,&special_pres);
     NhlFrame(wks);
 
   }
@@ -1136,8 +1148,11 @@ main()
     NhlRLSetString (tx_rlist,"txPerimOn"            , "True");
     NhlRLSetString (tx_rlist,"txBackgroundFillColor", "LightGray");
     
+    ixf = -93;
+    iyf =  65;
     text = gsn_text_wrap(wks,strmlnmap,"gsn_text: lat=65,lon=-93",
-                         -93, 65, tx_rlist,&special_pres);
+                         &ixf, &iyf, "integer", "integer", tx_rlist,
+                         &special_pres);
 /*
  * Draw a polygon, markers, and line.
  */
@@ -1258,18 +1273,24 @@ main()
     NhlRLSetString (tx_rlist,"txFont"               , "helvetica");
     
     NhlRLSetString (tx_rlist,"txJust", "TopRight");
+    ixf = -125;
+    yf  =   20;
     text = gsn_text_wrap(wks,vctrmap,"lat=  20:C:lon=-125",
-                         -125, 20, tx_rlist,&special_pres);
+                         &ixf, &yf, "integer","float",tx_rlist,&special_pres);
+    yf  =   60;
     NhlRLSetString (tx_rlist,"txJust", "BottomRight");
-    text = gsn_text_wrap(wks,vctrmap,"lat=  60:C:lon=-125",
-                         -125, 60, tx_rlist,&special_pres);
-
+    text = gsn_text_wrap(wks,vctrmap,"lat=  60:C:lon=-125", &ixf, &yf,
+                         "integer", "float", tx_rlist,&special_pres);
+    ixf = -65;
+    yf  =  20;
     NhlRLSetString (tx_rlist,"txJust", "TopLeft");
-    text = gsn_text_wrap(wks,vctrmap,"lat= 20:C:lon=-65",
-                         -65, 20, tx_rlist,&special_pres);
+    text = gsn_text_wrap(wks,vctrmap,"lat= 20:C:lon=-65", &ixf, &yf,
+                         "integer", "float", tx_rlist,&special_pres);
+    yf  =  60;
     NhlRLSetString (tx_rlist,"txJust", "BottomLeft");
     text = gsn_text_wrap(wks,vctrmap,"lat= 60:C:lon=-65",
-                         -65, 60, tx_rlist,&special_pres);
+                         &ixf, &yf, "integer", "float", tx_rlist,
+                         &special_pres);
 
     NhlFrame(wks);
   }
