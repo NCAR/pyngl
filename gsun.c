@@ -3,661 +3,6 @@
 #include <math.h>
 #include "gsun.h"
 
-main()
-{
-/*
- * Declare variables for the HLU routine calls.
- */
-
-  int wks, contour, xy, vector, streamline, map, cntrmap;
-  int wk_rlist, sf_rlist, ca_rlist, vf_rlist;
-  int cn_rlist, xy_rlist, xyd_rlist, vc_rlist, st_rlist, mp_rlist;
-  int cn2_rlist, mp2_rlist;
-  int cncolors[]  = {2,16,30,44,58,52,86,100,114,128,142,156,170};
-  int mpcolors[]  = {0, -1, 238, -1};
-  int pttrns[]    = {0,1,2,3,4,5,6,7,8,9,10,11,12};
-
-/*
- * Declare variables for getting information from netCDF file.
- */
-
-  int ncid_T, ncid_U, ncid_V;
-  int id_T, id_U, id_V;
-  int lonid_T, latid_T, lonid_UV, latid_UV;
-  int nlon_T, nlat_T, nlat_UV, nlon_UV;
-  int ndims_T, dsizes_T[2], ndims_UV;
-  int is_missing_T, is_missing_U, is_missing_V;
-  int attid, status;
-
-/*
- * Declare variables to hold values, missing values, and types that
- * are read in from netCDF files.
- */
-  void  *T, *U, *V, *lat_T, *lon_T, *lat_UV, *lon_UV;
-  void  *FillValue_T, *FillValue_U, *FillValue_V;
-  int is_lat_coord_T, is_lon_coord_T, is_lat_coord_UV, is_lon_coord_UV;
-
-  nc_type nctype_T, nctype_lat_T, nctype_lon_T;
-  nc_type nctype_U, nctype_V, nctype_lat_UV, nctype_lon_UV;
-  char type_T[TYPE_LEN], type_U[TYPE_LEN], type_V[TYPE_LEN];
-  char type_lat_T[TYPE_LEN], type_lon_T[TYPE_LEN];
-  char type_lat_UV[TYPE_LEN], type_lon_UV[TYPE_LEN];
-
-  size_t i, *start, *count;
-  char  filename_T[256], filename_U[256], filename_V[256];
-  const char *dir = _NGGetNCARGEnv("data");
-
-/*
- * Open the netCDF files for contour and vector data.
- */
-
-  sprintf(filename_T, "%s/cdf/meccatemp.cdf", dir );
-  sprintf(filename_U, "%s/cdf/Ustorm.cdf", dir );
-  sprintf(filename_V, "%s/cdf/Vstorm.cdf", dir );
-
-  nc_open(filename_T,NC_NOWRITE,&ncid_T);
-  nc_open(filename_U,NC_NOWRITE,&ncid_U);
-  nc_open(filename_V,NC_NOWRITE,&ncid_V);
-
-/*
- * Get the lat/lon dimension ids so we can retrieve their lengths.
- * The lat/lon arrays for the U and V data files are the same, so we
- * only need to retrieve one set of them.
- */
-
-  nc_inq_dimid(ncid_T,"lat",&latid_T);
-  nc_inq_dimid(ncid_T,"lon",&lonid_T);
-  nc_inq_dimid(ncid_U,"lat",&latid_UV);
-  nc_inq_dimid(ncid_U,"lon",&lonid_UV);
-
-  nc_inq_dimlen(ncid_T,latid_T, (size_t*)&nlat_T);
-  nc_inq_dimlen(ncid_T,lonid_T, (size_t*)&nlon_T);
-  nc_inq_dimlen(ncid_U,latid_UV,(size_t*)&nlat_UV);  
-  nc_inq_dimlen(ncid_U,lonid_UV,(size_t*)&nlon_UV);
-
-/*
- * Get temperature, u, v, lat, and lon ids.
- */
-
-  nc_inq_varid(ncid_T,  "t",&id_T);
-  nc_inq_varid(ncid_U,  "u",&id_U);
-  nc_inq_varid(ncid_V,  "v",&id_V);
-  nc_inq_varid(ncid_T,"lat",&latid_T);
-  nc_inq_varid(ncid_T,"lon",&lonid_T);
-  nc_inq_varid(ncid_U,"lat",&latid_UV);
-  nc_inq_varid(ncid_U,"lon",&lonid_UV);
-
-/*
- * Check if T, U, or V has a _FillValue attribute set.  If so,
- * retrieve them later.
- */
-
-  status = nc_inq_attid (ncid_T, id_T, "_FillValue", &attid); 
-  if(status == NC_NOERR) {
-    is_missing_T = 1;
-  }
-  else {
-    is_missing_T = 0;
-  }
-
-  status = nc_inq_attid (ncid_U, id_U, "_FillValue", &attid); 
-  if(status == NC_NOERR) {
-    is_missing_U = 1;
-  }
-  else {
-    is_missing_U = 0;
-  }
-
-  status = nc_inq_attid (ncid_V, id_V, "_FillValue", &attid); 
-  if(status == NC_NOERR) {
-    is_missing_V = 1;
-  }
-  else {
-    is_missing_V = 0;
-  }
-
-/*
- * Get type and number of dimensions of T, then read in first
- * nlat_T x nlon_T subsection of T. Also, read in missing value
- * if one is set.
- */
-
-  nc_inq_vartype  (ncid_T, id_T, &nctype_T);
-  nc_inq_varndims (ncid_T, id_T, &ndims_T);
-
-  start    = (size_t *)calloc(ndims_T,sizeof(size_t));
-  count    = (size_t *)calloc(ndims_T,sizeof(size_t));
-  for(i = 0; i < ndims_T; i++)   start[i] = 0;
-  for(i = 0; i < ndims_T-2; i++) count[i] = 1;
-  count[ndims_T-2] = nlat_T;
-  count[ndims_T-1] = nlon_T;
-
-  switch(nctype_T) {
-
-  case NC_DOUBLE:
-    strcpy(type_T,"double");
-    T      = (double *)calloc(nlat_T,sizeof(double));
-
-    nc_get_vara_double(ncid_T,id_T,start,count,(double*)T);
-
-/*
- * Get double missing value.
- */
-    if(is_missing_T) {
-      FillValue_T = (double *)calloc(1,sizeof(double));
-      nc_get_att_double (ncid_T, id_T, "_FillValue", (double*)FillValue_T); 
-    }
-    break;
-
-  case NC_FLOAT:
-    strcpy(type_T,"float");
-    T      = (float *)calloc(nlat_T*nlon_T,sizeof(float));
-
-    nc_get_vara_float(ncid_T,id_T,start,count,(float*)T);
-
-/*
- * Get float missing value.
- */
-    if(is_missing_T) {
-      FillValue_T = (float *)calloc(1,sizeof(float));
-      nc_get_att_float (ncid_T, id_T, "_FillValue", (float*)FillValue_T); 
-    }
-    break;
-
-  case NC_INT:
-    strcpy(type_T,"integer");
-    T      = (int *)calloc(nlat_T*nlon_T,sizeof(int));
-
-    nc_get_vara_int(ncid_T,id_T,start,count,(int*)T);
-
-/*
- * Get integer missing value.
- */
-    if(is_missing_T) {
-      FillValue_T = (int *)calloc(1,sizeof(int));
-      nc_get_att_int (ncid_T, id_T, "_FillValue", (int*)FillValue_T); 
-    }
-    break;
-  }
-
-/*
- * Read in lat and lon coordinate arrays for "t".
- */
-
-  nc_inq_vartype  (ncid_T, latid_T, &nctype_lat_T);
-  nc_inq_vartype  (ncid_T, lonid_T, &nctype_lon_T);
-
-  is_lat_coord_T = 1;
-  switch(nctype_lat_T) {
-
-  case NC_DOUBLE:
-    strcpy(type_lat_T,"double");
-    lat_T      = (double *)calloc(nlat_T,sizeof(double));
-
-    nc_get_var_double(ncid_T,latid_T,(double*)lat_T);
-    break;
-
-  case NC_FLOAT:
-    strcpy(type_lat_T,"float");
-    lat_T      = (float *)calloc(nlat_T,sizeof(float));
-
-    nc_get_var_float(ncid_T,latid_T,(float*)lat_T);
-
-  case NC_INT:
-    strcpy(type_lat_T,"integer");
-    lat_T      = (int *)calloc(nlat_T,sizeof(int));
-
-    nc_get_var_int(ncid_T,latid_T,(int*)lat_T);
-    break;
-  }
-
-  is_lon_coord_T = 1;
-  switch(nctype_lon_T) {
-
-  case NC_DOUBLE:
-    strcpy(type_lon_T,"double");
-    lon_T      = (double *)calloc(nlon_T,sizeof(double));
-
-    nc_get_var_double(ncid_T,lonid_T,(double*)lon_T);
-    break;
-
-  case NC_FLOAT:
-    strcpy(type_lon_T,"float");
-    lon_T      = (float *)calloc(nlon_T,sizeof(float));
-
-    nc_get_var_float(ncid_T,lonid_T,(float*)lon_T);
-
-  case NC_INT:
-    strcpy(type_lon_T,"integer");
-    lon_T      = (int *)calloc(nlon_T,sizeof(int));
-
-    nc_get_var_int(ncid_T,lonid_T,(int*)lon_T);
-    break;
-  }
-
-/*
- * Get type and number of dimensions of U and V, then read in first
- * nlat_UV x nlon_UV subsection of "u" and "v". Also, read in missing
- * values if ones are set.
- *
- * U and V are assumed to have the same dimensions.
- */
-
-  free(start);
-  free(count);
-
-  nc_inq_vartype  (ncid_U, id_U, &nctype_U);
-  nc_inq_vartype  (ncid_V, id_V, &nctype_V);
-  nc_inq_varndims (ncid_U, id_U, &ndims_UV);
-
-  start = (size_t *)calloc(ndims_UV,sizeof(size_t));
-  count = (size_t *)calloc(ndims_UV,sizeof(size_t));
-  for(i = 0; i < ndims_UV; i++)   start[i] = 0;
-  for(i = 0; i < ndims_UV-2; i++) count[i] = 1;
-  count[ndims_UV-2] = nlat_UV;
-  count[ndims_UV-1] = nlon_UV;
-
-  switch(nctype_U) {
-
-  case NC_DOUBLE:
-    strcpy(type_U,"double");
-    U      = (double *)calloc(nlat_UV*nlon_UV,sizeof(double));
-
-/*
- * Get double values.
- */
-    nc_get_vara_double(ncid_U,id_U,start,count,(double*)U);
-
-/*
- * Get double missing value.
- */
-    if(is_missing_U) {
-      FillValue_U = (int *)calloc(1,sizeof(int));
-      nc_get_att_double (ncid_U, id_U, "_FillValue", (double*)FillValue_U); 
-    }
-    break;
-
-  case NC_FLOAT:
-    strcpy(type_U,"float");
-    U      = (float *)calloc(nlat_UV*nlon_UV,sizeof(float));
-
-/*
- * Get float values.
- */
-    nc_get_vara_float(ncid_U,id_U,start,count,(float*)U);
-
-/*
- * Get float missing value.
- */
-    if(is_missing_U) {
-      FillValue_U = (int *)calloc(1,sizeof(int));
-      nc_get_att_float (ncid_U, id_U, "_FillValue", (float*)FillValue_U); 
-    }
-    break;
-
-  case NC_INT:
-    strcpy(type_U,"integer");
-    U      = (int *)calloc(nlat_UV*nlon_UV,sizeof(int));
-
-/*
- * Get integer values.
- */
-    nc_get_vara_int(ncid_U,id_U,start,count,(int*)U);
-
-/*
- * Get integer missing value.
- */
-    if(is_missing_U) {
-      FillValue_U = (int *)calloc(1,sizeof(int));
-      nc_get_att_int (ncid_U, id_U, "_FillValue", (int*)FillValue_U); 
-    }
-    break;
-  }
-
-  switch(nctype_V) {
-
-  case NC_DOUBLE:
-    strcpy(type_V,"double");
-    V      = (double *)calloc(nlat_UV*nlon_UV,sizeof(double));
-
-/*
- * Get double values.
- */
-    nc_get_vara_double(ncid_V,id_V,start,count,(double*)V);
-
-/*
- * Get double missing value.
- */
-    if(is_missing_V) {
-      FillValue_V = (int *)calloc(1,sizeof(int));
-      nc_get_att_float (ncid_V, id_V, "_FillValue", (float*)FillValue_V); 
-    }
-    break;
-
-  case NC_FLOAT:
-    strcpy(type_V,"float");
-    V      = (float *)calloc(nlat_UV*nlon_UV,sizeof(float));
-
-/*
- * Get float values.
- */
-    nc_get_vara_float(ncid_V,id_V,start,count,(float*)V);
-
-/*
- * Get float missing value.
- */
-    if(is_missing_V) {
-      FillValue_V = (int *)calloc(1,sizeof(int));
-      nc_get_att_float (ncid_V, id_V, "_FillValue", (float*)FillValue_V); 
-    }
-    break;
-
-  case NC_INT:
-    strcpy(type_V,"integer");
-    V      = (int *)calloc(nlat_UV*nlon_UV,sizeof(int));
-
-/*
- * Get integer values.
- */
-    nc_get_vara_int(ncid_V,id_V,start,count,(int*)V);
-
-/*
- * Get integer missing value.
- */
-    if(is_missing_V) {
-      FillValue_V = (int *)calloc(1,sizeof(int));
-      nc_get_att_float (ncid_V, id_V, "_FillValue", (float*)FillValue_V); 
-    }
-    break;
-  }
-
-/*
- * Read in lat coordinate arrays for "u" and "v".
- */
-
-  nc_inq_vartype  (ncid_U, latid_UV, &nctype_lat_UV);
-
-  is_lat_coord_UV = 1;
-  switch(nctype_lat_UV) {
-
-  case NC_DOUBLE:
-    strcpy(type_lat_UV,"double");
-    lat_UV      = (double *)calloc(nlat_UV,sizeof(double));
-
-/*
- * Get double values.
- */
-    nc_get_var_double(ncid_U,latid_UV,(double*)lat_UV);
-    break;
-
-  case NC_FLOAT:
-    strcpy(type_lat_UV,"float");
-    lat_UV      = (float *)calloc(nlat_UV,sizeof(float));
-
-/*
- * Get float values.
- */
-    nc_get_var_float(ncid_U,latid_UV,(float*)lat_UV);
-
-  case NC_INT:
-    strcpy(type_lat_UV,"integer");
-    lat_UV      = (int *)calloc(nlat_UV,sizeof(int));
-
-/*
- * Get integer values.
- */
-    nc_get_var_int(ncid_U,latid_UV,(int*)lat_UV);
-    break;
-  }
-
-/*
- * Read in lon coordinate arrays for "u" and "v".
- */
-
-  nc_inq_vartype  (ncid_U, lonid_UV, &nctype_lon_UV);
-
-  is_lon_coord_UV = 1;
-  switch(nctype_lon_UV) {
-
-  case NC_DOUBLE:
-    strcpy(type_lon_UV,"double");
-    lon_UV      = (double *)calloc(nlon_UV,sizeof(double));
-
-    nc_get_var_double(ncid_U,lonid_UV,(double*)lon_UV);
-    break;
-
-  case NC_FLOAT:
-    strcpy(type_lon_UV,"float");
-    lon_UV      = (float *)calloc(nlon_UV,sizeof(float));
-
-    nc_get_var_float(ncid_U,lonid_UV,(float*)lon_UV);
-
-  case NC_INT:
-    strcpy(type_lon_UV,"integer");
-    lon_UV      = (int *)calloc(nlon_UV,sizeof(int));
-
-    nc_get_var_int(ncid_U,lonid_UV,(int*)lon_UV);
-    break;
-  }
-
-/*
- * Close the netCDF files.
- */
-
-  ncclose(ncid_T);
-  ncclose(ncid_U);
-  ncclose(ncid_V);
-
-/*----------------------------------------------------------------------*
- *
- * Start graphics portion of code.
- *
- *----------------------------------------------------------------------*/
-
-/*
- * Set up workstation resource list.
- */
-
-  wk_rlist = NhlRLCreate(NhlSETRL);
-  NhlRLClear(wk_rlist);
-
-/* 
- * Set color map resource and open workstation.
- */
-
-  NhlRLSetString(wk_rlist,"wkColorMap","rainbow+gray");
-  wks = gsn_open_wks("ncgm","test", wk_rlist);
-
-/*
- * Initialize contour, vector, scalar field, and vector field 
- * resource lists.
- */
-
-  sf_rlist  = NhlRLCreate(NhlSETRL);
-  ca_rlist  = NhlRLCreate(NhlSETRL);
-  vf_rlist  = NhlRLCreate(NhlSETRL);
-  cn_rlist  = NhlRLCreate(NhlSETRL);
-  cn2_rlist = NhlRLCreate(NhlSETRL);
-  xy_rlist  = NhlRLCreate(NhlSETRL);
-  xyd_rlist = NhlRLCreate(NhlSETRL);
-  vc_rlist  = NhlRLCreate(NhlSETRL);
-  st_rlist  = NhlRLCreate(NhlSETRL);
-  mp_rlist  = NhlRLCreate(NhlSETRL);
-  mp2_rlist = NhlRLCreate(NhlSETRL);
-  NhlRLClear(sf_rlist);
-  NhlRLClear(ca_rlist);
-  NhlRLClear(vf_rlist);
-  NhlRLClear(cn_rlist);
-  NhlRLClear(cn2_rlist);
-  NhlRLClear(xy_rlist);
-  NhlRLClear(xyd_rlist);
-  NhlRLClear(vc_rlist);
-  NhlRLClear(st_rlist);
-  NhlRLClear(mp_rlist);
-  NhlRLClear(mp2_rlist);
-
-/*
- * Set some contour resources.
- */
-
-  NhlRLSetString      (cn_rlist, "cnFillOn",             "True");
-  NhlRLSetIntegerArray(cn_rlist, "cnFillColors",         cncolors,13);
-  NhlRLSetString      (cn_rlist, "cnLineLabelsOn",       "False");
-  NhlRLSetString      (cn_rlist, "lbPerimOn",            "False");
-  NhlRLSetString      (cn_rlist, "pmLabelBarDisplayMode","ALWAYS");
-
-/*
- * Create and draw contour plot, and advance frame.
- */
-
-  contour = gsn_contour_wrap(wks, T, type_T, nlat_T, nlon_T, 
-                             is_lat_coord_T, lat_T, type_lat_T, 
-                             is_lon_coord_T, lon_T, type_lon_T, 
-                             is_missing_T, FillValue_T, sf_rlist, cn_rlist);
-
-/*
- * Set some XY and XY data spec resources.
- */
-
-  NhlRLSetFloat  (xy_rlist,  "trXMinF",          -180);
-  NhlRLSetFloat  (xy_rlist,  "trXMaxF",           180);
-  NhlRLSetString (xy_rlist,  "tiMainFont",       "helvetica-bold");
-  NhlRLSetString (xy_rlist,  "tiMainFontColor",  "red");
-  NhlRLSetString (xy_rlist,  "tiMainString",     "This is a boring red title");
-
-/*
- * Resources for a single line. 
- */
-/*
-   NhlRLSetString (xyd_rlist, "xyLineColor",      "green");
-   NhlRLSetFloat  (xyd_rlist, "xyLineThicknessF", 3.0);
- */
-
-/*
- * Resources for multiple lines.
- */
-  NhlRLSetString (xyd_rlist,      "xyMonoLineColor", "False");
-  NhlRLSetIntegerArray(xyd_rlist, "xyLineColors",    cncolors,10);
-  NhlRLSetIntegerArray(xyd_rlist, "xyDashPatterns",  pttrns,10);
-
-/*
- * Create and draw XY plot, and advance frame. In this case, the X data
- * contains no missing values, but the Y data possibly does.
- *
- * Plot only the first 10 lines.
- */
-  dsizes_T[0] = 10;           /* Could be up to nlat_T lines. */
-  dsizes_T[1] = nlon_T;
-
-  xy = gsn_xy_wrap(wks, lon_T, T, type_lon_T, type_T, 1, &nlon_T, 
-                   2, &dsizes_T[0], 0, is_missing_T, NULL, FillValue_T, 
-                   ca_rlist, xy_rlist, xyd_rlist);
-
-/* 
- * To plot just a single line.
- */
-/*
-  xy = gsn_xy_wrap(wks, lon_T, lat_T, type_lon_T, type_lat_T, 1, &nlon_T, 
-                   1, &nlat_T, 0, 0, NULL, NULL, 
-                   ca_rlist, xy_rlist, xyd_rlist);
- */
-
-/*
- * Create and draw streamline plot, and advance frame.
- */
-
-  streamline = gsn_streamline_wrap(wks, U, V, type_U, type_V, 
-                                   nlat_UV, nlon_UV, 
-                                   is_lat_coord_UV, lat_UV, type_lat_UV, 
-                                   is_lon_coord_UV, lon_UV, type_lon_UV, 
-                                   is_missing_U, is_missing_V, 
-                                   FillValue_U, FillValue_V,
-                                   vf_rlist, st_rlist);
-
-/*
- * Set some vector resources.
- */
-
-  NhlRLSetFloat (vc_rlist, "vcRefAnnoOrthogonalPosF", -0.2);
-  NhlRLSetFloat (vc_rlist, "vpXF",      0.10);
-  NhlRLSetFloat (vc_rlist, "vpYF",      0.95);
-  NhlRLSetFloat (vc_rlist, "vpWidthF",  0.85);
-  NhlRLSetFloat (vc_rlist, "vpHeightF", 0.85);
-
-/*
- * Create and draw vector plot, and advance frame.
- */
-
-  vector = gsn_vector_wrap(wks, U, V, type_U, type_V, nlat_UV, nlon_UV, 
-                           is_lat_coord_UV, lat_UV, type_lat_UV, 
-                           is_lon_coord_UV, lon_UV, type_lon_UV, 
-                           is_missing_U, is_missing_V, 
-                           FillValue_U, FillValue_V,
-                           vf_rlist, vc_rlist);
-
-/*
- * Create and draw map plot, and advance frame.
- */
-
-  NhlRLSetString  (mp_rlist, "mpGridAndLimbOn",    "False");
-  NhlRLSetInteger (mp_rlist, "mpPerimOn",          1);
-  NhlRLSetString  (mp_rlist, "pmTitleDisplayMode", "Always");
-  NhlRLSetString  (mp_rlist, "tiMainString",       "CylindricalEquidistant");
-  map = gsn_map_wrap(wks, mp_rlist);
-
-/*
- * Create contours over a map.
- *
- * First set up some resources.
- */
-
-  NhlRLSetString      (cn2_rlist, "cnFillOn",              "True");
-  NhlRLSetIntegerArray(cn2_rlist, "cnFillColors",          cncolors,13);
-  NhlRLSetString      (cn2_rlist, "cnLinesOn",             "False");
-  NhlRLSetString      (cn2_rlist, "cnLineLabelsOn",        "False");
-  NhlRLSetString      (cn2_rlist, "cnInfoLabelOn",         "False");
-  NhlRLSetString      (cn2_rlist, "pmLabelBarDisplayMode", "ALWAYS");
-  NhlRLSetString      (cn2_rlist, "lbOrientation",         "Horizontal");
-  NhlRLSetString      (cn2_rlist, "lbPerimOn",             "False");
-  NhlRLSetString      (cn2_rlist, "pmLabelBarSide",        "Bottom");
-
-  NhlRLSetString      (mp2_rlist, "mpFillOn",              "True");
-  NhlRLSetIntegerArray(mp2_rlist, "mpFillColors",          mpcolors,4);
-  NhlRLSetString      (mp2_rlist, "mpFillDrawOrder",       "PostDraw");
-  NhlRLSetString      (mp2_rlist, "mpGridAndLimbOn",       "False");
-  NhlRLSetString      (mp2_rlist, "mpGeophysicalLineColor","black");
-  NhlRLSetInteger     (mp2_rlist, "mpPerimOn",             1);
-
-  cntrmap = gsn_contour_map_wrap(wks, T, type_T, nlat_T, nlon_T, 
-                                 is_lat_coord_T, lat_T, type_lat_T, 
-                                 is_lon_coord_T, lon_T, type_lon_T, 
-                                 is_missing_T, FillValue_T, 
-                                 sf_rlist, cn2_rlist, mp2_rlist);
-/*
- * NhlDestroy destroys the given id and all of its children.
- */
-
-  NhlDestroy(wks);
-
-/*
- * Restores state.
- */
-
-  NhlClose();
-/*
- * Free up memory.
- */
-  free(T);
-  free(U);
-  free(V);
-  free(lat_T);
-  free(lon_T);
-  free(lat_UV);
-  free(lon_UV);
-  exit(0);
-}
-
-
 /*
  * This function computes the PostScript device coordinates needed to
  * make a plot fill up the full page.
@@ -929,6 +274,17 @@ void maximize_plot(int wks, int plot)
  */
     compute_ps_device_coords(wks,plot);
   }
+}
+
+/*
+ * This function maximizes and draws the plot, and advances the frame.
+ */
+
+void draw_and_frame(int wks, int plot, gsnRes special_res)
+{
+  if(special_res.gsnMaximize) maximize_plot(wks, plot);
+  if(special_res.gsnDraw)  NhlDraw(plot);
+  if(special_res.gsnFrame) NhlFrame(wks);
 }
 
 /*
@@ -1322,7 +678,7 @@ int gsn_contour_wrap(int wks, void *data, const char *type,
                      int is_ycoord, void *ycoord, const char *ycoord_type,
                      int is_xcoord, void *xcoord, const char *xcoord_type,
                      int is_missing, void *FillValue, 
-                     int sf_rlist, int cn_rlist)
+                     int sf_rlist, int cn_rlist, gsnRes special_res)
 {
   int field, contour;
 
@@ -1336,7 +692,7 @@ int gsn_contour_wrap(int wks, void *data, const char *type,
                        is_missing, FillValue, sf_rlist);
 
 /*
- * Assign the data object that was created earlier.
+ * Assign the data object.
  */
 
   NhlRLSetInteger(cn_rlist,"cnScalarFieldData",field);
@@ -1351,10 +707,7 @@ int gsn_contour_wrap(int wks, void *data, const char *type,
  * Draw contour plot and advance frame.
  */
 
-  maximize_plot(wks, contour);
-
-  NhlDraw(contour);
-  NhlFrame(wks);
+  draw_and_frame(wks, contour, special_res);
 
 /*
  * Return.
@@ -1373,7 +726,8 @@ int gsn_xy_wrap(int wks, void *x, void *y, const char *type_x,
                 int ndims_y, int *dsizes_y, 
                 int is_missing_x, int is_missing_y, 
                 void *FillValue_x, void *FillValue_y,
-                int ca_rlist, int xy_rlist, int xyd_rlist)
+                int ca_rlist, int xy_rlist, int xyd_rlist,
+                gsnRes special_res)
 {
   int carray, xy, grlist;
   int num_dspec, *xyds;
@@ -1388,7 +742,7 @@ int gsn_xy_wrap(int wks, void *x, void *y, const char *type_x,
                        FillValue_x, FillValue_y, ca_rlist);
 
 /*
- * Assign the data object that was created earlier.
+ * Assign the data object.
  */
 
   NhlRLSetInteger(xy_rlist,"xyCoordData",carray);
@@ -1417,10 +771,7 @@ int gsn_xy_wrap(int wks, void *x, void *y, const char *type_x,
  * Draw xy plot and advance frame.
  */
 
-  maximize_plot(wks, xy);
-
-  NhlDraw(xy);
-  NhlFrame(wks);
+  draw_and_frame(wks, xy, special_res);
 
 /*
  * Return.
@@ -1440,7 +791,7 @@ int gsn_vector_wrap(int wks, void *u, void *v, const char *type_u,
                     int is_xcoord, void *xcoord, const char *type_xcoord,
                     int is_missing_u, int is_missing_v, 
                     void *FillValue_u, void *FillValue_v,
-                    int vf_rlist, int vc_rlist)
+                    int vf_rlist, int vc_rlist, gsnRes special_res)
 {
   int field, vector;
 
@@ -1455,7 +806,7 @@ int gsn_vector_wrap(int wks, void *u, void *v, const char *type_u,
                        FillValue_u, FillValue_v, vf_rlist);
 
 /*
- * Assign the data object that was created earlier.
+ * Assign the data object.
  */
 
   NhlRLSetInteger(vc_rlist,"vcVectorFieldData",field);
@@ -1470,10 +821,7 @@ int gsn_vector_wrap(int wks, void *u, void *v, const char *type_u,
  * Draw vector plot and advance frame.
  */
 
-  maximize_plot(wks, vector);
-
-  NhlDraw(vector);
-  NhlFrame(wks);
+  draw_and_frame(wks, vector, special_res);
 
 /*
  * Return.
@@ -1493,7 +841,7 @@ int gsn_streamline_wrap(int wks, void *u, void *v, const char *type_u,
                         int is_xcoord, void *xcoord, const char *type_xcoord,
                         int is_missing_u, int is_missing_v, 
                         void *FillValue_u, void *FillValue_v, 
-                        int vf_rlist, int st_rlist)
+                        int vf_rlist, int st_rlist, gsnRes special_res)
 {
   int field, streamline;
 
@@ -1508,7 +856,7 @@ int gsn_streamline_wrap(int wks, void *u, void *v, const char *type_u,
                        FillValue_v, vf_rlist);
 
 /*
- * Assign the data object that was created earlier.
+ * Assign the data object.
  */
 
   NhlRLSetInteger(st_rlist,"stVectorFieldData",field);
@@ -1523,10 +871,7 @@ int gsn_streamline_wrap(int wks, void *u, void *v, const char *type_u,
  * Draw streamline plot and advance frame.
  */
 
-  maximize_plot(wks, streamline);
-
-  NhlDraw(streamline);
-  NhlFrame(wks);
+  draw_and_frame(wks, streamline, special_res);
 
 /*
  * Return.
@@ -1539,7 +884,7 @@ int gsn_streamline_wrap(int wks, void *u, void *v, const char *type_u,
  * This function uses the HLUs to create a map plot.
  */
 
-int gsn_map_wrap(int wks, int mp_rlist)
+int gsn_map_wrap(int wks, int mp_rlist, gsnRes special_res)
 {
   int map;
 
@@ -1553,10 +898,7 @@ int gsn_map_wrap(int wks, int mp_rlist)
  * Draw map plot and advance frame.
  */
 
-  maximize_plot(wks, map);
-
-  NhlDraw(map);
-  NhlFrame(wks);
+  draw_and_frame(wks, map, special_res);
 
 /*
  * Return.
@@ -1574,27 +916,32 @@ int gsn_map_wrap(int wks, int mp_rlist)
  */
 
 int gsn_contour_map_wrap(int wks, void *data, const char *type, 
-                        int ylen, int xlen,
-                        int is_ycoord, void *ycoord, const char *ycoord_type,
-                        int is_xcoord, void *xcoord, const char *xcoord_type,
-                        int is_missing, void *FillValue, 
-                        int sf_rlist, int cn_rlist, int mp_rlist)
+                         int ylen, int xlen,
+                         int is_ycoord, void *ycoord, const char *ycoord_type,
+                         int is_xcoord, void *xcoord, const char *xcoord_type,
+                         int is_missing, void *FillValue, 
+                         int sf_rlist, int cn_rlist, int mp_rlist,
+                         gsnRes special_res)
 {
   int contour, map;
+  gsnRes special_res2;
 
 /*
  * Create contour plot.
  */
 
+  special_res2.gsnDraw  = 0;
+  special_res2.gsnFrame = 0;
   contour = gsn_contour_wrap(wks, data, type, ylen, xlen,
                              is_ycoord, ycoord, ycoord_type,
                              is_xcoord, xcoord, xcoord_type,
-                             is_missing, FillValue, sf_rlist, cn_rlist);
+                             is_missing, FillValue, sf_rlist, cn_rlist,
+                             special_res2);
 
 /*
  * Create map plot.
  */
-  map = gsn_map_wrap(wks, mp_rlist);
+  map = gsn_map_wrap(wks, mp_rlist, special_res2);
 
 /*
  * Overlay contour plot on map plot.
@@ -1605,10 +952,111 @@ int gsn_contour_map_wrap(int wks, void *data, const char *type,
  * Draw plots and advance frame.
  */
 
-  maximize_plot(wks, map);
+  draw_and_frame(wks, map, special_res);
 
-  NhlDraw(map);
-  NhlFrame(wks);
+/*
+ * Return.
+ */
+
+  return(map);
+}
+
+/*
+ * This function uses the HLUs to create a vector plot over a map.
+ */
+
+int gsn_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
+                        const char *type_v, int ylen, int xlen, 
+                        int is_ycoord, void *ycoord, const char *type_ycoord,
+                        int is_xcoord, void *xcoord, const char *type_xcoord,
+                        int is_missing_u, int is_missing_v, 
+                        void *FillValue_u, void *FillValue_v,
+                        int vf_rlist, int vc_rlist, int mp_rlist,
+                        gsnRes special_res)
+{
+  int vector, map;
+  gsnRes special_res2;
+
+/*
+ * Create vector plot.
+ */
+
+  special_res2.gsnDraw  = 0;
+  special_res2.gsnFrame = 0;
+  vector = gsn_vector_wrap(wks, u, v, type_u, type_v, ylen, xlen, is_ycoord,
+                           ycoord, type_ycoord, is_xcoord, xcoord, 
+                           type_xcoord, is_missing_u, is_missing_v, 
+                           FillValue_u, FillValue_v, vf_rlist, vc_rlist,
+                           special_res2);
+
+/*
+ * Create map plot.
+ */
+  map = gsn_map_wrap(wks, mp_rlist, special_res2);
+
+/*
+ * Overlay vector plot on map plot.
+ */
+  NhlAddOverlay(map,vector,-1);
+
+/*
+ * Draw plots and advance frame.
+ */
+
+  draw_and_frame(wks, map, special_res);
+
+/*
+ * Return.
+ */
+
+  return(map);
+}
+
+/*
+ * This function uses the HLUs to create a streamline plot over a map.
+ */
+
+int gsn_streamline_map_wrap(int wks, void *u, void *v, const char *type_u,
+							const char *type_v, int ylen, int xlen, 
+							int is_ycoord, void *ycoord, 
+							const char *type_ycoord, int is_xcoord, 
+							void *xcoord, const char *type_xcoord,
+							int is_missing_u, int is_missing_v, 
+							void *FillValue_u, void *FillValue_v,
+							int vf_rlist, int vc_rlist, int mp_rlist,
+							gsnRes special_res)
+{
+  int streamline, map;
+  gsnRes special_res2;
+
+/*
+ * Create streamline plot.
+ */
+
+  special_res2.gsnDraw  = 0;
+  special_res2.gsnFrame = 0;
+  streamline = gsn_streamline_wrap(wks, u, v, type_u, type_v, ylen, xlen, 
+								   is_ycoord, ycoord, type_ycoord, 
+								   is_xcoord, xcoord, type_xcoord, 
+								   is_missing_u, is_missing_v, FillValue_u, 
+								   FillValue_v, vf_rlist, vc_rlist,
+								   special_res2);
+
+/*
+ * Create map plot.
+ */
+  map = gsn_map_wrap(wks, mp_rlist, special_res2);
+
+/*
+ * Overlay streamline plot on map plot.
+ */
+  NhlAddOverlay(map,streamline,-1);
+
+/*
+ * Draw plots and advance frame.
+ */
+
+  draw_and_frame(wks, map, special_res);
 
 /*
  * Return.
@@ -1618,3 +1066,117 @@ int gsn_contour_map_wrap(int wks, void *data, const char *type,
 }
 
 
+/*
+ * This function uses the HLUs to create a vector plot colored by
+ * a scalar field.
+ */
+
+int gsn_vector_scalar_wrap(int wks, void *u, void *v, void *t, 
+                           const char *type_u, const char *type_v, 
+                           const char *type_t, int ylen, int xlen, 
+                           int is_ycoord, void *ycoord, 
+                           const char *type_ycoord, int is_xcoord, 
+                           void *xcoord, const char *type_xcoord, 
+                           int is_missing_u, int is_missing_v, 
+                           int is_missing_t, void *FillValue_u, 
+                           void *FillValue_v, void *FillValue_t,
+                           int vf_rlist, int sf_rlist, int vc_rlist, 
+                           gsnRes special_res)
+{
+  int vfield, sfield, vector;
+
+/*
+ * Create vector and scalar field objects that will be used as the
+ * datasets for the vector object.
+ */
+
+  vfield = vector_field(u, v, type_u, type_v, ylen, xlen, 
+                        is_ycoord, ycoord, type_ycoord, 
+                        is_xcoord, xcoord, type_xcoord, 
+                        is_missing_u, is_missing_v, 
+                        FillValue_u, FillValue_v, vf_rlist);
+
+  sfield = scalar_field(t, type_t, ylen, xlen, is_ycoord, ycoord, 
+                        type_ycoord, is_xcoord, xcoord, type_xcoord, 
+                        is_missing_t, FillValue_t, sf_rlist);
+
+/*
+ * Assign the data objects and create vector object.
+ */
+
+  NhlRLSetInteger(vc_rlist, "vcVectorFieldData",    vfield);
+  NhlRLSetInteger(vc_rlist, "vcScalarFieldData",    sfield);
+  NhlRLSetString (vc_rlist, "vcUseScalarArray",     "True");
+  NhlRLSetString (vc_rlist, "vcMonoLineArrowColor", "False");
+
+  NhlCreate(&vector,"vector",NhlvectorPlotClass,wks,vc_rlist);
+
+/*
+ * Draw plots and advance frame.
+ */
+
+  draw_and_frame(wks, vector, special_res);
+
+/*
+ * Return.
+ */
+
+  return(vector);
+}
+
+/*
+ * This function uses the HLUs to create a vector plot colored by
+ * a scalar field overlaid on a map.
+ */
+
+int gsn_vector_scalar_map_wrap(int wks, void *u, void *v, void *t, 
+                               const char *type_u, const char *type_v, 
+                               const char *type_t, int ylen, int xlen, 
+                               int is_ycoord, void *ycoord, 
+                               const char *type_ycoord, int is_xcoord, 
+                               void *xcoord, const char *type_xcoord, 
+                               int is_missing_u, int is_missing_v, 
+                               int is_missing_t, void *FillValue_u, 
+                               void *FillValue_v, void *FillValue_t,
+                               int vf_rlist, int sf_rlist, int vc_rlist, 
+                               int mp_rlist, gsnRes special_res)
+{
+  int vector, map;
+  gsnRes special_res2;
+
+/*
+ * Create vector plot.
+ */
+
+  special_res2.gsnDraw  = 0;
+  special_res2.gsnFrame = 0;
+  vector = gsn_vector_scalar_wrap(wks, u, v, t, type_u, type_v, type_t,
+                                  ylen, xlen, is_ycoord, ycoord, 
+                                  type_ycoord, is_xcoord, xcoord, 
+                                  type_xcoord, is_missing_u, is_missing_v, 
+                                  is_missing_t, FillValue_u, FillValue_v, 
+                                  FillValue_t, vf_rlist, sf_rlist, vc_rlist, 
+                                  special_res2);
+
+/*
+ * Create map plot.
+ */
+  map = gsn_map_wrap(wks, mp_rlist, special_res2);
+
+/*
+ * Overlay vector plot on map plot.
+ */
+  NhlAddOverlay(map,vector,-1);
+
+/*
+ * Draw plots and advance frame.
+ */
+
+  draw_and_frame(wks, map, special_res);
+
+/*
+ * Return.
+ */
+
+  return(map);
+}

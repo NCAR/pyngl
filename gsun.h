@@ -25,6 +25,17 @@
 #define TYPE_LEN 8     
 
 /*
+ * Define structure to hold special resources that aren't
+ * set in the normal HLU way (that is, via NhlRLSetxxx).
+ */
+
+typedef struct {
+  int gsnMaximize;
+  int gsnDraw;
+  int gsnFrame;
+} gsnRes;
+
+/*
  * Prototype GSUN and supplemental functions.
  */
 
@@ -43,28 +54,54 @@ extern void compute_ps_device_coords(int,int);
 
 extern void maximize_plot(int, int);
 
+extern void draw_and_frame(int, int, gsnRes);
+
 extern int gsn_open_wks(const char *, const char *, int);
 
 extern int gsn_contour_wrap(int, void *, const char *, int, int, 
                             int, void *, const char *, int, void *, 
-                            const char *, int, void *, int, int);
+                            const char *, int, void *, int, int, gsnRes);
 
 extern int gsn_xy_wrap(int, void *, void *, const char *,
 					   const char *, int, int *, int, int *, int, int,
-					   void *, void *, int, int, int);
+					   void *, void *, int, int, int, gsnRes);
 
 extern int gsn_vector_wrap(int, void *, void *, const char *, 
                            const char *, int, int, int, void *, 
                            const char *, int, void *, const char *, int,
-                           int, void *, void *, int, int);
+                           int, void *, void *, int, int, gsnRes);
 
 extern int gsn_streamline_wrap(int, void *, void *, const char *, 
                                const char *, int, int, int, void *, 
                                const char *, int, void *, const char *, 
-                               int, int, void *, void *, int, int);
+                               int, int, void *, void *, int, int, gsnRes);
 
-extern int gsn_map_wrap(int, int);
+extern int gsn_map_wrap(int, int, gsnRes);
 
 extern int gsn_contour_map_wrap(int, void *, const char *, int, int, 
                                 int, void *, const char *, int, void *, 
-                                const char *, int, void *, int, int, int);
+                                const char *, int, void *, int, int, int,
+								gsnRes);
+
+extern int gsn_vector_map_wrap(int, void *, void *, const char *, 
+                           const char *, int, int, int, void *, 
+                           const char *, int, void *, const char *, int,
+                           int, void *, void *, int, int, int, gsnRes);
+
+extern int gsn_streamline_map_wrap(int, void *, void *, const char *, 
+								   const char *, int, int, int, void *, 
+								   const char *, int, void *, const char *, 
+								   int, int, void *, void *, int, int,
+								   int, gsnRes);
+
+int gsn_vector_scalar_wrap(int, void *, void *, void *, const char *, 
+						   const char *, const char *, int, int, int, 
+						   void *, const char *, int, void *, 
+						   const char *, int, int, int, void *, 
+						   void *, void *, int, int, int, gsnRes);
+
+int gsn_vector_scalar_map_wrap(int, void *, void *, void *, const char *, 
+							   const char *, const char *, int, int, int, 
+							   void *, const char *, int, void *, 
+							   const char *, int, int, int, void *, 
+							   void *, void *, int, int, int, int, gsnRes);
