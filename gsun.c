@@ -1016,7 +1016,8 @@ int scalar_field(void *data, const char *type_data, int ylen, int xlen,
 
 /*
  * This function creates a coord arrays object that will get
- * used with the XY object.
+ * used with the XY object. Note that X and or Y can be 1 or
+ * 2-dimensional, but they must match in the rightmost dimension.
  */
 
 int coord_array(void *x, void *y, const char *type_x, const char *type_y, 
@@ -1589,7 +1590,6 @@ int gsn_contour_map_wrap(int wks, void *data, const char *type,
                              is_ycoord, ycoord, ycoord_type,
                              is_xcoord, xcoord, xcoord_type,
                              is_missing, FillValue, sf_rlist, cn_rlist);
-
 
 /*
  * Create map plot.
