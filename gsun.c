@@ -384,14 +384,14 @@ void maximize_plot(int wks, nglPlotId *plot, int nplots, int ispanel,
   float top, bot, lft, rgt, uw, uh;
   float scale, vpx, vpy, vpw, vph, dx, dy, new_uw, new_uh, new_ux, new_uy;
   float new_vpx, new_vpy, new_vpw, new_vph, margin = 0.02;
-  int srlist, gr_list, *coords;
+  int srlist, grlist, *coords;
 
 /*
  * Initialize setting and retrieving resource lists.
  */
   srlist = NhlRLCreate(NhlSETRL);
-  gr_list = NhlRLCreate(NhlGETRL);
-  NhlRLClear(gr_list);
+  grlist = NhlRLCreate(NhlGETRL);
+  NhlRLClear(grlist);
 
 /*
  * If dealing with paneled plots, then this means that the
@@ -428,11 +428,11 @@ void maximize_plot(int wks, nglPlotId *plot, int nplots, int ispanel,
  * Get the viewport.
  */
 
-    NhlRLGetFloat(gr_list,"vpXF",     &vpx);
-    NhlRLGetFloat(gr_list,"vpYF",     &vpy);
-    NhlRLGetFloat(gr_list,"vpWidthF", &vpw);
-    NhlRLGetFloat(gr_list,"vpHeightF",&vph);
-    (void)NhlGetValues(*(plot[0].base), gr_list);
+    NhlRLGetFloat(grlist,"vpXF",     &vpx);
+    NhlRLGetFloat(grlist,"vpYF",     &vpy);
+    NhlRLGetFloat(grlist,"vpWidthF", &vpw);
+    NhlRLGetFloat(grlist,"vpHeightF",&vph);
+    (void)NhlGetValues(*(plot[0].base), grlist);
 
 /* 
  * Calculate distance from plot's left position to its leftmost
@@ -500,27 +500,27 @@ void maximize_plot(int wks, nglPlotId *plot, int nplots, int ispanel,
 void spread_colors(int wks, int plot, int min_index, int max_index, 
                    char *get_resname, char *set_resname, int debug)
 {
-  int i, ncols, lcount, *icols, minix, maxix, reverse, gr_list, srlist, itmp;
+  int i, ncols, lcount, *icols, minix, maxix, reverse, grlist, srlist, itmp;
   float fmin, fmax, *fcols;
 
   srlist = NhlRLCreate(NhlSETRL);
-  gr_list = NhlRLCreate(NhlGETRL);
+  grlist = NhlRLCreate(NhlGETRL);
 
 /*
  * Get number of colors in color map so we know how much
  * to spread the colors.
  */
-  NhlRLClear(gr_list);
-  NhlRLGetInteger(gr_list,"wkColorMapLen", &ncols);
-  NhlGetValues(wks,gr_list);
+  NhlRLClear(grlist);
+  NhlRLGetInteger(grlist,"wkColorMapLen", &ncols);
+  NhlGetValues(wks,grlist);
 
 /*
  * Retrieve the appropriate resource that will be used to
  * determine how many fill colors we need.
  */
-  NhlRLClear(gr_list);
-  NhlRLGetInteger(gr_list,get_resname,&lcount);
-  NhlGetValues(plot,gr_list);
+  NhlRLClear(grlist);
+  NhlRLGetInteger(grlist,get_resname,&lcount);
+  NhlGetValues(plot,grlist);
 
 /*
  * -1 indicates that min/max_index should be set equal to ncols - 1
@@ -600,24 +600,24 @@ void spread_colors(int wks, int plot, int min_index, int max_index,
 
 void scale_plot(int plot)
 {
-  int srlist, gr_list;
+  int srlist, grlist;
   float xfont, yfont, xbfont, ylfont;
   float xlength, ylength, xmlength, ymlength;
   float major_length, minor_length;
 
   srlist = NhlRLCreate(NhlSETRL);
-  gr_list = NhlRLCreate(NhlGETRL);
+  grlist = NhlRLCreate(NhlGETRL);
 
-  NhlRLClear(gr_list);
-  NhlRLGetFloat(gr_list,"tiXAxisFontHeightF",    &xfont);
-  NhlRLGetFloat(gr_list,"tiYAxisFontHeightF",    &yfont);
-  NhlRLGetFloat(gr_list,"tmXBLabelFontHeightF",  &xbfont);
-  NhlRLGetFloat(gr_list,"tmXBMajorLengthF",      &xlength);
-  NhlRLGetFloat(gr_list,"tmXBMinorLengthF",      &xmlength);
-  NhlRLGetFloat(gr_list,"tmYLLabelFontHeightF",  &ylfont);
-  NhlRLGetFloat(gr_list,"tmYLMajorLengthF",      &ylength);
-  NhlRLGetFloat(gr_list,"tmYLMinorLengthF",      &ymlength);
-  NhlGetValues(plot,gr_list);
+  NhlRLClear(grlist);
+  NhlRLGetFloat(grlist,"tiXAxisFontHeightF",    &xfont);
+  NhlRLGetFloat(grlist,"tiYAxisFontHeightF",    &yfont);
+  NhlRLGetFloat(grlist,"tmXBLabelFontHeightF",  &xbfont);
+  NhlRLGetFloat(grlist,"tmXBMajorLengthF",      &xlength);
+  NhlRLGetFloat(grlist,"tmXBMinorLengthF",      &xmlength);
+  NhlRLGetFloat(grlist,"tmYLLabelFontHeightF",  &ylfont);
+  NhlRLGetFloat(grlist,"tmYLMajorLengthF",      &ylength);
+  NhlRLGetFloat(grlist,"tmYLMinorLengthF",      &ymlength);
+  NhlGetValues(plot,grlist);
 
   if(xlength != 0. && ylength != 0.) {
     major_length = (ylength+xlength)/2.;
@@ -1277,21 +1277,21 @@ int ngl_open_wks_wrap(const char *type, const char *name, ResInfo *wk_res)
     NhlRLSetString(wk_rlist,"wkPDFFileName",filename);
     NhlCreate(&wks,"pdf",NhlpdfWorkstationClass,NhlDEFAULT_APP,wk_rlist);
   }
-  else if(!strcmp(type,"png") || !strcmp(type,"PNG")) {
 /*
  * Generate PNG file name.
+ * Not yet available.
  */
+/*
+  else if(!strcmp(type,"png") || !strcmp(type,"PNG")) {
     len      = strlen(name);
     filename = (char *)calloc(len+1,sizeof(char));
     strncpy(filename,name,len);
     filename[len] = '\0';
-/*
- * Create a PNG workstation.
- */
     NhlRLSetString(wk_rlist,"wkImageFileName",filename);
     NhlRLSetString(wk_rlist,"wkImageFormat","png");
     NhlCreate(&wks,"png",NhlimageWorkstationClass,NhlDEFAULT_APP,wk_rlist);
   }
+ */
   else {
     NhlPError(NhlWARNING,NhlEUNKNOWN,"spread_colors: Invalid workstation type, must be 'x11', 'ncgm', 'ps', 'png', or 'pdf'\n");
   }
@@ -1399,7 +1399,7 @@ nglPlotId ngl_xy_wrap(int wks, void *x, void *y, const char *type_x,
                       ResInfo *ca_res, ResInfo *xy_res, ResInfo *xyd_res,
                       nglRes *special_res)
 {
-  int cafield, xy, gr_list, num_dspec, *xyds;
+  int cafield, xy, grlist, num_dspec, *xyds;
   nglPlotId plot;
   int ca_rlist, xy_rlist, xyd_rlist;
 
@@ -1436,10 +1436,10 @@ nglPlotId ngl_xy_wrap(int wks, void *x, void *y, const char *type_x,
  * set some of the XY resources, like line color, thickness, dash
  * patterns, etc. 
  */
-  gr_list = NhlRLCreate(NhlGETRL);
-  NhlRLClear(gr_list);
-  NhlRLGetIntegerArray(gr_list,"xyCoordDataSpec",&xyds,&num_dspec);
-  NhlGetValues(xy,gr_list);
+  grlist = NhlRLCreate(NhlGETRL);
+  NhlRLClear(grlist);
+  NhlRLGetIntegerArray(grlist,"xyCoordDataSpec",&xyds,&num_dspec);
+  NhlGetValues(xy,grlist);
 
 /*
  * Now apply the data spec resources.
@@ -2241,7 +2241,7 @@ void ngl_poly_wrap(int wks, nglPlotId *plot, void *x, void *y,
                    nglRes *special_res)
 {
   int i, gsid, newlen, *indices, ibeg, iend, nlines, color;
-  int srlist, gr_list;
+  int srlist, grlist;
   float *xf, *yf, *xfnew, *yfnew, *xfmsg, *yfmsg;
   int gs_rlist;
 
@@ -2317,10 +2317,10 @@ void ngl_poly_wrap(int wks, nglPlotId *plot, void *x, void *y,
  */
         if(iend == ibeg) {
           srlist = NhlRLCreate(NhlSETRL);
-          gr_list = NhlRLCreate(NhlGETRL);
-          NhlRLClear(gr_list);
-          NhlRLGetInteger(gr_list,"gsLineColor",&color);
-          NhlGetValues(gsid,gr_list);
+          grlist = NhlRLCreate(NhlGETRL);
+          NhlRLClear(grlist);
+          NhlRLGetInteger(grlist,"gsLineColor",&color);
+          NhlGetValues(gsid,grlist);
           
           NhlRLClear(srlist);
           NhlRLSetInteger(srlist,"gsMarkerColor",color);
@@ -2381,7 +2381,7 @@ nglPlotId ngl_add_poly_wrap(int wks, nglPlotId *plot, void *x, void *y,
                             NhlPolyType polytype, ResInfo *gs_res, 
                             nglRes *special_res)
 {
-  int *primitive_object, gsid, pr_rlist, gr_list;
+  int *primitive_object, gsid, pr_rlist, grlist;
   int i, newlen, *indices, nlines, npoly, ibeg, iend, npts;
   float *xf, *yf, *xfnew, *yfnew, *xfmsg, *yfmsg;
   char *astring;
@@ -2729,7 +2729,7 @@ nglPlotId ngl_add_text_wrap(int wks, nglPlotId *plot, char *string, void *x,
                             ResInfo *tx_res, ResInfo *am_res,
                             nglRes *special_res)
 {
-  int i, srlist, gr_list, text, just;
+  int i, srlist, grlist, text, just;
   int *anno_views, *anno_mgrs, *new_anno_views, num_annos;
   float *xf, *yf;
   nglPlotId annos;
@@ -2752,10 +2752,10 @@ nglPlotId ngl_add_text_wrap(int wks, nglPlotId *plot, char *string, void *x,
  * Get current list of annotations already attached to the plot.
  */
 
-  gr_list = NhlRLCreate(NhlGETRL);
-  NhlRLClear(gr_list);
-  NhlRLGetIntegerArray(gr_list,"pmAnnoViews",&anno_views,&num_annos);
-  NhlGetValues(*(plot->base),gr_list);
+  grlist = NhlRLCreate(NhlGETRL);
+  NhlRLClear(grlist);
+  NhlRLGetIntegerArray(grlist,"pmAnnoViews",&anno_views,&num_annos);
+  NhlGetValues(*(plot->base),grlist);
 
 /*
  * Make sure the new text string is first in the list of annotations,
@@ -2794,19 +2794,19 @@ nglPlotId ngl_add_text_wrap(int wks, nglPlotId *plot, char *string, void *x,
  * PlotManager.
  */
 
-  gr_list = NhlRLCreate(NhlGETRL);
-  NhlRLClear(gr_list);
-  NhlRLGetIntegerArray(gr_list,"pmAnnoManagers",&anno_mgrs,&num_annos);
-  NhlGetValues(*(plot->base),gr_list);
+  grlist = NhlRLCreate(NhlGETRL);
+  NhlRLClear(grlist);
+  NhlRLGetIntegerArray(grlist,"pmAnnoManagers",&anno_mgrs,&num_annos);
+  NhlGetValues(*(plot->base),grlist);
 
 /*
  * Get the text justification and use it for the anno justification.
  */
 
-  gr_list = NhlRLCreate(NhlGETRL);
-  NhlRLClear(gr_list);
-  NhlRLGetInteger(gr_list,"txJust",&just);
-  NhlGetValues(text,gr_list);
+  grlist = NhlRLCreate(NhlGETRL);
+  NhlRLClear(grlist);
+  NhlRLGetInteger(grlist,"txJust",&just);
+  NhlGetValues(text,grlist);
 
 /*
  * Convert x and y to float.
@@ -2849,7 +2849,7 @@ nglPlotId ngl_add_text_wrap(int wks, nglPlotId *plot, char *string, void *x,
 void ngl_draw_colormap_wrap(int wks)
 {
   int i, j, k, ii, jj, ibox, nrows, ncols, ncolors, maxcols, ntotal, offset;
-  int gr_list, sr_list, tx_rlist, ln_rlist, gn_rlist;
+  int grlist, sr_list, tx_rlist, ln_rlist, gn_rlist;
   int reset_colormap, cmap_ndims, *cmap_dimsizes;
   float width, height, *xpos, *ypos, xbox[5], ybox[4], xbox2[5], ybox2[5];
   float txpos, typos;
@@ -2872,16 +2872,16 @@ void ngl_draw_colormap_wrap(int wks)
 /*
  * Set up generic lists for retrieving and setting resources.
  */
-  gr_list = NhlRLCreate(NhlGETRL);
+  grlist = NhlRLCreate(NhlGETRL);
   sr_list = NhlRLCreate(NhlSETRL);
 
 /*
  * Get # of colors in color map.
  */
 
-  NhlRLClear(gr_list);
-  NhlRLGetInteger(gr_list,"wkColorMapLen",&ncolors);
-  NhlGetValues(wks,gr_list);
+  NhlRLClear(grlist);
+  NhlRLGetInteger(grlist,"wkColorMapLen",&ncolors);
+  NhlGetValues(wks,grlist);
 
 /*
  * Figure out ncols such that the columns will span across the page.
@@ -2906,10 +2906,10 @@ void ngl_draw_colormap_wrap(int wks)
 /*
  * Get current color map.
  */
-    NhlRLClear(gr_list);
-    NhlRLGetMDFloatArray(gr_list,"wkColorMap",&cmap,&cmap_ndims,
+    NhlRLClear(grlist);
+    NhlRLGetMDFloatArray(grlist,"wkColorMap",&cmap,&cmap_ndims,
                          &cmap_dimsizes);
-    NhlGetValues(wks,gr_list);
+    NhlGetValues(wks,grlist);
 
 /*
  * If we haven't used the full colormap, then we can add 1 or 2 more
@@ -3116,7 +3116,7 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
   float min_xpos, max_xpos, min_ypos, max_ypos;
   float scaled_width, scaled_height, xrange, yrange;
   float scale, row_scale, col_scale, max_width, max_height;
-  int gr_list, sr_list;
+  int grlist, sr_list;
   NhlBoundingBox bb, *newbb;
   int lb_rlist, fs_rlist;
 
@@ -3130,7 +3130,7 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
  * Resource lists for getting and retrieving resources.
  */
 
-  gr_list = NhlRLCreate(NhlGETRL);
+  grlist = NhlRLCreate(NhlGETRL);
   sr_list = NhlRLCreate(NhlSETRL);
 
 /*
@@ -3371,23 +3371,23 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
  * Get information on how contour plot is filled, so we can recreate 
  * labelbar, if requested.
  */
-      NhlRLClear(gr_list);
-      NhlRLGetFloat(gr_list,   "cnInfoLabelFontHeightF", &font_height);
-      NhlRLGetInteger(gr_list, "cnFillOn",               &fill_on);
-      (void)NhlGetValues(*(plots[valid_plot].contour), gr_list);
+      NhlRLClear(grlist);
+      NhlRLGetFloat(grlist,   "cnInfoLabelFontHeightF", &font_height);
+      NhlRLGetInteger(grlist, "cnFillOn",               &fill_on);
+      (void)NhlGetValues(*(plots[valid_plot].contour), grlist);
 
       if(panel_labelbar) {
         if(fill_on) {
-          NhlRLClear(gr_list);
-          NhlRLGetIntegerArray(gr_list, "cnFillColors",      &colors, &ncolors);
-          NhlRLGetIntegerArray(gr_list, "cnFillPatterns",    &patterns,
+          NhlRLClear(grlist);
+          NhlRLGetIntegerArray(grlist, "cnFillColors",      &colors, &ncolors);
+          NhlRLGetIntegerArray(grlist, "cnFillPatterns",    &patterns,
                                &npatterns);
-          NhlRLGetFloatArray(gr_list,   "cnFillScales",      &scales, &nscales);
-          NhlRLGetInteger(gr_list,      "cnMonoFillPattern", &mono_fill_pat);
-          NhlRLGetInteger(gr_list,      "cnMonoFillScale",   &mono_fill_scl);
-          NhlRLGetInteger(gr_list,      "cnMonoFillColor",   &mono_fill_col);
-          NhlRLGetFloatArray(gr_list,   "cnLevels",          &levels, &nlevels);
-          (void)NhlGetValues(*(plots[valid_plot].contour), gr_list);
+          NhlRLGetFloatArray(grlist,   "cnFillScales",      &scales, &nscales);
+          NhlRLGetInteger(grlist,      "cnMonoFillPattern", &mono_fill_pat);
+          NhlRLGetInteger(grlist,      "cnMonoFillScale",   &mono_fill_scl);
+          NhlRLGetInteger(grlist,      "cnMonoFillColor",   &mono_fill_col);
+          NhlRLGetFloatArray(grlist,   "cnLevels",          &levels, &nlevels);
+          (void)NhlGetValues(*(plots[valid_plot].contour), grlist);
         }
         else {
           panel_labelbar = 0;
@@ -3406,13 +3406,13 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
  *  vcGlyphStyle   = (LineArrows || CurlyVector) 
  *                 && vcMonoLineArrowColor     = False
  */
-      NhlRLClear(gr_list);
-      NhlRLGetFloat(gr_list,  "vcRefAnnoFontHeightF",     &font_height);
-      NhlRLGetInteger(gr_list,"vcGlyphStyle",             &glyph_style);
-      NhlRLGetInteger(gr_list,"vcFillArrowsOn",           &fill_arrows_on);
-      NhlRLGetInteger(gr_list,"vcMonoLineArrowColor",     &mono_line_color);
-      NhlRLGetInteger(gr_list,"vcMonoFillArrowFillColor", &mono_fill_arrow);
-      (void)NhlGetValues(*(plots[valid_plot].vector), gr_list);
+      NhlRLClear(grlist);
+      NhlRLGetFloat(grlist,  "vcRefAnnoFontHeightF",     &font_height);
+      NhlRLGetInteger(grlist,"vcGlyphStyle",             &glyph_style);
+      NhlRLGetInteger(grlist,"vcFillArrowsOn",           &fill_arrows_on);
+      NhlRLGetInteger(grlist,"vcMonoLineArrowColor",     &mono_line_color);
+      NhlRLGetInteger(grlist,"vcMonoFillArrowFillColor", &mono_fill_arrow);
+      (void)NhlGetValues(*(plots[valid_plot].vector), grlist);
 
       if(panel_labelbar) {
         if((fill_arrows_on && !mono_fill_arrow) || 
@@ -3426,10 +3426,10 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
           mono_fill_pat = 1;
           mono_fill_scl = 1;
           mono_fill_col = 0;
-          NhlRLClear(gr_list);
-          NhlRLGetFloatArray(gr_list,   "vcLevels",      &levels, &nlevels);
-          NhlRLGetIntegerArray(gr_list, "vcLevelColors", &colors, &ncolors );
-          (void)NhlGetValues(*(plots[valid_plot].vector), gr_list);
+          NhlRLClear(grlist);
+          NhlRLGetFloatArray(grlist,   "vcLevels",      &levels, &nlevels);
+          NhlRLGetIntegerArray(grlist, "vcLevelColors", &colors, &ncolors );
+          (void)NhlGetValues(*(plots[valid_plot].vector), grlist);
         }
         else {
           panel_labelbar = 0;
@@ -3442,9 +3442,9 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
 /*
  * Retrieve this resource later, *after* the plots have been rescaled.
  */
-      NhlRLClear(gr_list);
-      NhlRLGetFloat(gr_list, "tiXAxisFontHeightF", &font_height);
-      (void)NhlGetValues(*(plots[valid_plot].xy), gr_list);
+      NhlRLClear(grlist);
+      NhlRLGetFloat(grlist, "tiXAxisFontHeightF", &font_height);
+      (void)NhlGetValues(*(plots[valid_plot].xy), grlist);
       font_height *= 0.6;
     }
     else {
@@ -3639,12 +3639,12 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
  * viewport sizes from, because some users knowingly make the first
  * plot larger, and go ahead and panel them anyway.
  */
-  NhlRLClear(gr_list);
-  NhlRLGetFloat(gr_list,"vpXF",     &vpx);
-  NhlRLGetFloat(gr_list,"vpYF",     &vpy);
-  NhlRLGetFloat(gr_list,"vpWidthF", &vpw);
-  NhlRLGetFloat(gr_list,"vpHeightF",&vph);
-  (void)NhlGetValues(*(plots[valid_plot].base), gr_list);
+  NhlRLClear(grlist);
+  NhlRLGetFloat(grlist,"vpXF",     &vpx);
+  NhlRLGetFloat(grlist,"vpYF",     &vpy);
+  NhlRLGetFloat(grlist,"vpWidthF", &vpw);
+  NhlRLGetFloat(grlist,"vpHeightF",&vph);
+  (void)NhlGetValues(*(plots[valid_plot].base), grlist);
   
 /*
  * Calculate distances from plot's left/right/top/bottom positions
@@ -3752,12 +3752,12 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
  * Get the size of the plot so we can rescale it. Technically, each
  * plot should be the exact same size, but we can't assume that.
  */
-        NhlRLClear(gr_list);
-        NhlRLGetFloat(gr_list,"vpXF",     &old_vp[nplot4]);
-        NhlRLGetFloat(gr_list,"vpYF",     &old_vp[nplot4+1]);
-        NhlRLGetFloat(gr_list,"vpWidthF", &old_vp[nplot4+2]);
-        NhlRLGetFloat(gr_list,"vpHeightF",&old_vp[nplot4+3]);
-        (void)NhlGetValues(*(pplot.base), gr_list);
+        NhlRLClear(grlist);
+        NhlRLGetFloat(grlist,"vpXF",     &old_vp[nplot4]);
+        NhlRLGetFloat(grlist,"vpYF",     &old_vp[nplot4+1]);
+        NhlRLGetFloat(grlist,"vpWidthF", &old_vp[nplot4+2]);
+        NhlRLGetFloat(grlist,"vpHeightF",&old_vp[nplot4+3]);
+        (void)NhlGetValues(*(pplot.base), grlist);
         
         if(panel_debug) {
           printf("-------Panel viewport values for each plot-------\n");
@@ -4034,12 +4034,12 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
  * that we can calculate the distances between the viewport
  * coordinates and the edges of the bounding boxes.
  */
-      NhlRLClear(gr_list);
-      NhlRLGetFloat(gr_list,"vpXF",      &vpx);
-      NhlRLGetFloat(gr_list,"vpYF",      &vpy);
-      NhlRLGetFloat(gr_list,"vpWidthF",  &vpw);
-      NhlRLGetFloat(gr_list,"vpHeightF", &vph);
-      (void)NhlGetValues(*(newplots[i].base), gr_list);
+      NhlRLClear(grlist);
+      NhlRLGetFloat(grlist,"vpXF",      &vpx);
+      NhlRLGetFloat(grlist,"vpYF",      &vpy);
+      NhlRLGetFloat(grlist,"vpWidthF",  &vpw);
+      NhlRLGetFloat(grlist,"vpHeightF", &vph);
+      (void)NhlGetValues(*(newplots[i].base), grlist);
       dxl = vpx-newbb[i].l;
       dxr = newbb[i].r-(vpx+vpw);
       dyt = (newbb[i].t-vpy);
