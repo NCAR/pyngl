@@ -10,6 +10,29 @@ const char *polylinestr = "polyline";
   
 
 /*
+ * This function creates npts values from start to end.
+ */
+float *fspan(float start, float end, int npts)
+{
+  int i;
+  float spacing, *ret_val;
+  
+  ret_val = (float *)malloc(npts*sizeof(float));
+  spacing = (end - start) / (npts - 1);
+  for (i = 0; i < npts; i++) {
+    ret_val[i] = start + (i * spacing);
+  }
+/*
+ * Make sure first and last points are exactly start and end.
+ */
+  ret_val[0]      = start;
+  ret_val[npts-1] = end;
+
+  return(ret_val);
+}
+
+
+/*
  * This function computes the PostScript device coordinates needed to
  * make a plot fill up the full page.
  *
@@ -728,7 +751,7 @@ int vector_field(void *u, void *v, const char *type_u, const char *type_v,
  * and to open a workstation.
  */
 
-int gsn_open_wks(const char *type, const char *name, int wk_rlist)
+int gsn_open_wks_wrap(const char *type, const char *name, int wk_rlist)
 {
   int wks, len;
   char *filename = (char *) NULL;
@@ -1991,3 +2014,234 @@ int gsn_add_text_wrap(int wks, int plot, char *string, void *x, void *y,
 
 }
 
+
+/*
+ * Routine for drawing the current color map. This is mostly for
+ * debugging purposes.
+ */
+void gsn_draw_colormap_wrap(int wks)
+{
+  int i, j, k, ii, jj, ibox, nrows, ncols, ncolors, maxcols, ntotal, offset;
+  int grlist, srlist, txrlist, lnrlist, gnrlist;
+  int reset_colormap, cmap_ndims, *cmap_dimsizes;
+  float width, height, *xpos, *ypos, xbox[5], ybox[4], xbox2[5], ybox2[5];
+  float txpos, typos;
+  float *cmap, *cmapnew, font_height, font_space;
+  char tmpstr[5];
+  gsnRes special_res2;
+
+/*
+ * Initialize special_res2.
+ */
+  special_res2.gsnDraw     = 1;
+  special_res2.gsnFrame    = 0;
+  special_res2.gsnMaximize = 0;
+  special_res2.gsnDebug    = 0;
+
+  nrows   = 16;                   /* # of rows of colors per page. */
+  maxcols = 256;                  /* max # of colors per color table. */
+
+/*
+ * Set up generic lists for retrieving and setting resources.
+ */
+  grlist = NhlRLCreate(NhlGETRL);
+  srlist = NhlRLCreate(NhlSETRL);
+
+/*
+ * Get # of colors in color map.
+ */
+
+  NhlRLClear(grlist);
+  NhlRLGetInteger(grlist,"wkColorMapLen",&ncolors);
+  NhlGetValues(wks,grlist);
+
+/*
+ * Figure out ncols such that the columns will span across the page.
+ * Or, just set ncols to 16, which is big enough to cover the largest
+ * possible color map.
+ */
+  ncols = ncolors/nrows;
+  if((ncols*nrows) < ncolors) {
+    ncols++;
+  }
+
+  ntotal = nrows * ncols;        /* # of colors per page. */
+
+/*
+ * If the number of colors in our color map is less than the allowed
+ * maximum, then this gives us room to add a white background and/or a
+ * black foreground.
+ */
+  reset_colormap = 0;
+  if(ncolors < maxcols) {
+    reset_colormap = 1;
+/*
+ * Get current color map.
+ */
+    NhlRLClear(grlist);
+    NhlRLGetMDFloatArray(grlist,"wkColorMap",&cmap,&cmap_ndims,
+                         &cmap_dimsizes);
+    NhlGetValues(wks,grlist);
+
+/*
+ * If we haven't used the full colormap, then we can add 1 or 2 more
+ * colors to 1) force the background to be white (it looks better this
+ * way), and to 2) force the foreground to be black (for text). 
+ */
+    if(ncolors < (maxcols-1)) {
+      offset = 2;
+      cmapnew = (float *)malloc(3*(ncolors+2)*sizeof(float));
+      cmapnew[0] = cmapnew[1] = cmapnew[2] = 1.;   /* white bkgrnd */
+      cmapnew[3] = cmapnew[4] = cmapnew[5] = 0.;   /* black frgrnd */
+      cmap_dimsizes[0] = ncolors+2;
+      memcpy((void *)&cmapnew[6],(const void *)cmap,ncolors*3*sizeof(float));
+    }
+    else {
+      offset = 1;
+      cmapnew = (float *)malloc(3*(ncolors+1)*sizeof(float));
+      cmapnew[0] = cmapnew[1] = cmapnew[2] = 1.;   /* white bkgrnd */
+      cmap_dimsizes[0] = ncolors+1;
+      memcpy((void *)&cmapnew[3],(const void *)cmap,ncolors*3*sizeof(float));
+    }
+
+/*
+ * Set new color map in the workstation.
+ */
+    NhlRLClear(srlist);
+    NhlRLSetMDFloatArray(srlist,"wkColorMap",&cmapnew[0],2,cmap_dimsizes);
+    NhlSetValues(wks,srlist);
+    free(cmapnew);
+  }
+  else {
+/* 
+ * The full 256 colors are being used, so we can't add anymore colors. 
+ */
+    offset = 0;
+  }
+
+/*
+ * Calculate width/height of each color box, and the X and Y positions
+ * of text and box in the view port.
+ */
+  width  = 1./ncols;
+  height = 1./nrows;
+  xpos   = fspan(0.,1.-width,ncols);
+  ypos   = fspan(1.-height,0.,nrows);
+
+/*
+ * Box coordinates.
+ */
+  xbox[0] = xbox[3] = xbox[4] = 0.;
+  xbox[1] = xbox[2] = width;
+  ybox[0] = ybox[1] = ybox[4] = 0.;
+  ybox[2] = ybox[3] = height;
+
+/*
+ * Values for text placement and size. 
+ */
+  font_height = 0.015;
+  font_space  = font_height/2.;
+
+/*
+ * Initialize some resource lists for text, polygons, and polylines.
+ */
+  txrlist = NhlRLCreate(NhlSETRL);
+  lnrlist = NhlRLCreate(NhlSETRL);
+  gnrlist = NhlRLCreate(NhlSETRL);
+
+/*
+ * Set some text resources. 
+ */
+  NhlRLClear(txrlist);
+  NhlRLSetFloat (txrlist, "txFontHeightF",         font_height);
+  NhlRLSetString(txrlist, "txFont",                "helvetica-bold");
+  NhlRLSetString(txrlist, "txJust",                "BottomLeft");
+  NhlRLSetString(txrlist, "txPerimOn",             "True");
+  NhlRLSetString(txrlist, "txPerimColor",          "black");
+  NhlRLSetString(txrlist, "txFontColor",           "black");
+  NhlRLSetString(txrlist, "txBackgroundFillColor", "white");
+
+/*
+ * Set some line resources for outlining the color boxes.
+ **/
+  NhlRLClear(lnrlist);
+  NhlRLSetString(lnrlist,"gsLineColor","black");
+
+/*
+ * Clear the resource lines for the polygon.  The resources will
+ * be set inside the loop below.
+ */
+  NhlRLClear(gnrlist);
+
+/*
+ * ntotal colors per page.
+ */
+  for(k = 1; k <= ncolors; k += ntotal) {
+
+/*
+ * Loop through rows.
+ */
+    jj = 0;
+    for(j = k; j <= min(k+ntotal-1,ncolors); j += nrows) {
+
+/*
+ * Initialize row values for text and box positions.
+ */
+      txpos = font_space + xpos[jj];
+      for( ibox = 0; ibox <= 4; ibox++) {
+        xbox2[ibox] = xbox[ibox] + xpos[jj];
+      }
+
+/*
+ * Loop through columns.
+ */
+      ii = 0;
+      for(i = j; i <= min(j+nrows-1,ncolors); i++) {
+
+/*
+ * Initialize row values for text and box positions.
+ */
+        typos = font_space + ypos[ii];
+        for( ibox = 0; ibox <= 4; ibox++) {
+          ybox2[ibox] = ybox[ibox] + ypos[ii];
+        }
+
+/*
+ * Set the color for the box and draw box it.
+ */
+        NhlRLSetInteger(gnrlist,"gsFillColor", offset + (i-1));
+                                                                    
+        gsn_polygon_ndc_wrap(wks, xbox2, ybox2, "float","float", 5,
+                             0, 0, NULL, NULL, gnrlist, &special_res2);
+/*
+ * Outline box in black.
+ */
+        gsn_polyline_ndc_wrap(wks, xbox2, ybox2, "float","float", 5,
+                              0, 0, NULL, NULL, lnrlist, &special_res2);
+/*
+ * Draw text string indicating color index value.
+ */
+        sprintf(tmpstr,"%d",i-1);
+        gsn_text_ndc_wrap(wks, tmpstr, &txpos, &typos, "float", "float",
+                          txrlist, &special_res2);
+        ii++;
+      }
+      jj++; 
+    }
+/*
+ * Advance the frame.
+ */
+    NhlFrame(wks);
+  }
+
+/*
+ * Put the original color map back.
+ */
+  if(reset_colormap) {
+    cmap_dimsizes[0] = ncolors;
+    NhlRLClear(srlist);
+    NhlRLSetMDFloatArray(srlist,"wkColorMap",&cmap[0],2,cmap_dimsizes);
+    NhlSetValues(wks,srlist);
+    free(cmap);
+  }
+}

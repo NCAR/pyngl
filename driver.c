@@ -6,8 +6,34 @@
 #define NCOLORS 17
 #define min(x,y) ((x) < (y) ? (x) : (y))
 #define max(x,y) ((x) > (y) ? (x) : (y))
-
 #define NG  5
+
+#define NCOLORMAPS 68
+
+char *colormaps[NCOLORMAPS] = { \
+                          "3gauss",  "3saw", "BkBlAqGrYeOrReViWh200",  \
+                          "BkBlAqGrYeOrReViWh200", "BlAqGrYeOrRe", \
+                          "BlAqGrYeOrRe",  "BlAqGrYeOrReVi200", \
+                          "BlAqGrYeOrReVi200",  "BlGrYeOrReVi200", \
+                          "BlGrYeOrReVi200",  "BlRe",  "BlWhRe", \
+                          "BlWhRe",  "BlueRed",  "BlueRedGray", \
+                          "GreenYellow",  "ViBlGrWhYeOrRe", \
+                          "ViBlGrWhYeOrRe",  "WhBlGrYeRe", \
+                          "WhBlGrYeRe",  "WhBlReWh", "WhViBlGrYeOrRe", \
+                          "WhViBlGrYeOrRe", "WhViBlGrYeOrReWh", \
+                          "WhViBlGrYeOrReWh", "amwg", "cosam", "cosam12", \
+                          "cyclic", "default", "detail", "example", \
+                          "extrema", "gscyclic", "gsltod", "gsdtol", \
+                          "gui_default", "helix",  "helix1", \
+                          "hlu_default", "hotres","ncview_default", \
+                          "nrl_sirkes", "psgcap", "rainbow+gray", \
+                          "rainbow+white+gray","rainbow+white", \
+                          "rainbow",  "so4_21", "so4_23",  "tbrAvg1", \
+                          "tbrStd1", "tbrStd1",  "tbrVar1",  "tbrVar1", \
+                          "tbr_240-300",  "tbr_240-300", "tbr_stdev_0-30", \
+                          "tbr_stdev_0-30", "tbr_var_0-500", \
+                          "tbr_var_0-500", "temp1", "testcmap", "thelix", \
+                          "uniform", "wgne15", "wh-bl-gr-ye-re", "wxpEnIR"}; 
 
 /*
  * The type is being mixed here (double & float) for testing
@@ -55,7 +81,7 @@ main()
 /*
  * Declare variables for determining which plots to draw.
  */
-  int do_contour, do_xy_single, do_xy_multi, do_y, do_vector;
+  int do_colormaps, do_contour, do_xy_single, do_xy_multi, do_y, do_vector;
   int do_streamline, do_map, do_contour_map, do_contour_map2, do_vector_map;
   int do_streamline_map, do_vector_scalar, do_vector_scalar_map;
 
@@ -689,9 +715,10 @@ main()
 /*
  * Initialize which plots to draw.
  */
+  do_colormaps         = 1;
   do_contour           = 0;
   do_xy_single         = 0;
-  do_xy_multi          = 1;
+  do_xy_multi          = 0;
   do_y                 = 0;
   do_vector            = 0;
   do_streamline        = 0;
@@ -729,14 +756,26 @@ main()
  */
 
   wk_rlist = NhlRLCreate(NhlSETRL);
-  NhlRLClear(wk_rlist);
+  wks = gsn_open_wks_wrap("ncgm","test", wk_rlist);
 
 /* 
  * Set color map resource and open workstation.
  */
 
-  NhlRLSetString(wk_rlist,"wkColorMap","rainbow+gray");
-  wks = gsn_open_wks("x11","test", wk_rlist);
+  if(do_colormaps) {
+    for(i = 0; i < NCOLORMAPS; i++) {
+      NhlRLClear(wk_rlist);
+      NhlRLSetString(wk_rlist,"wkColorMap",colormaps[i]);
+      (void)NhlSetValues(wks, wk_rlist);
+      gsn_draw_colormap_wrap(wks);
+    }
+  }
+
+/*
+ * Initialize colormap back to "rainbow+gray".
+ */
+    NhlRLSetString(wk_rlist,"wkColorMap","rainbow+gray");
+    (void)NhlSetValues(wks, wk_rlist);
 
 /*
  * Initialize and clear resource lists.
@@ -1177,7 +1216,7 @@ main()
  * gsn_vector_map section
  */
 
-  if(do_vector_map) {
+  if(do_vector_scalar) {
 
 /*
  * First set up some resources.
@@ -1500,40 +1539,64 @@ main()
                                  0, NULL, NULL, gs_rlist,&special_pres);
 
 /*
+ * Label two corners of the polygon with text.
+ */
+    ixf = -125;
+    yf  =   60;
+    NhlRLClear(tx_rlist);
+    NhlRLSetFloat  (tx_rlist,"txFontHeightF", 0.02);
+    NhlRLSetString (tx_rlist,"txFont"       , "helvetica");
+    NhlRLSetString (tx_rlist,"txJust"       , "BottomRight");
+
+    text1 = gsn_add_text_wrap(wks, vctrmap, "lat=  60:C:lon=-125", &ixf, 
+                             &yf, "integer", "float", tx_rlist, am_rlist,
+                             &special_pres);
+
+    ixf = -65;
+    yf  =  60;
+    NhlRLSetString (tx_rlist,"txJust", "BottomLeft");
+    text2 = gsn_add_text_wrap(wks,vctrmap,"lat= 60:C:lon=-65",
+                             &ixf, &yf, "integer", "float", tx_rlist,
+                             am_rlist, &special_pres);
+/*
  * Once you've "attached" all the primitives and text you want, go
  * ahead and draw the map.  You will see all the primitives and text
  * drawn too, since they are attached to the map.
  */
 
     NhlDraw(vctrmap);
+
 /*
- * Label the four corners of the polygon with text.
+ * Label the other two corners of the polygon with text.
  */
-    NhlRLClear(tx_rlist);
-    NhlRLSetFloat  (tx_rlist,"txFontHeightF"        , 0.02);
-    NhlRLSetString (tx_rlist,"txFont"               , "helvetica");
     
     NhlRLSetString (tx_rlist,"txJust", "TopRight");
     ixf = -125;
     yf  =   20;
     text = gsn_text_wrap(wks,vctrmap,"lat=  20:C:lon=-125",
-                         &ixf, &yf, "integer","float",tx_rlist,&special_pres);
-    yf  =   60;
-    NhlRLSetString (tx_rlist,"txJust", "BottomRight");
-    text = gsn_text_wrap(wks,vctrmap,"lat=  60:C:lon=-125", &ixf, &yf,
-                         "integer", "float", tx_rlist,&special_pres);
+                         &ixf, &yf, "integer", "float", tx_rlist,
+                         &special_pres);
     ixf = -65;
     yf  =  20;
     NhlRLSetString (tx_rlist,"txJust", "TopLeft");
     text = gsn_text_wrap(wks,vctrmap,"lat= 20:C:lon=-65", &ixf, &yf,
-                         "integer", "float", tx_rlist,&special_pres);
-    yf  =  60;
-    NhlRLSetString (tx_rlist,"txJust", "BottomLeft");
-    text = gsn_text_wrap(wks,vctrmap,"lat= 60:C:lon=-65",
-                         &ixf, &yf, "integer", "float", tx_rlist,
-                         &special_pres);
+                         "integer", "float", tx_rlist, &special_pres);
 
     NhlFrame(wks);
+
+/* 
+ * Change viewport coordinates to show how some text gets resized, and
+ * some doesn't.
+ */ 
+    srlist = NhlRLCreate(NhlSETRL);
+    NhlRLClear(srlist);
+    NhlRLSetFloat(srlist,"vpXF",      0.3);
+    NhlRLSetFloat(srlist,"vpYF",      0.7);
+    NhlRLSetFloat(srlist,"vpWidthF",  0.4);
+    NhlRLSetFloat(srlist,"vpHeightF", 0.4);
+
+    NhlSetValues(vctrmap,srlist);
+
   }
 /*
  * NhlDestroy destroys the given id and all of its children.

@@ -20,6 +20,7 @@
 #include <ncarg/hlu/Primitive.h>
 #include <netcdf.h>
 
+#define min(x,y)   ((x) < (y) ? (x) : (y))
 #define max(x,y)   ((x) > (y) ? (x) : (y))
 
 /*
@@ -44,6 +45,8 @@ typedef struct {
 /*
  * Supplemental functions. 
  */
+
+extern float *fspan(float, float, int);
 
 extern void compute_ps_device_coords(int, int, gsnRes *);
 
@@ -87,7 +90,7 @@ extern int vector_field(void *, void *, const char *, const char *, int,
  * Workstation routine.
  */
 
-extern int gsn_open_wks(const char *, const char *, int);
+extern int gsn_open_wks_wrap(const char *, const char *, int);
 
 /*
  * Plotting routines.
@@ -207,3 +210,7 @@ extern int gsn_add_polygon_wrap(int, int, void *, void *, const char *,
 
 extern int gsn_add_text_wrap(int, int, char *, void *, void *, const char *, 
                              const char *, int, int, gsnRes *special_res);
+
+
+extern void gsn_draw_colormap_wrap(int);
+
