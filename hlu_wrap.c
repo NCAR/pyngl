@@ -1018,6 +1018,24 @@ NhlString *get_nglRes_c (int pos) {
   }
 }
 
+void set_nglRes_s (int pos, NhlString sval) {
+  if (pos == 46) {
+    nglRlist.nglAppResFileName = sval;    
+  }
+  else {
+    printf ("set_nglRes_s: invalid argument %s\n",sval);
+  }
+}
+
+NhlString get_nglRes_s (int pos) {
+  if (pos == 46) {
+    return(nglRlist.nglAppResFileName);
+  }
+  else {
+    printf ("get_nglRes_s: invalid argument %d\n",pos);
+  }
+}
+
 void set_PCMP04(int arg_num, float value)
 {
   if (arg_num < 1 || arg_num > 3) {

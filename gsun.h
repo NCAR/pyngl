@@ -108,6 +108,7 @@ typedef struct {
   float nglPanelLabelBarLabelFontHeightF;
   float nglPanelLabelBarOrthogonalPosF;
   float nglPanelLabelBarParallelPosF;
+  NhlString nglAppResFileName;
 } nglRes;
 
 /*

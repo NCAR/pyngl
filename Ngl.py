@@ -671,39 +671,39 @@ def set_spc_defaults(type):
 #  Type = 0 sets the ngl special resources for text/poly resources
 #
   if (type == 1):
-    set_nglRes_i(0, 1)  # nglMaximize
-    set_nglRes_i(1, 1)  # nglDraw
-    set_nglRes_i(2, 1)  # nglFrame
+    set_nglRes_i(0, 1)      # nglMaximize
+    set_nglRes_i(1, 1)      # nglDraw
+    set_nglRes_i(2, 1)      # nglFrame
   elif (type == 0):
-    set_nglRes_i(0, 0)  # nglMaximize
-    set_nglRes_i(1, 1)  # nglDraw
-    set_nglRes_i(2, 0)  # nglFrame
+    set_nglRes_i(0, 0)      # nglMaximize
+    set_nglRes_i(1, 1)      # nglDraw
+    set_nglRes_i(2, 0)      # nglFrame
 #
-  set_nglRes_i( 3, 1)   # nglScale
-  set_nglRes_i( 4, 0)   # nglDebug
-  set_nglRes_i( 5, -1)  # nglPaperOrientation
-  set_nglRes_f( 6, 8.5) # nglPaperWidth
-  set_nglRes_f( 7, 11.) # nglPaperHeight
-  set_nglRes_f( 8, 0.5) # nglPaperMargin
-  set_nglRes_i( 9, 1)   # nglPanelCenter
-  set_nglRes_i(10, 0)   # nglPanelRowSpec
-  set_nglRes_f(11, 1.)  # nglPanelXWhiteSpacePercent
-  set_nglRes_f(12, 1.)  # nglPanelYWhiteSpacePercent
-  set_nglRes_i(13, 0)   # nglPanelBoxes
-  set_nglRes_f(14, 0.)  # nglPanelLeft
-  set_nglRes_f(15, 1.)  # nglPanelRight
-  set_nglRes_f(16, 0.)  # nglPanelBottom
-  set_nglRes_f(17, 1.)  # nglPanelTop
-  set_nglRes_f(18, -999.)  # nglPanelInvsblTop
-  set_nglRes_f(19, -999.)  # nglPanelInvsblLeft
-  set_nglRes_f(20, -999.)  # nglPanelInvsblRight
-  set_nglRes_f(21, -999.)  # nglPanelInvsblBottom
-  set_nglRes_i(22, 0)   # nglPanelSave
-  set_nglRes_i(23, 1)   # nglSpreadColors
-  set_nglRes_i(24, 2)  # nglSpreadColorStart
-  set_nglRes_i(25, -1)   # nglSpreadColorEnd
-  set_nglRes_i(26, 0)   # nglPanelLabelBarOrientation
-  set_nglRes_i(27, 0)   # nglPanelLabelBar
+  set_nglRes_i( 3, 1)       # nglScale
+  set_nglRes_i( 4, 0)       # nglDebug
+  set_nglRes_i( 5, -1)      # nglPaperOrientation
+  set_nglRes_f( 6, 8.5)     # nglPaperWidth
+  set_nglRes_f( 7, 11.)     # nglPaperHeight
+  set_nglRes_f( 8, 0.5)     # nglPaperMargin
+  set_nglRes_i( 9, 1)       # nglPanelCenter
+  set_nglRes_i(10, 0)       # nglPanelRowSpec
+  set_nglRes_f(11, 1.)      # nglPanelXWhiteSpacePercent
+  set_nglRes_f(12, 1.)      # nglPanelYWhiteSpacePercent
+  set_nglRes_i(13, 0)       # nglPanelBoxes
+  set_nglRes_f(14, 0.)      # nglPanelLeft
+  set_nglRes_f(15, 1.)      # nglPanelRight
+  set_nglRes_f(16, 0.)      # nglPanelBottom
+  set_nglRes_f(17, 1.)      # nglPanelTop
+  set_nglRes_f(18, -999.)   # nglPanelInvsblTop
+  set_nglRes_f(19, -999.)   # nglPanelInvsblLeft
+  set_nglRes_f(20, -999.)   # nglPanelInvsblRight
+  set_nglRes_f(21, -999.)   # nglPanelInvsblBottom
+  set_nglRes_i(22, 0)       # nglPanelSave
+  set_nglRes_i(23, 1)       # nglSpreadColors
+  set_nglRes_i(24, 2)       # nglSpreadColorStart
+  set_nglRes_i(25, -1)      # NglSpreadColorEnd
+  set_nglRes_i(26, 0)       # nglPanelLabelBarOrientation
+  set_nglRes_i(27, 0)       # nglPanelLabelBar
   set_nglRes_f(28, -999.)   # nglPanelLabelBarXF
   set_nglRes_f(29, -999.)   # nglPanelLabelBarYF
   set_nglRes_f(30, -999.)   # nglPanelLabelBarLabelFontHeightF
@@ -711,17 +711,18 @@ def set_spc_defaults(type):
   set_nglRes_f(32, -999.)   # nglPanelLabelBarHeightF
   set_nglRes_f(33, -999.)   # nglPanelLabelBarOrthogonalPosF
   set_nglRes_f(34, -999.)   # nglPanelLabelBarParallelPosF
-  set_nglRes_i(35, 0)   # nglPanelLabelBarPerimOn
-  set_nglRes_i(36, 1)   # nglPanelLabelBarAlignment
-  set_nglRes_i(37, 1)   # nglPanelLabelBarLabelAutoStride
-  set_nglRes_c(38, [])  # nglPanelFigureStrings
-  set_nglRes_i(39, 0)   # nglPanelFigureStringsCount
-  set_nglRes_i(40, 8)   # nglPanelFigureStringsJust
+  set_nglRes_i(35, 0)       # nglPanelLabelBarPerimOn
+  set_nglRes_i(36, 1)       # nglPanelLabelBarAlignment
+  set_nglRes_i(37, 1)       # nglPanelLabelBarLabelAutoStride
+  set_nglRes_c(38, [])      # nglPanelFigureStrings
+  set_nglRes_i(39, 0)       # nglPanelFigureStringsCount
+  set_nglRes_i(40, 8)       # nglPanelFigureStringsJust
   set_nglRes_f(41, -999.)   # nglPanelFigureStringsOrthogonalPosF
   set_nglRes_f(42, -999.)   # nglPanelFigureStringsParallelPosF
-  set_nglRes_i(43, 1)   # nglPanelFigureStringsPerimOn
-  set_nglRes_i(44, 0)   # nglPanelFigureStringsBackgroundFillColor
+  set_nglRes_i(43, 1)       # nglPanelFigureStringsPerimOn
+  set_nglRes_i(44, 0)       # nglPanelFigureStringsBackgroundFillColor
   set_nglRes_f(45, -999.)   # nglPanelFigureStringsFontHeightF
+  set_nglRes_s(46, "file")  # nglAppResFileName
 
 def open_wks(wk_type,wk_name,wk_rlist=None):
   global first_call_to_open_wks
