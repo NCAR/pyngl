@@ -169,7 +169,6 @@ rh_res.tmXBLabels           =                             \
 rh_res.tmXBLabelAngleF      = 90.        # change label angle
 rh_res.tmXBMinorOn       = False        # No minor tick marks.
 rh_res.tmXBLabelJust     = "CenterCenter"
-rh_res.nglSpreadColors   =  True
 rh_res.nglSpreadColorEnd = -2           # save last color (red) for cntr lines
 
 rh_res.cnFillOn        = True           # turns on color fill
@@ -230,7 +229,6 @@ rain_res.tiYAxisString           = "3hr rain total"  # Y axis label.
 rain_res.nglDraw         = False     # Don't draw individual plot.
 rain_res.nglFrame        = False     # Don't advance frame.
 rain_res.nglMaximize     = False     # Do not maximize plot in frame
-rain_res.nglScale        = True      # Scale fonts on axes to be same size
 
 # -------------- temp sfc time series ------------------------
 tempsfc_res.vpXF            = 0.15   # The left side of the box
@@ -253,7 +251,6 @@ tempsfc_res.xyLineColor    =  "red"
 
 tempsfc_res.nglDraw         = False     # Don't draw individual plot.
 tempsfc_res.nglFrame        = False     # Don't advance frame.
-tempsfc_res.nglScale        = True      # Scale fonts on axes to be same size
 tempsfc_res.nglMaximize     = False    # Do not maximize plot in frame 
 
 #
