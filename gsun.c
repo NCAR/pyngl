@@ -1168,11 +1168,23 @@ int vector_field(void *u, void *v, const char *type_u, const char *type_v,
  * and to open a workstation.
  */
 
-int ngl_open_wks_wrap(const char *type, const char *name, int wk_rlist)
+int ngl_open_wks_wrap(const char *type, const char *name, int wk_rlist, res_names *rn)
 {
   int wks, len, tlen;
   char *filename = (char *) NULL;
   int srlist, app;
+
+/*********************************************************************
+ *  Print the contents of the resource name structure.
+ *********************************************************************/
+  printf ("\nFrom ngl_open_wks_wrap, number of resources = %d\n",rn->number);
+  for (len = 0; len < rn->number; len++) {
+    printf("    string %3d = %s\n",len,(rn->strings)[len]);
+  }
+  printf("\n");
+/*********************************************************************
+ *  End print
+ *********************************************************************/
 
 /*
  * Initialize HLU library.

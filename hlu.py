@@ -1668,8 +1668,6 @@ c_rgbyiq = _hlu.c_rgbyiq
 
 c_yiqrgb = _hlu.c_yiqrgb
 
-test_res_names = _hlu.test_res_names
-
 pvoid = _hlu.pvoid
 
 set_nglRes_i = _hlu.set_nglRes_i

@@ -143,6 +143,14 @@ typedef struct {
 } nglPlotId;
 
 /*
+ *  Structure for passing resource names.
+ */
+typedef struct _res_names {
+  int number;
+  char **strings;
+} res_names;
+
+/*
  * Supplemental functions. 
  */
 
@@ -198,7 +206,7 @@ extern int vector_field(void *, void *, const char *, const char *, int,
  * Workstation routine.
  */
 
-extern int ngl_open_wks_wrap(const char *, const char *, int);
+extern int ngl_open_wks_wrap(const char *, const char *, int, res_names *);
 
 /*
  * Plotting routines.

@@ -639,10 +639,11 @@ SWIG_InstallConstants(PyObject *d, swig_const_info constants[]) {
 #define  SWIGTYPE_p_double swig_types[4] 
 #define  SWIGTYPE_p_NhlString swig_types[5] 
 #define  SWIGTYPE_p_NhlBoundingBox swig_types[6] 
-#define  SWIGTYPE_p_void swig_types[7] 
-#define  SWIGTYPE_p_int swig_types[8] 
-#define  SWIGTYPE_p_nglRes swig_types[9] 
-static swig_type_info *swig_types[11];
+#define  SWIGTYPE_p_res_names swig_types[7] 
+#define  SWIGTYPE_p_void swig_types[8] 
+#define  SWIGTYPE_p_int swig_types[9] 
+#define  SWIGTYPE_p_nglRes swig_types[10] 
+static swig_type_info *swig_types[12];
 
 /* -------- TYPES TABLE (END) -------- */
 
@@ -1526,11 +1527,6 @@ static void floatArray_setitem(float *ary, int index, float value) {
 
 
 #include <Numeric/arrayobject.h>
-typedef struct {
-  int number;
-  char **strings;
-} res_names;
-
 
 extern char const *_NGGetNCARGEnv(char const *);
 extern void NhlInitialize();
@@ -1666,7 +1662,7 @@ extern void c_set(float,float,float,float,float,float,float,float,int);
 extern void c_cprect(float *,int,int,int,float *,int,int *,int);
 extern void c_cpcldr(float *,float *,int *);
 extern void c_plchhq(float,float,NhlString,float,float,float);
-extern int ngl_open_wks_wrap(char const *,char const *,int);
+extern int ngl_open_wks_wrap(char const *,char const *,int,res_names *);
 extern nglPlotId ngl_contour_wrap(int,void *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,void *,int,int,nglRes *);
 extern nglPlotId ngl_map_wrap(int,int,nglRes *);
 extern nglPlotId ngl_contour_map_wrap(int,void *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,void *,int,int,int,nglRes *);
@@ -1694,7 +1690,6 @@ extern void c_rgbhsv(float,float,float,float *,float *,float *);
 extern void c_hsvrgb(float,float,float,float *,float *,float *);
 extern void c_rgbyiq(float,float,float,float *,float *,float *);
 extern void c_yiqrgb(float,float,float,float *,float *,float *);
-extern void test_res_names(void *);
 extern void *pvoid();
 extern void set_nglRes_i(int,int);
 extern int get_nglRes_i(int);
@@ -4689,10 +4684,12 @@ static PyObject *_wrap_ngl_open_wks_wrap(PyObject *self, PyObject *args) {
     char *arg1 ;
     char *arg2 ;
     int arg3 ;
+    res_names *arg4 = (res_names *) 0 ;
     int result;
     PyObject * obj2  = 0 ;
+    PyObject * obj3  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"ssO:ngl_open_wks_wrap",&arg1,&arg2,&obj2)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"ssOO:ngl_open_wks_wrap",&arg1,&arg2,&obj2,&obj3)) goto fail;
     {
         int i,pos=0,list_type,list_len;
         PyObject *key,*value;
@@ -4950,7 +4947,29 @@ static PyObject *_wrap_ngl_open_wks_wrap(PyObject *self, PyObject *args) {
         }
         arg3 = rlist;
     }
-    result = (int)ngl_open_wks_wrap((char const *)arg1,(char const *)arg2,arg3);
+    {
+        PyObject *key,*value;
+        int pos=0,rnumber,count;
+        res_names trname;
+        char **trnames;
+        
+        
+        if (PyDict_Check(obj3)) {
+            count = 0;
+            trname.number = PyDict_Size(obj3);
+            trnames = (char **) malloc(trname.number*sizeof(char *));
+            while (PyDict_Next(obj3, &pos, &key, &value)) {
+                trnames[count] = PyString_AsString(key);
+                count++;
+            }
+            trname.strings = trnames;
+        }
+        else {
+            printf("Internal error: Resource name lists must be dictionaries\n");
+        }
+        arg4 = (res_names *) &trname;
+    }
+    result = (int)ngl_open_wks_wrap((char const *)arg1,(char const *)arg2,arg3,arg4);
     
     resultobj = PyInt_FromLong((long)result);
     return resultobj;
@@ -19285,48 +19304,6 @@ static PyObject *_wrap_c_yiqrgb(PyObject *self, PyObject *args) {
 }
 
 
-static PyObject *_wrap_test_res_names(PyObject *self, PyObject *args) {
-    PyObject *resultobj;
-    void *arg1 = (void *) 0 ;
-    PyObject * obj0  = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:test_res_names",&obj0)) goto fail;
-    {
-        PyObject *key,*value;
-        int pos=0,rnumber,count;
-        res_names trname;
-        char **trnames;
-        
-        
-        if (PyDict_Check(obj0)) {
-            count = 0;
-            while (PyDict_Next(obj0, &pos, &key, &value)) {
-                trname.number = PyDict_Size(obj0);
-                trnames = (char **) malloc(trname.number*sizeof(char *));
-                trnames[count] = PyString_AsString(key);
-                count++;
-            }
-        }
-        else {
-            printf("Internal error: Resource name lists must be dictionaries\n");
-        }
-        arg1 = (void *) trnames;
-    }
-    test_res_names(arg1);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    {
-        free ((char *) arg1);
-    }
-    return resultobj;
-    fail:
-    {
-        free ((char *) arg1);
-    }
-    return NULL;
-}
-
-
 static PyObject *_wrap_pvoid(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     void *result;
@@ -19604,7 +19581,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"c_hsvrgb", _wrap_c_hsvrgb, METH_VARARGS },
 	 { (char *)"c_rgbyiq", _wrap_c_rgbyiq, METH_VARARGS },
 	 { (char *)"c_yiqrgb", _wrap_c_yiqrgb, METH_VARARGS },
-	 { (char *)"test_res_names", _wrap_test_res_names, METH_VARARGS },
 	 { (char *)"pvoid", _wrap_pvoid, METH_VARARGS },
 	 { (char *)"set_nglRes_i", _wrap_set_nglRes_i, METH_VARARGS },
 	 { (char *)"get_nglRes_i", _wrap_get_nglRes_i, METH_VARARGS },
@@ -19625,6 +19601,7 @@ static swig_type_info _swigt__p_p_float[] = {{"_p_p_float", 0, "float **", 0},{"
 static swig_type_info _swigt__p_double[] = {{"_p_double", 0, "double *", 0},{"_p_double"},{0}};
 static swig_type_info _swigt__p_NhlString[] = {{"_p_NhlString", 0, "NhlString *", 0},{"_p_NhlString"},{0}};
 static swig_type_info _swigt__p_NhlBoundingBox[] = {{"_p_NhlBoundingBox", 0, "NhlBoundingBox *", 0},{"_p_NhlBoundingBox"},{0}};
+static swig_type_info _swigt__p_res_names[] = {{"_p_res_names", 0, "res_names *", 0},{"_p_res_names"},{0}};
 static swig_type_info _swigt__p_void[] = {{"_p_void", 0, "void *", 0},{"_p_void"},{0}};
 static swig_type_info _swigt__p_int[] = {{"_p_int", 0, "int *", 0},{"_p_int"},{0}};
 static swig_type_info _swigt__p_nglRes[] = {{"_p_nglRes", 0, "nglRes *", 0},{"_p_nglRes"},{0}};
@@ -19637,6 +19614,7 @@ _swigt__p_p_float,
 _swigt__p_double, 
 _swigt__p_NhlString, 
 _swigt__p_NhlBoundingBox, 
+_swigt__p_res_names, 
 _swigt__p_void, 
 _swigt__p_int, 
 _swigt__p_nglRes, 
