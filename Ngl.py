@@ -3,8 +3,9 @@ from hlu import *
 import hlu
 import sys
 import types
-import Numeric
 import string
+import Numeric
+from Scientific.IO.NetCDF import *
 
 first_call_to_open_wks = 0
 
@@ -19,10 +20,13 @@ def ngl_int_id(plot_id):
 #  Convert PlotIds objects to integer plot ids.
 #
   if (type(plot_id) == type(1)):
+#  Is an integer.
     return plot_id
   elif (type(plot_id) == type([1])):
+#  Is a list.
     return plot_id[0]
   elif (isinstance(plot_id,PlotIds)):
+#  Is a PlotIds class instance.
     if (type(plot_id.base[0]) != type(1)):
       print "plot id is not valid"
       return None
@@ -31,6 +35,8 @@ def ngl_int_id(plot_id):
     print "plot id is not valid"
     return None
 
+def ngl_overlay(plot_id1,plot_id2):
+  NhlAddOverlay(ngl_int_id(plot_id1),ngl_int_id(plot_id2),-1)
 
 def lst2pobj(lst):
 #
