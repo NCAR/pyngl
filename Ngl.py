@@ -884,7 +884,7 @@ def contour_map(wks,array,rlistc=None):
 #
   if (len(array.shape) != 1 and len(array.shape) != 2):
     print "contour_map - array must be 1D or 2D"
-    return NULL
+    return None
 
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
@@ -937,7 +937,7 @@ def contour(wks,array,rlistc=None):
 #
   if (len(array.shape) != 1 and len(array.shape) != 2):
     print "contour - array must be 1D or 2D"
-    return NULL
+    return None
 
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
@@ -1369,7 +1369,7 @@ def get_values(obj,rlistc):
   return (values)
 
 def destroy(obj):
-  NhlDestroy(int_id(obj))
+  return(NhlDestroy(int_id(obj)))
 
 def clear_workstation(obj):
   NhlClearWorkstation(int_id(obj))
