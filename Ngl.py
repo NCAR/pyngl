@@ -705,6 +705,14 @@ def ngl_contour_map(wks,array,rlistc=None):
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
+#
+#  Turn label bars on if "cnFillOn" is set and pmLabelBarDisplayMode
+#  is not in the resource list.
+#
+    if(key[0:8] == "cnFillOn" and rlist[key] > 0):
+      if ( not (rlist.has_key("pmLabelBarDisplayMode"))):
+        rlist3["pmLabelBarDisplayMode"] = "Always"
+        rlist3["lbPerimOn"] = 0
     if (key[0:2] == "sf"):
       rlist1[key] = rlist[key]
     elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
