@@ -67,9 +67,6 @@ resources.cnInfoLabelOn         = False    # Turn off info label.
 resources.cnLineLabelsOn        = False    # Turn off line labels.
 
 resources.lbOrientation         = "Horizontal" # Draw it horizontally.
-resources.lbPerimOn             = False        # Turn off perimeter.
-resources.pmLabelBarDisplayMode = "Always"     # Turn on a label bar.
-resources.pmLabelBarSide        = "Bottom"     # Change location of
                                                  # label bar.
 resources.nglSpreadColors = False    # Do not interpolate color space.
 resources.vpYF = 0.9   # Change Y location of plot.

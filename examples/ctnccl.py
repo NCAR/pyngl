@@ -128,15 +128,12 @@ resources.mpPerimDrawOrder      = "PostDraw"
 resources.mpFillDrawOrder       = "PostDraw"
 resources.mpFillOn              = True
 resources.mpFillColors          = ["background","transparent","LightGray","transparent"]
-resources.lbAutoManage          = False
 resources.lbLabelFontHeightF    = 0.01
-resources.lbLabelAutoStride     = True
 resources.lbBoxLinesOn          = False
 resources.lbOrientation         = "Horizontal"
 
 resources.pmTickMarkDisplayMode    = "Never"
 resources.pmLabelBarOrthogonalPosF = -0.05
-resources.pmLabelBarSide           = "Bottom"
 
 resources.nglDraw                  = True
 resources.nglFrame                 = True

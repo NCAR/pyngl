@@ -100,12 +100,9 @@ resources.cnMonoFillColor       = False    # Use multiple colors.
 resources.cnLineLabelsOn        = False    # Turn off line labels.
 resources.cnInfoLabelOn         = False    # Turn off informational
                                              # label.
+resources.pmLabelBarDisplayMode = "Always" # Turn on label bar.
 resources.cnLinesOn             = False    # Turn off contour lines.
 resources.nglSpreadColors         = False    # Do not interpolate color space.
-
-resources.pmLabelBarDisplayMode = "Always" # Turn on label bar.
-resources.lbPerimOn             = False    # Turn off perimeter on
-                                             # label bar.
 
 resources.tiMainFont      = 26
 resources.tiXAxisFont     = 26

@@ -52,20 +52,17 @@ resources.cnFillMode            = "AreaFill"
 resources.cnLinesOn             = False
 resources.cnLineLabelsOn        = False
 
-#resources.lbOrientation         = "Horizontal"
-resources.lbLabelAutoStride     = True
 resources.lbBoxLinesOn          = False
 resources.lbLabelFontHeightF    = 0.02
-resources.lbAutoManage          = False
-#resources.pmLabelBarSide        = "Bottom"
-#resources.pmLabelBarDisplayMode = "Never"
 resources.tiMainString          = "SEAM grid - surface pressure"
 
-resources.nglDraw = False
+#
+# The contour plot is not very interesting, so don't draw it.
+# 
+resources.nglDraw  = False
 resources.nglFrame = False
+
 contour = Ngl.contour(wks,ps,resources)
-resources.nglDraw = True
-resources.nglFrame = True
 
 #
 # Retrieve the actual lat/lon end points of the scalar array so
@@ -75,6 +72,9 @@ xs = Ngl.get_float(contour.sffield,"sfXCActualStartF")
 xe = Ngl.get_float(contour.sffield,"sfXCActualEndF")
 ys = Ngl.get_float(contour.sffield,"sfYCActualStartF")
 ye = Ngl.get_float(contour.sffield,"sfYCActualEndF")
+
+resources.nglDraw           = True        # Turn these resources back on.
+resources.nglFrame          = True
 
 resources.mpProjection      = "Orthographic"
 resources.mpDataBaseVersion = "MediumRes"
@@ -87,32 +87,32 @@ resources.mpPerimOn         = False
 resources.mpCenterLatF      =  40
 resources.mpCenterLonF      = -130
 
-resources.pmTickMarkDisplayMode = "Always"
-
-#map = Ngl.contour_map(wks,ps,resources)
+map = Ngl.contour_map(wks,ps,resources)
 
 resources.cnFillMode      = "RasterFill"
 resources.cnMaxLevelCount = 255 
 
-#map = Ngl.contour_map(wks,ps,resources)
+map = Ngl.contour_map(wks,ps,resources)
 
-resources.mpProjection = "CylindricalEquidistant"
-resources.mpCenterLatF = 0
+resources.lbOrientation = "Horizontal"
+resources.mpProjection  = "CylindricalEquidistant"
+resources.mpCenterLatF  = 0
 
-#map = Ngl.contour_map(wks,ps,resources)
+map = Ngl.contour_map(wks,ps,resources)
 
 resources.cnRasterSmoothingOn = True
 resources.tiMainString        = "Surface pressure with smoothing on" 
 
-#map = Ngl.contour_map(wks,ps,resources)
+map = Ngl.contour_map(wks,ps,resources)
 
-resources.tiMainString = "SEAM grid: Surface pressure w/smoothing"
-resources.mpProjection = "LambertEqualArea"
-resources.mpCenterLatF = 40
-resources.mpCenterLonF = 130
-resources.mpPerimOn  = False
+resources.lbOrientation = "Vertical"
+resources.tiMainString  = "SEAM grid: Surface pressure w/smoothing"
+resources.mpProjection  = "LambertEqualArea"
+resources.mpCenterLatF  = 40
+resources.mpCenterLonF  = 130
+resources.mpPerimOn     = False
 resources.lbLabelStride = 15
-resources.lbLabelAutoStride = False
+
 map = Ngl.contour_map(wks,ps,resources)
 
 Ngl.end()

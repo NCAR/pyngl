@@ -83,7 +83,6 @@ resources.xyMarker             = 1
 resources.xyMarkerSizeF        = 0.05 # Default is 0.01
 
 resources.nglFrame             = False # Don't advance the frame.
-resources.nglScale             = True  # Draw X/Y axes labels in same size.
 
 xy = Ngl.xy(wks,time,y,resources)  # Create and draw XY plot.
 

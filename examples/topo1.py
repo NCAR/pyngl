@@ -66,7 +66,7 @@ res.cnLevels             = [ 5000., 6000., 7000., 8000., 8500., 9000., \
                             12500.,13000.,13500.]
 
 # tickmark resources
-res.pmTickMarkDisplayMode = "Always"
+
 res.tmXBLabelFontHeightF  = 0.010
 
 # label resources
@@ -77,7 +77,6 @@ res.lbTitleOffsetF            = -0.27
 res.lbBoxMinorExtentF         = 0.15
 res.pmLabelBarOrthogonalPosF  = -0.01
 res.lbOrientation             = "Horizontal"
-res.pmLabelBarSide            = "Bottom"
 
 # title resources
 res.tiMainString      = "USGS DEM TRINIDAD (1 x 2 degrees)"

@@ -51,8 +51,6 @@ resources.cnFillOn         = True
 resources.cnLinesOn        = False
 resources.cnLineLabelsOn   = False
 
-resources.lbOrientation    = "Vertical"
-
 contour = Ngl.contour(wks,depth,resources)
 
 #
@@ -100,9 +98,6 @@ resources.tiMainString          = "                    Chesapeake Bay~C~Bathymet
 resources.pmTitleZone           = 3
 
 resources.lbLabelFontHeightF    = 0.02
-resources.lbAutoManage          = False
-
-resources.pmTickMarkDisplayMode = "Always"
 
 map = Ngl.contour_map(wks,depth,resources)
 

@@ -81,7 +81,6 @@ res.vpXF       = 0.05
 res.vpYF       = 0.95
 res.vpWidthF   = 0.8
 res.vpHeightF  = 0.8
-res.pmTickMarkDisplayMode = "Always"
 res.tmXBTickStartF = -75
 res.tmXBTickEndF = -25
 res.tmYROn  = True

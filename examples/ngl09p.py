@@ -117,6 +117,8 @@ resources.nglSpreadColors = False    # Do not interpolate color space.
 
 resources.tiMainString = "CSM Y00-99 Mean Ice Fraction Month =" + str(month)
 
+resources.pmTickMarkDisplayMode = "Never"
+
 map = Ngl.contour_map(wks,icemonnew,resources) # Draw a contour
                                                # over a map.
 

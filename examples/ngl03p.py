@@ -61,9 +61,7 @@ resources.vfXCEndV    = lon[len(lon[:])-1][0] # for vector plot.
 resources.vfYCStartV  = lat[0][0]
 resources.vfYCEndV    = lat[len(lat[:])-1][0]
 
-resources.pmLabelBarDisplayMode    = "Always"   # Turn on a label bar.
 resources.pmLabelBarWidthF         = 0.1
-resources.lbPerimOn                = False
 
 vc = Ngl.vector(wks,ua,va,resources)
 

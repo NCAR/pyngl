@@ -111,7 +111,7 @@ spacing = Ngl.get_float(plot,"stMinLineSpacingF")
 resources.stMinLineSpacingF = spacing * 2.0     # Set some resources based
 resources.stArrowLengthF    = arrowlength * 2.0 # on resources you retrieved.
 resources.stLineColor       = "red"             # Change line color to red
-resources.stLineThicknessF  = 1.5               # white.
+resources.stLineThicknessF  = 1.5
 
 uvar = file.variables["U_GRD_6_GPML"]
 vvar = file.variables["V_GRD_6_GPML"]

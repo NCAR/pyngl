@@ -124,8 +124,6 @@ resources.tiYAxisString = ":F25:latitude"
 resources.cnFillOn              = True     # Turn on contour fill.
 resources.cnLineLabelsOn        = False    # Turn off line labels.
 resources.cnInfoLabelOn         = False    # Turn off info label.
-resources.pmLabelBarDisplayMode = "Always" # Turn on a label bar.
-resources.lbPerimOn             = False    # Turn off label bar perim.
 resources.nglSpreadColors = False    # Do not interpolate color space.
 
 resources.sfXCStartV = min(pf_lon)   # Define where contour plot
@@ -151,7 +149,6 @@ resources.vpYF      = 0.9    # plot on the viewport.
 resources.vpWidthF  = 0.7
 resources.vpHeightF = 0.7
 
-resources.nglScale = True  # Force X/Y axes labels to be the same size.
 resources.nglFrame = False # Don't advance frame.
 
 #
@@ -211,7 +208,6 @@ resources.cnLevels             = Numeric.arange(985.,1046.,5.)
 
 resources.lbTitleString  = ":F25:pressure (mb)" # Title for label bar.
 resources.cnLinesOn      = False         # Turn off contour lines.
-resources.pmLabelBarSide = "Bottom"      # Change orientation of
 resources.lbOrientation  = "Horizontal"  # label bar.
 
 #

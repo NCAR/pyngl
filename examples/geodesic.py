@@ -53,7 +53,6 @@ resources.cnFillMode        = "RasterFill"
 resources.cnLineLabelsOn    = False
 resources.cnMaxLevelCount   = 22
 
-resources.lbLabelAutoStride = True
 resources.lbBoxLinesOn      = False
 resources.lbTitleString     = "kinetic energy"
 resources.tiMainString      = "2562 Element Geodesic grid"
