@@ -37,7 +37,7 @@ main_dirs   = ["ncarg","bin"]
 ncarg_dirs  = ["data","colormaps","database","fontcaps","graphcaps",\
                "pynglex"]
 ncarg_files = ["sysresfile"]
-bin_files   = ["ctrans","psplit","pynglex"]
+bin_files   = ["ctrans","med","psplit","pynglex"]
 
 if(copy_files):
 #
