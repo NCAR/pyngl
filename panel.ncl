@@ -1,6 +1,7 @@
 load "$NCARG_ROOT/lib/ncarg/nclex/gsun/gsn_code.ncl"
 
-function create_title(parray, parray_copy, nplots, panel_dims[2])
+function create_title(parray, parray_copy, nplots, panel_dims[2], \
+                      extra_string:string)
 begin
   title = new(1,string)
 
@@ -20,6 +21,9 @@ begin
     title = title + " are missing"
   else
     title = ":F25:" + panel_dims(0) + " rows/" + panel_dims(1) + " columns"
+  end if
+  if(extra_string.ne."") then
+    title = title + ":C:" + extra_string
   end if
   return(title)
 end
@@ -66,7 +70,7 @@ begin
   carray      = new(ntime,graphic)
   carray_copy = new(ntime,graphic)
 
-  do i=0,19
+  do i=0,17
     carray(i) = gsn_contour(wks,t(i,:,:),res)
   end do
   carray_copy = carray
@@ -96,18 +100,18 @@ begin
   panel_dims(1) = 3
   nplots = panel_dims(0) * panel_dims(1)
   gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
-  title = create_title(carray, carray_copy, nplots, panel_dims)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"")
   gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(0) = carray@_FillValue
 
   gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
-  title = create_title(carray, carray_copy, nplots, panel_dims)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"")
   gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(2) = carray@_FillValue
   gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
-  title = create_title(carray, carray_copy, nplots, panel_dims)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"")
   gsn_text_ndc(wks,title,0.5,0.5,txres)
 
 ;
@@ -118,18 +122,18 @@ begin
   panel_dims(1) = 1
   nplots = panel_dims(0) * panel_dims(1)
   gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
-  title = create_title(carray, carray_copy, nplots, panel_dims)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"")
   gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(0) = carray@_FillValue
 
   gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
-  title = create_title(carray, carray_copy, nplots, panel_dims)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"")
   gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(2) = carray@_FillValue
   gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
-  title = create_title(carray, carray_copy, nplots, panel_dims)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"")
   gsn_text_ndc(wks,title,0.5,0.5,txres)
 
 ;
@@ -140,33 +144,33 @@ begin
   panel_dims(1) = 3
   nplots = panel_dims(0) * panel_dims(1)
   gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
-  title = create_title(carray, carray_copy, nplots, panel_dims)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"")
   gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(0:2) = carray@_FillValue
 
   gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
-  title = create_title(carray, carray_copy, nplots, panel_dims)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"")
   gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(3:5) = carray@_FillValue
 
   gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
-  title = create_title(carray, carray_copy, nplots, panel_dims)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"")
   gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(0) = carray@_FillValue
   carray(3) = carray@_FillValue
 
   gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
-  title = create_title(carray, carray_copy, nplots, panel_dims)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"")
   gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(2) = carray@_FillValue
   carray(5) = carray@_FillValue
 
   gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
-  title = create_title(carray, carray_copy, nplots, panel_dims)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"")
   gsn_text_ndc(wks,title,0.5,0.5,txres)
 
 ;
@@ -177,25 +181,25 @@ begin
   panel_dims(1) = 2
   nplots = panel_dims(0) * panel_dims(1)
   gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
-  title = create_title(carray, carray_copy, nplots, panel_dims)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"")
   gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(0:1) = carray@_FillValue
 
   gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
-  title = create_title(carray, carray_copy, nplots, panel_dims)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"")
   gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(2:3) = carray@_FillValue
 
   gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
-  title = create_title(carray, carray_copy, nplots, panel_dims)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"")
   gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(4:5) = carray@_FillValue
 
   gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
-  title = create_title(carray, carray_copy, nplots, panel_dims)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"")
   gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(0) = carray@_FillValue
@@ -203,7 +207,7 @@ begin
   carray(4) = carray@_FillValue
 
   gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
-  title = create_title(carray, carray_copy, nplots, panel_dims)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"")
   gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(1) = carray@_FillValue
@@ -211,7 +215,7 @@ begin
   carray(5) = carray@_FillValue
 
   gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
-  title = create_title(carray, carray_copy, nplots, panel_dims)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"")
   gsn_text_ndc(wks,title,0.5,0.5,txres)
 
 ;
@@ -221,21 +225,129 @@ begin
   panel_dims(1) = 2
   nplots = 4
   gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
-  title = create_title(carray, carray_copy, nplots, panel_dims)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"4 plots passed in")
   gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   carray(0:1) = carray@_FillValue
   gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
-  title = create_title(carray, carray_copy, nplots, panel_dims)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"4 plots passed in")
   gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   nplots = 2 
   gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
-  title = create_title(carray, carray_copy, nplots, panel_dims)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"2 plots passed in")
   gsn_text_ndc(wks,title,0.5,0.5,txres)
 
   nplots = 1
   gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
-  title = create_title(carray, carray_copy, nplots, panel_dims)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"1 plot passed in")
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
+
+;
+; 3 rows x 4 columns of plots, but only pass in 8, 5, 3, then 1 plot.
+; On this one, we alternate between setting gsnPanelCenter to True
+; and False.
+;
+  panel_dims(0) = 3
+  panel_dims(1) = 4
+  nplots = 8
+  pnlres@gsnPanelCenter = True
+  gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"8 plots passed in:C:center is True")
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
+
+  panel_dims(0) = 3
+  panel_dims(1) = 4
+  nplots = 8
+  pnlres@gsnPanelCenter = False
+  gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"8 plots passed in:C:center is False")
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
+
+;
+; Same thing as above, only with some missing plots thrown in.
+;
+  carray(0:1) = carray@_FillValue
+  pnlres@gsnPanelCenter = True
+  gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"8 plots passed in:C:center is True")
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
+
+  carray(0:1) = carray@_FillValue
+  pnlres@gsnPanelCenter = False
+  gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"8 plots passed in:C:center is False")
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
+
+;
+; Now do 5 plots.
+;
+  nplots = 5 
+  pnlres@gsnPanelCenter = True
+  gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"5 plots passed in:C:center is True")
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
+
+  pnlres@gsnPanelCenter = False
+  gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"5 plots passed in:C:center is False")
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
+
+;
+; Same thing as above, only with some missing plots thrown in.
+;
+  carray(3:4) = carray@_FillValue
+  pnlres@gsnPanelCenter = True
+  gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"5 plots passed in:C:center is True")
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
+
+  pnlres@gsnPanelCenter = False
+  gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"5 plots passed in:C:center is False")
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
+
+;
+; Now 3.
+;
+  nplots = 3 
+  pnlres@gsnPanelCenter = True
+  gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"3 plots passed in:C:center is True")
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
+
+  pnlres@gsnPanelCenter = False
+  gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"3 plots passed in:C:center is False")
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
+
+;
+; Same thing as above, only with some missing plots thrown in.
+;
+  carray(0:1) = carray@_FillValue
+  pnlres@gsnPanelCenter = True
+  gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"3 plots passed in:C:center is True")
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
+
+  pnlres@gsnPanelCenter = False
+  gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"3 plots passed in:C:center is False")
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
+
+
+;
+; One plot
+;
+  nplots = 1
+  pnlres@gsnPanelCenter = True
+  gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"1 plot passed in:C:center is True")
+  gsn_text_ndc(wks,title,0.5,0.5,txres)
+
+  nplots = 1
+  pnlres@gsnPanelCenter = False
+  gsn_panel(wks, carray(0:nplots-1), panel_dims, pnlres)
+  title = create_title(carray, carray_copy, nplots, panel_dims,"1 plot passed in:C:center is False")
   gsn_text_ndc(wks,title,0.5,0.5,txres)
 end

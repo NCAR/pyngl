@@ -79,7 +79,7 @@ extern float *fspan(float, float, int);
 
 extern void compute_ps_device_coords(int, int *, int, nglRes *);
 
-extern void maximize_plot(int, int *, int, nglRes *);
+extern void maximize_plot(int, int *, int, int, nglRes *);
 
 extern void scale_plot(int);
 
@@ -97,7 +97,7 @@ extern void set_resource(char *, int, void *, const char *, int, int *);
 
 extern int create_graphicstyle_object(int);
 
-extern void draw_and_frame(int, int *, int, nglRes *);
+extern void draw_and_frame(int, int *, int, int, nglRes *);
 
 /*
  * Data object routines.

@@ -346,7 +346,8 @@ void compute_ps_device_coords(int wks, int *plots, int nplots,
  * This function maximizes the size of the plot in the viewport.
  */
 
-void maximize_plot(int wks, int *plot, int nplots, nglRes *special_res)
+void maximize_plot(int wks, int *plot, int nplots, int ispanel, 
+				   nglRes *special_res)
 {
   NhlBoundingBox box; 
   float top, bot, lft, rgt, uw, uh;
@@ -362,12 +363,12 @@ void maximize_plot(int wks, int *plot, int nplots, nglRes *special_res)
   NhlRLClear(grlist);
 
 /*
- * If dealing with multiple plots, then this means we have a
- * panel plot, and we don't need to maximize the space for
- * NCGM or X11 output.
+ * If dealing with paneled plots, then this means that the
+ * viewport coordinates have already been optimized, and thus
+ * we don't need to calculate them again.
  */
 
-  if(nplots == 1) {
+  if(!ispanel) {
 /*
  * Get bounding box of plot.
  */
@@ -723,12 +724,13 @@ int create_graphicstyle_object(int wks)
  * This function maximizes and draws the plot, and advances the frame.
  */
 
-void draw_and_frame(int wks, int *plots, int nplots, nglRes *special_res)
+void draw_and_frame(int wks, int *plots, int nplots, int ispanel, 
+					nglRes *special_res)
 {
   int i;
 
   if(special_res->nglMaximize) maximize_plot(wks, plots, nplots, 
-                                             special_res);
+                                             ispanel, special_res);
   if(special_res->nglDraw)  {
     for( i = 0; i < nplots; i++ ) {
       NhlDraw(plots[i]);
@@ -1060,7 +1062,7 @@ int ngl_contour_wrap(int wks, void *data, const char *type,
  * Draw contour plot and advance frame.
  */
 
-  draw_and_frame(wks, &contour, 1, special_res);
+  draw_and_frame(wks, &contour, 1, 0, special_res);
 
 /*
  * Return.
@@ -1130,7 +1132,7 @@ int ngl_xy_wrap(int wks, void *x, void *y, const char *type_x,
  * Draw xy plot and advance frame.
  */
 
-  draw_and_frame(wks, &xy, 1, special_res);
+  draw_and_frame(wks, &xy, 1, 0, special_res);
 
 /*
  * Return.
@@ -1212,7 +1214,7 @@ int ngl_vector_wrap(int wks, void *u, void *v, const char *type_u,
  * Draw vector plot and advance frame.
  */
 
-  draw_and_frame(wks, &vector, 1, special_res);
+  draw_and_frame(wks, &vector, 1, 0, special_res);
 
 /*
  * Return.
@@ -1268,7 +1270,7 @@ int ngl_streamline_wrap(int wks, void *u, void *v, const char *type_u,
  * Draw streamline plot and advance frame.
  */
 
-  draw_and_frame(wks, &streamline, 1, special_res);
+  draw_and_frame(wks, &streamline, 1, 0, special_res);
 
 /*
  * Return.
@@ -1295,7 +1297,7 @@ int ngl_map_wrap(int wks, int mp_rlist, nglRes *special_res)
  * Draw map plot and advance frame.
  */
 
-  draw_and_frame(wks, &map, 1, special_res);
+  draw_and_frame(wks, &map, 1, 0, special_res);
 
 /*
  * Return.
@@ -1357,7 +1359,7 @@ int ngl_contour_map_wrap(int wks, void *data, const char *type,
  * Draw plots and advance frame.
  */
 
-  draw_and_frame(wks, &map, 1, special_res);
+  draw_and_frame(wks, &map, 1, 0, special_res);
 
 /*
  * Return.
@@ -1417,7 +1419,7 @@ int ngl_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
  * Draw plots and advance frame.
  */
 
-  draw_and_frame(wks, &map, 1, special_res);
+  draw_and_frame(wks, &map, 1, 0, special_res);
 
 /*
  * Return.
@@ -1479,7 +1481,7 @@ int ngl_streamline_map_wrap(int wks, void *u, void *v, const char *type_u,
  * Draw plots and advance frame.
  */
 
-  draw_and_frame(wks, &map, 1, special_res);
+  draw_and_frame(wks, &map, 1, 0, special_res);
 
 /*
  * Return.
@@ -1544,7 +1546,7 @@ int ngl_vector_scalar_wrap(int wks, void *u, void *v, void *t,
  * Draw plots and advance frame.
  */
 
-  draw_and_frame(wks, &vector, 1, special_res);
+  draw_and_frame(wks, &vector, 1, 0, special_res);
 
 /*
  * Return.
@@ -1610,7 +1612,7 @@ int ngl_vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
  * Draw plots and advance frame.
  */
 
-  draw_and_frame(wks, &map, 1, special_res);
+  draw_and_frame(wks, &map, 1, 0, special_res);
 
 /*
  * Return.
@@ -1637,7 +1639,7 @@ int ngl_text_ndc_wrap(int wks, char* string, void *x, void *y,
  * Draw text.
  */
 
-  draw_and_frame(wks, &text, 1, special_res);
+  draw_and_frame(wks, &text, 1, 0, special_res);
 
 /*
  * Return.
@@ -2455,7 +2457,7 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
   }
   else {
     if(ndims != 2) {
-      printf("Error: ngl_panel: for the third argument of ngl_panel, you must either specify # rows by # columns or set nglPanelRowSpec to True and set the number of plots per row.\n");
+      printf("Error: ngl_panel: for the third argument of ngl_panel, you must either specify # rows by # columns or set the nglPanelRowSpec resource to True and set the number of plots per row.\n");
       return;
     }
     nrows    = dims[0];
@@ -2946,7 +2948,7 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
  * also where the plots will be maximized for PostScript output,
  * if so indicated.
  */
-  draw_and_frame(wks, newplots, nvalid_plots, special_res);
+  draw_and_frame(wks, newplots, nvalid_plots, 1, special_res);
 
 /*
  * Restore nglPanelInvslb* resources because these should only
