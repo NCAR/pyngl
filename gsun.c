@@ -9,8 +9,9 @@ main()
  * Declare variables for the HLU routine calls.
  */
 
-  int wks, contour, vector, streamline;
-  int wk_rlist, sf_rlist, vf_rlist, cn_rlist, vc_rlist, st_rlist;
+  int wks, contour, xy, vector, streamline;
+  int wk_rlist, sf_rlist, ca_rlist, vf_rlist;
+  int cn_rlist, xy_rlist, vc_rlist, st_rlist;
   int colors[] = {2,16,30,44,58,52,86,100,114,128,142,156,170};
 
 /*
@@ -470,13 +471,17 @@ main()
  */
 
   sf_rlist = NhlRLCreate(NhlSETRL);
+  ca_rlist = NhlRLCreate(NhlSETRL);
   vf_rlist = NhlRLCreate(NhlSETRL);
   cn_rlist = NhlRLCreate(NhlSETRL);
+  xy_rlist = NhlRLCreate(NhlSETRL);
   vc_rlist = NhlRLCreate(NhlSETRL);
   st_rlist = NhlRLCreate(NhlSETRL);
   NhlRLClear(sf_rlist);
+  NhlRLClear(ca_rlist);
   NhlRLClear(vf_rlist);
   NhlRLClear(cn_rlist);
+  NhlRLClear(xy_rlist);
   NhlRLClear(vc_rlist);
   NhlRLClear(st_rlist);
 
@@ -494,15 +499,23 @@ main()
  * Create and draw contour plot, and advance frame.
  */
 
+  /*
   contour = gsn_contour_wrap(wks, T, type_T, nlat_T, nlon_T, 
                              is_lat_coord_T, lat_T, type_lat_T, 
                              is_lon_coord_T, lon_T, type_lon_T, 
                              is_missing_T, FillValue_T, sf_rlist, cn_rlist);
+  */
+/*
+ * Create and draw XY plot, and advance frame.
+ */
+
+  xy = gsn_xy_wrap(wks, lon_T, lat_T, type_lon_T, type_lat_T, 
+                   nlon_T, nlat_T, 0, 0, NULL, NULL, ca_rlist, xy_rlist);
 
 /*
  * Create and draw streamline plot, and advance frame.
  */
-
+  /*
   streamline = gsn_streamline_wrap(wks, U, V, type_U, type_V, 
                                    nlat_UV, nlon_UV, 
                                    is_lat_coord_UV, lat_UV, type_lat_UV, 
@@ -510,7 +523,7 @@ main()
                                    is_missing_U, is_missing_V, 
                                    FillValue_U, FillValue_V,
                                    vf_rlist, st_rlist);
-
+  */
 /*
  * Set some vector resources.
  */
@@ -524,14 +537,14 @@ main()
 /*
  * Create and draw vector plot, and advance frame.
  */
-
+  /*
   vector = gsn_vector_wrap(wks, U, V, type_U, type_V, nlat_UV, nlon_UV, 
                            is_lat_coord_UV, lat_UV, type_lat_UV, 
                            is_lon_coord_UV, lon_UV, type_lon_UV, 
                            is_missing_U, is_missing_V, 
                            FillValue_U, FillValue_V,
                            vf_rlist, vc_rlist);
-
+  */
 /*
  * NhlDestroy destroys the given id and all of its children.
  */
@@ -914,6 +927,77 @@ int scalar_field(void *data, const char *type_data, int ylen, int xlen,
 }
 
 /*
+ * This function creates a coord arrays object that will get
+ * used with the XY object.
+ */
+
+int coord_array(void *x, void *y, const char *type_x, const char *type_y, 
+                int xlen, int ylen, int is_missing_x, int is_missing_y,
+                void *FillValue_x, void *FillValue_y, int ca_rlist)
+{
+  int app, carray;
+
+/*
+ * Retrieve application id.
+ */
+  app = NhlAppGetDefaultParentId();
+
+/*
+ * Create a coord arrays object that will be used as the
+ * dataset for an XY object.
+ */
+
+  if(!strcmp(type_x,"double")) {
+    NhlRLSetDoubleArray(ca_rlist,"caXArray",(double*)x,xlen);
+    
+    if(is_missing_x) {
+      NhlRLSetDouble(ca_rlist,"caXMissingV",((double*)FillValue_x)[0]);
+    }
+  }
+  else if(!strcmp(type_x,"float")) {
+    NhlRLSetFloatArray(ca_rlist,"caXArray",(float*)x,xlen);
+
+    if(is_missing_x) {
+      NhlRLSetFloat(ca_rlist,"caXMissingV",((float*)FillValue_x)[0]);
+    }
+  }
+  else if(!strcmp(type_x,"integer")) {
+    NhlRLSetIntegerArray(ca_rlist,"caXArray",(int*)x,xlen);
+
+    if(is_missing_x) {
+      NhlRLSetInteger(ca_rlist,"caXMissingV",((int*)FillValue_x)[0]);
+    }
+  }
+
+  if(!strcmp(type_y,"double")) {
+    NhlRLSetDoubleArray(ca_rlist,"caYArray",(double*)y,ylen);
+
+    if(is_missing_y) {
+      NhlRLSetDouble(ca_rlist,"caYMissingV",((double*)FillValue_y)[0]);
+    }
+  }
+  else if(!strcmp(type_y,"float")) {
+    NhlRLSetFloatArray(ca_rlist,"caYArray",(float*)y,ylen);
+
+    if(is_missing_y) {
+      NhlRLSetFloat(ca_rlist,"caYMissingV",((float*)FillValue_y)[0]);
+    }
+  }
+  else if(!strcmp(type_y,"integer")) {
+    NhlRLSetIntegerArray(ca_rlist,"caYArray",(int*)y,ylen);
+
+    if(is_missing_y) {
+      NhlRLSetInteger(ca_rlist,"caYMissingV",((int*)FillValue_y)[0]);
+    }
+  }
+
+  NhlCreate(&carray,"carray",NhlcoordArraysClass,app,ca_rlist);
+
+  return(carray);
+}
+
+
+/*
  * This function creates a vector field object that will get
  * used with the vector or streamline object.
  */
@@ -1070,8 +1154,12 @@ int gsn_open_wks(const char *type, const char *name, int wk_rlist)
  * Create an XWorkstation object.
  */
 
+/*
     NhlRLSetInteger(wk_rlist,"wkPause",True);
     NhlCreate(&wks,"x11",NhlxWorkstationClass,
+              NhlDEFAULT_APP,wk_rlist);
+*/
+    NhlCreate(&wks,"ncgm",NhlncgmWorkstationClass,
               NhlDEFAULT_APP,wk_rlist);
   }
   else if(!strcmp(type,"ncgm") || !strcmp(type,"NCGM")) {
@@ -1187,6 +1275,56 @@ int gsn_contour_wrap(int wks, void *data, const char *type,
  */
 
   return(contour);
+}
+
+
+/*
+ * This function uses the HLUs to create an XY plot.
+ */
+
+int gsn_xy_wrap(int wks, void *x, void *y, const char *type_x,
+                const char *type_y, int xlen, int ylen, 
+                int is_missing_x, int is_missing_y, 
+                void *FillValue_x, void *FillValue_y,
+                int ca_rlist, int xy_rlist)
+{
+  int carray, xy;
+
+/*
+ * Create a coord arrays object that will be used as the
+ * dataset for the xy object.
+ */
+
+  carray = coord_array(x, y, type_x, type_y, xlen, ylen, 
+					  is_missing_x, is_missing_y, 
+                      FillValue_x, FillValue_y, ca_rlist);
+
+/*
+ * Assign the data object that was created earlier.
+ */
+
+  NhlRLSetInteger(xy_rlist,"xyCoordData",carray);
+
+/*
+ * Create plot.
+ */
+
+  NhlCreate(&xy,"xy",NhlxyPlotClass,wks,xy_rlist);
+
+/*
+ * Draw xy plot and advance frame.
+ */
+
+  maximize_plot(wks, xy);
+
+  NhlDraw(xy);
+  NhlFrame(wks);
+
+/*
+ * Return.
+ */
+
+  return(xy);
 }
 
 
