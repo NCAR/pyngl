@@ -707,7 +707,7 @@ int gsn_open_wks(const char *type, const char *name, int wk_rlist)
  */
 
     len      = strlen(name);
-    filename = (char *)malloc((len+4)*sizeof(char));
+    filename = (char *)malloc((len+5)*sizeof(char));
 
     strncpy(filename,name,len);
     strcat(filename,".pdf");

@@ -52,37 +52,41 @@ main()
  * Declare variables for determining which plots to draw.
  */
   int do_contour, do_xy_single, do_xy_multi, do_y, do_vector;
-  int do_streamline, do_map, do_contour_map, do_vector_map;
+  int do_streamline, do_map, do_contour_map, do_contour_map2, do_vector_map;
   int do_streamline_map, do_vector_scalar, do_vector_scalar_map;
 
 /*
  * Declare variables for getting information from netCDF file.
  */
 
-  int ncid_T, ncid_U, ncid_V, ncid_T2;
-  int id_T, id_U, id_V, id_T2;
+  int ncid_T, ncid_U, ncid_V, ncid_P, ncid_T2;
+  int id_T, id_U, id_V, id_P, id_T2;
   int lonid_T, latid_T, lonid_UV, latid_UV;
   int nlon_T, nlat_T, nlat_UV, nlon_UV;
   int ndims_T, dsizes_T[2], ndims_UV;
-  int is_missing_T, is_missing_U, is_missing_V, is_missing_T2;
+  int is_missing_T, is_missing_U, is_missing_V, is_missing_P, is_missing_T2;
   int attid, status;
 
 /*
  * Declare variables to hold values, missing values, and types that
  * are read in from netCDF files.
  */
-  void  *T, *U, *V, *T2, *lat_T, *lon_T, *lat_UV, *lon_UV;
-  void  *FillValue_T, *FillValue_U, *FillValue_V, *FillValue_T2;
+  void  *T, *U, *V, *P, *T2, *lat_T, *lon_T, *lat_UV, *lon_UV;
+  void  *FillValue_T, *FillValue_U, *FillValue_V;
+  void  *FillValue_P, *FillValue_T2;
   int is_lat_coord_T, is_lon_coord_T, is_lat_coord_UV, is_lon_coord_UV;
 
   nc_type nctype_T, nctype_lat_T, nctype_lon_T;
-  nc_type nctype_U, nctype_V, nctype_lat_UV, nctype_lon_UV, nctype_T2;
-  char type_T[TYPE_LEN], type_U[TYPE_LEN], type_V[TYPE_LEN], type_T2[TYPE_LEN];
+  nc_type nctype_U, nctype_V, nctype_P;
+  nc_type nctype_lat_UV, nctype_lon_UV, nctype_T2;
+  char type_T[TYPE_LEN], type_U[TYPE_LEN], type_V[TYPE_LEN];
+  char type_P[TYPE_LEN], type_T2[TYPE_LEN];
   char type_lat_T[TYPE_LEN], type_lon_T[TYPE_LEN];
   char type_lat_UV[TYPE_LEN], type_lon_UV[TYPE_LEN];
 
   size_t i, j, *start, *count;
-  char  filename_T[256], filename_U[256], filename_V[256], filename_T2[256];
+  char  filename_T[256], filename_U[256], filename_V[256];
+  char  filename_P[256], filename_T2[256];
   const char *dir = _NGGetNCARGEnv("data");
 
 /*
@@ -92,11 +96,13 @@ main()
   sprintf(filename_T, "%s/cdf/meccatemp.cdf", dir );
   sprintf(filename_U, "%s/cdf/Ustorm.cdf", dir );
   sprintf(filename_V, "%s/cdf/Vstorm.cdf", dir );
+  sprintf(filename_P, "%s/cdf/Pstorm.cdf", dir );
   sprintf(filename_T2, "%s/cdf/Tstorm.cdf", dir );
 
   nc_open(filename_T,NC_NOWRITE,&ncid_T);
   nc_open(filename_U,NC_NOWRITE,&ncid_U);
   nc_open(filename_V,NC_NOWRITE,&ncid_V);
+  nc_open(filename_P,NC_NOWRITE,&ncid_P);
   nc_open(filename_T2,NC_NOWRITE,&ncid_T2);
 
 /*
@@ -122,6 +128,7 @@ main()
   nc_inq_varid(ncid_T,  "t",&id_T);
   nc_inq_varid(ncid_U,  "u",&id_U);
   nc_inq_varid(ncid_V,  "v",&id_V);
+  nc_inq_varid(ncid_P,  "p",&id_P);
   nc_inq_varid(ncid_T2, "t",&id_T2);
   nc_inq_varid(ncid_T,"lat",&latid_T);
   nc_inq_varid(ncid_T,"lon",&lonid_T);
@@ -155,6 +162,14 @@ main()
   }
   else {
     is_missing_V = 0;
+  }
+
+  status = nc_inq_attid (ncid_P, id_P, "_FillValue", &attid); 
+  if(status == NC_NOERR) {
+    is_missing_P = 1;
+  }
+  else {
+    is_missing_P = 0;
   }
 
   status = nc_inq_attid (ncid_T2, id_T2, "_FillValue", &attid); 
@@ -298,6 +313,7 @@ main()
 
   nc_inq_vartype  (ncid_U, id_U, &nctype_U);
   nc_inq_vartype  (ncid_V, id_V, &nctype_V);
+  nc_inq_vartype  (ncid_P, id_P, &nctype_P);
   nc_inq_vartype  (ncid_T2, id_T2, &nctype_T2);
   nc_inq_varndims (ncid_U, id_U, &ndims_UV);
 
@@ -418,6 +434,69 @@ main()
     if(is_missing_V) {
       FillValue_V = (int *)calloc(1,sizeof(int));
       nc_get_att_float (ncid_V, id_V, "_FillValue", (float*)FillValue_V); 
+    }
+    break;
+  }
+
+  switch(nctype_P) {
+
+  case NC_DOUBLE:
+    strcpy(type_P,"double");
+    P      = (double *)calloc(nlat_UV*nlon_UV,sizeof(double));
+
+/*
+ * Get double values.
+ */
+    nc_get_vara_double(ncid_P,id_P,start,count,(double*)P);
+
+/*
+ * Get double missing value.
+ */
+    if(is_missing_P) {
+      FillValue_P = (int *)calloc(1,sizeof(int));
+      nc_get_att_float (ncid_P, id_P, "_FillValue", (float*)FillValue_P); 
+    }
+    break;
+
+  case NC_FLOAT:
+    strcpy(type_P,"float");
+    P      = (float *)calloc(nlat_UV*nlon_UV,sizeof(float));
+
+/*
+ * Get float values.
+ */
+    nc_get_vara_float(ncid_P,id_P,start,count,(float*)P);
+
+/*
+ * Get float missing value.
+ */
+    if(is_missing_P) {
+      FillValue_P = (int *)calloc(1,sizeof(int));
+      nc_get_att_float (ncid_P, id_P, "_FillValue", (float*)FillValue_P); 
+    }
+    for(i = 0; i < nlat_UV*nlon_UV; i++) {
+      if(!is_missing_P ||
+         (is_missing_P && ((float*)P)[i] != ((float*)FillValue_P)[0])) {
+        ((float*)P)[i] = (((float*)P)[i] * 0.01);
+      }
+	}
+    break;
+
+  case NC_INT:
+    strcpy(type_P,"integer");
+    P      = (int *)calloc(nlat_UV*nlon_UV,sizeof(int));
+
+/*
+ * Get integer values.
+ */
+    nc_get_vara_int(ncid_P,id_P,start,count,(int*)P);
+
+/*
+ * Get integer missing value.
+ */
+    if(is_missing_P) {
+      FillValue_P = (int *)calloc(1,sizeof(int));
+      nc_get_att_float (ncid_P, id_P, "_FillValue", (float*)FillValue_P); 
     }
     break;
   }
@@ -573,6 +652,7 @@ main()
   ncclose(ncid_T);
   ncclose(ncid_U);
   ncclose(ncid_V);
+  ncclose(ncid_P);
   ncclose(ncid_T2);
 
 
@@ -599,18 +679,19 @@ main()
 /*
  * Initialize which plots to draw.
  */
-  do_contour           = 1;
-  do_xy_single         = 1;
-  do_xy_multi          = 1;
-  do_y                 = 1;
-  do_vector            = 1;
-  do_streamline        = 1;
-  do_map               = 1;
-  do_contour_map       = 1;
-  do_vector_map        = 1;
-  do_streamline_map    = 1;
-  do_vector_scalar     = 1;
-  do_vector_scalar_map = 1;
+  do_contour           = 0;
+  do_xy_single         = 0;
+  do_xy_multi          = 0;
+  do_y                 = 0;
+  do_vector            = 0;
+  do_streamline        = 0;
+  do_map               = 0;
+  do_contour_map       = 0;
+  do_contour_map2      = 1;
+  do_vector_map        = 0;
+  do_streamline_map    = 0;
+  do_vector_scalar     = 0;
+  do_vector_scalar_map = 0;
 
 /*
  * Initialize color map for later.
@@ -644,8 +725,10 @@ main()
  * Set color map resource and open workstation.
  */
 
+  /*
   NhlRLSetString(wk_rlist,"wkColorMap","rainbow+gray");
-  wks = gsn_open_wks("ncgm","test", wk_rlist);
+  */
+  wks = gsn_open_wks("x11","test", wk_rlist);
 
 /*
  * Initialize and clear resource lists.
@@ -926,16 +1009,87 @@ main()
                                    &special_res);
   }
 
+/*
+ * gsn_contour_map section
+ */
+
+  if(do_contour_map2) {
+	NhlRLClear(cn_rlist);
+	NhlRLClear(sf_rlist);
+	NhlRLClear(mp_rlist);
+
+/*
+ * Set up some resources.
+ */
+	NhlRLSetString(cn_rlist,"tiXAxisString" , ":F25:longitude");
+	NhlRLSetString(cn_rlist,"tiYAxisString" , ":F25:latitude");
+
+	NhlRLSetString(cn_rlist,"cnFillOn"              , "True");
+	NhlRLSetString(cn_rlist,"cnLineLabelsOn"        , "False");
+	NhlRLSetString(cn_rlist,"cnInfoLabelOn"         , "False");
+	NhlRLSetString(cn_rlist,"pmLabelBarDisplayMode" , "Always");
+	NhlRLSetString(cn_rlist,"lbPerimOn"             , "False");
+
+	NhlRLSetFloat(sf_rlist,"sfXCStartV" , -140.0);
+	NhlRLSetFloat(sf_rlist,"sfXCEndV"   ,  -52.5);
+	NhlRLSetFloat(sf_rlist,"sfYCStartV" ,   20.0);
+	NhlRLSetFloat(sf_rlist,"sfYCEndV"   ,   60.0);
+
+	NhlRLSetString(mp_rlist,"mpProjection" , "LambertEqualArea");
+	NhlRLSetFloat(mp_rlist,"mpCenterLonF" , -96.25);
+	NhlRLSetFloat(mp_rlist,"mpCenterLatF" ,  40.0);
+
+	NhlRLSetString(mp_rlist,"mpLimitMode" , "LatLon");
+	NhlRLSetFloat(mp_rlist,"mpMinLonF"   , -140.0);
+	NhlRLSetFloat(mp_rlist,"mpMaxLonF"   ,  -52.5);
+	NhlRLSetFloat(mp_rlist,"mpMinLatF"   ,   20.0);
+	NhlRLSetFloat(mp_rlist,"mpMaxLatF"   ,   60.0);
+	NhlRLSetString(mp_rlist,"mpPerimOn"  , "True");
+
+	NhlRLSetString(mp_rlist,"tiMainString" , ":F26:January 1996 storm");
+
+	NhlRLSetFloat(mp_rlist,"vpXF"      , 0.1);
+	NhlRLSetFloat(mp_rlist,"vpYF"      , 0.9);
+	NhlRLSetFloat(mp_rlist,"vpWidthF"  , 0.7);
+	NhlRLSetFloat(mp_rlist,"vpHeightF" , 0.7);
+
+    special_res.gsnFrame = 0;
+    special_res.gsnMaximize = 0;
+
+    cntrmap = gsn_contour_map_wrap(wks, P, type_P, nlat_UV, nlon_UV, 
+                                   is_lat_coord_UV, lat_UV, type_lat_UV, 
+                                   is_lon_coord_UV, lon_UV, type_lon_UV, 
+                                   is_missing_P, FillValue_P, 
+                                   sf_rlist, cn_rlist, mp_rlist,
+                                   &special_res);
+    special_res.gsnMaximize = 1;
+    special_res.gsnFrame = 1;
+/*
+ * Set some text resources.
+ */
+
+    NhlRLClear (tx_rlist);
+	NhlRLSetFloat(tx_rlist,"txFontHeightF" , 0.025);
+	NhlRLSetInteger(tx_rlist,"txFontColor"   , 4);
+	xf = 0.45;
+	yf = 0.25;
+    text = gsn_text_ndc_wrap(wks,":F25:Pressure (mb)",&xf,&yf,"float",
+							 "float", tx_rlist,&special_pres);
+	
+	NhlFrame(wks);
+  }
+
 /* 
  * Define a new color map.
  */
   cmap_len[0] = NCOLORS;
   cmap_len[1] = 3;
   srlist = NhlRLCreate(NhlSETRL);
+  /*
   NhlRLClear(srlist);
   NhlRLSetMDFloatArray(srlist,NhlNwkColorMap,&cmap[0][0],2,cmap_len);
   (void)NhlSetValues(wks, srlist);
-
+  */
 /*
  * gsn_vector_map section
  */
