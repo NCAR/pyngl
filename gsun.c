@@ -283,6 +283,105 @@ void maximize_plot(int wks, int plot, gsnRes *special_res)
 }
 
 /*
+ * This function coerces a void array to a float array (for routines
+ * like NhlDataPolygon that expect floats).
+ */
+float *coerce_to_float(void *x, const char *type_x, int len)
+{
+  int i;
+  float *xf;
+
+/*
+ * If it's already float, just return a pointer to it.
+ */
+  if(!strcmp(type_x,"float")) {
+    xf = (float*)x;
+  }
+
+/*
+ * Otherwise, it must be a double or integer.
+ */
+  else {
+/*
+ * Allocate space for float array.
+ */
+    xf = (float *)malloc(len*sizeof(float));
+    if(xf == NULL) {
+      NhlPError(NhlWARNING,NhlEUNKNOWN,"Not enough memory to coerce input array to float");
+      return(NULL);
+    }
+/*
+ * Do the conversion the old-fashioned way.
+ */
+    if(!strcmp(type_x,"double")) {
+      for(i = 0; i < len; i++ ) {
+        xf[i] = (float)((double*)x)[i];
+      }
+    }
+    else if(!strcmp(type_x,"integer")) {
+      for(i = 0; i < len; i++ ) {
+        xf[i] = (float)((int*)x)[i];
+      }
+    }
+    else {
+      NhlPError(NhlWARNING,NhlEUNKNOWN,"Unrecognized type: input array must be integer, float, or double");
+      return(NULL);
+    }
+  }
+  return(xf);
+}
+
+
+/*
+ * This function removes all the missing values from a float array.
+ */
+void collapse_nomsg(float *xf, float *xmsg, int len, int *newlen)
+{
+  int i;
+
+  *newlen = 0;
+  for(i = 0; i < len; i++ ) {
+    if(xf[i] != *xmsg) {
+      xf[*newlen] = xf[i];
+      *newlen++;
+    }
+  }
+}
+
+
+/*
+ * This function removes all the missing values from a pair of
+ * float arrays. If they are missing in one or both arrays in the same
+ * location, then this location is not stored in the new array.
+ */
+void collapse_nomsg_xy(float *xf, float *yf, int len, int is_missing_x, 
+                       int is_missing_y, float *xmsg, float *ymsg,
+                       int *newlen)
+{
+  int i;
+
+/*
+ * Special case of no missing values.
+ */
+  if(!is_missing_x && !is_missing_y) {
+    *newlen = len;
+  }
+  else {
+    *newlen = 0;
+    for(i = 0; i < len; i++ ) {
+      if((!is_missing_x || xmsg == NULL ||
+          (is_missing_x && xf[i] != *xmsg)) && 
+         (!is_missing_y || ymsg == NULL || 
+          (is_missing_y && yf[i] != *ymsg))) {
+        xf[*newlen] = xf[i];
+        yf[*newlen] = yf[i];
+        *newlen++;
+      }
+    }
+  }
+}
+
+/*
  * Create a graphic style object so we can draw primitives on it.
  * We could have retrieved the one that is created when you create
  * a workstation object, but then if you draw a bunch of primitives, 
@@ -639,7 +738,7 @@ int gsn_open_wks(const char *type, const char *name, int wk_rlist)
  */
 
     len      = strlen(name);
-    filename = (char *)calloc(len+6,sizeof(char));
+    filename = (char *)malloc((len+6)*sizeof(char));
 
     strncpy(filename,name,len);
     strcat(filename,".ncgm");
@@ -656,7 +755,7 @@ int gsn_open_wks(const char *type, const char *name, int wk_rlist)
  */
 
     len      = strlen(name);
-    filename = (char *)calloc(len+4,sizeof(char));
+    filename = (char *)malloc((len+4)*sizeof(char));
 
     strncpy(filename,name,len);
     strcat(filename,".ps");
@@ -674,7 +773,7 @@ int gsn_open_wks(const char *type, const char *name, int wk_rlist)
  */
 
     len      = strlen(name);
-    filename = (char *)calloc(len+4,sizeof(char));
+    filename = (char *)malloc((len+4)*sizeof(char));
 
     strncpy(filename,name,len);
     strcat(filename,".pdf");
@@ -1304,11 +1403,28 @@ int gsn_text_wrap(int wks, int plot, char* string, float x, float y,
 /*
  * Routine for drawing any kind of primitive in NDC or data space.
  */
-void gsn_poly_wrap(int wks, int plot, float *x, float *y, int len,
-                   PolyType polytype, int is_ndc, int gs_rlist, 
-                   gsnRes *special_res)
+void gsn_poly_wrap(int wks, int plot, void *x, void *y, const char *type_x,
+                   const char *type_y, int len, int is_missing_x, 
+                   int is_missing_y, void *FillValue_x, 
+                   void *FillValue_y, PolyType polytype, int is_ndc, 
+                   int gs_rlist, gsnRes *special_res)
 {
-  int gsid;
+  int gsid, newlen;
+  float *xf, *yf, *xfmsg, *yfmsg;
+
+/*
+ * Determine if we need to convert x and/or y (and their missing values)
+ * to float.
+ */
+  xf  = coerce_to_float(x,type_x,len);
+  yf  = coerce_to_float(y,type_y,len);
+  if(is_missing_x) xfmsg = coerce_to_float(FillValue_x,type_x,1);
+  if(is_missing_y) yfmsg = coerce_to_float(FillValue_y,type_y,1);
+
+/*
+ * Remove missing values, if any.
+ */
+  collapse_nomsg_xy(xf,yf,len,is_missing_x,is_missing_y,xfmsg,yfmsg,&newlen);
 
 /*
  * Create graphic style object on which to draw primitives.
@@ -1329,15 +1445,15 @@ void gsn_poly_wrap(int wks, int plot, float *x, float *y, int len,
       switch(polytype) {
 
       case POLYLINE:
-        NhlNDCPolyline(wks,gsid,x,y,len);
+        NhlNDCPolyline(wks,gsid,xf,yf,newlen);
         break;
 
       case POLYMARKER:
-        NhlNDCPolymarker(wks,gsid,x,y,len);
+        NhlNDCPolymarker(wks,gsid,xf,yf,newlen);
         break;
 
       case POLYGON:
-        NhlNDCPolygon(wks,gsid,x,y,len);
+        NhlNDCPolygon(wks,gsid,xf,yf,newlen);
         break;
       }
     }
@@ -1345,15 +1461,15 @@ void gsn_poly_wrap(int wks, int plot, float *x, float *y, int len,
       switch(polytype) {
 
       case POLYLINE:
-        NhlDataPolyline(plot,gsid,x,y,len);
+        NhlDataPolyline(plot,gsid,xf,yf,newlen);
         break;
 
       case POLYMARKER:
-        NhlDataPolymarker(plot,gsid,x,y,len);
+        NhlDataPolymarker(plot,gsid,xf,yf,newlen);
         break;
 
       case POLYGON:
-        NhlDataPolygon(plot,gsid,x,y,len);
+        NhlDataPolygon(plot,gsid,xf,yf,newlen);
         break;
       }
     }
@@ -1363,63 +1479,83 @@ void gsn_poly_wrap(int wks, int plot, float *x, float *y, int len,
 
 }
 
-
 /*
  * Routine for drawing markers in NDC space.
  */
-void gsn_polymarker_ndc_wrap(int wks, float *x, float *y, int len,
+void gsn_polymarker_ndc_wrap(int wks, void *x, void *y, const char *type_x, 
+                             const char *type_y,  int len,
+                             int is_missing_x, int is_missing_y, 
+                             void *FillValue_x, void *FillValue_y, 
                              int gs_rlist, gsnRes *special_res)
 {
-  gsn_poly_wrap(wks,0,x,y,len,POLYMARKER,1,gs_rlist,special_res);
+  gsn_poly_wrap(wks,0,x,y,type_x,type_y,len,is_missing_x,is_missing_y,
+                FillValue_x,FillValue_y,POLYMARKER,1,gs_rlist,special_res);
 }
 
 
 /*
  * Routine for drawing lines in NDC space.
  */
-void gsn_polyline_ndc_wrap(int wks, float *x, float *y, int len,
+void gsn_polyline_ndc_wrap(int wks, void *x, void *y, const char *type_x,
+                           const char *type_y, int len,
+                           int is_missing_x, int is_missing_y, 
+                           void *FillValue_x, void *FillValue_y, 
                            int gs_rlist, gsnRes *special_res)
 {
-  gsn_poly_wrap(wks,0,x,y,len,POLYLINE,1,gs_rlist,special_res);
+  gsn_poly_wrap(wks,0,x,y,type_x,type_y,len,is_missing_x,is_missing_y,
+                FillValue_x,FillValue_y,POLYLINE,1,gs_rlist,special_res);
 }
 
 
 /*
  * Routine for drawing polygons in NDC space.
  */
-void gsn_polygon_ndc_wrap(int wks, float *x, float *y, int len,
+void gsn_polygon_ndc_wrap(int wks, void *x, void *y, const char *type_x, 
+                          const char *type_y, int len,
+                          int is_missing_x, int is_missing_y, 
+                          void *FillValue_x, void *FillValue_y, 
                           int gs_rlist, gsnRes *special_res)
 {
-  gsn_poly_wrap(wks,0,x,y,len,POLYGON,1,gs_rlist,special_res);
+  gsn_poly_wrap(wks,0,x,y,type_x,type_y,len,is_missing_x,is_missing_y,
+                FillValue_x,FillValue_y,POLYGON,1,gs_rlist,special_res);
 }
-
-
 
 /*
  * Routine for drawing markers in data space.
  */
-void gsn_polymarker_wrap(int wks, int plot, float *x, float *y, int len,
+void gsn_polymarker_wrap(int wks, int plot, void *x, void *y, 
+                         const char *type_x, const char *type_y, int len,
+                         int is_missing_x, int is_missing_y, 
+                         void *FillValue_x, void *FillValue_y, 
                          int gs_rlist, gsnRes *special_res)
 {
-  gsn_poly_wrap(wks,plot,x,y,len,POLYMARKER,0,gs_rlist,special_res);
+  gsn_poly_wrap(wks,plot,x,y,type_x,type_y,len,is_missing_x,is_missing_y,
+                FillValue_x,FillValue_y,POLYMARKER,0,gs_rlist,special_res);
 }
 
 
 /*
  * Routine for drawing lines in data space.
  */
-void gsn_polyline_wrap(int wks, int plot, float *x, float *y, int len,
-                           int gs_rlist, gsnRes *special_res)
+void gsn_polyline_wrap(int wks, int plot, void *x, void *y, 
+                       const char *type_x, const char *type_y, int len, 
+                       int is_missing_x, int is_missing_y, 
+                       void *FillValue_x, void *FillValue_y, 
+                       int gs_rlist, gsnRes *special_res)
 {
-  gsn_poly_wrap(wks,plot,x,y,len,POLYLINE,0,gs_rlist,special_res);
+  gsn_poly_wrap(wks,plot,x,y,type_x,type_y,len,is_missing_x,is_missing_y,
+                FillValue_x,FillValue_y,POLYLINE,0,gs_rlist,special_res);
 }
-
 
 /*
  * Routine for drawing polygons in data space.
  */
-void gsn_polygon_wrap(int wks, int plot, float *x, float *y, int len,
+void gsn_polygon_wrap(int wks, int plot, void *x, void *y, 
+                      const char *type_x, const char *type_y, int len, 
+                      int is_missing_x, int is_missing_y, 
+                      void *FillValue_x, void *FillValue_y, 
                       int gs_rlist, gsnRes *special_res)
 {
-  gsn_poly_wrap(wks,plot,x,y,len,POLYGON,0,gs_rlist,special_res);
+  gsn_poly_wrap(wks,plot,x,y,type_x,type_y,len,is_missing_x,is_missing_y,
+                FillValue_x,FillValue_y,POLYGON,0,gs_rlist,special_res);
 }

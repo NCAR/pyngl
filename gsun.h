@@ -48,6 +48,25 @@ typedef struct {
  * Supplemental functions. 
  */
 
+extern void compute_ps_device_coords(int, int, gsnRes *);
+
+extern void maximize_plot(int, int, gsnRes *);
+
+extern float *coerce_to_float(void *, const char *, int);
+
+extern void collapse_nomsg(float *, float *, int, int *);
+
+extern void collapse_nomsg_xy(float *, float *, int, int, int, float *,
+                              float *, int *);
+
+extern int create_graphicstyle_object(int);
+
+extern void draw_and_frame(int, int, gsnRes *);
+
+/*
+ * Data object routines.
+ */
+
 extern int scalar_field(void *, const char *, int, int, int, void *, 
                         const char *, int, void *, const char *, int,
                         void *, int);
@@ -59,14 +78,6 @@ extern int coord_array(void *, void *, const char *, const char *,
 extern int vector_field(void *, void *, const char *, const char *, int,
                         int, int, void *, const char *, int, void*, 
                         const char *, int, int, void *, void *, int);
-
-extern void compute_ps_device_coords(int, int, gsnRes *);
-
-extern void maximize_plot(int, int, gsnRes *);
-
-extern int create_graphicstyle_object(int);
-
-extern void draw_and_frame(int, int, gsnRes *);
 
 /*
  * Workstation routine.
@@ -143,13 +154,31 @@ extern int gsn_text_wrap(int, int, char *, float, float, int, gsnRes *);
  * Primitive drawing routines.
  */
 
-extern void gsn_poly_wrap(int, int, float *, float *, int, PolyType,
-                          int, int, gsnRes *);
-extern void gsn_polymarker_ndc_wrap(int, float *, float *, int, int, 
-                                    gsnRes *);
-extern void gsn_polyline_ndc_wrap(int, float *, float *, int, int, gsnRes *);
-extern void gsn_polygon_ndc_wrap(int, float *, float *, int, int, gsnRes *);
-extern void gsn_polymarker_wrap(int, int, float *, float *, int, int, 
-                                gsnRes *);
-extern void gsn_polyline_wrap(int, int, float *, float *, int, int, gsnRes *);
-extern void gsn_polygon_wrap(int, int, float *, float *, int, int, gsnRes *);
+extern void gsn_poly_wrap(int, int, void *, void *, const char *type_x,
+                          const char *type_y, int, int, int, void *, void*,
+                          PolyType, int, int, gsnRes *);
+
+extern void gsn_polymarker_ndc_wrap(int, void *, void *, const char *, 
+                                    const char *, int, int, int, void *,
+                                    void *, int, gsnRes *);
+
+extern void gsn_polyline_ndc_wrap(int, void *, void *, const char *, 
+                                  const char *, int, int, int, void *,
+                                  void *, int, gsnRes *);
+
+extern void gsn_polygon_ndc_wrap(int, void *, void *, const char *, 
+                                 const char *, int, int, int, void *, 
+                                 void *, int, gsnRes *);
+
+extern void gsn_polymarker_wrap(int, int, void *, void *, const char *, 
+                                const char *, int, int, int, void *, void *, 
+                                int, gsnRes *);
+
+extern void gsn_polyline_wrap(int, int, void *, void *, const char *, 
+                              const char *, int, int, int, void *, void *, 
+                              int, gsnRes *);
+
+extern void gsn_polygon_wrap(int, int, void *, void *, const char *, 
+                             const char *, int, int, int, void *, void *, 
+                             int, gsnRes *);
+

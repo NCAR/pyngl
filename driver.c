@@ -9,12 +9,16 @@
 
 #define NG  5
 
-float xmark1[6] = {0.02,0.03,0.04,0.05,0.06,0.07};
-float ymark1[6] = {0.01,0.01,0.01,0.01,0.01,0.01};
-float xmark2[3] = {0.06,0.05,0.04};
-float ymark2[3] = {0.02,0.03,0.04};
-float xmark3[3] = {0.03,0.02,0.01};
-float ymark3[3] = {0.03,0.02,0.01};
+/*
+ * The type is being mixed here (double & float) for testing
+ * purposes.
+ */
+double xmark1[6] = {0.02,0.03,0.04,0.05,0.06,0.07};
+float  ymark1[6] = {0.01,0.01,0.01,0.01,0.01,0.01};
+float  xmark2[3] = {0.06,0.05,0.04};
+double ymark2[3] = {0.02,0.03,0.04};
+float  xmark3[3] = {0.03,0.02,0.01};
+float  ymark3[3] = {0.03,0.02,0.01};
 
 float xline[2] = {0.01,0.99};
 float yline[2] = {0.05,0.05};
@@ -22,8 +26,8 @@ float yline[2] = {0.05,0.05};
 float xgon[NG] = {0.80,0.90,0.90,0.80,0.80};
 float ygon[NG] = {0.05,0.05,0.10,0.10,0.05};
 
-float latgon[5] = {  20.,  60.,  60.,  20.,  20.};
-float longon[5] = {-125.,-125., -65., -65.,-125.};
+int latgon[5] = {  20,  60,  60,  20,  20};
+int longon[5] = {-125,-125, -65, -65, -125};
 
 main()
 {
@@ -594,16 +598,16 @@ main()
 /*
  * Initialize which plots to draw.
  */
-  do_contour           = 0;
+  do_contour           = 1;
   do_xy_single         = 0;
-  do_xy_multi          = 0;
-  do_y                 = 0;
+  do_xy_multi          = 1;
+  do_y                 = 1;
   do_vector            = 0;
-  do_streamline        = 0;
+  do_streamline        = 1;
   do_map               = 0;
   do_contour_map       = 0;
-  do_vector_map        = 0;
-  do_streamline_map    = 0;
+  do_vector_map        = 1;
+  do_streamline_map    = 1;
   do_vector_scalar     = 0;
   do_vector_scalar_map = 1;
 
@@ -647,7 +651,7 @@ main()
  */
 
   NhlRLSetString(wk_rlist,"wkColorMap","rainbow+gray");
-  wks = gsn_open_wks("ncgm","test", wk_rlist);
+  wks = gsn_open_wks("x11","test", wk_rlist);
 
 /*
  * Initialize and clear resource lists.
@@ -720,7 +724,8 @@ main()
     NhlRLSetString (gs_rlist,"gsFillColor"     , "SlateBlue");
     NhlRLSetString (gs_rlist,"gsEdgesOn"       , "True");
     NhlRLSetString (gs_rlist,"gsEdgeColor"     , "Salmon");
-    gsn_polygon_ndc_wrap(wks, xgon, ygon, NG, gs_rlist, &special_pres);
+    gsn_polygon_ndc_wrap(wks, (void *)xgon, (void *)ygon, "float", "float", 
+                         NG, 0, 0, NULL, NULL, gs_rlist, &special_pres);
 
 /*
  * Create and draw contour plot, and advance frame.
@@ -963,11 +968,17 @@ main()
     NhlRLSetInteger(gs_rlist,"gsMarkerIndex", 16);
     NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 10.5);
     NhlRLSetString (gs_rlist,"gsMarkerColor", "red");
-    gsn_polymarker_ndc_wrap(wks, xmark1, ymark1, 6, gs_rlist, &special_pres);
+    gsn_polymarker_ndc_wrap(wks, (void *)xmark1, (void *)ymark1, "double",
+                            "float", 6, 0, 0, NULL, NULL, gs_rlist,
+                            &special_pres);
     NhlRLSetString (gs_rlist,"gsMarkerColor", "green");
-    gsn_polymarker_ndc_wrap(wks, xmark2, ymark2, 3, gs_rlist, &special_pres);
+    gsn_polymarker_ndc_wrap(wks, (void *)xmark2, (void *)ymark2, "float", 
+                            "double", 3, 0, 0, NULL, NULL, gs_rlist, 
+                            &special_pres);
     NhlRLSetString (gs_rlist,"gsMarkerColor", "blue");
-    gsn_polymarker_ndc_wrap(wks, xmark3, ymark3, 3, gs_rlist, &special_pres);
+    gsn_polymarker_ndc_wrap(wks, (void *)xmark3, (void *)ymark3, "float",
+                            "float", 3, 0, 0, NULL, NULL, gs_rlist,
+                            &special_pres);
 
 /*
  * Now create and draw plot.
@@ -1050,7 +1061,9 @@ main()
     NhlRLClear(gs_rlist);
     NhlRLSetString (gs_rlist,"gsLineColor"     , "red");
     NhlRLSetFloat  (gs_rlist,"gsLineThicknessF", 2.5);
-    gsn_polyline_ndc_wrap(wks, xline, yline, 2, gs_rlist, &special_pres);
+    gsn_polyline_ndc_wrap(wks, (void *)xline, (void *)yline, "float",
+                          "float", 2, 0, 0, NULL, NULL, gs_rlist,
+                          &special_pres);
 
 /*
  * Set some text resources and draw a text string.
@@ -1131,15 +1144,20 @@ main()
 
     NhlRLClear(gs_rlist);
     NhlRLSetString (gs_rlist,"gsFillColor", "LightGray");
-    gsn_polygon_ndc_wrap(wks, xgon, ygon, NG, gs_rlist, &special_pres);
+    gsn_polygon_ndc_wrap(wks, (void *)xgon, (void *)ygon, "float", "float",
+                         NG, 0, 0, NULL, NULL, gs_rlist, &special_pres);
 
     NhlRLClear(gs_rlist);
     NhlRLSetString (gs_rlist,"gsMarkerColor", "red");
-    gsn_polymarker_ndc_wrap(wks, xgon, ygon, NG, gs_rlist, &special_pres);
+    gsn_polymarker_ndc_wrap(wks, (void *)xgon, (void *)ygon, "float",
+                            "float", NG, 0, 0, NULL, NULL, gs_rlist,
+                            &special_pres);
 
     NhlRLClear(gs_rlist);
     NhlRLSetString (gs_rlist,"gsLineColor", "Blue");
-    gsn_polyline_ndc_wrap(wks, xgon, ygon, NG, gs_rlist, &special_pres);
+    gsn_polyline_ndc_wrap(wks, (void *)xgon, (void *)ygon, "float", 
+                          "float", NG, 0, 0, NULL, NULL, gs_rlist,
+                          &special_pres);
 
     NhlFrame(wks);
   }
@@ -1216,18 +1234,21 @@ main()
  */
     NhlRLClear(gs_rlist);
     NhlRLSetInteger (gs_rlist,"gsFillIndex", 17);
-    gsn_polygon_wrap(wks, vctrmap, longon, latgon, 5, gs_rlist,
-					 &special_pres);
+    gsn_polygon_wrap(wks, vctrmap, (void *)longon, (void *)latgon,
+                     "integer", "integer", 5, 0, 0, NULL, NULL, gs_rlist,
+                     &special_pres);
     NhlRLSetInteger (gs_rlist,"gsLineThicknessF", 2.0);
-    gsn_polyline_wrap(wks, vctrmap, longon, latgon, 5, gs_rlist,
-					  &special_pres);
+    gsn_polyline_wrap(wks, vctrmap, (void *)longon, (void *)latgon,
+                      "integer", "integer", 5, 0, 0, NULL, NULL, gs_rlist,
+                      &special_pres);
 /*
  * Mark the four corners of the polygon with polymarkers.
  */
     NhlRLSetInteger(gs_rlist,"gsMarkerIndex", 16);
     NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 10.5);
-    gsn_polymarker_wrap(wks, vctrmap, longon, latgon, 4, gs_rlist, 
-						&special_pres);
+    gsn_polymarker_wrap(wks, vctrmap, (void *)longon, (void *)latgon,
+                        "integer", "integer", 4, 0, 0, NULL, NULL, gs_rlist,
+                        &special_pres);
 
 /*
  * Label the four corners of the polygon with text.
@@ -1250,7 +1271,7 @@ main()
     text = gsn_text_wrap(wks,vctrmap,"lat= 60:C:lon=-65",
                          -65, 60, tx_rlist,&special_pres);
 
-	NhlFrame(wks);
+    NhlFrame(wks);
   }
 /*
  * NhlDestroy destroys the given id and all of its children.
