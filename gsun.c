@@ -69,6 +69,33 @@ float *fspan(float start, float end, int npts)
 }
 
 /*
+ * This function creates values from start to end with skip.
+ */
+int *ispan(int start, int end, int nskip)
+{
+  int i, npts, *ret_val;
+
+  if(end > start) {
+    npts = ((end-start)/nskip) + 1;
+
+    ret_val = (int *)malloc(npts*sizeof(int));
+    for (i = 0; i < npts; i++) {
+      ret_val[i] = start + (i * nskip);
+    }
+  }    
+  else {
+    npts = ((start-end)/nskip) + 1;
+
+    ret_val = (int *)malloc(npts*sizeof(int));
+    for (i = 0; i < npts; i++) {
+      ret_val[i] = start - (i * nskip);
+    }
+  }
+
+  return(ret_val);
+}
+
+/*
  * This function computes the PostScript device coordinates needed to
  * make a plot fill up the full page.
  *
@@ -453,6 +480,103 @@ void maximize_plot(int wks, int *plot, int nplots, int ispanel,
  */
     compute_ps_device_coords(wks, plot, nplots, special_res);
   }
+}
+
+/*
+ * Function : spread_colors
+ *
+ * By default, all of the plotting routines use the first n colors from
+ * a color map, where "n" is the number of contour or vector levels
+ * If "nglSpreadColors" is set to  True, then the colors are spanned
+ * across the whole color map. The min_index and max_index values are
+ * used for the start and end colors.  If either min_index or max_index
+ * is < 0 (but not both), then this indicates to use ncol-i, where "i
+ * is equal to the negative value
+ *
+ * If after adjusting for negative index color(s), and
+ * max_index < min_index, then the colors are reversed
+ */
+void spread_colors(int wks,int plot,int min_index, int max_index, 
+		   char *get_resname, char *set_resname)
+{
+  int i, ncols, lcount, *icols, minix, maxix, reverse, grlist, srlist, itmp;
+  float *levels, fmin, fmax, *fcols;
+
+  srlist = NhlRLCreate(NhlSETRL);
+  grlist = NhlRLCreate(NhlGETRL);
+
+/*
+ * Get number of colors in color map so we know how much
+ * to spread the colors.
+ */
+  NhlRLClear(grlist);
+  NhlRLGetInteger(grlist,"wkColorMapLen", &ncols);
+  NhlGetValues(wks,grlist);
+
+/*
+ * Retrieve the appropriate resource that will be used to
+ * determine how many fill colors we need.
+ */
+  NhlRLClear(grlist);
+  NhlRLGetFloatArray(grlist,get_resname,&levels,&lcount);
+  NhlGetValues(plot,grlist);
+
+/*
+ * -1 indicates that min/max_index should be set equal to ncols - 1
+ * -2 indicates that min/max_index should be set equal to ncols - 2, etc.
+ *
+ * If after adjusting for negative indices, and maxix < minix, then 
+ * this implies that the user wants to reverse the colors.
+ */
+
+  if (min_index < 0) {
+    minix = ncols + min_index;
+  }
+  else {
+    minix = min_index;
+  }
+
+  if (max_index < 0) {
+    maxix = ncols + max_index;
+  }
+  else {
+    maxix = max_index;
+  }
+
+/*
+ * Make sure indices fall within range of the color map.
+ */
+  minix = min(ncols-1,max(0,minix));
+  maxix = min(ncols-1,max(0,maxix));
+/*
+ * If maxix < minix, then colors are to be reversed.
+ */
+  reverse = 0;
+  if(maxix < minix) {
+    reverse = 1;
+    itmp    = maxix;
+    maxix   = minix;
+    minix   = itmp;
+  }
+
+  fmin = minix;
+  fmax = maxix;
+  fcols = fspan(fmin,fmax,lcount+1);
+  icols = (int*)malloc((lcount+1)*sizeof(int));
+  if(!reverse) {
+    for(i = 0; i <= lcount; i++) icols[i] = (int)(fcols[i] + 0.5);
+  }
+  else {
+    for(i = lcount; i >= 0; i--) icols[i] = (int)(fcols[i] + 0.5);
+  }
+
+/*
+ * Set the appropriate resource that uses the newly calculated
+ * list of color indices.
+ */
+  NhlRLClear(srlist);
+  NhlRLSetIntegerArray(srlist, set_resname, icols, lcount+1);
+  NhlSetValues(plot,srlist);
 }
 
 /*
@@ -1007,7 +1131,7 @@ int ngl_open_wks_wrap(const char *type, const char *name, int wk_rlist)
     NhlCreate(&wks,"pdf",NhlpdfWorkstationClass,NhlDEFAULT_APP,wk_rlist);
   }
   else {
-    printf("Invalid workstation type, must be 'x11', 'ncgm', 'ps', or 'pdf'\n");
+    printf("spread_colors: Invalid workstation type, must be 'x11', 'ncgm', 'ps', or 'pdf'\n");
   }
 
 /*
@@ -1051,6 +1175,11 @@ int ngl_contour_wrap(int wks, void *data, const char *type,
  */
 
   NhlCreate(&contour,"contour",NhlcontourPlotClass,wks,cn_rlist);
+
+  if(special_res->nglSpreadColors)  {
+    spread_colors(wks, contour, special_res->nglSpreadColorStart,
+		  special_res->nglSpreadColorEnd, "cnLevels", "cnFillColors");
+  }
 
 /*
  * Make tickmarks and axis labels the same size.
@@ -2857,46 +2986,43 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
  * used to control where the plots are drawn in a 0 to 1 square, and
  * not to indicate the rightmost location of the rightmost graphic
  * (which could be a vertical labelbar.
- *
- * Not dealing with the case of nglPanelRowSpec = True yet.
  */
-  if(!is_row_spec) {
-    newbb  = (NhlBoundingBox *)malloc(nvalid_plots*sizeof(NhlBoundingBox));
+  newbb  = (NhlBoundingBox *)malloc(nvalid_plots*sizeof(NhlBoundingBox));
 /*
  * Get largest bounding box that encompasses all non-missing graphical
  * objects.
  */
-    for( i = 0; i < nvalid_plots; i++ ) { 
-      NhlGetBB(newplots[i],&newbb[i]);
+  for( i = 0; i < nvalid_plots; i++ ) { 
+    NhlGetBB(newplots[i],&newbb[i]);
 
-      if(i) {
-        newtop = max(newtop,newbb[i].t);
-        newbot = min(newbot,newbb[i].b);
-        newlft = min(newlft,newbb[i].l);
-        newrgt = max(newrgt,newbb[i].r);
-      }
-      else {
-        newtop = newbb[i].t;
-        newbot = newbb[i].b;
-        newlft = newbb[i].l;
-        newrgt = newbb[i].r;
+    if(i) {
+      newtop = max(newtop,newbb[i].t);
+      newbot = min(newbot,newbb[i].b);
+      newlft = min(newlft,newbb[i].l);
+      newrgt = max(newrgt,newbb[i].r);
+    }
+    else {
+      newtop = newbb[i].t;
+      newbot = newbb[i].b;
+      newlft = newbb[i].l;
+      newrgt = newbb[i].r;
 /*
  * Get viewport coordinates of one of the scaled plots so
  * that we can calculate the distances between the viewport
  * coordinates and the edges of the bounding boxes.
  */
-        NhlRLClear(grlist);
-        NhlRLGetFloat(grlist,"vpXF",      &vpx);
-        NhlRLGetFloat(grlist,"vpYF",      &vpy);
-        NhlRLGetFloat(grlist,"vpWidthF",  &vpw);
-        NhlRLGetFloat(grlist,"vpHeightF", &vph);
-        (void)NhlGetValues(newplots[i], grlist);
-        dxl = vpx-newbb[i].l;
-        dxr = newbb[i].r-(vpx+vpw);
-        dyt = (newbb[i].t-vpy);
-        dyb = (vpy-vph)-newbb[i].b;
-      }
+      NhlRLClear(grlist);
+      NhlRLGetFloat(grlist,"vpXF",      &vpx);
+      NhlRLGetFloat(grlist,"vpYF",      &vpy);
+      NhlRLGetFloat(grlist,"vpWidthF",  &vpw);
+      NhlRLGetFloat(grlist,"vpHeightF", &vph);
+      (void)NhlGetValues(newplots[i], grlist);
+      dxl = vpx-newbb[i].l;
+      dxr = newbb[i].r-(vpx+vpw);
+      dyt = (newbb[i].t-vpy);
+      dyb = (vpy-vph)-newbb[i].b;
     }
+  }
 
 /*
  * This section makes sure that even though some plots may have been
@@ -2909,39 +3035,39 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
  * bounding box values from existing plots. We can do this because 
  * all plots are supposed to be the same size.
  */
-    xrgt = max_xpos + vpw + dxr;
-    xlft = min_xpos - dxl;
-    xtop = max_ypos + dyt;
-    xbot = min_ypos - vph - dyb;
+  xrgt = max_xpos + vpw + dxr;
+  xlft = min_xpos - dxl;
+  xtop = max_ypos + dyt;
+  xbot = min_ypos - vph - dyb;
 
-    if(!rgt_pnl && xrgt > newrgt) {
-      special_res->nglPanelInvsblRight = xrgt;
-      if(panel_debug) {
-        printf("nglPanelInvsblRight = %g\n", special_res->nglPanelInvsblRight);
-      }
-    }
-
-    if(!lft_pnl && xlft < newlft) {
-      special_res->nglPanelInvsblLeft = xlft;
-      if(panel_debug) {
-        printf("nglPanelInvsblLeft = %g\n", special_res->nglPanelInvsblLeft);
-      }
-    }
-    
-    if(!top_pnl && xtop > newtop) {
-      special_res->nglPanelInvsblTop = xtop;
-      if(panel_debug) {
-        printf("nglPanelInvsblTop = %g\n", special_res->nglPanelInvsblTop);
-      }
-    }
-    
-    if(!bot_pnl && xbot < newbot) {
-      special_res->nglPanelInvsblBottom = xbot;
-      if(panel_debug) {
-        printf("nglPanelInvsblBottom = %g\n", special_res->nglPanelInvsblBottom);
-      }
+  if(!rgt_pnl && xrgt > newrgt) {
+    special_res->nglPanelInvsblRight = xrgt;
+    if(panel_debug) {
+      printf("nglPanelInvsblRight = %g\n", special_res->nglPanelInvsblRight);
     }
   }
+
+  if(!lft_pnl && xlft < newlft) {
+    special_res->nglPanelInvsblLeft = xlft;
+    if(panel_debug) {
+      printf("nglPanelInvsblLeft = %g\n", special_res->nglPanelInvsblLeft);
+    }
+  }
+    
+  if(!top_pnl && xtop > newtop) {
+    special_res->nglPanelInvsblTop = xtop;
+    if(panel_debug) {
+      printf("nglPanelInvsblTop = %g\n", special_res->nglPanelInvsblTop);
+    }
+  }
+    
+  if(!bot_pnl && xbot < newbot) {
+    special_res->nglPanelInvsblBottom = xbot;
+    if(panel_debug) {
+      printf("nglPanelInvsblBottom = %g\n", special_res->nglPanelInvsblBottom);
+    }
+  }
+
 
 /* 
  * Draw plots plus labelbar and main title (if they exist). This is

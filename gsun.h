@@ -42,6 +42,14 @@ typedef struct {
   int   nglDebug;
 
 /*
+ * Special resources for spanning a full color map when
+ * filling vectors and/or contours.
+ */
+  int nglSpreadColors;
+  int nglSpreadColorStart;
+  int nglSpreadColorEnd;
+
+/*
  * Special resources for PS/PDF output.
  */
   int   nglPaperOrientation;
@@ -76,10 +84,13 @@ extern int imax_array(int *, int);
 extern float xmax_array(float *, int);
 extern float xmin_array(float *, int);
 extern float *fspan(float, float, int);
+extern int *ispan(int, int, int);
 
 extern void compute_ps_device_coords(int, int *, int, nglRes *);
 
 extern void maximize_plot(int, int *, int, int, nglRes *);
+
+extern void spread_colors(int, int, int, int, char*, char*);
 
 extern void scale_plot(int);
 
