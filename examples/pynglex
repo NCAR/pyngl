@@ -73,7 +73,11 @@ if (not (os.path.exists(example_dir))):
 #  pargs lists the non-option arguments).  The non-option arguments
 #  will be example name requests.
 #
-opts,pargs = getopt.gnu_getopt(sys.argv[1:],"w:anlh",["type="])
+try:
+  opts,pargs = getopt.gnu_getopt(sys.argv[1:],"w:anlh",["type="])
+except getopt.GetoptError,e:
+  print "pynglex - command line parsing error: ", e
+  sys.exit()
 
 #
 #  Turn the option argument list into a dictionary.
@@ -89,14 +93,14 @@ if (odict.has_key("-h")):
 
 #
 #  The -a, -w, and -l  options require a tmp directory.
+#  Set the tmp directory to the current working directory
+#  if ncargpath("tmp") does not return one.
 #
 tmp_dir = ncargpath("tmp")
 if ( (not (os.path.exists(tmp_dir))) and \
             (odict.has_key("-a") or odict.has_key("-w") or
              odict.has_key("-l")) ):
-  print 'pynglex: A tmp directory does not exist - \n\
-         it must with a "-a", "-w", or "-l" option.'
-  sys.exit()
+  tmp_dir = "."
 
 #
 #  List out the available examples.
@@ -139,6 +143,7 @@ if (odict.has_key("-a")):
   cmd = "/usr/bin/rm -f " + tmp_dir + "/pynglex_ls_tmp"
   os.system(cmd)
   names_file.close()
+
 #
 #  At this point pargs is either the list of examples as specified
 #  on the command line if there is no -a option specified, or 
@@ -147,19 +152,19 @@ if (odict.has_key("-a")):
 #  We loop over the requested examples in pargs.
 #
 for i in xrange(len(pargs)):
-  print "\nPyNGL example <" + pargs[i] + ">.\n"
+  print "\nPyNGL example <" + pargs[i] + ">."
   efile = example_dir + "/" + pargs[i] + ".py"
   if (not (os.path.exists(efile))):
     print "pynglex: <" + pargs[i] + "> is not a known example."
     sys.exit()
-  print "\n   Copying " + pargs[i] + ".py\n"
+  print "\n   Copying " + pargs[i] + ".py"
   os.system("cp " + efile + " .")
 #
 #  Copy over the res file if it is there.
 #
   res_file_test = example_dir + "/" + pargs[i] + ".res"
   if (os.path.exists(res_file_test)):
-    print "\n   Copying " + pargs[i] + ".res\n"
+    print "   Copying " + pargs[i] + ".res\n"
     os.system("cp " + res_file_test + " .")
 #
 #  We are finished if a -n option was specified, since all
@@ -185,9 +190,7 @@ for i in xrange(len(pargs)):
       tmp_file = open(tmp_file_name,"w")
       for j in xrange(len(example_src)):
         if (re.search("wks_type =",example_src[j]) != None):
-          words = string.split(example_src[j])
-          words[2] = '"' + odict["-w"] + '"'
-          new_line = string.join(words) + "\n"
+          new_line = 'wks_type = "' + odict["-w"] + '"\n'
         else:
           new_line = example_src[j]
         tmp_file.write(new_line)
@@ -199,7 +202,8 @@ for i in xrange(len(pargs)):
 #  confusing to indicate that we are executing the specified
 #  example file.
 #
-    print 'Executing "' + "python " + pargs[i] + ".py" + '"'
+    orig_example_name = pargs[i]
+    print 'Executing "' + "python " + orig_example_name + ".py" + '"'
 #
 #  If a -w option was specified, then put the name of the
 #  temporary file into pargs, otherwise pargs as the name
@@ -213,6 +217,14 @@ for i in xrange(len(pargs)):
 #  Execute python.
 #
     os.system(cmd)
+    if (pargs[i] == "ngl08p"):
+      print """
+   ngl08p produces output to x11, ps, pdf, and ncgm workstations.
+   A -w option on pynglex is ignored for ngl08p.
+      """
+ 
+    print 'Finished "' + "python " + orig_example_name + ".py" + '"'
+    
 #
 #  Close the temporary file if a -w option was specified.
 #
