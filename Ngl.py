@@ -363,6 +363,13 @@ def set_contour_res(reslist,reslist1):
   if(reslist.has_key("cnLineLabelFontColors")):
     if (not (reslist.has_key("cnMonoLineLabelFontColor"))):
       reslist1["cnMonoLineLabelFontColor"] = False
+#
+# Set tmEqualizeXYSizes to True so that tickmark lengths and font
+# heights are the same size on both axes.
+#
+  if((reslist.has_key("nglScale") and reslist["nglScale"] > 0) or
+     (not (reslist.has_key("nglScale")))):
+    reslist1["tmEqualizeXYSizes"] = True
 
 def set_vector_res(reslist,reslist1):
 #
@@ -389,6 +396,13 @@ def set_vector_res(reslist,reslist1):
        check_res_value(reslist["vcMonoWindBarbColor"],"False",0))):
     if ( not (reslist.has_key("pmLabelBarDisplayMode"))):
       reslist1["pmLabelBarDisplayMode"] = "Always"
+#
+# Set tmEqualizeXYSizes to True so that tickmark lengths and font
+# heights are the same size on both axes.
+#
+  if((reslist.has_key("nglScale") and reslist["nglScale"] > 0) or
+     (not (reslist.has_key("nglScale")))):
+    reslist1["tmEqualizeXYSizes"] = True
 
 
 def set_streamline_res(reslist,reslist1):
@@ -403,6 +417,13 @@ def set_streamline_res(reslist,reslist1):
   if(reslist.has_key("stLevelColors")):
     if (not (reslist.has_key("stMonoLineColor"))):
       reslist1["stMonoLineColor"] = False
+#
+# Set tmEqualizeXYSizes to True so that tickmark lengths and font
+# heights are the same size on both axes.
+#
+  if((reslist.has_key("nglScale") and reslist["nglScale"] > 0) or
+     (not (reslist.has_key("nglScale")))):
+    reslist1["tmEqualizeXYSizes"] = True
 
 def set_map_res(reslist,reslist1):
 #
