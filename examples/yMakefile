@@ -1,10 +1,10 @@
 #
-#   $Id: yMakefile,v 1.1 2004-09-13 23:10:56 haley Exp $
+#   $Id: yMakefile,v 1.2 2004-09-15 20:19:31 fred Exp $
 #
 #   Makefile for pyngl examples
 #
 
-EXAMPLES = chkbay.py clmdiv.py cn12p.py meteogram.py meteo_data.py \
+EXAMPLES = chkbay.py clmdiv.py cn12p.py meteogram.py \
 	ngl01p.py ngl02p.py ngl03p.py ngl04p.py ngl05p.py ngl06p.py ngl07p.py \
 	ngl08p.py ngl09p.py ngl10p.py ngl11p.py panel1.py topo1.py traj1.py
 
