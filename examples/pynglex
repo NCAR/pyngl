@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-import sys,getopt,os,re,site
-from Ngl import *
+import sys,getopt,os,re,site,commands,string
+import Ngl
 
 #
 #  pynglex usage statement
@@ -55,7 +55,7 @@ if (argc < 2):
 pkgs_pth    = site.sitedirs[0]
 pyngl1_dir  = pkgs_pth + "/PyNGL/ncarg"
 pyngl2_dir  = os.environ.get("NCARG_PYNGL")
-pyngl3_dir  = ncargpath("ncarg")
+pyngl3_dir  = Ngl.ncargpath("ncarg")
 ncarg_ncarg = None
 
 if (os.path.exists(pyngl1_dir)):
@@ -110,32 +110,16 @@ if (odict.has_key("-h")):
   sys.exit()
 
 #
-#  The -a, -w, and -l  options require a tmp directory.
-#  Set the tmp directory to the current working directory
-#  if ncargpath("tmp") does not return one.
-#
-tmp_dir = ncargpath("tmp")
-if ( (not (os.path.exists(tmp_dir))) and \
-            (odict.has_key("-a") or odict.has_key("-w") or
-             odict.has_key("-l")) ):
-  tmp_dir = "."
-
-#
 #  List out the available examples.
 #
 if (odict.has_key("-l")):
-  cmd = "/bin/rm -f " + tmp_dir + "/pynglex_ls_tmp"
-  os.system(cmd)
-  cmd = "ls " + example_dir + "/*.py > " + tmp_dir + "/pynglex_ls_tmp"
-  os.system(cmd)
-  names_file = open(tmp_dir + "/pynglex_ls_tmp","r")
-  file_names = names_file.readlines()
+  cmd = "ls " + example_dir + "/*.py"
+  file_names = string.split(commands.getoutput(cmd))
   print "\n  pynglex:  The available examples are:"
   for i in xrange(len(file_names)):
     base_name = os.path.basename(file_names[i][0:-1])
     print "   ",os.path.splitext(base_name)[0]
   print ""
-  names_file.close()
   sys.exit()
 
 #
@@ -147,20 +131,13 @@ if (odict.has_key("-a")):
 #  In the case that there is no -a flag, then pargs will be
 #  the specified list of example names.
 #
-  cmd = "/bin/rm -f " + tmp_dir + "/pynglex_ls_tmp"
-  os.system(cmd)
-  cmd = "ls " + example_dir + "/*.py > " + tmp_dir + "/pynglex_ls_tmp"
-  os.system(cmd)
-  names_file = open(tmp_dir + "/pynglex_ls_tmp","r")
-  file_names = names_file.readlines()
+  cmd = "ls " + example_dir + "/*.py"
+  file_names = string.split(commands.getoutput(cmd))
   pargs = []
   for i in xrange(len(file_names)):
     base_name = os.path.basename(file_names[i][0:-1])
     example_name = os.path.splitext(base_name)[0]
     pargs.append(example_name)
-  cmd = "/bin/rm -f " + tmp_dir + "/pynglex_ls_tmp"
-  os.system(cmd)
-  names_file.close()
 
 #
 #  At this point pargs is either the list of examples as specified
@@ -200,6 +177,11 @@ for i in xrange(len(pargs)):
 #  This temporary file has the workstation type set as per that
 #  specified by the -w option.
 #
+      tmp_dir = Ngl.ncargpath("tmp")
+      if ( (not (os.path.exists(tmp_dir))) and \
+                  (odict.has_key("-a") or odict.has_key("-w") or
+                   odict.has_key("-l")) ):
+        tmp_dir = "."
       tfile = open(pargs[i] + ".py")
       example_src = tfile.readlines()
       tmp_file_name = tmp_dir + "/pynglex_file_tmp.py"
@@ -224,7 +206,7 @@ for i in xrange(len(pargs)):
     print 'Executing "' + "python " + orig_example_name + ".py" + '"'
 #
 #  If a -w option was specified, then put the name of the
-#  temporary file into pargs, otherwise pargs as the name
+#  temporary file into pargs, otherwise pargs has the name
 #  of the original source for the specified example.
 #  
     if (odict.has_key("-w")):
