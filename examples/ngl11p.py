@@ -8,33 +8,6 @@ import Numeric,sys
 #
 import Ngl
 
-def addcyclic(data):
-#
-# Add a cyclic point in "x" to a 2D array
-# for a lat/lon plot "x"  corresponds to "lon"
-#                    "ny" corresponds to "nlat"
-#                    "mx" corresponds to "mlon"
-#
-  if (type(data) != type(Numeric.array([0]))):
-    print "addcyclic: input must be a Numeric array."
-    sys.exit()
-
-  dims = data.shape
-  if (len(dims) != 2):
-    print "addcyclic: input must be a 2D Numeric array."
-    sys.exit()
-    
-  ny   = dims[0]
-  mx   = dims[1]
-  mx1  = mx+1
-
-  newdata = Numeric.zeros((ny,mx1),Numeric.Float0)
-  
-  newdata[:,0:mx] = data
-  newdata[:,mx]   = data[:,0]
-
-  return newdata
-
 #
 #  Define a color table and open a workstation.
 #
@@ -53,7 +26,7 @@ pressure  = data[:,0]    # First column of data is pressure (mb).
 height    = data[:,1]    # Second column is height (km).
 u         = data[:,2:14] # Rest of columns are climatological zonal winds
                            # (u: m/s)
-unew = addcyclic(u)  # Copy fi
+unew = Ngl.add_cyclic(u)  # Copy fi
 
 #----------- Begin first plot -----------------------------------------
 

@@ -14,36 +14,6 @@ import Ngl
 #
 from Scientific.IO.NetCDF import NetCDFFile
 
-def addcyclic(data,coord_array):
-#
-# Add a cyclic point in "x" to a 2D array
-# for a lat/lon plot "x"  corresponds to "lon"
-#                    "ny" corresponds to "nlat"
-#                    "mx" corresponds to "mlon"
-#
-  if (type(data) != type(Numeric.array([0]))):
-    print "addcyclic: input must be a Numeric array."
-    sys.exit()
-
-  dims = data.shape
-  if (len(dims) != 2):
-    print "addcyclic: input must be a 2D Numeric array."
-    sys.exit()
-
-  ny   = dims[0]
-  mx   = dims[1]
-  mx1  = mx+1
-
-  newdata  = Numeric.zeros((ny,mx1),MA.Float0)
-  newcoord = Numeric.zeros((mx1),MA.Float0)
-
-  newdata[:,0:mx] = data
-  newdata[:,mx]   = data[:,0]
-  newcoord[0:mx]  = coord_array
-  newcoord[mx]    = coord_array[0]+360.
-
-  return newdata,newcoord
-
 #
 #  Open the netCDF files, get variables.
 #
@@ -110,7 +80,7 @@ wks = Ngl.open_wks(wks_type,"ngl09p",rlist) # Open a workstation.
 resources = Ngl.Resources()
 resources.sfMissingValueV = fill_value
 
-icemonnew,hlonnew = addcyclic(icemon[0:nsub+1,:],hlon[:])
+icemonnew,hlonnew = Ngl.add_cyclic(icemon[0:nsub+1,:],hlon[:])
 resources.sfXArray = hlonnew   # Necessary for overlay on a map.
 resources.sfYArray = hlat[0:nsub+1]
 resources.nglSpreadColors = False    # Do not interpolate color space.
@@ -133,7 +103,7 @@ for nmo in range(1,nmos):
 
   resources.tiMainString = "CSM Y00-99 Mean Ice Fraction Month =" + str(month)
   map = \
-    Ngl.contour_map(wks,(addcyclic(icemon[0:nsub+1,:],hlon[:]))[0],resources)
+    Ngl.contour_map(wks,Ngl.add_cyclic(icemon[0:nsub+1,:]),resources)
 
 del icemon       # Clean up.
 del icemonnew 
