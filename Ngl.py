@@ -2,6 +2,7 @@
 from hlu import *
 import hlu
 import sys
+import site
 import types
 import string
 import Numeric
@@ -518,9 +519,45 @@ def ngl_open_wks(wk_type,wk_name,wk_rlist=None):
   rlist = crt_dict(wk_rlist)
 
 # 
-#  Initialize the special resource values.
+# Initialize the special resource values, and make sure 
+# NCARG_NCARG environment variable is set.
 #
   if (first_call_to_open_wks == 0):
+#
+#  Find the root directory that contains the supplemental PyNGL files,
+#  like fontcaps, colormaps, and map databases. The default is to look
+#  in site-packages/PyNGL/ncarg. Otherwise, check the NCARG_PYNGL
+#  environment variable, and then ncargpath("ncarg").
+#
+    pkgs_pth    = site.sitedirs[0]
+    pyngl1_dir  = pkgs_pth + "/PyNGL/ncarg"
+    pyngl2_dir  = os.environ.get("NCARG_PYNGL")
+    pyngl3_dir  = ncargpath("ncarg")
+    ncarg_ncarg = None
+
+    if (os.path.exists(pyngl1_dir)):
+      ncarg_ncarg = pyngl1_dir
+    else:
+      if (pyngl2_dir != None and os.path.exists(pyngl2_dir)):
+        ncarg_ncarg = pyngl2_dir
+      else:
+        if (pyngl3_dir != None and os.path.exists(pyngl3_dir)):
+          ncarg_ncarg = pyngl3_dir
+
+#
+# Only print out a message about pyngl1_dir, because the other two
+# directories are just shots in the dark.
+#
+    if (ncarg_ncarg == None):
+      print pyngl1_dir + " does not exist and cannot"
+      print "find alternative directory for PyNGL supplemental files."
+      sys.exit()
+    else:
+#
+#  Make sure NCARG_NCARG is set.
+#
+      os.environ["NCARG_NCARG"] = ncarg_ncarg
+
     set_spc_defaults(1)
     first_call_to_open_wks = first_call_to_open_wks + 1
 
