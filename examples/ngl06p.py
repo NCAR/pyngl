@@ -4,7 +4,7 @@
 import Numeric
 
 #
-#  Import all names from the NetCDF module.
+#  Import the NetCDF reader.
 #
 from Scientific.IO.NetCDF import NetCDFFile
 
