@@ -725,9 +725,7 @@ main()
  * Set color map resource and open workstation.
  */
 
-  /*
   NhlRLSetString(wk_rlist,"wkColorMap","rainbow+gray");
-  */
   wks = gsn_open_wks("x11","test", wk_rlist);
 
 /*
@@ -1085,11 +1083,10 @@ main()
   cmap_len[0] = NCOLORS;
   cmap_len[1] = 3;
   srlist = NhlRLCreate(NhlSETRL);
-  /*
   NhlRLClear(srlist);
   NhlRLSetMDFloatArray(srlist,NhlNwkColorMap,&cmap[0][0],2,cmap_len);
   (void)NhlSetValues(wks, srlist);
-  */
+
 /*
  * gsn_vector_map section
  */
