@@ -185,7 +185,7 @@ for i in xrange(len(pargs)):
 #  Replace the output workstation type with that requested.
 #
       for line in fileinput.input([pargs[i] + ".py"],1):
-        if (re.search("wks_type =",line) != None):
+        if (re.search("^wks_type = ",line) != None):
           print 'wks_type = "' + odict["-w"] + '"'
         else:
           print line,
