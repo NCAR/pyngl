@@ -1157,7 +1157,7 @@ int vector_field(void *u, void *v, const char *type_u, const char *type_v,
 
 int ngl_open_wks_wrap(const char *type, const char *name, int wk_rlist)
 {
-  int wks, len;
+  int wks, len, tlen;
   char *filename = (char *) NULL;
   int srlist, app;
 
@@ -1222,23 +1222,27 @@ int ngl_open_wks_wrap(const char *type, const char *name, int wk_rlist)
     NhlRLSetString(wk_rlist,"wkMetaName",filename);
     NhlCreate(&wks,"ncgm",NhlncgmWorkstationClass,NhlDEFAULT_APP,wk_rlist);
   }
-  else if(!strcmp(type,"ps") || !strcmp(type,"PS")) {
+  else if(!strcmp(type,"ps")   || !strcmp(type,"PS") || 
+          !strcmp(type,"eps")  || !strcmp(type,"EPS") || 
+          !strcmp(type,"epsi") || !strcmp(type,"EPSI")) {
 /*
  * Generate PS file name.
  */
 
     len      = strlen(name);
-    filename = (char *)calloc(len+4,sizeof(char));
+    tlen     = strlen(type);
+    filename = (char *)calloc(len+tlen+2,sizeof(char));
 
     strncpy(filename,name,len);
-    strcat(filename,".ps");
+    strncat(filename,".",1);
+    strcat(filename,type);
 
 /*
  * Create a PS workstation.
  */
 
     NhlRLSetString(wk_rlist,"wkPSFileName",filename);
-    NhlCreate(&wks,"ps",NhlpsWorkstationClass,NhlDEFAULT_APP,wk_rlist);
+    NhlCreate(&wks,type,NhlpsWorkstationClass,NhlDEFAULT_APP,wk_rlist);
   }
   else if(!strcmp(type,"pdf") || !strcmp(type,"PDF")) {
 /*
