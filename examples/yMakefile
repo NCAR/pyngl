@@ -1,5 +1,5 @@
 #
-#   $Id: yMakefile,v 1.16 2005-03-26 03:11:42 haley Exp $
+#   $Id: yMakefile,v 1.17 2005-03-26 03:19:04 haley Exp $
 #
 #   Makefile for pyngl examples
 #
@@ -14,14 +14,17 @@ EXAMPLES = chkbay.py clmdiv.py cn01p.py cn02p.py cn12p.py cns01p.py \
 RESFILES = chkbay.res cn12p.res ctnccl.res geodesic.res irregular.res \
 	ngl08p.res ngl09p.res seam.res topo1.res streamline.res
 
+ALL_FILES = $(EXAMPLES) $(RESFILES)
+
 InstallTarget(pynglex,$(INSTALL_BIN),$(BINPATH))
-InstallTarget($(EXAMPLES),$(INSTALL_LIB),$(PYNGLEXROOT))
-InstallTarget($(RESFILES),$(INSTALL_LIB),$(PYNGLEXROOT))
+InstallTarget($(ALL_FILES),$(INSTALL_LIB),$(PYNGLEXROOT))
 
 InstallTarget(pynglex,$(INSTALL_BIN),../src/bin)
-InstallTarget($(EXAMPLES),$(INSTALL_LIB),../src/ncarg/pynglex)
-InstallTarget($(RESFILES),$(INSTALL_LIB),../src/ncarg/pynglex)
+InstallTarget($(ALL_FILES),$(INSTALL_LIB),../src/ncarg/pynglex)
 
-InstallTarget($(EXAMPLES),$(INSTALL_LIB),$(PYNGLWEBROOT)/examples)
-InstallTarget($(RESFILES),$(INSTALL_LIB),$(PYNGLWEBROOT)/examples)
-
+install-doc: $(ALL_FILES)
+	@if (test ! -d $(PYNGLWEBROOT)/examples); then ($(MKDIRHIER) $(PYNGLWEBROOT)/examples); else continue; fi
+	@for name in $(ALL_FILES); do \
+	(echo "Installing $$name";\
+	$(INSTALL) -m $(INSTALL_LIB) $$name $(PYNGLWEBROOT)/examples); \
+	done
