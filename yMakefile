@@ -44,7 +44,7 @@ Helper.o: Helper.c
 gsun.o: gsun.c gsun.h
 	$(CC) $(CCOPTIONS) -DNeedFuncProto -O -I$(NCARG_ROOT)/include -c gsun.c
 
-InstallTarget($(MYNAME),$(INSTALL_DB),$(LIBPATH)/python2.3/site-packages/Ngl)
-InstallTarget($(PYSRCS),$(INSTALL_DB),$(LIBPATH)/python2.3/site-packages/Ngl)
+InstallTarget($(MYNAME),$(INSTALL_DB),PyNGL)
+InstallTarget($(PYSRCS),$(INSTALL_DB),PyNGL)
 
 CleanFilesTarget($(OBJS) $(MYNAME))
