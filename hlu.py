@@ -1576,6 +1576,8 @@ NhlPtitleClass = _hlu.NhlPtitleClass
 
 NhlPlabelBarClass = _hlu.NhlPlabelBarClass
 
+NhlPlegendClass = _hlu.NhlPlegendClass
+
 NhlPvectorFieldClass = _hlu.NhlPvectorFieldClass
 
 NhlPvectorPlotClass = _hlu.NhlPvectorPlotClass
@@ -1613,6 +1615,10 @@ c_cpcldr = _hlu.c_cpcldr
 c_plchhq = _hlu.c_plchhq
 
 open_wks_wrap = _hlu.open_wks_wrap
+
+labelbar_ndc_wrap = _hlu.labelbar_ndc_wrap
+
+legend_ndc_wrap = _hlu.legend_ndc_wrap
 
 contour_wrap = _hlu.contour_wrap
 

@@ -98,6 +98,10 @@ NhlClass NhlPlabelBarClass()
 {
   return(NhllabelBarClass);
 }
+NhlClass NhlPlegendClass()
+{
+  return(NhllegendClass);
+}
 NhlClass NhlPvectorFieldClass()
 {
   return(NhlvectorFieldClass);

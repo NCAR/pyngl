@@ -452,7 +452,7 @@ def set_map_res(reslist,reslist1):
       reslist1["mpMonoFillScale"] = False
   
 
-def set_labelbar_res(reslist,reslist1):
+def set_labelbar_res(reslist,reslist1,part_of_plot):
 #
 # Set some labelbar resources of which we don't like the NCL
 # defaults.
@@ -467,12 +467,13 @@ def set_labelbar_res(reslist,reslist1):
   if(reslist.has_key("lbFillScales")):
     if (not (reslist.has_key("lbMonoFillScale"))):
       reslist1["lbMonoFillScale"] = False
-  if(reslist.has_key("lbOrientation")):
-    if ( not (reslist.has_key("pmLabelBarSide"))):
-      if(check_res_value(reslist["lbOrientation"],"Horizontal",0)):
-        reslist1["pmLabelBarSide"] = "Bottom"
-      if(check_res_value(reslist["lbOrientation"],"Vertical",1)):
-        reslist1["pmLabelBarSide"] = "Right"
+  if(part_of_plot):
+      if(reslist.has_key("lbOrientation")):
+        if ( not (reslist.has_key("pmLabelBarSide"))):
+          if(check_res_value(reslist["lbOrientation"],"Horizontal",0)):
+            reslist1["pmLabelBarSide"] = "Bottom"
+          if(check_res_value(reslist["lbOrientation"],"Vertical",1)):
+            reslist1["pmLabelBarSide"] = "Right"
 
 def set_legend_res(reslist,reslist1):
 #
@@ -483,6 +484,10 @@ def set_legend_res(reslist,reslist1):
 # We may not be doing anything with these yet, since
 # we don't have a legend function yet.
 # 
+  if ( not (reslist.has_key("lgPerimOn"))):
+    reslist1["lgPerimOn"] = False
+  if ( not (reslist.has_key("lgLabelAutoStride"))):
+    reslist1["lgLabelAutoStride"] = True
   if(reslist.has_key("lgLabelFontHeightF")):
     if ( not (reslist.has_key("lgAutoManage"))):
       reslist1["lgAutoManage"] = False
@@ -959,6 +964,42 @@ def map(wks,rlistc=None):
   del rlist1
   return(lst2pobj(imp))
 
+def labelbar_ndc(wks,nbox,labels,x,y,rlistc=None):
+  set_spc_defaults(0)
+  rlist = crt_dict(rlistc)
+  rlist1 = {}
+  for key in rlist.keys():
+    if(key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist1[key] = rlist[key]
+
+  set_labelbar_res(rlist,rlist1,False) # Set some addtl labelbar resources
+
+  ilb = labelbar_ndc_wrap(wks,nbox,labels,len(labels),x,y, 
+                          "double","double",rlist1,pvoid())
+  del rlist
+  del rlist1
+  return (lst2pobj(ilb))
+
+def legend_ndc(wks,nitems,labels,x,y,rlistc=None):
+  set_spc_defaults(0)
+  rlist = crt_dict(rlistc)
+  rlist1 = {}
+  for key in rlist.keys():
+    if(key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist1[key] = rlist[key]
+
+  set_legend_res(rlist,rlist1)      # Set some addtl legend resources
+
+  ilb = legend_ndc_wrap(wks,nitems,labels,len(labels),x,y, 
+                        "double","double",rlist1,pvoid())
+  del rlist
+  del rlist1
+  return (lst2pobj(ilb))
+
 def poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
   set_spc_defaults(0)
   rlist = crt_dict(rlistc)  
@@ -1045,7 +1086,7 @@ def contour_map(wks,array,rlistc=None):
 
   set_map_res(rlist,rlist2)           # Set some addtl map resources
   set_contour_res(rlist,rlist3)       # Set some addtl contour resources
-  set_labelbar_res(rlist,rlist3)      # Set some addtl labelbar resources
+  set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
 
 #
 #  Call the wrapped function and return.
@@ -1103,7 +1144,7 @@ def contour(wks,array,rlistc=None):
         rlist3[key] = rlist[key]
 
   set_contour_res(rlist,rlist2)       # Set some addtl contour resources
-  set_labelbar_res(rlist,rlist2)      # Set some addtl labelbar resources
+  set_labelbar_res(rlist,rlist2,True) # Set some addtl labelbar resources
   set_tickmark_res(rlist,rlist3)      # Set some addtl tickmark resources
     
 #
@@ -1328,7 +1369,7 @@ def vector(wks,uarray,varray,rlistc=None):
         rlist3[key] = rlist[key]
     
   set_vector_res(rlist,rlist2)        # Set some addtl vector resources
-  set_labelbar_res(rlist,rlist2)      # Set some addtl labelbar resources
+  set_labelbar_res(rlist,rlist2,True) # Set some addtl labelbar resources
   set_tickmark_res(rlist,rlist3)      # Set some addtl tickmark resources
 
 #
@@ -1368,7 +1409,7 @@ def vector_map(wks,uarray,varray,rlistc=None):
 
   set_map_res(rlist,rlist3)           # Set some addtl map resources
   set_vector_res(rlist,rlist2)        # Set some addtl vector resources
-  set_labelbar_res(rlist,rlist2)      # Set some addtl labelbar resources
+  set_labelbar_res(rlist,rlist2,True) # Set some addtl labelbar resources
     
 #
 #  Call the wrapped function and return.
@@ -1415,7 +1456,7 @@ def vector_scalar(wks,uarray,varray,tarray,rlistc=None):
         rlist4[key] = rlist[key]
     
   set_vector_res(rlist,rlist3)        # Set some addtl vector resources
-  set_labelbar_res(rlist,rlist3)      # Set some addtl labelbar resources
+  set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
   set_tickmark_res(rlist,rlist4)      # Set some addtl tickmark resources
 
 #
@@ -1462,7 +1503,7 @@ def vector_scalar_map(wks,uarray,varray,tarray,rlistc=None):
     
   set_map_res(rlist,rlist4)           # Set some addtl map resources
   set_vector_res(rlist,rlist3)        # Set some addtl vector resources
-  set_labelbar_res(rlist,rlist3)      # Set some addtl labelbar resources
+  set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
 
 #
 #  Call the wrapped function and return.

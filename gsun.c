@@ -2613,6 +2613,124 @@ nglPlotId text_wrap(int wks, nglPlotId *plot, char* string, void *x,
 }
 
 /*
+ * Routine for drawing a random labelbar in NDC space.
+ */
+nglPlotId labelbar_ndc_wrap(int wks, int nbox, NhlString *labels,
+                            int nlabels, void *x, void *y,
+                            const char *type_x, const char *type_y,
+                            ResInfo *lb_res, nglRes *special_res)
+{
+  int i, lbid, lb_rlist, *labelbar_object;
+  nglPlotId labelbar;
+  float *xf, *yf;
+
+/*
+ * Set resource ids.
+ */
+  lb_rlist = lb_res->id;
+
+/*
+ * Determine if we need to convert x and/or y.
+ */
+  xf  = coerce_to_float(x,type_x,1);
+  yf  = coerce_to_float(y,type_y,1);
+
+/*
+ * Allocate a variable to hold the labelbar object, and create it.
+ */
+  labelbar_object = (int*)malloc(sizeof(int));
+
+  NhlRLSetFloat(lb_rlist,"vpXF",*xf);
+  NhlRLSetFloat(lb_rlist,"vpYF",*yf);
+  NhlRLSetStringArray(lb_rlist,"lbLabelStrings",labels,nlabels);
+  NhlRLSetInteger(lb_rlist,"lbBoxCount",nbox);
+  NhlCreate(labelbar_object,"Labelbar",NhllabelBarClass,wks,lb_rlist);
+
+  if(special_res->nglDraw)  NhlDraw(*labelbar_object);
+  if(special_res->nglFrame) NhlFrame(wks);
+
+/*
+ * Free up memory.
+ */
+  if(strcmp(type_x,"float")) free(xf);
+  if(strcmp(type_y,"float")) free(yf);
+    
+/*
+ * Set up plot id structure to return.
+ */
+  initialize_ids(&labelbar);
+  labelbar.labelbar  = labelbar_object;
+  labelbar.base      = labelbar.labelbar;
+  labelbar.nlabelbar = 1;
+  labelbar.nbase     = 1;
+
+/*
+ * Return.
+ */
+  return(labelbar);
+}
+
+/*
+ * Routine for drawing a random legend in NDC space.
+ */
+nglPlotId legend_ndc_wrap(int wks, int nitems, NhlString *labels,
+                          int nlabels, void *x, void *y,
+                          const char *type_x, const char *type_y,
+                          ResInfo *lg_res, nglRes *special_res)
+{
+  int i, lgid, lg_rlist, *legend_object;
+  nglPlotId legend;
+  float *xf, *yf;
+
+/*
+ * Set resource ids.
+ */
+  lg_rlist = lg_res->id;
+
+/*
+ * Determine if we need to convert x and/or y.
+ */
+  xf  = coerce_to_float(x,type_x,1);
+  yf  = coerce_to_float(y,type_y,1);
+
+/*
+ * Allocate a variable to hold the legend object, and create it.
+ */
+  legend_object = (int*)malloc(sizeof(int));
+
+  NhlRLSetFloat(lg_rlist,"vpXF",*xf);
+  NhlRLSetFloat(lg_rlist,"vpYF",*yf);
+  NhlRLSetStringArray(lg_rlist,"lgLabelStrings",labels,nlabels);
+  NhlRLSetInteger(lg_rlist,"lgItemCount",nitems);
+  NhlCreate(legend_object,"Legend",NhllegendClass,wks,lg_rlist);
+
+  if(special_res->nglDraw)  NhlDraw(*legend_object);
+  if(special_res->nglFrame) NhlFrame(wks);
+
+/*
+ * Free up memory.
+ */
+  if(strcmp(type_x,"float")) free(xf);
+  if(strcmp(type_y,"float")) free(yf);
+    
+/*
+ * Set up plot id structure to return.
+ */
+  initialize_ids(&legend);
+  legend.legend  = legend_object;
+  legend.base    = legend.legend;
+  legend.nlegend = 1;
+  legend.nbase   = 1;
+
+/*
+ * Return.
+ */
+  return(legend);
+}
+
+
+
+/*
  * Routine for drawing any kind of primitive in NDC or data space.
  */
 void poly_wrap(int wks, nglPlotId *plot, void *x, void *y, 

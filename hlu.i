@@ -16,6 +16,7 @@
 #include <ncarg/hlu/PSWorkstationP.h>
 #include <ncarg/hlu/PDFWorkstationP.h>
 #include <ncarg/hlu/LabelBar.h>
+#include <ncarg/hlu/Legend.h>
 #include <ncarg/hlu/TextItem.h>
 
 /***********************************************************************
@@ -3852,6 +3853,7 @@ extern NhlClass NhlPxyPlotClass();
 extern NhlClass NhlPtickMarkClass();
 extern NhlClass NhlPtitleClass();
 extern NhlClass NhlPlabelBarClass();
+extern NhlClass NhlPlegendClass();
 extern NhlClass NhlPvectorFieldClass();
 extern NhlClass NhlPvectorPlotClass();
 extern NhlClass NhlPstreamlinePlotClass();
@@ -3875,6 +3877,17 @@ extern void c_plchhq(float, float, NhlString, float, float, float);
 
 extern int open_wks_wrap(const char *, const char *, ResInfo *rlist,
                          ResInfo *rlist, nglRes *rlist);
+
+extern nglPlotId labelbar_ndc_wrap(int, int, NhlString *, int, void
+                         *sequence_as_void, void *sequence_as_void,
+                         const char *, const char *, 
+                         ResInfo *rlist, nglRes *rlist);
+
+extern nglPlotId legend_ndc_wrap(int, int, NhlString *, int, void
+                                 *sequence_as_void, void *sequence_as_void,
+                                 const char *, const char *, 
+                                 ResInfo *rlist, nglRes *rlist);
+
 extern nglPlotId contour_wrap(int, void *sequence_as_void, 
                             const char *, int, int,
                             int, void *, const char *, int, void *, 
@@ -4110,6 +4123,7 @@ extern NhlString get_nglRes_s(int);
 %newobject  NhlPtickMarkClass();
 %newobject  NhlPtitleClass();
 %newobject  NhlPlabelBarClass();
+%newobject  NhlPlegendClass();
 %newobject  NhlPvectorFieldClass();
 %newobject  NhlPvectorPlotClass();
 %newobject  NhlPstreamlinePlotClass();
@@ -4118,6 +4132,17 @@ extern NhlString get_nglRes_s(int);
 
 %newobject  open_wks_wrap(const char *, const char *, ResInfo *rlist,
                           ResInfo *rlist, nglRes *rlist);
+
+%newobject labelbar_ndc_wrap(int, int, NhlString *, int,
+                             void *sequence_as_void,
+                             void *sequence_as_void, const char *,
+                             const char *, ResInfo *rlist, nglRes *rlist);
+
+%newobject legend_ndc_wrap(int, int, NhlString *, int,
+                           void *sequence_as_void,
+                           void *sequence_as_void, const char *,
+                           const char *, ResInfo *rlist, nglRes *rlist);
+
 %newobject  contour_wrap(int, void *sequence_as_void, 
                             const char *, int, int,
                             int, void *, const char *, int, void *, 
