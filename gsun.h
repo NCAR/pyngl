@@ -50,7 +50,7 @@ extern int gsn_contour_wrap(int, void *, const char *, int, int,
 
 extern int gsn_xy_wrap(int, void *, void *, const char *,
 					   const char *, int, int, int, int,
-					   void *, void *, int, int);
+					   void *, void *, int, int, int);
 
 extern int gsn_vector_wrap(int, void *, void *, const char *, 
                            const char *, int, int, int, void *, 

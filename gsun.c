@@ -11,7 +11,7 @@ main()
 
   int wks, contour, xy, vector, streamline;
   int wk_rlist, sf_rlist, ca_rlist, vf_rlist;
-  int cn_rlist, xy_rlist, vc_rlist, st_rlist;
+  int cn_rlist, xy_rlist, xyds_rlist, vc_rlist, st_rlist;
   int colors[] = {2,16,30,44,58,52,86,100,114,128,142,156,170};
 
 /*
@@ -470,18 +470,20 @@ main()
  * resource lists.
  */
 
-  sf_rlist = NhlRLCreate(NhlSETRL);
-  ca_rlist = NhlRLCreate(NhlSETRL);
-  vf_rlist = NhlRLCreate(NhlSETRL);
-  cn_rlist = NhlRLCreate(NhlSETRL);
-  xy_rlist = NhlRLCreate(NhlSETRL);
-  vc_rlist = NhlRLCreate(NhlSETRL);
-  st_rlist = NhlRLCreate(NhlSETRL);
+  sf_rlist   = NhlRLCreate(NhlSETRL);
+  ca_rlist   = NhlRLCreate(NhlSETRL);
+  vf_rlist   = NhlRLCreate(NhlSETRL);
+  cn_rlist   = NhlRLCreate(NhlSETRL);
+  xy_rlist   = NhlRLCreate(NhlSETRL);
+  xyds_rlist = NhlRLCreate(NhlSETRL);
+  vc_rlist   = NhlRLCreate(NhlSETRL);
+  st_rlist   = NhlRLCreate(NhlSETRL);
   NhlRLClear(sf_rlist);
   NhlRLClear(ca_rlist);
   NhlRLClear(vf_rlist);
   NhlRLClear(cn_rlist);
   NhlRLClear(xy_rlist);
+  NhlRLClear(xyds_rlist);
   NhlRLClear(vc_rlist);
   NhlRLClear(st_rlist);
 
@@ -505,12 +507,20 @@ main()
                              is_lon_coord_T, lon_T, type_lon_T, 
                              is_missing_T, FillValue_T, sf_rlist, cn_rlist);
   */
+
+/*
+ * Set some XY (data spec) resources.
+ */
+
+  NhlRLSetString(xyds_rlist, "xyLineColor",      "green");
+  NhlRLSetFloat (xyds_rlist, "xyLineThicknessF", 5.0);
+
 /*
  * Create and draw XY plot, and advance frame.
  */
 
-  xy = gsn_xy_wrap(wks, lon_T, lat_T, type_lon_T, type_lat_T, 
-                   nlon_T, nlat_T, 0, 0, NULL, NULL, ca_rlist, xy_rlist);
+  xy = gsn_xy_wrap(wks, lon_T, lat_T, type_lon_T, type_lat_T, nlon_T, nlat_T,
+				   0, 0, NULL, NULL, ca_rlist, xy_rlist, xyds_rlist);
 
 /*
  * Create and draw streamline plot, and advance frame.
@@ -1286,9 +1296,10 @@ int gsn_xy_wrap(int wks, void *x, void *y, const char *type_x,
                 const char *type_y, int xlen, int ylen, 
                 int is_missing_x, int is_missing_y, 
                 void *FillValue_x, void *FillValue_y,
-                int ca_rlist, int xy_rlist)
+                int ca_rlist, int xy_rlist, int xyds_rlist)
 {
-  int carray, xy;
+  int carray, xy, grlist;
+  int num_dspec, *xyds;
 
 /*
  * Create a coord arrays object that will be used as the
@@ -1311,6 +1322,20 @@ int gsn_xy_wrap(int wks, void *x, void *y, const char *type_x,
 
   NhlCreate(&xy,"xy",NhlxyPlotClass,wks,xy_rlist);
 
+/*
+ * Get the DataSpec object id. This object is needed in order to 
+ * set some of the XY resources, like line color, thickness, dash
+ * patterns, etc. 
+ */
+    grlist = NhlRLCreate(NhlGETRL);
+    NhlRLClear(grlist);
+    NhlRLGetIntegerArray(grlist,NhlNxyCoordDataSpec,&xyds,&num_dspec);
+    NhlGetValues(xy,grlist);
+/*
+ * Now apply the data spec resources.
+ */
+    NhlSetValues(*xyds,xyds_rlist);
+	NhlFree(xyds);
 /*
  * Draw xy plot and advance frame.
  */
