@@ -5,17 +5,9 @@
 import copy
 
 #
-#  Import all data variables:   
-#     tempisobar[8][25]
-#     levels[8]
-#     taus[25]
-#     rh[8][25]
-#     ugrid[8][25]
-#     vgrid[8][25]
-#     rain03[25]
-#     tempht[25]
+#  Import all names from the NetCDF module.
 #
-from meteo_data import *
+from Scientific.IO.NetCDF import *
 
 #
 #  Import Numeric and sys.
@@ -78,6 +70,21 @@ def smth9(x,p,q):
 #
 #  Main program.
 #
+
+#
+#  Read in the data variables from the NetCDF file.
+#
+cdf_file   = NetCDFFile(ncargpath("data") + "/cdf/meteo_data.nc","r")
+tempisobar = cdf_file.variables["tempisobar"][:,:]  # temperature
+levels     = cdf_file.variables["levels"][:]        # levels
+taus       = cdf_file.variables["taus"][:]          # taus
+rh         = cdf_file.variables["rh"][:,:]          # realtive humidity
+ugrid      = cdf_file.variables["ugrid"][:,:]       # horizontal winds 
+vgrid      = cdf_file.variables["vgrid"][:,:]       # vertical winds
+rain03     = cdf_file.variables["rain03"][:]        # rainfall
+tempht     = cdf_file.variables["tempht"][:]        # surface temperatures
+
+#
 #  Smooth temperature and humidity.
 #  
 smothtemp = smth9(tempisobar, 0.50, -0.25)
@@ -95,7 +102,8 @@ colors = Numeric.array([                                               \
                        ],Numeric.Float0) / 255.
 rlist = Resources()
 rlist.wkColorMap = colors
-wks = ngl_open_wks("x11","meteogram",rlist)
+wks_type = "xxx"
+wks = ngl_open_wks(wks_type,"meteogram",rlist)
 
 #
 # Create a different resource list for every plot created.
