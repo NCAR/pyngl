@@ -106,7 +106,7 @@ if ( (not (os.path.exists(tmp_dir))) and \
 #  List out the available examples.
 #
 if (odict.has_key("-l")):
-  cmd = "/usr/bin/rm -f " + tmp_dir + "/pynglex_ls_tmp"
+  cmd = "/bin/rm -f " + tmp_dir + "/pynglex_ls_tmp"
   os.system(cmd)
   cmd = "ls " + example_dir + "/*.py > " + tmp_dir + "/pynglex_ls_tmp"
   os.system(cmd)
@@ -129,7 +129,7 @@ if (odict.has_key("-a")):
 #  In the case that there is no -a flag, then pargs will be
 #  the specified list of example names.
 #
-  cmd = "/usr/bin/rm -f " + tmp_dir + "/pynglex_ls_tmp"
+  cmd = "/bin/rm -f " + tmp_dir + "/pynglex_ls_tmp"
   os.system(cmd)
   cmd = "ls " + example_dir + "/*.py > " + tmp_dir + "/pynglex_ls_tmp"
   os.system(cmd)
@@ -140,7 +140,7 @@ if (odict.has_key("-a")):
     base_name = os.path.basename(file_names[i][0:-1])
     example_name = os.path.splitext(base_name)[0]
     pargs.append(example_name)
-  cmd = "/usr/bin/rm -f " + tmp_dir + "/pynglex_ls_tmp"
+  cmd = "/bin/rm -f " + tmp_dir + "/pynglex_ls_tmp"
   os.system(cmd)
   names_file.close()
 
@@ -185,7 +185,7 @@ for i in xrange(len(pargs)):
       tfile = open(pargs[i] + ".py")
       example_src = tfile.readlines()
       tmp_file_name = tmp_dir + "/pynglex_file_tmp.py"
-      cmd = "/usr/bin/rm -f " + tmp_file_name
+      cmd = "/bin/rm -f " + tmp_file_name
       os.system(cmd)
       tmp_file = open(tmp_file_name,"w")
       for j in xrange(len(example_src)):
