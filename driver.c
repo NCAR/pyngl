@@ -39,11 +39,11 @@ main()
  * Declare variables for the HLU routine calls.
  */
 
-  int wks, contour, xy, vector, streamline, map, text;
+  int wks, contour, xy, vector, streamline, map, text, text1, text2;
   int cntrmap, vctrmap, strmlnmap;
   int wk_rlist, sf_rlist, sf2_rlist, ca_rlist, vf_rlist, tx_rlist;
   int cn_rlist, xy_rlist, xyd_rlist, vc_rlist, st_rlist, mp_rlist;
-  int cn2_rlist, vc2_rlist, mp2_rlist, gs_rlist;
+  int cn2_rlist, vc2_rlist, mp2_rlist, gs_rlist, am_rlist;
   int cncolors[]  = {2,16,30,44,58,52,86,100,114,128,142,156,170};
   int mpcolors[]  = {0, -1, 238, -1};
   int pttrns[]    = {0,1,2,3,4,5,6,7,8,9,10,11,12};
@@ -689,19 +689,19 @@ main()
 /*
  * Initialize which plots to draw.
  */
-  do_contour           = 1;
-  do_xy_single         = 1;
+  do_contour           = 0;
+  do_xy_single         = 0;
   do_xy_multi          = 1;
-  do_y                 = 1;
-  do_vector            = 1;
-  do_streamline        = 1;
-  do_map               = 1;
-  do_contour_map       = 1;
-  do_contour_map2      = 1;
-  do_vector_map        = 1;
-  do_streamline_map    = 1;
-  do_vector_scalar     = 1;
-  do_vector_scalar_map = 1;
+  do_y                 = 0;
+  do_vector            = 0;
+  do_streamline        = 0;
+  do_map               = 0;
+  do_contour_map       = 0;
+  do_contour_map2      = 0;
+  do_vector_map        = 0;
+  do_streamline_map    = 0;
+  do_vector_scalar     = 0;
+  do_vector_scalar_map = 0;
 
 /*
  * Initialize color map for later.
@@ -747,6 +747,7 @@ main()
   ca_rlist  = NhlRLCreate(NhlSETRL);
   vf_rlist  = NhlRLCreate(NhlSETRL);
   tx_rlist  = NhlRLCreate(NhlSETRL);
+  am_rlist  = NhlRLCreate(NhlSETRL);
   cn_rlist  = NhlRLCreate(NhlSETRL);
   cn2_rlist = NhlRLCreate(NhlSETRL);
   xy_rlist  = NhlRLCreate(NhlSETRL);
@@ -762,6 +763,7 @@ main()
   NhlRLClear(ca_rlist);
   NhlRLClear(vf_rlist);
   NhlRLClear(tx_rlist);
+  NhlRLClear(am_rlist);
   NhlRLClear(cn_rlist);
   NhlRLClear(cn2_rlist);
   NhlRLClear(xy_rlist);
@@ -893,11 +895,13 @@ main()
 
 
     special_res.gsnFrame = 0;
+    special_res.gsnDraw  = 0;
 
     xy = gsn_xy_wrap(wks, lon_T, T, type_lon_T, type_T, 1, &nlon_T, 
                      2, &dsizes_T[0], 0, is_missing_T, NULL, FillValue_T, 
                      ca_rlist, xy_rlist, xyd_rlist, &special_res);
 
+    special_res.gsnDraw  = 1;
     special_res.gsnFrame = 1;
 
 /*
@@ -910,8 +914,18 @@ main()
 
     ixf = -130;
     iyf =  268;
-    text = gsn_text_wrap(wks, xy, "~F26~gsn_text:~C~sideways", &ixf, &iyf,
-                         "integer","integer",tx_rlist,&special_pres);
+    text1 = gsn_add_text_wrap(wks, xy, "~F26~gsn_add_text:~C~sideways", 
+                             &ixf, &iyf, "integer","integer",tx_rlist,
+                             am_rlist, &special_pres);
+
+    NhlDraw(xy);
+
+    NhlRLSetFloat  (tx_rlist,"txAngleF",     270.);
+    NhlRLSetString (tx_rlist,"txFontColor",  "green");
+    ixf = -80;
+    text2 = gsn_text_wrap(wks, xy, "~F26~gsn_text:~C~green, sideways", 
+                         &ixf, &iyf,"integer","integer",tx_rlist,
+                          &special_pres);
 
     NhlFrame(wks);
   }

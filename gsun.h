@@ -204,3 +204,6 @@ extern int gsn_add_polymarker_wrap(int, int, void *, void *, const char *,
 extern int gsn_add_polygon_wrap(int, int, void *, void *, const char *, 
                                 const char *, int, int, int, void *, 
                                 void *, int, gsnRes *);
+
+extern int gsn_add_text_wrap(int, int, char *, void *, void *, const char *, 
+                             const char *, int, int, gsnRes *special_res);

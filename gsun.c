@@ -940,7 +940,7 @@ int gsn_xy_wrap(int wks, void *x, void *y, const char *type_x,
  */
   grlist = NhlRLCreate(NhlGETRL);
   NhlRLClear(grlist);
-  NhlRLGetIntegerArray(grlist,NhlNxyCoordDataSpec,&xyds,&num_dspec);
+  NhlRLGetIntegerArray(grlist,"xyCoordDataSpec",&xyds,&num_dspec);
   NhlGetValues(xy,grlist);
 /*
  * Now apply the data spec resources.
@@ -1879,6 +1879,115 @@ int gsn_add_polygon_wrap(int wks, int plot, void *x, void *y,
                             FillValue_y, NhlPOLYGON, gs_rlist, 
                             special_res);
   return(ipoly);
+
+}
+
+
+/*
+ * Routine for adding text (in data space only) to a plot.
+ *
+ * The difference between adding text and just drawing text
+ * is that when you add a text string to a plot, it will
+ * only get drawn when you draw the plot. It will also be scaled
+ * appropriately if you scale the plot. 
+ */
+int gsn_add_text_wrap(int wks, int plot, char *string, void *x, void *y,
+                      const char *type_x, const char *type_y,
+                      int tx_rlist, int am_rlist, gsnRes *special_res)
+{
+/*
+ * We need to make this "100" number be the maximum number of annotations
+ * allowed attached to a plot.
+ */
+  int i, srlist, grlist, text, just;
+  int *anno_views, *anno_mgrs, *new_anno_views, num_annos;
+
+  float *xf, *yf;
+
+/*
+ * First create the text object with the given string.
+ */
+
+  NhlRLSetString(tx_rlist, "txString", string);
+  NhlCreate(&text,"text",NhltextItemClass,wks,tx_rlist);
+
+/*
+ * Get current list of annotations already attached to the plot.
+ */
+
+  grlist = NhlRLCreate(NhlGETRL);
+  NhlRLClear(grlist);
+  NhlRLGetIntegerArray(grlist,"pmAnnoViews",&anno_views,&num_annos);
+  NhlGetValues(plot,grlist);
+
+/*
+ * Make sure the new text string is first in the list of annotations,
+ * if any.
+ */
+  if(num_annos > 0) {
+    new_anno_views = (int *)calloc(1+num_annos,sizeof(int));
+    new_anno_views[0] = text;
+    for( i = 1; i <= num_annos; i++ ) {
+      new_anno_views[i] = anno_views[i-1];
+    }
+    num_annos++;
+  }
+  else {
+    new_anno_views  = (int *)calloc(1,sizeof(int));
+    *new_anno_views = text;
+    num_annos = 1;
+  }
+
+/*
+ * Set the old and new annotations, with the new text being first.
+ */
+
+  srlist = NhlRLCreate(NhlSETRL);
+  NhlRLClear(srlist);
+  NhlRLSetIntegerArray(srlist,"pmAnnoViews",new_anno_views,num_annos);
+  NhlSetValues(plot,srlist);
+
+/*
+ * Retrieve the ids of the AnnoManager objects created by the
+ * PlotManager.
+ */
+
+  grlist = NhlRLCreate(NhlGETRL);
+  NhlRLClear(grlist);
+  NhlRLGetIntegerArray(grlist,"pmAnnoManagers",&anno_mgrs,&num_annos);
+  NhlGetValues(plot,grlist);
+
+/*
+ * Get the text justification and use it for the anno justification.
+ */
+
+  grlist = NhlRLCreate(NhlGETRL);
+  NhlRLClear(grlist);
+  NhlRLGetInteger(grlist,"txJust",&just);
+  NhlGetValues(text,grlist);
+
+/*
+ * Convert x and y to float.
+ */
+  xf = coerce_to_float(x,type_x,1);
+  yf = coerce_to_float(y,type_y,1);
+
+/*
+ * Set the X/Y location and the justification of the new annotation.
+ */
+
+  NhlRLSetFloat  (am_rlist,"amDataXF",       *xf);
+  NhlRLSetFloat  (am_rlist,"amDataYF",       *yf);
+  NhlRLSetString (am_rlist,"amResizeNotify", "True");
+  NhlRLSetString (am_rlist,"amTrackData",    "True");
+  NhlRLSetInteger(am_rlist,"amJust",         just);
+  NhlSetValues(anno_mgrs[0],am_rlist);
+
+/*
+ * Return.
+ */
+
+  return(anno_mgrs[0]);
 
 }
 
