@@ -1587,26 +1587,42 @@ def frame(wks):
 def draw(obj):
   return(NhlDraw(int_id(obj)))
 
+#
+#  isspace_l returns "1" if the character specified in its
+#  argument is a whitespace character and "0" otherwise.
+#  This is implemented here since the string method "isspace"
+#  is not implemented in older versions of Python.
+#
+def isspace_l(char):
+  if (string.find(string.whitespace,char) >= 0):
+    return 1
+  else:
+    return 0
+
+#
+#  get_tokens returns those substrings in an input line that are
+#  delineated by whitespace.
+#
 def get_tokens(line):
   tstart = []
   tend   = []
   tokens = []
   llen = len(line)
-  if (line[0] != " "):
+  if (not isspace_l(line[0])):
     tstart.append(0)
   for chr_num in xrange(0,llen-1):
-    if (line[chr_num] == " " and line[chr_num+1] != " "): 
+    if (isspace_l(line[chr_num]) and \
+              (not isspace_l(line[chr_num+1]))):
       tstart.append(chr_num+1)
-    if (line[chr_num] != " " and line[chr_num+1] == " "): 
+    if (not isspace_l(line[chr_num]) and isspace_l(line[chr_num+1])):
       tend.append(chr_num+1)
-  if (line[llen-1] != " "):
+  if (not isspace_l(line[llen-1])):
     tend.append(llen)
 
   for i in xrange(len(tstart)):
     tokens.append(line[tstart[i]:tend[i]])
-    
-  return tokens
 
+  return tokens
 
 def asciiread(filename,dims,type="float"):
   file = open(filename)
@@ -1701,3 +1717,1377 @@ def rgbyiq(r,g,b):
   return(c_rgbyiq(r,g,b))
 def yiqrgb(r,g,b):
   return(c_yiqrgb(r,g,b))
+
+#
+#  Returns the color index whose associated color on the given
+#  workstation is closest to the color name supplied.
+#
+def GetNamedColorIndex(wkid,name):
+  return(NhlGetNamedColorIndex(wkid,name))
+
+def wmsetp(pname,val):
+  if (not isinstance(pname,types.StringType)):
+    print "wmsetp: Parameter '" + str(pname) + "' is not a string type." 
+    return None
+  if (isinstance(val,types.FloatType)):
+    c_wmsetrp(pname,val)
+  elif (isinstance(val,types.IntType)): 
+    c_wmsetip(pname,val)
+  elif (isinstance(val,types.StringType)):
+    c_wmsetcp(pname,val)
+  else:
+    print \
+      "wmsetp: specified value for " + pname + " is not of a recognized type." 
+  return None
+
+def wmgetp(pname):
+  iparms = [                                                                \
+             "alo", "aoc", "asc", "awc", "cbc", "cc1", "cc2", "cc3", "cfc", \
+             "col", "dbc", "dtc", "hib", "hic", "hif", "his", "lc1", "lc2", \
+             "lc3", "lob", "lof", "los", "mxs", "nbz", "nms", "pai", "rbs", \
+             "rc1", "rc2", "rc3", "rc4", "rc5", "rev", "rfc", "rls", "ros", \
+             "sc1", "sc2", "sc3", "sc4", "slf", "sty", "t1c", "t2c", "wbf", \
+             "wfc", "wty", "ezf", "smf", "loc", "wdf", "unt",               \
+             "ALO", "AOC", "ASC", "AWC", "CBC", "CC1", "CC2", "CC3", "CFC", \
+             "COL", "DBC", "DTC", "HIB", "HIC", "HIF", "HIS", "LC1", "LC2", \
+             "LC3", "LOB", "LOF", "LOS", "MXS", "NBZ", "NMS", "PAI", "RBS", \
+             "RC1", "RC2", "RC3", "RC4", "RC5", "REV", "RFC", "RLS", "ROS", \
+             "SC1", "SC2", "SC3", "SC4", "SLF", "STY", "T1C", "T2C", "WBF", \
+             "WFC", "WTY", "EZF", "SMF", "LOC", "WDF", "UNT"                \
+           ] 
+
+  rparms = [                                                                \
+             "arc", "ard", "arl", "ars", "beg", "bet", "cht", "cmg", "cs1", \
+             "cs2", "dts", "dwd", "end", "lin", "lwd", "oer", "rht", "rmg", \
+             "sht", "sig", "sl1", "sl2", "smt", "swi", "tht", "wba", "wbc", \
+             "wbd", "wbl", "wbr", "wbs", "wbt", "wht", "blw",               \
+             "ARC", "ARD", "ARL", "ARS", "BEG", "BET", "CHT", "CMG", "CS1", \
+             "CS2", "DTS", "DWD", "END", "LIN", "LWD", "OER", "RHT", "RMG", \
+             "SHT", "SIG", "SL1", "SL2", "SMT", "SWI", "THT", "WBA", "WBC", \
+             "WBD", "WBL", "WBR", "WBS", "WBT", "WHT", "BLW"                \
+           ]
+
+  cparms = [ "erf", "fro", "ERF", "FRO" ]
+
+  if (not isinstance(pname,types.StringType)):
+    print "wmgetp: Parameter '" + str(pname) + "' is not a string type." 
+    return None
+  if (iparms.count(pname) > 0):
+    return c_wmgetip(pname)
+  elif (rparms.count(pname) > 0):
+    return c_wmgetrp(pname)
+  elif (cparms.count(pname) > 0):
+    return c_wmgetcp(pname)
+  else:
+    print \
+      "wmgetp: specified value for " + pname + " is not of a recognized type." 
+  return None
+
+def wmbarb(wks,x,y,u,v):
+#
+#  Get the GKS workstaton ID.
+#
+  gksid = get_integer(wks,"wkGksWorkId")
+
+#
+#  Process depending on whether we have scalar coordinates,
+#  Numeric arrays, or Python lists or tuples.
+#
+  t = type(Numeric.array([0],Numeric.Int0))   #  Type for Numeric arrays.
+  if (type(x) == t):
+    if ( (type(y) != t) or (type(u) != t) or (type(v) != t)):
+      print "wmbarb: If any argument is a Numeric array, they must all be."
+      return 1
+    rx = Numeric.ravel(x)
+    ry = Numeric.ravel(y)
+    ru = Numeric.ravel(u)
+    rv = Numeric.ravel(v)
+    for i in range(len(rx)):
+      c_wmbarbp(gksid,rx[i],ry[i],ru[i],rv[i])
+  elif(type(x) == types.ListType):
+    l = types.ListType
+    if ( (type(y) != l) or (type(u) != l) or (type(v) != l)):
+      print "wmbarb: If any argument is a Python list, they must all be."
+      return 1
+    for i in range(len(x)):
+      c_wmbarbp(gksid,x[i],y[i],u[i],v[i])
+  elif(type(x) == types.TupleType):
+    l = types.TupleType
+    if ( (type(y) != l) or (type(u) != l) or (type(v) != l)):
+      print "wmbarb: If any argument is a Python tuple, they must all be."
+      return 1
+    for i in range(len(x)):
+      c_wmbarbp(gksid,x[i],y[i],u[i],v[i])
+  elif (type(x)==types.IntType or type(x)==types.LongType or \
+        type(x)==types.FloatType):
+    c_wmbarbp(gksid,x,y,u,v)
+  return 0
+
+def wmbarbmap(wks,x,y,u,v):
+  ezf = wmgetp("ezf")
+  wdf = wmgetp("wdf")
+  wmsetp("ezf",1)
+  wmsetp("wdf",1)
+  wmbarb(wks,x,y,u,v)
+  wmsetp("ezf",ezf)
+  wmsetp("wdf",wdf)
+
+def indf(arr):
+#   
+#  Returns a list of those indices where arr has
+#  zero (False) values.
+# 
+  indices = [] 
+  for i in xrange(len(arr)):
+    if (arr[i] == 0):
+      indices.append(i)
+  return indices
+
+def indt(arr):
+# 
+#  Returns a list of those indices where arr has
+#  non-zero (True) values.
+#
+  indices = []
+  for i in xrange(len(arr)):
+    if (arr[i] != 0):     
+      indices.append(i)   
+  return indices
+
+def ck_type(fcn,arg,typ):
+#
+#  Check on the type of the variable "arg" that is a
+#  variable in function "fcn" accroding to the flag "typ".
+#  Returns 0 if OK, 1 otherwise.
+#
+  if (typ == 0):
+#
+#  arg should be a singly-dimensioned Numeric array with ints, longs,
+#  or floats, or a scalar int, long, or float.
+#
+    if (type(arg) == type(Numeric.array([0],Numeric.Int))):
+      if (len(arg) == 0):
+        print "Warning: " + fcn + ": An empty array was encountered."
+        return 0
+      if (len(arg.shape) != 1):
+        print fcn + ": Numeric array argument must be singly-dimensioned."
+        return 1
+      a0 = arg[0]
+      if (type(a0)!=types.IntType and type(a0)!=types.FloatType and \
+          type(a0)!=types.LongType):
+        print fcn + \
+          ": Numeric array argument must be integers, longs, or floats."
+        return 1
+    elif (type(arg)==types.IntType or type(arg)==types.LongType or \
+          type(arg)==types.FloatType):
+      return 0
+    else:
+      print fcn + ": argument must be a Numeric array or numeric scalar."
+      return 1
+  else:
+    print "ck_type: invalid type flag"
+    return 1
+  return 0
+
+def ismissing(var,mval):
+#
+#  Returns an array of the same shape as "var" that
+#  has True values in all places where "var" has 
+#  missing values.
+#
+  if (ck_type("ismissing",var,0) != 0):
+    return None
+  else:
+    return(Numeric.equal(var,mval))
+
+def fspan(min,max,num):
+  delta = (float(max-min)/float(num-1))
+  a = []
+  for i in range(num-1):
+    a.append(float(i)*delta)
+  a.append(max)
+  return Numeric.array(a,Numeric.Float0)
+
+def skewty(pres):    # y-coord given pressure (mb)
+  if (ck_type("skewty",pres,0) != 0):
+    return None
+  try:
+    return(132.182-44.061*Numeric.log10(pres))
+  except:
+    return None
+# return (132.182-44.061*Numeric.log10(pres))
+def skewtx(temp,y):  # x-coord given temperature (c)
+  if (ck_type("skewtx",temp,0) != 0 or ck_type("skewtx",y,0) != 0):
+    return None
+  return (0.54*temp+0.90692*y)
+
+def skewt_bkg(wks, Opts):
+#
+#  This program generates a skew-t, log p thermodynamic diagram.  
+#  This program was derived to reproduce the USAF skew-t, log p diagram
+#  (form dod-wpc 9-16-1  current as of march 1978).
+#
+#  wks is a workstation identifier and Opts is an NGL resource list.
+#
+#  Based on Fortran code supplied by Tom Schlatter and 
+#  Joe Wakefield [NOAA/PROFS] supplied fortran codes.
+#
+#  history
+#  -------
+#  don baker      01 jul 85    original version.  [NOAA/PROFS]
+#  don baker      01 dec 85    updated for product version.
+#  dennis shea       oct 98    created the NCL version
+#  dennis shea     9 feb 99    fix: MoistAdiabat labels at top of curves
+#
+  localOpts                       = Resources()
+  localOpts.sktDrawIsotherm       = True
+  localOpts.sktDrawIsobar         = True
+  localOpts.sktDrawMixRatio       = True
+  localOpts.sktDrawDryAdiabat     = True
+  localOpts.sktDrawMoistAdiabat   = True  # aka: saturation or pseudo adibat
+  localOpts.sktDrawWind           = True
+  localOpts.sktDrawStandardAtm    = True
+  localOpts.sktDrawColLine        = True
+  localOpts.sktDrawColAreaFill    = False
+  localOpts.sktDrawFahrenheit     = True  # Fahrenheit "x" axis
+  localOpts.sktDrawHeightScale    = False
+  localOpts.sktDrawHeightScaleFt  = True  # default is feet [otherwise km]
+  localOpts.sktDrawStandardAtmThk = 2.0
+  localOpts.Font                  = "helvetica"
+  localOpts.tiMainString          = "   "
+  localOpts.vpXF                  = 0.07
+  localOpts.vpYF                  = 0.925
+  localOpts.vpWidthF              = 0.85
+  localOpts.vpHeightF             = 0.85
+
+#
+#  Override localOpts attributes with Opts attributes for
+#  Opts attributes that overlap localOpts attributes; set
+#  new localOpts attributes for Opts attributes that do not
+#  overlap localOpts attributes.
+#
+  if (not isinstance(Opts,Resources)):
+    print "skewt_bkg: argument 2 must be an Nlg Resources instance"
+    return None
+  OptsAtts = crt_dict(Opts)
+  if (len(crt_dict(Opts)) != 0):
+    for key in OptsAtts.keys():
+      setattr(localOpts,key,OptsAtts[key])
+
+#
+#  Declare isotherm values (Celcius) and pressures (hPa) where 
+#  isotherms intersect the edge of the skew-t diagram.
+#
+  temp = Numeric.array(                                         \
+          [                                                     \
+           -100.,-90.,-80.,-70.,-60.,-50.,-40.,-30.,            \
+            -20.,-10.,  0., 10., 20., 30., 40., 50.             \
+          ], Numeric.Float0)
+  lendt = Numeric.array(                                        \
+          [                                                     \
+            132., 181., 247., 337., 459., 625., 855.,1050.,     \
+           1050.,1050.,1050.,1050.,1050.,1050.,1050.,1050.      \
+          ], Numeric.Float0)
+  rendt = Numeric.array(                                        \
+          [                                                     \
+            100., 100., 100., 100., 100., 100., 100., 135.,     \
+            185., 251., 342., 430., 500., 580., 730., 993.      \
+          ], Numeric.Float0)
+          
+  ntemp = len(temp)
+  if (len(temp) != len(lendt) or len(lendt) != len(rendt)):
+    print "skewt_bkg: lengths of temp, lendt, rendt do not match"
+
+#
+#  Declare pressure values [hPa] and x coordinates of the endpoints 
+#  of each isobar.  These x,y values are computed from the equations 
+#  in the transform functions listed at the beginning of this program.
+#  Refer to a skew-t diagram for reference if necessary.
+#
+  pres = Numeric.array(                              \
+         [                                           \
+          1050., 1000.,  850.,  700.,  500.,  400.,  \
+           300.,  250.,  200.,  150.,  100.          \
+         ], Numeric.Float0)
+  xpl  = Numeric.array(                              \
+         [                                           \
+          -19.0, -19.0, -19.0, -19.0, -19.0, -19.0,  \
+          -19.0, -19.0, -19.0, -19.0, -19.0          \
+         ], Numeric.Float0)
+  xpr  = Numeric.array(                              \
+         [                                           \
+           27.10, 27.10, 27.10, 27.10, 22.83, 18.60, \
+           18.60, 18.60, 18.60, 18.60, 18.60         \
+         ], Numeric.Float0)
+  npres = len(pres)
+  if (len(pres) != len(xpl) or len(xpl) != len(xpr)):
+    print "skewt_bkg: lengths of pres, xpl, xpr do not match"
+
+#
+#  Declare adiabat values [C] and pressures where adiabats 
+#  intersect the edge of the skew-t diagram.  Refer to a 
+#  skew-t diagram if necessary.
+#
+  theta  = Numeric.array(                              \
+           [                                           \
+            -30., -20., -10.,   0.,  10.,  20.,  30.,  \
+             40.,  50.,  60.,  70.,  80.,  90., 100.,  \
+            110., 120., 130., 140., 150., 160., 170.   \
+           ], Numeric.Float0)
+  lendth = Numeric.array(                              \
+           [                                           \
+            880., 670., 512., 388., 292., 220., 163.,  \
+            119., 100., 100., 100., 100., 100., 100.,  \
+            100., 100., 100., 100., 100., 100., 100.   \
+           ], Numeric.Float0)
+  rendth = Numeric.array(                                    \
+           [                                                 \
+            1050., 1050., 1050., 1050., 1050., 1050., 1050., \
+            1050., 1003.,  852.,  728.,  618.,  395.,  334., \
+             286.,  245.,  210.,  180.,  155.,  133.,  115.  \
+           ], Numeric.Float0)
+  ntheta = len(theta)
+  if (len(theta) != len(lendth) or len(lendth) != len(rendth)):
+    print "skewt_bkg: lengths of pres, xpl, xpr do not match"
+
+#
+#  Declare moist adiabat values and pressures of the tops of the
+#  moist adiabats.  All moist adiabats to be plotted begin at 1050 mb.
+#
+  pseudo = Numeric.array(                               \
+           [                                            \
+              32., 28., 24., 20., 16., 12.,  8.         \
+           ], Numeric.Float0)
+  lendps = Numeric.array(                               \
+           [                                            \
+              250., 250., 250., 250., 250., 250., 250.  \
+           ], Numeric.Float0)
+  npseudo= len(pseudo)          # moist adiabats
+
+#
+#  Declare mixing ratio lines.  All mixing ratio lines will begin
+#  at 1050 mb and end at 400 mb.
+#
+  mixrat = Numeric.array(                      \
+           [                                   \
+              20., 12., 8., 5., 3., 2., 1.     \
+           ], Numeric.Float0)
+  nmix  = len(mixrat)           # mixing ratios
+
+#
+#  Declare local stuff: arrays/variables for storing x,y positions
+#  during iterations to draw curved line, etc.
+#
+  sx    = Numeric.zeros(200, Numeric.Float0)
+  sy    = Numeric.zeros(200, Numeric.Float0)
+  xx    = Numeric.zeros(  2, Numeric.Float0)
+  yy    = Numeric.zeros(  2, Numeric.Float0)
+  m2f   =    3.2808            # meter-to-feet
+  f2m   = 1./3.2808            # feet-to-meter
+
+#
+#  Define absolute x,y max/min bounds corresponding to the outer
+#  edges of the diagram.  These are computed by inserting the appropriate
+#  pressures and temperatures at the corners of the diagram.
+#
+                  # xmin = skewtx ( -33.60,skewty(1050.)) [t=deg C]
+  xmin = -19.000  # xmin = skewtx (-109.10,skewty( 100.)) [t=deg C]
+  xmax =  27.100  # xmax = skewtx (  51.75,skewty(1050.)) [t=deg C]
+  ymax =  -0.935  # ymax = skewty (1050.)
+  ymin =  44.061  # ymin = skewty ( 100.)
+
+#
+#  Specify arrays to hold corners of the diagram in x,y space.
+#
+  xc = Numeric.array(                               \
+       [                                            \
+          xmin, xmin, xmax, xmax, 18.60, 18.6, xmin \
+       ], Numeric.Float0)
+  yc = Numeric.array(                               \
+       [                                            \
+          ymin, ymax, ymax,  9.0, 17.53, ymin, ymin \
+       ], Numeric.Float0)
+
+#
+#  Depending on how options are set, create Standard Atm Info.
+
+  if (localOpts.sktDrawStandardAtm or  \
+      localOpts.sktDrawHeightScale or  \
+      localOpts.sktDrawWind):
+
+#
+#  U.S. Standard ATmosphere (km), source: Hess/Riegel.
+#
+    zsa = Numeric.array(range(0,17)).astype(Numeric.Float0)
+    psa = Numeric.array(                                     \
+          [                                                  \
+           1013.25, 898.71, 794.90, 700.99, 616.29, 540.07,  \
+            471.65, 410.46, 355.82, 307.24, 264.19, 226.31,  \
+            193.93, 165.33, 141.35, 120.86, 103.30
+          ], Numeric.Float0)
+    tsa = Numeric.array(                                     \
+          [                                                  \
+              15.0,   8.5,    2.0,   -4.5,  -11.0,  -17.5,   \
+             -24.0, -30.5,  -37.0,  -43.5,  -50.0,  -56.5,   \
+             -56.5, -56.5,  -56.5,  -56.5,  -56.5            \
+          ], Numeric.Float0)
+    nlvl = len(psa)
+
+#
+#  Plot.
+#
+  if (localOpts.sktDrawColLine):
+    colGreen  = "Green"
+    colBrown  = "Brown"
+    colTan    = "Tan"
+  else:
+    colGreen  = "Foreground"
+    colBrown  = "Foreground"
+    colTan    = "Foreground"
+
+#
+#  Draw outline of the skew-t, log p diagram.  Proceed in the upper left
+#  corner of the diagram and draw counter-clockwise.  The array locations
+#  below that are hardcoded refer to points on the background where the
+#  skew-t diagram deviates from a rectangle, along the right edge.  Remember,
+#  the set call defines a rectangle, so as long as the boundary is along
+#  the edge of the set call, the points plotted are combinations of the min
+#  and max x,y values in the set call.
+#
+
+  if (localOpts.sktDrawFahrenheit):
+    tf = Numeric.array(range(-20,110,20),Numeric.Int)  # deg F
+    tc = 0.55555 * (tf - 32.)                           # deg C
+  else:
+    tc = Numeric.array(range(-30,50,10)).astype(Numeric.Float0)
+
+#
+#  Don't draw the plot or advance the frame in the call to xy.
+#  Specify location/size of the skewT diagram.
+#
+  xyOpts             = Resources()
+  xyOpts.nglDraw     = False
+  xyOpts.nglFrame    = False
+  xyOpts.vpXF        = localOpts.vpXF
+  xyOpts.vpYF        = localOpts.vpYF
+  xyOpts.vpWidthF    = localOpts.vpWidthF
+  xyOpts.vpHeightF   = localOpts.vpHeightF
+  if (hasattr(localOpts,"nglMaximize")):
+    xyOpts.nglMaximize = localOpts.nglMaximize
+
+#
+#  Define y tick mark labels.
+#
+  xyOpts.tmYLMode   = "Explicit"
+  xyOpts.tmYLValues = skewty(pres[1:]) # skip 1050
+  xyOpts.tmYLLabels =                            \
+          [                                      \
+           "1000", "850", "700", "500", "400",   \
+            "300", "250", "200", "150", "100"    \
+          ]
+
+#
+#  Define x tick mark labels.
+#
+  xyOpts.tmXBMode   = "Explicit"
+  xyOpts.tmXBValues = skewtx (tc, skewty(1050.)) # transformed vals
+  if (localOpts.sktDrawFahrenheit):
+      xyOpts.tmXBLabels = tf                     # plot the nice deg F
+  else:
+      xyOpts.tmXBLabels = tc                     # plot the nice deg C
+
+  xyOpts.trXMinF       = xmin
+  xyOpts.trXMaxF       = xmax
+  xyOpts.trYMinF       = ymax       # Note: ymin > ymax
+  xyOpts.trYMaxF       = ymin
+  xyOpts.xyComputeXMin = False
+  xyOpts.xyComputeXMax = False
+  xyOpts.xyComputeYMin = False
+  xyOpts.xyComputeYMax = False
+  xyOpts.tmXTOn        = False
+  xyOpts.tmYROn        = False
+  xyOpts.tmXTBorderOn  = False
+  xyOpts.tmXBBorderOn  = False
+  xyOpts.tmYRBorderOn  = False
+  xyOpts.tmYLBorderOn  = False
+
+#
+#  Tune the plot.
+#
+  xyOpts.tmXBMajorLengthF        = 0.01
+  xyOpts.tmXBMajorThicknessF     = 1.0         # default is 2.0
+  xyOpts.tmXBMajorOutwardLengthF = 0.01
+  xyOpts.tmXTMajorLengthF        = 0.
+#
+#  Suppress the tickmarks on the Y axis - need to turn
+#  nglScale off, since it will override the tickmark settings
+#  for the Y axis by making them the same as the X axis.
+#
+  xyOpts.tmYLMajorLengthF        = 0.
+  xyOpts.tmYLMinorLengthF        = 0.
+  xyOpts.nglScale                = False       
+
+  xyOpts.tmXBLabelFontHeightF = 0.014
+  xyOpts.tmYLLabelFontHeightF = xyOpts.tmXBLabelFontHeightF
+  if (localOpts.sktDrawFahrenheit):
+      xyOpts.tiXAxisString        = "Temperature (F)"
+  else:
+      xyOpts.tiXAxisString        = "Temperature (C)"
+  xyOpts.tiXAxisFont          = localOpts.Font
+  xyOpts.tiXAxisFontColor     = "Foreground"   # colTan
+  xyOpts.tiXAxisFontHeightF   = 0.0125
+  xyOpts.tiYAxisFont          = localOpts.Font
+  xyOpts.tiYAxisString        = "P (hPa)"
+  xyOpts.tiYAxisOffsetXF      = 0.0200
+  xyOpts.tiYAxisOffsetYF      = -0.0200
+  xyOpts.tiYAxisFontColor     = "Foreground"   # colTan
+  xyOpts.tiYAxisFontHeightF   = xyOpts.tiXAxisFontHeightF
+  xyOpts.tiMainString         = localOpts.tiMainString
+  xyOpts.tiMainFont           = localOpts.Font
+  xyOpts.tiMainFontColor      = "Foreground"
+  xyOpts.tiMainFontHeightF    = 0.025
+  xyOpts.tiMainOffsetXF       = -0.1
+
+#
+#  Special for the right hand side.
+#
+  if (localOpts.sktDrawHeightScale):  
+    xyOpts.trXMaxF      = skewtx (55. , skewty(1013.)) # extra wide
+    xyOpts.tmYUseLeft   = False # Keep right axis independent of left.
+    xyOpts.tmYRBorderOn = True
+    xyOpts.tmYROn       = True  # Turn on right axis tick marks.
+    xyOpts.tmYRLabelsOn = True  # Turn on right axis labels.
+    xyOpts.tmYRLabelFontHeightF    = xyOpts.tmYLLabelFontHeightF
+    xyOpts.tmYRMajorThicknessF     = xyOpts.tmXBMajorThicknessF
+    xyOpts.tmYRMajorLengthF        = xyOpts.tmXBMajorLengthF
+    xyOpts.tmYRMajorOutwardLengthF = xyOpts.tmXBMajorOutwardLengthF
+    xyOpts.tmYRMinorOn             = False       # No minor tick marks.
+    xyOpts.tmYRMode                = "Explicit"  # Define tick mark labels.
+
+    zkm = Numeric.array(range(0,17)).astype(Numeric.Float0)
+    pkm = ftcurv(zsa, psa, zkm)
+    zft = Numeric.array(                                  \
+          [                                               \
+             0.,  2.,  4.,  6.,  8., 10., 12., 14., 16.,  \
+            18., 20., 25., 30., 35., 40., 45., 50.        \
+          ], Numeric.Float0)
+    pft = ftcurv(zsa, psa, f2m * zft)  # p corresponding to zkm
+
+    if (localOpts.sktDrawHeightScaleFt):
+      znice =  zft
+      pnice = skewty(pft)
+      zLabel= "Height (1000 Feet)"
+    else:
+      znice = zkm
+      pnice = skewty(pkm)
+      zLabel= "Height (Km)"
+#
+#  At each "nice" pressure value, put a "height" value label.
+#
+    xyOpts.tmYRValues   = pnice
+    xyOpts.tmYRLabels   = znice
+
+#
+#  Draw outline and the x and y axes.
+#
+  xyplot = xy (wks,xc,yc,xyOpts)
+
+#
+#  right *label* MUST be added AFTER xy created.
+#
+  if (localOpts.sktDrawHeightScale):
+    txOpts                   = Resources()
+    txOpts.txAngleF          = 270.
+    txOpts.txFontColor       = "Foreground"   # colTan
+    txOpts.txFontHeightF     = xyOpts.tmYLLabelFontHeightF
+    xlab                     = skewtx (53., skewty(1013.))
+    ylab                     = skewty (350.)
+    text (wks,xyplot,zLabel,xlab,ylab,txOpts) 
+    del txOpts
+
+  if (localOpts.sktDrawColAreaFill):
+    color1 = "PaleGreen1"           # "LightGreen"
+    color2 = "MintCream"            # "Azure"
+    gsOpts = Resources()
+    for i in xrange(0,ntemp-1):
+      if (i%2 == 0):                 # alternate colors
+        gsOpts.gsFillColor = color1
+      else:
+        gsOpts.gsFillColor = color2
+
+      nx    = 3     # this handles most cases
+      sy[0] = skewty(lendt[i  ])
+      sx[0] = skewtx( temp[i  ], sy[0])
+      sy[1] = skewty(lendt[i+1] )
+      sx[1] = skewtx( temp[i+1], sy[1])
+      sy[2] = skewty(rendt[i+1] )
+      sx[2] = skewtx( temp[i+1], sy[2])
+      sy[3] = skewty(rendt[i  ] )   
+      sx[3] = skewtx( temp[i  ], sy[3])
+#
+#  Special cases.
+#
+      if (temp[i] == -40.):
+        nx = 5
+        sy[0:nx+1] = Numeric.array(                               \
+                     [                                            \
+                         3.00, ymax, -0.935, 38.32, 44.06, 44.06  \
+                     ], Numeric.Float0)                         
+        sx[0:nx+1] = Numeric.array(                               \
+                     [                                            \
+                       -18.88, xmin, -17.05, 18.55, 18.55, 18.36  \
+                     ], Numeric.Float0)                         
+      if (temp[i] ==   0.):
+        nx = 4
+        sy[0:nx+1] = Numeric.array(                               \
+                     [                                            \
+                        -0.935, -0.935, 16.15, 17.53, 20.53       \
+                     ], Numeric.Float0)                         
+        sx[0:nx+1] = Numeric.array(                               \
+                     [                                            \
+                       -0.850, 4.55, 20.05, 18.55, 18.55          \
+                     ], Numeric.Float0)                         
+      if (temp[i] == 30.):
+        nx = 4
+        sy[0:nx+1] = Numeric.array(                               \
+                     [                                            \
+                       -0.935, -0.935,  6.02,  9.0 , 10.42        \
+                     ], Numeric.Float0)                         
+        sx[0:nx+1] = Numeric.array(                               \
+                     [                                            \
+                       15.35 , 20.75 , 27.06, 27.06, 25.65        \
+                     ], Numeric.Float0)                         
+      polygon(wks, xyplot, sx[0:nx+1], sy[0:nx+1], gsOpts)
+#
+#  Upper left triangle.
+#
+    gsOpts.gsFillColor = color2
+    sy[0:3] = Numeric.array(              \
+                 [                        \
+                   44.06, 44.06, 38.75    \
+                 ], Numeric.Float0)
+    sx[0:3] = Numeric.array(              \
+                 [                        \
+                   -14.04, -18.96, -18.86 \
+                 ], Numeric.Float0)                         
+    polygon(wks, xyplot, sx[0:3], sy[0:3], gsOpts)
+#
+#  Lower right triangle.
+#
+    gsOpts.gsFillColor = color2
+    sy[0:3] = Numeric.array(              \
+                 [                        \
+                   ymax, 0.13, ymax       \
+                 ], Numeric.Float0)
+    sx[0:3] = Numeric.array(              \
+                 [                        \
+                   xmax, xmax, 27.0       \
+                 ], Numeric.Float0)                         
+    polygon(wks, xyplot, sx[0:3],sy[0:3],gsOpts)
+    del gsOpts
+
+#
+#  Draw diagonal isotherms.
+#  [brown with labels interspersed at 45 degree angle]
+#  http://ngwww.ucar.edu/ngdoc/ng/ref/hlu/obj/GraphicStyle.obj.html
+#
+  if (localOpts.sktDrawIsotherm):
+    gsOpts                   = Resources()
+    gsOpts.gsLineDashPattern = 0            # solid
+    gsOpts.gsLineColor       = colTan
+    gsOpts.gsLineThicknessF  = 1.0
+    #gsOpts.gsLineLabelFontColor   = colTan
+    #gsOpts.gsLineLabelFontHeightF = 0.0125
+
+    txOpts                   = Resources()
+    txOpts.txAngleF          = 45.
+    txOpts.txFontColor       = gsOpts.gsLineColor
+    txOpts.txFontHeightF     = 0.0140
+    txOpts.txFontThicknessF  = 1.0
+
+    for i in range(0,len(temp)-2):
+      yy[1] = skewty(rendt[i])
+      xx[1] = skewtx( temp[i], yy[1])
+      yy[0] = skewty(lendt[i])
+      xx[0] = skewtx( temp[i], yy[0])
+      #gsOpts.gsLineLabelString  = int(temp[i])
+      polyline(wks, xyplot, xx, yy, gsOpts)
+
+      xlab  = xx[1] + 0.625
+      ylab  = yy[1] + 0.55
+      label = int(temp[i])
+      text(wks, xyplot, str(label), xlab, ylab, txOpts)
+    del gsOpts
+    del txOpts
+
+#
+#  Draw horizontal isobars.
+#
+  if (localOpts.sktDrawIsobar):
+      gsOpts                   = Resources()
+      gsOpts.gsLineDashPattern = 0            # solid
+      gsOpts.gsLineColor       = colTan
+      gsOpts.gsLineThicknessF  = 1.0
+      #gsOpts.gsLineLabelFontColor    = colTan
+      #gsOpts.gsLineLabelFontHeightF  = 0.0125
+
+      for i in range(0,npres):
+        xx[0] = xpl[i]
+        xx[1] = xpr[i]
+        ypl   = skewty(pres[i])
+        yy[0] = ypl
+        yy[1] = ypl
+        polyline(wks, xyplot, xx, yy, gsOpts)
+      del gsOpts
+
+#
+#  Draw saturation mixing ratio lines.  These lines run 
+#  between 1050 and 400 mb.  The 20 line intersects the 
+#  sounding below 400 mb, thus a special case is made for 
+#  it.  The lines are dashed green.  The temperature where 
+#  each line crosses 400 mb is computed in order to get x,y 
+#  locations of the top of the lines.
+#
+  if (localOpts.sktDrawMixRatio):
+    gsOpts                   = Resources()   # polyline graphic style opts
+    gsOpts.gsLineThicknessF  = 1.0
+#
+#  saturation  mix ratio only.
+#
+    gsOpts.gsLineDashPattern = 2        
+    gsOpts.gsLineColor       = colGreen 
+
+    txOpts                   = Resources()
+    txOpts.txAngleF          = 65.     
+    txOpts.txFontColor       = colGreen
+    txOpts.txFontHeightF     = 0.0100  
+
+    yy[1] = skewty( 400.)    # y at top [right end of slanted line]
+    yy[0] = skewty(1000.)    # y at bottom of line [was 1050.]
+
+    for i in range(0,nmix):
+      if (mixrat[i] == 20.):
+        yy[1] = skewty(440.)
+        tmix  = dtmrskewt(mixrat[i],440.)
+      else:
+        yy[1] = skewty(400.)
+        tmix  = dtmrskewt(mixrat[i],400.)
+      xx[1] = skewtx(tmix,yy[1])
+      tmix  = dtmrskewt(mixrat[i],1000.)   # was 1050
+      xx[0] = skewtx(tmix,yy[0])
+      polyline (wks,xyplot,xx,yy,gsOpts)   # dashed green
+
+      xlab  = xx[0]-0.25
+      ylab  = yy[0]-0.45
+      label = int(mixrat[i])
+      text(wks, xyplot, str(label), xlab, ylab, txOpts)
+    del gsOpts
+    del txOpts
+
+#
+#  Draw dry adiabats.  Iterate in 10 mb increments to compute the x,y
+#  points on the curve.
+#
+  if (localOpts.sktDrawDryAdiabat):
+    gsOpts                   = Resources()
+    gsOpts.gsLineDashPattern = 0            
+    gsOpts.gsLineColor       = colTan     
+    gsOpts.gsLineThicknessF  = 1.0
+
+    txOpts                   = Resources()
+    txOpts.txAngleF          = 300.
+    txOpts.txFontColor       = colTan
+    txOpts.txFontHeightF     = 0.01
+    txOpts.txFontThicknessF  = 1.0
+
+    pinc = 10.
+    for i in range(0,ntheta):
+      p = lendth[i]-pinc
+      for j in range(0,len(sy)):
+        p = p+pinc
+        if (p > rendth[i]):
+          sy[j] = skewty(rendth[i])
+          t     = dtdaskewt(theta[i],p)   # get temp on dry adiabat at p
+          sx[j] = skewtx(t,sy[j])
+          break 
+        sy[j] = skewty(p)
+        t     = dtdaskewt(theta[i],p)
+        sx[j] = skewtx(t,sy[j])
+      #polyline (wks,xyplot,sx[:j-1],sy[:j-1],gsOpts)     # whole line  
+
+      if (theta[i] < 170.):
+        polyline (wks,xyplot,sx[1:j],sy[1:j],gsOpts)  # label room  
+        ylab  = skewty(lendth[i]+5.)
+        t     = dtdaskewt(theta[i],lendth[i]+5.)
+        xlab  = skewtx(t,ylab)
+        label = int(theta[i])
+        text(wks,xyplot,str(label),xlab,ylab,txOpts)
+      else:                                            # no label
+        polyline (wks,xyplot,sx[:j],sy[:j],gsOpts)     # whole line
+    del gsOpts
+    del txOpts
+
+#
+#  Draw moist adiabats up to 230 [was 250] mb.
+#  Draw the lines.  Dterate in 10 mb increments from 1060 mb.
+#
+  if (localOpts.sktDrawMoistAdiabat):
+    gsOpts                   = Resources()
+    gsOpts.gsLineColor       = colGreen
+    gsOpts.gsLineThicknessF  = 0.5
+    gsOpts.gsLineDashPattern = 0
+
+    txOpts                   = Resources()
+    txOpts.txAngleF          = 0.
+    txOpts.txFontColor       = colGreen
+    txOpts.txFontHeightF     = 0.0125
+    txOpts.txFontThicknessF  = 1.0
+
+    pinc = 10.
+
+    for i in range(0,npseudo):
+      p = 1060.
+      for j in range (0, len (sy)):
+        p = p - pinc
+        if (p < 230.):     # was "250"
+          break
+        sy[j] = skewty(p)
+        t     = dsatlftskewt(pseudo[i],p)    # temp on moist adiabat at p.
+        sx[j] = skewtx(t,sy[j])
+
+      polyline (wks, xyplot, sx[:j-1], sy[:j-1], gsOpts)
+
+      ylab  = skewty(p + 0.5*pinc)
+      t     = dsatlftskewt(pseudo[i], p + 0.75*pinc)
+      xlab  = skewtx(t,ylab)
+      label = int(pseudo[i])     # 9 Feb 99 fix
+      text(wks, xyplot, str(label), xlab, ylab, txOpts)
+
+    del gsOpts
+    del txOpts
+
+  if (localOpts.sktDrawStandardAtm):
+      gsOpts                   = Resources()
+      gsOpts.gsLineColor       = colTan   
+      gsOpts.gsLineThicknessF  = localOpts.sktDrawStandardAtmThk
+      gsOpts.gsLineDashPattern = 0             
+
+      for i in range(0,nlvl):
+         sy[i] = skewty(psa[i])
+         sx[i] = skewtx(tsa[i], sy[i])
+
+      polyline (wks, xyplot, sx[0:nlvl], sy[0:nlvl], gsOpts)
+      del gsOpts
+
+#
+#  Draw vertical line upon which to plot wind barbs.
+#
+  if (localOpts.sktDrawWind):
+      gsOpts = Resources()
+      gsOpts.gsLineColor       = "Foreground"
+      gsOpts.gsLineThicknessF  = 0.5
+      gsOpts.gsLineDashPattern = 0
+      gsOpts.gsMarkerIndex     = 4   # "hollow_circle"=> std pres
+      gsOpts.gsMarkerColor     = "Foreground"
+
+      presWind      = pres
+      presWind[0]   = 1013.          # override 1050
+      xWind         = skewtx (45. , skewty(presWind[0])) 
+      sx[0:npres] = xWind            # "x" location of wind plot
+      sy[0:npres] = skewty(presWind).astype(Numeric.Float0)
+      polyline   (wks, xyplot, sx[0:npres], sy[0:npres], gsOpts)
+      polymarker (wks, xyplot, sx[1:npres], sy[1:npres], gsOpts)
+                                     # zwind => Pibal reports
+      zftWind = Numeric.array(                                    \
+                              [0.,  1.,  2.,  3.,  4.,  5.,  6.,  \
+                               7.,  8.,  9., 10., 12., 14., 16.,  \
+                              18., 20., 25., 30., 35., 40., 45.,  \
+                              50.], Numeric.Float0)
+      zkmWind = zftWind*f2m
+      pkmWind = ftcurv(zsa, psa, zkmWind)
+      nzkmW   = len(zkmWind)
+
+      sx[0:nzkmW]  = xWind              # "x" location of wind plot
+      sy[0:nzkmW]  = skewty(pkmWind).astype(Numeric.Float0)
+
+      gsOpts.gsMarkerIndex      = 16     # "circle_filled" -> Pibal
+      gsOpts.gsMarkerSizeF      = 0.0035 # 0.007 is default
+      gsOpts.gsMarkerThicknessF = 0.5    # 1.0 is default
+      polymarker (wks, xyplot, sx[0:nzkmW], sy[0:nzkmW], gsOpts)
+      del gsOpts
+
+  return xyplot
+
+def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR, 
+             dataOpts=None):
+#
+#  p    =  pressure     [mb / hPa]
+#  tc   = temperature   [C]
+#  tdc  = dew pt temp   [C]
+#  z    = geopotential  [gpm]
+#  wspd = wind speed    [knots or m/s]
+#  wdir = meteorological wind direction
+#
+#
+#  Set missing values for variables
+#  used in plotting the sounding and 
+#  in calculating thermodynamic quantities.
+#
+  if (hasattr(dataOpts,"sktPmissingV")):
+    Pmissing = dataOpts.sktPmissingV
+  else:
+    Pmissing = -999.
+#
+  if (hasattr(dataOpts,"sktTCmissingV")):
+    TCmissing = dataOpts.sktTCmissingV
+  else:
+    TCmissing = -999.
+#
+  if (hasattr(dataOpts,"sktTDCmissingV")):
+    TDCmissing = dataOpts.sktTDCmissingV
+  else:
+    TDCmissing = -999.
+#
+  if (hasattr(dataOpts,"sktZmissingV")):
+    Zmissing = dataOpts.sktZmissingV
+  else:
+    Zmissing = -999.
+#
+  if (hasattr(dataOpts,"sktWSPDmissingV")):
+    WSPDmissing = dataOpts.sktWSPDmissingV
+  else:
+    WSPDmissing = -999.
+#
+  if (hasattr(dataOpts,"sktWDIRmissingV")):
+    WDIRmissing = dataOpts.sktWDIRmissingV
+  else:
+    WDIRmissing = -999.
+#
+  if (hasattr(dataOpts,"sktHmissingV")):
+    Hmissing = dataOpts.sktHmissingV
+  else:
+    Hmissing = -999.
+
+  mv0 = Numeric.logical_and(Numeric.logical_not(ismissing( P,Pmissing)),   \
+                            Numeric.logical_not(ismissing(TC,TCmissing)))
+  mv1 = Numeric.logical_and(mv0,Numeric.logical_not(ismissing(TDC,TDCmissing)))
+  mv2 = Numeric.logical_and(mv1,Numeric.greater_equal(P,100.))
+  idx = indt(mv2)
+  del mv0,mv1,mv2
+  p   = Numeric.take(  P,idx)
+  tc  = Numeric.take( TC,idx)
+  tdc = Numeric.take(TDC,idx)
+
+#
+#  Local options describing data and ploting.
+#
+  localOpts           = Resources()
+  localOpts.sktPrintZ    = True     # print geopotential (Z) on skewT diagram
+  localOpts.sktPlotWindP = True     # plot wind barbs at p lvls
+  localOpts.sktWspdWdir  = True     # wind speed and dir [else: u,v]
+  localOpts.sktPlotWindH = False    # plot wind barbs at h lvls [pibal; special]
+  localOpts.sktHspdHdir  = True     # wind speed and dir [else: u,v]
+  localOpts.sktThermoInfo= True     # print thermodynamic info
+  localOpts.sktCape      = True     # plot CAPE parcel profile if cape > 0
+  localOpts.sktParcel    = 0        # subscript corresponding to initial parcel
+
+#
+#  Override localOpts attributes with dataOpts attributes for
+#  dataOpts attributes that overlap localOpts attributes; set
+#  new localOpts attributes for dataOpts attributes that do not
+#  overlap localOpts attributes.
+#
+  if (dataOpts != None):
+    if (not isinstance(dataOpts,Resources)):
+      print "skewt_plt: last argument must be an Nlg Resources instance."
+      return None
+    OptsAtts = crt_dict(dataOpts)
+    if (len(OptsAtts) != 0):
+      for key in OptsAtts.keys():
+        setattr(localOpts,key,OptsAtts[key])
+
+  vpXF                 = get_float(skewt_bkgd,"vpXF")
+  vpYF                 = get_float(skewt_bkgd,"vpYF")
+  vpWidthF             = get_float(skewt_bkgd,"vpWidthF")
+  vpHeightF            = get_float(skewt_bkgd,"vpHeightF")
+  tiMainFont           = get_string(skewt_bkgd,"tiMainFont")
+  tiMainFontHeightF    = get_float(skewt_bkgd,"tiMainFontHeightF")
+  tiMainOffsetXF       = get_float(skewt_bkgd,"tiMainOffsetXF")
+  tmYLLabelFontHeightF = get_float(skewt_bkgd,"tmYLLabelFontHeightF")
+
+#
+#  Specify various colors.
+#
+  colForeGround     = "Foreground"
+  sktcolTemperature = "Foreground"
+  sktcolDewPt       = "RoyalBlue"
+  sktcolPpath       = "Red"
+  sktcolZLabel      = "Foreground"
+  sktcolWindP       = "Black"   
+  sktcolWindZ       = "Blue"   
+  sktcolWindH       = "Magenta"    
+  sktcolThermoInfo  = "Sienna"
+
+#
+#  Change defaults.
+#
+  if (hasattr(localOpts,"sktcolTemperature")):
+    sktcolTemperature  = localOpts.sktcolTemperature
+  if (hasattr(localOpts,"sktcolDewPt")):
+    sktcolDewPt  = localOpts.sktcolDewPt
+  if (hasattr(localOpts,"sktcolPpath")):
+    sktcolPpath  = localOpts.sktcolPpath 
+
+#
+#  Graphics style settings for the polyline draw.
+#
+  gsOpts                   = Resources()
+  gsOpts.gsLineDashPattern = 0      # solid (default)
+  gsOpts.gsLineThicknessF  = 3.0    # make thicker
+
+  if (hasattr(localOpts,"gsLineDashPattern")):
+    gsOpts.gsLineDashPattern = localOpts.gsLineDashPattern
+  if (hasattr(localOpts,"gsLineThicknessF")):
+    gsOpts.gsLineThicknessF = localOpts.gsLineThicknessF
+
+  yp   = skewty(p)
+  xtc  = skewtx(tc, yp)
+  gsOpts.gsLineColor  = sktcolTemperature
+  polyline(wks, skewt_bkgd, xtc, yp, gsOpts)
+
+  xtdc = skewtx(tdc, yp)
+  gsOpts.gsLineColor  = sktcolDewPt
+  polyline(wks, skewt_bkgd, xtdc, yp, gsOpts)
+
+  del gsOpts
+
+  if (localOpts.sktThermoInfo):
+    nP   = localOpts.sktParcel  # default is the lowest level [0]
+    nlvls= len(p)
+    plcl = -999.             # p (hPa) Lifting Condensation Lvl (lcl)
+    tlcl = -999.             # temperature (C) of lcl
+    plcl, tlcl = dptlclskewt(p[nP],tc[nP],tdc[nP])
+    shox = dshowalskewt(p,tc,tdc,nlvls)     # Showwalter Index
+
+    pwat = dpwskewt(tdc,p,nlvls)            # precipitable water (cm)
+
+    iprnt= 0                                # debug only (>0)
+    nlLcl= 0                              
+    nlLfc= 0
+    nlCross= 0
+
+    if (hasattr(localOpts,"sktTCmissingV")):
+      TCmissing = localOpts.sktTCmissingV
+      if (ismissing(tc,TCmissing)):
+        print "skewt_plt: tc (temperature) cannot have missing values if sktThermoInfo is True."
+        return None
+    TCmissing = -999.
+    cape,tpar,nlLcl,nlLfc,nlCross  =  \
+         dcapethermo(p,tc,len(p),plcl,iprnt,TCmissing)
+#        nglf.dcapethermo(p,tc,len(p),plcl,iprnt,TCmissing)
+
+                                            # 0.5 is for rounding
+    info = " Plcl="     + str(int(plcl+0.5)) \
+         + " Tlcl[C]="  + str(int(tlcl+0.5)) \
+         + " Shox="     + str(int(shox+0.5)) \
+         + " Pwat[cm]=" + str(int(pwat+0.5)) \
+         + " Cape[J]= " + str(int(cape))
+
+    txOpts                   = Resources()
+    txOpts.txAngleF          = 0.
+    txOpts.txFont            = tiMainFont
+    txOpts.txFontColor       = sktcolThermoInfo
+    txOpts.txFontHeightF     = 0.5*tiMainFontHeightF
+    xinfo                    = vpXF  + 0.5*vpWidthF + tiMainOffsetXF
+    yinfo                    = vpYF  + 0.5*tiMainFontHeightF
+    text_ndc (wks,info,xinfo,yinfo,txOpts)
+    del txOpts
+
+    if (localOpts.sktCape and cape > 0.):
+      gsOpts                   = Resources()
+      gsOpts.gsLineColor       = sktcolPpath
+      gsOpts.gsLineDashPattern = 1         # 14
+      gsOpts.gsLineThicknessF  = 2.0
+
+      yp   = skewty(p)
+      xtp  = skewtx(tpar, yp)
+      polyline(wks, skewt_bkgd, xtp[nlLfc:nlCross+1], \
+                   yp[nlLfc:nlCross+1], gsOpts)
+      del gsOpts
+
+#
+#  Print geopotential if requested.
+#
+  if (localOpts.sktPrintZ):
+    txOpts               = Resources()
+    txOpts.txAngleF      = 0.
+    txOpts.txFontColor   = sktcolZLabel
+    txOpts.txFontHeightF = 0.9*tmYLLabelFontHeightF
+#
+#  Levels at which Z is printed.
+#
+    Pprint = Numeric.array(                                 \
+                           [1000., 850., 700., 500., 400.,  \
+                             300., 250., 200., 150., 100.   \
+                           ], Numeric.Float0)
+
+    yz = skewty(1000.)
+    xz = skewtx(-30., yz)        # constant "x"
+    for nl in range(len(P)):
+
+     if ( Numeric.logical_not(ismissing(P[nl],Pmissing)) and   \
+          Numeric.logical_not(ismissing(Z[nl],Zmissing)) and   \
+          Numeric.sometrue(Numeric.equal(Pprint,P[nl])) ):
+       yz  = skewty(P[nl])
+       text(wks, skewt_bkgd, str(int(Z[nl])), xz, yz, txOpts)
+    del txOpts
+
+  if (localOpts.sktPlotWindP):
+    gsOpts                   = Resources()
+    gsOpts.gsLineThicknessF  = 1.0
+
+#
+#  Check if WSPD has a missing value attribute specified and
+#  that not all WSPD values are missing values.
+#
+    if (Numeric.logical_not(Numeric.alltrue(ismissing(WSPD,WSPDmissing)))):
+#
+#  IDW - indices where P/WSPD/WDIR are all not missing.
+#
+      mv0 = Numeric.logical_and(Numeric.logical_not(ismissing(P,Pmissing)), \
+                     Numeric.logical_not(ismissing(WSPD,WSPDmissing)))
+      mv1 = Numeric.logical_and(mv0,  \
+                     Numeric.logical_not(ismissing(WDIR,WDIRmissing)))
+      mv2 = Numeric.logical_and(mv1,Numeric.greater_equal(P,100.))
+      IDW = indt(mv2)
+      if (hasattr(localOpts,"sktWthin") and localOpts.sktWthin > 1):
+        nThin = localOpts.sktWthin
+        idw   = IDW[::nThin]
+      else:
+        idw   = IDW
+
+      pw  = Numeric.take(P,idw)
+
+      wmsetp("wdf", 1)         # meteorological dir (Sep 2001)
+
+#
+#  Wind speed and direction.
+#
+      if (localOpts.sktWspdWdir):
+        dirw = 0.017453 * Numeric.take(WDIR,idw)
+
+        up   = -Numeric.take(WSPD,idw) * Numeric.sin(dirw)
+        vp   = -Numeric.take(WSPD,idw) * Numeric.cos(dirw)
+      else:
+        up   = Numeric.take(WSPD,idw)      # must be u,v components
+        vp   = Numeric.take(WDIR,idw)
+
+      wbcol = wmgetp("col")                # get current wbarb color
+      wmsetp("col",GetNamedColorIndex(wks,sktcolWindP)) # set new color
+      ypWind = skewty(pw)
+      xpWind = Numeric.ones(len(pw),Numeric.Float0)
+#
+#  Location of wind barb.
+#
+      xpWind = skewtx(45., skewty(1013.)) * xpWind
+      wmbarb(wks, xpWind, ypWind, up, vp)
+      wmsetp("col",wbcol)               # restore initial color.
+
+      mv0 = Numeric.logical_and(Numeric.logical_not(ismissing( Z,Zmissing)), \
+                      Numeric.logical_not(ismissing(WSPD,WSPDmissing)))
+      mv1 = Numeric.logical_and(mv0, \
+                      Numeric.logical_not(ismissing(WDIR,WDIRmissing)))
+      mv2 = Numeric.logical_and(mv1,ismissing(P,Pmissing))
+      idz = indt(mv2)
+
+      if (len(idz) > 0):
+        zw  = Numeric.take(Z,idz)
+        if (localOpts.sktWspdWdir):          # wind spd,dir (?)
+          dirz = 0.017453 * Numeric.take(WDIR,idz)
+          uz   = -Numeric.take(WSPD,idz) * Numeric.sin(dirz)
+          vz   = -Numeric.take(WSPD,idz) * Numeric.cos(dirz)
+        else:
+          uz   = WSPD(idz)              # must be u,v components
+          vz   = WDIR(idz)
+
+#
+#  idzp flags where Z and P have non-missing values.
+#
+        mv0  = Numeric.logical_not(ismissing(P,Pmissing))
+        mv1  = Numeric.logical_not(ismissing(Z,Zmissing))
+        mv2  = Numeric.logical_and(mv0,mv1)
+        idzp = indt(mv2)
+        Zv   = Numeric.take(Z,idzp)
+        Pv   = Numeric.take(P,idzp)
+        pz   = ftcurv(Zv,Pv,zw)               # map zw to p levels.
+
+        wbcol = wmgetp("col")
+        wmsetp("col",GetNamedColorIndex(wks,sktcolWindZ)) 
+        yzWind = skewty(pz)
+        xzWind = Numeric.ones(len(pz),Numeric.Float0)
+        xzWind = skewtx(45., skewty(1013.)) * xzWind
+ 
+        wmbarb(wks, xzWind, yzWind, uz, vz )
+        wmsetp("col",wbcol)
+
+#
+#  Allows other winds to be input as attributes of sounding.
+#
+  if (localOpts.sktPlotWindH):
+    if (hasattr(dataOpts,"sktHeight") and hasattr(dataOpts,"sktHspd") and  \
+        hasattr(dataOpts,"sktHdir")):
+      dimHeight = len(dataOpts.sktHeight)
+      dimHspd   = len(dataOpts.sktHspd  )
+      dimHdir   = len(dataOpts.sktHdir  )
+      if (dimHeight == dimHspd and dimHeight == dimHdir and \
+          Numeric.logical_not(Numeric.alltrue(ismissing(dataOpts.sktHeight,Hmissing)))):
+        if (localOpts.sktHspdHdir):
+          dirh = 0.017453 * dataOpts.sktHdir
+          uh   = -dataOpts.sktHspd * Numeric.sin(dirh)
+          vh   = -dataOpts.sktHspd * Numeric.cos(dirh)
+        else:
+          uh   = dataOpts.sktHspd
+          vh   = dataOpts.sktHdir
+
+        mv0  = Numeric.logical_not(ismissing(P,Pmissing))
+        mv1  = Numeric.logical_not(ismissing(Z,Zmissing))
+        mv2  = Numeric.logical_and(mv0,mv1)
+        idzp = indt(mv2)
+        Zv   = Numeric.take(Z,idzp)
+        if (len(Zv) == 0):
+          print "Warning - skewt_plt: attempt to plot wind barbs at specified heights when there are no coordinates where pressure and geopotential are both defined."
+        else:
+          Pv   = Numeric.take(P,idzp)
+          ph   = ftcurv(Zv,Pv,dataOpts.sktHeight)
+
+          wbcol = wmgetp("col")             # get current color index
+          wmsetp("col",GetNamedColorIndex(wks,sktcolWindH)) # set new color
+  
+          yhWind = skewty(ph)
+          xhWind = Numeric.ones(len(ph), Numeric.Float0)
+          xhWind = skewtx(45., skewty(1013.)) * xhWind
+          if (yhWind != None and xhWind != None):
+            wmbarb(wks, xhWind, yhWind, uh, vh )
+          wmsetp("col",wbcol)              # reset to initial color value
+    else:
+      print ("skewt_plt: Opts.sktPlotWindH = True but dataOpts.sktHeight/Hspd/Hdir are missing")
+  
+  return skewt_bkgd
+
+def normalize_angle(ang,type):
+#
+#  This function normalizes the angle (assumed to be in degrees) to
+#  an equivalent angle in the range [0.,360.) if type equals 0, or
+#  to an equivalent angle in the range [-180.,180.) if type is not zero.
+#
+  bang = ang
+  if (type == 0):
+    while(bang < 0.):
+      bang = bang + 360.
+    while(bang >= 360.):
+      bang = bang - 360.
+  else:
+    while(bang < -180.):
+      bang = bang + 360.
+    while(bang >= 180.):
+      bang = bang - 360.
+  return bang
+
+def dptlclskewt(p, tc, tdc):
+  return c_dptlclskewt(p, tc, tdc)
+
+def dtmrskewt(w, p):
+  return c_dtmrskewt(w, p)
+
+def dtdaskewt(o,p):
+  return c_dtdaskewt(o, p)
+
+def dsatlftskewt(thw,p):
+  return c_dsatlftskewt(thw, p)
+
+def dshowalskewt(p,t,td,nlvls):
+  return c_dshowalskewt(p,t,td,nlvls)
+
+def dpwskewt(td,p,n):
+  return c_dpwskewt(td,p,n)
+
+def gc_dist(rlat1,rlon1,rlat2,rlon2):
+  return c_dgcdist(rlat1,rlon1,rlat2,rlon2,2)
+
+def gc_interp(rlat1,rlon1,rlat2,rlon2,numi):
+  num = abs(numi)
+  if (abs(num) < 2):
+    print "gc_interp: the number of points must be at least two."
+  elif (num == 2):
+    lat = Numeric.array([rlat1,rlat2],Numeric.Float0)
+    lon = Numeric.array([rlon1,rlon2],Numeric.Float0)
+    return [lat,lon]
+  else:
+    lat_tmp = Numeric.zeros(num,Numeric.Float0) 
+    lon_tmp = Numeric.zeros(num,Numeric.Float0) 
+    lat,lon = mapgci(rlat1,rlon1,rlat2,rlon2,num-2)
+    lon0_tmp = rlon1
+    lon1_tmp = rlon2
+#
+#  Adjust points to be in the desired range.
+#
+    for i in range(0,num-2):
+      if (numi > 0):
+        lon[i] = normalize_angle(lon[i],0)
+      else:
+        lon[i] = normalize_angle(lon[i],1)
+    if (numi > 0):
+      lon0_tmp = normalize_angle(lon0_tmp,0) 
+      lon1_tmp = normalize_angle(lon1_tmp,0)
+    else:
+      lon0_tmp = normalize_angle(lon0_tmp,1) 
+      lon1_tmp = normalize_angle(lon1_tmp,1)
+
+#
+#  Set up return arrays.
+#
+    lat_tmp[1:num-1] = lat[0:num-2]
+    lon_tmp[1:num-1] = lon[0:num-2]
+    lat_tmp[0]     = rlat1
+    lat_tmp[num-1] = rlat2
+    lon_tmp[0]     = lon0_tmp
+    lon_tmp[num-1] = lon1_tmp
+    del lat,lon
+
+    return lat_tmp,lon_tmp
+
+def gc_convert(angle,ctype):
+#
+#  Convert an angle in degrees along a great circle to
+#  radians, meters, kilometers, or feet.
+#
+  d2r =  0.0174532952   # degrees to radians
+  r2m = 6371220.        # radians to meters
+  m2f = 3.2808          # meters to feet
+
+  ck_type("gc_convert",angle,0)
+
+  dtype = ctype
+  if (ctype == 0):
+    dtype = "ra"
+  elif (ctype == 1):
+    dtype = "me"
+  elif (ctype == 2):
+    dtype = "ki"
+  elif (ctype == 3):
+    dtype = "fe"
+  elif (ctype == 4):
+    dtype = "mi"
+
+  if (dtype[0:2] == "ra"):
+    return d2r*angle
+  elif (dtype[0:2] == "me"):
+    return d2r*angle*r2m
+  elif (dtype[0:2] == "ki"):
+    return d2r*angle*r2m/1000.
+  elif (dtype[0:2] == "fe"):
+    return d2r*angle*r2m*m2f
+  elif (dtype[0:2] == "mi"):
+    return d2r*angle*r2m*m2f/5280.
+  else:
+    print "gc_convert: unrecognized conversion type " + str(ctype)

@@ -43,6 +43,10 @@ extern float *c_natgrids(int, float [], float [], float [],
 int c_ftcurv (int, float [], float [], int, float [], float []);
 int c_ftcurvp (int, float [], float [], float, int, float [], float []);
 int c_ftcurvpi (float, float, float, int, float [], float [], float *);
+double c_dcapethermo(double *, double *, int, double, int, 
+                     double **, double, int *, int *, int *);
+extern void NGCALLF(dptlclskewt,DPTLCLSKEWT)(double *, double *, double *,
+                                             double *, double *);
 
 static PyObject* t_output_helper(PyObject *, PyObject *);
 
@@ -408,6 +412,56 @@ void set_PCMP04(int arg_num, float value)
     case 3:
       NGCALLF(pcmp04,PCMP04).plon = value;
   }
+}
+
+PyObject *mapgci(float alat, float alon, float blat, float blon, int npts)
+{
+  float *rlati,*rloni;
+  PyObject *obj1,*obj2,*status,*resultobj;
+
+  int dims[1],ier;
+
+  rlati = (float *) malloc(npts*sizeof(float));
+  rloni = (float *) malloc(npts*sizeof(float));
+  c_mapgci(alat, alon, blat, blon, npts, rlati, rloni);
+  dims[0] = npts;
+  obj1 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
+                                              (char *) rlati);
+  obj2 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
+                                              (char *) rloni);
+  resultobj = Py_None;
+  resultobj = t_output_helper(resultobj,obj1);
+  resultobj = t_output_helper(resultobj,obj2);
+  if (resultobj == Py_None) Py_INCREF(Py_None);
+  return resultobj;
+}
+
+PyObject *dcapethermo(double *penv, double *tenv, int nlvl, double lclmb, 
+                      int iprnt, double tmsg)
+{
+  PyObject *obj1,*obj2,*obj3,*obj4,*obj5,*status,*resultobj;
+  int jlcl, jlfc, jcross, dims[1];
+  double cape, *tparcel;
+
+  cape = c_dcapethermo(penv, tenv, nlvl, lclmb, iprnt, &tparcel, tmsg,
+                       &jlcl, &jlfc, &jcross);                       
+
+  dims[0] = nlvl;
+  obj1 = (PyObject *) PyFloat_FromDouble(cape);
+  obj2 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_DOUBLE,
+                                              (char *) tparcel);
+  obj3 = (PyObject *) PyInt_FromLong((long) jlcl);
+  obj4 = (PyObject *) PyInt_FromLong((long) jlfc);
+  obj5 = (PyObject *) PyInt_FromLong((long) jcross);
+
+  resultobj = Py_None;
+  resultobj = t_output_helper(resultobj,obj1);
+  resultobj = t_output_helper(resultobj,obj2);
+  resultobj = t_output_helper(resultobj,obj3);
+  resultobj = t_output_helper(resultobj,obj4);
+  resultobj = t_output_helper(resultobj,obj5);
+  if (resultobj == Py_None) Py_INCREF(Py_None);
+  return resultobj;
 }
 
 PyObject *ftcurvc(int n, float *x, float *y, int m, float *xo)
@@ -3902,6 +3956,10 @@ extern nglPlotId add_poly_wrap(int, nglPlotId *plot, void *sequence_as_void,    
                        NhlPolyType, ResInfo *rlist, nglRes *rlist);
 void panel_wrap(int, nglPlotId *plot_seq, int, int *sequence_as_int, int, 
                  ResInfo *rlist, ResInfo *rlist, nglRes *rlist);
+
+extern PyObject *mapgci(float, float, float, float, int);
+extern PyObject *dcapethermo(double *sequence_as_double, double *sequence_as_double, int, double, int, double);
+
 extern void draw_colormap_wrap(int);
 extern void natgridc(int, float *sequence_as_float, float *sequence_as_float,
                        float *sequence_as_float, int, int, 
@@ -3923,6 +3981,29 @@ extern void c_rgbhsv(float, float, float, float *OUTPUT, float *OUTPUT, float *O
 extern void c_hsvrgb(float, float, float, float *OUTPUT, float *OUTPUT, float *OUTPUT);
 extern void c_rgbyiq(float, float, float, float *OUTPUT, float *OUTPUT, float *OUTPUT);
 extern void c_yiqrgb(float, float, float, float *OUTPUT, float *OUTPUT, float *OUTPUT);
+
+extern void c_wmbarbp(int, float, float, float, float);
+extern void c_wmsetip(NhlString,int);
+extern void c_wmsetrp(NhlString,float);
+extern void c_wmsetcp(NhlString,NhlString);
+extern int  c_wmgetip(NhlString);
+extern float c_wmgetrp(NhlString);
+extern NhlString c_wmgetcp(NhlString);
+
+extern c_mapgci(float, float, float, float, int, float *, float*);
+extern double c_dgcdist(double, double, double, double, int);
+extern double c_dcapethermo(double *, double *, int, double, int, 
+                            double **, double, int *, int *, int *);
+extern void c_dptlclskewt(double, double, double, 
+                                 double *OUTPUT, double *OUTPUT);
+extern double c_dtmrskewt(double, double);
+extern double c_dtdaskewt(double, double);
+extern double c_dsatlftskewt(double, double);
+extern double c_dshowalskewt(double *sequence_as_double, 
+                             double *sequence_as_double, 
+                             double *sequence_as_double, int);
+extern double c_dpwskewt(double *sequence_as_double, 
+                             double *sequence_as_double, int);
 
 extern void *pvoid();
 extern void set_nglRes_i(int, int);

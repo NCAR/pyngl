@@ -638,12 +638,13 @@ SWIG_InstallConstants(PyObject *d, swig_const_info constants[]) {
 #define  SWIGTYPE_p_nglPlotId swig_types[3] 
 #define  SWIGTYPE_p_p_float swig_types[4] 
 #define  SWIGTYPE_p_double swig_types[5] 
-#define  SWIGTYPE_p_NhlString swig_types[6] 
-#define  SWIGTYPE_p_NhlBoundingBox swig_types[7] 
-#define  SWIGTYPE_p_void swig_types[8] 
-#define  SWIGTYPE_p_int swig_types[9] 
-#define  SWIGTYPE_p_nglRes swig_types[10] 
-static swig_type_info *swig_types[12];
+#define  SWIGTYPE_p_p_double swig_types[6] 
+#define  SWIGTYPE_p_NhlString swig_types[7] 
+#define  SWIGTYPE_p_NhlBoundingBox swig_types[8] 
+#define  SWIGTYPE_p_void swig_types[9] 
+#define  SWIGTYPE_p_int swig_types[10] 
+#define  SWIGTYPE_p_nglRes swig_types[11] 
+static swig_type_info *swig_types[13];
 
 /* -------- TYPES TABLE (END) -------- */
 
@@ -697,6 +698,10 @@ extern float *c_natgrids(int, float [], float [], float [],
 int c_ftcurv (int, float [], float [], int, float [], float []);
 int c_ftcurvp (int, float [], float [], float, int, float [], float []);
 int c_ftcurvpi (float, float, float, int, float [], float [], float *);
+double c_dcapethermo(double *, double *, int, double, int, 
+                     double **, double, int *, int *, int *);
+extern void NGCALLF(dptlclskewt,DPTLCLSKEWT)(double *, double *, double *,
+                                             double *, double *);
 
 static PyObject* t_output_helper(PyObject *, PyObject *);
 
@@ -1062,6 +1067,56 @@ void set_PCMP04(int arg_num, float value)
     case 3:
       NGCALLF(pcmp04,PCMP04).plon = value;
   }
+}
+
+PyObject *mapgci(float alat, float alon, float blat, float blon, int npts)
+{
+  float *rlati,*rloni;
+  PyObject *obj1,*obj2,*status,*resultobj;
+
+  int dims[1],ier;
+
+  rlati = (float *) malloc(npts*sizeof(float));
+  rloni = (float *) malloc(npts*sizeof(float));
+  c_mapgci(alat, alon, blat, blon, npts, rlati, rloni);
+  dims[0] = npts;
+  obj1 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
+                                              (char *) rlati);
+  obj2 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
+                                              (char *) rloni);
+  resultobj = Py_None;
+  resultobj = t_output_helper(resultobj,obj1);
+  resultobj = t_output_helper(resultobj,obj2);
+  if (resultobj == Py_None) Py_INCREF(Py_None);
+  return resultobj;
+}
+
+PyObject *dcapethermo(double *penv, double *tenv, int nlvl, double lclmb, 
+                      int iprnt, double tmsg)
+{
+  PyObject *obj1,*obj2,*obj3,*obj4,*obj5,*status,*resultobj;
+  int jlcl, jlfc, jcross, dims[1];
+  double cape, *tparcel;
+
+  cape = c_dcapethermo(penv, tenv, nlvl, lclmb, iprnt, &tparcel, tmsg,
+                       &jlcl, &jlfc, &jcross);                       
+
+  dims[0] = nlvl;
+  obj1 = (PyObject *) PyFloat_FromDouble(cape);
+  obj2 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_DOUBLE,
+                                              (char *) tparcel);
+  obj3 = (PyObject *) PyInt_FromLong((long) jlcl);
+  obj4 = (PyObject *) PyInt_FromLong((long) jlfc);
+  obj5 = (PyObject *) PyInt_FromLong((long) jcross);
+
+  resultobj = Py_None;
+  resultobj = t_output_helper(resultobj,obj1);
+  resultobj = t_output_helper(resultobj,obj2);
+  resultobj = t_output_helper(resultobj,obj3);
+  resultobj = t_output_helper(resultobj,obj4);
+  resultobj = t_output_helper(resultobj,obj5);
+  if (resultobj == Py_None) Py_INCREF(Py_None);
+  return resultobj;
 }
 
 PyObject *ftcurvc(int n, float *x, float *y, int m, float *xo)
@@ -1717,6 +1772,8 @@ extern nglPlotId text_wrap(int,nglPlotId *,NhlString,void *,void *,char const *,
 extern nglPlotId add_text_wrap(int,nglPlotId *,NhlString,void *,void *,char const *,char const *,ResInfo *,ResInfo *,nglRes *);
 extern void poly_wrap(int,nglPlotId *,void *,void *,char const *,char const *,int,int,int,void *,void *,NhlPolyType,ResInfo *,nglRes *);
 extern nglPlotId add_poly_wrap(int,nglPlotId *,void *,void *,char const *,char const *,int,int,int,void *,void *,NhlPolyType,ResInfo *,nglRes *);
+extern PyObject *mapgci(float,float,float,float,int);
+extern PyObject *dcapethermo(double *,double *,int,double,int,double);
 extern void draw_colormap_wrap(int);
 extern void natgridc(int,float *,float *,float *,int,int,float *,float *,int *,int,int,float *[]);
 extern PyObject *ftcurvc(int,float *,float *,int,float *);
@@ -1728,6 +1785,21 @@ extern void c_rgbhsv(float,float,float,float *,float *,float *);
 extern void c_hsvrgb(float,float,float,float *,float *,float *);
 extern void c_rgbyiq(float,float,float,float *,float *,float *);
 extern void c_yiqrgb(float,float,float,float *,float *,float *);
+extern void c_wmbarbp(int,float,float,float,float);
+extern void c_wmsetip(NhlString,int);
+extern void c_wmsetrp(NhlString,float);
+extern void c_wmsetcp(NhlString,NhlString);
+extern int c_wmgetip(NhlString);
+extern float c_wmgetrp(NhlString);
+extern NhlString c_wmgetcp(NhlString);
+extern double c_dgcdist(double,double,double,double,int);
+extern double c_dcapethermo(double *,double *,int,double,int,double **,double,int *,int *,int *);
+extern void c_dptlclskewt(double,double,double,double *,double *);
+extern double c_dtmrskewt(double,double);
+extern double c_dtdaskewt(double,double);
+extern double c_dsatlftskewt(double,double);
+extern double c_dshowalskewt(double *,double *,double *,int);
+extern double c_dpwskewt(double *,double *,int);
 extern void *pvoid();
 extern void set_nglRes_i(int,int);
 extern int get_nglRes_i(int);
@@ -20727,6 +20799,59 @@ static PyObject *_wrap_panel_wrap(PyObject *self, PyObject *args) {
 }
 
 
+static PyObject *_wrap_mapgci(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    float arg1 ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    int arg5 ;
+    PyObject *result;
+    
+    if(!PyArg_ParseTuple(args,(char *)"ffffi:mapgci",&arg1,&arg2,&arg3,&arg4,&arg5)) goto fail;
+    result = (PyObject *)mapgci(arg1,arg2,arg3,arg4,arg5);
+    
+    resultobj = result;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_dcapethermo(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    double *arg1 = (double *) 0 ;
+    double *arg2 = (double *) 0 ;
+    int arg3 ;
+    double arg4 ;
+    int arg5 ;
+    double arg6 ;
+    PyObject *result;
+    PyObject * obj0  = 0 ;
+    PyObject * obj1  = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOidid:dcapethermo",&obj0,&obj1,&arg3,&arg4,&arg5,&arg6)) goto fail;
+    {
+        PyArrayObject *arr;
+        arr =
+        (PyArrayObject *) PyArray_ContiguousFromObject(obj0,PyArray_DOUBLE,0,0);
+        arg1 = (double *) arr->data;
+    }
+    {
+        PyArrayObject *arr;
+        arr =
+        (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+        arg2 = (double *) arr->data;
+    }
+    result = (PyObject *)dcapethermo(arg1,arg2,arg3,arg4,arg5,arg6);
+    
+    resultobj = result;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
 static PyObject *_wrap_draw_colormap_wrap(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     int arg1 ;
@@ -21222,6 +21347,317 @@ static PyObject *_wrap_c_yiqrgb(PyObject *self, PyObject *args) {
 }
 
 
+static PyObject *_wrap_c_wmbarbp(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    int arg1 ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"iffff:c_wmbarbp",&arg1,&arg2,&arg3,&arg4,&arg5)) goto fail;
+    c_wmbarbp(arg1,arg2,arg3,arg4,arg5);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_c_wmsetip(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    NhlString arg1 ;
+    int arg2 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"si:c_wmsetip",&arg1,&arg2)) goto fail;
+    c_wmsetip(arg1,arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_c_wmsetrp(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    NhlString arg1 ;
+    float arg2 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"sf:c_wmsetrp",&arg1,&arg2)) goto fail;
+    c_wmsetrp(arg1,arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_c_wmsetcp(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    NhlString arg1 ;
+    NhlString arg2 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"ss:c_wmsetcp",&arg1,&arg2)) goto fail;
+    c_wmsetcp(arg1,arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_c_wmgetip(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    NhlString arg1 ;
+    int result;
+    
+    if(!PyArg_ParseTuple(args,(char *)"s:c_wmgetip",&arg1)) goto fail;
+    result = (int)c_wmgetip(arg1);
+    
+    resultobj = PyInt_FromLong((long)result);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_c_wmgetrp(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    NhlString arg1 ;
+    float result;
+    
+    if(!PyArg_ParseTuple(args,(char *)"s:c_wmgetrp",&arg1)) goto fail;
+    result = (float)c_wmgetrp(arg1);
+    
+    resultobj = PyFloat_FromDouble(result);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_c_wmgetcp(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    NhlString arg1 ;
+    NhlString result;
+    
+    if(!PyArg_ParseTuple(args,(char *)"s:c_wmgetcp",&arg1)) goto fail;
+    result = (NhlString)c_wmgetcp(arg1);
+    
+    resultobj = result ? PyString_FromString(result) : Py_BuildValue((char*)"");
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_c_dgcdist(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    double arg1 ;
+    double arg2 ;
+    double arg3 ;
+    double arg4 ;
+    int arg5 ;
+    double result;
+    
+    if(!PyArg_ParseTuple(args,(char *)"ddddi:c_dgcdist",&arg1,&arg2,&arg3,&arg4,&arg5)) goto fail;
+    result = (double)c_dgcdist(arg1,arg2,arg3,arg4,arg5);
+    
+    resultobj = PyFloat_FromDouble(result);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_c_dcapethermo(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    double *arg1 = (double *) 0 ;
+    double *arg2 = (double *) 0 ;
+    int arg3 ;
+    double arg4 ;
+    int arg5 ;
+    double **arg6 = (double **) 0 ;
+    double arg7 ;
+    int *arg8 = (int *) 0 ;
+    int *arg9 = (int *) 0 ;
+    int *arg10 = (int *) 0 ;
+    double result;
+    PyObject * obj0  = 0 ;
+    PyObject * obj1  = 0 ;
+    PyObject * obj5  = 0 ;
+    PyObject * obj7  = 0 ;
+    PyObject * obj8  = 0 ;
+    PyObject * obj9  = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOidiOdOOO:c_dcapethermo",&obj0,&obj1,&arg3,&arg4,&arg5,&obj5,&arg7,&obj7,&obj8,&obj9)) goto fail;
+    if ((SWIG_ConvertPtr(obj0,(void **) &arg1, SWIGTYPE_p_double,SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
+    if ((SWIG_ConvertPtr(obj1,(void **) &arg2, SWIGTYPE_p_double,SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
+    if ((SWIG_ConvertPtr(obj5,(void **) &arg6, SWIGTYPE_p_p_double,SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
+    if ((SWIG_ConvertPtr(obj7,(void **) &arg8, SWIGTYPE_p_int,SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
+    if ((SWIG_ConvertPtr(obj8,(void **) &arg9, SWIGTYPE_p_int,SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
+    if ((SWIG_ConvertPtr(obj9,(void **) &arg10, SWIGTYPE_p_int,SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
+    result = (double)c_dcapethermo(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10);
+    
+    resultobj = PyFloat_FromDouble(result);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_c_dptlclskewt(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    double arg1 ;
+    double arg2 ;
+    double arg3 ;
+    double *arg4 = (double *) 0 ;
+    double *arg5 = (double *) 0 ;
+    double temp4 ;
+    double temp5 ;
+    
+    arg4 = &temp4;
+    arg5 = &temp5;
+    if(!PyArg_ParseTuple(args,(char *)"ddd:c_dptlclskewt",&arg1,&arg2,&arg3)) goto fail;
+    c_dptlclskewt(arg1,arg2,arg3,arg4,arg5);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    {
+        PyObject *o = PyFloat_FromDouble((double) (*arg4));
+        resultobj = t_output_helper(resultobj,o);
+    }
+    {
+        PyObject *o = PyFloat_FromDouble((double) (*arg5));
+        resultobj = t_output_helper(resultobj,o);
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_c_dtmrskewt(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    double arg1 ;
+    double arg2 ;
+    double result;
+    
+    if(!PyArg_ParseTuple(args,(char *)"dd:c_dtmrskewt",&arg1,&arg2)) goto fail;
+    result = (double)c_dtmrskewt(arg1,arg2);
+    
+    resultobj = PyFloat_FromDouble(result);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_c_dtdaskewt(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    double arg1 ;
+    double arg2 ;
+    double result;
+    
+    if(!PyArg_ParseTuple(args,(char *)"dd:c_dtdaskewt",&arg1,&arg2)) goto fail;
+    result = (double)c_dtdaskewt(arg1,arg2);
+    
+    resultobj = PyFloat_FromDouble(result);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_c_dsatlftskewt(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    double arg1 ;
+    double arg2 ;
+    double result;
+    
+    if(!PyArg_ParseTuple(args,(char *)"dd:c_dsatlftskewt",&arg1,&arg2)) goto fail;
+    result = (double)c_dsatlftskewt(arg1,arg2);
+    
+    resultobj = PyFloat_FromDouble(result);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_c_dshowalskewt(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    double *arg1 = (double *) 0 ;
+    double *arg2 = (double *) 0 ;
+    double *arg3 = (double *) 0 ;
+    int arg4 ;
+    double result;
+    PyObject * obj0  = 0 ;
+    PyObject * obj1  = 0 ;
+    PyObject * obj2  = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOi:c_dshowalskewt",&obj0,&obj1,&obj2,&arg4)) goto fail;
+    {
+        PyArrayObject *arr;
+        arr =
+        (PyArrayObject *) PyArray_ContiguousFromObject(obj0,PyArray_DOUBLE,0,0);
+        arg1 = (double *) arr->data;
+    }
+    {
+        PyArrayObject *arr;
+        arr =
+        (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+        arg2 = (double *) arr->data;
+    }
+    {
+        PyArrayObject *arr;
+        arr =
+        (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+        arg3 = (double *) arr->data;
+    }
+    result = (double)c_dshowalskewt(arg1,arg2,arg3,arg4);
+    
+    resultobj = PyFloat_FromDouble(result);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_c_dpwskewt(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    double *arg1 = (double *) 0 ;
+    double *arg2 = (double *) 0 ;
+    int arg3 ;
+    double result;
+    PyObject * obj0  = 0 ;
+    PyObject * obj1  = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOi:c_dpwskewt",&obj0,&obj1,&arg3)) goto fail;
+    {
+        PyArrayObject *arr;
+        arr =
+        (PyArrayObject *) PyArray_ContiguousFromObject(obj0,PyArray_DOUBLE,0,0);
+        arg1 = (double *) arr->data;
+    }
+    {
+        PyArrayObject *arr;
+        arr =
+        (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+        arg2 = (double *) arr->data;
+    }
+    result = (double)c_dpwskewt(arg1,arg2,arg3);
+    
+    resultobj = PyFloat_FromDouble(result);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
 static PyObject *_wrap_pvoid(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     void *result;
@@ -21519,6 +21955,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"poly_wrap", _wrap_poly_wrap, METH_VARARGS },
 	 { (char *)"add_poly_wrap", _wrap_add_poly_wrap, METH_VARARGS },
 	 { (char *)"panel_wrap", _wrap_panel_wrap, METH_VARARGS },
+	 { (char *)"mapgci", _wrap_mapgci, METH_VARARGS },
+	 { (char *)"dcapethermo", _wrap_dcapethermo, METH_VARARGS },
 	 { (char *)"draw_colormap_wrap", _wrap_draw_colormap_wrap, METH_VARARGS },
 	 { (char *)"natgridc", _wrap_natgridc, METH_VARARGS },
 	 { (char *)"ftcurvc", _wrap_ftcurvc, METH_VARARGS },
@@ -21530,6 +21968,21 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"c_hsvrgb", _wrap_c_hsvrgb, METH_VARARGS },
 	 { (char *)"c_rgbyiq", _wrap_c_rgbyiq, METH_VARARGS },
 	 { (char *)"c_yiqrgb", _wrap_c_yiqrgb, METH_VARARGS },
+	 { (char *)"c_wmbarbp", _wrap_c_wmbarbp, METH_VARARGS },
+	 { (char *)"c_wmsetip", _wrap_c_wmsetip, METH_VARARGS },
+	 { (char *)"c_wmsetrp", _wrap_c_wmsetrp, METH_VARARGS },
+	 { (char *)"c_wmsetcp", _wrap_c_wmsetcp, METH_VARARGS },
+	 { (char *)"c_wmgetip", _wrap_c_wmgetip, METH_VARARGS },
+	 { (char *)"c_wmgetrp", _wrap_c_wmgetrp, METH_VARARGS },
+	 { (char *)"c_wmgetcp", _wrap_c_wmgetcp, METH_VARARGS },
+	 { (char *)"c_dgcdist", _wrap_c_dgcdist, METH_VARARGS },
+	 { (char *)"c_dcapethermo", _wrap_c_dcapethermo, METH_VARARGS },
+	 { (char *)"c_dptlclskewt", _wrap_c_dptlclskewt, METH_VARARGS },
+	 { (char *)"c_dtmrskewt", _wrap_c_dtmrskewt, METH_VARARGS },
+	 { (char *)"c_dtdaskewt", _wrap_c_dtdaskewt, METH_VARARGS },
+	 { (char *)"c_dsatlftskewt", _wrap_c_dsatlftskewt, METH_VARARGS },
+	 { (char *)"c_dshowalskewt", _wrap_c_dshowalskewt, METH_VARARGS },
+	 { (char *)"c_dpwskewt", _wrap_c_dpwskewt, METH_VARARGS },
 	 { (char *)"pvoid", _wrap_pvoid, METH_VARARGS },
 	 { (char *)"set_nglRes_i", _wrap_set_nglRes_i, METH_VARARGS },
 	 { (char *)"get_nglRes_i", _wrap_get_nglRes_i, METH_VARARGS },
@@ -21551,6 +22004,7 @@ static swig_type_info _swigt__p_ResInfo[] = {{"_p_ResInfo", 0, "ResInfo *", 0},{
 static swig_type_info _swigt__p_nglPlotId[] = {{"_p_nglPlotId", 0, "nglPlotId *", 0},{"_p_nglPlotId"},{0}};
 static swig_type_info _swigt__p_p_float[] = {{"_p_p_float", 0, "float **", 0},{"_p_p_float"},{0}};
 static swig_type_info _swigt__p_double[] = {{"_p_double", 0, "double *", 0},{"_p_double"},{0}};
+static swig_type_info _swigt__p_p_double[] = {{"_p_p_double", 0, "double **", 0},{"_p_p_double"},{0}};
 static swig_type_info _swigt__p_NhlString[] = {{"_p_NhlString", 0, "NhlString *", 0},{"_p_NhlString"},{0}};
 static swig_type_info _swigt__p_NhlBoundingBox[] = {{"_p_NhlBoundingBox", 0, "NhlBoundingBox *", 0},{"_p_NhlBoundingBox"},{0}};
 static swig_type_info _swigt__p_void[] = {{"_p_void", 0, "void *", 0},{"_p_void"},{0}};
@@ -21564,6 +22018,7 @@ _swigt__p_ResInfo,
 _swigt__p_nglPlotId, 
 _swigt__p_p_float, 
 _swigt__p_double, 
+_swigt__p_p_double, 
 _swigt__p_NhlString, 
 _swigt__p_NhlBoundingBox, 
 _swigt__p_void, 

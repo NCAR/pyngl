@@ -1648,6 +1648,10 @@ add_poly_wrap = _hlu.add_poly_wrap
 
 panel_wrap = _hlu.panel_wrap
 
+mapgci = _hlu.mapgci
+
+dcapethermo = _hlu.dcapethermo
+
 draw_colormap_wrap = _hlu.draw_colormap_wrap
 
 natgridc = _hlu.natgridc
@@ -1669,6 +1673,36 @@ c_hsvrgb = _hlu.c_hsvrgb
 c_rgbyiq = _hlu.c_rgbyiq
 
 c_yiqrgb = _hlu.c_yiqrgb
+
+c_wmbarbp = _hlu.c_wmbarbp
+
+c_wmsetip = _hlu.c_wmsetip
+
+c_wmsetrp = _hlu.c_wmsetrp
+
+c_wmsetcp = _hlu.c_wmsetcp
+
+c_wmgetip = _hlu.c_wmgetip
+
+c_wmgetrp = _hlu.c_wmgetrp
+
+c_wmgetcp = _hlu.c_wmgetcp
+
+c_dgcdist = _hlu.c_dgcdist
+
+c_dcapethermo = _hlu.c_dcapethermo
+
+c_dptlclskewt = _hlu.c_dptlclskewt
+
+c_dtmrskewt = _hlu.c_dtmrskewt
+
+c_dtdaskewt = _hlu.c_dtdaskewt
+
+c_dsatlftskewt = _hlu.c_dsatlftskewt
+
+c_dshowalskewt = _hlu.c_dshowalskewt
+
+c_dpwskewt = _hlu.c_dpwskewt
 
 pvoid = _hlu.pvoid
 

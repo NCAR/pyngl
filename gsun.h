@@ -1,3 +1,4 @@
+#include <ncarg/ncargC.h>
 #include <ncarg/hlu/hlu.h>
 #include <ncarg/hlu/NresDB.h>
 #include <ncarg/hlu/ResList.h>
@@ -367,3 +368,4 @@ extern void draw_colormap_wrap(int);
 
 extern void panel_wrap(int, nglPlotId *, int, int *, int, ResInfo *,
 					   ResInfo *, nglRes *);
+

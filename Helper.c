@@ -17,6 +17,19 @@
 #include <ncarg/hlu/StreamlinePlot.h>
 #include <ncarg/hlu/VectorPlot.h>
 
+extern double NGCALLF(dgcdist,DGCDIST)(double *,double *,double *,double *,
+                                       int *);
+extern double NGCALLF(dcapethermo,DCAPETHERMO)(double *, double *,
+  int *, double *, int *, double *, double *, int *, int *, int *);
+extern void NGCALLF(dptlclskewt,DPTLCLSKEWT)(double *, double *, double *,
+                                             double *, double *);
+extern double NGCALLF(dtmrskewt,DTMRSKEWT)(double *,double *);
+extern double NGCALLF(dtdaskewt,DTDASKEWT)(double *,double *);
+extern double NGCALLF(dsatlftskewt,DSATLFTSKEWT)(double *,double *);
+extern double NGCALLF(dshowalskewt,DSHOWALSKEWT)(double *,double *,
+                                                 double *,int *);
+extern double NGCALLF(dpwskewt,DPWSKEWT)(double *,double *,int*);
+
 NhlClass NhlPAppClass ()
 {
   return((NhlClass) NhlappClass);
@@ -107,4 +120,33 @@ void *pvoid()
 {
   void *p;
   return (p);
+}
+
+double c_dgcdist(double lat1, double lon1, double lat2, double lon2, int iu) {
+  return   (double) NGCALLF(dgcdist,DGCDIST)(&lat1, &lon1, &lat2, &lon2, &iu);
+}
+double c_dcapethermo(double *penv, double *tenv, int nlvl, double lclmb, 
+  int iprnt, double **tparcel, double tmsg, int *jlcl, int *jlfc, int *jcross) {
+
+  *tparcel = (double *) calloc(nlvl, sizeof(double));
+  return (double) NGCALLF(dcapethermo,DCAPETHERMO)(penv, tenv, &nlvl,
+                  &lclmb, &iprnt, *tparcel, &tmsg, jlcl, jlfc, jcross);
+}
+void c_dptlclskewt(double p, double t, double td, double *pc, double *tc) {
+  NGCALLF(dptlclskewt,DPTLCLSKEWT)(&p, &t, &td, pc, tc);
+}
+double c_dtmrskewt(double w, double p) {
+  return  (double) NGCALLF(dtmrskewt,DTMRSKEWT)(&w, &p);
+}
+double c_dtdaskewt(double w, double p) {
+  return  (double) NGCALLF(dtdaskewt,DTDASKEWT)(&w, &p);
+}
+double c_dsatlftskewt(double thw, double p) {
+  return  (double) NGCALLF(dsatlftskewt,DSATLFTSKEWT)(&thw, &p);
+}
+double c_dshowalskewt(double *p, double *t, double *td, int nlvls) {
+  return  (double) NGCALLF(dshowalskewt,DSHOWALSKEWT)(p, t, td, &nlvls);
+}
+double c_dpwskewt(double *td, double *p, int n) {
+  return  (double) NGCALLF(dpwskewt,DPWSKEWT)(td, p, &n);
 }

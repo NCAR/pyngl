@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include "gsun.h"
 
 /*
@@ -4514,4 +4515,66 @@ void panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
   free(old_vp);
   free(ypos);
   free(newbb);
+}
+
+void c_wmbarbp(int wksid, float x, float y, float u, float v) {
+
+  int ezf;
+  float xt,yt,xtn,ytn,ang1,ang2,utmp,vtmp,vlen,d2r=0.01745329,xtm,ytm;
+  
+  gactivate_ws (wksid);
+  c_wmgeti("ezf",&ezf);
+  if (ezf != -1) {
+/*
+ * Find a small vector *on the map* in the direction of the wind barb.
+ * The cos term is introduced to accommodate for the latitude of the
+ * barb - as you approach the poles, a given spacial distance in latitude
+ * in degrees is less than the same spacial distance in degrees
+ * longitude.
+ */
+    ang1 = atan2(u,v);
+    c_maptrn(x, y, &xt, &yt);
+    if (xt != 1.e12) {
+      xtm = x + 0.1 * cos(ang1);            
+      ytm = y + 0.1 * sin(ang1)/cos(d2r*x);
+      c_maptrn(xtm, ytm, &xtn, &ytn);
+      ang2 = atan2(ytn-yt,xtn-xt);
+      vlen = sqrt(u*u + v*v);
+      utmp = vlen*cos(ang2);
+      vtmp = vlen*sin(ang2);
+      c_wmbarb(xt, yt, utmp,vtmp);
+    }
+  }
+  else {
+    c_wmbarb(x, y, u, v);
+  }
+
+  gdeactivate_ws (wksid);
+}
+void c_wmsetip(char* string, int v) {
+  c_wmseti(string, v);
+}
+void c_wmsetrp(char* string, float v) {
+  c_wmsetr(string, v);
+}
+void c_wmsetcp(char* string, char *value) {
+  c_wmsetc(string, value);
+}
+int c_wmgetip(char* string) {
+  int *iret;
+  iret = (int *) malloc(sizeof(int));
+  c_wmgeti(string,iret);
+  return *iret;
+}
+float c_wmgetrp(char* string) {
+  float *fret;
+  fret = (float *) malloc(sizeof(float));
+  c_wmgetr(string, fret);
+  return *fret;
+}
+char *c_wmgetcp(char* string) {
+  char *cret;
+  cret = (char *) malloc(20*sizeof(char));
+  c_wmgetc(string, cret, strlen(cret));
+  return cret;
 }
