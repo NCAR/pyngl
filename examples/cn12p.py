@@ -6,11 +6,6 @@
 import Numeric,sys
 
 #
-#  Import all names from the NetCDF module.
-#
-from Scientific.IO.NetCDF import *
-
-#
 #  Import Ngl support functions.
 #
 from Ngl import *

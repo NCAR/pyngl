@@ -180,7 +180,7 @@ for i in xrange(len(traj)):
     ngl_polyline(wks,map,[xpt[j],xpt[j+1]],[ypt[j],ypt[j+1]],pres)
 
 #
-#  Draw a red polymarker at the beginning of each trajectory.
+#  Draw a polymarker at the beginning of each trajectory.
 #
     ngl_polymarker(wks,map,[xpt[0]],[ypt[0]],mres) 
 
