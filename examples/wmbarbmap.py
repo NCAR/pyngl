@@ -10,7 +10,7 @@ import Ngl, Numeric
 cmap = Numeric.array([[1., 1., 1.], [0., 0., 0.], [1., 0., 0.]], Numeric.Float0)
 rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
-wks_type = "x11"
+wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"wmbarbmap",rlist)  # Open a workstation.
 
 #
