@@ -745,9 +745,14 @@ main()
  */
   special_res.nglDraw     = 1;
   special_res.nglFrame    = 1;
-  special_res.nglMaximize = 1;
+  special_res.nglMaximize = 0;
   special_res.nglScale    = 0;
   special_res.nglDebug    = 1;
+
+  special_res.nglSpreadColors     = 0;
+  special_res.nglSpreadColorStart = 2;
+  special_res.nglSpreadColorEnd   = -1;
+
 /*
  * Paper orientation: -1 is auto, 0 is portrait, and 6 is landscape.
  */
@@ -837,7 +842,7 @@ main()
  */
 
   wk_rlist = NhlRLCreate(NhlSETRL);
-  wks = ngl_open_wks_wrap("pdf","test", wk_rlist);
+  wks = ngl_open_wks_wrap("ps","test", wk_rlist);
 
 /* 
  * Set color map resource and open workstation.
@@ -1195,12 +1200,17 @@ main()
     NhlRLSetString      (mp2_rlist, "mpGeophysicalLineColor","black");
     NhlRLSetInteger     (mp2_rlist, "mpPerimOn",             1);
 
+    special_res.nglSpreadColors      = 1;
+    special_res.nglSpreadColorStart  = 3;
+    special_res.nglSpreadColorEnd    = -2;
     cntrmap = ngl_contour_map_wrap(wks, T, type_T, nlat_T, nlon_T, 
                                    is_lat_coord_T, lat_T, type_lat_T, 
                                    is_lon_coord_T, lon_T, type_lon_T, 
                                    is_missing_T, FillValue_T, 
                                    sf_rlist, cn2_rlist, mp2_rlist,
                                    &special_res);
+    special_res.nglSpreadColors     = 0;
+    special_res.nglSpreadColorEnd   = -1;
   }
 
 /*
@@ -1259,7 +1269,6 @@ main()
 
     special_res.nglScale    = 1;
     special_res.nglFrame    = 0;
-    special_res.nglMaximize = 0;
 
     cntrmap = ngl_contour_map_wrap(wks, P, type_P, nlat_UV, nlon_UV, 
                                    is_lat_coord_UV, lat_UV, type_lat_UV, 
@@ -1267,7 +1276,6 @@ main()
                                    is_missing_P, FillValue_P, 
                                    sf_rlist, cn_rlist, mp_rlist,
                                    &special_res);
-    special_res.nglMaximize = 1;
     special_res.nglFrame    = 1;
     special_res.nglScale    = 0;
 

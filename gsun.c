@@ -374,7 +374,7 @@ void compute_ps_device_coords(int wks, int *plots, int nplots,
  */
 
 void maximize_plot(int wks, int *plot, int nplots, int ispanel, 
-				   nglRes *special_res)
+                   nglRes *special_res)
 {
   NhlBoundingBox box; 
   float top, bot, lft, rgt, uw, uh;
@@ -497,7 +497,7 @@ void maximize_plot(int wks, int *plot, int nplots, int ispanel,
  * max_index < min_index, then the colors are reversed
  */
 void spread_colors(int wks,int plot,int min_index, int max_index, 
-		   char *get_resname, char *set_resname)
+                   char *get_resname, char *set_resname)
 {
   int i, ncols, lcount, *icols, minix, maxix, reverse, grlist, srlist, itmp;
   float *levels, fmin, fmax, *fcols;
@@ -849,7 +849,7 @@ int create_graphicstyle_object(int wks)
  */
 
 void draw_and_frame(int wks, int *plots, int nplots, int ispanel, 
-					nglRes *special_res)
+                    nglRes *special_res)
 {
   int i;
 
@@ -1178,7 +1178,7 @@ int ngl_contour_wrap(int wks, void *data, const char *type,
 
   if(special_res->nglSpreadColors)  {
     spread_colors(wks, contour, special_res->nglSpreadColorStart,
-		  special_res->nglSpreadColorEnd, "cnLevels", "cnFillColors");
+                  special_res->nglSpreadColorEnd, "cnLevels", "cnFillColors");
   }
 
 /*
@@ -1458,10 +1458,13 @@ int ngl_contour_map_wrap(int wks, void *data, const char *type,
  * Create contour plot.
  */
 
-  special_res2.nglDraw     = 0;
-  special_res2.nglFrame    = 0;
-  special_res2.nglMaximize = 0;
-  special_res2.nglDebug    = special_res->nglDebug;
+  special_res2.nglDraw             = 0;
+  special_res2.nglFrame            = 0;
+  special_res2.nglMaximize         = 0;
+  special_res2.nglDebug            = special_res->nglDebug;
+  special_res2.nglSpreadColors     = special_res->nglSpreadColors;
+  special_res2.nglSpreadColorStart = special_res->nglSpreadColorStart;
+  special_res2.nglSpreadColorEnd   = special_res->nglSpreadColorEnd;
 
   contour = ngl_contour_wrap(wks, data, type, ylen, xlen,
                              is_ycoord, ycoord, ycoord_type,
@@ -1517,10 +1520,13 @@ int ngl_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
  * Create vector plot.
  */
 
-  special_res2.nglDraw     = 0;
-  special_res2.nglFrame    = 0;
-  special_res2.nglMaximize = 0;
-  special_res2.nglDebug    = special_res->nglDebug;
+  special_res2.nglDraw             = 0;
+  special_res2.nglFrame            = 0;
+  special_res2.nglMaximize         = 0;
+  special_res2.nglDebug            = special_res->nglDebug;
+  special_res2.nglSpreadColors     = special_res->nglSpreadColors;
+  special_res2.nglSpreadColorStart = special_res->nglSpreadColorStart;
+  special_res2.nglSpreadColorEnd   = special_res->nglSpreadColorEnd;
 
   vector = ngl_vector_wrap(wks, u, v, type_u, type_v, ylen, xlen, is_ycoord,
                            ycoord, type_ycoord, is_xcoord, xcoord, 
