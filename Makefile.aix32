@@ -1,0 +1,12 @@
+_hlu.so: hlu_wrap.o gsun.o Helper.o
+	 ld -b32 -bnoquiet -G -bnoentry -bexpall -o _hlu.so hlu_wrap.o gsun.o Helper.o -lm -lc -lxlf90 -lxlf -lxlopt 
+
+hlu_wrap.o: hlu_wrap.c
+	xlc_r -q32 -I$(NCARG_ROOT)/include -I$(NCARG_ROOT)/include/python2.3 -c hlu_wrap.c
+
+Helper.o: Helper.c
+	xlc_r -q32 -I$(NCARG_ROOT)/include -c Helper.c
+
+gsun.o: gsun.c gsun.h
+	xlc_r -q32 -I$(NCARG_ROOT)/include -c gsun.c
+

@@ -80,6 +80,18 @@ typedef struct {
   float nglPanelInvsblBottom;
 
 /*
+ * Special resource for figure strings.
+ */
+  NhlString *nglPanelFigureStrings;
+  int     nglPanelFigureStringsCount;
+  int     nglPanelFigureStringsJust;
+  float   nglPanelFigureStringsOrthogonalPosF;
+  float   nglPanelFigureStringsParallelPosF;
+  int     nglPanelFigureStringsPerimOn;
+  int     nglPanelFigureStringsBackgroundFillColor;
+  float   nglPanelFigureStringsFontHeightF;
+
+/*
  * Special resources for a panel labelbar.
  */
   int   nglPanelLabelBar;  
@@ -89,8 +101,9 @@ typedef struct {
   float nglPanelLabelBarHeightF;
   int   nglPanelLabelBarOrientation;
   int   nglPanelLabelBarPerimOn;
+  int   nglPanelLabelBarLabelAutoStride;
   int   nglPanelLabelBarAlignment;
-  float nglPanelLabelBarFontHeightF;
+  float nglPanelLabelBarLabelFontHeightF;
   float nglPanelLabelBarOrthogonalPosF;
   float nglPanelLabelBarParallelPosF;
 } nglRes;
@@ -315,4 +328,5 @@ extern nglPlotId ngl_add_text_wrap(int, nglPlotId *, char *, void *, void *,
 
 extern void ngl_draw_colormap_wrap(int);
 
-extern void ngl_panel_wrap(int, nglPlotId *, int, int *, int, int, nglRes *);
+extern void ngl_panel_wrap(int, nglPlotId *, int, int *, int, int, int,
+                           nglRes *);

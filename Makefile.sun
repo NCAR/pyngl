@@ -1,0 +1,13 @@
+_hlu.so: hlu_wrap.o gsun.o Helper.o
+	 ld -R /opt/SUNWspro/lib -o _hlu.so hlu_wrap.o gsun.o Helper.o -L/opt/SUNWspro/lib -L$(NCARG_ROOT)/lib -L/usr/local/lib -L/usr/openwin/lib -L/usr/dt/lib -lhlu -lncarg -lncarg_gks -lncarg_c -lngmath -lF77 -lM77 -lnsl -lsunmath -lm -lX11 -lXext -lnetcdf -G
+
+hlu_wrap.o: hlu_wrap.c
+	cc  -I$(NCARG_ROOT)/include -I$(NCARG_ROOT)/include/python2.3 -DNeedFuncProto -O -c hlu_wrap.c
+#	cc -c -DNeedFuncProto -O hlu_wrap.c -L$(NCARG_ROOT)/lib -L/usr/openwin/lib -I$(NCARG_ROOT)/include -I$(NCARG_ROOT)/include/python2.3 -I/usr/openwin/include -lhlu -lncarg -lncarg_gks -lncarg_c -lX11 -lXext -lF77 -lM77 -lsunmath -lm
+
+Helper.o: Helper.c
+	cc  -I$(NCARG_ROOT)/include -DNeedFuncProto -O -c Helper.c
+
+gsun.o: gsun.c gsun.h
+	cc  -I$(NCARG_ROOT)/include -DNeedFuncProto -O -c gsun.c
+

@@ -957,19 +957,32 @@ void initialize_resources(nglRes *res, int list_type)
   res->nglPanelInvsblBottom       = -999.;
 
 /*
+ * Special resources for panel figure strings.
+ */
+  res->nglPanelFigureStrings                    = NULL;
+  res->nglPanelFigureStringsCount               = 0;
+  res->nglPanelFigureStringsJust                = 8;   /* BottomRight */
+  res->nglPanelFigureStringsOrthogonalPosF      = -999.;
+  res->nglPanelFigureStringsParallelPosF        = -999.;
+  res->nglPanelFigureStringsPerimOn             = 1;
+  res->nglPanelFigureStringsBackgroundFillColor = 0;
+  res->nglPanelFigureStringsFontHeightF         = -999.;
+
+/*
  * Special resources for a panel labelbar.
  */
-  res->nglPanelLabelBar               = 0;  
-  res->nglPanelLabelBarXF             = -999.;
-  res->nglPanelLabelBarYF             = -999.;
-  res->nglPanelLabelBarWidthF         = -999.;
-  res->nglPanelLabelBarHeightF        = -999.;
-  res->nglPanelLabelBarOrientation    = NhlHORIZONTAL;
-  res->nglPanelLabelBarPerimOn        = 0;
-  res->nglPanelLabelBarAlignment      = NhlINTERIOREDGES;
-  res->nglPanelLabelBarFontHeightF    = -999.;
-  res->nglPanelLabelBarOrthogonalPosF = -999.;
-  res->nglPanelLabelBarParallelPosF   = -999.;
+  res->nglPanelLabelBar                 = 0;  
+  res->nglPanelLabelBarXF               = -999.;
+  res->nglPanelLabelBarYF               = -999.;
+  res->nglPanelLabelBarWidthF           = -999.;
+  res->nglPanelLabelBarHeightF          = -999.;
+  res->nglPanelLabelBarOrientation      = NhlHORIZONTAL;
+  res->nglPanelLabelBarPerimOn          = 0;
+  res->nglPanelLabelBarLabelAutoStride  = 1;
+  res->nglPanelLabelBarAlignment        = NhlINTERIOREDGES;
+  res->nglPanelLabelBarLabelFontHeightF = -999.;
+  res->nglPanelLabelBarOrthogonalPosF   = -999.;
+  res->nglPanelLabelBarParallelPosF     = -999.;
 }
 
 /*
@@ -2979,7 +2992,8 @@ void ngl_draw_colormap_wrap(int wks)
  * Routine for paneling same-sized plots.
  */
 void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims, 
-                    int ndims, int lb_rlist, nglRes *special_res)
+                    int ndims, int lb_rlist, int fs_rlist,
+                    nglRes *special_res)
 {
   int i, nplots, npanels, is_row_spec, nrows, ncols, draw_boxes = 0;
   int num_plots_left, nplot, nplot4, nr, nc, new_ncols, nnewplots;
@@ -2988,18 +3002,22 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
   int nvalid_plot, nvalid_plots, valid_plot;
   int panel_save, panel_debug, panel_center;
   int panel_labelbar, main_string_on, is_figure_strings;
+  int fs_bkgrn, fs_perim_on, just;
+  int *anno, fs_text, added_anno, am_rlist;
+  float paras[9], orths[9], para, orth, len_pct, wsp_hpct, wsp_wpct;
+  NhlString *panel_strings;
   int *colors, *patterns;
   float *scales, *levels;
   int fill_on, glyph_style, fill_arrows_on, mono_line_color, mono_fill_arrow;
   int ncolors, nlevels, npatterns, nscales;
   int mono_fill_pat, mono_fill_scl, mono_fill_col;
-  int lb_orient, lb_perim_on, lb_alignment, labelbar_object;
-  float labelbar_width, labelbar_height;
-  float lb_fh, lb_x, lb_y, lb_w, lb_h, tmp_range;
+  int lb_orient, lb_perim_on, lb_auto_stride, lb_alignment, labelbar_object;
+  float lb_width_set, lb_height_set;
+  float lb_fh, lb_x, lb_y, lb_width, lb_height, tmp_range;
   char plot_type[10];
   int maxbb, calldraw, callframe;
   int lft_pnl, rgt_pnl, bot_pnl, top_pnl;
-  float font_height;
+  float font_height, fs_font_height;
   float x_lft, x_rgt, y_bot, y_top;
   float xlft, xrgt, xbot, xtop;
   float xsp, ysp, xwsp_perc, ywsp_perc, xwsp, ywsp;
@@ -3025,7 +3043,7 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
 /*
  * First check if paneling is to be specified by (#rows x #columns) or
  * by #columns per row.  The default is rows x columns, unless 
- * resource nglPanelRowSpec is set to True
+ * resource nglPanelRowSpec is set to True.
  */
   is_row_spec = special_res->nglPanelRowSpec;
 
@@ -3066,15 +3084,19 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
 /*
  * Check for special resources.
  */ 
-  panel_save     = special_res->nglPanelSave;
-  panel_debug    = special_res->nglDebug;
-  panel_center   = special_res->nglPanelCenter;
-  main_string_on = is_figure_strings = 0;
-  panel_labelbar = special_res->nglPanelLabelBar;
-  calldraw       = special_res->nglDraw;
-  callframe      = special_res->nglFrame;
-  xwsp_perc      = special_res->nglPanelXWhiteSpacePercent;
-  ywsp_perc      = special_res->nglPanelYWhiteSpacePercent;
+  panel_save        = special_res->nglPanelSave;
+  panel_debug       = special_res->nglDebug;
+  panel_center      = special_res->nglPanelCenter;
+  is_figure_strings = special_res->nglPanelFigureStringsCount;
+  panel_labelbar    = special_res->nglPanelLabelBar;
+  just              = special_res->nglPanelFigureStringsJust;
+  para              = special_res->nglPanelFigureStringsParallelPosF;
+  orth              = special_res->nglPanelFigureStringsOrthogonalPosF;
+  calldraw          = special_res->nglDraw;
+  callframe         = special_res->nglFrame;
+  xwsp_perc         = special_res->nglPanelXWhiteSpacePercent;
+  ywsp_perc         = special_res->nglPanelYWhiteSpacePercent;
+  main_string_on    = 0;     /* Resource for this to be added later. */
   
 /*
  * Check if these four have been changed from their default values.
@@ -3124,6 +3146,47 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
       maxbb = 0;
     }
   }
+
+/*
+ * Set some resources for the figure strings, if they exist.
+ */
+  if(is_figure_strings) {
+    panel_strings = special_res->nglPanelFigureStrings;
+    fs_perim_on   = special_res->nglPanelFigureStringsPerimOn;
+    fs_bkgrn      = special_res->nglPanelFigureStringsBackgroundFillColor;
+
+/*
+ * Get and set resource values for figure strings on the plots.
+ */
+    if(just < 0 || just > 8) {
+      just = 8;      /* Default to BottomRight */
+      NhlPError(NhlWARNING,NhlEUNKNOWN,"ngl_panel_wrap: incorrect value for nglPanelFigureStringsJust, defaulting to 'BottomRight'");
+    }
+
+    paras[0] = -1;     /* TopLeft    */
+    paras[1] = -1;     /* CenterLeft */
+    paras[2] = -1;     /* BottomLeft   */
+
+    paras[3] =  0;     /* TopCenter    */
+    paras[4] =  0;     /* CenterCenter */
+    paras[5] =  0;     /* BottomCenter */
+
+    paras[6] =  1;     /* TopRight     */
+    paras[7] =  1;     /* CenterRight  */
+    paras[8] =  1;     /* BottomRight  */
+
+    orths[0] = -1;     /* TopLeft      */
+    orths[1] =  0;     /* CenterLeft   */
+    orths[2] =  1;     /* BottomLeft   */
+
+    orths[3] = -1;     /* TopCenter    */
+    orths[4] =  0;     /* CenterCenter */
+    orths[5] =  1;     /* BottomCenter */
+
+    orths[6] = -1;     /* TopRight     */
+    orths[7] =  0;     /* CenterRight  */
+    orths[8] =  1;     /* BottomRight  */
+ }
 
 /*
  * Error check the values that the user has entered, to make sure
@@ -3208,37 +3271,38 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
  */
   strcpy(plot_type,"unknown");
 
-  if(plots[valid_plot].ncontour > 0 && plots[valid_plot].contour != NULL) {
-    strcpy(plot_type,"contour");
+  if(is_figure_strings || panel_labelbar) {
+    if(plots[valid_plot].ncontour > 0 && plots[valid_plot].contour != NULL) {
+      strcpy(plot_type,"contour");
 /*
  * Get information on how contour plot is filled, so we can recreate 
  * labelbar, if requested.
  */
-    NhlRLClear(grlist);
-    NhlRLGetFloat(grlist,   "cnInfoLabelFontHeightF", &font_height);
-    NhlRLGetInteger(grlist, "cnFillOn",               &fill_on);
-    (void)NhlGetValues(*(plots[valid_plot].contour), grlist);
+      NhlRLClear(grlist);
+      NhlRLGetFloat(grlist,   "cnInfoLabelFontHeightF", &font_height);
+      NhlRLGetInteger(grlist, "cnFillOn",               &fill_on);
+      (void)NhlGetValues(*(plots[valid_plot].contour), grlist);
 
-    if(panel_labelbar) {
-      if(fill_on) {
-        NhlRLClear(grlist);
-        NhlRLGetIntegerArray(grlist, "cnFillColors",      &colors, &ncolors);
-        NhlRLGetIntegerArray(grlist, "cnFillPatterns",    &patterns,
-                                                          &npatterns);
-        NhlRLGetFloatArray(grlist,   "cnFillScales",      &scales, &nscales);
-        NhlRLGetInteger(grlist,      "cnMonoFillPattern", &mono_fill_pat);
-        NhlRLGetInteger(grlist,      "cnMonoFillScale",   &mono_fill_scl);
-        NhlRLGetInteger(grlist,      "cnMonoFillColor",   &mono_fill_col);
-        NhlRLGetFloatArray(grlist,   "cnLevels",          &levels, &nlevels);
-        (void)NhlGetValues(*(plots[valid_plot].contour), grlist);
-      }
-      else {
-        panel_labelbar = 0;
+      if(panel_labelbar) {
+        if(fill_on) {
+          NhlRLClear(grlist);
+          NhlRLGetIntegerArray(grlist, "cnFillColors",      &colors, &ncolors);
+          NhlRLGetIntegerArray(grlist, "cnFillPatterns",    &patterns,
+                               &npatterns);
+          NhlRLGetFloatArray(grlist,   "cnFillScales",      &scales, &nscales);
+          NhlRLGetInteger(grlist,      "cnMonoFillPattern", &mono_fill_pat);
+          NhlRLGetInteger(grlist,      "cnMonoFillScale",   &mono_fill_scl);
+          NhlRLGetInteger(grlist,      "cnMonoFillColor",   &mono_fill_col);
+          NhlRLGetFloatArray(grlist,   "cnLevels",          &levels, &nlevels);
+          (void)NhlGetValues(*(plots[valid_plot].contour), grlist);
+        }
+        else {
+          panel_labelbar = 0;
+        }
       }
     }
-  }
-  else if(plots[valid_plot].nvector > 0 && plots[valid_plot].vector != NULL) {
-    strcpy(plot_type,"vector");
+    else if(plots[valid_plot].nvector > 0 && plots[valid_plot].vector != NULL) {
+      strcpy(plot_type,"vector");
 /*
  * There are many possible ways in which multiply filled arrows or mulitply
  * color line vectors can be on:
@@ -3249,52 +3313,62 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
  *  vcGlyphStyle   = (LineArrows || CurlyVector) 
  *                 && vcMonoLineArrowColor     = False
  */
-    NhlRLClear(grlist);
-    NhlRLGetFloat(grlist,  "vcRefAnnoFontHeightF",     &font_height);
-    NhlRLGetInteger(grlist,"vcGlyphStyle",             &glyph_style);
-    NhlRLGetInteger(grlist,"vcFillArrowsOn",           &fill_arrows_on);
-    NhlRLGetInteger(grlist,"vcMonoLineArrowColor",     &mono_line_color);
-    NhlRLGetInteger(grlist,"vcMonoFillArrowFillColor", &mono_fill_arrow);
-    (void)NhlGetValues(*(plots[valid_plot].vector), grlist);
+      NhlRLClear(grlist);
+      NhlRLGetFloat(grlist,  "vcRefAnnoFontHeightF",     &font_height);
+      NhlRLGetInteger(grlist,"vcGlyphStyle",             &glyph_style);
+      NhlRLGetInteger(grlist,"vcFillArrowsOn",           &fill_arrows_on);
+      NhlRLGetInteger(grlist,"vcMonoLineArrowColor",     &mono_line_color);
+      NhlRLGetInteger(grlist,"vcMonoFillArrowFillColor", &mono_fill_arrow);
+      (void)NhlGetValues(*(plots[valid_plot].vector), grlist);
 
-    if(panel_labelbar) {
-      if((fill_arrows_on && !mono_fill_arrow) || 
-        (!fill_arrows_on && !mono_line_color) || 
-        (glyph_style == NhlFILLARROW && !mono_fill_arrow) ||
-        ((glyph_style == NhlLINEARROW || glyph_style == NhlCURLYVECTOR)
-                                                   && !mono_line_color)) {
+      if(panel_labelbar) {
+        if((fill_arrows_on && !mono_fill_arrow) || 
+           (!fill_arrows_on && !mono_line_color) || 
+           (glyph_style == NhlFILLARROW && !mono_fill_arrow) ||
+           ((glyph_style == NhlLINEARROW || glyph_style == NhlCURLYVECTOR)
+            && !mono_line_color)) {
 /*
  * There are no fill patterns in VectorPlot, only solids.
  */
-        mono_fill_pat = 1;
-        mono_fill_scl = 1;
-        mono_fill_col = 0;
-        NhlRLClear(grlist);
-        NhlRLGetFloatArray(grlist,   "vcLevels",      &levels, &nlevels);
-        NhlRLGetIntegerArray(grlist, "vcLevelColors", &colors, &ncolors );
-        (void)NhlGetValues(*(plots[valid_plot].vector), grlist);
-      }
-      else {
-        panel_labelbar = 0;
+          mono_fill_pat = 1;
+          mono_fill_scl = 1;
+          mono_fill_col = 0;
+          NhlRLClear(grlist);
+          NhlRLGetFloatArray(grlist,   "vcLevels",      &levels, &nlevels);
+          NhlRLGetIntegerArray(grlist, "vcLevelColors", &colors, &ncolors );
+          (void)NhlGetValues(*(plots[valid_plot].vector), grlist);
+        }
+        else {
+          panel_labelbar = 0;
+        }
       }
     }
-  }
-  else if(plots[valid_plot].nxy > 0 && plots[valid_plot].xy != NULL &&
-         *(plots[valid_plot].base) == *(plots[valid_plot].xy)) {
-    strcpy(plot_type,"xy");
+    else if(plots[valid_plot].nxy > 0 && plots[valid_plot].xy != NULL &&
+            *(plots[valid_plot].base) == *(plots[valid_plot].xy)) {
+      strcpy(plot_type,"xy");
 /*
  * Retrieve this resource later, *after* the plots have been rescaled.
  */
-    NhlRLClear(grlist);
-    NhlRLGetFloat(grlist, "tiXAxisFontHeightF", &font_height);
-    (void)NhlGetValues(*(plots[valid_plot].xy), grlist);
-    font_height *= 0.6;
+      NhlRLClear(grlist);
+      NhlRLGetFloat(grlist, "tiXAxisFontHeightF", &font_height);
+      (void)NhlGetValues(*(plots[valid_plot].xy), grlist);
+      font_height *= 0.6;
+    }
+    else {
+      font_height = 0.01;
+      NhlPError(NhlWARNING,NhlEUNKNOWN,"Warning: ngl_panel: unrecognized plot type, thus unable to get information for font height.\nDefaulting to %g", font_height);
+    }
+/*
+ * Use this font height for the panel strings, if any, unless the user
+ * has set nglPanelFigureStringsFontHeightF.
+ */
+    if(special_res->nglPanelFigureStringsFontHeightF > 0) {
+      fs_font_height = special_res->nglPanelFigureStringsFontHeightF;
+    }
+    else {
+      fs_font_height = font_height;
+    }
   }
-  else {
-    font_height = 0.01;
-    NhlPError(NhlWARNING,NhlEUNKNOWN,"Warning: ngl_panel: unrecognized plot type, thus unable to get information for font height.\nDefaulting to %g", font_height);
-  }
-
 /*
  * Create array to save the valid plot objects, plus a labelbar and
  * a common title, if any.
@@ -3336,38 +3410,68 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
  * routine later (like width, height, font height, etc) and some just
  * have a default, like PerimOn and Alignment.
  */
-    lb_perim_on  = special_res->nglPanelLabelBarPerimOn;
-    lb_alignment = special_res->nglPanelLabelBarAlignment;
-    lb_orient    = special_res->nglPanelLabelBarOrientation;
+    lb_perim_on    = special_res->nglPanelLabelBarPerimOn;
+    lb_auto_stride = special_res->nglPanelLabelBarLabelAutoStride;
+    lb_alignment   = special_res->nglPanelLabelBarAlignment;
+    lb_orient      = special_res->nglPanelLabelBarOrientation;
+    lb_width       = special_res->nglPanelLabelBarWidthF;
+    lb_height      = special_res->nglPanelLabelBarHeightF;
+
+/*
+ * Keep track if labelbar width and/or height was explicitly set
+ * by user, so we know later whether the labelbar height/width we're
+ * working with is a calculated one, or a specified one.
+ */
+    if(lb_width < 0.) {
+      lb_width_set = 0;
+    }
+    else {
+      lb_width_set = 1;
+    } 
+    if(lb_height < 0.) {
+      lb_height_set = 0;
+    }
+    else {
+      lb_height_set = 1;
+    }
+
     if(lb_orient == NhlVERTICAL) {
-      labelbar_width = 0.20 * plot_width + 2.*xwsp;
+      if(!lb_width_set) {
+        lb_width = 0.20 * plot_width + 2.*xwsp;
+      }
+      if(!lb_height_set) {
 /*
  * Adjust height depending on whether we have one row or multiple rows.
  */
-      if(nplots > 1 && nrows > 1) {
-        labelbar_height  = (nrows-1) * (2.*ywsp + plot_height);
-      }
-      else {
-        labelbar_height  = plot_height;
+        if(nplots > 1 && nrows > 1) {
+          lb_height  = (nrows-1) * (2.*ywsp + plot_height);
+        }
+        else {
+          lb_height  = plot_height;
+        }
       }
     }
     else {
-      labelbar_height = 0.20 * plot_height + 2.*ywsp;
+      if(!lb_height_set) {
+        lb_height = 0.20 * plot_height + 2.*ywsp;
+      }
+      if(!lb_width_set) {
 /*
  * Adjust width depending on whether we have one column or multiple 
  * columns.
  */
-      if(nplots > 1 && ncols > 1) {
-        labelbar_width  = (ncols-1) * (2.*xwsp + plot_width);
-      }
-      else {
-        labelbar_width  = plot_width;
+        if(nplots > 1 && ncols > 1) {
+          lb_width  = (ncols-1) * (2.*xwsp + plot_width);
+        }
+        else {
+          lb_width  = plot_width;
+        }
       }
     }
   }
   else {
-    labelbar_height = 0.;
-    labelbar_width  = 0.;
+    lb_height = 0.;
+    lb_width  = 0.;
   }
 
 /*
@@ -3389,16 +3493,26 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
   yrange = y_top - y_bot;
   
   if(lb_orient == NhlHORIZONTAL) {
-    row_scale = yrange/(nrows*total_height+labelbar_height);
+    row_scale = yrange/(nrows*total_height+lb_height);
     col_scale = xrange/(ncols*total_width);
     scale     = min(col_scale,row_scale);
-    yrange    = yrange - scale * labelbar_height;
+    if(lb_height_set) {
+      yrange  = yrange - lb_height;
+    }
+    else {
+      yrange  = yrange - scale * lb_height;
+    }
   }
   else {
     row_scale = yrange/(nrows*total_height);
-    col_scale = xrange/(ncols*total_width+labelbar_width);
+    col_scale = xrange/(ncols*total_width+lb_width);
     scale     = min(col_scale,row_scale);
-    xrange    = xrange - scale * labelbar_width;
+    if(lb_width_set) {
+      xrange  = xrange - lb_width;
+    }
+    else {
+      xrange  = xrange - scale * lb_width;
+    }
   }
 
 /*
@@ -3458,6 +3572,39 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
     else {
       min_ypos = ypos[i]; 
       max_ypos = ypos[i]; 
+    }
+  }
+
+/*
+ * If we have figure strings, then allocate space for them, and determine
+ * white spacing around the text box.
+ */
+  if(is_figure_strings) {
+    anno = (int *)malloc(nplots * sizeof(int));
+
+    len_pct = 0.025;          /* Percentage of width/height of plot */
+                              /* for white space around text box.   */
+    if(vpw < vph) {
+      wsp_hpct = (len_pct * vpw) / vph;
+      wsp_wpct = len_pct;
+    }
+    else {
+      wsp_hpct = len_pct;
+      wsp_wpct = (len_pct * vph) / vpw;
+    }
+/*
+ * If we are calculating the parallel and/or orthogonal position for
+ * the figure strings, first make sure it is not one of the "center"
+ * values. Otherwise, add a little bit of a margin to it so it's not
+ * flush with the edge of the plot. 
+ */
+    if(para == -999.) {
+      para = paras[just];
+      if(paras[just] != 0) para *= (0.5 - wsp_wpct);
+    }
+    if(orth == -999.) {
+      orth = orths[just];
+      if(orths[just] != 0) orth *= (0.5 - wsp_hpct);
     }
   }
 
@@ -3550,6 +3697,41 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
         }
 
 /*
+ * Add figure string if requested.
+ */
+        added_anno = 0;
+        if(is_figure_strings) {
+          if(nplot < special_res->nglPanelFigureStringsCount && 
+             (panel_strings[nplot] != NULL) &&
+             strcmp(panel_strings[nplot],"")) {
+/*
+ * Set the text resources for the figure string.
+ */
+            NhlRLSetString  (fs_rlist, "txString",      panel_strings[nplot]);
+            NhlRLSetFloat   (fs_rlist, "txFontHeightF", fs_font_height);
+            NhlRLSetInteger (fs_rlist, "txPerimOn",     fs_perim_on);
+            NhlRLSetInteger (fs_rlist, "txBackgroundFillColor", fs_bkgrn);
+            NhlCreate(&fs_text,"text",NhltextItemClass,wks,fs_rlist);
+
+/*
+ * Add annotation to plot.
+ */
+            anno[nplot] = NhlAddAnnotation(*(pplot.base),fs_text);
+            added_anno = 1;
+            am_rlist = NhlRLCreate(NhlSETRL);
+            NhlRLClear(am_rlist);
+            NhlRLSetInteger (am_rlist,"amZone"           , 0);
+            NhlRLSetInteger (am_rlist,"amJust"           , just);
+            NhlRLSetFloat   (am_rlist,"amParallelPosF"   , para);
+            NhlRLSetFloat   (am_rlist,"amOrthogonalPosF" , orth);
+            NhlRLSetInteger (am_rlist,"amResizeNotify"   , True);
+            (void)NhlSetValues(anno[nplot], am_rlist);
+          }
+          else {
+            anno[i] = -1;
+          }
+        }
+/*
  * Save this plot.
  */
         *(newplots[nvalid_plot].base) = *(pplot.base);
@@ -3607,30 +3789,14 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
 /*
  * Set labelbar height, width, and font height.
  */
-      labelbar_height *= scale;
-      labelbar_width  *= scale;
-      if(special_res->nglPanelLabelBarFontHeightF > 0.) {
-        lb_fh = special_res->nglPanelLabelBarFontHeightF;
+      if(!lb_height_set) lb_height *= scale;
+      if(!lb_width_set)  lb_width  *= scale;
+
+      if(special_res->nglPanelLabelBarLabelFontHeightF > 0.) {
+        lb_fh = special_res->nglPanelLabelBarLabelFontHeightF;
       }
       else {
         lb_fh = font_height;
-      }
-/*
- * Set some labelbar resources if they haven't already been set by
- * user. 
- */
-      if(special_res->nglPanelLabelBarWidthF > 0.) {
-        lb_w = special_res->nglPanelLabelBarWidthF;
-      }
-      else {
-        lb_w = labelbar_width;
-      }
-      
-      if(special_res->nglPanelLabelBarHeightF > 0.) {
-        lb_h = special_res->nglPanelLabelBarHeightF;
-      }
-      else {
-        lb_h = labelbar_height;
       }
 /*
  * Set position of labelbar depending on whether it's horizontal or
@@ -3641,18 +3807,18 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
           lb_y = special_res->nglPanelLabelBarYF;
         }
         else {
-          lb_y = max(ywsp+labelbar_height,bottom-ywsp);
+          lb_y = max(ywsp+lb_height,bottom-ywsp);
         }
 
         if(special_res->nglPanelLabelBarXF > 0.) {
           lb_x = special_res->nglPanelLabelBarXF;
         }
-        else if(ncols == 1 && lb_w <= scaled_width) {
-          lb_x = min_xpos + (scaled_width-lb_w)/2.;
+        else if(ncols == 1 && lb_width <= scaled_width) {
+          lb_x = min_xpos + (scaled_width-lb_width)/2.;
         }
         else {
           tmp_range = x_rgt - x_lft;
-          lb_x      = x_lft + (tmp_range - lb_w)/2.;
+          lb_x      = x_lft + (tmp_range - lb_width)/2.;
         }
         if(special_res->nglPanelLabelBarOrthogonalPosF > -1.) {
           lb_y += special_res->nglPanelLabelBarOrthogonalPosF;
@@ -3666,17 +3832,17 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
           lb_x = special_res->nglPanelLabelBarXF;
         }
         else {
-          lb_x = min(1.-(xwsp+labelbar_width),max_rgt+xwsp);
+          lb_x = min(1.-(xwsp+lb_width),max_rgt+xwsp);
         }
         if(special_res->nglPanelLabelBarYF > 0.) {
           lb_y = special_res->nglPanelLabelBarYF;
         }
-        else if(nrows == 1 && lb_h <= scaled_height) {
-          lb_y = ypos[0]-(scaled_height - lb_h)/2.;
+        else if(nrows == 1 && lb_height <= scaled_height) {
+          lb_y = ypos[0]-(scaled_height - lb_height)/2.;
         }
         else {
           tmp_range = y_top - y_bot;
-          lb_y      = y_top-(tmp_range - lb_h)/2.;
+          lb_y      = y_top-(tmp_range - lb_height)/2.;
         }
         if(special_res->nglPanelLabelBarOrthogonalPosF > -1.) {
           lb_x += special_res->nglPanelLabelBarOrthogonalPosF;
@@ -3690,14 +3856,15 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
  */
       NhlRLSetFloat       (lb_rlist,"vpXF",              lb_x);
       NhlRLSetFloat       (lb_rlist,"vpYF",              lb_y);
-      NhlRLSetFloat       (lb_rlist,"vpWidthF",          lb_w);
-      NhlRLSetFloat       (lb_rlist,"vpHeightF",         lb_h);
+      NhlRLSetFloat       (lb_rlist,"vpWidthF",          lb_width);
+      NhlRLSetFloat       (lb_rlist,"vpHeightF",         lb_height);
       NhlRLSetString      (lb_rlist,"lbAutoManage",      "False");
       NhlRLSetInteger     (lb_rlist,"lbOrientation",     lb_orient);
       NhlRLSetIntegerArray(lb_rlist,"lbFillColors",      colors, ncolors);
       NhlRLSetInteger     (lb_rlist,"lbBoxCount",        ncolors);
       NhlRLSetFloatArray  (lb_rlist,"lbLabelStrings",    levels, nlevels);
       NhlRLSetInteger     (lb_rlist,"lbPerimOn",         lb_perim_on);
+      NhlRLSetInteger     (lb_rlist,"lbLabelAutoStride", lb_auto_stride);
       NhlRLSetFloat       (lb_rlist,"lbLabelFontHeightF",lb_fh);
       NhlRLSetInteger     (lb_rlist,"lbLabelAlignment",  lb_alignment);
       /*
@@ -3854,6 +4021,10 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
   if(!panel_save) {
     for(i = 0; i < nplots; i++) {
       if(plots[i].nbase > 0 && plots[i].base != NULL) {
+        if(added_anno && anno[i] > 0) {
+          NhlRemoveAnnotation(*(plots[i].base),anno[i]);
+        }
+
         nplot4 = 4 * i;
         
         NhlRLClear(srlist);

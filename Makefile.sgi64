@@ -1,0 +1,14 @@
+_hlu.so: hlu_wrap.o gsun.o Helper.o
+#	 ld -64 -shared -o _hlu.so hlu_wrap.o gsun.o Helper.o -L$(NCARG_ROOT)/lib  -lhlu -lncarg -lncarg_gks -lncarg_c -lngmath -lX11 -lftn -lm -lfortran 
+	 ld -64 -shared -o _hlu.so hlu_wrap.o gsun.o Helper.o -L/opt/MIPSpro/73/usr/lib64 -L$(NCARG_ROOT)/lib  -lhlu -lncarg -lncarg_gks -lncarg_c -lngmath -lX11 -lftn
+
+
+hlu_wrap.o: hlu_wrap.c
+	nhlcc -I$(NCARG_ROOT)/include/python2.3 -c hlu_wrap.c
+
+Helper.o: Helper.c
+	nhlcc -c Helper.c
+
+gsun.o: gsun.c gsun.h
+	nhlcc -g -c gsun.c
+

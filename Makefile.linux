@@ -1,0 +1,12 @@
+_hlu.so: hlu_wrap.o gsun.o Helper.o
+	 gcc -o _hlu.so hlu_wrap.o gsun.o Helper.o -L/usr/X11R6/lib -L$(NCARG_ROOT)/lib -lhlu -lncarg -lncarg_gks -lncarg_c -lngmath -lX11 -lXext -lnetcdf -shared -lg2c
+
+hlu_wrap.o: hlu_wrap.c
+	cc -c -DNeedFuncProto -O hlu_wrap.c -L$(NCARG_ROOT)/lib -I$(NCARG_ROOT)/include -I$(NCARG_ROOT)/include/python2.3 -lhlu -lncarg -lncarg_gks -lncarg_c -lX11 -lXext -lm
+
+Helper.o: Helper.c
+	cc -c -DNeedFuncProto -O Helper.c -L$(NCARG_ROOT)/lib -I$(NCARG_ROOT)/include -I$(NCARG_ROOT)/include/python2.3 -lhlu -lncarg -lncarg_gks -lncarg_c -lX11 -lXext -lm
+
+gsun.o: gsun.c gsun.h
+	nhlcc -g -c gsun.c
+
