@@ -855,7 +855,7 @@ main()
  */
 
   wk_rlist = NhlRLCreate(NhlSETRL);
-  wks = ngl_open_wks_wrap("pdf","driver", wk_rlist);
+  wks = ngl_open_wks_wrap("x11","driver", wk_rlist);
 
 /* 
  * Set color map resource and open workstation.
@@ -1353,36 +1353,38 @@ main()
  * Draw some polymarkers before we draw the plot.
  */
 
-    if(do_vector_scalar) {
-      NhlRLClear(gs_rlist);
-      NhlRLSetInteger(gs_rlist,"gsMarkerIndex", 16);
-      NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 10.5);
-      NhlRLSetString (gs_rlist,"gsMarkerColor", "red");
-      ngl_polymarker_ndc_wrap(wks, (void *)xmark1, (void *)ymark1, "double",
-                              "float", 6, 0, 0, NULL, NULL, gs_rlist,
-                              &special_pres);
-      NhlRLSetString (gs_rlist,"gsMarkerColor", "green");
-      ngl_polymarker_ndc_wrap(wks, (void *)xmark2, (void *)ymark2, "float", 
-                              "double", 3, 0, 0, NULL, NULL, gs_rlist, 
-                              &special_pres);
-      NhlRLSetString (gs_rlist,"gsMarkerColor", "blue");
-      ngl_polymarker_ndc_wrap(wks, (void *)xmark3, (void *)ymark3, "float",
-                              "float", 3, 0, 0, NULL, NULL, gs_rlist,
-                              &special_pres);
+    NhlRLClear(gs_rlist);
+    NhlRLSetInteger(gs_rlist,"gsMarkerIndex", 16);
+    NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 10.5);
+    NhlRLSetString (gs_rlist,"gsMarkerColor", "red");
+    ngl_polymarker_ndc_wrap(wks, (void *)xmark1, (void *)ymark1, "double",
+                            "float", 6, 0, 0, NULL, NULL, gs_rlist,
+                            &special_pres);
+    NhlRLSetString (gs_rlist,"gsMarkerColor", "green");
+    ngl_polymarker_ndc_wrap(wks, (void *)xmark2, (void *)ymark2, "float", 
+                            "double", 3, 0, 0, NULL, NULL, gs_rlist, 
+                            &special_pres);
+    NhlRLSetString (gs_rlist,"gsMarkerColor", "blue");
+    ngl_polymarker_ndc_wrap(wks, (void *)xmark3, (void *)ymark3, "float",
+                            "float", 3, 0, 0, NULL, NULL, gs_rlist,
+                            &special_pres);
 
 /*
  * Now create and draw plot.
  */
-      vctrscalar = ngl_vector_scalar_wrap(wks, U, V, T2, type_U, type_V,
-                                       type_T2, nlat_UV, nlon_UV, 
-                                       is_lat_coord_UV, lat_UV, type_lat_UV, 
-                                       is_lon_coord_UV, lon_UV, type_lon_UV,
-                                       is_missing_U, is_missing_V, 
-                                       is_missing_T2, FillValue_U, 
-                                       FillValue_V, FillValue_T2,
-                                       vf_rlist, sf2_rlist, vc2_rlist, 
-                                       &special_res);
-    }
+    special_res.nglSpreadColors     = 1;
+    special_res.nglSpreadColorEnd   = -2;
+    vctrscalar = ngl_vector_scalar_wrap(wks, U, V, T2, type_U, type_V,
+                                        type_T2, nlat_UV, nlon_UV, 
+                                        is_lat_coord_UV, lat_UV,
+                                        type_lat_UV, is_lon_coord_UV,
+                                        lon_UV, type_lon_UV, is_missing_U,
+                                        is_missing_V, is_missing_T2, 
+                                        FillValue_U, FillValue_V, 
+                                        FillValue_T2, vf_rlist, sf2_rlist,
+                                        vc2_rlist, &special_res);
+    special_res.nglSpreadColors     = 0;
+    special_res.nglSpreadColorEnd   = -1;
   }
 
 /*

@@ -494,7 +494,7 @@ void maximize_plot(int wks, nglPlotId *plot, int nplots, int ispanel,
  * max_index < min_index, then the colors are reversed
  */
 void spread_colors(int wks, int plot, int min_index, int max_index, 
-           char *get_resname, char *set_resname)
+                   char *get_resname, char *set_resname)
 {
   int i, ncols, lcount, *icols, minix, maxix, reverse, grlist, srlist, itmp;
   float fmin, fmax, *fcols;
@@ -1640,15 +1640,15 @@ nglPlotId ngl_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
  */
 
 nglPlotId ngl_streamline_map_wrap(int wks, void *u, void *v, 
-                                                                  const char *type_u, const char *type_v, 
-                                                                  int ylen, int xlen, int is_ycoord, 
-                                                                  void *ycoord, const char *type_ycoord, 
-                                                                  int is_xcoord, void *xcoord, 
-                                                                  const char *type_xcoord, int is_missing_u,
-                                                                  int is_missing_v, void *FillValue_u, 
-                                                                  void *FillValue_v, int vf_rlist, 
-                                                                  int vc_rlist, int mp_rlist,
-                                                                  nglRes *special_res)
+                                  const char *type_u, const char *type_v, 
+                                  int ylen, int xlen, int is_ycoord, 
+                                  void *ycoord, const char *type_ycoord, 
+                                  int is_xcoord, void *xcoord, 
+                                  const char *type_xcoord, int is_missing_u,
+                                  int is_missing_v, void *FillValue_u, 
+                                  void *FillValue_v, int vf_rlist, 
+                                  int vc_rlist, int mp_rlist,
+                                  nglRes *special_res)
 {
   nglRes special_res2;
   nglPlotId streamline, map, plot;
@@ -1748,6 +1748,12 @@ nglPlotId ngl_vector_scalar_wrap(int wks, void *u, void *v, void *t,
   NhlRLSetString (vc_rlist, "vcMonoLineArrowColor", "False");
 
   NhlCreate(&vector,"vector",NhlvectorPlotClass,wks,vc_rlist);
+
+  if(special_res->nglSpreadColors)  {
+    spread_colors(wks, vector, special_res->nglSpreadColorStart,
+                  special_res->nglSpreadColorEnd, "vcLevelCount", 
+                  "vcLevelColors");
+  }
 
 /*
  * Make tickmarks and axis labels the same size.
@@ -2648,17 +2654,18 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
   int nvalid_plot, nvalid_plots, valid_plot;
   int panel_save, panel_debug, panel_center;
   int panel_labelbar, main_string_on, is_figure_strings;
-  int *colors, *fill_patterns;
-  float *fill_scales, *levels;
-  int ncolors, nlevels, nfill_patterns, nfill_scales;
-  int lbhor, mono_fill_pat, mono_fill_scl, mono_fill_col;
+  int *colors, *patterns;
+  float *scales, *levels;
+  int ncolors, nlevels, npatterns, nscales;
+  int mono_fill_pat, mono_fill_scl, mono_fill_col;
+  int lb_orient, lb_perim_on, lb_alignment;
   int new_plot, labelbar_object;
-  float labelbar_width, labelbar_height, labelbar_font_height;
-  float lb_x, lb_y, lb_w, lb_h, tmp_range;
-  char plot_type[10], font_resource[24];
+  float labelbar_width, labelbar_height;
+  float lb_fh, lb_x, lb_y, lb_w, lb_h, tmp_range;
+  char plot_type[10], font_resource[24], level_resource[24];
   int maxbb, calldraw, callframe;
   int lft_pnl, rgt_pnl, bot_pnl, top_pnl;
-  float font_height, pfont_height;
+  float font_height;
   float x_lft, x_rgt, y_bot, y_top;
   float xlft, xrgt, xbot, xtop;
   float xsp, ysp, xwsp_perc, ywsp_perc, xwsp, ywsp;
@@ -2735,7 +2742,6 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
   callframe      = special_res->nglFrame;
   xwsp_perc      = special_res->nglPanelXWhiteSpacePercent;
   ywsp_perc      = special_res->nglPanelYWhiteSpacePercent;
-  pfont_height   = special_res->nglPanelFigureStringsFontHeightF;
   
 /*
  * Check if these four have been changed from their default values.
@@ -2893,11 +2899,13 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
     new_plot = plots[valid_plot].contour;
     strcpy(plot_type,"contour");
     strcpy(font_resource,"cnInfoLabelFontHeightF");
+    strcpy(level_resource,"cnLevelCount");
   }
   else if(plots[valid_plot].base == plots[valid_plot].vector) {
     new_plot = plots[valid_plot].vector;
-    strcpy(plot_type,"contour");
+    strcpy(plot_type,"vector");
     strcpy(font_resource,"vcRefAnnoFontHeightF");
+    strcpy(level_resource,"vcLevelCount");
   }
   else if(plots[valid_plot].base == plots[valid_plot].xy) {
     new_plot = plots[valid_plot].xy;
@@ -2912,6 +2920,9 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
     if(strcmp(plot_type,"unknown")) {
       NhlRLClear(grlist);
       NhlRLGetFloat(grlist,font_resource, &font_height);
+      if(panel_labelbar && strcmp(plot_type,"xy")) {
+        NhlRLGetInteger(grlist,level_resource, &nlevels);
+      }
       (void)NhlGetValues(new_plot, grlist);
       if(!strcmp(plot_type,"xy")) {
         font_height *= 0.6;
@@ -2921,13 +2932,6 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
       font_height = 0.01;
       printf("Warning: ngl_panel: unrecognized plot type, thus unable to get information for font height.");
       printf("Defaulting to %g", font_height);
-    }
-/*
- * Use this font height for the panel strings, if any, unless the user
- * has set nglPanelFigureStringsFontHeightF.
- */
-    if(pfont_height <= 0.) {
-      pfont_height = font_height;
     }
   }
 
@@ -2951,11 +2955,16 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
  * If we are putting a common labelbar at the bottom (right), make 
  * it 2/10 the height (width) of the plot.
  */
-  lbhor = 1;
   if(panel_labelbar) {
-    if(special_res->nglPanelLabelBarOrientation == NhlVERTICAL) {
-      NhlRLSetString(lb_rlist,"lbOrientation","vertical");
-      lbhor = 0;
+/*
+ * Set some resource values. Some resources are calculated by this panel
+ * routine later (like width, height, font height, etc) and some just
+ * have a default, like PerimOn and Alignment.
+ */
+    lb_perim_on  = special_res->nglPanelLabelBarPerimOn;
+    lb_alignment = special_res->nglPanelLabelBarAlignment;
+    lb_orient    = special_res->nglPanelLabelBarOrientation;
+    if(lb_orient == NhlVERTICAL) {
       labelbar_width = 0.20 * plot_width + 2.*xwsp;
 /*
  * Adjust height depending on whether we have one row or multiple rows.
@@ -2968,7 +2977,6 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
       }
     }
     else {
-      NhlRLSetString(lb_rlist,"lbOrientation","horizontal");
 
       labelbar_height = 0.20 * plot_height + 2.*ywsp;
 /*
@@ -3006,7 +3014,7 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
   xrange = x_rgt - x_lft;
   yrange = y_top - y_bot;
   
-  if(lbhor) {
+  if(lb_orient == NhlHORIZONTAL) {
 /*
  * Previously, we used to include xrange and yrange as part of the min
  * statement. This seemed to cause problems if you set one of
@@ -3227,26 +3235,25 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
  * Check if a labelbar is to be drawn at the bottom.
  */
   if(panel_labelbar) {
+    if(!strcmp(plot_type,"contour") || !strcmp(plot_type,"vector")) {
 /*
  * If plot type is not one of contour or vector, then we can't
  * get labelbar information.
  */
-    if(!strcmp(plot_type,"contour") || !strcmp(plot_type,"vector")) {
       if(!strcmp(plot_type,"contour")) {
 /*
  * Get information on how contour plot is filled, so we can recreate 
  * labelbar.
  */
         NhlRLClear(grlist);
-        NhlRLGetFloatArray(grlist,"cnLevels", &levels, &nlevels);
-        NhlRLGetIntegerArray(grlist,"cnFillColors", &colors, &ncolors);
-        NhlRLGetIntegerArray(grlist,"cnFillPatterns", &fill_patterns,
-                             &nfill_patterns);
-        NhlRLGetFloatArray(grlist,"cnFillScales", &fill_scales,
-                           &nfill_scales);
-        NhlRLGetInteger(grlist,"cnMonoFillPattern", &mono_fill_pat);
-        NhlRLGetInteger(grlist,"cnMonoFillScale", &mono_fill_scl);
-        NhlRLGetInteger(grlist,"cnMonoFillColor", &mono_fill_col);
+        NhlRLGetIntegerArray(grlist, "cnFillColors",      &colors, &ncolors);
+        NhlRLGetIntegerArray(grlist, "cnFillPatterns",    &patterns,
+                                                          &npatterns);
+        NhlRLGetFloatArray(grlist,   "cnFillScales",      &scales, &nscales);
+        NhlRLGetInteger(grlist,      "cnMonoFillPattern", &mono_fill_pat);
+        NhlRLGetInteger(grlist,      "cnMonoFillScale",   &mono_fill_scl);
+        NhlRLGetInteger(grlist,      "cnMonoFillColor",   &mono_fill_col);
+        NhlRLGetFloatArray(grlist,   "cnLevels",          &levels, &nlevels);
         (void)NhlGetValues(pplot.base, grlist);
       }
       else {
@@ -3254,28 +3261,27 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
  * There are no fill patterns in VectorPlot, only solids.
  */
         mono_fill_pat = 1;
-        mono_fill_scl = 0;
+        mono_fill_scl = 1;
         mono_fill_col = 0;
         NhlRLClear(grlist);
-        NhlRLGetFloatArray(grlist,"vcLevels", &levels, &nlevels);
-        NhlRLGetIntegerArray(grlist,"vcLevelColors", &colors, &ncolors );
+        NhlRLGetFloatArray(grlist,   "vcLevels",      &levels, &nlevels);
+        NhlRLGetIntegerArray(grlist, "vcLevelColors", &colors, &ncolors );
         (void)NhlGetValues(pplot.base, grlist);
       }
 /*
  * Set labelbar height, width, and font height.
  */
-      labelbar_height      = scale * labelbar_height;
-      labelbar_width       = scale * labelbar_width;
+      labelbar_height *= scale;
+      labelbar_width  *= scale;
       if(special_res->nglPanelLabelBarFontHeightF > 0.) {
-		labelbar_font_height = special_res->nglPanelLabelBarFontHeightF;
-	  }
-	  else {
-		labelbar_font_height = font_height;
-	  }
+        lb_fh = special_res->nglPanelLabelBarFontHeightF;
+      }
+      else {
+        lb_fh = font_height;
+      }
 /*
- * Set some labelbar resources.  If pmLabelBarWidth/Height are set,
- * use these no matter what, for the labelbar width and height. Otherwise,
- * use vpWidth/Height if they are set.
+ * Set some labelbar resources if they haven't already been set by
+ * user. 
  */
       if(special_res->nglPanelLabelBarWidthF > 0.) {
         lb_w = special_res->nglPanelLabelBarWidthF;
@@ -3294,7 +3300,7 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
  * Set position of labelbar depending on whether it's horizontal or
  * vertical.
  */
-      if(lbhor) {
+      if(lb_orient == NhlHORIZONTAL) {
         if(special_res->nglPanelLabelBarYF > 0.) {
           lb_y = special_res->nglPanelLabelBarYF;
         }
@@ -3312,6 +3318,12 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
           tmp_range = x_rgt - x_lft;
           lb_x      = x_lft + (tmp_range - lb_w)/2.;
         }
+        if(special_res->nglPanelLabelBarOrthogonalPosF > -1.) {
+          lb_y += special_res->nglPanelLabelBarOrthogonalPosF;
+        }
+        if(special_res->nglPanelLabelBarParallelPosF > -1.) {
+          lb_x += special_res->nglPanelLabelBarOrthogonalPosF;
+        }
       }
       else {
         if(special_res->nglPanelLabelBarXF > 0.) {
@@ -3328,49 +3340,67 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
         }
         else {
           tmp_range = y_top - y_bot;
-          lb_y = y_top-(tmp_range - lb_h)/2.;
+          lb_y      = y_top-(tmp_range - lb_h)/2.;
+        }
+        if(special_res->nglPanelLabelBarOrthogonalPosF > -1.) {
+          lb_x += special_res->nglPanelLabelBarOrthogonalPosF;
+        }
+        if(special_res->nglPanelLabelBarParallelPosF > -1.) {
+          lb_y += special_res->nglPanelLabelBarOrthogonalPosF;
         }
       }
-      if(special_res->nglPanelLabelBarOrthogonalPosF > -1.) {
-        lb_y += special_res->nglPanelLabelBarOrthogonalPosF;
-      }
-      if(special_res->nglPanelLabelBarParallelPosF > -1.) {
-        lb_x += special_res->nglPanelLabelBarOrthogonalPosF;
-      }
-	  NhlRLSetFloat(lb_rlist,"lbLabelFontHeightF",labelbar_font_height);
-      NhlRLSetFloat(lb_rlist,"vpXF",lb_x);
-      NhlRLSetFloat(lb_rlist,"vpYF",lb_y);
-      NhlRLSetFloat(lb_rlist,"vpWidthF",lb_w);
-      NhlRLSetFloat(lb_rlist,"vpHeightF",lb_h);
+/*
+ * Now begin setting the labelbar resources.
+ */
+      NhlRLSetFloat       (lb_rlist,"vpXF",              lb_x);
+      NhlRLSetFloat       (lb_rlist,"vpYF",              lb_y);
+      NhlRLSetFloat       (lb_rlist,"vpWidthF",          lb_w);
+      NhlRLSetFloat       (lb_rlist,"vpHeightF",         lb_h);
+      NhlRLSetString      (lb_rlist,"lbAutoManage",      "False");
+      NhlRLSetInteger     (lb_rlist,"lbOrientation",     lb_orient);
+      NhlRLSetIntegerArray(lb_rlist,"lbFillColors",      colors, ncolors);
+      NhlRLSetInteger     (lb_rlist,"lbBoxCount",        ncolors);
+      NhlRLSetFloatArray  (lb_rlist,"lbLabelStrings",    levels, nlevels);
+      NhlRLSetInteger     (lb_rlist,"lbPerimOn",         lb_perim_on);
+      NhlRLSetFloat       (lb_rlist,"lbLabelFontHeightF",lb_fh);
+      NhlRLSetInteger     (lb_rlist,"lbLabelAlignment",  lb_alignment);
 /*
  * Check if we want different fill patterns or fill scales.  If so, we
  * have to pass these on to the labelbar.
  */
-      NhlRLSetInteger(lb_rlist,"lbMonoFillColor", mono_fill_col);
+      NhlRLSetInteger(lb_rlist,"lbMonoFillColor",   mono_fill_col);
       NhlRLSetInteger(lb_rlist,"lbMonoFillPattern", mono_fill_pat);
       if(!mono_fill_pat) {
-        NhlRLSetIntegerArray(lb_rlist,"lbFillPatterns", fill_patterns,
-                             nfill_patterns);
+        NhlRLSetIntegerArray(lb_rlist,"lbFillPatterns", patterns, npatterns);
       }
       NhlRLSetInteger(lb_rlist,"lbMonoFillScale", mono_fill_scl);
       if(!mono_fill_scl) {
-        NhlRLSetFloatArray(lb_rlist,"lbFillScale", fill_scales, nfill_scales);
+        NhlRLSetFloatArray(lb_rlist,"lbFillScale", scales, nscales);
       }
 /*
- * Create the labelbar.
+ * Create the labelbar and add to our list of plots.
  */
-      NhlRLSetString      (lb_rlist,"lbAutoManage",    "False");
-      NhlRLSetIntegerArray(lb_rlist,"lbFillColors",    colors, ncolors);
-      NhlRLSetInteger     (lb_rlist,"lbBoxCount",      ncolors);
-      NhlRLSetFloatArray  (lb_rlist,"lbLabelStrings",  levels, nlevels);
-      NhlRLSetString      (lb_rlist,"lbPerimOn",       "False");
-      NhlRLSetString      (lb_rlist,"lbLabelAlignment","InteriorEdges");
       NhlCreate(&labelbar_object,"labelbar",NhllabelBarClass,wks,lb_rlist);
       newplots[nvalid_plot].base = labelbar_object;
+/*
+ * Free up allocated memory.
+ */
+      NhlFree(levels);
+      NhlFree(colors);
+      if(!mono_fill_scl) {
+        NhlFree(scales);
+      }
+      if(!mono_fill_pat) {
+        NhlFree(patterns);
+      }
+/*
+ * Increment plot counter.
+ */
       nvalid_plot++;
     }
 /*
- * The plot_type is not either vector or contour, so we have to bail.
+ * The plot_type is not either vector or contour, so we have to bail on
+ * creating a labelbar. 
  */
     else {
       printf("Warning: ngl_panel: unrecognized plot type for getting labelbar information. Ignoring labelbar request.");
@@ -3479,7 +3509,7 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
   draw_and_frame(wks, newplots, nnewplots, 1, special_res);
 
 /*
- * Restore nglPanelInvslb* resources because these should only
+ * Restore nglPanelInvsbl* resources because these should only
  * be set internally.
  */
   special_res->nglPanelInvsblRight  = -999.;
@@ -3504,6 +3534,8 @@ void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
       }
     }
   }
+  if(!is_row_spec) free(row_spec);
+  free(newplots);
   free(old_vp);
   free(ypos);
   free(newbb);

@@ -75,17 +75,22 @@ typedef struct {
   float nglPanelInvsblLeft;
   float nglPanelInvsblRight;
   float nglPanelInvsblBottom;
-  int   nglPanelLabelBarOrientation;
+  int   nglPanelSave;
+
+/*
+ * Special resources for a panel labelbar.
+ */
   int   nglPanelLabelBar;  
   float nglPanelLabelBarXF;
   float nglPanelLabelBarYF;
-  float nglPanelLabelBarFontHeightF;
   float nglPanelLabelBarWidthF;
   float nglPanelLabelBarHeightF;
+  int   nglPanelLabelBarOrientation;
+  int   nglPanelLabelBarPerimOn;
+  int   nglPanelLabelBarAlignment;
+  float nglPanelLabelBarFontHeightF;
   float nglPanelLabelBarOrthogonalPosF;
   float nglPanelLabelBarParallelPosF;
-  int   nglPanelFigureStringsFontHeightF;
-  int   nglPanelSave;
 } nglRes;
 
 /*
