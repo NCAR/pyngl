@@ -3826,7 +3826,7 @@ extern nglPlotId contour_wrap(int, void *sequence_as_void,
                             int, void *, const char *, int, void *, 
                             const char *,
                             int, void *, ResInfo *rlist, ResInfo *rlist, 
-                            nglRes *rlist);
+                            ResInfo *rlist, nglRes *rlist);
 extern nglPlotId map_wrap(int, ResInfo *rlist, nglRes *rlist);
 extern nglPlotId contour_map_wrap(int, void *sequence_as_void, 
                             const char *, int, int,
@@ -3846,7 +3846,7 @@ extern nglPlotId vector_wrap(int, void *sequence_as_void,
                            const char *, int, int, int, void *, 
                            const char *, int, void *, const char *, int, int,
                            void *, void *, ResInfo *rlist, ResInfo *rlist,
-                           nglRes *rlist);
+                           ResInfo *rlist, nglRes *rlist);
 extern nglPlotId vector_map_wrap(int, void *sequence_as_void, 
                            void *sequence_as_void, const char *, 
                            const char *, int, int, int, void *, 
@@ -3859,7 +3859,7 @@ extern nglPlotId vector_scalar_wrap(int, void *sequence_as_void,
                            const char *, const char *, int, int, int, void *, 
                            const char *, int, void *, const char *, int, int, 
                            int, void *, void *, void *, 
-                           ResInfo *rlist, ResInfo *rlist, 
+                           ResInfo *rlist, ResInfo *rlist, ResInfo *rlist,
                            ResInfo *rlist, nglRes *rlist);
 extern nglPlotId vector_scalar_map_wrap(int, void *sequence_as_void, 
                            void *sequence_as_void, 
@@ -3875,7 +3875,7 @@ extern nglPlotId streamline_wrap(int, void *sequence_as_void,
                            const char *, int, void *, const char *, 
                            int, int,
                            void *, void *, ResInfo *rlist, ResInfo *rlist, 
-                           nglRes *rlist);
+                           ResInfo *rlist, nglRes *rlist);
 extern nglPlotId streamline_map_wrap(int, void *sequence_as_void, 
                             void *sequence_as_void, const char *,
                             const char *, int, int, int, void *,
@@ -4042,7 +4042,7 @@ extern NhlString get_nglRes_s(int);
                             int, void *, const char *, int, void *, 
                             const char *,
                             int, void *, ResInfo *rlist, ResInfo *rlist, 
-                            nglRes *rlist);
+                            ResInfo *rlist, nglRes *rlist);
 %newobject  map_wrap(int, ResInfo *rlist, nglRes *rlist);
 %newobject  contour_map_wrap(int, void *sequence_as_void, 
                             const char *, int, int,
@@ -4062,7 +4062,7 @@ extern NhlString get_nglRes_s(int);
                            const char *, int, int, int, void *, 
                            const char *, int, void *, const char *, int, int,
                            void *, void *, ResInfo *rlist, ResInfo *rlist,
-                           nglRes *rlist);
+                           ResInfo *rlist, nglRes *rlist);
 %newobject  vector_map_wrap(int, void *sequence_as_void, 
                            void *sequence_as_void, const char *, 
                            const char *, int, int, int, void *, 
@@ -4075,7 +4075,7 @@ extern NhlString get_nglRes_s(int);
                            const char *, const char *, int, int, int, void *, 
                            const char *, int, void *, const char *, int, int, 
                            int, void *, void *, void *, 
-                           ResInfo *rlist, ResInfo *rlist, 
+                           ResInfo *rlist, ResInfo *rlist, ResInfo *rlist,
                            ResInfo *rlist, nglRes *rlist);
 %newobject  vector_scalar_map_wrap(int, void *sequence_as_void, 
                            void *sequence_as_void, 
@@ -4091,7 +4091,7 @@ extern NhlString get_nglRes_s(int);
                            const char *, int, void *, const char *, 
                            int, int,
                            void *, void *, ResInfo *rlist, ResInfo *rlist, 
-                           nglRes *rlist);
+                           ResInfo *, nglRes *rlist);
 %newobject  streamline_map_wrap(int, void *sequence_as_void, 
                             void *sequence_as_void, const char *,
                             const char *, int, int, int, void *,

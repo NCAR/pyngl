@@ -1701,16 +1701,16 @@ extern void c_cprect(float *,int,int,int,float *,int,int *,int);
 extern void c_cpcldr(float *,float *,int *);
 extern void c_plchhq(float,float,NhlString,float,float,float);
 extern int open_wks_wrap(char const *,char const *,ResInfo *,ResInfo *,nglRes *);
-extern nglPlotId contour_wrap(int,void *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,void *,ResInfo *,ResInfo *,nglRes *);
+extern nglPlotId contour_wrap(int,void *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,void *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
 extern nglPlotId map_wrap(int,ResInfo *,nglRes *);
 extern nglPlotId contour_map_wrap(int,void *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,void *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
 extern nglPlotId xy_wrap(int,void *,void *,char const *,char const *,int,int *,int,int *,int,int,void *,void *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
 extern nglPlotId y_wrap(int,void *,char const *,int,int *,int,void *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
-extern nglPlotId vector_wrap(int,void *,void *,char const *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,int,void *,void *,ResInfo *,ResInfo *,nglRes *);
+extern nglPlotId vector_wrap(int,void *,void *,char const *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,int,void *,void *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
 extern nglPlotId vector_map_wrap(int,void *,void *,char const *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,int,void *,void *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
-extern nglPlotId vector_scalar_wrap(int,void *,void *,void *,char const *,char const *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,int,int,void *,void *,void *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
+extern nglPlotId vector_scalar_wrap(int,void *,void *,void *,char const *,char const *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,int,int,void *,void *,void *,ResInfo *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
 extern nglPlotId vector_scalar_map_wrap(int,void *,void *,void *,char const *,char const *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,int,int,void *,void *,void *,ResInfo *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
-extern nglPlotId streamline_wrap(int,void *,void *,char const *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,int,void *,void *,ResInfo *,ResInfo *,nglRes *);
+extern nglPlotId streamline_wrap(int,void *,void *,char const *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,int,void *,void *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
 extern nglPlotId streamline_map_wrap(int,void *,void *,char const *,char const *,int,int,int,void *,char const *,int,void *,char const *,int,int,void *,void *,ResInfo *,ResInfo *,ResInfo *,nglRes *);
 extern nglPlotId text_ndc_wrap(int,NhlString,void *,void *,char const *,char const *,ResInfo *,nglRes *);
 extern nglPlotId text_wrap(int,nglPlotId *,NhlString,void *,void *,char const *,char const *,ResInfo *,nglRes *);
@@ -5331,7 +5331,8 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
     void *arg13 = (void *) 0 ;
     ResInfo *arg14 = (ResInfo *) 0 ;
     ResInfo *arg15 = (ResInfo *) 0 ;
-    nglRes *arg16 = (nglRes *) 0 ;
+    ResInfo *arg16 = (ResInfo *) 0 ;
+    nglRes *arg17 = (nglRes *) 0 ;
     nglPlotId result;
     PyObject * obj1  = 0 ;
     PyObject * obj6  = 0 ;
@@ -5340,8 +5341,9 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
     PyObject * obj13  = 0 ;
     PyObject * obj14  = 0 ;
     PyObject * obj15  = 0 ;
+    PyObject * obj16  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"iOsiiiOsiOsiOOOO:contour_wrap",&arg1,&obj1,&arg3,&arg4,&arg5,&arg6,&obj6,&arg8,&arg9,&obj9,&arg11,&arg12,&obj12,&obj13,&obj14,&obj15)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"iOsiiiOsiOsiOOOOO:contour_wrap",&arg1,&obj1,&arg3,&arg4,&arg5,&arg6,&obj6,&arg8,&arg9,&obj9,&arg11,&arg12,&obj12,&obj13,&obj14,&obj15,&obj16)) goto fail;
     {
         PyArrayObject *arr;
         arr =
@@ -5886,9 +5888,276 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
         arg15 = (ResInfo *) &trname;
     }
     {
-        arg16 = (void *) &nglRlist;
+        int i,pos=0,list_type,list_len,count;
+        PyObject *key,*value;
+        PyArrayObject *arr;
+        char **strings;
+        double *dvals;
+        int *ivals,array_type,rlist,ndims,*len_dims;
+        static ResInfo trname;
+        char **trnames;
+        
+        /*
+         *  Clear the resource list.
+         */
+        rlist = NhlRLCreate(NhlSETRL);
+        NhlRLClear(rlist);
+        
+        /*
+         *  Check on the type of the argument - it must be a dictionary.
+         */
+        if (PyDict_Check(obj15)) {
+            count = 0;
+            trname.nstrings = PyDict_Size(obj15);
+            trnames = (char **) malloc(trname.nstrings*sizeof(char *));
+            pos = 0;
+            /*
+             *  Loop over the keyword/value pairs in the dictionary.
+             *  The values must be one of: tuple, int, float, long,
+             *  list, string, or array.
+             */
+            while (PyDict_Next(obj15, &pos, &key, &value)) {
+                trnames[count] = PyString_AsString(key);
+                count++;
+                
+                /*
+                 *  value is a tuple.
+                 */
+                if (PyTuple_Check(value)) {
+                    /*
+                     *  Lists and tuples are not allowed as items in a tuple value.
+                     */
+                    if (PyList_Check(PyTuple_GetItem(value,0)) ||
+                    PyTuple_Check(PyTuple_GetItem(value,0))) {
+                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        return NULL;
+                    }
+                    list_len = PyTuple_Size(value);
+                    /*
+                     *  Determine if the tuple is a tuple of strings, ints, or floats.
+                     *  
+                     *    list_type = 2 (int)
+                     *              = 0 (string)
+                     *              = 1 (float)
+                     */
+                    list_type = 2;
+                    if (PyString_Check(PyTuple_GetItem(value,0))) {
+                        /*
+                         *  Check that all items in the tuple are strings.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if (!PyString_Check(PyTuple_GetItem(value,i))) {
+                                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+                                return NULL;
+                            }
+                        }
+                        list_type = 0;
+                    }
+                    else {
+                        /*
+                         *  If the items in the tuple value are not strings, then
+                         *  they must all be ints or floats.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
+                            (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
+                                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                                return NULL;
+                                break;
+                            }
+                        }
+                        /*
+                         *  Check to see if the tuple has all ints and, if not, type it as
+                         *  a tuple of floats.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if (PyFloat_Check(PyTuple_GetItem(value,i))) {
+                                list_type = 1;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    /*
+                     *  Make the appropriate NhlRLSet calls based on the type of
+                     *  tuple elements.
+                     */
+                    switch (list_type) {
+                        case 0:
+                        strings = (char **) malloc(list_len*sizeof(char *));
+                        for (i = 0; i < list_len ; i++) {
+                            strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+                        }
+                        NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+                        break;
+                        case 1:
+                        dvals = (double *) malloc(list_len*sizeof(double));
+                        for (i = 0; i < list_len ; i++) {
+                            dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
+                        }
+                        NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+                        break;
+                        case 2:
+                        ivals = (int *) malloc(list_len*sizeof(int));
+                        for (i = 0; i < list_len ; i++) {
+                            ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
+                        }
+                        NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+                        break;
+                    }
+                }
+                /*
+                 *  value is a list.
+                 */
+                else if (PyList_Check(value)) {
+                    /*
+                     *  Lists and tuples are not allowed as items in a list value.
+                     */
+                    if (PyList_Check(PyList_GetItem(value,0)) ||
+                    PyList_Check(PyList_GetItem(value,0))) {
+                        printf("Use Numeric arrays for multiple dimension arrays.\n");
+                        return NULL;
+                    }
+                    list_len = PyList_Size(value);
+                    /*
+                     *  Determine if the list is a list of strings, ints, or floats.
+                     *  
+                     *    list_type = 2 (int)
+                     *              = 0 (string)
+                     *              = 1 (float)
+                     */
+                    list_type = 2;
+                    if (PyString_Check(PyList_GetItem(value,0))) {
+                        /*
+                         *  Check that all items in the list are strings.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if (!PyString_Check(PyList_GetItem(value,i))) {
+                                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+                                return NULL;
+                                break;
+                            }
+                        }
+                        list_type = 0;
+                    }
+                    else {
+                        /*
+                         *  If the items in the list value are not strings, then
+                         *  they must all be ints or floats.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
+                            (!PyInt_Check(PyList_GetItem(value,i))) ) {
+                                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                                return NULL;
+                            }
+                        }
+                        /*
+                         *  Check to see if the list has all ints and, if not, type it as
+                         *  a list of floats.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if (PyFloat_Check(PyList_GetItem(value,i))) {
+                                list_type = 1;
+                            }
+                        }
+                    }
+                    switch (list_type) {
+                        case 0:
+                        strings = (char **) malloc(list_len*sizeof(char *));
+                        for (i = 0; i < list_len ; i++) {
+                            strings[i] = PyString_AsString(PyList_GetItem(value,i));
+                        }
+                        NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+                        break;
+                        case 1:
+                        dvals = (double *) malloc(list_len*sizeof(double));
+                        for (i = 0; i < list_len ; i++) {
+                            dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
+                        }
+                        NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+                        break;
+                        case 2:
+                        ivals = (int *) malloc(list_len*sizeof(int));
+                        for (i = 0; i < list_len ; i++) {
+                            ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
+                        }
+                        NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+                        break;
+                    }
+                }
+                /*
+                 *  value is an int.
+                 */
+                else if (PyInt_Check(value)) {
+                    NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
+                }
+                /*
+                 *  value is a float.
+                 */
+                else if (PyFloat_Check(value)) {
+                    NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
+                }
+                /*
+                 *  value is a long.
+                 */
+                else if (PyLong_Check(value)) {
+                    NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
+                }
+                /*
+                 *  value is a string
+                 */
+                else if (PyString_Check(value)) {
+                    NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
+                }
+                /*
+                 *  value is an array.
+                 */
+                else if (PyArray_Check(value)) {
+                    array_type = (int) ((PyArrayObject *)value)->descr->type_num;
+                    /*
+                     *  Process the legal array types.
+                     */
+                    if (array_type == PyArray_LONG || array_type == PyArray_INT) {
+                        arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+                        ((PyObject *) value,PyArray_LONG,0,0);
+                        ivals = (int *)arr->data;
+                        ndims = arr->nd;
+                        len_dims = arr->dimensions;
+                        
+                        NhlRLSetMDIntegerArray(rlist,PyString_AsString(key),ivals,ndims,len_dims);
+                    }
+                    else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
+                        arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+                        ((PyObject *) value,PyArray_DOUBLE,0,0);
+                        dvals = (double *)arr->data;
+                        ndims = arr->nd;
+                        len_dims = arr->dimensions;
+                        NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+                    }
+                    else {
+                        printf(
+                        "Numeric arrays must be of type int, int32, float, float0, float32, or float64.\n");
+                        return NULL;
+                    }
+                }
+                else {
+                    printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+                    return NULL;
+                }
+            }
+            trname.strings = trnames;
+        }
+        else {
+            printf("Resource lists must be dictionaries\n");
+        }
+        trname.id = rlist;
+        arg16 = (ResInfo *) &trname;
     }
-    result = contour_wrap(arg1,arg2,(char const *)arg3,arg4,arg5,arg6,arg7,(char const *)arg8,arg9,arg10,(char const *)arg11,arg12,arg13,arg14,arg15,arg16);
+    {
+        arg17 = (void *) &nglRlist;
+    }
+    result = contour_wrap(arg1,arg2,(char const *)arg3,arg4,arg5,arg6,arg7,(char const *)arg8,arg9,arg10,(char const *)arg11,arg12,arg13,arg14,arg15,arg16,arg17);
     
     {
         PyObject *return_list;
@@ -9549,7 +9818,8 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
     void *arg17 = (void *) 0 ;
     ResInfo *arg18 = (ResInfo *) 0 ;
     ResInfo *arg19 = (ResInfo *) 0 ;
-    nglRes *arg20 = (nglRes *) 0 ;
+    ResInfo *arg20 = (ResInfo *) 0 ;
+    nglRes *arg21 = (nglRes *) 0 ;
     nglPlotId result;
     PyObject * obj1  = 0 ;
     PyObject * obj2  = 0 ;
@@ -9560,8 +9830,9 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
     PyObject * obj17  = 0 ;
     PyObject * obj18  = 0 ;
     PyObject * obj19  = 0 ;
+    PyObject * obj20  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"iOOssiiiOsiOsiiOOOOO:vector_wrap",&arg1,&obj1,&obj2,&arg4,&arg5,&arg6,&arg7,&arg8,&obj8,&arg10,&arg11,&obj11,&arg13,&arg14,&arg15,&obj15,&obj16,&obj17,&obj18,&obj19)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"iOOssiiiOsiOsiiOOOOOO:vector_wrap",&arg1,&obj1,&obj2,&arg4,&arg5,&arg6,&arg7,&arg8,&obj8,&arg10,&arg11,&obj11,&arg13,&arg14,&arg15,&obj15,&obj16,&obj17,&obj18,&obj19,&obj20)) goto fail;
     {
         PyArrayObject *arr;
         arr =
@@ -10113,9 +10384,276 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
         arg19 = (ResInfo *) &trname;
     }
     {
-        arg20 = (void *) &nglRlist;
+        int i,pos=0,list_type,list_len,count;
+        PyObject *key,*value;
+        PyArrayObject *arr;
+        char **strings;
+        double *dvals;
+        int *ivals,array_type,rlist,ndims,*len_dims;
+        static ResInfo trname;
+        char **trnames;
+        
+        /*
+         *  Clear the resource list.
+         */
+        rlist = NhlRLCreate(NhlSETRL);
+        NhlRLClear(rlist);
+        
+        /*
+         *  Check on the type of the argument - it must be a dictionary.
+         */
+        if (PyDict_Check(obj19)) {
+            count = 0;
+            trname.nstrings = PyDict_Size(obj19);
+            trnames = (char **) malloc(trname.nstrings*sizeof(char *));
+            pos = 0;
+            /*
+             *  Loop over the keyword/value pairs in the dictionary.
+             *  The values must be one of: tuple, int, float, long,
+             *  list, string, or array.
+             */
+            while (PyDict_Next(obj19, &pos, &key, &value)) {
+                trnames[count] = PyString_AsString(key);
+                count++;
+                
+                /*
+                 *  value is a tuple.
+                 */
+                if (PyTuple_Check(value)) {
+                    /*
+                     *  Lists and tuples are not allowed as items in a tuple value.
+                     */
+                    if (PyList_Check(PyTuple_GetItem(value,0)) ||
+                    PyTuple_Check(PyTuple_GetItem(value,0))) {
+                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        return NULL;
+                    }
+                    list_len = PyTuple_Size(value);
+                    /*
+                     *  Determine if the tuple is a tuple of strings, ints, or floats.
+                     *  
+                     *    list_type = 2 (int)
+                     *              = 0 (string)
+                     *              = 1 (float)
+                     */
+                    list_type = 2;
+                    if (PyString_Check(PyTuple_GetItem(value,0))) {
+                        /*
+                         *  Check that all items in the tuple are strings.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if (!PyString_Check(PyTuple_GetItem(value,i))) {
+                                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+                                return NULL;
+                            }
+                        }
+                        list_type = 0;
+                    }
+                    else {
+                        /*
+                         *  If the items in the tuple value are not strings, then
+                         *  they must all be ints or floats.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
+                            (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
+                                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                                return NULL;
+                                break;
+                            }
+                        }
+                        /*
+                         *  Check to see if the tuple has all ints and, if not, type it as
+                         *  a tuple of floats.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if (PyFloat_Check(PyTuple_GetItem(value,i))) {
+                                list_type = 1;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    /*
+                     *  Make the appropriate NhlRLSet calls based on the type of
+                     *  tuple elements.
+                     */
+                    switch (list_type) {
+                        case 0:
+                        strings = (char **) malloc(list_len*sizeof(char *));
+                        for (i = 0; i < list_len ; i++) {
+                            strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+                        }
+                        NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+                        break;
+                        case 1:
+                        dvals = (double *) malloc(list_len*sizeof(double));
+                        for (i = 0; i < list_len ; i++) {
+                            dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
+                        }
+                        NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+                        break;
+                        case 2:
+                        ivals = (int *) malloc(list_len*sizeof(int));
+                        for (i = 0; i < list_len ; i++) {
+                            ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
+                        }
+                        NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+                        break;
+                    }
+                }
+                /*
+                 *  value is a list.
+                 */
+                else if (PyList_Check(value)) {
+                    /*
+                     *  Lists and tuples are not allowed as items in a list value.
+                     */
+                    if (PyList_Check(PyList_GetItem(value,0)) ||
+                    PyList_Check(PyList_GetItem(value,0))) {
+                        printf("Use Numeric arrays for multiple dimension arrays.\n");
+                        return NULL;
+                    }
+                    list_len = PyList_Size(value);
+                    /*
+                     *  Determine if the list is a list of strings, ints, or floats.
+                     *  
+                     *    list_type = 2 (int)
+                     *              = 0 (string)
+                     *              = 1 (float)
+                     */
+                    list_type = 2;
+                    if (PyString_Check(PyList_GetItem(value,0))) {
+                        /*
+                         *  Check that all items in the list are strings.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if (!PyString_Check(PyList_GetItem(value,i))) {
+                                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+                                return NULL;
+                                break;
+                            }
+                        }
+                        list_type = 0;
+                    }
+                    else {
+                        /*
+                         *  If the items in the list value are not strings, then
+                         *  they must all be ints or floats.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
+                            (!PyInt_Check(PyList_GetItem(value,i))) ) {
+                                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                                return NULL;
+                            }
+                        }
+                        /*
+                         *  Check to see if the list has all ints and, if not, type it as
+                         *  a list of floats.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if (PyFloat_Check(PyList_GetItem(value,i))) {
+                                list_type = 1;
+                            }
+                        }
+                    }
+                    switch (list_type) {
+                        case 0:
+                        strings = (char **) malloc(list_len*sizeof(char *));
+                        for (i = 0; i < list_len ; i++) {
+                            strings[i] = PyString_AsString(PyList_GetItem(value,i));
+                        }
+                        NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+                        break;
+                        case 1:
+                        dvals = (double *) malloc(list_len*sizeof(double));
+                        for (i = 0; i < list_len ; i++) {
+                            dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
+                        }
+                        NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+                        break;
+                        case 2:
+                        ivals = (int *) malloc(list_len*sizeof(int));
+                        for (i = 0; i < list_len ; i++) {
+                            ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
+                        }
+                        NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+                        break;
+                    }
+                }
+                /*
+                 *  value is an int.
+                 */
+                else if (PyInt_Check(value)) {
+                    NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
+                }
+                /*
+                 *  value is a float.
+                 */
+                else if (PyFloat_Check(value)) {
+                    NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
+                }
+                /*
+                 *  value is a long.
+                 */
+                else if (PyLong_Check(value)) {
+                    NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
+                }
+                /*
+                 *  value is a string
+                 */
+                else if (PyString_Check(value)) {
+                    NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
+                }
+                /*
+                 *  value is an array.
+                 */
+                else if (PyArray_Check(value)) {
+                    array_type = (int) ((PyArrayObject *)value)->descr->type_num;
+                    /*
+                     *  Process the legal array types.
+                     */
+                    if (array_type == PyArray_LONG || array_type == PyArray_INT) {
+                        arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+                        ((PyObject *) value,PyArray_LONG,0,0);
+                        ivals = (int *)arr->data;
+                        ndims = arr->nd;
+                        len_dims = arr->dimensions;
+                        
+                        NhlRLSetMDIntegerArray(rlist,PyString_AsString(key),ivals,ndims,len_dims);
+                    }
+                    else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
+                        arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+                        ((PyObject *) value,PyArray_DOUBLE,0,0);
+                        dvals = (double *)arr->data;
+                        ndims = arr->nd;
+                        len_dims = arr->dimensions;
+                        NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+                    }
+                    else {
+                        printf(
+                        "Numeric arrays must be of type int, int32, float, float0, float32, or float64.\n");
+                        return NULL;
+                    }
+                }
+                else {
+                    printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+                    return NULL;
+                }
+            }
+            trname.strings = trnames;
+        }
+        else {
+            printf("Resource lists must be dictionaries\n");
+        }
+        trname.id = rlist;
+        arg20 = (ResInfo *) &trname;
     }
-    result = vector_wrap(arg1,arg2,arg3,(char const *)arg4,(char const *)arg5,arg6,arg7,arg8,arg9,(char const *)arg10,arg11,arg12,(char const *)arg13,arg14,arg15,arg16,arg17,arg18,arg19,arg20);
+    {
+        arg21 = (void *) &nglRlist;
+    }
+    result = vector_wrap(arg1,arg2,arg3,(char const *)arg4,(char const *)arg5,arg6,arg7,arg8,arg9,(char const *)arg10,arg11,arg12,(char const *)arg13,arg14,arg15,arg16,arg17,arg18,arg19,arg20,arg21);
     
     {
         PyObject *return_list;
@@ -11323,7 +11861,8 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
     ResInfo *arg22 = (ResInfo *) 0 ;
     ResInfo *arg23 = (ResInfo *) 0 ;
     ResInfo *arg24 = (ResInfo *) 0 ;
-    nglRes *arg25 = (nglRes *) 0 ;
+    ResInfo *arg25 = (ResInfo *) 0 ;
+    nglRes *arg26 = (nglRes *) 0 ;
     nglPlotId result;
     PyObject * obj1  = 0 ;
     PyObject * obj2  = 0 ;
@@ -11337,8 +11876,9 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
     PyObject * obj22  = 0 ;
     PyObject * obj23  = 0 ;
     PyObject * obj24  = 0 ;
+    PyObject * obj25  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"iOOOsssiiiOsiOsiiiOOOOOOO:vector_scalar_wrap",&arg1,&obj1,&obj2,&obj3,&arg5,&arg6,&arg7,&arg8,&arg9,&arg10,&obj10,&arg12,&arg13,&obj13,&arg15,&arg16,&arg17,&arg18,&obj18,&obj19,&obj20,&obj21,&obj22,&obj23,&obj24)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"iOOOsssiiiOsiOsiiiOOOOOOOO:vector_scalar_wrap",&arg1,&obj1,&obj2,&obj3,&arg5,&arg6,&arg7,&arg8,&arg9,&arg10,&obj10,&arg12,&arg13,&obj13,&arg15,&arg16,&arg17,&arg18,&obj18,&obj19,&obj20,&obj21,&obj22,&obj23,&obj24,&obj25)) goto fail;
     {
         PyArrayObject *arr;
         arr =
@@ -12164,9 +12704,276 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
         arg24 = (ResInfo *) &trname;
     }
     {
-        arg25 = (void *) &nglRlist;
+        int i,pos=0,list_type,list_len,count;
+        PyObject *key,*value;
+        PyArrayObject *arr;
+        char **strings;
+        double *dvals;
+        int *ivals,array_type,rlist,ndims,*len_dims;
+        static ResInfo trname;
+        char **trnames;
+        
+        /*
+         *  Clear the resource list.
+         */
+        rlist = NhlRLCreate(NhlSETRL);
+        NhlRLClear(rlist);
+        
+        /*
+         *  Check on the type of the argument - it must be a dictionary.
+         */
+        if (PyDict_Check(obj24)) {
+            count = 0;
+            trname.nstrings = PyDict_Size(obj24);
+            trnames = (char **) malloc(trname.nstrings*sizeof(char *));
+            pos = 0;
+            /*
+             *  Loop over the keyword/value pairs in the dictionary.
+             *  The values must be one of: tuple, int, float, long,
+             *  list, string, or array.
+             */
+            while (PyDict_Next(obj24, &pos, &key, &value)) {
+                trnames[count] = PyString_AsString(key);
+                count++;
+                
+                /*
+                 *  value is a tuple.
+                 */
+                if (PyTuple_Check(value)) {
+                    /*
+                     *  Lists and tuples are not allowed as items in a tuple value.
+                     */
+                    if (PyList_Check(PyTuple_GetItem(value,0)) ||
+                    PyTuple_Check(PyTuple_GetItem(value,0))) {
+                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        return NULL;
+                    }
+                    list_len = PyTuple_Size(value);
+                    /*
+                     *  Determine if the tuple is a tuple of strings, ints, or floats.
+                     *  
+                     *    list_type = 2 (int)
+                     *              = 0 (string)
+                     *              = 1 (float)
+                     */
+                    list_type = 2;
+                    if (PyString_Check(PyTuple_GetItem(value,0))) {
+                        /*
+                         *  Check that all items in the tuple are strings.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if (!PyString_Check(PyTuple_GetItem(value,i))) {
+                                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+                                return NULL;
+                            }
+                        }
+                        list_type = 0;
+                    }
+                    else {
+                        /*
+                         *  If the items in the tuple value are not strings, then
+                         *  they must all be ints or floats.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
+                            (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
+                                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                                return NULL;
+                                break;
+                            }
+                        }
+                        /*
+                         *  Check to see if the tuple has all ints and, if not, type it as
+                         *  a tuple of floats.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if (PyFloat_Check(PyTuple_GetItem(value,i))) {
+                                list_type = 1;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    /*
+                     *  Make the appropriate NhlRLSet calls based on the type of
+                     *  tuple elements.
+                     */
+                    switch (list_type) {
+                        case 0:
+                        strings = (char **) malloc(list_len*sizeof(char *));
+                        for (i = 0; i < list_len ; i++) {
+                            strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+                        }
+                        NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+                        break;
+                        case 1:
+                        dvals = (double *) malloc(list_len*sizeof(double));
+                        for (i = 0; i < list_len ; i++) {
+                            dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
+                        }
+                        NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+                        break;
+                        case 2:
+                        ivals = (int *) malloc(list_len*sizeof(int));
+                        for (i = 0; i < list_len ; i++) {
+                            ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
+                        }
+                        NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+                        break;
+                    }
+                }
+                /*
+                 *  value is a list.
+                 */
+                else if (PyList_Check(value)) {
+                    /*
+                     *  Lists and tuples are not allowed as items in a list value.
+                     */
+                    if (PyList_Check(PyList_GetItem(value,0)) ||
+                    PyList_Check(PyList_GetItem(value,0))) {
+                        printf("Use Numeric arrays for multiple dimension arrays.\n");
+                        return NULL;
+                    }
+                    list_len = PyList_Size(value);
+                    /*
+                     *  Determine if the list is a list of strings, ints, or floats.
+                     *  
+                     *    list_type = 2 (int)
+                     *              = 0 (string)
+                     *              = 1 (float)
+                     */
+                    list_type = 2;
+                    if (PyString_Check(PyList_GetItem(value,0))) {
+                        /*
+                         *  Check that all items in the list are strings.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if (!PyString_Check(PyList_GetItem(value,i))) {
+                                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+                                return NULL;
+                                break;
+                            }
+                        }
+                        list_type = 0;
+                    }
+                    else {
+                        /*
+                         *  If the items in the list value are not strings, then
+                         *  they must all be ints or floats.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
+                            (!PyInt_Check(PyList_GetItem(value,i))) ) {
+                                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                                return NULL;
+                            }
+                        }
+                        /*
+                         *  Check to see if the list has all ints and, if not, type it as
+                         *  a list of floats.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if (PyFloat_Check(PyList_GetItem(value,i))) {
+                                list_type = 1;
+                            }
+                        }
+                    }
+                    switch (list_type) {
+                        case 0:
+                        strings = (char **) malloc(list_len*sizeof(char *));
+                        for (i = 0; i < list_len ; i++) {
+                            strings[i] = PyString_AsString(PyList_GetItem(value,i));
+                        }
+                        NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+                        break;
+                        case 1:
+                        dvals = (double *) malloc(list_len*sizeof(double));
+                        for (i = 0; i < list_len ; i++) {
+                            dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
+                        }
+                        NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+                        break;
+                        case 2:
+                        ivals = (int *) malloc(list_len*sizeof(int));
+                        for (i = 0; i < list_len ; i++) {
+                            ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
+                        }
+                        NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+                        break;
+                    }
+                }
+                /*
+                 *  value is an int.
+                 */
+                else if (PyInt_Check(value)) {
+                    NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
+                }
+                /*
+                 *  value is a float.
+                 */
+                else if (PyFloat_Check(value)) {
+                    NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
+                }
+                /*
+                 *  value is a long.
+                 */
+                else if (PyLong_Check(value)) {
+                    NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
+                }
+                /*
+                 *  value is a string
+                 */
+                else if (PyString_Check(value)) {
+                    NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
+                }
+                /*
+                 *  value is an array.
+                 */
+                else if (PyArray_Check(value)) {
+                    array_type = (int) ((PyArrayObject *)value)->descr->type_num;
+                    /*
+                     *  Process the legal array types.
+                     */
+                    if (array_type == PyArray_LONG || array_type == PyArray_INT) {
+                        arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+                        ((PyObject *) value,PyArray_LONG,0,0);
+                        ivals = (int *)arr->data;
+                        ndims = arr->nd;
+                        len_dims = arr->dimensions;
+                        
+                        NhlRLSetMDIntegerArray(rlist,PyString_AsString(key),ivals,ndims,len_dims);
+                    }
+                    else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
+                        arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+                        ((PyObject *) value,PyArray_DOUBLE,0,0);
+                        dvals = (double *)arr->data;
+                        ndims = arr->nd;
+                        len_dims = arr->dimensions;
+                        NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+                    }
+                    else {
+                        printf(
+                        "Numeric arrays must be of type int, int32, float, float0, float32, or float64.\n");
+                        return NULL;
+                    }
+                }
+                else {
+                    printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+                    return NULL;
+                }
+            }
+            trname.strings = trnames;
+        }
+        else {
+            printf("Resource lists must be dictionaries\n");
+        }
+        trname.id = rlist;
+        arg25 = (ResInfo *) &trname;
     }
-    result = vector_scalar_wrap(arg1,arg2,arg3,arg4,(char const *)arg5,(char const *)arg6,(char const *)arg7,arg8,arg9,arg10,arg11,(char const *)arg12,arg13,arg14,(char const *)arg15,arg16,arg17,arg18,arg19,arg20,arg21,arg22,arg23,arg24,arg25);
+    {
+        arg26 = (void *) &nglRlist;
+    }
+    result = vector_scalar_wrap(arg1,arg2,arg3,arg4,(char const *)arg5,(char const *)arg6,(char const *)arg7,arg8,arg9,arg10,arg11,(char const *)arg12,arg13,arg14,(char const *)arg15,arg16,arg17,arg18,arg19,arg20,arg21,arg22,arg23,arg24,arg25,arg26);
     
     {
         PyObject *return_list;
@@ -13651,7 +14458,8 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
     void *arg17 = (void *) 0 ;
     ResInfo *arg18 = (ResInfo *) 0 ;
     ResInfo *arg19 = (ResInfo *) 0 ;
-    nglRes *arg20 = (nglRes *) 0 ;
+    ResInfo *arg20 = (ResInfo *) 0 ;
+    nglRes *arg21 = (nglRes *) 0 ;
     nglPlotId result;
     PyObject * obj1  = 0 ;
     PyObject * obj2  = 0 ;
@@ -13662,8 +14470,9 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
     PyObject * obj17  = 0 ;
     PyObject * obj18  = 0 ;
     PyObject * obj19  = 0 ;
+    PyObject * obj20  = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"iOOssiiiOsiOsiiOOOOO:streamline_wrap",&arg1,&obj1,&obj2,&arg4,&arg5,&arg6,&arg7,&arg8,&obj8,&arg10,&arg11,&obj11,&arg13,&arg14,&arg15,&obj15,&obj16,&obj17,&obj18,&obj19)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"iOOssiiiOsiOsiiOOOOOO:streamline_wrap",&arg1,&obj1,&obj2,&arg4,&arg5,&arg6,&arg7,&arg8,&obj8,&arg10,&arg11,&obj11,&arg13,&arg14,&arg15,&obj15,&obj16,&obj17,&obj18,&obj19,&obj20)) goto fail;
     {
         PyArrayObject *arr;
         arr =
@@ -14215,9 +15024,276 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
         arg19 = (ResInfo *) &trname;
     }
     {
-        arg20 = (void *) &nglRlist;
+        int i,pos=0,list_type,list_len,count;
+        PyObject *key,*value;
+        PyArrayObject *arr;
+        char **strings;
+        double *dvals;
+        int *ivals,array_type,rlist,ndims,*len_dims;
+        static ResInfo trname;
+        char **trnames;
+        
+        /*
+         *  Clear the resource list.
+         */
+        rlist = NhlRLCreate(NhlSETRL);
+        NhlRLClear(rlist);
+        
+        /*
+         *  Check on the type of the argument - it must be a dictionary.
+         */
+        if (PyDict_Check(obj19)) {
+            count = 0;
+            trname.nstrings = PyDict_Size(obj19);
+            trnames = (char **) malloc(trname.nstrings*sizeof(char *));
+            pos = 0;
+            /*
+             *  Loop over the keyword/value pairs in the dictionary.
+             *  The values must be one of: tuple, int, float, long,
+             *  list, string, or array.
+             */
+            while (PyDict_Next(obj19, &pos, &key, &value)) {
+                trnames[count] = PyString_AsString(key);
+                count++;
+                
+                /*
+                 *  value is a tuple.
+                 */
+                if (PyTuple_Check(value)) {
+                    /*
+                     *  Lists and tuples are not allowed as items in a tuple value.
+                     */
+                    if (PyList_Check(PyTuple_GetItem(value,0)) ||
+                    PyTuple_Check(PyTuple_GetItem(value,0))) {
+                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        return NULL;
+                    }
+                    list_len = PyTuple_Size(value);
+                    /*
+                     *  Determine if the tuple is a tuple of strings, ints, or floats.
+                     *  
+                     *    list_type = 2 (int)
+                     *              = 0 (string)
+                     *              = 1 (float)
+                     */
+                    list_type = 2;
+                    if (PyString_Check(PyTuple_GetItem(value,0))) {
+                        /*
+                         *  Check that all items in the tuple are strings.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if (!PyString_Check(PyTuple_GetItem(value,i))) {
+                                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+                                return NULL;
+                            }
+                        }
+                        list_type = 0;
+                    }
+                    else {
+                        /*
+                         *  If the items in the tuple value are not strings, then
+                         *  they must all be ints or floats.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
+                            (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
+                                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                                return NULL;
+                                break;
+                            }
+                        }
+                        /*
+                         *  Check to see if the tuple has all ints and, if not, type it as
+                         *  a tuple of floats.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if (PyFloat_Check(PyTuple_GetItem(value,i))) {
+                                list_type = 1;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    /*
+                     *  Make the appropriate NhlRLSet calls based on the type of
+                     *  tuple elements.
+                     */
+                    switch (list_type) {
+                        case 0:
+                        strings = (char **) malloc(list_len*sizeof(char *));
+                        for (i = 0; i < list_len ; i++) {
+                            strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+                        }
+                        NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+                        break;
+                        case 1:
+                        dvals = (double *) malloc(list_len*sizeof(double));
+                        for (i = 0; i < list_len ; i++) {
+                            dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
+                        }
+                        NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+                        break;
+                        case 2:
+                        ivals = (int *) malloc(list_len*sizeof(int));
+                        for (i = 0; i < list_len ; i++) {
+                            ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
+                        }
+                        NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+                        break;
+                    }
+                }
+                /*
+                 *  value is a list.
+                 */
+                else if (PyList_Check(value)) {
+                    /*
+                     *  Lists and tuples are not allowed as items in a list value.
+                     */
+                    if (PyList_Check(PyList_GetItem(value,0)) ||
+                    PyList_Check(PyList_GetItem(value,0))) {
+                        printf("Use Numeric arrays for multiple dimension arrays.\n");
+                        return NULL;
+                    }
+                    list_len = PyList_Size(value);
+                    /*
+                     *  Determine if the list is a list of strings, ints, or floats.
+                     *  
+                     *    list_type = 2 (int)
+                     *              = 0 (string)
+                     *              = 1 (float)
+                     */
+                    list_type = 2;
+                    if (PyString_Check(PyList_GetItem(value,0))) {
+                        /*
+                         *  Check that all items in the list are strings.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if (!PyString_Check(PyList_GetItem(value,i))) {
+                                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+                                return NULL;
+                                break;
+                            }
+                        }
+                        list_type = 0;
+                    }
+                    else {
+                        /*
+                         *  If the items in the list value are not strings, then
+                         *  they must all be ints or floats.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
+                            (!PyInt_Check(PyList_GetItem(value,i))) ) {
+                                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                                return NULL;
+                            }
+                        }
+                        /*
+                         *  Check to see if the list has all ints and, if not, type it as
+                         *  a list of floats.
+                         */
+                        for (i = 0; i < list_len ; i++) {
+                            if (PyFloat_Check(PyList_GetItem(value,i))) {
+                                list_type = 1;
+                            }
+                        }
+                    }
+                    switch (list_type) {
+                        case 0:
+                        strings = (char **) malloc(list_len*sizeof(char *));
+                        for (i = 0; i < list_len ; i++) {
+                            strings[i] = PyString_AsString(PyList_GetItem(value,i));
+                        }
+                        NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+                        break;
+                        case 1:
+                        dvals = (double *) malloc(list_len*sizeof(double));
+                        for (i = 0; i < list_len ; i++) {
+                            dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
+                        }
+                        NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+                        break;
+                        case 2:
+                        ivals = (int *) malloc(list_len*sizeof(int));
+                        for (i = 0; i < list_len ; i++) {
+                            ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
+                        }
+                        NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+                        break;
+                    }
+                }
+                /*
+                 *  value is an int.
+                 */
+                else if (PyInt_Check(value)) {
+                    NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
+                }
+                /*
+                 *  value is a float.
+                 */
+                else if (PyFloat_Check(value)) {
+                    NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
+                }
+                /*
+                 *  value is a long.
+                 */
+                else if (PyLong_Check(value)) {
+                    NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
+                }
+                /*
+                 *  value is a string
+                 */
+                else if (PyString_Check(value)) {
+                    NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
+                }
+                /*
+                 *  value is an array.
+                 */
+                else if (PyArray_Check(value)) {
+                    array_type = (int) ((PyArrayObject *)value)->descr->type_num;
+                    /*
+                     *  Process the legal array types.
+                     */
+                    if (array_type == PyArray_LONG || array_type == PyArray_INT) {
+                        arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+                        ((PyObject *) value,PyArray_LONG,0,0);
+                        ivals = (int *)arr->data;
+                        ndims = arr->nd;
+                        len_dims = arr->dimensions;
+                        
+                        NhlRLSetMDIntegerArray(rlist,PyString_AsString(key),ivals,ndims,len_dims);
+                    }
+                    else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
+                        arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+                        ((PyObject *) value,PyArray_DOUBLE,0,0);
+                        dvals = (double *)arr->data;
+                        ndims = arr->nd;
+                        len_dims = arr->dimensions;
+                        NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+                    }
+                    else {
+                        printf(
+                        "Numeric arrays must be of type int, int32, float, float0, float32, or float64.\n");
+                        return NULL;
+                    }
+                }
+                else {
+                    printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+                    return NULL;
+                }
+            }
+            trname.strings = trnames;
+        }
+        else {
+            printf("Resource lists must be dictionaries\n");
+        }
+        trname.id = rlist;
+        arg20 = (ResInfo *) &trname;
     }
-    result = streamline_wrap(arg1,arg2,arg3,(char const *)arg4,(char const *)arg5,arg6,arg7,arg8,arg9,(char const *)arg10,arg11,arg12,(char const *)arg13,arg14,arg15,arg16,arg17,arg18,arg19,arg20);
+    {
+        arg21 = (void *) &nglRlist;
+    }
+    result = streamline_wrap(arg1,arg2,arg3,(char const *)arg4,(char const *)arg5,arg6,arg7,arg8,arg9,(char const *)arg10,arg11,arg12,(char const *)arg13,arg14,arg15,arg16,arg17,arg18,arg19,arg20,arg21);
     
     {
         PyObject *return_list;

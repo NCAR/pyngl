@@ -918,7 +918,7 @@ def map(wks,rlistc=None):
     else:
       rlist1[key] = rlist[key]
 
-  set_map_res(rlist,rlist1)           # Set some map resources
+  set_map_res(rlist,rlist1)           # Set some addtl map resources
 
   imp = map_wrap(wks,rlist1,pvoid())
   del rlist
@@ -1009,9 +1009,9 @@ def contour_map(wks,array,rlistc=None):
     else:
       rlist3[key] = rlist[key]
 
-  set_map_res(rlist,rlist2)           # Set some map resources
-  set_contour_res(rlist,rlist3)       # Set some contour resources
-  set_labelbar_res(rlist,rlist3)      # Set some labelbar resources
+  set_map_res(rlist,rlist2)           # Set some addtl map resources
+  set_contour_res(rlist,rlist3)       # Set some addtl contour resources
+  set_labelbar_res(rlist,rlist3)      # Set some addtl labelbar resources
 
 #
 #  Call the wrapped function and return.
@@ -1036,7 +1036,7 @@ def contour_map(wks,array,rlistc=None):
 def contour(wks,array,rlistc=None):
 
 #
-#  Make sure the array is 2D.
+#  Make sure the array is 1D or 2D.
 #
   if (len(array.shape) != 1 and len(array.shape) != 2):
     print "contour - array must be 1D or 2D"
@@ -1051,6 +1051,7 @@ def contour(wks,array,rlistc=None):
 #
   rlist1 = {}
   rlist2 = {}
+  rlist3 = {}
   for key in rlist.keys():
     if (key[0:2] == "sf"):
       rlist1[key] = rlist[key]
@@ -1058,9 +1059,17 @@ def contour(wks,array,rlistc=None):
       set_spc_res(key[3:],rlist[key])      
     else:
       rlist2[key] = rlist[key]
+#
+# In addition, if this plot is potentially going to be overlaid
+# on an Irregular Plot Class (in order to lineariize or logize it)
+# then we need to keep track of all the tickmark resources, because
+# we'll have to reapply them to the IrregularPlot class.
+#
+      if(key[0:2] == "tm" or key[0:6] == "pmTick"):
+        rlist3[key] = rlist[key]
 
-  set_contour_res(rlist,rlist2)       # Set some contour resources
-  set_labelbar_res(rlist,rlist2)      # Set some labelbar resources
+  set_contour_res(rlist,rlist2)       # Set some addtl contour resources
+  set_labelbar_res(rlist,rlist2)      # Set some addtl labelbar resources
     
 #
 #  Call the wrapped function and return.
@@ -1068,15 +1077,16 @@ def contour(wks,array,rlistc=None):
   if (len(array.shape) == 2):
     icn = contour_wrap(wks,array,"double",array.shape[0],array.shape[1], \
                            0, pvoid(),"",0,pvoid(),"", 0, pvoid(), rlist1, \
-                          rlist2,pvoid())
+                          rlist2,rlist3,pvoid())
   else:
     icn = contour_wrap(wks,array,"double",array.shape[0],-1, \
                            0, pvoid(),"",0,pvoid(),"", 0, pvoid(), rlist1, \
-                          rlist2,pvoid())
+                          rlist2,rlist3,pvoid())
 
   del rlist
   del rlist1
   del rlist2
+  del rlist3
   return(lst2pobj(icn))
 
 def xy(wks,xar,yar,rlistc=None):
@@ -1183,6 +1193,7 @@ def streamline(wks,uarray,varray,rlistc=None):
 #
   rlist1 = {}
   rlist2 = {}
+  rlist3 = {}
   for key in rlist.keys():
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
@@ -1190,19 +1201,28 @@ def streamline(wks,uarray,varray,rlistc=None):
       set_spc_res(key[3:],rlist[key])      
     else:
       rlist2[key] = rlist[key]
+#
+# In addition, if this plot is potentially going to be overlaid
+# on an Irregular Plot Class (in order to lineariize or logize it)
+# then we need to keep track of all the tickmark resources, because
+# we'll have to reapply them to the IrregularPlot class.
+#
+      if(key[0:2] == "tm" or key[0:6] == "pmTick"):
+        rlist3[key] = rlist[key]
     
-  set_streamline_res(rlist,rlist2)        # Set some streamline resources
+  set_streamline_res(rlist,rlist2)        # Set some addtl streamline resources
 
 #
 #  Call the wrapped function and return.
 #
-  strm = streamline_wrap(wks,uarray,varray,"double","double",         \
-                         uarray.shape[0],uarray.shape[1],0,               \
-                         pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(), \
-                         rlist1,rlist2,pvoid())
+  strm = streamline_wrap(wks,uarray,varray,"double","double",            \
+                         uarray.shape[0],uarray.shape[1],0,              \
+                         pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(),\
+                         rlist1,rlist2,rlist3,pvoid())
   del rlist
   del rlist1
   del rlist2
+  del rlist3
   return(lst2pobj(strm))
 
 def streamline_map(wks,uarray,varray,rlistc=None):
@@ -1227,8 +1247,8 @@ def streamline_map(wks,uarray,varray,rlistc=None):
     else:
       rlist2[key] = rlist[key]
 
-  set_map_res(rlist,rlist3)               # Set some map resources
-  set_streamline_res(rlist,rlist2)        # Set some streamline resources
+  set_map_res(rlist,rlist3)           # Set some addtl map resources
+  set_streamline_res(rlist,rlist2)    # Set some addtl streamline resources
     
 #
 #  Call the wrapped function and return.
@@ -1254,6 +1274,7 @@ def vector(wks,uarray,varray,rlistc=None):
 #
   rlist1 = {}
   rlist2 = {}
+  rlist3 = {}
   for key in rlist.keys():
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
@@ -1261,20 +1282,29 @@ def vector(wks,uarray,varray,rlistc=None):
       set_spc_res(key[3:],rlist[key])      
     else:
       rlist2[key] = rlist[key]
+#
+# In addition, if this plot is potentially going to be overlaid
+# on an Irregular Plot Class (in order to lineariize or logize it)
+# then we need to keep track of all the tickmark resources, because
+# we'll have to reapply them to the IrregularPlot class.
+#
+      if(key[0:2] == "tm" or key[0:6] == "pmTick"):
+        rlist3[key] = rlist[key]
     
-  set_vector_res(rlist,rlist2)        # Set some vector resources
-  set_labelbar_res(rlist,rlist2)      # Set some labelbar resources
+  set_vector_res(rlist,rlist2)        # Set some addtl vector resources
+  set_labelbar_res(rlist,rlist2)      # Set some addtl labelbar resources
 
 #
 #  Call the wrapped function and return.
 #
-  ivct = vector_wrap(wks,uarray,varray,"double","double",         \
+  ivct = vector_wrap(wks,uarray,varray,"double","double",             \
                      uarray.shape[0],uarray.shape[1],0,               \
                      pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(), \
-                     rlist1,rlist2,pvoid())
+                     rlist1,rlist2,rlist3,pvoid())
   del rlist
   del rlist1
   del rlist2
+  del rlist3
   return lst2pobj(ivct)
 
 def vector_map(wks,uarray,varray,rlistc=None):
@@ -1299,9 +1329,9 @@ def vector_map(wks,uarray,varray,rlistc=None):
     else:
       rlist2[key] = rlist[key]
 
-  set_map_res(rlist,rlist3)           # Set some map resources
-  set_vector_res(rlist,rlist2)        # Set some vector resources
-  set_labelbar_res(rlist,rlist2)      # Set some labelbar resources
+  set_map_res(rlist,rlist3)           # Set some addtl map resources
+  set_vector_res(rlist,rlist2)        # Set some addtl vector resources
+  set_labelbar_res(rlist,rlist2)      # Set some addtl labelbar resources
     
 #
 #  Call the wrapped function and return.
@@ -1328,6 +1358,7 @@ def vector_scalar(wks,uarray,varray,tarray,rlistc=None):
   rlist1 = {}
   rlist2 = {}
   rlist3 = {}
+  rlist4 = {}
   for key in rlist.keys():
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
@@ -1337,9 +1368,17 @@ def vector_scalar(wks,uarray,varray,tarray,rlistc=None):
       set_spc_res(key[3:],rlist[key])      
     else:
       rlist3[key] = rlist[key]
+#
+# In addition, if this plot is potentially going to be overlaid
+# on an Irregular Plot Class (in order to lineariize or logize it)
+# then we need to keep track of all the tickmark resources, because
+# we'll have to reapply them to the IrregularPlot class.
+#
+      if(key[0:2] == "tm" or key[0:6] == "pmTick"):
+        rlist4[key] = rlist[key]
     
-  set_vector_res(rlist,rlist3)        # Set some vector resources
-  set_labelbar_res(rlist,rlist3)      # Set some labelbar resources
+  set_vector_res(rlist,rlist3)        # Set some addtl vector resources
+  set_labelbar_res(rlist,rlist3)      # Set some addtl labelbar resources
 
 #
 #  Call the wrapped function and return.
@@ -1348,12 +1387,13 @@ def vector_scalar(wks,uarray,varray,tarray,rlistc=None):
                      "double","double","double",         \
                      uarray.shape[0],uarray.shape[1],0,               \
                      pvoid(),"",0,pvoid(),"", 0, 0, 0, pvoid(), pvoid(), \
-                     pvoid(),rlist1,rlist2,rlist3,pvoid())
+                     pvoid(),rlist1,rlist2,rlist3,rlist4,pvoid())
 
   del rlist
   del rlist1
   del rlist2
   del rlist3
+  del rlist4
   return lst2pobj(ivct)
 
 def vector_scalar_map(wks,uarray,varray,tarray,rlistc=None):
@@ -1382,9 +1422,9 @@ def vector_scalar_map(wks,uarray,varray,tarray,rlistc=None):
     else:
       rlist3[key] = rlist[key]
     
-  set_map_res(rlist,rlist4)           # Set some map resources
-  set_vector_res(rlist,rlist3)        # Set some vector resources
-  set_labelbar_res(rlist,rlist3)      # Set some labelbar resources
+  set_map_res(rlist,rlist4)           # Set some addtl map resources
+  set_vector_res(rlist,rlist3)        # Set some addtl vector resources
+  set_labelbar_res(rlist,rlist3)      # Set some addtl labelbar resources
 
 #
 #  Call the wrapped function and return.

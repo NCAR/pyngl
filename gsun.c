@@ -536,12 +536,14 @@ void maximize_plot(int wks, nglPlotId *plot, int nplots, int ispanel,
  * The axes types are determined by the resources nglXAxisType
  * and nglYAxisType.
  */
-void overlay_on_irregular(int wks, nglPlotId *plot, nglRes *special_res)
+void overlay_on_irregular(int wks, nglPlotId *plot, ResInfo *ir_res, 
+                          nglRes *special_res)
 {
-  int xaxistype, yaxistype, overlay_plot, base_plot, nxpts, nypts;
+  int xaxistype, yaxistype, overlay_plot, base_plot;
   float xmin, xmax, ymin, ymax, *xpts, *ypts;
+  int xpts_ndims, ypts_ndims, *xpts_dimsizes, *ypts_dimsizes;
   int xreverse, yreverse;  
-  int srlist, grlist;
+  int ir_rlist, grlist;
 
   overlay_plot = *(plot->base);
 
@@ -556,7 +558,7 @@ void overlay_on_irregular(int wks, nglPlotId *plot, nglRes *special_res)
  * in overlaying it on an irregular plot class.  Just return it as is.
  */
 
-  if(xaxistype == 0 && yaxistype == 0) {
+  if(xaxistype == NhlIRREGULARAXIS && yaxistype == NhlIRREGULARAXIS) {
     return;
   }
 
@@ -566,23 +568,25 @@ void overlay_on_irregular(int wks, nglPlotId *plot, nglRes *special_res)
  * The values must be 0 (irregular), 1 (linear), or 2 (log).
  */
 
-  if(xaxistype < 0 || xaxistype > 2) {
+  if(xaxistype != NhlIRREGULARAXIS && xaxistype != NhlLINEARAXIS &&
+     xaxistype != NhlLOGAXIS) {
     NhlPError(NhlWARNING,NhlEUNKNOWN,"Value of nglXAxisType is invalid.");
-    NhlPError(NhlWARNING,NhlEUNKNOWN,"Defaulting to irregular.");
-    xaxistype = 0;
+    NhlPError(NhlWARNING,NhlEUNKNOWN,"Defaulting to IrregularAxis.");
+    xaxistype = NhlIRREGULARAXIS;
     return;
   }
 
-  if(yaxistype < 0 || yaxistype > 2) {
+  if(yaxistype != NhlIRREGULARAXIS && yaxistype != NhlLINEARAXIS &&
+     yaxistype != NhlLOGAXIS) {
     NhlPError(NhlWARNING,NhlEUNKNOWN,"Value of nglYAxisType is invalid.");
-    NhlPError(NhlWARNING,NhlEUNKNOWN,"Defaulting to irregular.");
-    yaxistype = 0;
+    NhlPError(NhlWARNING,NhlEUNKNOWN,"Defaulting to IrregularAxis.");
+    yaxistype = NhlIRREGULARAXIS;
     return;
   }
 
 /*
- * Retrieve information about existing plot so we can use these values
- * to create new overlay plot object.
+ * Retrieve transformation information about existing plot so we can
+ * use these values to create new overlay plot object.
  */
 
   grlist = NhlRLCreate(NhlGETRL);
@@ -596,29 +600,46 @@ void overlay_on_irregular(int wks, nglPlotId *plot, nglRes *special_res)
   NhlRLGetInteger(grlist,"trXReverse", &xreverse);
   NhlGetValues(overlay_plot,grlist);
 
+/*
+ * If one of the axes is to remain irregular, we need to
+ * retrieve the coordinate values so we can reset the
+ * irregular axis later with trX/YCoordPoints.
+ */
   if(!strcmp(NhlClassName(overlay_plot),"contourPlotClass")) {
     NhlRLClear(grlist);
-    NhlRLGetFloatArray(grlist,"sfXArray",&xpts,&nxpts);
-    NhlRLGetFloatArray(grlist,"sfYArray",&ypts,&nypts);
+    if(xaxistype == NhlIRREGULARAXIS && yaxistype != NhlIRREGULARAXIS) {
+      NhlRLGetMDFloatArray(grlist,"sfXArray",&xpts,&xpts_ndims,
+                           &xpts_dimsizes);
+    }
+    if(yaxistype == NhlIRREGULARAXIS && xaxistype != NhlIRREGULARAXIS) {
+      NhlRLGetMDFloatArray(grlist,"sfYArray",&ypts,&ypts_ndims,
+                           &ypts_dimsizes);
+    }
     NhlGetValues(*(plot->sffield),grlist);
   }
   else {
     if(!strcmp(NhlClassName(overlay_plot),"vectorPlotClass") ||
        !strcmp(NhlClassName(overlay_plot),"streamlinePlotClass")) { 
       NhlRLClear(grlist);
-      NhlRLGetFloatArray(grlist,"vfXArray",&xpts,&nxpts);
-      NhlRLGetFloatArray(grlist,"vfYArray",&ypts,&nypts);
+      if(xaxistype == NhlIRREGULARAXIS && yaxistype != NhlIRREGULARAXIS) {
+        NhlRLGetMDFloatArray(grlist,"vfXArray",&xpts,&xpts_ndims,
+                             &xpts_dimsizes);
+      }
+      if(yaxistype == NhlIRREGULARAXIS &&  xaxistype != NhlIRREGULARAXIS) {
+        NhlRLGetMDFloatArray(grlist,"vfYArray",&ypts,&ypts_ndims,
+                             &ypts_dimsizes);
+      }
       NhlGetValues(*(plot->vffield),grlist);
+    }   
+    else {
+      NhlPError(NhlWARNING,NhlEUNKNOWN,"Invalid plot for overlay.");
+      return;
     }
   }
 
 /*
  * If x/yaxistype is irregular, then we must set trX/YCoordPoints
  * in order to retain the irregular axis.
- *
- * Oherwise, if an axis isn't irregular, you can't set trX/YCoordPoints.
- * So, we have to do all kinds of tests to see which axes are
- * irregular, and which ones are log or linear.
  *
  * Also, if xpts or ypts are missing, this means the corresponding
  * axis can't be irregular, and thus we default to linear.
@@ -644,17 +665,30 @@ void overlay_on_irregular(int wks, nglPlotId *plot, nglRes *special_res)
  *
  * First, set resources common to all three cases. 
  */
-  srlist = NhlRLCreate(NhlSETRL);
-  NhlRLClear(srlist);
 
-  NhlRLSetInteger(srlist,"trXAxisType", xaxistype);
-  NhlRLSetInteger(srlist,"trYAxisType", yaxistype);
-  NhlRLSetInteger(srlist,"trYReverse",  yreverse);
-  NhlRLSetInteger(srlist,"trXReverse",  xreverse);
-  NhlRLSetFloat(srlist,  "trXMinF",     xmin);
-  NhlRLSetFloat(srlist,  "trXMaxF",     xmax);
-  NhlRLSetFloat(srlist,  "trYMinF",     ymin);
-  NhlRLSetFloat(srlist,  "trYMaxF",     ymax);
+  if(ir_res == NULL) {
+    ir_rlist = NhlRLCreate(NhlSETRL);
+    NhlRLClear(ir_rlist);
+  }
+  else {
+    ir_rlist = ir_res->id;
+  }
+  NhlRLSetInteger(ir_rlist,"trXAxisType", xaxistype);
+  NhlRLSetInteger(ir_rlist,"trYAxisType", yaxistype);
+  NhlRLSetInteger(ir_rlist,"trYReverse",  yreverse);
+  NhlRLSetInteger(ir_rlist,"trXReverse",  xreverse);
+  NhlRLSetFloat(ir_rlist,  "trXMinF",     xmin);
+  NhlRLSetFloat(ir_rlist,  "trXMaxF",     xmax);
+  NhlRLSetFloat(ir_rlist,  "trYMinF",     ymin);
+  NhlRLSetFloat(ir_rlist,  "trYMaxF",     ymax);
+/*
+ * A tickmark object won't appear if the original overlay plot
+ * had it turned off, so force it to "Always" here, unless
+ * the user has already set it.
+ */
+  if(!is_res_set(ir_res,"pmTickMarkDisplayMode")) { 
+    NhlRLSetString(ir_rlist, "pmTickMarkDisplayMode", "Always");
+  }
 
 /*
  * Case 1: Both X and Y axes are either linear or log, nothing
@@ -662,21 +696,23 @@ void overlay_on_irregular(int wks, nglPlotId *plot, nglRes *special_res)
  *
  * Case 2: X axis is irregular and Y axis is linear or log.
  */
-  if(xaxistype == 0 && yaxistype != 0) {
-    NhlRLSetFloatArray(srlist,"trXCoordPoints",xpts,nxpts);
+  if(xaxistype == NhlIRREGULARAXIS && yaxistype != NhlIRREGULARAXIS) {
+    NhlRLSetMDFloatArray(ir_rlist,"trXCoordPoints",xpts,xpts_ndims,
+                         xpts_dimsizes);
   }
 /*
  * Case 3: Y axis is irregular and X axis is linear or log.
  */
-  if(yaxistype == 0 && xaxistype != 0) {
-    NhlRLSetFloatArray(srlist,"trYCoordPoints",ypts,nypts);
+  if(yaxistype == NhlIRREGULARAXIS && xaxistype != NhlIRREGULARAXIS) {
+    NhlRLSetMDFloatArray(ir_rlist,"trYCoordPoints",ypts,ypts_ndims,
+                         ypts_dimsizes);
   }
 
 /*
  * Create the irregular plot object, and overlay the current plot
  * on this new object.
  */
-  NhlCreate(&base_plot, "IrregularPlot",NhlirregularPlotClass,wks,srlist);
+  NhlCreate(&base_plot, "IrregularPlot",NhlirregularPlotClass,wks,ir_rlist);
   NhlAddOverlay(base_plot,overlay_plot,-1);
 
 /*
@@ -802,71 +838,54 @@ void spread_colors(int wks, int plot, int min_index, int max_index,
  * so they are the same size/length.
  */
 
-void scale_plot(int plot,ResInfo *res)
+void scale_plot(int plot, ResInfo *res)
 {
-  int srlist, grlist;
-  float xfont, yfont, xbfont, ylfont;
-  float xlength, ylength, xmlength, ymlength;
-  float major_length, minor_length;
+  int srlist, grlist, mode;
+  float xfont, yfont;
 
   srlist = NhlRLCreate(NhlSETRL);
   grlist = NhlRLCreate(NhlGETRL);
 
+/*
+ * Originally, before we had the tmEqualizeXYSizes resource, we
+ * had to retrieve all the tickmark info ourselves, and then
+ * recalculate the sizes using averages.  Now, we just
+ * set tmEqualizeXYSizes to True.  But, we only do this if
+ * pmTickMarkDisplayMode is NhlCONDITIONAL or NhlALWAYS.
+ * 
+ * We still have to set the tiX/Y axis font sizes, though.
+ */
+
   NhlRLClear(grlist);
-  NhlRLGetFloat(grlist,"tiXAxisFontHeightF",    &xfont);
-  NhlRLGetFloat(grlist,"tiYAxisFontHeightF",    &yfont);
-  NhlRLGetFloat(grlist,"tmXBLabelFontHeightF",  &xbfont);
-  NhlRLGetFloat(grlist,"tmXBMajorLengthF",      &xlength);
-  NhlRLGetFloat(grlist,"tmXBMinorLengthF",      &xmlength);
-  NhlRLGetFloat(grlist,"tmYLLabelFontHeightF",  &ylfont);
-  NhlRLGetFloat(grlist,"tmYLMajorLengthF",      &ylength);
-  NhlRLGetFloat(grlist,"tmYLMinorLengthF",      &ymlength);
+  NhlRLGetFloat(grlist,"tiXAxisFontHeightF", &xfont);
+  NhlRLGetFloat(grlist,"tiYAxisFontHeightF", &yfont);
+  NhlRLGetInteger(grlist,"pmTickMarkDisplayMode", &mode);
   NhlGetValues(plot,grlist);
 
-  if(xlength != 0. && ylength != 0.) {
-    major_length = (ylength+xlength)/2.;
-    xlength = major_length;
-    ylength = major_length;
-  }
-
-  if(xmlength != 0. && ymlength != 0.) {
-    minor_length = (ymlength+xmlength)/2.;
-    xmlength = minor_length;
-    ymlength = minor_length;
-  }
-
 /*
- * Reset all these resources, making the values the same for
+ * Reset these resources, making the values the same for
  * both axes.
  */
 
   NhlRLClear(srlist);
-  if(!is_res_set(res,"tiXAxisFontHeightF")) {
-    NhlRLSetFloat(srlist, "tiXAxisFontHeightF",   (xfont+yfont)/2.);
+  if(!is_res_set(res,"tiXAxisFontHeightF")) { 
+    NhlRLSetFloat(srlist, "tiXAxisFontHeightF", (xfont+yfont)/2.);
   }
   if(!is_res_set(res,"tiYAxisFontHeightF")) {
-    NhlRLSetFloat(srlist, "tiYAxisFontHeightF",   (xfont+yfont)/2.);
+    NhlRLSetFloat(srlist, "tiYAxisFontHeightF", (xfont+yfont)/2.);
   }
-  if(!is_res_set(res,"tmXBLabelFontHeightF")) {
-    NhlRLSetFloat(srlist, "tmXBLabelFontHeightF", (xbfont+ylfont)/2.);
+/*
+ * This next resource takes care of making the tickmark lengths
+ * and tickmark labels the same size.  Only set it if the tickmark
+ * display mode is NhlCONDITIONAL or NhlALWAYS.
+ */
+  if((mode == NhlCONDITIONAL || mode == NhlALWAYS) && 
+     !is_res_set(res,"tmEqualizeXYSizes")) {
+    NhlRLSetInteger(srlist, "tmEqualizeXYSizes", 1);
   }
-  if(!is_res_set(res,"tmXBMajorLengthF")) {
-    NhlRLSetFloat(srlist, "tmXBMajorLengthF",     xlength);
-  }
-  if(!is_res_set(res,"tmXBMinorLengthF")) {
-    NhlRLSetFloat(srlist, "tmXBMinorLengthF",     xmlength);
-  }
-  if(!is_res_set(res,"tmYLLabelFontHeightF")) {
-    NhlRLSetFloat(srlist, "tmYLLabelFontHeightF", (xbfont+ylfont)/2.);
-  }
-  if(!is_res_set(res,"tmYLMajorLengthF")) {
-    NhlRLSetFloat(srlist, "tmYLMajorLengthF",     ylength);
-  }
-  if(!is_res_set(res,"tmYLMinorLengthF")) {
-    NhlRLSetFloat(srlist, "tmYLMinorLengthF",     ymlength);
-  }
+  printf("About to set values...\n");
   NhlSetValues(plot,srlist);
-
+  printf("Finished setting values...\n");
   return;
 }
 
@@ -1593,11 +1612,12 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
  */
 
 nglPlotId contour_wrap(int wks, void *data, const char *type, int ylen,
-                           int xlen, int is_ycoord, void *ycoord, 
-                           const char *ycoord_type,int is_xcoord, 
-                           void *xcoord, const char *xcoord_type,
-                           int is_missing, void *FillValue, ResInfo *sf_res,
-                           ResInfo *cn_res, nglRes *special_res)
+                       int xlen, int is_ycoord, void *ycoord, 
+                       const char *ycoord_type,int is_xcoord, 
+                       void *xcoord, const char *xcoord_type,
+                       int is_missing, void *FillValue, ResInfo *sf_res,
+                       ResInfo *cn_res, ResInfo *tm_res, 
+                       nglRes *special_res)
 {
   nglPlotId plot;
   int field, contour;
@@ -1664,7 +1684,9 @@ nglPlotId contour_wrap(int wks, void *data, const char *type, int ylen,
  * or linearize either of the axes.
  */
 
-  overlay_on_irregular(wks,&plot,special_res);
+  if(special_res->nglXAxisType > 0 || special_res->nglYAxisType > 0) {
+    overlay_on_irregular(wks,&plot,tm_res,special_res);
+  }
 
 /*
  * Draw contour plot and advance frame.
@@ -1684,12 +1706,12 @@ nglPlotId contour_wrap(int wks, void *data, const char *type, int ylen,
  */
 
 nglPlotId xy_wrap(int wks, void *x, void *y, const char *type_x,
-                      const char *type_y, int ndims_x, int *dsizes_x,
-                      int ndims_y, int *dsizes_y, 
-                      int is_missing_x, int is_missing_y, 
-                      void *FillValue_x, void *FillValue_y,
-                      ResInfo *ca_res, ResInfo *xy_res, ResInfo *xyd_res,
-                      nglRes *special_res)
+                  const char *type_y, int ndims_x, int *dsizes_x,
+                  int ndims_y, int *dsizes_y, 
+                  int is_missing_x, int is_missing_y, 
+                  void *FillValue_x, void *FillValue_y,
+                  ResInfo *ca_res, ResInfo *xy_res, ResInfo *xyd_res,
+                  nglRes *special_res)
 {
   int cafield, xy, grlist, num_dspec, *xyds;
   nglPlotId plot;
@@ -1776,9 +1798,9 @@ nglPlotId xy_wrap(int wks, void *x, void *y, const char *type_x,
  */
 
 nglPlotId y_wrap(int wks, void *y, const char *type_y, int ndims_y, 
-                     int *dsizes_y, int is_missing_y, void *FillValue_y,
-                     ResInfo *ca_res, ResInfo *xy_res, ResInfo *xyd_res,
-                     nglRes *special_res)
+                 int *dsizes_y, int is_missing_y, void *FillValue_y,
+                 ResInfo *ca_res, ResInfo *xy_res, ResInfo *xyd_res,
+                 nglRes *special_res)
 {
   nglPlotId xy;
 
@@ -1786,8 +1808,8 @@ nglPlotId y_wrap(int wks, void *y, const char *type_y, int ndims_y,
  * Call xy_wrap, only using NULLs for the X values.
  */
   xy = xy_wrap(wks, NULL, y, NULL, type_y, 0, NULL,
-                   ndims_y, &dsizes_y[0], 0, is_missing_y, NULL, 
-                   FillValue_y, ca_res, xy_res, xyd_res, special_res);
+               ndims_y, &dsizes_y[0], 0, is_missing_y, NULL, 
+               FillValue_y, ca_res, xy_res, xyd_res, special_res);
 
 /*
  * Return.
@@ -1801,14 +1823,14 @@ nglPlotId y_wrap(int wks, void *y, const char *type_y, int ndims_y,
  */
 
 nglPlotId vector_wrap(int wks, void *u, void *v, const char *type_u,
-                          const char *type_v, int ylen, int xlen, 
-                          int is_ycoord, void *ycoord, 
-                          const char *type_ycoord, int is_xcoord, 
-                          void *xcoord, const char *type_xcoord, 
-                          int is_missing_u, int is_missing_v, 
-                          void *FillValue_u, void *FillValue_v,
-                          ResInfo *vf_res, ResInfo *vc_res,
-                          nglRes *special_res)
+                      const char *type_v, int ylen, int xlen, 
+                      int is_ycoord, void *ycoord, 
+                      const char *type_ycoord, int is_xcoord, 
+                      void *xcoord, const char *type_xcoord, 
+                      int is_missing_u, int is_missing_v, 
+                      void *FillValue_u, void *FillValue_v,
+                      ResInfo *vf_res, ResInfo *vc_res, ResInfo *tm_res,
+                      nglRes *special_res)
 {
   int field, vector;
   nglPlotId plot;
@@ -1876,7 +1898,9 @@ nglPlotId vector_wrap(int wks, void *u, void *v, const char *type_u,
  * or linearize either of the axes.
  */
 
-  overlay_on_irregular(wks,&plot,special_res);
+  if(special_res->nglXAxisType > 0 || special_res->nglYAxisType > 0) {
+    overlay_on_irregular(wks,&plot,tm_res,special_res);
+  }
 
 /*
  * Draw vector plot and advance frame.
@@ -1897,14 +1921,14 @@ nglPlotId vector_wrap(int wks, void *u, void *v, const char *type_u,
  */
 
 nglPlotId streamline_wrap(int wks, void *u, void *v, const char *type_u,
-                              const char *type_v, int ylen, int xlen, 
-                              int is_ycoord, void *ycoord, 
-                              const char *type_ycoord, int is_xcoord, 
-                              void *xcoord, const char *type_xcoord, 
-                              int is_missing_u, int is_missing_v, 
-                              void *FillValue_u, void *FillValue_v, 
-                              ResInfo *vf_res, ResInfo *st_res, 
-                              nglRes *special_res)
+                          const char *type_v, int ylen, int xlen, 
+                          int is_ycoord, void *ycoord, 
+                          const char *type_ycoord, int is_xcoord, 
+                          void *xcoord, const char *type_xcoord, 
+                          int is_missing_u, int is_missing_v, 
+                          void *FillValue_u, void *FillValue_v, 
+                          ResInfo *vf_res, ResInfo *st_res, 
+                          ResInfo *tm_res, nglRes *special_res)
 {
   int field, streamline;
   int vf_rlist, st_rlist;
@@ -1963,7 +1987,9 @@ nglPlotId streamline_wrap(int wks, void *u, void *v, const char *type_u,
  * or linearize either of the axes.
  */
 
-  overlay_on_irregular(wks,&plot,special_res);
+  if(special_res->nglXAxisType > 0 || special_res->nglYAxisType > 0) {
+    overlay_on_irregular(wks,&plot,tm_res,special_res);
+  }
 
 /*
  * Draw streamline plot and advance frame.
@@ -2029,14 +2055,13 @@ nglPlotId map_wrap(int wks, ResInfo *mp_res, nglRes *special_res)
  */
 
 nglPlotId contour_map_wrap(int wks, void *data, const char *type, 
-                               int ylen, int xlen, int is_ycoord, 
-                               void *ycoord, const char *ycoord_type,
-                               int is_xcoord, void *xcoord, 
-                               const char *xcoord_type, int is_missing, 
-                               void *FillValue, ResInfo *sf_res, 
-                               ResInfo *cn_res, ResInfo *mp_res,
-                               nglRes *special_res)
-                         
+                           int ylen, int xlen, int is_ycoord, 
+                           void *ycoord, const char *ycoord_type,
+                           int is_xcoord, void *xcoord, 
+                           const char *xcoord_type, int is_missing, 
+                           void *FillValue, ResInfo *sf_res, 
+                           ResInfo *cn_res, ResInfo *mp_res,
+                           nglRes *special_res)
 {
   nglRes special_res2;
   nglPlotId contour, map, plot;
@@ -2048,19 +2073,25 @@ nglPlotId contour_map_wrap(int wks, void *data, const char *type,
  * Note that nglScale is turned off because the underlying code
  * for generating map tickmarks automatically makes them all
  * the same size.
+ *
+ * Also, XAxisType and YAxisType are set to 0 (IrregularAxis) to
+ * ensure that one doesn't try to linearize or logize an axis
+ * system that's about to be overlaid on a map.
  */
  
-  special_res2             = *special_res;
-  special_res2.nglDraw     = 0;
-  special_res2.nglFrame    = 0;
-  special_res2.nglMaximize = 0;
-  special_res2.nglScale    = 0;
+  special_res2              = *special_res;
+  special_res2.nglDraw      = 0;
+  special_res2.nglFrame     = 0;
+  special_res2.nglMaximize  = 0;
+  special_res2.nglScale     = 0;
+  special_res2.nglXAxisType = 0;
+  special_res2.nglYAxisType = 0;
 
   contour = contour_wrap(wks, data, type, ylen, xlen,
-                             is_ycoord, ycoord, ycoord_type,
-                             is_xcoord, xcoord, xcoord_type,
-                             is_missing, FillValue, sf_res, cn_res,
-                             &special_res2);
+                         is_ycoord, ycoord, ycoord_type,
+                         is_xcoord, xcoord, xcoord_type,
+                         is_missing, FillValue, sf_res, cn_res,
+                         NULL, &special_res2);
 
 /*
  * Create map plot.
@@ -2112,14 +2143,14 @@ nglPlotId contour_map_wrap(int wks, void *data, const char *type,
  */
 
 nglPlotId vector_map_wrap(int wks, void *u, void *v, const char *type_u,
-                              const char *type_v, int ylen, int xlen, 
-                              int is_ycoord, void *ycoord, 
-                              const char *type_ycoord, int is_xcoord, 
-                              void *xcoord, const char *type_xcoord, 
-                              int is_missing_u, int is_missing_v, 
-                              void *FillValue_u, void *FillValue_v,
-                              ResInfo *vf_res, ResInfo *vc_res,
-                              ResInfo *mp_res, nglRes *special_res)
+                          const char *type_v, int ylen, int xlen, 
+                          int is_ycoord, void *ycoord, 
+                          const char *type_ycoord, int is_xcoord, 
+                          void *xcoord, const char *type_xcoord, 
+                          int is_missing_u, int is_missing_v, 
+                          void *FillValue_u, void *FillValue_v,
+                          ResInfo *vf_res, ResInfo *vc_res,
+                          ResInfo *mp_res, nglRes *special_res)
 {
   nglRes special_res2;
   nglPlotId vector, map, plot;
@@ -2130,19 +2161,25 @@ nglPlotId vector_map_wrap(int wks, void *u, void *v, const char *type_u,
  * Note that nglScale is turned off because the underlying code
  * for generating map tickmarks automatically makes them all
  * the same size.
+ *
+ * Also, XAxisType and YAxisType are set to 0 (IrregularAxis) to
+ * ensure that one doesn't try to linearize or logize an axis
+ * system that's about to be overlaid on a map.
  */
 
-  special_res2             = *special_res;
-  special_res2.nglDraw     = 0;
-  special_res2.nglFrame    = 0;
-  special_res2.nglMaximize = 0;
-  special_res2.nglScale    = 0;
+  special_res2              = *special_res;
+  special_res2.nglDraw      = 0;
+  special_res2.nglFrame     = 0;
+  special_res2.nglMaximize  = 0;
+  special_res2.nglScale     = 0;
+  special_res2.nglXAxisType = 0;
+  special_res2.nglYAxisType = 0;
 
   vector = vector_wrap(wks, u, v, type_u, type_v, ylen, xlen, is_ycoord,
-                           ycoord, type_ycoord, is_xcoord, xcoord, 
-                           type_xcoord, is_missing_u, is_missing_v, 
-                           FillValue_u, FillValue_v, vf_res, vc_res,
-                           &special_res2);
+                       ycoord, type_ycoord, is_xcoord, xcoord, 
+                       type_xcoord, is_missing_u, is_missing_v, 
+                       FillValue_u, FillValue_v, vf_res, vc_res,
+                       NULL, &special_res2);
 
 /*
  * Create map plot.
@@ -2194,15 +2231,15 @@ nglPlotId vector_map_wrap(int wks, void *u, void *v, const char *type_u,
  */
 
 nglPlotId streamline_map_wrap(int wks, void *u, void *v, 
-                                  const char *type_u, const char *type_v, 
-                                  int ylen, int xlen, int is_ycoord, 
-                                  void *ycoord, const char *type_ycoord, 
-                                  int is_xcoord, void *xcoord, 
-                                  const char *type_xcoord, int is_missing_u,
-                                  int is_missing_v, void *FillValue_u, 
-                                  void *FillValue_v, ResInfo *vf_res, 
-                                  ResInfo *st_res, ResInfo *mp_res,
-                                  nglRes *special_res)
+                              const char *type_u, const char *type_v, 
+                              int ylen, int xlen, int is_ycoord, 
+                              void *ycoord, const char *type_ycoord, 
+                              int is_xcoord, void *xcoord, 
+                              const char *type_xcoord, int is_missing_u,
+                              int is_missing_v, void *FillValue_u, 
+                              void *FillValue_v, ResInfo *vf_res, 
+                              ResInfo *st_res, ResInfo *mp_res,
+                              nglRes *special_res)
 {
   nglRes special_res2;
   nglPlotId streamline, map, plot;
@@ -2215,17 +2252,20 @@ nglPlotId streamline_map_wrap(int wks, void *u, void *v,
  * the same size.
  */
 
-  special_res2             = *special_res;
-  special_res2.nglDraw     = 0;
-  special_res2.nglFrame    = 0;
-  special_res2.nglMaximize = 0;
-  special_res2.nglScale    = 0;
+  special_res2              = *special_res;
+  special_res2.nglDraw      = 0;
+  special_res2.nglFrame     = 0;
+  special_res2.nglMaximize  = 0;
+  special_res2.nglScale     = 0;
+  special_res2.nglXAxisType = 0;
+  special_res2.nglYAxisType = 0;
 
   streamline = streamline_wrap(wks, u, v, type_u, type_v, ylen, xlen, 
-                                   is_ycoord, ycoord, type_ycoord, 
-                                   is_xcoord, xcoord, type_xcoord, 
-                                   is_missing_u, is_missing_v, FillValue_u, 
-                                   FillValue_v, vf_res, st_res, &special_res2);
+                               is_ycoord, ycoord, type_ycoord, 
+                               is_xcoord, xcoord, type_xcoord, 
+                               is_missing_u, is_missing_v, FillValue_u, 
+                               FillValue_v, vf_res, st_res, NULL,
+                               &special_res2);
 
 /*
  * Create map plot.
@@ -2280,16 +2320,17 @@ nglPlotId streamline_map_wrap(int wks, void *u, void *v,
  */
 
 nglPlotId vector_scalar_wrap(int wks, void *u, void *v, void *t, 
-                                 const char *type_u, const char *type_v, 
-                                 const char *type_t, int ylen, int xlen, 
-                                 int is_ycoord, void *ycoord, 
-                                 const char *type_ycoord, int is_xcoord, 
-                                 void *xcoord, const char *type_xcoord, 
-                                 int is_missing_u, int is_missing_v, 
-                                 int is_missing_t, void *FillValue_u, 
-                                 void *FillValue_v, void *FillValue_t,
-                                 ResInfo *vf_res, ResInfo *sf_res,
-                                 ResInfo *vc_res, nglRes *special_res)
+                             const char *type_u, const char *type_v, 
+                             const char *type_t, int ylen, int xlen, 
+                             int is_ycoord, void *ycoord, 
+                             const char *type_ycoord, int is_xcoord, 
+                             void *xcoord, const char *type_xcoord, 
+                             int is_missing_u, int is_missing_v, 
+                             int is_missing_t, void *FillValue_u, 
+                             void *FillValue_v, void *FillValue_t,
+                             ResInfo *vf_res, ResInfo *sf_res,
+                             ResInfo *vc_res, ResInfo *tm_res, 
+                             nglRes *special_res)
 {
   int vffield, sffield, vector;
   nglPlotId plot;
@@ -2362,7 +2403,9 @@ nglPlotId vector_scalar_wrap(int wks, void *u, void *v, void *t,
  * or linearize either of the axes.
  */
 
-  overlay_on_irregular(wks,&plot,special_res);
+  if(special_res->nglXAxisType > 0 || special_res->nglYAxisType > 0) {
+    overlay_on_irregular(wks,&plot,tm_res,special_res);
+  }
 
 /*
  * Draw plots and advance frame.
@@ -2382,17 +2425,17 @@ nglPlotId vector_scalar_wrap(int wks, void *u, void *v, void *t,
  */
 
 nglPlotId vector_scalar_map_wrap(int wks, void *u, void *v, void *t, 
-                                     const char *type_u, const char *type_v, 
-                                     const char *type_t, int ylen, int xlen, 
-                                     int is_ycoord, void *ycoord, 
-                                     const char *type_ycoord, int is_xcoord, 
-                                     void *xcoord, const char *type_xcoord, 
-                                     int is_missing_u, int is_missing_v, 
-                                     int is_missing_t, void *FillValue_u, 
-                                     void *FillValue_v, void *FillValue_t,
-                                     ResInfo *vf_res, ResInfo *sf_res,
-                                     ResInfo *vc_res, ResInfo *mp_res,
-                                     nglRes *special_res)
+                                 const char *type_u, const char *type_v, 
+                                 const char *type_t, int ylen, int xlen, 
+                                 int is_ycoord, void *ycoord, 
+                                 const char *type_ycoord, int is_xcoord, 
+                                 void *xcoord, const char *type_xcoord, 
+                                 int is_missing_u, int is_missing_v, 
+                                 int is_missing_t, void *FillValue_u, 
+                                 void *FillValue_v, void *FillValue_t,
+                                 ResInfo *vf_res, ResInfo *sf_res,
+                                 ResInfo *vc_res, ResInfo *mp_res,
+                                 nglRes *special_res)
 {
   nglRes special_res2;
   nglPlotId plot, vector, map;
@@ -2403,21 +2446,31 @@ nglPlotId vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
  * Note that nglScale is turned off because the underlying code
  * for generating map tickmarks automatically makes them all
  * the same size.
+ *
+ * Also, XAxisType and YAxisType are set to 0 (IrregularAxis) to
+ * ensure that one doesn't try to linearize or logize an axis
+ * system that's about to be overlaid on a map.
+ *
+ * Also, XAxisType and YAxisType are set to 0 (IrregularAxis) to
+ * ensure that one doesn't try to linearize or logize an axis
+ * system that's about to be overlaid on a map.
  */
 
-  special_res2             = *special_res;
-  special_res2.nglDraw     = 0;
-  special_res2.nglFrame    = 0;
-  special_res2.nglMaximize = 0;
-  special_res2.nglScale    = 0;
+  special_res2              = *special_res;
+  special_res2.nglDraw      = 0;
+  special_res2.nglFrame     = 0;
+  special_res2.nglMaximize  = 0;
+  special_res2.nglScale     = 0;
+  special_res2.nglXAxisType = 0;
+  special_res2.nglYAxisType = 0;
 
   vector = vector_scalar_wrap(wks, u, v, t, type_u, type_v, type_t,
-                                  ylen, xlen, is_ycoord, ycoord, 
-                                  type_ycoord, is_xcoord, xcoord, 
-                                  type_xcoord, is_missing_u, is_missing_v, 
-                                  is_missing_t, FillValue_u, FillValue_v, 
-                                  FillValue_t, vf_res, sf_res, vc_res, 
-                                  &special_res2);
+                              ylen, xlen, is_ycoord, ycoord, 
+                              type_ycoord, is_xcoord, xcoord, 
+                              type_xcoord, is_missing_u, is_missing_v, 
+                              is_missing_t, FillValue_u, FillValue_v, 
+                              FillValue_t, vf_res, sf_res, vc_res, 
+                              NULL, &special_res2);
 
 /*
  * Create map plot.
@@ -2470,8 +2523,8 @@ nglPlotId vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
 
 
 nglPlotId text_ndc_wrap(int wks, char* string, void *x, void *y,
-                            const char *type_x, const char *type_y,
-                            ResInfo *txres, nglRes *special_res)
+                        const char *type_x, const char *type_y,
+                        ResInfo *txres, nglRes *special_res)
 {
   int text, length[1];
   nglPlotId plot;
@@ -2513,8 +2566,8 @@ nglPlotId text_ndc_wrap(int wks, char* string, void *x, void *y,
 
 
 nglPlotId text_wrap(int wks, nglPlotId *plot, char* string, void *x, 
-                        void *y, const char *type_x, const char *type_y,
-                        ResInfo *txres, nglRes *special_res)
+                    void *y, const char *type_x, const char *type_y,
+                    ResInfo *txres, nglRes *special_res)
 {
   float *xf, *yf, xndc, yndc, oor = 0.;
   int status;
@@ -2539,7 +2592,7 @@ nglPlotId text_wrap(int wks, nglPlotId *plot, char* string, void *x,
   }
 
   text = text_ndc_wrap(wks, string, &xndc, &yndc, "float", "float",
-                           txres, special_res);
+                       txres, special_res);
 
 /*
  * Return.
@@ -2551,10 +2604,10 @@ nglPlotId text_wrap(int wks, nglPlotId *plot, char* string, void *x,
  * Routine for drawing any kind of primitive in NDC or data space.
  */
 void poly_wrap(int wks, nglPlotId *plot, void *x, void *y, 
-                   const char *type_x, const char *type_y, int len,
-                   int is_missing_x, int is_missing_y, void *FillValue_x, 
-                   void *FillValue_y, NhlPolyType polytype, ResInfo *gs_res,
-                   nglRes *special_res)
+               const char *type_x, const char *type_y, int len,
+               int is_missing_x, int is_missing_y, void *FillValue_x, 
+               void *FillValue_y, NhlPolyType polytype, ResInfo *gs_res,
+               nglRes *special_res)
 {
   int i, gsid, newlen, *indices, ibeg, iend, nlines, color;
   int srlist, grlist;
@@ -2691,11 +2744,11 @@ void poly_wrap(int wks, nglPlotId *plot, void *x, void *y,
  * if you scale the plot. 
  */
 nglPlotId add_poly_wrap(int wks, nglPlotId *plot, void *x, void *y,
-                            const char *type_x, const char *type_y, int len, 
-                            int is_missing_x, int is_missing_y, 
-                            void *FillValue_x, void *FillValue_y,
-                            NhlPolyType polytype, ResInfo *gs_res, 
-                            nglRes *special_res)
+                        const char *type_x, const char *type_y, int len, 
+                        int is_missing_x, int is_missing_y, 
+                        void *FillValue_x, void *FillValue_y,
+                        NhlPolyType polytype, ResInfo *gs_res, 
+                        nglRes *special_res)
 {
   int *primitive_object, gsid, pr_rlist, grlist;
   int i, newlen, *indices, nlines, npoly, ibeg, iend, npts;
@@ -2872,17 +2925,17 @@ nglPlotId add_poly_wrap(int wks, nglPlotId *plot, void *x, void *y,
  * Routine for drawing markers in NDC space.
  */
 void polymarker_ndc_wrap(int wks, void *x, void *y, const char *type_x, 
-                             const char *type_y,  int len,
-                             int is_missing_x, int is_missing_y, 
-                             void *FillValue_x, void *FillValue_y, 
-                             ResInfo *gs_res, nglRes *special_res)
+                         const char *type_y,  int len,
+                         int is_missing_x, int is_missing_y, 
+                         void *FillValue_x, void *FillValue_y, 
+                         ResInfo *gs_res, nglRes *special_res)
 {
   nglPlotId plot;
 
   initialize_ids(&plot);
   poly_wrap(wks, &plot, x, y, type_x, type_y, len, is_missing_x, 
-                is_missing_y, FillValue_x, FillValue_y, NhlPOLYMARKER, 
-                gs_res,special_res);
+            is_missing_y, FillValue_x, FillValue_y, NhlPOLYMARKER, 
+            gs_res,special_res);
 }
 
 
@@ -2890,17 +2943,17 @@ void polymarker_ndc_wrap(int wks, void *x, void *y, const char *type_x,
  * Routine for drawing lines in NDC space.
  */
 void polyline_ndc_wrap(int wks, void *x, void *y, const char *type_x,
-                           const char *type_y, int len,
-                           int is_missing_x, int is_missing_y, 
-                           void *FillValue_x, void *FillValue_y, 
-                           ResInfo *gs_res, nglRes *special_res)
+                       const char *type_y, int len,
+                       int is_missing_x, int is_missing_y, 
+                       void *FillValue_x, void *FillValue_y, 
+                       ResInfo *gs_res, nglRes *special_res)
 {
   nglPlotId plot;
 
   initialize_ids(&plot);
   poly_wrap(wks, &plot, x, y, type_x, type_y, len, is_missing_x, 
-                is_missing_y, FillValue_x, FillValue_y, NhlPOLYLINE, 
-                gs_res, special_res);
+            is_missing_y, FillValue_x, FillValue_y, NhlPOLYLINE, 
+            gs_res, special_res);
 }
 
 
@@ -2908,30 +2961,30 @@ void polyline_ndc_wrap(int wks, void *x, void *y, const char *type_x,
  * Routine for drawing polygons in NDC space.
  */
 void polygon_ndc_wrap(int wks, void *x, void *y, const char *type_x, 
-                          const char *type_y, int len,
-                          int is_missing_x, int is_missing_y, 
-                          void *FillValue_x, void *FillValue_y, 
-                          ResInfo *gs_res, nglRes *special_res)
+                      const char *type_y, int len,
+                      int is_missing_x, int is_missing_y, 
+                      void *FillValue_x, void *FillValue_y, 
+                      ResInfo *gs_res, nglRes *special_res)
 {
   nglPlotId plot;
 
   initialize_ids(&plot);
   poly_wrap(wks, &plot, x, y, type_x, type_y, len, is_missing_x,
-                is_missing_y, FillValue_x, FillValue_y, NhlPOLYGON, 
-                gs_res, special_res);
+            is_missing_y, FillValue_x, FillValue_y, NhlPOLYGON, 
+            gs_res, special_res);
 }
 
 /*
  * Routine for drawing markers in data space.
  */
 void polymarker_wrap(int wks, nglPlotId *plot, void *x, void *y, 
-                         const char *type_x, const char *type_y, int len,
-                         int is_missing_x, int is_missing_y, 
-                         void *FillValue_x, void *FillValue_y, 
-                         ResInfo *gs_res, nglRes *special_res)
+                     const char *type_x, const char *type_y, int len,
+                     int is_missing_x, int is_missing_y, 
+                     void *FillValue_x, void *FillValue_y, 
+                     ResInfo *gs_res, nglRes *special_res)
 {
   poly_wrap(wks,plot,x,y,type_x,type_y,len,is_missing_x,is_missing_y,
-                FillValue_x,FillValue_y,NhlPOLYMARKER,gs_res,special_res);
+            FillValue_x,FillValue_y,NhlPOLYMARKER,gs_res,special_res);
 }
 
 
@@ -2939,44 +2992,44 @@ void polymarker_wrap(int wks, nglPlotId *plot, void *x, void *y,
  * Routine for drawing lines in data space.
  */
 void polyline_wrap(int wks, nglPlotId *plot, void *x, void *y, 
-                       const char *type_x, const char *type_y, int len, 
-                       int is_missing_x, int is_missing_y, 
-                       void *FillValue_x, void *FillValue_y, 
-                       ResInfo *gs_res, nglRes *special_res)
+                   const char *type_x, const char *type_y, int len, 
+                   int is_missing_x, int is_missing_y, 
+                   void *FillValue_x, void *FillValue_y, 
+                   ResInfo *gs_res, nglRes *special_res)
 {
   poly_wrap(wks,plot,x,y,type_x,type_y,len,is_missing_x,is_missing_y,
-                FillValue_x,FillValue_y,NhlPOLYLINE,gs_res,special_res);
+            FillValue_x,FillValue_y,NhlPOLYLINE,gs_res,special_res);
 }
 
 /*
  * Routine for drawing polygons in data space.
  */
 void polygon_wrap(int wks, nglPlotId *plot, void *x, void *y, 
-                      const char *type_x, const char *type_y, int len, 
-                      int is_missing_x, int is_missing_y, 
-                      void *FillValue_x, void *FillValue_y, 
-                      ResInfo *gs_res, nglRes *special_res)
+                  const char *type_x, const char *type_y, int len, 
+                  int is_missing_x, int is_missing_y, 
+                  void *FillValue_x, void *FillValue_y, 
+                  ResInfo *gs_res, nglRes *special_res)
 {
   poly_wrap(wks, plot, x, y, type_x, type_y, len, is_missing_x, 
-                is_missing_y, FillValue_x, FillValue_y, NhlPOLYGON, 
-                gs_res, special_res);
+            is_missing_y, FillValue_x, FillValue_y, NhlPOLYGON, 
+            gs_res, special_res);
 }
 
 /*
  * Routine for adding polylines to a plot (in the plot's data space).
  */
 nglPlotId add_polyline_wrap(int wks, nglPlotId *plot, void *x, void *y, 
-                                const char *type_x, const char *type_y,
-                                int len, int is_missing_x, int is_missing_y, 
-                                void *FillValue_x, void *FillValue_y, 
-                                ResInfo *gs_res, nglRes *special_res)
+                            const char *type_x, const char *type_y,
+                            int len, int is_missing_x, int is_missing_y, 
+                            void *FillValue_x, void *FillValue_y, 
+                            ResInfo *gs_res, nglRes *special_res)
 {
   nglPlotId poly;
 
   poly = add_poly_wrap(wks, plot, x, y, type_x, type_y, len, 
-                           is_missing_x, is_missing_y, FillValue_x, 
-                           FillValue_y, NhlPOLYLINE, gs_res, 
-                           special_res);
+                       is_missing_x, is_missing_y, FillValue_x, 
+                       FillValue_y, NhlPOLYLINE, gs_res, 
+                       special_res);
 /*
  * Return.
  */
@@ -2989,18 +3042,18 @@ nglPlotId add_polyline_wrap(int wks, nglPlotId *plot, void *x, void *y,
  * Routine for adding polymarkers to a plot (in the plot's data space).
  */
 nglPlotId add_polymarker_wrap(int wks, nglPlotId *plot, void *x, void *y, 
-                                  const char *type_x, const char *type_y,
-                                  int len, int is_missing_x,
-                                  int is_missing_y, void *FillValue_x,
-                                  void *FillValue_y, ResInfo *gs_res, 
-                                  nglRes *special_res)
+                              const char *type_x, const char *type_y,
+                              int len, int is_missing_x,
+                              int is_missing_y, void *FillValue_x,
+                              void *FillValue_y, ResInfo *gs_res, 
+                              nglRes *special_res)
 {
   nglPlotId poly;
 
   poly = add_poly_wrap(wks, plot, x, y, type_x, type_y, len, 
-                           is_missing_x, is_missing_y, FillValue_x, 
-                           FillValue_y, NhlPOLYMARKER, gs_res, 
-                           special_res);
+                       is_missing_x, is_missing_y, FillValue_x, 
+                       FillValue_y, NhlPOLYMARKER, gs_res, 
+                       special_res);
 /*
  * Return.
  */
@@ -3013,17 +3066,17 @@ nglPlotId add_polymarker_wrap(int wks, nglPlotId *plot, void *x, void *y,
  * Routine for adding polygons to a plot (in the plot's data space).
  */
 nglPlotId add_polygon_wrap(int wks, nglPlotId *plot, void *x, void *y, 
-                               const char *type_x, const char *type_y, 
-                               int len, int is_missing_x, int is_missing_y, 
-                               void *FillValue_x, void *FillValue_y, 
-                               ResInfo *gs_res, nglRes *special_res)
+                           const char *type_x, const char *type_y, 
+                           int len, int is_missing_x, int is_missing_y, 
+                           void *FillValue_x, void *FillValue_y, 
+                           ResInfo *gs_res, nglRes *special_res)
 {
   nglPlotId poly;
 
   poly = add_poly_wrap(wks, plot, x, y, type_x, type_y, len, 
-                           is_missing_x, is_missing_y, FillValue_x, 
-                           FillValue_y, NhlPOLYGON, gs_res, 
-                           special_res);
+                       is_missing_x, is_missing_y, FillValue_x, 
+                       FillValue_y, NhlPOLYGON, gs_res, 
+                       special_res);
 /*
  * Return.
  */
@@ -3041,9 +3094,9 @@ nglPlotId add_polygon_wrap(int wks, nglPlotId *plot, void *x, void *y,
  * appropriately if you scale the plot. 
  */
 nglPlotId add_text_wrap(int wks, nglPlotId *plot, char *string, void *x,
-                            void *y, const char *type_x, const char *type_y,
-                            ResInfo *tx_res, ResInfo *am_res,
-                            nglRes *special_res)
+                        void *y, const char *type_x, const char *type_y,
+                        ResInfo *tx_res, ResInfo *am_res,
+                        nglRes *special_res)
 {
   int i, srlist, grlist, text, just;
   int *anno_views, *anno_mgrs, *new_anno_views, num_annos;
@@ -3394,8 +3447,8 @@ void draw_colormap_wrap(int wks)
  * Routine for paneling same-sized plots.
  */
 void panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims, 
-                    int ndims, ResInfo *lb_res, ResInfo *fs_res,
-                    nglRes *special_res)
+                int ndims, ResInfo *lb_res, ResInfo *fs_res,
+                nglRes *special_res)
 {
   int i, nplots, npanels, is_row_spec, nrows, ncols, draw_boxes = 0;
   int num_plots_left, nplot, nplot4, nr, nc, new_ncols, nnewplots;
