@@ -1,15 +1,19 @@
 #
-#   $Id: yMakefile,v 1.3 2004-09-16 14:27:09 haley Exp $
+#   $Id: yMakefile,v 1.4 2004-09-22 03:58:13 haley Exp $
 #
 #   Makefile for pyngl examples
 #
 
-EXAMPLES = chkbay.py clmdiv.py cn12p.py meteogram.py \
+EXAMPLES = chkbay.py clmdiv.py cn12p.py meteogram.py geodesic.py \
 	ngl01p.py ngl02p.py ngl03p.py ngl04p.py ngl05p.py ngl06p.py ngl07p.py \
 	ngl08p.py ngl09p.py ngl10p.py ngl11p.py panel1.py topo1.py traj1.py
 
-RESFILES = chkbay.res cn12p.res ngl08p.res ngl09p.res topo1.res
+RESFILES = chkbay.res cn12p.res geodesic.res ngl08p.res ngl09p.res topo1.res
 
 InstallTarget(pynglex,$(INSTALL_BIN),$(BINPATH))
 InstallTarget($(EXAMPLES),$(INSTALL_LIB),$(PYNGLEXROOT))
 InstallTarget($(RESFILES),$(INSTALL_LIB),$(PYNGLEXROOT))
+
+InstallTarget(pynglex,$(INSTALL_BIN),../src/bin)
+InstallTarget($(EXAMPLES),$(INSTALL_LIB),../src/pynglex)
+InstallTarget($(RESFILES),$(INSTALL_LIB),../src/pynglex)
