@@ -1,5 +1,5 @@
 #
-#   $Id: yMakefile,v 1.14 2005-03-16 21:04:13 haley Exp $
+#   $Id: yMakefile,v 1.15 2005-03-17 00:11:32 haley Exp $
 #
 #   Makefile for pyngl examples
 #
@@ -9,7 +9,7 @@ EXAMPLES = chkbay.py clmdiv.py cn01p.py cn02p.py cn12p.py cns01p.py \
 	ngl01p.py ngl02p.py ngl03p.py ngl04p.py ngl05p.py ngl06p.py \
 	ngl07p.py ngl08p.py ngl09p.py ngl10p.py ngl11p.py panel1.py \
 	scatter1.py seam.py skewt1.py skewt2.py skewt3.py streamline.py \
-	topo1.py traj1.py legend.py labelbar.py
+	topo1.py traj1.py legend.py labelbar.py wmbarb.py wmbarbmap.py
 
 RESFILES = chkbay.res cn12p.res ctnccl.res geodesic.res irregular.res \
 	ngl08p.res ngl09p.res seam.res topo1.res streamline.res
