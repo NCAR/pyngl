@@ -2855,18 +2855,16 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
  * Get largest bounding box that encompasses all non-missing graphical
  * objects.
  */
-    first_time = 1;
     for( i = 0; i < nvalid_plots; i++ ) { 
       NhlGetBB(newplots[i],&newbb[i]);
 
-      if(!first_time) {
+      if(i) {
         newtop = max(newtop,newbb[i].t);
         newbot = min(newbot,newbb[i].b);
         newlft = min(newlft,newbb[i].l);
         newrgt = max(newrgt,newbb[i].r);
       }
       else {
-        first_time = 0;
         newtop = newbb[i].t;
         newbot = newbb[i].b;
         newlft = newbb[i].l;
@@ -2876,28 +2874,24 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
  * that we can calculate the distances between the viewport
  * coordinates and the edges of the bounding boxes.
  */
-        if(nvalid_plots < nplots) {
-          NhlRLClear(grlist);
-          NhlRLGetFloat(grlist,"vpXF",      &vpx);
-          NhlRLGetFloat(grlist,"vpYF",      &vpy);
-          NhlRLGetFloat(grlist,"vpWidthF",  &vpw);
-          NhlRLGetFloat(grlist,"vpHeightF", &vph);
-          (void)NhlGetValues(newplots[i], grlist);
-          dxl = vpx-newbb[i].l;
-          dxr = newbb[i].r-(vpx+vpw);
-          dyt = (newbb[i].t-vpy);
-          dyb = (vpy-vph)-newbb[i].b;
-        }
+		NhlRLClear(grlist);
+		NhlRLGetFloat(grlist,"vpXF",      &vpx);
+		NhlRLGetFloat(grlist,"vpYF",      &vpy);
+		NhlRLGetFloat(grlist,"vpWidthF",  &vpw);
+		NhlRLGetFloat(grlist,"vpHeightF", &vph);
+		(void)NhlGetValues(newplots[i], grlist);
+		dxl = vpx-newbb[i].l;
+		dxr = newbb[i].r-(vpx+vpw);
+		dyt = (newbb[i].t-vpy);
+		dyb = (vpy-vph)-newbb[i].b;
       }
     }
 
 /*
- * This section checks to see if all plots along one side are 
- * missing, because if they are, we have to pretend like they
- * are just invisible (i.e. do the maximization as if the invisible
- * plots were really there).  This section needs to take
- * place even if no plots are missing, because it's possible the
- * user specified fewer plots than panels.
+ * This section makes sure that even though some plots may have been
+ * missing, we still keep the original bounding box as if all of the
+ * plots had been present. This is necessary so that the maximization
+ * for PS/PDF output is done properly.
  */
     if(!rgt_pnl && 0 < ncols && ncols <= nplots) {
 /* 

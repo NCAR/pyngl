@@ -19,7 +19,7 @@ char *create_title(int *parray, int *parray_copy, int nplots, int panel_dims[2])
   for(i = 0; i < nplots; i++) {
     if(parray[i] == 0) {
       if(first_time) {
-        sprintf(title,":F25:%d rows/%d columns:C: plots %d",
+        sprintf(title,":F25:%d rows/%d columns:C:plots %d",
                 panel_dims[0], panel_dims[1], i);
         first_time = 0;
       }
@@ -560,7 +560,7 @@ main()
  */
 
   wk_rlist = NhlRLCreate(NhlSETRL);
-  wks = ngl_open_wks_wrap("pdf","atest", wk_rlist);
+  wks = ngl_open_wks_wrap("x11","atest", wk_rlist);
 
 /*
  * Initialize and clear resource lists.
@@ -764,6 +764,14 @@ main()
 
   varray[0] = 0;
   varray[1] = 0;
+
+  ngl_panel_wrap(wks, varray, nplots, panel_dims, 2, &special_pres);
+  title = create_title(varray, varray_copy, nplots, panel_dims);
+  text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
+                           tx_rlist,&special_tres);
+
+  varray[2] = 0;
+  varray[3] = 0;
 
   ngl_panel_wrap(wks, varray, nplots, panel_dims, 2, &special_pres);
   title = create_title(varray, varray_copy, nplots, panel_dims);
