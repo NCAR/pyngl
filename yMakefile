@@ -3,31 +3,31 @@ PYSRCS  = Ngl.py hlu.py __init__.py
 
 SRCS = Helper.c hlu_wrap.c gsun.c
 OBJS = Helper.o hlu_wrap.o gsun.o
-LIBS = $(HLULIBS) $(NCARGLIBS) $(NGMATHLIBS)
+LIBS = $(NFPLIB) $(HLULIBS) $(NCARGLIBS) $(NGMATHLIBS)
 
 #if (defined(Linux) || defined(LINUX)) && !defined(linux)
 #define linux
 #endif
 
 #if (defined(IRIX) || defined(IRIX64))
-EXTRA_LIBS = -lX11 -lftn -lnfp
+EXTRA_LIBS = -lX11 -lftn
 LN_COMMANDS = $(LD) -shared
 
 #elif defined(SUN)
-EXTRA_LIBS = -R /opt/SUNWspro/lib -L/opt/SUNWspro/lib -lF77 -lM77 -lnsl -lsunmath -lm -lX11 -lXext -lnfp
+EXTRA_LIBS = -R /opt/SUNWspro/lib -L/opt/SUNWspro/lib -lF77 -lM77 -lnsl -lsunmath -lm -lX11 -lXext
 LN_COMMANDS = $(LD) -G
 CCOPTIONS = 
 
 #elif defined(AIX)
-EXTRA_LIBS = -lm -lc -lxlf90 -lxlf -lxlopt -lnfp
+EXTRA_LIBS = -lm -lc -lxlf90 -lxlf -lxlopt
 LN_COMMANDS = $(LD) -bnoquiet -G -bnoentry -bexpall
 
 #elif defined(linux)
-EXTRA_LIBS = -L/usr/X11R6/lib -lX11 -lXext -lg2c -lnfp
+EXTRA_LIBS = -L/usr/X11R6/lib -lX11 -lXext -lg2c
 LN_COMMANDS = gcc -shared
 
 #elif defined(Darwin)
-EXTRA_LIBS = -L/usr/X11R6/lib -lX11 -L/sw/lib -lg2c -lnfp
+EXTRA_LIBS = -L/usr/X11R6/lib -lX11 -L/sw/lib -lg2c
 LN_COMMANDS = $(CC_LD) -bundle -flat_namespace -undefined suppress
 CCOPTIONS = 
 #endif

@@ -347,6 +347,13 @@ def set_contour_res(reslist,reslist1):
     if ( not (reslist.has_key("pmLabelBarDisplayMode"))):
       reslist1["pmLabelBarDisplayMode"] = "Always"
 #
+# If cnFillColors is set, don't set nglSpreadColors to True.
+#
+  if(reslist.has_key("cnFillColors")):
+    if ( not (reslist.has_key("nglSpreadColors"))):
+      lval = 0
+      set_nglRes_i(23, lval) 
+#
 #  Check for "plural" resources that only take effect if their
 #  corresponding "Mono" resource is set to False, and set the
 #  Mono resource on behalf of the user.
@@ -402,6 +409,13 @@ def set_vector_res(reslist,reslist1):
        check_res_value(reslist["vcMonoWindBarbColor"],"False",0))):
     if ( not (reslist.has_key("pmLabelBarDisplayMode"))):
       reslist1["pmLabelBarDisplayMode"] = "Always"
+#
+# If vcLevelColors is set, don't set nglSpreadColors to True.
+#
+  if(reslist.has_key("vcLevelColors")):
+    if ( not (reslist.has_key("nglSpreadColors"))):
+      lval = 0
+      set_nglRes_i(23, lval) 
 #
 # Set some tickmark resources.
 #

@@ -143,7 +143,7 @@ for i in xrange(len(bin_files)):
 res_file = ["ncarg/sysresfile"]
 
 setup (name = "PyNGL",
-       version="0.1.1b6",
+       version="0.1.1b7",
        author="Fred Clare and Mary Haley",
        author_email="fred@ucar.edu,haley@ucar.edu",
        description = "2D visualization library",
