@@ -726,7 +726,7 @@ main()
  */
 
   NhlRLSetString(wk_rlist,"wkColorMap","rainbow+gray");
-  wks = gsn_open_wks("x11","test", wk_rlist);
+  wks = gsn_open_wks("ncgm","test", wk_rlist);
 
 /*
  * Initialize and clear resource lists.
@@ -1012,6 +1012,16 @@ main()
  */
 
   if(do_contour_map2) {
+/* 
+ * Ser color map back to the default.
+ */
+	srlist = NhlRLCreate(NhlSETRL);
+	NhlRLClear(srlist);
+	NhlRLSetString(srlist,NhlNwkColorMap,"hlu_default");
+	NhlRLSetString(srlist,NhlNwkForegroundColor,"black");
+	NhlRLSetString(srlist,NhlNwkBackgroundColor,"white");
+	(void)NhlSetValues(wks, srlist);
+
 	NhlRLClear(cn_rlist);
 	NhlRLClear(sf_rlist);
 	NhlRLClear(mp_rlist);
@@ -1044,7 +1054,7 @@ main()
 	NhlRLSetFloat(mp_rlist,"mpMaxLatF"   ,   60.0);
 	NhlRLSetString(mp_rlist,"mpPerimOn"  , "True");
 
-	NhlRLSetString(mp_rlist,"tiMainString" , ":F26:January 1996 storm");
+	NhlRLSetString(cn_rlist,"tiMainString" , ":F26:January 1996 storm");
 
 	NhlRLSetFloat(mp_rlist,"vpXF"      , 0.1);
 	NhlRLSetFloat(mp_rlist,"vpYF"      , 0.9);
@@ -1085,8 +1095,7 @@ main()
   srlist = NhlRLCreate(NhlSETRL);
   NhlRLClear(srlist);
   NhlRLSetMDFloatArray(srlist,NhlNwkColorMap,&cmap[0][0],2,cmap_len);
-  (void)NhlSetValues(wks, srlist);
-
+ (void)NhlSetValues(wks, srlist);
 /*
  * gsn_vector_map section
  */
