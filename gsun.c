@@ -883,9 +883,7 @@ void scale_plot(int plot, ResInfo *res)
      !is_res_set(res,"tmEqualizeXYSizes")) {
     NhlRLSetInteger(srlist, "tmEqualizeXYSizes", 1);
   }
-  printf("About to set values...\n");
   NhlSetValues(plot,srlist);
-  printf("Finished setting values...\n");
   return;
 }
 
