@@ -1,0 +1,221 @@
+#!/usr/bin/env python
+
+import sys,getopt,os,re
+from Ngl import *
+
+#
+#  pynglex usage statement
+#
+def print_usage():
+  print """
+  usage: pynglgex [options] [example_names]
+
+    options (must appear separately if more than one):
+      -a 
+        Run all of the exmaples.
+      -w type
+        Specifies an overriding output workstation type.  "type"
+        can be one of "ps", "pdf", "ncgm", "x11" (or ps, pdf,
+        ncgm, x11 - i.e. without quotes).  "ps" is the default.  
+        The -w option requires a type be specified.
+      -n
+        Copy over the source files, but do not execute.
+      -l
+        List out the available example names.
+      -h
+        Print out this usage message.
+
+    example names
+      A list of the examples you want to run.
+     
+          """
+
+#
+#  Create a dictionary from the getopt option list.
+#
+def crt_dic(olist):
+  d = {}
+  for i in xrange(len(olist)):
+    d[olist[i][0]] = olist[i][1]
+  return d
+
+#
+#  Main program.
+#
+argc = len(sys.argv)
+if (argc < 2):
+  print_usage()
+  sys.exit()
+
+#
+#  Check that the root directory exists.
+#
+root_dir = ncargpath("root")
+if (not (os.path.exists(root_dir))):
+  print "Root directory does not exist."
+  sys.exit()
+
+#
+#  Make sure NCARG_ROOT is set for this script
+#
+os.environ["NCARG_ROOT"] = root_dir
+
+#
+#  Check for the directory that contains the examples.
+#
+example_dir = ncargpath("ncarg") + "/pynglex"
+if (not (os.path.exists(example_dir))):
+  print 'Example directory "' + example_dir + '" does not exist.'
+  sys.exit()
+
+#
+#  Parse the command line options (opts lists the options and
+#  pargs lists the non-option arguments).  The non-option arguments
+#  will be example name requests.
+#
+opts,pargs = getopt.gnu_getopt(sys.argv[1:],"w:anlh",["type="])
+
+#
+#  Turn the option argument list into a dictionary.
+#
+odict = crt_dic(opts)
+
+#
+#  Print out the usage message for a -h option.
+#
+if (odict.has_key("-h")):
+  print_usage()
+  sys.exit()
+
+#
+#  The -a, -w, and -l  options require a tmp directory.
+#
+tmp_dir = ncargpath("tmp")
+tmp_dir = "xx" 
+if ( (not (os.path.exists(tmp_dir))) and \
+            (odict.has_key("-a") or odict.has_key("-w") or
+             odict.has_key("-l")) ):
+  print 'pynglex: A tmp directory does not exist - \n\
+         it must with a "-a", "-w", or "-l" option.'
+  sys.exit()
+
+#
+#  List out the available examples.
+#
+if (odict.has_key("-l")):
+  cmd = "/usr/bin/rm -f " + tmp_dir + "/pynglex_ls_tmp"
+  os.system(cmd)
+  cmd = "ls " + example_dir + "/*.py > " + tmp_dir + "/pynglex_ls_tmp"
+  os.system(cmd)
+  names_file = open(tmp_dir + "/pynglex_ls_tmp","r")
+  file_names = names_file.readlines()
+  print "\n  pynglex:  The available examples are:"
+  for i in xrange(len(file_names)):
+    base_name = os.path.basename(file_names[i][0:-1])
+    print "   ",os.path.splitext(base_name)[0]
+  print ""
+  names_file.close()
+  sys.exit()
+
+#
+#  Loop through the list of desired examples and execute.
+#
+if (odict.has_key("-a")):
+#
+#  Get the names of all the examples and put them into pargs.
+#  In the case that there is no -a flag, then pargs will be
+#  the specified list of example names.
+#
+  cmd = "/usr/bin/rm -f " + tmp_dir + "/pynglex_ls_tmp"
+  os.system(cmd)
+  cmd = "ls " + example_dir + "/*.py > " + tmp_dir + "/pynglex_ls_tmp"
+  os.system(cmd)
+  names_file = open(tmp_dir + "/pynglex_ls_tmp","r")
+  file_names = names_file.readlines()
+  pargs = []
+  for i in xrange(len(file_names)):
+    base_name = os.path.basename(file_names[i][0:-1])
+    example_name = os.path.splitext(base_name)[0]
+    pargs.append(example_name)
+  cmd = "/usr/bin/rm -f " + tmp_dir + "/pynglex_ls_tmp"
+  os.system(cmd)
+  names_file.close()
+#
+#  At this point pargs is either the list of examples as specified
+#  on the command line if there is no -a option specified, or 
+#  a list of all examples if there is a -a option specified.
+#
+#  We loop over the requested examples in pargs.
+#
+for i in xrange(len(pargs)):
+  print "\nPyNGL example <" + pargs[i] + ">.\n"
+  efile = example_dir + "/" + pargs[i] + ".py"
+  if (not (os.path.exists(efile))):
+    print "pynglex: <" + pargs[i] + "> is not a known example."
+    sys.exit()
+  print "\n   Copying " + pargs[i] + ".py\n"
+  os.system("cp " + efile + " .")
+#
+#  Copy over the res file if it is there.
+#
+  res_file_test = example_dir + "/" + pargs[i] + ".res"
+  if (os.path.exists(res_file_test)):
+    print "\n   Copying " + pargs[i] + ".res\n"
+    os.system("cp " + res_file_test + " .")
+#
+#  We are finished if a -n option was specified, since all
+#  of the source files have been copied over.  Otherwise,
+#  invoke python.
+#
+  if (not (odict.has_key("-n"))):
+#
+#  If the -w option was given, then change the output workstation.
+#
+    if (odict.has_key("-w")):
+#
+#  This if clause does nothing but create a temporary file
+#  in the ncargpath("tmp") directory named pynglex_file_tmp.py.
+#  This temporary file has the workstation type set as per that
+#  specified by the -w option.
+#
+      tfile = open(pargs[i] + ".py")
+      example_src = tfile.readlines()
+      tmp_file_name = tmp_dir + "/pynglex_file_tmp.py"
+      cmd = "/usr/bin/rm -f " + tmp_file_name
+      os.system(cmd)
+      tmp_file = open(tmp_file_name,"w")
+      for j in xrange(len(example_src)):
+        if (re.search("wks_type =",example_src[j]) != None):
+          words = string.split(example_src[j])
+          words[2] = '"' + odict["-w"] + '"'
+          new_line = string.join(words) + "\n"
+        else:
+          new_line = example_src[j]
+        tmp_file.write(new_line)
+      tmp_file.flush()
+#
+#  The following print is not exactly correct if a -w option
+#  has been specified, since in that case we are actually
+#  executing the temporary python file.  But it is less
+#  confusing to indicate that we are executing the specified
+#  example file.
+#
+    print 'Executing "' + "python " + pargs[i] + ".py" + '"'
+#
+#  If a -w option was specified, then put the name of the
+#  temporary file into pargs, otherwise pargs as the name
+#  of the original source for the specified example.
+#  
+    if (odict.has_key("-w")):
+      pargs[i] = os.path.dirname(tmp_file_name) + "/" + \
+                    os.path.splitext(os.path.basename(tmp_file_name))[0]
+    cmd = "python " + pargs[i] + ".py"
+#
+#  Execute python.
+#
+    os.system(cmd)
+#
+#  Close the temporary file if a -w option was specified.
+#
+    if (odict.has_key("-w")):
+      tmp_file.close()
