@@ -16,7 +16,8 @@ from Scientific.IO.NetCDF import *
 #
 #  Open a netCDF file containing the Chesapeake Bay data.
 #
-cfile = NetCDFFile("../../users/dbrown/hswm_d000000p000.g2.nc","r")
+dirc  = ncargpath("data")
+cfile = NetCDFFile(dirc + "/cdf/hswm_d000000p000.g2.nc","r")
 
 #
 #  Read the lat/lon/ele/depth arrays to Numeric arrays.
