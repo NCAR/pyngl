@@ -33,7 +33,7 @@ ps  = Numeric.ravel(cfile.variables["ps"][0,:,:])
 rlist            = Ngl.Resources()
 rlist.wkColorMap = "BlAqGrYeOrReVi200"
 
-wks_type = "x11"
+wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"seam",rlist)
 
 #
