@@ -119,7 +119,6 @@ for j in xrange(len(x)):
   data.append((x[j],y[j]))
 params = [0.,0.,1.e-7]
 a = polynomialLeastSquaresFit(params, data)
-print a
 
 #
 #  Draw the least squares quadratic curve.
