@@ -34,13 +34,13 @@ def addcyclic(data,coord_array):
   mx   = dims[1]
   mx1  = mx+1
 
-  newdata  = Numeric.zeros((ny,mx1),Numeric.Float0)
-  newcoord = Numeric.zeros((mx1),Numeric.Float0)
+  newdata  = Numeric.zeros((ny,mx1),MA.Float0)
+  newcoord = Numeric.zeros((mx1),MA.Float0)
 
   newdata[:,0:mx] = data
   newdata[:,mx]   = data[:,0]
-  newcoord[0:mx] = coord_array
-  newcoord[mx] = coord_array[0]+360.
+  newcoord[0:mx]  = coord_array
+  newcoord[mx]    = coord_array[0]+360.
 
   return newdata,newcoord
 
@@ -74,7 +74,7 @@ nhlon    = fice.shape[2]
 nmo    = 0
 month  = nmo+1
 
-icemon = MA.zeros((nhlat,nhlon),Numeric.Float0)
+icemon = MA.zeros((nhlat,nhlon),MA.Float0)
 for i in xrange(fice_masked.shape[0]):
   for j in xrange(fice_masked.shape[1]):
     icemon[i,j] = MA.average(fice_masked[i,j,0:ntime:12])
@@ -100,7 +100,7 @@ cmap = Numeric.array([                                         \
          [1.00,0.50,1.00], [0.00,0.50,0.00], [0.50,0.50,1.00], \
          [1.00,0.00,0.50], [0.50,0.50,0.00], [0.00,0.50,0.50], \
          [1.00,0.50,0.50], [0.00,1.00,0.50], [0.50,0.50,0.50], \
-         [0.625,0.625,0.625] ],Numeric.Float0)
+         [0.625,0.625,0.625] ],MA.Float0)
 
 rlist = Resources()
 rlist.wkColorMap = cmap
