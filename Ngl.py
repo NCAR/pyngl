@@ -280,6 +280,37 @@ def set_spc_res(resource_name,value):
   else:
     print "set_spc_res: Unknown special resource " + resource_name
 
+def check_res_value(resvalue,strvalue,intvalue):
+#
+#  Function for checking a resource value that can either be of
+#  type string or integer.
+#
+  if( (type(resvalue) == types.StringType and \
+     string.lower(resvalue) == string.lower(strvalue)) or \
+     (type(resvalue) == types.IntType and resvalue == intvalue)):
+    return(True)
+  else:
+    return(False)
+
+def set_labelbar_res(reslist,reslist1):
+#
+# Set some labelbar resources of which we don't like the NCL
+# defaults.
+# 
+  if ( not (reslist.has_key("lbPerimOn"))):
+    reslist1["lbPerimOn"] = False
+  if ( not (reslist.has_key("lbLabelAutoStride"))):
+    reslist1["lbLabelAutoStride"] = True
+  if(reslist.has_key("lbLabelFontHeightF")):
+    if ( not (reslist.has_key("lbAutoManage"))):
+      reslist1["lbAutoManage"] = False
+  if(reslist.has_key("lbOrientation")):
+    if ( not (reslist.has_key("pmLabelBarSide"))):
+      if(check_res_value(reslist["lbOrientation"],"Horizontal",0)):
+        reslist1["pmLabelBarSide"] = "Bottom"
+      if(check_res_value(reslist["lbOrientation"],"Vertical",1)):
+        reslist1["pmLabelBarSide"] = "Right"
+
 def change_workstation(obj,wks):
   return NhlChangeWorkstation(int_id(obj),wks)
 
@@ -580,33 +611,33 @@ def panel(wks,plots,dims,rlistc=None):
         set_spc_res(key[3:],rlist[key])
         set_spc_res("PanelFigureStringsCount",len(rlist[key]))
       elif (key[0:25] == "nglPanelFigureStringsJust"):
-        if(rlist[key] == "TopLeft"):
+        if(check_res_value(rlist[key],"TopLeft",0)):
           set_spc_res(key[3:],0)
-        elif(rlist[key] == "CenterLeft"): 
+        elif(check_res_value(rlist[key],"CenterLeft",1)): 
           set_spc_res(key[3:],1)
-        elif(rlist[key] == "BottomLeft"): 
+        elif(check_res_value(rlist[key],"BottomLeft",2)): 
           set_spc_res(key[3:],2)
-        elif(rlist[key] == "TopCenter"): 
+        elif(check_res_value(rlist[key],"TopCenter",3)): 
           set_spc_res(key[3:],3)
-        elif(rlist[key] == "CenterCenter"): 
+        elif(check_res_value(rlist[key],"CenterCenter",4)): 
           set_spc_res(key[3:],4)
-        elif(rlist[key] == "BottomCenter"): 
+        elif(check_res_value(rlist[key],"BottomCenter",5)): 
           set_spc_res(key[3:],5)
-        elif(rlist[key] == "TopRight"):
+        elif(check_res_value(rlist[key],"TopRight",6)):
           set_spc_res(key[3:],6)
-        elif(rlist[key] == "CenterRight"): 
+        elif(check_res_value(rlist[key],"CenterRight",7)): 
           set_spc_res(key[3:],7)
-        elif(rlist[key] == "BottomRight"): 
+        elif(check_res_value(rlist[key],"BottomRight",8)): 
           set_spc_res(key[3:],8)
       else:
         set_spc_res(key[3:],rlist[key])
     elif (key[0:2] == "lb"):
       if (key == "lbLabelAlignment"):
-        if (rlist[key] == "BoxCenters"):
+        if (check_res_value(rlist[key],"BoxCenters",0)):
           set_spc_res("PanelLabelBarAlignment",0)
-        elif (rlist[key] == "InteriorEdges"):
+        elif (check_res_value(rlist[key],"InteriorEdges",1)):
           set_spc_res("PanelLabelBarAlignment",1)
-        elif (rlist[key] == "ExternalEdges"):
+        elif (check_res_value(rlist[key],"ExternalEdges",2)):
           set_spc_res("PanelLabelBarAlignment",2)
         else:
           set_spc_res("PanelLabelBarAlignment",rlist[key])
@@ -627,9 +658,9 @@ def panel(wks,plots,dims,rlistc=None):
       elif (key == "lbLabelFontHeightF"):
         set_spc_res("PanelLabelBarFontHeightF",rlist[key])
       elif (key == "lbOrientation"):
-        if (rlist[key] == "Vertical"):
+        if (check_res_value(rlist[key],"Vertical",1)):
           set_spc_res("PanelLabelBarOrientation",1)
-        elif (rlist[key] == "Horizontal"):
+        elif (check_res_value(rlist[key],"Horizontal",0)):
           set_spc_res("PanelLabelBarOrientation",0)
         else:
           set_spc_res("PanelLabelBarOrientation",rlist[key])
@@ -649,6 +680,12 @@ def map(wks,rlistc=None):
       set_spc_res(key[3:],rlist[key])      
     else:
       rlist1[key] = rlist[key]
+#
+# Turn on map tickmarks.
+#
+  if ( not (rlist.has_key("pmTickMarkDisplayMode"))):
+      rlist1["pmTickMarkDisplayMode"] = "Always"
+
   imp = map_wrap(wks,rlist1,pvoid())
   del rlist
   del rlist1
@@ -722,24 +759,21 @@ def contour_map(wks,array,rlistc=None):
   rlist = crt_dict(rlistc)  
  
 #  Separate the resource dictionary into those resources
-#  that apply to ScalarField and those that apply to
-#  ContourPlot.
+#  that apply to ScalarField, MapPlot, and ContourPlot.
 #
   rlist1 = {}
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
 #
-#  Turn label bars on if "cnFillOn" is set and pmLabelBarDisplayMode
+#  Turn labelbar on if "cnFillOn" is set and pmLabelBarDisplayMode
 #  is not in the resource list.
 #
     if(key[0:8] == "cnFillOn" and rlist[key] > 0):
-      if ( not (rlist.has_key("pmLabelBarDisplayMode"))):
-        rlist3["pmLabelBarDisplayMode"] = "Always"
       if ( not (rlist.has_key("cnInfoLabelOn"))):
         rlist3["cnInfoLabelOn"] = False
-      if ( not (rlist.has_key("lbPerimOn"))):
-        rlist3["lbPerimOn"] = 0
+      if ( not (rlist.has_key("pmLabelBarDisplayMode"))):
+        rlist3["pmLabelBarDisplayMode"] = "Always"
     if (key[0:2] == "sf"):
       rlist1[key] = rlist[key]
     elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
@@ -749,7 +783,15 @@ def contour_map(wks,array,rlistc=None):
       set_spc_res(key[3:],rlist[key])      
     else:
       rlist3[key] = rlist[key]
-    
+
+#
+# Turn on map tickmarks.
+#
+  if ( not (rlist.has_key("pmTickMarkDisplayMode"))):
+      rlist2["pmTickMarkDisplayMode"] = "Always"
+
+  set_labelbar_res(rlist,rlist3)      # Set some labelbar resources
+
 #
 #  Call the wrapped function and return.
 #
@@ -798,14 +840,14 @@ def contour(wks,array,rlistc=None):
         rlist2["pmLabelBarDisplayMode"] = "Always"
       if ( not (rlist.has_key("cnInfoLabelOn"))):
         rlist2["cnInfoLabelOn"] = False
-      if ( not (rlist.has_key("lbPerimOn"))):
-        rlist2["lbPerimOn"] = 0
     if (key[0:2] == "sf"):
       rlist1[key] = rlist[key]
     elif(key[0:3] == "ngl"):
       set_spc_res(key[3:],rlist[key])      
     else:
       rlist2[key] = rlist[key]
+
+  set_labelbar_res(rlist,rlist2)      # Set some labelbar resources
     
 #
 #  Call the wrapped function and return.
@@ -923,8 +965,8 @@ def streamline(wks,uarray,varray,rlistc=None):
   rlist = crt_dict(rlistc)  
  
 #  Separate the resource dictionary into those resources
-#  that apply to ScalarField and those that apply to
-#  ContourPlot.
+#  that apply to VectorField and those that apply to
+#  StreamlinePlot.
 #
   rlist1 = {}
   rlist2 = {}
@@ -954,8 +996,7 @@ def streamline_map(wks,uarray,varray,rlistc=None):
   rlist = crt_dict(rlistc)  
  
 #  Separate the resource dictionary into those resources
-#  that apply to ScalarField and those that apply to
-#  ContourPlot.
+#  that apply to VectorField, MapPlot, and StreamlinePlot.
 #
   rlist1 = {}
   rlist2 = {}
@@ -970,6 +1011,12 @@ def streamline_map(wks,uarray,varray,rlistc=None):
       set_spc_res(key[3:],rlist[key])      
     else:
       rlist2[key] = rlist[key]
+
+#
+# Turn on map tickmarks.
+#
+  if ( not (rlist.has_key("pmTickMarkDisplayMode"))):
+      rlist3["pmTickMarkDisplayMode"] = "Always"
     
 #
 #  Call the wrapped function and return.
@@ -990,12 +1037,15 @@ def vector(wks,uarray,varray,rlistc=None):
   rlist = crt_dict(rlistc)  
  
 #  Separate the resource dictionary into those resources
-#  that apply to ScalarField and those that apply to
-#  ContourPlot.
+#  that apply to VectorField and those that apply to
+#  VectorPlot.
 #
   rlist1 = {}
   rlist2 = {}
   for key in rlist.keys():
+    if(key[0:20] == "vcMonoLineArrowColor" and rlist[key] == 0):
+      if ( not (rlist.has_key("pmLabelBarDisplayMode"))):
+        rlist2["pmLabelBarDisplayMode"] = "Always"
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:3] == "ngl"):
@@ -1003,6 +1053,8 @@ def vector(wks,uarray,varray,rlistc=None):
     else:
       rlist2[key] = rlist[key]
     
+  set_labelbar_res(rlist,rlist2)      # Set some labelbar resources
+
 #
 #  Call the wrapped function and return.
 #
@@ -1021,13 +1073,15 @@ def vector_map(wks,uarray,varray,rlistc=None):
   rlist = crt_dict(rlistc)  
  
 #  Separate the resource dictionary into those resources
-#  that apply to ScalarField and those that apply to
-#  ContourPlot.
+#  that apply to VectorField, MapPlot, and VectorPlot.
 #
   rlist1 = {}
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
+    if(key[0:20] == "vcMonoLineArrowColor" and rlist[key] == 0):
+      if ( not (rlist.has_key("pmLabelBarDisplayMode"))):
+        rlist2["pmLabelBarDisplayMode"] = "Always"
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
@@ -1037,6 +1091,13 @@ def vector_map(wks,uarray,varray,rlistc=None):
       set_spc_res(key[3:],rlist[key])      
     else:
       rlist2[key] = rlist[key]
+#
+# Turn on map tickmarks.
+#
+  if ( not (rlist.has_key("pmTickMarkDisplayMode"))):
+      rlist3["pmTickMarkDisplayMode"] = "Always"
+
+  set_labelbar_res(rlist,rlist2)      # Set some labelbar resources
     
 #
 #  Call the wrapped function and return.
@@ -1058,13 +1119,15 @@ def vector_scalar(wks,uarray,varray,tarray,rlistc=None):
   rlist = crt_dict(rlistc)  
  
 #  Separate the resource dictionary into those resources
-#  that apply to ScalarField and those that apply to
-#  ContourPlot.
+#  that apply to VectorField, ScalarField, and VectorPlot.
 #
   rlist1 = {}
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
+    if(key[0:20] == "vcMonoLineArrowColor" and rlist[key] == 0):
+      if ( not (rlist.has_key("pmLabelBarDisplayMode"))):
+        rlist3["pmLabelBarDisplayMode"] = "Always"
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:2] == "sf"):
@@ -1074,6 +1137,8 @@ def vector_scalar(wks,uarray,varray,tarray,rlistc=None):
     else:
       rlist3[key] = rlist[key]
     
+  set_labelbar_res(rlist,rlist3)      # Set some labelbar resources
+
 #
 #  Call the wrapped function and return.
 #
@@ -1095,14 +1160,17 @@ def vector_scalar_map(wks,uarray,varray,tarray,rlistc=None):
   rlist = crt_dict(rlistc)  
  
 #  Separate the resource dictionary into those resources
-#  that apply to ScalarField and those that apply to
-#  ContourPlot.
+#  that apply to VectorField, ScalarField, MapPlot, and 
+#  VectorPlot.
 #
   rlist1 = {}
   rlist2 = {}
   rlist3 = {}
   rlist4 = {}
   for key in rlist.keys():
+    if(key[0:20] == "vcMonoLineArrowColor" and rlist[key] == 0):
+      if ( not (rlist.has_key("pmLabelBarDisplayMode"))):
+        rlist3["pmLabelBarDisplayMode"] = "Always"
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:2] == "sf"):
@@ -1115,6 +1183,14 @@ def vector_scalar_map(wks,uarray,varray,tarray,rlistc=None):
     else:
       rlist3[key] = rlist[key]
     
+#
+# Turn on map tickmarks.
+#
+  if ( not (rlist.has_key("pmTickMarkDisplayMode"))):
+    rlist4["pmTickMarkDisplayMode"] = "Always"
+
+  set_labelbar_res(rlist,rlist3)      # Set some labelbar resources
+
 #
 #  Call the wrapped function and return.
 #
