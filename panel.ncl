@@ -58,7 +58,7 @@ begin
   t = c->t
   t = (t-273.15)*(9./5.) + 32.
 
-  wks = gsn_open_wks("ncgm","panel2")
+  wks = gsn_open_wks("ps","panel2")
 
 ;
 ; Set some contour/vector common resources.
@@ -152,7 +152,6 @@ begin
   pnlres@lbOrientation  = "Vertical"
   gsn_panel(wks, varray(0:nplots-1), panel_dims, pnlres)
 
-  pnlres@pmLabelBarOrthogonalPosF = 0.02;
   gsn_panel(wks, varray(0:nplots-1), panel_dims, pnlres)
 
   pnlres@lbLabelStride = 2

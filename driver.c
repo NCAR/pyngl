@@ -6,7 +6,6 @@
 #define NCOLORS 17
 #define min(x,y) ((x) < (y) ? (x) : (y))
 #define max(x,y) ((x) > (y) ? (x) : (y))
-#define NG  5
 
 #define NCOLORMAPS 68
 
@@ -40,36 +39,51 @@ char *colormaps[NCOLORMAPS] = { \
  * purposes.
  */
 
-double xmark1[6] = {0.32,0.33,0.34,0.35,0.36,0.37};
-float  ymark1[6] = {0.15,0.15,0.15,0.15,0.15,0.15};
-float  xmark2[3] = {0.36,0.35,0.34};
-double ymark2[3] = {0.16,0.17,0.18};
-float  xmark3[3] = {0.33,0.32,0.31};
-float  ymark3[3] = {0.17,0.16,0.15};
+#define NMARK1 8
+#define NMARK2 4
+#define NMARK3 3
+double xmark1[NMARK1] = {-999.,0.32,0.33,0.34,0.35,0.36,-999.,0.37};
+float  ymark1[NMARK1] = {   0.,0.15,0.15,0.15,0.15,0.15, -99.,0.15};
+float  xmark2[NMARK2] = {0.36,0.35,0.34,   0.};
+double ymark2[NMARK2] = {0.16,0.17,0.18,-999.};
+float  xmark3[NMARK3] = {0.33,0.32,0.31};
+float  ymark3[NMARK3] = {0.17,0.16,0.15};
 
-float xline1[2]  = {0.01,0.99};
-float yline1[2]  = {0.05,0.05};
-float xline2[5]  = { 6, 15, 15, 6, 6 };
-float yline2[5]  = { 271.5, 271.5, 273.1, 273.1, 271.5 };
+#define NLINE1 11
+#define NLINE2 15
+float xline1[NLINE1]  = {-9.,  0.01, 0.33, -9., 0.50, -1., -9., 0.60, -9., 
+                         0.80, 0.99};
+float yline1[NLINE1]  = {-8.,  0.05, 0.05, -8., 0.05, -8.,  0., 0.05, -8.,
+                         0.05, 0.05};
+float xline2[NLINE2]  = {   6.0,  15.0,  15.0,    0.0,  15.0,    0.0,  15.0,
+                           15.0,   6.0,   6.0,    0.0,   6.0,    0.0,   6.0,
+                            6.0 };
+float yline2[NLINE2]  = { 271.5, 271.5, 272.3, -999.0, 272.4, -999.0, 272.5,
+                          273.1, 273.1, 271.9, -999.0, 271.8, -999.0, 271.7, 
+                          271.5 };
 
+#define NGON 7
 
-float xgon[NG] = {0.80,0.90,0.90,0.80,0.80};
-float ygon[NG] = {0.05,0.05,0.10,0.10,0.05};
-float ygon2[NG] = {0.75,0.75,0.80,0.80,0.75};
+float xgon[NGON]  = {-999., 0.80, 0.90, 0.90, -999., 0.80, 0.80};
+float ygon[NGON]  = {   0., 0.05, 0.05, 0.10, -999., 0.10, 0.05};
+float ygon2[NGON] = {   0.,  0.75, 0.75, 0.80,    0., 0.80, 0.75};
 
-float mapxgon[NG] = {-120, -65, -65, -120, -120};
-float mapygon[NG] = {  60,  60,  59,   59 ,  60};
+#define NMAPGON  5
+float mapxgon[NMAPGON] = {-120, -65, -65, -120, -120};
+float mapygon[NMAPGON] = {  60,  60,  59,   59 ,  60};
 
-float mapxline[18] = {-999, -110,   -75, -999, -115,  -70,
-                      -999, -120,   -65, -999, -125,  -60,
-                      -999, -130,   -55, -999, -135,  -50};
+#define NMAPLINE 18
+float mapxline[NMAPLINE] = {-999, -110,   -75, -999, -115,  -70,
+                            -999, -120,   -65, -999, -125,  -60,
+                            -999, -130,   -55, -999, -135,  -50};
 
-float mapyline[18] = {-999,   50,    50, -999,   45,   45,
-                      -999,   40,    40, -999,   35,   35,
-                      -999,   30,    30, -999,   25,   25};
+float mapyline[NMAPLINE] = {-999,   50,    50, -999,   45,   45,
+                            -999,   40,    40, -999,   35,   35,
+                            -999,   30,    30, -999,   25,   25};
 
-int latgon[5] = {  20,  60,  60,  20,  20};
-int longon[5] = {-125,-125, -65, -65, -125};
+#define NLGON 5
+int latgon[NLGON] = {  20,  60,  60,  20,  20};
+int longon[NLGON] = {-125,-125, -65, -65, -125};
 
 main()
 {
@@ -261,7 +275,7 @@ main()
 
   case NC_DOUBLE:
     strcpy(type_T,"double");
-    T      = (double *)malloc(nlat_T*sizeof(double));
+    T      = (double *)malloc(nlon_T*nlat_T*sizeof(double));
 
     nc_get_vara_double(ncid_T,id_T,start,count,(double*)T);
 
@@ -753,74 +767,10 @@ main()
  *
  *----------------------------------------------------------------------*/
 /*
- * Initialize special resources.  For the plotting routines, draw, frame,
- * and maximize default to True (1).  For primitive and text routines,
- * only draw defaults to True.
+ * Initialize special resources.
  */
-  special_res.nglDraw     = 1;
-  special_res.nglFrame    = 1;
-  special_res.nglMaximize = 1;
-  special_res.nglScale    = 0;
-  special_res.nglDebug    = 0;
-
-  special_res.nglSpreadColors     = 0;
-  special_res.nglSpreadColorStart = 2;
-  special_res.nglSpreadColorEnd   = -1;
-
-/*
- * Special resources for paneling. These are the default values.
- */
-  special_res.nglPanelSave               = 0;
-  special_res.nglPanelCenter             = 1;
-  special_res.nglPanelRowSpec            = 0;
-  special_res.nglPanelXWhiteSpacePercent = 1.;
-  special_res.nglPanelYWhiteSpacePercent = 1.;
-  special_res.nglPanelBoxes              = 0;
-  special_res.nglPanelLeft               = 0.;
-  special_res.nglPanelRight              = 1.;
-  special_res.nglPanelBottom             = 0.;
-  special_res.nglPanelTop                = 1.;
-  special_res.nglPanelInvsblTop          = -999;
-  special_res.nglPanelInvsblLeft         = -999;
-  special_res.nglPanelInvsblRight        = -999;
-  special_res.nglPanelInvsblBottom       = -999;
-
-/*
- * Paper orientation: -1 is auto, 0 is portrait, and 6 is landscape.
- */
-  special_res.nglPaperOrientation = -1;
-  special_res.nglPaperWidth       =  8.5;
-  special_res.nglPaperHeight      = 11.0;
-  special_res.nglPaperMargin      =  0.5;
-
-  special_pres.nglDraw    = 1;
-  special_pres.nglFrame   = 0;
-  special_pres.nglMaximize= 0;
-  special_pres.nglDebug   = 0;
-
-/*
- * Special resources for paneling. These are the default values.
- */
-  special_pres.nglPanelSave               = 0;
-  special_pres.nglDebug                   = 0;
-  special_pres.nglPanelCenter             = 1;
-  special_pres.nglPanelRowSpec            = 0;
-  special_pres.nglPanelXWhiteSpacePercent = 1.;
-  special_pres.nglPanelYWhiteSpacePercent = 1.;
-  special_pres.nglPanelBoxes              = 0;
-  special_pres.nglPanelLeft               = 0.;
-  special_pres.nglPanelRight              = 1.;
-  special_pres.nglPanelBottom             = 0.;
-  special_pres.nglPanelTop                = 1.;
-  special_pres.nglPanelInvsblTop          = -999;
-  special_pres.nglPanelInvsblLeft         = -999;
-  special_pres.nglPanelInvsblRight        = -999;
-  special_pres.nglPanelInvsblBottom       = -999;
-
-  special_pres.nglPaperOrientation = -1;
-  special_pres.nglPaperWidth       =  8.5;
-  special_pres.nglPaperHeight      = 11.0;
-  special_pres.nglPaperMargin      =  0.5;
+  initialize_resources(&special_res, nglPlot);
+  initialize_resources(&special_pres,nglPrimitive);
 
 /*
  * Initialize which plots to draw.
@@ -836,8 +786,8 @@ main()
   do_contour_map       = 1;
   do_contour_map2      = 1;
   do_vector_map        = 1;
-  do_streamline_map    = 1;
   do_vector_scalar     = 1;
+  do_streamline_map    = 1;
   do_vector_scalar_map = 1;
 
 /*
@@ -866,7 +816,7 @@ main()
  */
 
   wk_rlist = NhlRLCreate(NhlSETRL);
-  wks = ngl_open_wks_wrap("pdf","driver", wk_rlist);
+  wks = ngl_open_wks_wrap("ps","driver", wk_rlist);
 
 /* 
  * Set color map resource and open workstation.
@@ -967,7 +917,7 @@ main()
     NhlRLSetFloat  (gs_rlist,"gsEdgeThicknessF", 3.0);
     NhlRLSetString (gs_rlist,"gsEdgeColor"     , "Salmon");
     ngl_polygon_ndc_wrap(wks, (void *)xgon, (void *)ygon, "float", "float", 
-                         NG, 0, 0, NULL, NULL, gs_rlist, &special_pres);
+                         NGON, 1, 1, &xmsg, &ymsg, gs_rlist, &special_pres);
 
 /*
  * Create and draw contour plot, and advance frame.
@@ -977,7 +927,7 @@ main()
                                is_lon_coord_T, lon_T, type_lon_T, 
                                is_missing_T, FillValue_T, sf_rlist, cn_rlist,
                                &special_res);
-  }
+ }
 
 /*
  * ngl_y section
@@ -1020,7 +970,7 @@ main()
     NhlRLSetString (gs_rlist,"gsLineColor",       "red");
     NhlRLSetInteger(gs_rlist,"gsLineDashPattern", 11);
     ngl_polyline_wrap(wks, &xy, (void *)xline2, (void *)yline2, "float",
-                      "float", 5, 0, 0, NULL, NULL, 
+                      "float", NLINE2, 0, 1, NULL, &xmsg, 
                       gs_rlist, &special_pres);
 
     NhlFrame(wks);
@@ -1249,6 +1199,7 @@ main()
     NhlRLSetString      (cn2_rlist, "lbPerimOn",             "False");
     NhlRLSetString      (cn2_rlist, "pmLabelBarSide",        "Bottom");
 
+    NhlRLSetString      (mp2_rlist, "pmTickMarkDisplayMode", "ALWAYS");
     NhlRLSetString      (mp2_rlist, "mpFillOn",              "True");
     NhlRLSetIntegerArray(mp2_rlist, "mpFillColors",          mpcolors,4);
     NhlRLSetString      (mp2_rlist, "mpFillDrawOrder",       "PostDraw");
@@ -1291,9 +1242,6 @@ main()
 /*
  * Set up some resources.
  */
-    NhlRLSetString(cn_rlist,"tiXAxisString" , ":F25:longitude");
-    NhlRLSetString(cn_rlist,"tiYAxisString" , ":F25:latitude");
-
     NhlRLSetString(cn_rlist,"cnFillOn"              , "True");
     NhlRLSetString(cn_rlist,"cnLineLabelsOn"        , "False");
     NhlRLSetString(cn_rlist,"cnInfoLabelOn"         , "False");
@@ -1318,10 +1266,11 @@ main()
 
     NhlRLSetString(cn_rlist,"tiMainString" , ":F26:January 1996 storm");
 
-    NhlRLSetFloat(mp_rlist,"vpXF"      , 0.1);
-    NhlRLSetFloat(mp_rlist,"vpYF"      , 0.9);
-    NhlRLSetFloat(mp_rlist,"vpWidthF"  , 0.7);
-    NhlRLSetFloat(mp_rlist,"vpHeightF" , 0.7);
+    NhlRLSetString(mp_rlist, "pmTickMarkDisplayMode", "ALWAYS");
+    NhlRLSetFloat(mp_rlist,"vpXF"      , 0.09);
+    NhlRLSetFloat(mp_rlist,"vpYF"      , 0.80);
+    NhlRLSetFloat(mp_rlist,"vpWidthF"  , 0.65);
+    NhlRLSetFloat(mp_rlist,"vpHeightF" , 0.50);
 
     special_res.nglMaximize = 0;
     special_res.nglScale    = 1;
@@ -1342,10 +1291,10 @@ main()
  */
 
     NhlRLClear (tx_rlist);
-    NhlRLSetFloat(tx_rlist,"txFontHeightF" , 0.025);
+    NhlRLSetFloat(tx_rlist,"txFontHeightF" , 0.02);
     NhlRLSetInteger(tx_rlist,"txFontColor"   , 4);
-    xf = 0.45;
-    yf = 0.25;
+    xf = 0.9;
+    yf = 0.35;
     text = ngl_text_ndc_wrap(wks,":F25:Pressure (mb)",&xf,&yf,"float",
                              "float", tx_rlist,&special_pres);
     
@@ -1421,17 +1370,17 @@ main()
     NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 10.5);
     NhlRLSetString (gs_rlist,"gsMarkerColor", "red");
     ngl_polymarker_ndc_wrap(wks, (void *)xmark1, (void *)ymark1, "double",
-                            "float", 6, 0, 0, NULL, NULL, gs_rlist,
+                            "float", NMARK1, 1, 0, &xmsg, NULL, gs_rlist,
                             &special_pres);
 
     NhlRLSetString (gs_rlist,"gsMarkerColor", "green");
     ngl_polymarker_ndc_wrap(wks, (void *)xmark2, (void *)ymark2, "float", 
-                            "double", 3, 0, 0, NULL, NULL, gs_rlist, 
+                            "double", NMARK2, 0, 1, NULL, &ymsg, gs_rlist, 
                             &special_pres);
 
     NhlRLSetString (gs_rlist,"gsMarkerColor", "blue");
     ngl_polymarker_ndc_wrap(wks, (void *)xmark3, (void *)ymark3, "float",
-                            "float", 3, 0, 0, NULL, NULL, gs_rlist,
+                            "float", NMARK3, 0, 0, NULL, NULL, gs_rlist,
                             &special_pres);
 
     NhlFrame(wks);
@@ -1488,6 +1437,7 @@ main()
                     "GeophysicalAndUSStates");
     
     special_res.nglFrame = 0;
+
     vctrmap = ngl_vector_map_wrap(wks, U, V, type_U, type_V, nlat_UV, 
                                   nlon_UV, is_lat_coord_UV, lat_UV, 
                                   type_lat_UV, is_lon_coord_UV, lon_UV,
@@ -1502,12 +1452,16 @@ main()
  * Draw a polyline before we draw the plot.
  */
 
+    xmsg = -9.;
+    ymsg = -8.;
     NhlRLClear(gs_rlist);
     NhlRLSetString (gs_rlist,"gsLineColor"     , "red");
     NhlRLSetFloat  (gs_rlist,"gsLineThicknessF", 2.5);
-    ngl_polyline_ndc_wrap(wks, (void *)xline1, (void *)yline2, "float",
-                          "float", 2, 0, 0, NULL, NULL, gs_rlist,
+    ngl_polyline_ndc_wrap(wks, (void *)xline1, (void *)yline1, "float",
+                          "float", NLINE1, 1, 1, &xmsg, &ymsg, gs_rlist,
                           &special_pres);
+
+    xmsg = ymsg = -999;
 
 /*
  * Set some text resources and draw a text string.
@@ -1567,20 +1521,20 @@ main()
                                         nlon_UV, is_lat_coord_UV, lat_UV, 
                                         type_lat_UV, is_lon_coord_UV, lon_UV,
                                         type_lon_UV, is_missing_U, 
-                                        is_missing_V, FillValue_U, FillValue_V,
-                                        vf_rlist, st_rlist, mp2_rlist, 
-                                        &special_res);
+                                        is_missing_V, FillValue_U,
+                                        FillValue_V, vf_rlist, st_rlist,
+                                        mp2_rlist, &special_res);
 
     NhlRLClear(gs_rlist);
     NhlRLSetString (gs_rlist,"gsLineColor",      "Brown");
     NhlRLSetFloat  (gs_rlist,"gsLineThicknessF", 3.0);
 
 /*
- * Draw the "Christmas" tree polylines first, then draw the streamline
+ * Draw the polylines first, then draw the streamline
  * plot. The rest of the primitives will be drawn on top.
  */
     ngl_polyline_wrap(wks, &strmlnmap, (void *)mapxline, (void *)mapyline, 
-                     "float", "float", 18, 1, 1, &xmsg, &ymsg,
+                     "float", "float", NMAPLINE, 1, 1, &xmsg, &ymsg,
                      gs_rlist, &special_pres);
 
     NhlDraw(*(strmlnmap.base));
@@ -1608,26 +1562,29 @@ main()
  */
 
     NhlRLClear(gs_rlist);
-    NhlRLSetString (gs_rlist,"gsFillColor", "orange");
+    NhlRLSetString (gs_rlist,"gsFillColor", "turquoise");
     ngl_polygon_ndc_wrap(wks, (void *)xgon, (void *)ygon2, "float", "float",
-                         NG, 0, 0, NULL, NULL, gs_rlist, &special_pres);
+                         NGON, 1, 0, &xmsg, NULL, gs_rlist, &special_pres);
 
     NhlRLClear(gs_rlist);
     NhlRLSetString (gs_rlist,"gsMarkerColor", "red");
+    NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF",  8.2);
+    NhlRLSetInteger(gs_rlist,"gsMarkerIndex",   10);
+
     ngl_polymarker_ndc_wrap(wks, (void *)xgon, (void *)ygon2, "float",
-                            "float", NG, 0, 0, NULL, NULL, gs_rlist,
+                            "float", NGON, 1, 0, &xmsg, NULL, gs_rlist,
                             &special_pres);
 
     NhlRLClear(gs_rlist);
     NhlRLSetString (gs_rlist,"gsLineColor", "Blue");
     ngl_polyline_ndc_wrap(wks, (void *)xgon, (void *)ygon2, "float", 
-                          "float", NG, 0, 0, NULL, NULL, gs_rlist,
+                          "float", NGON, 1, 0, &xmsg, NULL, gs_rlist,
                           &special_pres);
 
     NhlRLClear(gs_rlist);
     NhlRLSetString (gs_rlist,"gsFillColor", "Red");
     ngl_polygon_wrap(wks, &strmlnmap, (void *)mapxgon, (void *)mapygon, 
-                     "float", "float", NG, 0, 0, NULL, NULL, gs_rlist,
+                     "float", "float", NMAPGON, 0, 0, NULL, NULL, gs_rlist,
                      &special_pres);
 
 
@@ -1709,12 +1666,12 @@ main()
     NhlRLClear(gs_rlist);
     NhlRLSetInteger (gs_rlist,"gsFillIndex", 17);
     i1 = ngl_add_polygon_wrap(wks, &vctrmap, (void *)longon, 
-                              (void *)latgon, "integer", "integer", 5, 0, 0,
-                              NULL, NULL, gs_rlist, &special_pres);
+                              (void *)latgon, "integer", "integer", NLGON,
+                              0, 0, NULL, NULL, gs_rlist, &special_pres);
     NhlRLSetInteger (gs_rlist,"gsLineThicknessF", 2.0);
     i2 = ngl_add_polyline_wrap(wks, &vctrmap, (void *)longon,
-                               (void *)latgon, "integer", "integer", 5, 0,
-                               0, NULL, NULL, gs_rlist, &special_pres);
+                               (void *)latgon, "integer", "integer", NLGON,
+                               0, 0, NULL, NULL, gs_rlist, &special_pres);
 
 /*
  * Mark the four corners of the polygon with polymarkers.
@@ -1722,8 +1679,9 @@ main()
     NhlRLSetInteger(gs_rlist,"gsMarkerIndex", 16);
     NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 10.5);
     i3 = ngl_add_polymarker_wrap(wks, &vctrmap, (void *)longon, 
-                                 (void *)latgon, "integer", "integer", 4, 0,
-                                 0, NULL, NULL, gs_rlist,&special_pres);
+                                 (void *)latgon, "integer", "integer",
+                                 NLGON, 0, 0, NULL, NULL, gs_rlist,
+                                 &special_pres);
 
 /*
  * Label two corners of the polygon with text.
@@ -1777,8 +1735,8 @@ main()
     NhlFrame(wks);
 
 /* 
- * Change viewport coordinates to show how some text gets resized, and
- * some doesn't.
+ * Change viewport coordinates to show how the text attached with ngl_add_text
+ * gets resized, and how the text drawn with ngl_text doesn't show up at all.
  */ 
     srlist = NhlRLCreate(NhlSETRL);
     NhlRLClear(srlist);
@@ -1789,6 +1747,8 @@ main()
 
     NhlSetValues(*(vctrmap.base),srlist);
 
+    NhlDraw(*(vctrmap.base));
+    NhlFrame(wks);
   }
 /*
  * NhlDestroy destroys the given id and all of its children.

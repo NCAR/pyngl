@@ -8,8 +8,9 @@
 #define max(x,y) ((x) > (y) ? (x) : (y))
 #define NG  5
 
-void create_title(char *title, nglPlotId *parray, int nplots, int *panel_dims,
-                  int ndims, const char *extra_string, int row_spec)
+void create_title(char *title, nglPlotId *parray, int nplots,
+                  int *panel_dims, int ndims, const char *extra_string,
+                  int row_spec)
 {
   int i, first_time;
   char title2[100];
@@ -58,11 +59,14 @@ main()
  */
 
   int wks;
-  nglPlotId text, *carray, *varray;
-  int wk_rlist, sf_rlist, vf_rlist, tx_rlist, cn_rlist, vc_rlist;
+  nglPlotId text, *carray;
+  nglPlotId *varray, *varray_f, *varray_l, *varray_c, *varray_s;
+  nglPlotId *varray_f_map, *varray_c_map, *varray_s_map;
+  int wk_rlist, sf_rlist, vf_rlist, tx_rlist, cn_rlist, mp_rlist;
+  int vc_rlist, vc_f_rlist, vc_l_rlist, vc_c_rlist, vc_s_rlist;
   int srlist, lb_rlist, cmap_len[2];
   float *xf, *yf, cmap[NCOLORS][3];
-  int nplots, panel_dims[2], first_time, *row_spec;
+  int max_plots, nplots, panel_dims[2], first_time, *row_spec;
   nglRes special_res, special_pres, special_tres;
   int vccolors[]  = {2,16,30,44,58,52,86,100,114,128,142,156,170};
 
@@ -102,7 +106,6 @@ main()
   nc_open(filename_T2,NC_NOWRITE,&ncid_T2);
   nc_open(filename_U, NC_NOWRITE,&ncid_U);
   nc_open(filename_V, NC_NOWRITE,&ncid_V);
-
 /*
  * Get the lat/lon/time dimension ids so we can retrieve their lengths.
  */
@@ -165,6 +168,13 @@ main()
   FillValue_U  = (float *)malloc(sizeof(float));
   FillValue_V  = (float *)malloc(sizeof(float));
 
+  if(T2 == NULL || U == NULL || V == NULL || lat_T2 == NULL || 
+     lon_T2 == NULL || time_T2 == NULL || FillValue_T2 == NULL || 
+     FillValue_U == NULL || FillValue_V == NULL) {
+    printf("Not enough memory for data variables.\n");
+    exit(0);
+  }
+
   nc_get_vara_float(ncid_T2, id_T2,     start, count, (float*)T2);
   nc_get_vara_float(ncid_U,  id_U,      start, count, (float*)U);
   nc_get_vara_float(ncid_V,  id_V,      start, count, (float*)V);
@@ -204,78 +214,11 @@ main()
  *
  *----------------------------------------------------------------------*/
 /*
- * Initialize special resources.  For the plotting routines, draw, frame,
- * and maximize default to True (1).  For primitive and text routines,
- * only draw defaults to True. For panel routines, draw and frame default
- * to True.
+ * Initialize special resources.
  */
-  special_res.nglDraw     = 1;
-  special_res.nglFrame    = 1;
-  special_res.nglMaximize = 1;
-  special_res.nglScale    = 0;
-  special_res.nglDebug    = 1;
-
-/*
- * Resources for fill colors.
- */
-  special_res.nglSpreadColors     =  1;
-  special_res.nglSpreadColorStart =  2;
-  special_res.nglSpreadColorEnd   = -1;
-
-  special_tres.nglDraw    = 1;
-  special_tres.nglFrame   = 0;
-  special_tres.nglMaximize= 0;
-  special_tres.nglDebug   = 0;
-
-/*
- * Paper orientation: -1 is auto, 0 is portrait, and 6 is landscape.
- */
-  special_pres.nglPaperOrientation = -1;
-  special_pres.nglPaperWidth       =  8.5;
-  special_pres.nglPaperHeight      = 11.0;
-  special_pres.nglPaperMargin      =  0.5;
-
-/*
- * Special resources for paneling. These are the default values.
- */
-  special_pres.nglPanelSave               = 0;
-  special_pres.nglDebug                   = 1;
-  special_pres.nglPanelCenter             = 1;
-  special_pres.nglPanelRowSpec            = 0;
-  special_pres.nglPanelXWhiteSpacePercent = 1.;
-  special_pres.nglPanelYWhiteSpacePercent = 1.;
-  special_pres.nglPanelBoxes              = 0;
-  special_pres.nglPanelLeft               = 0.;
-  special_pres.nglPanelRight              = 1.;
-  special_pres.nglPanelBottom             = 0.;
-  special_pres.nglPanelTop                = 1.;
-  special_pres.nglPanelInvsblTop          = -999;
-  special_pres.nglPanelInvsblLeft         = -999;
-  special_pres.nglPanelInvsblRight        = -999;
-  special_pres.nglPanelInvsblBottom       = -999;
-
-/*
- * Default settings for PanelLabelBar resources.
- */
-  special_pres.nglPanelLabelBar               = 0;  
-  special_pres.nglPanelLabelBarPerimOn        = 0; 
-  special_pres.nglPanelLabelBarAlignment      = NhlINTERIOREDGES;
-  special_pres.nglPanelLabelBarOrientation    = NhlHORIZONTAL;
-  special_pres.nglPanelLabelBarOrientation    = NhlHORIZONTAL;
-  special_pres.nglPanelLabelBarXF             = -999.;
-  special_pres.nglPanelLabelBarXF             = -999.;
-  special_pres.nglPanelLabelBarYF             = -999.;
-  special_pres.nglPanelLabelBarWidthF         = -999.;
-  special_pres.nglPanelLabelBarHeightF        = -999.;
-  special_pres.nglPanelLabelBarOrthogonalPosF = -999;
-  special_pres.nglPanelLabelBarParallelPosF   = -999;
-
-/*
- * This resource isn't recognized yet.
- */
-  special_pres.nglMaximize = 1;
-  special_pres.nglFrame    = 1;
-  special_pres.nglDraw     = 1;
+  initialize_resources(&special_res,  nglPlot);
+  initialize_resources(&special_tres, nglPrimitive);
+  initialize_resources(&special_pres, nglPlot);
     
 /*
  * Initialize color map for later.
@@ -303,7 +246,7 @@ main()
  */
 
   wk_rlist = NhlRLCreate(NhlSETRL);
-  wks = ngl_open_wks_wrap("x11","panel", wk_rlist);
+  wks = ngl_open_wks_wrap("ps","panel", wk_rlist);
 
 /*
  * Initialize and clear resource lists.
@@ -314,15 +257,26 @@ main()
   vf_rlist = NhlRLCreate(NhlSETRL);
   tx_rlist = NhlRLCreate(NhlSETRL);
   cn_rlist = NhlRLCreate(NhlSETRL);
-  vc_rlist = NhlRLCreate(NhlSETRL);
+  mp_rlist = NhlRLCreate(NhlSETRL);
   lb_rlist = NhlRLCreate(NhlSETRL);
+  vc_rlist        = NhlRLCreate(NhlSETRL);
+  vc_l_rlist   = NhlRLCreate(NhlSETRL);
+  vc_f_rlist   = NhlRLCreate(NhlSETRL);
+  vc_c_rlist  = NhlRLCreate(NhlSETRL);
+  vc_s_rlist = NhlRLCreate(NhlSETRL);
+
   NhlRLClear(srlist);
   NhlRLClear(sf_rlist);
   NhlRLClear(vf_rlist);
   NhlRLClear(tx_rlist);
   NhlRLClear(cn_rlist);
-  NhlRLClear(vc_rlist);
+  NhlRLClear(mp_rlist);
   NhlRLClear(lb_rlist);
+  NhlRLClear(vc_rlist);
+  NhlRLClear(vc_f_rlist);
+  NhlRLClear(vc_l_rlist);
+  NhlRLClear(vc_c_rlist);
+  NhlRLClear(vc_s_rlist);
 
 /*
  * Set some colormap resources.
@@ -333,7 +287,7 @@ main()
     NhlRLSetMDFloatArray(srlist,NhlNwkColorMap,&cmap[0][0],2,cmap_len);
   }
   else {
-    NhlRLSetString(srlist,"wkColorMap","rainbow");
+    NhlRLSetString(srlist,"wkColorMap","rainbow+gray");
   }
   (void)NhlSetValues(wks, srlist);
 
@@ -356,55 +310,190 @@ main()
   NhlRLSetFloat  (vc_rlist, "vcRefLengthF",         0.045);
   NhlRLSetFloat  (vc_rlist, "vcRefMagnitudeF",      20.0);
   NhlRLSetFloat  (vc_rlist, "vcMinMagnitudeF",      0.001);
-  NhlRLSetString (vc_rlist, "vcFillArrowsOn",       "True");
-  NhlRLSetString (vc_rlist, "vcMonoFillArrowFillColor", "False");
   NhlRLSetFloat  (vc_rlist, "vcMinFracLengthF",      0.33);
-  NhlRLSetString (vc_rlist, "pmLabelBarDisplayMode", "Never"); 
+
   NhlRLSetString (vc_rlist, "vcLevelSelectionMode",  "ManualLevels");
   NhlRLSetFloat  (vc_rlist, "vcLevelSpacingF", 2.0);
   NhlRLSetFloat  (vc_rlist, "vcMinLevelValF",  0.0);
   NhlRLSetFloat  (vc_rlist, "vcMaxLevelValF",  20.0);
 
+  NhlRLSetString (vc_rlist, "vcMonoLineArrowColor", "True");
+  NhlRLSetString (vc_rlist, "tiMainString", "Plain Vectors");
+
+  NhlRLSetFloat  (vc_f_rlist, "vcRefLengthF",         0.045);
+  NhlRLSetFloat  (vc_f_rlist, "vcRefMagnitudeF",      20.0);
+  NhlRLSetFloat  (vc_f_rlist, "vcMinMagnitudeF",      0.001);
+  NhlRLSetFloat  (vc_f_rlist, "vcMinFracLengthF",      0.33);
+
+  NhlRLSetString (vc_f_rlist, "vcLevelSelectionMode",  "ManualLevels");
+  NhlRLSetFloat  (vc_f_rlist, "vcLevelSpacingF", 2.0);
+  NhlRLSetFloat  (vc_f_rlist, "vcMinLevelValF",  0.0);
+  NhlRLSetFloat  (vc_f_rlist, "vcMaxLevelValF",  20.0);
+
+  NhlRLSetString (vc_f_rlist, "vcFillArrowsOn", "True");
+  NhlRLSetString (vc_f_rlist, "vcMonoFillArrowFillColor", "False");
+  NhlRLSetString (vc_f_rlist, "tiMainString", "Filled Vectors");
+
+  NhlRLSetFloat  (vc_l_rlist, "vcRefLengthF",         0.045);
+  NhlRLSetFloat  (vc_l_rlist, "vcRefMagnitudeF",      20.0);
+  NhlRLSetFloat  (vc_l_rlist, "vcMinMagnitudeF",      0.001);
+  NhlRLSetFloat  (vc_l_rlist, "vcMinFracLengthF",      0.33);
+  NhlRLSetString (vc_l_rlist, "pmLabelBarDisplayMode", "Never"); 
+
+  NhlRLSetString (vc_l_rlist, "vcLevelSelectionMode",  "ManualLevels");
+  NhlRLSetFloat  (vc_l_rlist, "vcLevelSpacingF", 2.0);
+  NhlRLSetFloat  (vc_l_rlist, "vcMinLevelValF",  0.0);
+  NhlRLSetFloat  (vc_l_rlist, "vcMaxLevelValF",  20.0);
+
+  NhlRLSetString (vc_l_rlist, "vcFillArrowsOn",       "False");
+  NhlRLSetString (vc_l_rlist, "vcMonoLineArrowColor", "False");
+  NhlRLSetString (vc_l_rlist, "tiMainString", "Line Vectors");
+
+  NhlRLSetFloat  (vc_c_rlist, "vcRefLengthF",         0.045);
+  NhlRLSetFloat  (vc_c_rlist, "vcRefMagnitudeF",      20.0);
+  NhlRLSetFloat  (vc_c_rlist, "vcMinMagnitudeF",      0.001);
+  NhlRLSetFloat  (vc_c_rlist, "vcMinFracLengthF",      0.33);
+  NhlRLSetString (vc_c_rlist, "pmLabelBarDisplayMode", "Never"); 
+
+  NhlRLSetString (vc_c_rlist, "vcLevelSelectionMode",  "ManualLevels");
+  NhlRLSetFloat  (vc_c_rlist, "vcLevelSpacingF", 2.0);
+  NhlRLSetFloat  (vc_c_rlist, "vcMinLevelValF",  0.0);
+  NhlRLSetFloat  (vc_c_rlist, "vcMaxLevelValF",  20.0);
+
+  NhlRLSetInteger(vc_c_rlist, "vcGlyphStyle", NhlCURLYVECTOR);
+  NhlRLSetString (vc_c_rlist, "vcMonoLineArrowColor", "False");
+  NhlRLSetString (vc_c_rlist, "tiMainString", "Curly Vectors");
+
+  NhlRLSetFloat  (vc_s_rlist, "vcRefLengthF",         0.045);
+  NhlRLSetFloat  (vc_s_rlist, "vcRefMagnitudeF",      20.0);
+  NhlRLSetFloat  (vc_s_rlist, "vcMinMagnitudeF",      0.001);
+  NhlRLSetFloat  (vc_s_rlist, "vcMinFracLengthF",      0.33);
+  NhlRLSetString (vc_s_rlist, "pmLabelBarDisplayMode", "Never"); 
+  NhlRLSetFloat  (vc_s_rlist, "vcRefAnnoOrthogonalPosF", -0.15);
+  NhlRLSetString (vc_s_rlist, "vcLevelSelectionMode",  "ManualLevels");
+  NhlRLSetFloat  (vc_s_rlist, "vcLevelSpacingF", 10.0);
+  NhlRLSetFloat  (vc_s_rlist, "vcMinLevelValF",   0.0);
+  NhlRLSetFloat  (vc_s_rlist, "vcMaxLevelValF",  80.0);
+
+  NhlRLSetInteger(vc_s_rlist, "vcGlyphStyle", NhlCURLYVECTOR);
+  NhlRLSetString (vc_s_rlist, "vcMonoLineArrowColor", "False");
+  NhlRLSetString (vc_s_rlist, "tiMainString", "Scalar Vectors");
+
+  NhlRLSetString (mp_rlist,"mpProjection"           , "Mercator");
+  NhlRLSetString (mp_rlist,"mpLimitMode"            , "LatLon");
+  NhlRLSetFloat  (mp_rlist,"mpMaxLatF"              ,  60.0);
+  NhlRLSetFloat  (mp_rlist,"mpMaxLonF"              , -62.);
+  NhlRLSetFloat  (mp_rlist,"mpMinLatF"              ,  18.0);
+  NhlRLSetFloat  (mp_rlist,"mpMinLonF"              , -128.);
+  NhlRLSetFloat  (mp_rlist,"mpCenterLatF"           ,   40.0);
+  NhlRLSetFloat  (mp_rlist,"mpCenterLonF"           , -100.0);
+  NhlRLSetString (mp_rlist,"mpFillOn"               , "True");
+  NhlRLSetInteger(mp_rlist,"mpInlandWaterFillColor" , -1);
+  NhlRLSetString (mp_rlist,"mpLandFillColor"        , "LightGray");
+  NhlRLSetInteger(mp_rlist,"mpOceanFillColor"       , -1);
+  NhlRLSetInteger(mp_rlist,"mpGridLineDashPattern"  , 2);
+  NhlRLSetString (mp_rlist,"mpGridMaskMode"         , "MaskNotOcean");
+  NhlRLSetString (mp_rlist,"mpOutlineOn"            , "False");
+  NhlRLSetString (mp_rlist,"mpPerimOn"              , "True");
+
 /*
  * Loop across time dimension and create a contour and vector plot for
- * each one. Then, we'll create several panel plots.
+ * each one. Then, we'll create several panel plots. We could potentially
+ * create ntime plots, but this is too time-consuming, so we are just
+ * going to create max_plots of them.
  */
+  max_plots     = 12;
+  
+  carray       = (nglPlotId*)malloc(max_plots*sizeof(nglPlotId));
+  varray       = (nglPlotId*)malloc(max_plots*sizeof(nglPlotId));
+  varray_f     = (nglPlotId*)malloc(max_plots*sizeof(nglPlotId));
+  varray_l     = (nglPlotId*)malloc(max_plots*sizeof(nglPlotId));
+  varray_c     = (nglPlotId*)malloc(max_plots*sizeof(nglPlotId));
+  varray_s     = (nglPlotId*)malloc(max_plots*sizeof(nglPlotId));
+  varray_s_map = (nglPlotId*)malloc(max_plots*sizeof(nglPlotId));
+
+  if( carray   == NULL || varray == NULL   || varray_f == NULL || 
+      varray_l == NULL || varray_c == NULL || varray_s == NULL ||
+     varray_s_map == NULL) {
+    printf("Not enough memory for plot ids.\n");
+    exit(0);
+  }
+
 /*
-  carray      = (nglPlotId*)malloc(ntime_T2*sizeof(nglPlotId));
-  varray      = (nglPlotId*)malloc(ntime_T2*sizeof(nglPlotId));
+ * Change some of the default special resources, since we don't want to
+ * draw each individual plot, and we also don't need to waste time
+ * maximizing its size.
  */
-
-  carray      = (nglPlotId*)malloc(17*sizeof(nglPlotId));
-  varray      = (nglPlotId*)malloc(17*sizeof(nglPlotId));
-
   special_res.nglMaximize = 0;
   special_res.nglFrame    = 0;
   special_res.nglDraw     = 0;
 
 /*
-  for(i = 0; i < ntime_T2; i++) { 
+ * Loop through the number of plots, and create a bunch of different
+ * kinds.
  */
-  for(i = 0; i < 17; i++) {
+  for(i = 0; i < max_plots; i++) {
     T2new = &((float*)T2)[nlatlon_T2*i];
     Unew  = &((float*)U)[nlatlon_T2*i];
     Vnew  = &((float*)V)[nlatlon_T2*i];
 
     carray[i] = ngl_contour_wrap(wks, T2new, "float", nlat_T2, nlon_T2, 
-                                 is_lat_coord_T2, lat_T2, 
-                                 "float", is_lon_coord_T2, 
-                                 lon_T2, "float", 
+                                 is_lat_coord_T2, lat_T2, "float",
+                                 is_lon_coord_T2, lon_T2, "float", 
                                  is_missing_T2, FillValue_T2, 
                                  sf_rlist, cn_rlist, &special_res);
 
-    varray[i] = ngl_vector_scalar_wrap(wks, Unew, Vnew, T2new, "float",
-                                       "float", "float", nlat_T2, nlon_T2, 
-                                       is_lat_coord_T2, lat_T2,
-                                       "float", is_lon_coord_T2,
-                                       lon_T2, "float", is_missing_U,
-                                       is_missing_V, is_missing_T2, 
-                                       FillValue_U, FillValue_V, 
-                                       FillValue_T2, vf_rlist, sf_rlist,
-                                       vc_rlist, &special_res);
+    varray[i] = ngl_vector_wrap(wks, Unew, Vnew, "float", "float",
+                                nlat_T2, nlon_T2, is_lat_coord_T2, lat_T2,
+                                "float", is_lon_coord_T2, lon_T2, "float",
+                                is_missing_U, is_missing_V, FillValue_U,
+                                FillValue_V, vf_rlist, vc_rlist, 
+                                &special_res);
+
+    varray_f[i] = ngl_vector_wrap(wks, Unew, Vnew, "float", "float",
+                                  nlat_T2, nlon_T2, is_lat_coord_T2,
+                                  lat_T2, "float", is_lon_coord_T2,
+                                  lon_T2, "float", is_missing_U,
+                                  is_missing_V, FillValue_U, FillValue_V, 
+                                  vf_rlist, vc_f_rlist, &special_res);
+                             
+    varray_l[i] = ngl_vector_wrap(wks, Unew, Vnew, "float", "float",
+                                  nlat_T2, nlon_T2, is_lat_coord_T2,
+                                  lat_T2, "float", is_lon_coord_T2,
+                                  lon_T2, "float", is_missing_U,
+                                  is_missing_V, FillValue_U, FillValue_V,
+                                  vf_rlist, vc_l_rlist, &special_res);
+                                            
+
+    varray_c[i] = ngl_vector_wrap(wks, Unew, Vnew, "float", "float",
+                                  nlat_T2, nlon_T2, is_lat_coord_T2,
+                                  lat_T2, "float", is_lon_coord_T2,
+                                  lon_T2, "float", is_missing_U,
+                                  is_missing_V, FillValue_U, FillValue_V,
+                                  vf_rlist, vc_c_rlist, &special_res);
+                                            
+    varray_s[i] = ngl_vector_scalar_wrap(wks, Unew, Vnew, T2new,
+                                         "float", "float", "float",
+                                         nlat_T2, nlon_T2, is_lat_coord_T2,
+                                         lat_T2, "float", is_lon_coord_T2,
+                                         lon_T2, "float", is_missing_U,
+                                         is_missing_V, is_missing_T2, 
+                                         FillValue_U, FillValue_V,
+                                         FillValue_T2, vf_rlist, sf_rlist,
+                                         vc_s_rlist, &special_res);
+
+    varray_s_map[i] = ngl_vector_scalar_map_wrap(wks, Unew, Vnew, T2new,
+                                                 "float", "float", "float",
+                                                 nlat_T2, nlon_T2,
+                                                 is_lat_coord_T2, lat_T2,
+                                                 "float", is_lon_coord_T2,
+                                                 lon_T2, "float",
+                                                 is_missing_U, is_missing_V,
+                                                 is_missing_T2, FillValue_U,
+                                                 FillValue_V, FillValue_T2,
+                                                 vf_rlist, sf_rlist,
+                                                 vc_s_rlist, mp_rlist,
+                                                 &special_res);
   }
 /*
  * Initialize stuff for text string.
@@ -426,17 +515,33 @@ main()
   nplots = 6;
 
   special_pres.nglPanelLabelBar = 1;
-  special_pres.nglPanelRowSpec = 0;
+  special_pres.nglPanelRowSpec  = 0;
   panel_dims[0] = 3;
   panel_dims[1] = 2;
 
-  ngl_panel_wrap(wks, varray, nplots, panel_dims, 2, lb_rlist, &special_pres);
+  special_pres.nglPanelLabelBar = 1;
+  ngl_panel_wrap(wks, varray, nplots, panel_dims, 2, lb_rlist,
+                 &special_pres);
+
+  special_pres.nglPanelLabelBar = 1;
+  ngl_panel_wrap(wks, varray_l, nplots, panel_dims, 2, lb_rlist,
+                 &special_pres);
+
+  ngl_panel_wrap(wks, varray_f, nplots, panel_dims, 2, lb_rlist,
+                 &special_pres);
+  ngl_panel_wrap(wks, varray_c, nplots, panel_dims, 2, lb_rlist,
+                 &special_pres);
+  ngl_panel_wrap(wks, varray_s, nplots, panel_dims, 2, lb_rlist,
+                 &special_pres);
+  ngl_panel_wrap(wks, varray_s_map, nplots, panel_dims, 2, lb_rlist,
+                 &special_pres);
 
   special_pres.nglPanelLabelBarOrientation    = NhlVERTICAL;
-  ngl_panel_wrap(wks, varray, nplots, panel_dims, 2, lb_rlist, &special_pres);
+  ngl_panel_wrap(wks, varray_f, nplots, panel_dims, 2, lb_rlist, &special_pres);
+  ngl_panel_wrap(wks, varray_l, nplots, panel_dims, 2, lb_rlist, &special_pres);
 
   special_pres.nglPanelLabelBarOrthogonalPosF = 0.02;
-  ngl_panel_wrap(wks, varray, nplots, panel_dims, 2, lb_rlist, &special_pres);
+  ngl_panel_wrap(wks, varray_f, nplots, panel_dims, 2, lb_rlist, &special_pres);
 
   NhlRLSetInteger (lb_rlist,"lbLabelStride", 2);
   special_pres.nglPanelLabelBarWidthF = -999.;
@@ -543,13 +648,11 @@ main()
   carray[4].nbase = 0;
   special_pres.nglPanelCenter = 1;
 
-  special_pres.nglPanelLabelBarYF = 0.4;
   ngl_panel_wrap(wks, carray, nplots, row_spec, 3, lb_rlist, &special_pres);
   create_title(title, carray, nplots, row_spec, 3, "PanelCenter is True", 1);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  special_pres.nglPanelLabelBarYF = -999.;
   carray[0].nbase = 0;
   carray[1].nbase = 0;
   carray[2].nbase = 0;
@@ -566,7 +669,9 @@ main()
  * Start with a single row of plots, then make the first plot and the last
  * plot missing.
  */
-  special_pres.nglPanelRowSpec = 0;
+  special_pres.nglPanelRowSpec                = 0;
+  special_pres.nglPanelLabelBarOrthogonalPosF = -999.;
+
   panel_dims[0] = 1;
   panel_dims[1] = 3;
   nplots = panel_dims[0] * panel_dims[1];

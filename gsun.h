@@ -24,6 +24,9 @@
 #define min(x,y)   ((x) < (y) ? (x) : (y))
 #define max(x,y)   ((x) > (y) ? (x) : (y))
 
+#define nglPlot      0
+#define nglPrimitive 1
+
 /*
  * The length of the variable type must be big enough to hold the 
  * longest *numeric* type name, which in this case is "integer".
@@ -62,6 +65,7 @@ typedef struct {
 /*
  * Special resources for paneling.
  */
+  int   nglPanelSave;
   int   nglPanelCenter;
   int   nglPanelRowSpec;
   float nglPanelXWhiteSpacePercent;
@@ -75,7 +79,6 @@ typedef struct {
   float nglPanelInvsblLeft;
   float nglPanelInvsblRight;
   float nglPanelInvsblBottom;
-  int   nglPanelSave;
 
 /*
  * Special resources for a panel labelbar.
@@ -140,7 +143,7 @@ extern void compute_ps_device_coords(int, nglPlotId *, int, nglRes *);
 
 extern void maximize_plot(int, nglPlotId *, int, int, nglRes *);
 
-extern void spread_colors(int, int, int, int, char*, char*);
+extern void spread_colors(int, int, int, int, char*, char*, int);
 
 extern void scale_plot(int);
 
@@ -149,16 +152,16 @@ extern float *coerce_to_float(void *, const char *, int);
 extern int *get_non_missing_pairs(float *, float *, int, int, float *, 
                                   float *, int, int *);
 
-extern void collapse_nomsg(float *, float *, int, int *);
-
-extern void collapse_nomsg_xy(float *, float *, int, int, int, float *,
-                              float *, int *);
+extern void collapse_nomsg_xy(float *, float *, float **, float **, int, int,
+                              int, float *, float *, int *);
 
 extern void set_resource(char *, int, void *, const char *, int, int *);
 
 extern int create_graphicstyle_object(int);
 
 extern void initialize_ids(nglPlotId *);
+
+extern void initialize_resources(nglRes *, int);
 
 extern void draw_and_frame(int, nglPlotId *, int, int, nglRes *);
 

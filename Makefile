@@ -14,9 +14,6 @@ gsun.o: gsun.c gsun.h
 	nhlcc -g -c gsun.c
 
 gsun_struct: gsun_struct.o driver_struct2.o gsun_struct.h
-	nhlcc -g -c gsun.c
-
-gsun_struct: gsun_struct.o driver_struct2.o gsun_struct.h
 	nhlcc -g -o gsun_struct driver_struct2.o gsun_struct.o -lnetcdf
 
 driver_struct.o: driver_struct.c gsun_struct.h
