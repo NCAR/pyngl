@@ -613,6 +613,7 @@ main()
 
   NhlRLSetString      (cn2_rlist, "cnFillOn",              "True");
   NhlRLSetIntegerArray(cn2_rlist, "cnFillColors",          cncolors,13);
+  NhlRLSetString      (cn2_rlist, "cnLinesOn",             "False");
   NhlRLSetString      (cn2_rlist, "cnLineLabelsOn",        "False");
   NhlRLSetString      (cn2_rlist, "cnInfoLabelOn",         "False");
   NhlRLSetString      (cn2_rlist, "pmLabelBarDisplayMode", "ALWAYS");
@@ -624,6 +625,7 @@ main()
   NhlRLSetIntegerArray(mp2_rlist, "mpFillColors",          mpcolors,4);
   NhlRLSetString      (mp2_rlist, "mpFillDrawOrder",       "PostDraw");
   NhlRLSetString      (mp2_rlist, "mpGridAndLimbOn",       "False");
+  NhlRLSetString      (mp2_rlist, "mpGeophysicalLineColor","black");
   NhlRLSetInteger     (mp2_rlist, "mpPerimOn",             1);
 
   cntrmap = gsn_contour_map_wrap(wks, T, type_T, nlat_T, nlon_T, 
