@@ -27,8 +27,8 @@ LN_COMMANDS = gcc -shared
 
 #elif defined(Darwin)
 EXTRA_LIBS = -L/usr/X11R6/lib -lX11 -L/sw/lib -lg2c
-LN_COMMANDS = gcc -bundle -flat_namespace -undefined suppress
-
+LN_COMMANDS = $(CC_LD) -bundle -flat_namespace -undefined suppress
+CCOPTIONS = 
 #endif
 
 $(MYNAME): $(OBJS)
