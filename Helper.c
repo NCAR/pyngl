@@ -17,6 +17,8 @@
 #include <ncarg/hlu/StreamlinePlot.h>
 #include <ncarg/hlu/VectorPlot.h>
 
+extern res_names trname;
+
 NhlClass NhlPAppClass ()
 {
   return((NhlClass) NhlappClass);
@@ -107,4 +109,9 @@ void *pvoid()
 {
   void *p;
   return (p);
+}
+
+void test_res_names(void *name_list) {
+/*  res_names rn; */
+  printf ("Got to test_res_names\n");
 }

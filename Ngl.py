@@ -708,7 +708,7 @@ def ngl_contour_map(wks,array,rlistc):
     if (key[0:2] == "sf"):
       rlist1[key] = rlist[key]
     elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
-          (key[0:3] == "pmO") or (key[0:3] == "pmT") ):
+          (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:3] == "tm") ):
       rlist2[key] = rlist[key]
     elif(key[0:3] == "ngl"):
       set_ngl_spc_res(key[3:],rlist[key])      
@@ -913,7 +913,7 @@ def ngl_streamline_map(wks,uarray,varray,rlistc):
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
-          (key[0:3] == "pmO") or (key[0:3] == "pmT") ):
+          (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:3] == "tm")):
       rlist3[key] = rlist[key]
     elif(key[0:3] == "ngl"):
       set_ngl_spc_res(key[3:],rlist[key])      
@@ -980,7 +980,7 @@ def ngl_vector_map(wks,uarray,varray,rlistc):
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
-          (key[0:3] == "pmO") or (key[0:3] == "pmT") ):
+          (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:3] == "tm") ):
       rlist3[key] = rlist[key]
     elif(key[0:3] == "ngl"):
       set_ngl_spc_res(key[3:],rlist[key])      
@@ -1057,7 +1057,7 @@ def ngl_vector_scalar_map(wks,uarray,varray,tarray,rlistc):
     elif(key[0:2] == "sf"):
       rlist2[key] = rlist[key]
     elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
-          (key[0:3] == "pmO") or (key[0:3] == "pmT") ):
+          (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:3] == "tm") ):
       rlist4[key] = rlist[key]
     elif(key[0:3] == "ngl"):
       set_ngl_spc_res(key[3:],rlist[key])      

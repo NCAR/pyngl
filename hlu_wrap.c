@@ -1526,6 +1526,11 @@ static void floatArray_setitem(float *ary, int index, float value) {
 
 
 #include <Numeric/arrayobject.h>
+typedef struct {
+  int number;
+  char **strings;
+} res_names;
+
 
 extern char const *_NGGetNCARGEnv(char const *);
 extern void NhlInitialize();
@@ -1689,6 +1694,7 @@ extern void c_rgbhsv(float,float,float,float *,float *,float *);
 extern void c_hsvrgb(float,float,float,float *,float *,float *);
 extern void c_rgbyiq(float,float,float,float *,float *,float *);
 extern void c_yiqrgb(float,float,float,float *,float *,float *);
+extern void test_res_names(void *);
 extern void *pvoid();
 extern void set_nglRes_i(int,int);
 extern int get_nglRes_i(int);
@@ -19279,6 +19285,48 @@ static PyObject *_wrap_c_yiqrgb(PyObject *self, PyObject *args) {
 }
 
 
+static PyObject *_wrap_test_res_names(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    void *arg1 = (void *) 0 ;
+    PyObject * obj0  = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:test_res_names",&obj0)) goto fail;
+    {
+        PyObject *key,*value;
+        int pos=0,rnumber,count;
+        res_names trname;
+        char **trnames;
+        
+        
+        if (PyDict_Check(obj0)) {
+            count = 0;
+            while (PyDict_Next(obj0, &pos, &key, &value)) {
+                trname.number = PyDict_Size(obj0);
+                trnames = (char **) malloc(trname.number*sizeof(char *));
+                trnames[count] = PyString_AsString(key);
+                count++;
+            }
+        }
+        else {
+            printf("Internal error: Resource name lists must be dictionaries\n");
+        }
+        arg1 = (void *) trnames;
+    }
+    test_res_names(arg1);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    {
+        free ((char *) arg1);
+    }
+    return resultobj;
+    fail:
+    {
+        free ((char *) arg1);
+    }
+    return NULL;
+}
+
+
 static PyObject *_wrap_pvoid(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     void *result;
@@ -19556,6 +19604,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"c_hsvrgb", _wrap_c_hsvrgb, METH_VARARGS },
 	 { (char *)"c_rgbyiq", _wrap_c_rgbyiq, METH_VARARGS },
 	 { (char *)"c_yiqrgb", _wrap_c_yiqrgb, METH_VARARGS },
+	 { (char *)"test_res_names", _wrap_test_res_names, METH_VARARGS },
 	 { (char *)"pvoid", _wrap_pvoid, METH_VARARGS },
 	 { (char *)"set_nglRes_i", _wrap_set_nglRes_i, METH_VARARGS },
 	 { (char *)"get_nglRes_i", _wrap_get_nglRes_i, METH_VARARGS },
