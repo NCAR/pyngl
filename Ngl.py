@@ -457,7 +457,7 @@ def set_spc_defaults(type):
     set_nglRes_i(1, 1)  # nglDraw
     set_nglRes_i(2, 0)  # nglFrame
 #
-  set_nglRes_i( 3, 0)   # nglScale
+  set_nglRes_i( 3, 1)   # nglScale
   set_nglRes_i( 4, 0)   # nglDebug
   set_nglRes_i( 5, -1)  # nglPaperOrientation
   set_nglRes_f( 6, 8.5) # nglPaperWidth
