@@ -33,6 +33,7 @@ typedef struct {
   int gsnMaximize;
   int gsnDraw;
   int gsnFrame;
+  int gsnDebug;
 } gsnRes;
 
 /*
@@ -97,14 +98,20 @@ extern int gsn_streamline_map_wrap(int, void *, void *, const char *,
 								   int, int, void *, void *, int, int,
 								   int, gsnRes);
 
-int gsn_vector_scalar_wrap(int, void *, void *, void *, const char *, 
-						   const char *, const char *, int, int, int, 
-						   void *, const char *, int, void *, 
-						   const char *, int, int, int, void *, 
-						   void *, void *, int, int, int, gsnRes);
+extern int gsn_vector_scalar_wrap(int, void *, void *, void *, const char *, 
+								  const char *, const char *, int, int, int, 
+								  void *, const char *, int, void *, 
+								  const char *, int, int, int, void *, 
+								  void *, void *, int, int, int, gsnRes);
 
-int gsn_vector_scalar_map_wrap(int, void *, void *, void *, const char *, 
-							   const char *, const char *, int, int, int, 
-							   void *, const char *, int, void *, 
-							   const char *, int, int, int, void *, 
-							   void *, void *, int, int, int, int, gsnRes);
+extern int gsn_vector_scalar_map_wrap(int, void *, void *, void *, 
+									  const char *, const char *, 
+									  const char *, int, int, int, void *,
+									  const char *, int, void *,
+									  const char *, int, int, int, void *, 
+									  void *, void *, int, int, int, int,
+									  gsnRes);
+
+
+extern int gsn_text_ndc_wrap(int, char *, float, float, int, gsnRes);
+extern int gsn_text_wrap(int, int, char *, float, float, int, gsnRes);

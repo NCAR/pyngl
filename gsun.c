@@ -1208,3 +1208,56 @@ int gsn_vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
 
   return(map);
 }
+
+int gsn_text_ndc_wrap(int wks, char* string, float x, float y, 
+					  int tx_rlist, gsnRes special_res)
+{
+  int text;
+  gsnRes special_res2;
+
+  NhlRLSetString(tx_rlist, "txString", string);
+  NhlRLSetFloat (tx_rlist, "txPosXF" , x);
+  NhlRLSetFloat (tx_rlist, "txPosYF" , y);
+  NhlCreate(&text,"text",NhltextItemClass,wks,tx_rlist);
+/*
+ * Draw plots and advance frame.
+ */
+
+  special_res2.gsnMaximize = 0;
+  special_res2.gsnFrame    = 0;
+
+  draw_and_frame(wks, text, special_res2);
+
+/*
+ * Return.
+ */
+
+  return(text);
+}
+
+
+int gsn_text_wrap(int wks, int plot, char* string, float x, float y, 
+				  int tx_rlist, gsnRes special_res)
+{
+  float xndc, yndc, oor = 0.;
+  int text, status;
+
+/*
+ * Convert from plot's data space to NDC space.
+ */
+
+  (void)NhlDataToNDC(plot,&x,&y,1,&xndc,&yndc,NULL,NULL,&status,&oor);
+
+  if(special_res.gsnDebug) {
+	printf("x = %g y = %g xndc = %g yndc = %g\n", x, y, xndc, yndc);
+  }
+
+  text = gsn_text_ndc_wrap(wks, string, xndc, yndc, tx_rlist, special_res);
+
+/*
+ * Return.
+ */
+
+  return(text);
+}
+
