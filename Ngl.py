@@ -461,6 +461,63 @@ def ind(seq):
       inds.append(i)
   return(inds)
 
+#
+# Add a cyclic point in the x dimension (longitude dimension) to
+# a 2D array. If there is also a 1D lon coordinate array, add 360 to 
+# create the cyclic point.
+#
+def add_cyclic(data,lon_coord=None):
+#
+# Check input data to make sure it is 2D.
+#
+  dims = data.shape
+  if (len(dims) != 2):
+    print "add_cyclic: input must be a 2-dimensional array."
+    sys.exit()
+
+  ny  = dims[0]
+  nx  = dims[1]
+  nx1 = nx + 1
+
+#
+# Test longitude array, if it exists.
+#
+  if(lon_coord != None):
+    lon_coord_dims = lon_coord.shape
+    lon_coord_rank = len(lon_coord_dims)
+#
+# Longitude coordindate array must be 1D.
+#
+    if (lon_coord_rank != 1):
+      print "add_cyclic: longitude coordinate array must be a 1-dimensional."
+      sys.exit()
+#
+# Check dimension size against data array.
+#
+    nlon = lon_coord_dims[0]
+    if (nlon != nx):
+      print "add_cyclic: longitude coordinate array must be the same length as the rightmost dimension of the data array."
+      sys.exit()
+
+#
+# Create the new data array with one extra value in the X direction.
+#
+  newdata         = Numeric.zeros((ny,nx1),data.typecode())
+  newdata[:,0:nx] = data
+  newdata[:,nx]   = data[:,0]
+
+#
+# Add 360 to the longitude value in order to make it cyclic.
+#
+  if(lon_coord != None):
+    newloncoord       = Numeric.zeros(nx1,lon_coord.typecode())
+    newloncoord[0:nx] = lon_coord
+    newloncoord[nx]   = lon_coord[0] + 360
+
+    return newdata,newloncoord
+  else:
+    return newdata
+
 def ftcurv(x,y,xo):
   if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
     dsizes_x = len(x)
