@@ -114,7 +114,7 @@ int *ispan(int start, int end, int nskip)
  *                        default is 0.5)
  *
  */
-void compute_ps_device_coords(int wks, int *plots, int nplots, 
+void compute_ps_device_coords(int wks, nglPlotId *plots, int nplots, 
                               nglRes *special_res)
 {
   NhlBoundingBox *box;
@@ -197,7 +197,7 @@ void compute_ps_device_coords(int wks, int *plots, int nplots,
  * aspect ratio.
  */
   box = (NhlBoundingBox *)malloc(nplots*sizeof(NhlBoundingBox));
-  NhlGetBB(plots[0],&box[0]);
+  NhlGetBB(plots[0].base,&box[0]);
   top = box[0].t;
   bot = box[0].b;
   lft = box[0].l;
@@ -208,7 +208,7 @@ void compute_ps_device_coords(int wks, int *plots, int nplots,
  * objects.
  */
   for( i = 1; i < nplots; i++ ) { 
-    NhlGetBB(plots[i],&box[i]);
+    NhlGetBB(plots[i].base,&box[i]);
     top = max(top,box[i].t);
     bot = min(bot,box[i].b);
     lft = min(lft,box[i].l);
@@ -373,7 +373,7 @@ void compute_ps_device_coords(int wks, int *plots, int nplots,
  * This function maximizes the size of the plot in the viewport.
  */
 
-void maximize_plot(int wks, int *plot, int nplots, int ispanel, 
+void maximize_plot(int wks, nglPlotId *plot, int nplots, int ispanel, 
                    nglRes *special_res)
 {
   NhlBoundingBox box; 
@@ -399,7 +399,7 @@ void maximize_plot(int wks, int *plot, int nplots, int ispanel,
 /*
  * Get bounding box of plot.
  */
-    NhlGetBB(plot[0],&box);
+    NhlGetBB(plot[0].base,&box);
 
     top = box.t;
     bot = box.b;
@@ -428,7 +428,7 @@ void maximize_plot(int wks, int *plot, int nplots, int ispanel,
     NhlRLGetFloat(grlist,"vpYF",     &vpy);
     NhlRLGetFloat(grlist,"vpWidthF", &vpw);
     NhlRLGetFloat(grlist,"vpHeightF",&vph);
-    (void)NhlGetValues(plot[0], grlist);
+    (void)NhlGetValues(plot[0].base, grlist);
 
 /* 
  * Calculate distance from plot's left position to its leftmost
@@ -462,13 +462,10 @@ void maximize_plot(int wks, int *plot, int nplots, int ispanel,
     NhlRLSetFloat(srlist,"vpYF",      new_vpy);
     NhlRLSetFloat(srlist,"vpWidthF",  new_vpw);
     NhlRLSetFloat(srlist,"vpHeightF", new_vph);
-    (void)NhlSetValues(plot[0], srlist);
+    (void)NhlSetValues(plot[0].base, srlist);
 
     if(special_res->nglDebug) {
-      printf("vpXF      = %g\n", new_vpx);
-      printf("vpYF      = %g\n", new_vpy);
-      printf("vpWidthF  = %g\n", new_vpw);
-      printf("vpHeightF = %g\n", new_vph);
+      printf("vpXF/vpYF/vpWidthF/vpHeightF = %g / %g / %g / %g\n", new_vpx, new_vpy, new_vpw, new_vph);
     }
   }
 
@@ -496,11 +493,11 @@ void maximize_plot(int wks, int *plot, int nplots, int ispanel,
  * If after adjusting for negative index color(s), and
  * max_index < min_index, then the colors are reversed
  */
-void spread_colors(int wks,int plot,int min_index, int max_index, 
-                   char *get_resname, char *set_resname)
+void spread_colors(int wks, int plot, int min_index, int max_index, 
+           char *get_resname, char *set_resname)
 {
   int i, ncols, lcount, *icols, minix, maxix, reverse, grlist, srlist, itmp;
-  float *levels, fmin, fmax, *fcols;
+  float fmin, fmax, *fcols;
 
   srlist = NhlRLCreate(NhlSETRL);
   grlist = NhlRLCreate(NhlGETRL);
@@ -518,7 +515,7 @@ void spread_colors(int wks,int plot,int min_index, int max_index,
  * determine how many fill colors we need.
  */
   NhlRLClear(grlist);
-  NhlRLGetFloatArray(grlist,get_resname,&levels,&lcount);
+  NhlRLGetInteger(grlist,get_resname,&lcount);
   NhlGetValues(plot,grlist);
 
 /*
@@ -845,10 +842,28 @@ int create_graphicstyle_object(int wks)
 }
 
 /*
+ * This function sets all HLU objects ids to -1.
+ */
+void initialize_ids(nglPlotId plot)
+{
+  plot.base       = -1;
+  plot.contour    = -1;
+  plot.vector     = -1;
+  plot.streamline = -1;
+  plot.map        = -1;
+  plot.xy         = -1;
+  plot.text       = -1;
+  plot.primitive  = -1;
+  plot.cafield    = -1;
+  plot.sffield    = -1;
+  plot.vffield    = -1;
+}
+
+/*
  * This function maximizes and draws the plot, and advances the frame.
  */
 
-void draw_and_frame(int wks, int *plots, int nplots, int ispanel, 
+void draw_and_frame(int wks, nglPlotId *plots, int nplots, int ispanel, 
                     nglRes *special_res)
 {
   int i;
@@ -857,7 +872,7 @@ void draw_and_frame(int wks, int *plots, int nplots, int ispanel,
                                              ispanel, special_res);
   if(special_res->nglDraw)  {
     for( i = 0; i < nplots; i++ ) {
-      NhlDraw(plots[i]);
+      NhlDraw(plots[i].base);
     }
   }
   if(special_res->nglFrame) NhlFrame(wks);
@@ -1146,13 +1161,14 @@ int ngl_open_wks_wrap(const char *type, const char *name, int wk_rlist)
  * This function uses the HLUs to create a contour plot.
  */
 
-int ngl_contour_wrap(int wks, void *data, const char *type, 
-                     int ylen, int xlen,
-                     int is_ycoord, void *ycoord, const char *ycoord_type,
-                     int is_xcoord, void *xcoord, const char *xcoord_type,
-                     int is_missing, void *FillValue, 
-                     int sf_rlist, int cn_rlist, nglRes *special_res)
+nglPlotId ngl_contour_wrap(int wks, void *data, const char *type, int ylen,
+                           int xlen, int is_ycoord, void *ycoord, 
+                           const char *ycoord_type,int is_xcoord, 
+                           void *xcoord, const char *xcoord_type,
+                           int is_missing, void *FillValue, int sf_rlist,
+                           int cn_rlist, nglRes *special_res)
 {
+  nglPlotId plot;
   int field, contour;
 
 /*
@@ -1178,7 +1194,8 @@ int ngl_contour_wrap(int wks, void *data, const char *type,
 
   if(special_res->nglSpreadColors)  {
     spread_colors(wks, contour, special_res->nglSpreadColorStart,
-                  special_res->nglSpreadColorEnd, "cnLevels", "cnFillColors");
+                  special_res->nglSpreadColorEnd, "cnLevelCount", 
+                  "cnFillColors");
   }
 
 /*
@@ -1188,16 +1205,23 @@ int ngl_contour_wrap(int wks, void *data, const char *type,
   if(special_res->nglScale) scale_plot(contour);
 
 /*
+ * Initialize plot id structure.
+ */
+  initialize_ids(plot);
+  plot.sffield = field;;
+  plot.contour = contour;
+  plot.base    = contour;
+
+/*
  * Draw contour plot and advance frame.
  */
 
-  draw_and_frame(wks, &contour, 1, 0, special_res);
+  draw_and_frame(wks, &plot, 1, 0, special_res);
 
 /*
  * Return.
  */
-
-  return(contour);
+  return(plot);
 }
 
 
@@ -1205,31 +1229,32 @@ int ngl_contour_wrap(int wks, void *data, const char *type,
  * This function uses the HLUs to create an XY plot.
  */
 
-int ngl_xy_wrap(int wks, void *x, void *y, const char *type_x,
-                const char *type_y, int ndims_x, int *dsizes_x,
-                int ndims_y, int *dsizes_y, 
-                int is_missing_x, int is_missing_y, 
-                void *FillValue_x, void *FillValue_y,
-                int ca_rlist, int xy_rlist, int xyd_rlist,
-                nglRes *special_res)
+nglPlotId ngl_xy_wrap(int wks, void *x, void *y, const char *type_x,
+                      const char *type_y, int ndims_x, int *dsizes_x,
+                      int ndims_y, int *dsizes_y, 
+                      int is_missing_x, int is_missing_y, 
+                      void *FillValue_x, void *FillValue_y,
+                      int ca_rlist, int xy_rlist, int xyd_rlist,
+                      nglRes *special_res)
 {
-  int carray, xy, grlist;
-  int num_dspec, *xyds;
+  int cafield, xy, grlist, num_dspec, *xyds;
+  nglPlotId plot;
+
 
 /*
  * Create a coord arrays object that will be used as the
  * dataset for the xy object.
  */
 
-  carray = coord_array(x, y, type_x, type_y, ndims_x, dsizes_x, 
-                       ndims_y, dsizes_y, is_missing_x, is_missing_y, 
-                       FillValue_x, FillValue_y, ca_rlist);
-
+  cafield = coord_array(x, y, type_x, type_y, ndims_x, dsizes_x, 
+                        ndims_y, dsizes_y, is_missing_x, is_missing_y, 
+                        FillValue_x, FillValue_y, ca_rlist);
+ 
 /*
  * Assign the data object.
  */
 
-  NhlRLSetInteger(xy_rlist,"xyCoordData",carray);
+  NhlRLSetInteger(xy_rlist,"xyCoordData",cafield);
 
 /*
  * Create plot.
@@ -1246,11 +1271,12 @@ int ngl_xy_wrap(int wks, void *x, void *y, const char *type_x,
   NhlRLClear(grlist);
   NhlRLGetIntegerArray(grlist,"xyCoordDataSpec",&xyds,&num_dspec);
   NhlGetValues(xy,grlist);
+
 /*
  * Now apply the data spec resources.
  */
   NhlSetValues(*xyds,xyd_rlist);
-  NhlFree(xyds);
+
 /*
  * Make tickmarks and axis labels the same size.
  */
@@ -1258,16 +1284,21 @@ int ngl_xy_wrap(int wks, void *x, void *y, const char *type_x,
   if(special_res->nglScale) scale_plot(xy);
 
 /*
+ * Initialize plot ids.
+ */
+  initialize_ids(plot);
+  plot.cafield = cafield;
+  plot.xydspec = xyds[0];
+  plot.xy      = xy;
+  plot.base    = xy;
+
+/*
  * Draw xy plot and advance frame.
  */
 
-  draw_and_frame(wks, &xy, 1, 0, special_res);
+  draw_and_frame(wks, &plot, 1, 0, special_res);
 
-/*
- * Return.
- */
-
-  return(xy);
+  return(plot);
 }
 
 
@@ -1275,12 +1306,12 @@ int ngl_xy_wrap(int wks, void *x, void *y, const char *type_x,
  * This function uses the HLUs to create an XY plot.
  */
 
-int ngl_y_wrap(int wks, void *y, const char *type_y, int ndims_y, 
-               int *dsizes_y, int is_missing_y, void *FillValue_y,
-               int ca_rlist, int xy_rlist, int xyd_rlist,
-               nglRes *special_res)
+nglPlotId ngl_y_wrap(int wks, void *y, const char *type_y, int ndims_y, 
+                     int *dsizes_y, int is_missing_y, void *FillValue_y,
+                     int ca_rlist, int xy_rlist, int xyd_rlist,
+                     nglRes *special_res)
 {
-  int xy;
+  nglPlotId xy;
 
 /*
  * Call ngl_xy_wrap, only using NULLs for the X values.
@@ -1301,15 +1332,17 @@ int ngl_y_wrap(int wks, void *y, const char *type_y, int ndims_y,
  * This function uses the HLUs to create a vector plot.
  */
 
-int ngl_vector_wrap(int wks, void *u, void *v, const char *type_u,
-                    const char *type_v, int ylen, int xlen, 
-                    int is_ycoord, void *ycoord, const char *type_ycoord,
-                    int is_xcoord, void *xcoord, const char *type_xcoord,
-                    int is_missing_u, int is_missing_v, 
-                    void *FillValue_u, void *FillValue_v,
-                    int vf_rlist, int vc_rlist, nglRes *special_res)
+nglPlotId ngl_vector_wrap(int wks, void *u, void *v, const char *type_u,
+                          const char *type_v, int ylen, int xlen, 
+                          int is_ycoord, void *ycoord, 
+                          const char *type_ycoord, int is_xcoord, 
+                          void *xcoord, const char *type_xcoord, 
+                          int is_missing_u, int is_missing_v, 
+                          void *FillValue_u, void *FillValue_v,
+                          int vf_rlist, int vc_rlist, nglRes *special_res)
 {
   int field, vector;
+  nglPlotId plot;
 
 /*
  * Create a vector field object that will be used as the
@@ -1333,6 +1366,12 @@ int ngl_vector_wrap(int wks, void *u, void *v, const char *type_u,
 
   NhlCreate(&vector,"vector",NhlvectorPlotClass,wks,vc_rlist);
 
+  if(special_res->nglSpreadColors)  {
+    spread_colors(wks, vector, special_res->nglSpreadColorStart,
+                  special_res->nglSpreadColorEnd, "vcLevelCount", 
+                  "vcLevelColors");
+  }
+
 /*
  * Make tickmarks and axis labels the same size.
  */
@@ -1340,16 +1379,24 @@ int ngl_vector_wrap(int wks, void *u, void *v, const char *type_u,
   if(special_res->nglScale) scale_plot(vector);
 
 /*
+ * Initialize plot ids.
+ */
+  initialize_ids(plot);
+  plot.vffield = field;
+  plot.vector  = vector;
+  plot.base    = vector;
+
+/*
  * Draw vector plot and advance frame.
  */
 
-  draw_and_frame(wks, &vector, 1, 0, special_res);
+  draw_and_frame(wks, &plot, 1, 0, special_res);
 
 /*
  * Return.
  */
+  return(plot);
 
-  return(vector);
 }
 
 
@@ -1357,26 +1404,29 @@ int ngl_vector_wrap(int wks, void *u, void *v, const char *type_u,
  * This function uses the HLUs to create a streamline plot.
  */
 
-int ngl_streamline_wrap(int wks, void *u, void *v, const char *type_u,
-                        const char *type_v, int ylen, int xlen, 
-                        int is_ycoord, void *ycoord, const char *type_ycoord,
-                        int is_xcoord, void *xcoord, const char *type_xcoord,
-                        int is_missing_u, int is_missing_v, 
-                        void *FillValue_u, void *FillValue_v, 
-                        int vf_rlist, int st_rlist, nglRes *special_res)
+nglPlotId ngl_streamline_wrap(int wks, void *u, void *v, const char *type_u,
+                              const char *type_v, int ylen, int xlen, 
+                              int is_ycoord, void *ycoord, 
+                              const char *type_ycoord, int is_xcoord, 
+                              void *xcoord, const char *type_xcoord, 
+                              int is_missing_u, int is_missing_v, 
+                              void *FillValue_u, void *FillValue_v, 
+                              int vf_rlist, int st_rlist, 
+                              nglRes *special_res)
 {
   int field, streamline;
+  nglPlotId plot;
 
 /*
  * Create a vector field object that will be used as the
  * dataset for the streamline object.
  */
 
-  field = vector_field(u, v, type_u, type_v, ylen, xlen, is_ycoord, ycoord,
-                       type_ycoord, is_xcoord, xcoord, type_xcoord, 
-                       is_missing_u, is_missing_v, FillValue_u, 
-                       FillValue_v, vf_rlist);
-
+  field = vector_field(u, v, type_u, type_v, ylen, xlen, is_ycoord,
+                       ycoord, type_ycoord, is_xcoord, xcoord,
+                       type_xcoord, is_missing_u, is_missing_v,
+                       FillValue_u, FillValue_v, vf_rlist);
+ 
 /*
  * Assign the data object.
  */
@@ -1396,25 +1446,30 @@ int ngl_streamline_wrap(int wks, void *u, void *v, const char *type_u,
   if(special_res->nglScale) scale_plot(streamline);
 
 /*
+ * Set up plot id structure to return.
+ */
+  initialize_ids(plot);
+  plot.vffield    = field;
+  plot.streamline = streamline;
+  plot.base       = streamline;
+
+/*
  * Draw streamline plot and advance frame.
  */
 
-  draw_and_frame(wks, &streamline, 1, 0, special_res);
+  draw_and_frame(wks, &plot, 1, 0, special_res);
 
-/*
- * Return.
- */
-
-  return(streamline);
+  return(plot);
 }
 
 /*
  * This function uses the HLUs to create a map plot.
  */
 
-int ngl_map_wrap(int wks, int mp_rlist, nglRes *special_res)
+nglPlotId ngl_map_wrap(int wks, int mp_rlist, nglRes *special_res)
 {
   int map;
+  nglPlotId plot;
 
 /*
  * Create plot.
@@ -1423,16 +1478,20 @@ int ngl_map_wrap(int wks, int mp_rlist, nglRes *special_res)
   NhlCreate(&map,"map",NhlmapPlotClass,wks,mp_rlist);
 
 /*
+ * Set up plot id structure to return.
+ */
+  initialize_ids(plot);
+  plot.map  = map;
+  plot.base = map;
+
+
+/*
  * Draw map plot and advance frame.
  */
 
-  draw_and_frame(wks, &map, 1, 0, special_res);
+  draw_and_frame(wks, &plot, 1, 0, special_res);
 
-/*
- * Return.
- */
-
-  return(map);
+  return(plot);
 }
 
 
@@ -1443,19 +1502,20 @@ int ngl_map_wrap(int wks, int mp_rlist, nglRes *special_res)
  * (or equivalent) coordinate arrays to the approprate lat/lon values.
  */
 
-int ngl_contour_map_wrap(int wks, void *data, const char *type, 
-                         int ylen, int xlen,
-                         int is_ycoord, void *ycoord, const char *ycoord_type,
-                         int is_xcoord, void *xcoord, const char *xcoord_type,
-                         int is_missing, void *FillValue, 
-                         int sf_rlist, int cn_rlist, int mp_rlist,
-                         nglRes *special_res)
+nglPlotId ngl_contour_map_wrap(int wks, void *data, const char *type, 
+                               int ylen, int xlen, int is_ycoord, 
+                               void *ycoord, const char *ycoord_type,
+                               int is_xcoord, void *xcoord, 
+                               const char *xcoord_type, int is_missing, 
+                               void *FillValue, int sf_rlist, int cn_rlist,
+                               int mp_rlist, nglRes *special_res)
+                         
 {
-  int contour, map;
   nglRes special_res2;
+  nglPlotId contour, map, plot;
 
 /*
- * Create contour plot.
+ * Create contour plot. Be sure to copy over special resources.
  */
 
   special_res2.nglDraw             = 0;
@@ -1472,6 +1532,7 @@ int ngl_contour_map_wrap(int wks, void *data, const char *type,
                              is_missing, FillValue, sf_rlist, cn_rlist,
                              &special_res2);
 
+
 /*
  * Create map plot.
  */
@@ -1480,44 +1541,50 @@ int ngl_contour_map_wrap(int wks, void *data, const char *type,
 /*
  * Overlay contour plot on map plot.
  */
-  NhlAddOverlay(map,contour,-1);
+  NhlAddOverlay(map.base,contour.base,-1);
 
 /*
  * Make tickmarks and axis labels the same size.
  */
-  if(special_res->nglScale) scale_plot(contour);
+  if(special_res->nglScale) scale_plot(contour.base);
+
+/*
+ * Set up plot id structure to return.
+ */
+  initialize_ids(plot);
+  plot.map     = map.base;
+  plot.base    = map.base;
+  plot.sffield = contour.sffield;
+  plot.contour = contour.base;
 
 /*
  * Draw plots and advance frame.
  */
 
-  draw_and_frame(wks, &map, 1, 0, special_res);
+  draw_and_frame(wks, &plot, 1, 0, special_res);
 
-/*
- * Return.
- */
-
-  return(map);
+  return(plot);
 }
 
 /*
  * This function uses the HLUs to create a vector plot over a map.
  */
 
-int ngl_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
-                        const char *type_v, int ylen, int xlen, 
-                        int is_ycoord, void *ycoord, const char *type_ycoord,
-                        int is_xcoord, void *xcoord, const char *type_xcoord,
-                        int is_missing_u, int is_missing_v, 
-                        void *FillValue_u, void *FillValue_v,
-                        int vf_rlist, int vc_rlist, int mp_rlist,
-                        nglRes *special_res)
+nglPlotId ngl_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
+                              const char *type_v, int ylen, int xlen, 
+                              int is_ycoord, void *ycoord, 
+                              const char *type_ycoord, int is_xcoord, 
+                              void *xcoord, const char *type_xcoord, 
+                              int is_missing_u, int is_missing_v, 
+                              void *FillValue_u, void *FillValue_v,
+                              int vf_rlist, int vc_rlist, int mp_rlist,
+                              nglRes *special_res)
 {
-  int vector, map;
   nglRes special_res2;
+  nglPlotId vector, map, plot;
 
 /*
- * Create vector plot.
+ * Create vector plot. Be sure to copy over special resources.
  */
 
   special_res2.nglDraw             = 0;
@@ -1542,43 +1609,49 @@ int ngl_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
 /*
  * Overlay vector plot on map plot.
  */
-  NhlAddOverlay(map,vector,-1);
+  NhlAddOverlay(map.base,vector.base,-1);
 
 /*
  * Make tickmarks and axis labels the same size.
  */
 
-  if(special_res->nglScale) scale_plot(vector);
+  if(special_res->nglScale) scale_plot(vector.base);
+
+/*
+ * Set up plot id structure to return.
+ */
+  initialize_ids(plot);
+  plot.map     = map.base;
+  plot.base    = map.base;
+  plot.vffield = vector.vffield;
+  plot.vector  = vector.base;
 
 /*
  * Draw plots and advance frame.
  */
 
-  draw_and_frame(wks, &map, 1, 0, special_res);
+  draw_and_frame(wks, &plot, 1, 0, special_res);
 
-/*
- * Return.
- */
-
-  return(map);
+  return(plot);
 }
 
 /*
  * This function uses the HLUs to create a streamline plot over a map.
  */
 
-int ngl_streamline_map_wrap(int wks, void *u, void *v, const char *type_u,
-                            const char *type_v, int ylen, int xlen, 
-                            int is_ycoord, void *ycoord, 
-                            const char *type_ycoord, int is_xcoord, 
-                            void *xcoord, const char *type_xcoord,
-                            int is_missing_u, int is_missing_v, 
-                            void *FillValue_u, void *FillValue_v,
-                            int vf_rlist, int vc_rlist, int mp_rlist,
-                            nglRes *special_res)
+nglPlotId ngl_streamline_map_wrap(int wks, void *u, void *v, 
+                                                                  const char *type_u, const char *type_v, 
+                                                                  int ylen, int xlen, int is_ycoord, 
+                                                                  void *ycoord, const char *type_ycoord, 
+                                                                  int is_xcoord, void *xcoord, 
+                                                                  const char *type_xcoord, int is_missing_u,
+                                                                  int is_missing_v, void *FillValue_u, 
+                                                                  void *FillValue_v, int vf_rlist, 
+                                                                  int vc_rlist, int mp_rlist,
+                                                                  nglRes *special_res)
 {
-  int streamline, map;
   nglRes special_res2;
+  nglPlotId streamline, map, plot;
 
 /*
  * Create streamline plot.
@@ -1604,25 +1677,29 @@ int ngl_streamline_map_wrap(int wks, void *u, void *v, const char *type_u,
 /*
  * Overlay streamline plot on map plot.
  */
-  NhlAddOverlay(map,streamline,-1);
+  NhlAddOverlay(map.base,streamline.base,-1);
 
 /*
  * Make tickmarks and axis labels the same size.
  */
+  if(special_res->nglScale) scale_plot(streamline.base);
 
-  if(special_res->nglScale) scale_plot(streamline);
+/*
+ * Set up plot id structure to return.
+ */
+  initialize_ids(plot);
+  plot.map  = map.base;
+  plot.base = map.base;
+  plot.streamline = streamline.base;
+  plot.vffield = streamline.vffield;
 
 /*
  * Draw plots and advance frame.
  */
 
-  draw_and_frame(wks, &map, 1, 0, special_res);
+  draw_and_frame(wks, &plot, 1, 0, special_res);
 
-/*
- * Return.
- */
-
-  return(map);
+  return(plot);
 }
 
 
@@ -1631,41 +1708,42 @@ int ngl_streamline_map_wrap(int wks, void *u, void *v, const char *type_u,
  * a scalar field.
  */
 
-int ngl_vector_scalar_wrap(int wks, void *u, void *v, void *t, 
-                           const char *type_u, const char *type_v, 
-                           const char *type_t, int ylen, int xlen, 
-                           int is_ycoord, void *ycoord, 
-                           const char *type_ycoord, int is_xcoord, 
-                           void *xcoord, const char *type_xcoord, 
-                           int is_missing_u, int is_missing_v, 
-                           int is_missing_t, void *FillValue_u, 
-                           void *FillValue_v, void *FillValue_t,
-                           int vf_rlist, int sf_rlist, int vc_rlist, 
-                           nglRes *special_res)
+nglPlotId ngl_vector_scalar_wrap(int wks, void *u, void *v, void *t, 
+                                 const char *type_u, const char *type_v, 
+                                 const char *type_t, int ylen, int xlen, 
+                                 int is_ycoord, void *ycoord, 
+                                 const char *type_ycoord, int is_xcoord, 
+                                 void *xcoord, const char *type_xcoord, 
+                                 int is_missing_u, int is_missing_v, 
+                                 int is_missing_t, void *FillValue_u, 
+                                 void *FillValue_v, void *FillValue_t,
+                                 int vf_rlist, int sf_rlist, int vc_rlist, 
+                                 nglRes *special_res)
 {
-  int vfield, sfield, vector;
+  int vffield, sffield, vector;
+  nglPlotId plot;
 
 /*
  * Create vector and scalar field objects that will be used as the
  * datasets for the vector object.
  */
 
-  vfield = vector_field(u, v, type_u, type_v, ylen, xlen, 
-                        is_ycoord, ycoord, type_ycoord, 
-                        is_xcoord, xcoord, type_xcoord, 
-                        is_missing_u, is_missing_v, 
-                        FillValue_u, FillValue_v, vf_rlist);
-
-  sfield = scalar_field(t, type_t, ylen, xlen, is_ycoord, ycoord, 
-                        type_ycoord, is_xcoord, xcoord, type_xcoord, 
-                        is_missing_t, FillValue_t, sf_rlist);
+  vffield = vector_field(u, v, type_u, type_v, ylen, xlen, 
+                         is_ycoord, ycoord, type_ycoord, 
+                         is_xcoord, xcoord, type_xcoord, 
+                         is_missing_u, is_missing_v, 
+                         FillValue_u, FillValue_v, vf_rlist);
+  
+  sffield = scalar_field(t, type_t, ylen, xlen, is_ycoord, ycoord, 
+                         type_ycoord, is_xcoord, xcoord, type_xcoord, 
+                         is_missing_t, FillValue_t, sf_rlist);
 
 /*
  * Assign the data objects and create vector object.
  */
 
-  NhlRLSetInteger(vc_rlist, "vcVectorFieldData",    vfield);
-  NhlRLSetInteger(vc_rlist, "vcScalarFieldData",    sfield);
+  NhlRLSetInteger(vc_rlist, "vcVectorFieldData",    vffield);
+  NhlRLSetInteger(vc_rlist, "vcScalarFieldData",    sffield);
   NhlRLSetString (vc_rlist, "vcUseScalarArray",     "True");
   NhlRLSetString (vc_rlist, "vcMonoLineArrowColor", "False");
 
@@ -1678,16 +1756,21 @@ int ngl_vector_scalar_wrap(int wks, void *u, void *v, void *t,
   if(special_res->nglScale) scale_plot(vector);
 
 /*
+ * Set up plot id structure to return.
+ */
+  initialize_ids(plot);
+  plot.vffield = vffield;
+  plot.sffield = sffield;
+  plot.vector  = vector;
+  plot.base    = vector;
+
+/*
  * Draw plots and advance frame.
  */
 
-  draw_and_frame(wks, &vector, 1, 0, special_res);
+  draw_and_frame(wks, &plot, 1, 0, special_res);
 
-/*
- * Return.
- */
-
-  return(vector);
+  return(plot);
 }
 
 /*
@@ -1695,20 +1778,21 @@ int ngl_vector_scalar_wrap(int wks, void *u, void *v, void *t,
  * a scalar field overlaid on a map.
  */
 
-int ngl_vector_scalar_map_wrap(int wks, void *u, void *v, void *t, 
-                               const char *type_u, const char *type_v, 
-                               const char *type_t, int ylen, int xlen, 
-                               int is_ycoord, void *ycoord, 
-                               const char *type_ycoord, int is_xcoord, 
-                               void *xcoord, const char *type_xcoord, 
-                               int is_missing_u, int is_missing_v, 
-                               int is_missing_t, void *FillValue_u, 
-                               void *FillValue_v, void *FillValue_t,
-                               int vf_rlist, int sf_rlist, int vc_rlist, 
-                               int mp_rlist, nglRes *special_res)
+nglPlotId ngl_vector_scalar_map_wrap(int wks, void *u, void *v, void *t, 
+                                     const char *type_u, const char *type_v, 
+                                     const char *type_t, int ylen, int xlen, 
+                                     int is_ycoord, void *ycoord, 
+                                     const char *type_ycoord, int is_xcoord, 
+                                     void *xcoord, const char *type_xcoord, 
+                                     int is_missing_u, int is_missing_v, 
+                                     int is_missing_t, void *FillValue_u, 
+                                     void *FillValue_v, void *FillValue_t,
+                                     int vf_rlist, int sf_rlist,
+                                     int vc_rlist, int mp_rlist,
+                                     nglRes *special_res)
 {
-  int vector, map;
   nglRes special_res2;
+  nglPlotId plot, vector, map;;
 
 /*
  * Create vector plot.
@@ -1735,61 +1819,71 @@ int ngl_vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
 /*
  * Overlay vector plot on map plot.
  */
-  NhlAddOverlay(map,vector,-1);
+  NhlAddOverlay(map.base,vector.base,-1);
 
 /*
  * Make tickmarks and axis labels the same size.
  */
 
-  if(special_res->nglScale) scale_plot(vector);
+  if(special_res->nglScale) scale_plot(vector.base);
+
+/*
+ * Set up plot id structure to return.
+ */
+  initialize_ids(plot);
+  plot.vffield = vector.vffield;
+  plot.sffield = vector.sffield;
+  plot.vector  = vector.base;
+  plot.map     = map.base;
+  plot.base    = map.base;
 
 /*
  * Draw plots and advance frame.
  */
 
-  draw_and_frame(wks, &map, 1, 0, special_res);
+  draw_and_frame(wks, &plot, 1, 0, special_res);
 
-/*
- * Return.
- */
-
-  return(map);
+  return(plot);
 }
 
-int ngl_text_ndc_wrap(int wks, char* string, void *x, void *y,
-                      const char *type_x, const char *type_y,
-                      int tx_rlist, nglRes *special_res)
+nglPlotId ngl_text_ndc_wrap(int wks, char* string, void *x, void *y,
+                            const char *type_x, const char *type_y,
+                            int tx_rlist, nglRes *special_res)
 {
-  int text, length[1];
+  int length[1];
+  nglPlotId plot;
 
-  length[1] = 1;
+/*
+ * Initialize plot ids.
+ */
+  initialize_ids(plot);
 
-  set_resource("txPosXF", tx_rlist, x, type_x, 1, &length[1] );
-  set_resource("txPosYF", tx_rlist, y, type_y, 1, &length[1] );
+  length[0] = 1;
+
+  set_resource("txPosXF", tx_rlist, x, type_x, 1, &length[0] );
+  set_resource("txPosYF", tx_rlist, y, type_y, 1, &length[0] );
 
 
   NhlRLSetString(tx_rlist, "txString", string);
-  NhlCreate(&text,"text",NhltextItemClass,wks,tx_rlist);
+  NhlCreate(&plot.text,"text",NhltextItemClass,wks,tx_rlist);
+  plot.base = plot.text;
+
 /*
  * Draw text.
  */
+  draw_and_frame(wks, &plot, 1, 0, special_res);
 
-  draw_and_frame(wks, &text, 1, 0, special_res);
-
-/*
- * Return.
- */
-
-  return(text);
+  return(plot);
 }
 
 
-int ngl_text_wrap(int wks, int plot, char* string, void *x, void *y, 
-                  const char *type_x, const char *type_y, int tx_rlist, 
-                  nglRes *special_res)
+nglPlotId ngl_text_wrap(int wks, int plot, char* string, void *x, void *y, 
+                        const char *type_x, const char *type_y,
+                        int tx_rlist, nglRes *special_res)
 {
   float *xf, *yf, xndc, yndc, oor = 0.;
-  int text, status;
+  int status;
+  nglPlotId text;
 
 /*
  * Convert x and y to float, since NhlDatatoNDC routine only accepts 
@@ -1906,16 +2000,23 @@ void ngl_poly_wrap(int wks, int plot, void *x, void *y, const char *type_x,
  * only get drawn when you draw the plot, and it will also be scaled
  * if you scale the plot. 
  */
-int ngl_add_poly_wrap(int wks, int plot, void *x, void *y,
-                      const char *type_x, const char *type_y, int len, 
-                      int is_missing_x, int is_missing_y, void *FillValue_x, 
-                      void *FillValue_y, NhlPolyType polytype, 
-                      int gs_rlist, nglRes *special_res)
+nglPlotId ngl_add_poly_wrap(int wks, int plot, void *x, void *y,
+                            const char *type_x, const char *type_y, int len, 
+                            int is_missing_x, int is_missing_y, 
+                            void *FillValue_x, void *FillValue_y,
+                            NhlPolyType polytype, int gs_rlist, 
+                            nglRes *special_res)
 {
   int *primitive_object, gsid, pr_rlist, grlist;
   int i, newlen, *indices, nlines, ibeg, iend, npts;
   float *xf, *yf, *xfmsg, *yfmsg;
   char *astring;
+  nglPlotId poly;
+
+/*
+ * Set up plot id structure to return.
+ */
+  initialize_ids(poly);
 
 /*
  * Create resource list for primitive object.
@@ -2045,7 +2146,9 @@ int ngl_add_poly_wrap(int wks, int plot, void *x, void *y,
     }     
   }
 
-  return(*primitive_object);
+  poly.primitive = primitive_object[0];
+  poly.base      = primitive_object[0];
+  return(poly);
 }
 
 /*
@@ -2136,19 +2239,19 @@ void ngl_polygon_wrap(int wks, int plot, void *x, void *y,
 /*
  * Routine for adding polylines to a plot (in the plot's data space).
  */
-int ngl_add_polyline_wrap(int wks, int plot, void *x, void *y, 
-                          const char *type_x, const char *type_y, int len, 
-                          int is_missing_x, int is_missing_y, 
-                          void *FillValue_x, void *FillValue_y, 
-                          int gs_rlist, nglRes *special_res)
+nglPlotId ngl_add_polyline_wrap(int wks, int plot, void *x, void *y, 
+                                const char *type_x, const char *type_y,
+                                int len, int is_missing_x, int is_missing_y, 
+                                void *FillValue_x, void *FillValue_y, 
+                                int gs_rlist, nglRes *special_res)
 {
-  int ipoly;
+  nglPlotId poly;
 
-  ipoly = ngl_add_poly_wrap(wks, plot, x, y, type_x, type_y, len, 
-                            is_missing_x, is_missing_y, FillValue_x, 
-                            FillValue_y, NhlPOLYLINE, gs_rlist, 
-                            special_res);
-  return(ipoly);
+  poly = ngl_add_poly_wrap(wks, plot, x, y, type_x, type_y, len, 
+                           is_missing_x, is_missing_y, FillValue_x, 
+                           FillValue_y, NhlPOLYLINE, gs_rlist, 
+                           special_res);
+  return(poly);
 
 }
 
@@ -2156,19 +2259,20 @@ int ngl_add_polyline_wrap(int wks, int plot, void *x, void *y,
 /*
  * Routine for adding polymarkers to a plot (in the plot's data space).
  */
-int ngl_add_polymarker_wrap(int wks, int plot, void *x, void *y, 
-                          const char *type_x, const char *type_y, int len, 
-                          int is_missing_x, int is_missing_y, 
-                          void *FillValue_x, void *FillValue_y, 
-                          int gs_rlist, nglRes *special_res)
+nglPlotId ngl_add_polymarker_wrap(int wks, int plot, void *x, void *y, 
+                                  const char *type_x, const char *type_y,
+                                  int len, int is_missing_x,
+                                  int is_missing_y, void *FillValue_x,
+                                  void *FillValue_y, int gs_rlist, 
+                                  nglRes *special_res)
 {
-  int ipoly;
+  nglPlotId poly;
 
-  ipoly = ngl_add_poly_wrap(wks, plot, x, y, type_x, type_y, len, 
-                            is_missing_x, is_missing_y, FillValue_x, 
-                            FillValue_y, NhlPOLYMARKER, gs_rlist, 
-                            special_res);
-  return(ipoly);
+  poly = ngl_add_poly_wrap(wks, plot, x, y, type_x, type_y, len, 
+                           is_missing_x, is_missing_y, FillValue_x, 
+                           FillValue_y, NhlPOLYMARKER, gs_rlist, 
+                           special_res);
+  return(poly);
 
 }
 
@@ -2176,19 +2280,19 @@ int ngl_add_polymarker_wrap(int wks, int plot, void *x, void *y,
 /*
  * Routine for adding polygons to a plot (in the plot's data space).
  */
-int ngl_add_polygon_wrap(int wks, int plot, void *x, void *y, 
-                          const char *type_x, const char *type_y, int len, 
-                          int is_missing_x, int is_missing_y, 
-                          void *FillValue_x, void *FillValue_y, 
-                          int gs_rlist, nglRes *special_res)
+nglPlotId ngl_add_polygon_wrap(int wks, int plot, void *x, void *y, 
+                               const char *type_x, const char *type_y, 
+                               int len, int is_missing_x, int is_missing_y, 
+                               void *FillValue_x, void *FillValue_y, 
+                               int gs_rlist, nglRes *special_res)
 {
-  int ipoly;
+  nglPlotId poly;
 
-  ipoly = ngl_add_poly_wrap(wks, plot, x, y, type_x, type_y, len, 
-                            is_missing_x, is_missing_y, FillValue_x, 
-                            FillValue_y, NhlPOLYGON, gs_rlist, 
-                            special_res);
-  return(ipoly);
+  poly = ngl_add_poly_wrap(wks, plot, x, y, type_x, type_y, len, 
+                           is_missing_x, is_missing_y, FillValue_x, 
+                           FillValue_y, NhlPOLYGON, gs_rlist, 
+                           special_res);
+  return(poly);
 
 }
 
@@ -2201,18 +2305,19 @@ int ngl_add_polygon_wrap(int wks, int plot, void *x, void *y,
  * only get drawn when you draw the plot. It will also be scaled
  * appropriately if you scale the plot. 
  */
-int ngl_add_text_wrap(int wks, int plot, char *string, void *x, void *y,
-                      const char *type_x, const char *type_y,
-                      int tx_rlist, int am_rlist, nglRes *special_res)
+nglPlotId ngl_add_text_wrap(int wks, int plot, char *string, void *x,
+                            void *y, const char *type_x, const char *type_y,
+                            int tx_rlist, int am_rlist, nglRes *special_res)
 {
-/*
- * We need to make this "100" number be the maximum number of annotations
- * allowed attached to a plot.
- */
   int i, srlist, grlist, text, just;
   int *anno_views, *anno_mgrs, *new_anno_views, num_annos;
-
   float *xf, *yf;
+  nglPlotId annos;
+
+/*
+ * Set up plot id structure to return.
+ */
+  initialize_ids(annos);
 
 /*
  * First create the text object with the given string.
@@ -2293,12 +2398,9 @@ int ngl_add_text_wrap(int wks, int plot, char *string, void *x, void *y,
   NhlRLSetInteger(am_rlist,"amJust",         just);
   NhlSetValues(anno_mgrs[0],am_rlist);
 
-/*
- * Return.
- */
-
-  return(anno_mgrs[0]);
-
+  annos.text = anno_mgrs[0];
+  annos.base = anno_mgrs[0];
+  return(annos);
 }
 
 
@@ -2536,17 +2638,27 @@ void ngl_draw_colormap_wrap(int wks)
 /*
  * Routine for paneling same-sized plots.
  */
-void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims, 
-                    int ndims, nglRes *special_res)
+void ngl_panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims, 
+                    int ndims, int lb_rlist, nglRes *special_res)
 {
-  int i, nplots, npanels, is_row_spec, nrows, ncols, draw_boxes;
-  int num_plots_left, nplot, nplot4, nr, nc, new_ncols, pplot;
-  int *row_spec, *newplots, all_ismissing, first_time;
+  int i, nplots, npanels, is_row_spec, nrows, ncols, draw_boxes = 0;
+  int num_plots_left, nplot, nplot4, nr, nc, new_ncols, nnewplots;
+  nglPlotId *newplots, pplot;
+  int *row_spec, all_ismissing, first_time;
   int nvalid_plot, nvalid_plots, valid_plot;
-  int panel_save, panel_debug, panel_center, maxbb;
-  int calldraw, callframe;
+  int panel_save, panel_debug, panel_center;
+  int panel_labelbar, main_string_on, is_figure_strings;
+  int *colors, *fill_patterns;
+  float *fill_scales, *levels;
+  int ncolors, nlevels, nfill_patterns, nfill_scales;
+  int lbhor, mono_fill_pat, mono_fill_scl, mono_fill_col;
+  int new_plot, labelbar_object;
+  float labelbar_width, labelbar_height, labelbar_font_height;
+  float lb_x, lb_y, lb_w, lb_h, tmp_range;
+  char plot_type[10], font_resource[24];
+  int maxbb, calldraw, callframe;
   int lft_pnl, rgt_pnl, bot_pnl, top_pnl;
-
+  float font_height, pfont_height;
   float x_lft, x_rgt, y_bot, y_top;
   float xlft, xrgt, xbot, xtop;
   float xsp, ysp, xwsp_perc, ywsp_perc, xwsp, ywsp;
@@ -2617,10 +2729,14 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
   panel_save     = special_res->nglPanelSave;
   panel_debug    = special_res->nglDebug;
   panel_center   = special_res->nglPanelCenter;
+  panel_labelbar = special_res->nglPanelLabelBar;
+  main_string_on = is_figure_strings = 0;
+  panel_labelbar = special_res->nglPanelLabelBar;
   calldraw       = special_res->nglDraw;
   callframe      = special_res->nglFrame;
   xwsp_perc      = special_res->nglPanelXWhiteSpacePercent;
   ywsp_perc      = special_res->nglPanelYWhiteSpacePercent;
+  pfont_height   = special_res->nglPanelFigureStringsFontHeightF;
   
 /*
  * Check if these four have been changed from their default values.
@@ -2731,9 +2847,9 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
   valid_plot   = -1;
   nvalid_plots = 0;
   for(i = 0; i < nplots; i++) {
-    if(plots[i] > 0) {
+    if(plots[i].base > 0) {
       if(valid_plot < 0) {
-        NhlGetBB(plots[i],&bb);
+        NhlGetBB(plots[i].base,&bb);
         top    = bb.t;
         bottom = bb.b;
         left   = bb.l;
@@ -2754,9 +2870,67 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
   }
 
 /*
- * Create array to save the valid plot objects.
+ * Create array to save the valid plot objects, plus a labelbar and
+ * a common title, if any.
  */
-  newplots = (int *)malloc(nvalid_plots*sizeof(int));
+
+  nnewplots = nvalid_plots;
+  if(panel_labelbar) {
+    nnewplots++;
+  }
+  if(main_string_on) {
+    nnewplots++;
+  }
+
+  newplots = (nglPlotId *)malloc(nnewplots*sizeof(nglPlotId));
+
+/*
+ * Get the type of plot we have (contour, vector, xy) so we can
+ * retrieve font and/or labelbar information if needed.
+ */
+  strcpy(plot_type,"unknown");
+
+  if(plots[valid_plot].base == plots[valid_plot].contour) {
+    new_plot = plots[valid_plot].contour;
+    strcpy(plot_type,"contour");
+    strcpy(font_resource,"cnInfoLabelFontHeightF");
+  }
+  else if(plots[valid_plot].base == plots[valid_plot].vector) {
+    new_plot = plots[valid_plot].vector;
+    strcpy(plot_type,"contour");
+    strcpy(font_resource,"vcRefAnnoFontHeightF");
+  }
+  else if(plots[valid_plot].base == plots[valid_plot].xy) {
+    new_plot = plots[valid_plot].xy;
+    strcpy(plot_type,"xy");
+    strcpy(font_resource,"tiXAxisFontHeightF");
+  }
+
+/*
+ * Get the font height.
+ */
+  if(is_figure_strings || panel_labelbar) {
+    if(strcmp(plot_type,"unknown")) {
+      NhlRLClear(grlist);
+      NhlRLGetFloat(grlist,font_resource, &font_height);
+      (void)NhlGetValues(new_plot, grlist);
+      if(!strcmp(plot_type,"xy")) {
+        font_height *= 0.6;
+      }
+    }
+    else {
+      font_height = 0.01;
+      printf("Warning: ngl_panel: unrecognized plot type, thus unable to get information for font height.");
+      printf("Defaulting to %g", font_height);
+    }
+/*
+ * Use this font height for the panel strings, if any, unless the user
+ * has set nglPanelFigureStringsFontHeightF.
+ */
+    if(pfont_height <= 0.) {
+      pfont_height = font_height;
+    }
+  }
 
 /*
  * plot_width  : total width of plot with all of its annotations
@@ -2773,6 +2947,47 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
   
   total_width  = 2.*xwsp + plot_width;
   total_height = 2.*ywsp + plot_height;
+
+/*
+ * If we are putting a common labelbar at the bottom (right), make 
+ * it 2/10 the height (width) of the plot.
+ */
+  lbhor = 1;
+  if(panel_labelbar) {
+    if(special_res->nglPanelLabelBarOrientation == NhlVERTICAL) {
+      NhlRLSetString(lb_rlist,"lbOrientation","vertical");
+      lbhor = 0;
+      labelbar_width = 0.20 * plot_width + 2.*xwsp;
+/*
+ * Adjust height depending on whether we have one row or multiple rows.
+ */
+      if(nplots > 1 && nrows > 1) {
+        labelbar_height  = (nrows-1) * (2.*ywsp + plot_height);
+      }
+      else {
+        labelbar_height  = plot_height;
+      }
+    }
+    else {
+      NhlRLSetString(lb_rlist,"lbOrientation","horizontal");
+
+      labelbar_height = 0.20 * plot_height + 2.*ywsp;
+/*
+ * Adjust width depending on whether we have one column or multiple 
+ * columns.
+ */
+      if(nplots > 1 && ncols > 1) {
+        labelbar_width  = (ncols-1) * (2.*xwsp + plot_width);
+      }
+      else {
+        labelbar_width  = plot_width;
+      }
+    }
+  }
+  else {
+    labelbar_height = 0.;
+    labelbar_width  = 0.;
+  }
 
 /*
  * We want:
@@ -2792,12 +3007,27 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
   xrange = x_rgt - x_lft;
   yrange = y_top - y_bot;
   
-  row_scale = yrange/(nrows*total_height);
-  col_scale = xrange/(ncols*total_width);
-  scale     = min(col_scale,row_scale);
-  
+  if(lbhor) {
 /*
- * Calculate new width  and height.
+ * Previously, we used to include xrange and yrange as part of the min
+ * statement. This seemed to cause problems if you set one of
+ * gsnPanelTop/Bottom/Right/Left however, so I removed it.  Initial
+ * testing on Sylvia's panel examples seems to indicate this is okay.
+ */
+    row_scale = yrange/(nrows*total_height+labelbar_height);
+    col_scale = xrange/(ncols*total_width);
+    scale     = min(col_scale,row_scale);
+    yrange    = yrange - scale * labelbar_height;
+  }
+  else {
+    row_scale = yrange/(nrows*total_height);
+    col_scale = xrange/(ncols*total_width+labelbar_width);
+    scale     = min(col_scale,row_scale);
+    xrange    = xrange - scale * labelbar_width;
+  }
+
+/*
+ * Calculate new width and height.
  */
   new_plot_width  = scale * plot_width;
   new_plot_height = scale * plot_height; 
@@ -2832,7 +3062,7 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
   NhlRLGetFloat(grlist,"vpYF",     &vpy);
   NhlRLGetFloat(grlist,"vpWidthF", &vpw);
   NhlRLGetFloat(grlist,"vpHeightF",&vph);
-  (void)NhlGetValues(plots[valid_plot], grlist);
+  (void)NhlGetValues(plots[valid_plot].base, grlist);
   
 /*
  * Calculate distances from plot's left/right/top/bottom positions
@@ -2877,6 +3107,8 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
   nplot          = 0;
   nvalid_plot    = 0;
   nr             = 0;
+  first_time     = 1;
+
   while(num_plots_left > 0) {
     new_ncols = min(num_plots_left,row_spec[nr]);
     
@@ -2898,7 +3130,7 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
     }
 
     for (nc = 0; nc < new_ncols; nc++) {
-      if(plots[nplot] > 0) {
+      if(plots[nplot].base > 0) {
         pplot = plots[nplot];
         nplot4 = nplot * 4;
 /*
@@ -2910,7 +3142,7 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
         NhlRLGetFloat(grlist,"vpYF",     &old_vp[nplot4+1]);
         NhlRLGetFloat(grlist,"vpWidthF", &old_vp[nplot4+2]);
         NhlRLGetFloat(grlist,"vpHeightF",&old_vp[nplot4+3]);
-        (void)NhlGetValues(pplot, grlist);
+        (void)NhlGetValues(pplot.base, grlist);
         
         if(panel_debug) {
           printf("-------Panel viewport values for each plot-------\n");
@@ -2927,12 +3159,37 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
         NhlRLSetFloat(srlist,"vpYF",     ypos[nr]);
         NhlRLSetFloat(srlist,"vpWidthF", scale*old_vp[nplot4+2]);
         NhlRLSetFloat(srlist,"vpHeightF",scale*old_vp[nplot4+3]);
-        (void)NhlSetValues(pplot, srlist);
+        (void)NhlSetValues(pplot.base, srlist);
+
+/*
+ * Retain maximum width and height for later.
+ */
+        if(!first_time) {
+          max_width  = max(max_width, old_vp[nplot4+2]);
+          max_height = max(max_height,old_vp[nplot4+3]);
+        }
+        else {
+          max_width  = old_vp[nplot4+2];
+          max_height = old_vp[nplot4+3];
+          first_time = 0;
+        }
 
 /*
  * Save this plot.
  */
         newplots[nvalid_plot] = pplot;
+/*
+ * Info for possible labelbar or main_string
+ */
+        if(main_string_on || panel_labelbar || draw_boxes) {
+          NhlGetBB(pplot.base,&bb);
+          top    = bb.t;
+          bottom = bb.b;
+          left   = bb.l;
+          right  = bb.r;
+          max_rgt = max(right,max_rgt);
+          max_top = max(top,max_top);
+        }
         nvalid_plot++;
       }
       else {
@@ -2964,22 +3221,157 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
  * should all be the same).  These values will be used a few times 
  * throughout the rest of the code.
  */
-  first_time = 1;
-  for( i = 0; i < nplots; i++ ) {
-    if(plots[i] > 0) {
-      if(!first_time) {
-        max_width  = max(max_width, old_vp[i*nplots+2]);
-        max_height = max(max_height,old_vp[i*nplots+3]);
-      }
-      else {
-        max_width  = old_vp[i*nplots+2];
-        max_height = old_vp[i*nplots+3];
-        first_time = 0;
-      }
-    }
-  }
   scaled_width  = scale * max_width;
   scaled_height = scale * max_height;
+
+/*
+ * Check if a labelbar is to be drawn at the bottom.
+ */
+  if(panel_labelbar) {
+/*
+ * If plot type is not one of contour or vector, then we can't
+ * get labelbar information.
+ */
+    if(!strcmp(plot_type,"contour") || !strcmp(plot_type,"vector")) {
+      if(!strcmp(plot_type,"contour")) {
+/*
+ * Get information on how contour plot is filled, so we can recreate 
+ * labelbar.
+ */
+        NhlRLClear(grlist);
+        NhlRLGetFloatArray(grlist,"cnLevels", &levels, &nlevels);
+        NhlRLGetIntegerArray(grlist,"cnFillColors", &colors, &ncolors);
+        NhlRLGetIntegerArray(grlist,"cnFillPatterns", &fill_patterns,
+                             &nfill_patterns);
+        NhlRLGetFloatArray(grlist,"cnFillScales", &fill_scales,
+                           &nfill_scales);
+        NhlRLGetInteger(grlist,"cnMonoFillPattern", &mono_fill_pat);
+        NhlRLGetInteger(grlist,"cnMonoFillScale", &mono_fill_scl);
+        NhlRLGetInteger(grlist,"cnMonoFillColor", &mono_fill_col);
+        (void)NhlGetValues(pplot.base, grlist);
+      }
+      else {
+/*
+ * There are no fill patterns in VectorPlot, only solids.
+ */
+        mono_fill_pat = 1;
+        mono_fill_scl = 0;
+        mono_fill_col = 0;
+        NhlRLClear(grlist);
+        NhlRLGetFloatArray(grlist,"vcLevels", &levels, &nlevels);
+        NhlRLGetIntegerArray(grlist,"vcLevelColors", &colors, &ncolors );
+        (void)NhlGetValues(pplot.base, grlist);
+      }
+/*
+ * Set labelbar height, width, and font height.
+ */
+      labelbar_height      = scale * labelbar_height;
+      labelbar_width       = scale * labelbar_width;
+      labelbar_font_height = font_height;
+/*
+ * Set some labelbar resources.  If pmLabelBarWidth/Height are set,
+ * use these no matter what, for the labelbar width and height. Otherwise,
+ * use vpWidth/Height if they are set.
+ */
+      if(special_res->nglPanelLabelBarWidthF > 0.) {
+        lb_w = special_res->nglPanelLabelBarWidthF;
+      }
+      else {
+        lb_w = labelbar_width;
+      }
+
+      if(special_res->nglPanelLabelBarHeightF > 0.) {
+        lb_h = special_res->nglPanelLabelBarHeightF;
+      }
+      else {
+        lb_h = labelbar_height;
+      }
+/*
+ * Set position of labelbar depending on whether it's horizontal or
+ * vertical.
+ */
+      if(lbhor) {
+        if(special_res->nglPanelLabelBarYF > 0.) {
+          lb_y = special_res->nglPanelLabelBarYF;
+        }
+        else {
+          lb_y = max(ywsp+labelbar_height,bottom-ywsp);
+        }
+
+        if(special_res->nglPanelLabelBarXF > 0.) {
+          lb_x = special_res->nglPanelLabelBarXF;
+        }
+        else if(ncols == 1 && lb_w <= scaled_width) {
+          lb_x = min_xpos + (scaled_width-lb_w)/2.;
+        }
+        else {
+          tmp_range = x_rgt - x_lft;
+          lb_x      = x_lft + (tmp_range - lb_w)/2.;
+        }
+      }
+      else {
+        if(special_res->nglPanelLabelBarXF > 0.) {
+          lb_x = special_res->nglPanelLabelBarXF;
+        }
+        else {
+          lb_x = min(1.-(xwsp+labelbar_width),max_rgt+xwsp);
+        }
+        if(special_res->nglPanelLabelBarYF > 0.) {
+          lb_y = special_res->nglPanelLabelBarYF;
+        }
+        else if(nrows == 1 && lb_h <= scaled_height) {
+          lb_y = ypos[0]-(scaled_height - lb_h)/2.;
+        }
+        else {
+          tmp_range = y_top - y_bot;
+          lb_y = y_top-(tmp_range - lb_h)/2.;
+        }
+      }
+      if(special_res->nglPanelLabelBarOrthogonalPosF > -1.) {
+        lb_y += special_res->nglPanelLabelBarOrthogonalPosF;
+      }
+      if(special_res->nglPanelLabelBarParallelPosF > -1.) {
+        lb_x += special_res->nglPanelLabelBarOrthogonalPosF;
+      }
+      NhlRLSetFloat(lb_rlist,"vpXF",lb_x);
+      NhlRLSetFloat(lb_rlist,"vpYF",lb_y);
+      NhlRLSetFloat(lb_rlist,"vpWidthF",lb_w);
+      NhlRLSetFloat(lb_rlist,"vpHeightF",lb_h);
+      NhlRLSetFloat(lb_rlist,"lbLabelFontHeightF",labelbar_font_height);
+/*
+ * Check if we want different fill patterns or fill scales.  If so, we
+ * have to pass these on to the labelbar.
+ */
+      NhlRLSetInteger(lb_rlist,"lbMonoFillColor", mono_fill_col);
+      NhlRLSetInteger(lb_rlist,"lbMonoFillPattern", mono_fill_pat);
+      if(!mono_fill_pat) {
+        NhlRLSetIntegerArray(lb_rlist,"lbFillPatterns", fill_patterns,
+                             nfill_patterns);
+      }
+      NhlRLSetInteger(lb_rlist,"lbMonoFillScale", mono_fill_scl);
+      if(!mono_fill_scl) {
+        NhlRLSetFloatArray(lb_rlist,"lbFillScale", fill_scales, nfill_scales);
+      }
+/*
+ * Create the labelbar.
+ */
+      NhlRLSetString      (lb_rlist,"lbAutoManage",    "False");
+      NhlRLSetIntegerArray(lb_rlist,"lbFillColors",    colors, ncolors);
+      NhlRLSetInteger     (lb_rlist,"lbBoxCount",      ncolors);
+      NhlRLSetFloatArray  (lb_rlist,"lbLabelStrings",  levels, nlevels);
+      NhlRLSetString      (lb_rlist,"lbPerimOn",       "False");
+      NhlRLSetString      (lb_rlist,"lbLabelAlignment","InteriorEdges");
+      NhlCreate(&labelbar_object,"labelbar",NhllabelBarClass,wks,lb_rlist);
+      newplots[nvalid_plot].base = labelbar_object;
+      nvalid_plot++;
+    }
+/*
+ * The plot_type is not either vector or contour, so we have to bail.
+ */
+    else {
+      printf("Warning: ngl_panel: unrecognized plot type for getting labelbar information. Ignoring labelbar request.");
+    }
+  }
 
 /*
  * If some of the paneled plots are missing, we need to take these into
@@ -2993,13 +3385,13 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
  * not to indicate the rightmost location of the rightmost graphic
  * (which could be a vertical labelbar.
  */
-  newbb  = (NhlBoundingBox *)malloc(nvalid_plots*sizeof(NhlBoundingBox));
+  newbb  = (NhlBoundingBox *)malloc(nnewplots*sizeof(NhlBoundingBox));
 /*
  * Get largest bounding box that encompasses all non-missing graphical
  * objects.
  */
-  for( i = 0; i < nvalid_plots; i++ ) { 
-    NhlGetBB(newplots[i],&newbb[i]);
+  for( i = 0; i < nnewplots; i++ ) { 
+    NhlGetBB(newplots[i].base,&newbb[i]);
 
     if(i) {
       newtop = max(newtop,newbb[i].t);
@@ -3022,7 +3414,7 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
       NhlRLGetFloat(grlist,"vpYF",      &vpy);
       NhlRLGetFloat(grlist,"vpWidthF",  &vpw);
       NhlRLGetFloat(grlist,"vpHeightF", &vph);
-      (void)NhlGetValues(newplots[i], grlist);
+      (void)NhlGetValues(newplots[i].base, grlist);
       dxl = vpx-newbb[i].l;
       dxr = newbb[i].r-(vpx+vpw);
       dyt = (newbb[i].t-vpy);
@@ -3080,7 +3472,7 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
  * also where the plots will be maximized for PostScript output,
  * if so indicated.
  */
-  draw_and_frame(wks, newplots, nvalid_plots, 1, special_res);
+  draw_and_frame(wks, newplots, nnewplots, 1, special_res);
 
 /*
  * Restore nglPanelInvslb* resources because these should only
@@ -3096,7 +3488,7 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
  */
   if(!panel_save) {
     for(i = 0; i < nplots; i++) {
-      if(plots[i] > 0) {
+      if(plots[i].base > 0) {
         nplot4 = 4 * i;
         
         NhlRLClear(srlist);
@@ -3104,7 +3496,7 @@ void ngl_panel_wrap(int wks, int *plots, int nplots_orig, int *dims,
         NhlRLSetFloat(srlist,"vpYF",     old_vp[nplot4+1]);
         NhlRLSetFloat(srlist,"vpWidthF", old_vp[nplot4+2]);
         NhlRLSetFloat(srlist,"vpHeightF",old_vp[nplot4+3]);
-        (void)NhlSetValues(plots[i], srlist);
+        (void)NhlSetValues(plots[i].base, srlist);
       }
     }
   }

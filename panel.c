@@ -8,8 +8,8 @@
 #define max(x,y) ((x) > (y) ? (x) : (y))
 #define NG  5
 
-char *create_title(int *parray, int *parray_copy, int nplots, int *panel_dims,
-		   int ndims, char *extra_string, int row_spec)
+char *create_title(nglPlotId *parray, nglPlotId *parray_copy, int nplots,
+                  int *panel_dims,int ndims, char *extra_string, int row_spec)
 {
   int i, first_time;
   char *title, title2[10];
@@ -29,17 +29,17 @@ char *create_title(int *parray, int *parray_copy, int nplots, int *panel_dims,
 
   first_time = 1;
   for(i = 0; i < nplots; i++) {
-    if(parray[i] == 0) {
+    if(parray[i].base == 0) {
       if(first_time) {
         sprintf(title2,":C:plots %d", i);
-	strcat(title,title2);
+        strcat(title,title2);
         first_time = 0;
       }
       else {
         sprintf(title2,", %d", i);
         strcat(title,title2);
       }
-      parray[i] = parray_copy[i];
+      parray[i].base = parray_copy[i].base;
     }
   }
   if(!first_time) {
@@ -60,9 +60,10 @@ main()
  * Declare variables for the HLU routine calls.
  */
 
-  int wks, text, *carray, *carray_copy;
+  int wks;
+  nglPlotId text, *carray, *carray_copy;
   int wk_rlist, sf_rlist, tx_rlist, cn_rlist;
-  int srlist, cmap_len[2];
+  int srlist, lb_rlist, cmap_len[2];
   float *xf, *yf, cmap[NCOLORS][3];
   int nplots, panel_dims[2], first_time, *row_spec;
   nglRes special_res, special_pres, special_tres;
@@ -98,7 +99,8 @@ main()
   float xmsg, ymsg;
   int nlines, *indices;
 
-  extern char *create_title(int *, int *, int, int *, int, char *, int);
+  extern char *create_title(nglPlotId *, nglPlotId *, int, int *, int, 
+                            char *, int);
 
   xmsg = ymsg = -999;
 
@@ -384,9 +386,10 @@ main()
   special_pres.nglPaperMargin      =  0.5;
 
 /*
- * Special resources for paneling.
+ * Special resources for paneling. These are the default values.
  */
-  special_pres.nglDebug                   = 1;
+  special_pres.nglPanelSave               = 0;
+  special_pres.nglDebug                   = 0;
   special_pres.nglPanelCenter             = 1;
   special_pres.nglPanelRowSpec            = 0;
   special_pres.nglPanelXWhiteSpacePercent = 1.;
@@ -400,7 +403,23 @@ main()
   special_pres.nglPanelInvsblLeft         = -999;
   special_pres.nglPanelInvsblRight        = -999;
   special_pres.nglPanelInvsblBottom       = -999;
-  special_pres.nglPanelSave               = 0;
+
+/*
+ * Default settings for PanelLabelBar resources.
+ */
+  special_pres.nglPanelLabelBar               = 0;  
+  special_pres.nglPanelLabelBarOrientation    = NhlHORIZONTAL;
+  special_pres.nglPanelLabelBarXF             = -999.;
+  special_pres.nglPanelLabelBarYF             = -999.;
+  special_pres.nglPanelLabelBarWidthF         = -999.;
+  special_pres.nglPanelLabelBarHeightF        = -999.;
+  special_pres.nglPanelLabelBarOrthogonalPosF = -999;
+  special_pres.nglPanelLabelBarParallelPosF   = -999;
+
+/*
+ * This resource isn't recognized yet.
+ */
+  special_pres.nglPanelFigureStringsFontHeightF = -999.;
     
   special_pres.nglMaximize = 1;
   special_pres.nglFrame    = 1;
@@ -432,7 +451,7 @@ main()
  */
 
   wk_rlist = NhlRLCreate(NhlSETRL);
-  wks = ngl_open_wks_wrap("x11","panel", wk_rlist);
+  wks = ngl_open_wks_wrap("ncgm","panel", wk_rlist);
 
 /*
  * Initialize and clear resource lists.
@@ -445,6 +464,7 @@ main()
   NhlRLClear(tx_rlist);
   NhlRLClear(cn_rlist);
 
+  lb_rlist = NhlRLCreate(NhlSETRL);
   srlist = NhlRLCreate(NhlSETRL);
   NhlRLClear(srlist);
 
@@ -458,7 +478,7 @@ main()
   }
   (void)NhlSetValues(wks, srlist);
 
-  NhlRLSetString (cn_rlist,"pmLabelBarDisplayMode"  , "Always");
+  NhlRLSetString (cn_rlist,"pmLabelBarDisplayMode"  , "Never");
   NhlRLSetString (cn_rlist,"pmLabelBarSide"         , "Bottom");
   NhlRLSetString (cn_rlist,"lbOrientation"          , "Horizontal");
   NhlRLSetString (cn_rlist,"lbPerimOn"              , "False");
@@ -467,6 +487,11 @@ main()
   NhlRLSetFloat  (cn_rlist,"tiMainFontHeightF"      , 0.03);
   NhlRLSetString (cn_rlist,"tiMainString"           , ":F25:Wind velocity vectors");
   
+  NhlRLSetString (cn_rlist,"cnLevelSelectionMode"   , "ManualLevels");
+  NhlRLSetFloat  (cn_rlist,"cnLevelSpacingF"        ,  10.);
+  NhlRLSetFloat  (cn_rlist,"cnMinLevelValF"         , -20.);
+  NhlRLSetFloat  (cn_rlist,"cnMaxLevelValF"         ,  80.);
+  NhlRLSetFloat  (cn_rlist,"cnLevelSpacingF"        ,  10.);
   NhlRLSetString (cn_rlist,"cnFillOn"               , "True");
 
 /*
@@ -475,8 +500,8 @@ main()
  * Create a separate array to hold the same plots, but set some of
  * them to "0" (missing).
  */
-  carray      = (int*)malloc(ntime_T2*sizeof(int));
-  carray_copy = (int*)malloc(ntime_T2*sizeof(int));
+  carray      = (nglPlotId*)malloc(ntime_T2*sizeof(nglPlotId));
+  carray_copy = (nglPlotId*)malloc(ntime_T2*sizeof(nglPlotId));
 
   special_res.nglMaximize = 0;
   special_res.nglFrame    = 0;
@@ -512,8 +537,9 @@ main()
   special_tres.nglFrame = 1;
 
 /*
- * Begin panel plots.
+ * Begin panel plots. Set nglPanelLabelBar to True (default is False);
  */
+  special_pres.nglPanelLabelBar = 1;
 
 /*
  * Tests for gsnPanelRowSpec.
@@ -528,97 +554,105 @@ main()
   nplots = 6;
 
   special_pres.nglPanelCenter = 1;
-  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, &special_pres);
+
+  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, row_spec, 3, "PanelCenter is True", 1);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
   special_pres.nglPanelCenter = 0;
-  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, &special_pres);
+  ngl_panel_wrap(wks, &carray[0], nplots, row_spec, 3, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, row_spec, 3, "PanelCenter is False", 1);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[0] = 0;
+  carray[0].base = 0;
   special_pres.nglPanelCenter = 1;
-  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, &special_pres);
+
+  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, row_spec, 3, "PanelCenter is True", 1);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[0] = 0;
+  carray[0].base = 0;
   special_pres.nglPanelCenter = 0;
-  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, row_spec, 3, "PanelCenter is False", 1);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[5] = 0;
+  carray[5].base = 0;
   special_pres.nglPanelCenter = 1;
-  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, row_spec, 3, "PanelCenter is True", 1);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[5] = 0;
+  carray[5].base = 0;
   special_pres.nglPanelCenter = 0;
-  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, row_spec, 3, "PanelCenter is False", 1);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[0] = 0;
-  carray[1] = 0;
-  carray[2] = 0;
+  carray[0].base = 0;
+  carray[1].base = 0;
+  carray[2].base = 0;
   special_pres.nglPanelCenter = 1;
-  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, &special_pres);
+
+  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, row_spec, 3, "PanelCenter is True", 1);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[0] = 0;
-  carray[1] = 0;
-  carray[2] = 0;
+  carray[0].base = 0;
+  carray[1].base = 0;
+  carray[2].base = 0;
   special_pres.nglPanelCenter = 0;
-  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, &special_pres);
+
+  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, row_spec, 3, "PanelCenter is False", 1);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[3] = 0;
-  carray[4] = 0;
+  carray[3].base = 0;
+  carray[4].base = 0;
   special_pres.nglPanelCenter = 1;
-  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, &special_pres);
+
+  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, row_spec, 3, "PanelCenter is True", 1);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[3] = 0;
-  carray[4] = 0;
+  carray[3].base = 0;
+  carray[4].base = 0;
   special_pres.nglPanelCenter = 0;
-  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, &special_pres);
+
+  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, row_spec, 3, "PanelCenter is False", 1);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[0] = 0;
-  carray[1] = 0;
-  carray[2] = 0;
-  carray[3] = 0;
-  carray[4] = 0;
+  carray[0].base = 0;
+  carray[1].base = 0;
+  carray[2].base = 0;
+  carray[3].base = 0;
+  carray[4].base = 0;
   special_pres.nglPanelCenter = 1;
-  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, &special_pres);
+
+  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, row_spec, 3, "PanelCenter is True", 1);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[0] = 0;
-  carray[1] = 0;
-  carray[2] = 0;
-  carray[3] = 0;
-  carray[4] = 0;
+  carray[0].base = 0;
+  carray[1].base = 0;
+  carray[2].base = 0;
+  carray[3].base = 0;
+  carray[4].base = 0;
   special_pres.nglPanelCenter = 0;
-  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, &special_pres);
+
+  ngl_panel_wrap(wks, carray, nplots, row_spec, 3, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, row_spec, 3, "PanelCenter is False", 1);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
@@ -631,21 +665,22 @@ main()
   panel_dims[0] = 1;
   panel_dims[1] = 3;
   nplots = panel_dims[0] * panel_dims[1];
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,"",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[0] = 0;
+  carray[0].base = 0;
 
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,"",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[2] = 0;
+  carray[2].base = 0;
 
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,"",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
@@ -657,21 +692,21 @@ main()
   panel_dims[0] = 3;          /* rows    */
   panel_dims[1] = 1;          /* columns */
   nplots = panel_dims[0] * panel_dims[1];
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,"",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[0] = 0;
+  carray[0].base = 0;
 
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,"",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[2] = 0;
+  carray[2].base = 0;
 
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,"",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
@@ -683,41 +718,41 @@ main()
   panel_dims[0] = 2;          /* rows    */
   panel_dims[1] = 3;          /* columns */
   nplots = panel_dims[0] * panel_dims[1];
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,"",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[0] = 0;
-  carray[1] = 0;
-  carray[2] = 0;
+  carray[0].base = 0;
+  carray[1].base = 0;
+  carray[2].base = 0;
 
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,"",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[3] = 0;
-  carray[4] = 0;
-  carray[5] = 0;
+  carray[3].base = 0;
+  carray[4].base = 0;
+  carray[5].base = 0;
 
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,"",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[0] = 0;
-  carray[3] = 0;
+  carray[0].base = 0;
+  carray[3].base = 0;
 
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,"",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[2] = 0;
-  carray[5] = 0;
+  carray[2].base = 0;
+  carray[5].base = 0;
 
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,"",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
@@ -729,49 +764,49 @@ main()
   panel_dims[0] = 3;          /* rows    */
   panel_dims[1] = 2;          /* columns */
   nplots = panel_dims[0] * panel_dims[1];
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,"",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[0] = 0;
-  carray[1] = 0;
+  carray[0].base = 0;
+  carray[1].base = 0;
 
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,"",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[2] = 0;
-  carray[3] = 0;
+  carray[2].base = 0;
+  carray[3].base = 0;
 
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,"",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[4] = 0;
-  carray[5] = 0;
+  carray[4].base = 0;
+  carray[5].base = 0;
 
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,"",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[0] = 0;
-  carray[2] = 0;
-  carray[4] = 0;
+  carray[0].base = 0;
+  carray[2].base = 0;
+  carray[4].base = 0;
 
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,"",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[1] = 0;
-  carray[3] = 0;
-  carray[5] = 0;
+  carray[1].base = 0;
+  carray[3].base = 0;
+  carray[5].base = 0;
 
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,"",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
@@ -782,29 +817,29 @@ main()
   panel_dims[0] = 3;          /* rows    */
   panel_dims[1] = 2;          /* columns */
   nplots = 4;
-  ngl_panel_wrap(wks, carray, 4, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, 4, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,
-		       "4 plots passed in",0);
+                       "4 plots passed in",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[0] = 0;
-  carray[1] = 0;
-  ngl_panel_wrap(wks, carray, 4, panel_dims, 2, &special_pres);
+  carray[0].base = 0;
+  carray[1].base = 0;
+  ngl_panel_wrap(wks, carray, 4, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,
                        "4 plots passed in",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
   nplots = 2;
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,
                        "2 plots passed in",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
   nplots = 1;
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,
                        "1 plot passed in",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
@@ -821,14 +856,14 @@ main()
   nplots = 8;
 
   special_pres.nglPanelCenter = 1;
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,
                        "8 plots passed in:C:center is True",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
   special_pres.nglPanelCenter = 0;
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,
                        "8 plots passed in:C:center is True",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
@@ -837,20 +872,20 @@ main()
 /*
  * Same thing as above, only with some missing plots thrown in.
  */
-  carray[0] = 0;
-  carray[1] = 0;
+  carray[0].base = 0;
+  carray[1].base = 0;
 
   special_pres.nglPanelCenter = 1;
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,
                        "8 plots passed in:C:center is True",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[0] = 0;
-  carray[1] = 0;
+  carray[0].base = 0;
+  carray[1].base = 0;
   special_pres.nglPanelCenter = 0;
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,
                        "8 plots passed in:C:center is False",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
@@ -862,14 +897,14 @@ main()
   nplots = 5;
 
   special_pres.nglPanelCenter = 1;
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,
                        "5 plots passed in:C:center is True",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
   special_pres.nglPanelCenter = 0;
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,
                        "5 plots passed in:C:center is False",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
@@ -878,20 +913,20 @@ main()
 /*
  * Same thing as above, only with some missing plots thrown in.
  */
-  carray[3] = 0;
-  carray[4] = 0;
+  carray[3].base = 0;
+  carray[4].base = 0;
 
   special_pres.nglPanelCenter = 1;
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,
                        "5 plots passed in:C:center is True",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[3] = 0;
-  carray[4] = 0;
+  carray[3].base = 0;
+  carray[4].base = 0;
   special_pres.nglPanelCenter = 0;
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,
                        "5 plots passed in:C:center is False",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
@@ -903,14 +938,14 @@ main()
   nplots = 3;
 
   special_pres.nglPanelCenter = 1;
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,
                        "3 plots passed in:C:center is True",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
   special_pres.nglPanelCenter = 0;
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,
                        "3 plots passed in:C:center is False",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
@@ -919,20 +954,20 @@ main()
 /*
  * Same thing as above, only with some missing plots thrown in.
  */ 
-  carray[0] = 0;
-  carray[1] = 0;
+  carray[0].base = 0;
+  carray[1].base = 0;
 
   special_pres.nglPanelCenter = 1;
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,
                        "3 plots passed in:C:center is True",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
-  carray[0] = 0;
-  carray[1] = 0;
+  carray[0].base = 0;
+  carray[1].base = 0;
   special_pres.nglPanelCenter = 0;
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,
                        "3 plots passed in:C:center is False",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
@@ -944,14 +979,14 @@ main()
   nplots = 1;
 
   special_pres.nglPanelCenter = 1;
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,
                        "1 plot passed in:C:center is True",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",
                            tx_rlist,&special_tres);
 
   special_pres.nglPanelCenter = 0;
-  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, &special_pres);
+  ngl_panel_wrap(wks, carray, nplots, panel_dims, 2, lb_rlist, &special_pres);
   title = create_title(carray, carray_copy, nplots, panel_dims,2,
                        "1 plot passed in:C:center is False",0);
   text = ngl_text_ndc_wrap(wks,title,(void*)xf,(void*)yf,"float","float",

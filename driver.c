@@ -65,8 +65,9 @@ main()
  * Declare variables for the HLU routine calls.
  */
 
-  int wks, contour, xy, vector, streamline, map, text, text1, text2;
-  int cntrmap, vctrmap, strmlnmap, *varray, *varray_copy;
+  int wks;
+  nglPlotId contour, xy, vector, streamline, map, text, text1, text2;
+  nglPlotId cntrmap, vctrscalar, vctrmap, strmlnmap;
   int wk_rlist, sf_rlist, sf2_rlist, ca_rlist, vf_rlist, tx_rlist;
   int cn_rlist, xy_rlist, xyd_rlist, vc_rlist, st_rlist, mp_rlist;
   int cn2_rlist, vc2_rlist, mp2_rlist, gs_rlist, am_rlist;
@@ -75,7 +76,8 @@ main()
   int pttrns[]    = {0,1,2,3,4,5,6,7,8,9,10,11,12};
   int srlist, cmap_len[2];
   float xf, yf, cmap[NCOLORS][3], xm, ym;
-  int   ixf, iyf, i1, i2, i3;
+  int   ixf, iyf;
+  nglPlotId i1, i2, i3;
   int panel_dims[2];
   nglRes special_res, special_pres;
 
@@ -745,9 +747,9 @@ main()
  */
   special_res.nglDraw     = 1;
   special_res.nglFrame    = 1;
-  special_res.nglMaximize = 0;
+  special_res.nglMaximize = 1;
   special_res.nglScale    = 0;
-  special_res.nglDebug    = 1;
+  special_res.nglDebug    = 0;
 
   special_res.nglSpreadColors     = 0;
   special_res.nglSpreadColorStart = 2;
@@ -760,39 +762,12 @@ main()
   special_res.nglPaperWidth       =  8.5;
   special_res.nglPaperHeight      = 11.0;
   special_res.nglPaperMargin      =  0.5;
-  special_res.nglPanelCenter             = 1;
-  special_res.nglPanelRowSpec            = 0;
-  special_res.nglPanelXWhiteSpacePercent = 1.;
-  special_res.nglPanelYWhiteSpacePercent = 1.;
-  special_res.nglPanelBoxes              = 0;
-  special_res.nglPanelLeft               = 0.;
-  special_res.nglPanelRight              = 1.;
-  special_res.nglPanelBottom             = 0.;
-  special_res.nglPanelTop                = 1.;
-  special_res.nglPanelInvsblTop          = -999;
-  special_res.nglPanelInvsblLeft         = -999;
-  special_res.nglPanelInvsblRight        = -999;
-  special_res.nglPanelInvsblBottom       = -999;
-  special_res.nglPanelSave               = 0;
 
   special_pres.nglDraw    = 1;
   special_pres.nglFrame   = 0;
   special_pres.nglMaximize= 0;
-  special_pres.nglDebug   = 1;
-  special_pres.nglPanelCenter             = 1;
-  special_pres.nglPanelRowSpec            = 0;
-  special_pres.nglPanelXWhiteSpacePercent = 1.;
-  special_pres.nglPanelYWhiteSpacePercent = 1.;
-  special_pres.nglPanelBoxes              = 0;
-  special_pres.nglPanelLeft               = 0.;
-  special_pres.nglPanelRight              = 1.;
-  special_pres.nglPanelBottom             = 0.;
-  special_pres.nglPanelTop                = 1.;
-  special_pres.nglPanelInvsblTop          = -999;
-  special_pres.nglPanelInvsblLeft         = -999;
-  special_pres.nglPanelInvsblRight        = -999;
-  special_pres.nglPanelInvsblBottom       = -999;
-  special_pres.nglPanelSave               = 0;
+  special_pres.nglDebug   = 0;
+
   special_pres.nglPaperOrientation = -1;
   special_pres.nglPaperWidth       =  8.5;
   special_pres.nglPaperHeight      = 11.0;
@@ -842,7 +817,7 @@ main()
  */
 
   wk_rlist = NhlRLCreate(NhlSETRL);
-  wks = ngl_open_wks_wrap("ps","test", wk_rlist);
+  wks = ngl_open_wks_wrap("x11","driver", wk_rlist);
 
 /* 
  * Set color map resource and open workstation.
@@ -985,7 +960,7 @@ main()
     NhlRLClear(gs_rlist);
     NhlRLSetString (gs_rlist,"gsLineColor",       "red");
     NhlRLSetInteger(gs_rlist,"gsLineDashPattern", 11);
-    ngl_polyline_wrap(wks, xy, (void *)xline2, (void *)yline2, "float",
+    ngl_polyline_wrap(wks, xy.base, (void *)xline2, (void *)yline2, "float",
                       "float", 5, 0, 0, NULL, NULL, 
                       gs_rlist, &special_pres);
 
@@ -1040,16 +1015,16 @@ main()
 
     ixf = -130;
     iyf =  268;
-    text1 = ngl_add_text_wrap(wks, xy, "~F26~ngl_add_text:~C~sideways", 
+    text1 = ngl_add_text_wrap(wks, xy.base, "~F26~ngl_add_text:~C~sideways", 
                              &ixf, &iyf, "integer","integer",tx_rlist,
                              am_rlist, &special_pres);
 
-    NhlDraw(xy);
+    NhlDraw(xy.base);
 
     NhlRLSetFloat  (tx_rlist,"txAngleF",     270.);
     NhlRLSetString (tx_rlist,"txFontColor",  "green");
     ixf = -80;
-    text2 = ngl_text_wrap(wks, xy, "~F26~ngl_text:~C~green, sideways", 
+    text2 = ngl_text_wrap(wks, xy.base, "~F26~ngl_text:~C~green, sideways", 
                          &ixf, &iyf,"integer","integer",tx_rlist,
                           &special_pres);
 
@@ -1079,29 +1054,33 @@ main()
     NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 0.02);
     xm = -70.;
     ym = 271.5;
-    ngl_polymarker_wrap(wks, xy, (void *)&xm, (void *)&ym, "float", "float", 
-                        1, 0, 0, NULL, NULL,  gs_rlist, &special_pres);
+    ngl_polymarker_wrap(wks, xy.base, (void *)&xm, (void *)&ym, "float",
+                        "float", 1, 0, 0, NULL, NULL, gs_rlist,
+                        &special_pres);
 
     xm = -50.;
     NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 0.03);
-    ngl_polymarker_wrap(wks, xy, (void *)&xm, (void *)&ym, "float", "float", 
-                        1, 0, 0, NULL, NULL,  gs_rlist, &special_pres);
+    ngl_polymarker_wrap(wks, xy.base, (void *)&xm, (void *)&ym, "float", 
+                        "float", 1, 0, 0, NULL, NULL,  gs_rlist,
+                        &special_pres);
 
     xm = -30.;
     NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 0.04);
-    ngl_polymarker_wrap(wks, xy, (void *)&xm, (void *)&ym, "float", "float", 
-                        1, 0, 0, NULL, NULL,  gs_rlist, &special_pres);
+    ngl_polymarker_wrap(wks, xy.base, (void *)&xm, (void *)&ym, "float",
+                        "float", 1, 0, 0, NULL, NULL,  gs_rlist, &special_pres);
 
     xm = -10.;
     NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 0.05);
-    ngl_polymarker_wrap(wks, xy, (void *)&xm, (void *)&ym, "float", "float", 
-                        1, 0, 0, NULL, NULL,  gs_rlist, &special_pres);
+    ngl_polymarker_wrap(wks, xy.base, (void *)&xm, (void *)&ym, "float",
+                        "float", 1, 0, 0, NULL, NULL,  gs_rlist,
+                        &special_pres);
 
 
     xm =  10.;
     NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 0.06);
-    ngl_polymarker_wrap(wks, xy, (void *)&xm, (void *)&ym, "float", "float", 
-                        1, 0, 0, NULL, NULL,  gs_rlist, &special_pres);
+    ngl_polymarker_wrap(wks, xy.base, (void *)&xm, (void *)&ym, "float",
+                        "float", 1, 0, 0, NULL, NULL,  gs_rlist,
+                        &special_pres);
 
     NhlFrame(wks);
   }
@@ -1269,6 +1248,7 @@ main()
 
     special_res.nglScale    = 1;
     special_res.nglFrame    = 0;
+    special_res.nglMaximize = 0;
 
     cntrmap = ngl_contour_map_wrap(wks, P, type_P, nlat_UV, nlon_UV, 
                                    is_lat_coord_UV, lat_UV, type_lat_UV, 
@@ -1276,6 +1256,7 @@ main()
                                    is_missing_P, FillValue_P, 
                                    sf_rlist, cn_rlist, mp_rlist,
                                    &special_res);
+    special_res.nglMaximize = 1;
     special_res.nglFrame    = 1;
     special_res.nglScale    = 0;
 
@@ -1354,7 +1335,7 @@ main()
 /*
  * Now create and draw plot.
  */
-      vctrmap = ngl_vector_scalar_wrap(wks, U, V, T2, type_U, type_V,
+      vctrscalar = ngl_vector_scalar_wrap(wks, U, V, T2, type_U, type_V,
                                        type_T2, nlat_UV, nlon_UV, 
                                        is_lat_coord_UV, lat_UV, type_lat_UV, 
                                        is_lon_coord_UV, lon_UV, type_lon_UV,
@@ -1513,7 +1494,7 @@ main()
     
     ixf = -93;
     iyf =  65;
-    text = ngl_text_wrap(wks,strmlnmap,"ngl_text: lat=65,lon=-93",
+    text = ngl_text_wrap(wks,strmlnmap.base,"ngl_text: lat=65,lon=-93",
                          &ixf, &iyf, "integer", "integer", tx_rlist,
                          &special_pres);
 /*
@@ -1615,11 +1596,11 @@ main()
  */
     NhlRLClear(gs_rlist);
     NhlRLSetInteger (gs_rlist,"gsFillIndex", 17);
-    i1 = ngl_add_polygon_wrap(wks, vctrmap, (void *)longon, (void *)latgon,
+    i1 = ngl_add_polygon_wrap(wks, vctrmap.base, (void *)longon, (void *)latgon,
                               "integer", "integer", 5, 0, 0, NULL, NULL, 
                               gs_rlist, &special_pres);
     NhlRLSetInteger (gs_rlist,"gsLineThicknessF", 2.0);
-    i2 = ngl_add_polyline_wrap(wks, vctrmap, (void *)longon, (void *)latgon,
+    i2 = ngl_add_polyline_wrap(wks, vctrmap.base, (void *)longon, (void *)latgon,
                                "integer", "integer", 5, 0, 0, NULL, NULL, 
                                gs_rlist, &special_pres);
 
@@ -1628,7 +1609,7 @@ main()
  */
     NhlRLSetInteger(gs_rlist,"gsMarkerIndex", 16);
     NhlRLSetFloat  (gs_rlist,"gsMarkerSizeF", 10.5);
-    i3 = ngl_add_polymarker_wrap(wks, vctrmap, (void *)longon, 
+    i3 = ngl_add_polymarker_wrap(wks, vctrmap.base, (void *)longon, 
                                  (void *)latgon, "integer", "integer", 4, 0,
                                  0, NULL, NULL, gs_rlist,&special_pres);
 
@@ -1642,14 +1623,14 @@ main()
     NhlRLSetString (tx_rlist,"txFont"       , "helvetica");
     NhlRLSetString (tx_rlist,"txJust"       , "BottomRight");
 
-    text1 = ngl_add_text_wrap(wks, vctrmap, "lat=  60:C:lon=-125", &ixf, 
+    text1 = ngl_add_text_wrap(wks, vctrmap.base, "lat=  60:C:lon=-125", &ixf, 
                              &yf, "integer", "float", tx_rlist, am_rlist,
                              &special_pres);
 
     ixf = -65;
     yf  =  60;
     NhlRLSetString (tx_rlist,"txJust", "BottomLeft");
-    text2 = ngl_add_text_wrap(wks,vctrmap,"lat= 60:C:lon=-65",
+    text2 = ngl_add_text_wrap(wks,vctrmap.base,"lat= 60:C:lon=-65",
                              &ixf, &yf, "integer", "float", tx_rlist,
                              am_rlist, &special_pres);
 /*
@@ -1658,7 +1639,7 @@ main()
  * drawn too, since they are attached to the map.
  */
 
-    NhlDraw(vctrmap);
+    NhlDraw(vctrmap.base);
 
 /*
  * Label the other two corners of the polygon with text.
@@ -1667,13 +1648,13 @@ main()
     NhlRLSetString (tx_rlist,"txJust", "TopRight");
     ixf = -125;
     yf  =   20;
-    text = ngl_text_wrap(wks,vctrmap,"lat=  20:C:lon=-125",
+    text = ngl_text_wrap(wks,vctrmap.base,"lat=  20:C:lon=-125",
                          &ixf, &yf, "integer", "float", tx_rlist,
                          &special_pres);
     ixf = -65;
     yf  =  20;
     NhlRLSetString (tx_rlist,"txJust", "TopLeft");
-    text = ngl_text_wrap(wks,vctrmap,"lat= 20:C:lon=-65", &ixf, &yf,
+    text = ngl_text_wrap(wks,vctrmap.base,"lat= 20:C:lon=-65", &ixf, &yf,
                          "integer", "float", tx_rlist, &special_pres);
 
     NhlFrame(wks);
@@ -1689,7 +1670,7 @@ main()
     NhlRLSetFloat(srlist,"vpWidthF",  0.4);
     NhlRLSetFloat(srlist,"vpHeightF", 0.4);
 
-    NhlSetValues(vctrmap,srlist);
+    NhlSetValues(vctrmap.base,srlist);
 
   }
 /*
