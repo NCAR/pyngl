@@ -1,0 +1,7 @@
+include setup.py
+include PyNGL/Ngl.py
+include PyNGL/__init__.py
+include PyNGL/hlu.py
+include PyNGL/_hlu.so
+include pynglex
+recursive-include ncarg *
