@@ -712,6 +712,9 @@ def ngl_contour_map(wks,array,rlistc=None):
     if(key[0:8] == "cnFillOn" and rlist[key] > 0):
       if ( not (rlist.has_key("pmLabelBarDisplayMode"))):
         rlist3["pmLabelBarDisplayMode"] = "Always"
+      if ( not (rlist.has_key("cnInfoLabelOn"))):
+        rlist3["cnInfoLabelOn"] = False
+      if ( not (rlist.has_key("lbPerimOn"))):
         rlist3["lbPerimOn"] = 0
     if (key[0:2] == "sf"):
       rlist1[key] = rlist[key]
@@ -769,6 +772,9 @@ def ngl_contour(wks,array,rlistc=None):
     if(key[0:8] == "cnFillOn" and rlist[key] > 0):
       if ( not (rlist.has_key("pmLabelBarDisplayMode"))):
         rlist2["pmLabelBarDisplayMode"] = "Always"
+      if ( not (rlist.has_key("cnInfoLabelOn"))):
+        rlist2["cnInfoLabelOn"] = False
+      if ( not (rlist.has_key("lbPerimOn"))):
         rlist2["lbPerimOn"] = 0
     if (key[0:2] == "sf"):
       rlist1[key] = rlist[key]
