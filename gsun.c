@@ -1705,6 +1705,10 @@ nglPlotId ngl_contour_map_wrap(int wks, void *data, const char *type,
   *(plot.sffield) = *(contour.sffield);
   *(plot.contour) = *(contour.base);
   *(plot.map)     = *(map.base);
+  plot.nsffield   = 1;
+  plot.ncontour   = 1;
+  plot.nmap       = 1;
+  plot.nbase      = plot.nmap;
 
 /*
  * Draw plots and advance frame.
@@ -1783,11 +1787,10 @@ nglPlotId ngl_vector_map_wrap(int wks, void *u, void *v, const char *type_u,
   *(plot.vffield) = *(vector.vffield);
   *(plot.vector)  = *(vector.base);
   *(plot.map)     = *(map.base);
-
-  plot.nvffield = 1;
-  plot.nvector  = 1;
-  plot.nmap     = 1;
-  plot.nbase    = plot.nmap;
+  plot.nvffield   = 1;
+  plot.nvector    = 1;
+  plot.nmap       = 1;
+  plot.nbase      = plot.nmap;
 
 /*
  * Draw plots and advance frame.
@@ -1961,11 +1964,9 @@ nglPlotId ngl_vector_scalar_wrap(int wks, void *u, void *v, void *t,
   plot.sffield    = (int *)malloc(sizeof(int));
   plot.vector     = (int *)malloc(sizeof(int));
   plot.base       = plot.vector;
-
   *(plot.vffield) = vffield;
   *(plot.sffield) = sffield;
   *(plot.vector)  = vector;
-
   plot.nvffield = 1;
   plot.nsffield = 1;
   plot.nvector  = 1;
