@@ -1272,15 +1272,11 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
 /*
  * Create Application object.
  */
-  NhlRLClear(ap_rlist);
   if(!is_res_set(ap_res,"appDefaultParent")) {
     NhlRLSetString(ap_rlist,"appDefaultParent","True");
   }
   if(!is_res_set(ap_res,"appUsrDir")) {
     NhlRLSetString(ap_rlist,"appUsrDir","./");
-  }
-  else {
-    printf("Not setting appUsrDir b/c already set by user.\n");
   }
   if(special_res->nglAppResFileName == NULL ||
      !strcmp(special_res->nglAppResFileName,"")) {

@@ -154,15 +154,6 @@ typedef struct _ResInfo {
 } ResInfo;
 
 /*
- *  Structure for passing resource list information.
- */
-typedef struct _res_names {
-  int id;
-  int nstrings;
-  char **strings;
-} res_names;
-
-/*
  * Supplemental functions. 
  */
 
