@@ -16,8 +16,7 @@ from Scientific.IO.NetCDF import NetCDFFile
 #
 #  Open a netCDF file containing the grid and data from the HOMME
 #  (High-Order Multiscale Modeling Environment) model, formerly
-#  called SEAM (Spectral Element Atmosphere Model). This grid came
-#  to us from Steve Thomas of NCAR.
+#  called SEAM (Spectral Element Atmosphere Model).
 #
 dirc  = Ngl.ncargpath("data")
 cfile = NetCDFFile(dirc + "/cdf/seam.nc")
@@ -28,7 +27,7 @@ cfile = NetCDFFile(dirc + "/cdf/seam.nc")
 #
 lon = Numeric.ravel(cfile.variables["lon2d"][:,:])
 lat = Numeric.ravel(cfile.variables["lat2d"][:,:])
-ps  = Numeric.ravel(cfile.variables["ps"][0,:,:])
+ps  = Numeric.ravel(cfile.variables["ps"][0,:,:])/100.
 
 #
 #  Select a colormap and open a workstation.
@@ -57,7 +56,7 @@ resources.cnLineLabelsOn      = False
 
 resources.lbBoxLinesOn        = False
 resources.lbLabelFontHeightF  = 0.015
-resources.tiMainString        = "SEAM grid - surface pressure"
+resources.tiMainString        = "HOMME grid - surface pressure (mb)"
 
 #
 # The contour plot is not very interesting, so don't draw it.
@@ -105,14 +104,13 @@ resources.mpCenterLatF       = 0
 map = Ngl.contour_map(wks,ps,resources)
 
 resources.cnRasterSmoothingOn = True
-resources.tiMainString        = "Surface pressure with smoothing on" 
+resources.tiMainString        = "HOMME grid: Surface pressure w/smoothing"
 
 map = Ngl.contour_map(wks,ps,resources)
 
 del resources.lbLabelFontHeightF        # Let PyNGL set font height.
 
 resources.lbOrientation = "Vertical"
-resources.tiMainString  = "SEAM grid: Surface pressure w/smoothing"
 resources.mpProjection  = "LambertEqualArea"
 resources.mpCenterLatF  = 40
 resources.mpCenterLonF  = 130
