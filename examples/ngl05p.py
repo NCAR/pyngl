@@ -142,6 +142,8 @@ resources.mpMinLatF   = min(pf_lat)
 resources.mpMaxLatF   = max(pf_lat)
 resources.mpPerimOn   = True        # Turn on map perimeter.
 
+resources.pmTickMarkDisplayMode = "Never"  # Turn off map tickmarks.
+
 resources.tiMainString = ":F26:January 1996 storm" # Set a title.
 
 resources.vpXF      = 0.1    # Change the size and location of the
