@@ -3085,13 +3085,15 @@ import_array();
   arg8 = (float *) malloc(arg1*sizeof(float));
 %}
 
-%typemap(in) int res_list {
-  int i,pos=0,list_type,list_len;
+%typemap(in) ResInfo *rlist {
+  int i,pos=0,list_type,list_len,count;
   PyObject *key,*value;
   PyArrayObject *arr;
   char **strings;
   double *dvals;
   int *ivals,array_type,rlist,ndims,*len_dims;
+  ResInfo trname;
+  char **trnames;
 
 /*
  *  Clear the resource list.
@@ -3103,6 +3105,9 @@ import_array();
  *  Check on the type of the argument - it must be a dictionary.
  */
   if (PyDict_Check($input)) {
+    count = 0;
+    trname.nstrings = PyDict_Size($input);
+    trnames = (char **) malloc(trname.nstrings*sizeof(char *));
     pos = 0;
 /*
  *  Loop over the keyword/value pairs in the dictionary.
@@ -3110,6 +3115,9 @@ import_array();
  *  list, string, or array.
  */
     while (PyDict_Next($input, &pos, &key, &value)) {
+      trnames[count] = PyString_AsString(key);
+      count++;
+
 /*
  *  value is a tuple.
  */
@@ -3337,11 +3345,13 @@ import_array();
         return NULL;
       }
     }
+    trname.strings = trnames;
   }
   else {
     printf("Resource lists must be dictionaries\n");
   }
-  $1 = rlist;
+  trname.id = rlist;
+  $1 = (ResInfo *) &trname;
 }
 
 typedef char *NhlString;
@@ -3492,7 +3502,7 @@ extern void c_cprect(float *sequence_as_float, int, int, int, float *sequence_as
 extern void c_cpcldr(float *sequence_as_float, float *sequence_as_float, int *sequence_as_int);
 extern void c_plchhq(float, float, NhlString, float, float, float);
 
-extern int ngl_open_wks_wrap(const char *, const char *, int res_list, res_names *rcs_names);
+extern int ngl_open_wks_wrap(const char *, const char *, ResInfo *rlist);
 extern nglPlotId ngl_contour_wrap(int, void *sequence_as_void, 
                             const char *, int, int,
                             int, void *, const char *, int, void *, 

@@ -1168,18 +1168,22 @@ int vector_field(void *u, void *v, const char *type_u, const char *type_v,
  * and to open a workstation.
  */
 
-int ngl_open_wks_wrap(const char *type, const char *name, int wk_rlist, res_names *rn)
+int ngl_open_wks_wrap(const char *type, const char *name, ResInfo *res)
 {
-  int wks, len, tlen;
+  int wks, len, tlen, wk_rlist;
   char *filename = (char *) NULL;
   int srlist, app;
+  wk_rlist = res->id;
+
+  
 
 /*********************************************************************
  *  Print the contents of the resource name structure.
  *********************************************************************/
-  printf ("\nFrom ngl_open_wks_wrap, number of resources = %d\n",rn->number);
-  for (len = 0; len < rn->number; len++) {
-    printf("    string %3d = %s\n",len,(rn->strings)[len]);
+  printf ("\nFrom ngl_open_wks_wrap:\n  Resource identifier = %3d\n"
+          "  number of resources = %d\n",res->id, res->nstrings);
+  for (len = 0; len < res->nstrings; len++) {
+    printf("    string %3d = %s\n",len,(res->strings)[len]);
   }
   printf("\n");
 /*********************************************************************

@@ -538,7 +538,7 @@ def ngl_open_wks(wk_type,wk_name,wk_rlist):
 #
 #  Call the wrapped function and return.
 #
-  iopn = ngl_open_wks_wrap(wk_type,wk_name,rlist,rlist)
+  iopn = ngl_open_wks_wrap(wk_type,wk_name,rlist)
   del rlist
   return(iopn)
 
