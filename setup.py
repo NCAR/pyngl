@@ -19,7 +19,9 @@ from distutils.core import setup, Extension
 # Set copy_rangs to True if you want to copy over the RANGS/GSHHS
 # database. This database takes up about 100 megabytes.
 #
-copy_files = True
+# These variables are for internal use only.
+#
+copy_files = False
 copy_rangs = False
 
 #
