@@ -1,10 +1,10 @@
 #
-#  Import NumPy.
+#  Import NumPy and types.
 #
 import Numeric, types
 
 #
-#  Import all names from the NetCDF module.
+#  Import the NetCDF reader.
 #
 from Scientific.IO.NetCDF import NetCDFFile
 
@@ -16,7 +16,7 @@ import Ngl
 #
 #  Open the netCDF file.  This file is a netCDF version of the file:
 #
-#     Ngl.ncargpath("data") + "/grb/ced1.lf00.t00z.eta.grb"
+#     ncargpath("data") + "/grb/ced1.lf00.t00z.eta.grb"
 #
 file = NetCDFFile(Ngl.ncargpath("data") + "/cdf/ced1.lf00.t00z.eta.nc","r")
 
