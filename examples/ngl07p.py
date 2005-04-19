@@ -71,8 +71,8 @@ xyres.tmYROn                 = False    # Don't draw right axis tick marks.
 
 xyres.trXMaxF   = xr  # Specify data limits for X and Y axes.
 xyres.trXMinF   = xl
-xyres.trYMaxF   =  3.0
-xyres.trYMinF   = -2.0
+xyres.trYMaxF   =  3.02
+xyres.trYMinF   = -2.00
 
 xyres.vpHeightF = 0.25 # Define height, width, and location of plot.
 xyres.vpWidthF  = 0.80
