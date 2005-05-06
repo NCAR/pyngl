@@ -516,211 +516,6 @@ def change_workstation(obj,wks):
 def end():
   NhlClose()
 
-#
-#  Get indices of a list where the list values are true.
-#
-def ind(seq):
-  inds = []
-  for i in xrange(len(seq)):
-    if (seq[i] != 0):
-      inds.append(i)
-  return(inds)
-
-#
-# Add a cyclic point in the x dimension (longitude dimension) to
-# a 2D array. If there is also a 1D lon coordinate array, add 360 to 
-# create the cyclic point.
-#
-def add_cyclic(data,lon_coord=None):
-#
-# Check input data to make sure it is 2D.
-#
-  dims = data.shape
-  if (len(dims) != 2):
-    print "add_cyclic: input must be a 2-dimensional array."
-    sys.exit()
-
-  ny  = dims[0]
-  nx  = dims[1]
-  nx1 = nx + 1
-
-#
-# Test longitude array, if it exists.
-#
-  if(lon_coord != None):
-    lon_coord_dims = lon_coord.shape
-    lon_coord_rank = len(lon_coord_dims)
-#
-# Longitude coordindate array must be 1D.
-#
-    if (lon_coord_rank != 1):
-      print "add_cyclic: longitude coordinate array must be a 1-dimensional."
-      sys.exit()
-#
-# Check dimension size against data array.
-#
-    nlon = lon_coord_dims[0]
-    if (nlon != nx):
-      print "add_cyclic: longitude coordinate array must be the same length as the rightmost dimension of the data array."
-      sys.exit()
-
-#
-# Create the new data array with one extra value in the X direction.
-#
-  newdata         = Numeric.zeros((ny,nx1),data.typecode())
-  newdata[:,0:nx] = data
-  newdata[:,nx]   = data[:,0]
-
-#
-# Add 360 to the longitude value in order to make it cyclic.
-#
-  if(lon_coord != None):
-    newloncoord       = Numeric.zeros(nx1,lon_coord.typecode())
-    newloncoord[0:nx] = lon_coord
-    newloncoord[nx]   = lon_coord[0] + 360
-
-    return newdata,newloncoord
-  else:
-    return newdata
-
-def ftcurv(x,y,xo):
-  if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
-    dsizes_x = len(x)
-  elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_x = x.shape[0]
-  else:
-    print \
-     "ftcurv: type of argument 1 must be one of: list, tuple, or Numeric array"
-    return None
-  if ( ((type(y) == types.ListType) or (type(y) == types.TupleType)) ):
-    dsizes_y = len(y)
-  elif (type(y) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_y = y.shape[0]
-  else:
-    print \
-     "ftcurv: type of argument 2 must be one of: list, tuple, or Numeric array"
-    return None
-  if (dsizes_x != dsizes_y):
-    print "ftcurv: first and second arguments must be the same length."
-    return None
-
-  if ( ((type(xo) == types.ListType) or (type(xo) == types.TupleType)) ):
-    dsizes_xo = len(xo)
-  elif (type(xo) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_xo = xo.shape[0]
-
-  status,yo = ftcurvc(dsizes_x,x,y,dsizes_xo,xo)
-  if (status == 1):
-    print "ftcurv: input array must have at least three elements."
-    return None
-  elif (status == 2): 
-    print "ftcurv: input array values must be strictly increasing."
-    return None
-  else:
-    del status
-    return yo
-
-def ftcurvp(x,y,p,xo):
-  if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
-    dsizes_x = len(x)
-  elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_x = x.shape[0]
-  else:
-    print \
-     "ftcurvp: type of argument 1 must be one of: list, tuple, or Numeric array"
-    return None
-  if ( ((type(y) == types.ListType) or (type(y) == types.TupleType)) ):
-    dsizes_y = len(y)
-  elif (type(y) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_y = y.shape[0]
-  else:
-    print \
-     "ftcurvp: type of argument 2 must be one of: list, tuple, or Numeric array"
-    return None
-  if (dsizes_x != dsizes_y):
-    print "ftcurvp: first and second arguments must be the same length."
-    return None
-
-  if ( ((type(xo) == types.ListType) or (type(xo) == types.TupleType)) ):
-    dsizes_xo = len(xo)
-  elif (type(xo) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_xo = xo.shape[0]
-
-  status,yo = ftcurvpc(dsizes_x,x,y,p,dsizes_xo,xo)
-  if (status == 1):
-    print "ftcurvp: input array must have at least three elements."
-    return None
-  elif (status == 2):
-    print "ftcurvp: the period is strictly less than the span of the abscissae."
-    return None
-  else:
-    del status
-    return yo
-
-def ftcurvpi(xl, xr, p, x, y):
-  if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
-    dsizes_x = len(x)
-  elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_x = x.shape[0]
-  else:
-    print \
-     "ftcurvpi: type of argument 4 must be one of: list, tuple, or Numeric array"
-    return None
-  if ( ((type(y) == types.ListType) or (type(y) == types.TupleType)) ):
-    dsizes_y = len(y)
-  elif (type(y) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_y = y.shape[0]
-  else:
-    print \
-     "ftcurvpi: type of argument 5 must be one of: list, tuple, or Numeric array"
-    return None
-  if (dsizes_x != dsizes_y):
-    print "ftcurvpi: fourth and fifth arguments must be the same length."
-    return None
-
-  return (ftcurvpic(xl,xr,p,dsizes_x,x,y)[1])
-
-def natgrid(x,y,z,xo,yo):
-  if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
-    dsizes_x = len(x)
-  elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_x = x.shape[0]
-  else:
-    print \
-     "natgrid: type of argument 1 must be one of: list, tuple, or Numeric array"
-    return None
-
-  if ( ((type(xo) == types.ListType) or (type(xo) == types.TupleType)) ):
-    dsizes_xo = len(xo)
-  elif (type(xo) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_xo = xo.shape[0]
-  else:
-    print \
-     "natgrid: type of argument 4 must be one of: list, tuple, or Numeric array"
-    return None
-
-  if ( ((type(yo) == types.ListType) or (type(yo) == types.TupleType)) ):
-    dsizes_yo = len(yo)
-  elif (type(yo) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_yo = yo.shape[0]
-  else:
-    print \
-     "natgrid: type of argument 5 must be one of: list, tuple, or Numeric array"
-    return None
-
-  ier,zo = \
-     natgridc(dsizes_x,x,y,z,dsizes_xo,dsizes_yo,xo,yo,dsizes_xo,dsizes_yo)
-
-  if (ier != 0):
-    print "natgrid: error number %d returned, see error table." % (ier)
-    del ier
-    return None
-  else:
-    return zo
-
-def ncargpath(type):
-  return NGGetNCARGEnv(type)
-
 def crt_dict(resource_i):
   dic = {}
   if (resource_i == None):
@@ -1885,25 +1680,6 @@ def ck_type(fcn,arg,typ):
     return 1
   return 0
 
-def ismissing(var,mval):
-#
-#  Returns an array of the same shape as "var" that
-#  has True values in all places where "var" has 
-#  missing values.
-#
-  if (ck_type("ismissing",var,0) != 0):
-    return None
-  else:
-    return(Numeric.equal(var,mval))
-
-def fspan(min,max,num):
-  delta = (float(max-min)/float(num-1))
-  a = []
-  for i in range(num-1):
-    a.append(float(i)*delta)
-  a.append(max)
-  return Numeric.array(a,Numeric.Float0)
-
 def skewty(pres):    # y-coord given pressure (mb)
   if (ck_type("skewty",pres,0) != 0):
     return None
@@ -3003,42 +2779,189 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
   
   return skewt_bkgd
 
-def normalize_angle(ang,type):
+#########################################################################
+# 
+#   Processing functions:
+#     Ngl.add_cyclic
+#     Ngl.fspan
+#     Ngl.ftcurv
+#     Ngl.ftcurvp
+#     Ngl.ftcurvpi
+#     Ngl.gaus
+#     Ngl.gc_convert
+#     Ngl.gc_dist
+#     Ngl.gc_interp
+#     Ngl.ind
+#     Ngl.ismissing
+#     Ngl.natgrid
+#     Ngl.ncargpath
+#     Ngl.normalize_angle
+# 
+#########################################################################
 #
-#  This function normalizes the angle (assumed to be in degrees) to
-#  an equivalent angle in the range [0.,360.) if type equals 0, or
-#  to an equivalent angle in the range [-180.,180.) if type is not zero.
+# Add a cyclic point in the x dimension (longitude dimension) to
+# a 2D array. If there is also a 1D lon coordinate array, add 360 to 
+# create the cyclic point.
 #
-  bang = ang
-  if (type == 0):
-    while(bang < 0.):
-      bang = bang + 360.
-    while(bang >= 360.):
-      bang = bang - 360.
+def add_cyclic(data,lon_coord=None):
+#
+# Check input data to make sure it is 2D.
+#
+  dims = data.shape
+  if (len(dims) != 2):
+    print "add_cyclic: input must be a 2-dimensional array."
+    sys.exit()
+
+  ny  = dims[0]
+  nx  = dims[1]
+  nx1 = nx + 1
+
+#
+# Test longitude array, if it exists.
+#
+  if(lon_coord != None):
+    lon_coord_dims = lon_coord.shape
+    lon_coord_rank = len(lon_coord_dims)
+#
+# Longitude coordindate array must be 1D.
+#
+    if (lon_coord_rank != 1):
+      print "add_cyclic: longitude coordinate array must be a 1-dimensional."
+      sys.exit()
+#
+# Check dimension size against data array.
+#
+    nlon = lon_coord_dims[0]
+    if (nlon != nx):
+      print "add_cyclic: longitude coordinate array must be the same length as the rightmost dimension of the data array."
+      sys.exit()
+
+#
+# Create the new data array with one extra value in the X direction.
+#
+  newdata         = Numeric.zeros((ny,nx1),data.typecode())
+  newdata[:,0:nx] = data
+  newdata[:,nx]   = data[:,0]
+
+#
+# Add 360 to the longitude value in order to make it cyclic.
+#
+  if(lon_coord != None):
+    newloncoord       = Numeric.zeros(nx1,lon_coord.typecode())
+    newloncoord[0:nx] = lon_coord
+    newloncoord[nx]   = lon_coord[0] + 360
+
+    return newdata,newloncoord
   else:
-    while(bang < -180.):
-      bang = bang + 360.
-    while(bang >= 180.):
-      bang = bang - 360.
-  return bang
+    return newdata
 
-def dptlclskewt(p, tc, tdc):
-  return c_dptlclskewt(p, tc, tdc)
+def fspan(min,max,num):
+  delta = (float(max-min)/float(num-1))
+  a = []
+  for i in range(num-1):
+    a.append(float(i)*delta)
+  a.append(max)
+  return Numeric.array(a,Numeric.Float0)
 
-def dtmrskewt(w, p):
-  return c_dtmrskewt(w, p)
+def ftcurv(x,y,xo):
+  if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
+    dsizes_x = len(x)
+  elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_x = x.shape[0]
+  else:
+    print \
+     "ftcurv: type of argument 1 must be one of: list, tuple, or Numeric array"
+    return None
+  if ( ((type(y) == types.ListType) or (type(y) == types.TupleType)) ):
+    dsizes_y = len(y)
+  elif (type(y) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_y = y.shape[0]
+  else:
+    print \
+     "ftcurv: type of argument 2 must be one of: list, tuple, or Numeric array"
+    return None
+  if (dsizes_x != dsizes_y):
+    print "ftcurv: first and second arguments must be the same length."
+    return None
 
-def dtdaskewt(o,p):
-  return c_dtdaskewt(o, p)
+  if ( ((type(xo) == types.ListType) or (type(xo) == types.TupleType)) ):
+    dsizes_xo = len(xo)
+  elif (type(xo) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_xo = xo.shape[0]
 
-def dsatlftskewt(thw,p):
-  return c_dsatlftskewt(thw, p)
+  status,yo = ftcurvc(dsizes_x,x,y,dsizes_xo,xo)
+  if (status == 1):
+    print "ftcurv: input array must have at least three elements."
+    return None
+  elif (status == 2): 
+    print "ftcurv: input array values must be strictly increasing."
+    return None
+  else:
+    del status
+    return yo
 
-def dshowalskewt(p,t,td,nlvls):
-  return c_dshowalskewt(p,t,td,nlvls)
+def ftcurvp(x,y,p,xo):
+  if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
+    dsizes_x = len(x)
+  elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_x = x.shape[0]
+  else:
+    print \
+     "ftcurvp: type of argument 1 must be one of: list, tuple, or Numeric array"
+    return None
+  if ( ((type(y) == types.ListType) or (type(y) == types.TupleType)) ):
+    dsizes_y = len(y)
+  elif (type(y) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_y = y.shape[0]
+  else:
+    print \
+     "ftcurvp: type of argument 2 must be one of: list, tuple, or Numeric array"
+    return None
+  if (dsizes_x != dsizes_y):
+    print "ftcurvp: first and second arguments must be the same length."
+    return None
 
-def dpwskewt(td,p,n):
-  return c_dpwskewt(td,p,n)
+  if ( ((type(xo) == types.ListType) or (type(xo) == types.TupleType)) ):
+    dsizes_xo = len(xo)
+  elif (type(xo) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_xo = xo.shape[0]
+
+  status,yo = ftcurvpc(dsizes_x,x,y,p,dsizes_xo,xo)
+  if (status == 1):
+    print "ftcurvp: input array must have at least three elements."
+    return None
+  elif (status == 2):
+    print "ftcurvp: the period is strictly less than the span of the abscissae."
+    return None
+  else:
+    del status
+    return yo
+
+def ftcurvpi(xl, xr, p, x, y):
+  if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
+    dsizes_x = len(x)
+  elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_x = x.shape[0]
+  else:
+    print \
+     "ftcurvpi: type of argument 4 must be one of: list, tuple, or Numeric array"
+    return None
+  if ( ((type(y) == types.ListType) or (type(y) == types.TupleType)) ):
+    dsizes_y = len(y)
+  elif (type(y) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_y = y.shape[0]
+  else:
+    print \
+     "ftcurvpi: type of argument 5 must be one of: list, tuple, or Numeric array"
+    return None
+  if (dsizes_x != dsizes_y):
+    print "ftcurvpi: fourth and fifth arguments must be the same length."
+    return None
+
+  return (ftcurvpic(xl,xr,p,dsizes_x,x,y)[1])
+
+def gaus(n):
+  return NglGaus_p(n,2*n,2)[1]
 
 def gc_dist(rlat1,rlon1,rlat2,rlon2):
   return c_dgcdist(rlat1,rlon1,rlat2,rlon2,2)
@@ -3121,5 +3044,108 @@ def gc_convert(angle,ctype):
   else:
     print "gc_convert: unrecognized conversion type " + str(ctype)
 
-def gaus(n):
-  return NglGaus_p(n,2*n,2)[1]
+#
+#  Get indices of a list where the list values are true.
+#
+def ind(seq):
+  inds = []
+  for i in xrange(len(seq)):
+    if (seq[i] != 0):
+      inds.append(i)
+  return(inds)
+
+def ismissing(var,mval):
+#
+#  Returns an array of the same shape as "var" that
+#  has True values in all places where "var" has 
+#  missing values.
+#
+  if (ck_type("ismissing",var,0) != 0):
+    return None
+  else:
+    return(Numeric.equal(var,mval))
+
+def natgrid(x,y,z,xo,yo):
+  if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
+    dsizes_x = len(x)
+  elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_x = x.shape[0]
+  else:
+    print \
+     "natgrid: type of argument 1 must be one of: list, tuple, or Numeric array"
+    return None
+
+  if ( ((type(xo) == types.ListType) or (type(xo) == types.TupleType)) ):
+    dsizes_xo = len(xo)
+  elif (type(xo) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_xo = xo.shape[0]
+  else:
+    print \
+     "natgrid: type of argument 4 must be one of: list, tuple, or Numeric array"
+    return None
+
+  if ( ((type(yo) == types.ListType) or (type(yo) == types.TupleType)) ):
+    dsizes_yo = len(yo)
+  elif (type(yo) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_yo = yo.shape[0]
+  else:
+    print \
+     "natgrid: type of argument 5 must be one of: list, tuple, or Numeric array"
+    return None
+
+  ier,zo = \
+     natgridc(dsizes_x,x,y,z,dsizes_xo,dsizes_yo,xo,yo,dsizes_xo,dsizes_yo)
+
+  if (ier != 0):
+    print "natgrid: error number %d returned, see error table." % (ier)
+    del ier
+    return None
+  else:
+    return zo
+
+def ncargpath(type):
+  return NGGetNCARGEnv(type)
+
+def normalize_angle(ang,type):
+#
+#  This function normalizes the angle (assumed to be in degrees) to
+#  an equivalent angle in the range [0.,360.) if type equals 0, or
+#  to an equivalent angle in the range [-180.,180.) if type is not zero.
+#
+  bang = ang
+  if (type == 0):
+    while(bang < 0.):
+      bang = bang + 360.
+    while(bang >= 360.):
+      bang = bang - 360.
+  else:
+    while(bang < -180.):
+      bang = bang + 360.
+    while(bang >= 180.):
+      bang = bang - 360.
+  return bang
+
+################################################################
+#
+#  Processing support functions.
+#
+################################################################
+
+def dptlclskewt(p, tc, tdc):
+  return c_dptlclskewt(p, tc, tdc)
+
+def dtmrskewt(w, p):
+  return c_dtmrskewt(w, p)
+
+def dtdaskewt(o,p):
+  return c_dtdaskewt(o, p)
+
+def dsatlftskewt(thw,p):
+  return c_dsatlftskewt(thw, p)
+
+def dshowalskewt(p,t,td,nlvls):
+  return c_dshowalskewt(p,t,td,nlvls)
+
+def dpwskewt(td,p,n):
+  return c_dpwskewt(td,p,n)
+

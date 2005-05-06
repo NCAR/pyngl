@@ -21,6 +21,9 @@
 #include <ncarg/hlu/hlu.h>
 #include <ncarg/hlu/NresDB.h>
 
+/*
+ *  Externals for processing functions.
+ */
 extern double NGCALLF(dgcdist,DGCDIST)(double *,double *,double *,double *,
                                        int *);
 extern double NGCALLF(dcapethermo,DCAPETHERMO)(double *, double *,
@@ -33,9 +36,11 @@ extern double NGCALLF(dsatlftskewt,DSATLFTSKEWT)(double *,double *);
 extern double NGCALLF(dshowalskewt,DSHOWALSKEWT)(double *,double *,
                                                  double *,int *);
 extern double NGCALLF(dpwskewt,DPWSKEWT)(double *,double *,int*);
-
 extern void NGCALLF(gaqdncl,GAQDNCL)(int *, double *, double *, double *, int *, int *);
 
+/*
+ *  Various Nhl functions.
+ */
 NhlClass NhlPAppClass ()
 {
   return((NhlClass) NhlappClass);
@@ -121,6 +126,9 @@ NhlClass NhlPstreamlinePlotClass()
   return(NhlstreamlinePlotClass);
 }
 
+/*
+ *  Misc.
+ */
 const char *NGGetNCARGEnv(const char *name)
 {
   return (_NGGetNCARGEnv(name));
@@ -132,6 +140,9 @@ void *pvoid()
   return (p);
 }
 
+/*
+ *  Processing and processing support functions.
+ */
 double c_dgcdist(double lat1, double lon1, double lat2, double lon2, int iu) {
   return   (double) NGCALLF(dgcdist,DGCDIST)(&lat1, &lon1, &lat2, &lon2, &iu);
 }
@@ -184,4 +195,3 @@ NhlErrorTypes NglGaus (int nlat, double **output)
 
   return NhlNOERROR;
 }
-
