@@ -1,6 +1,7 @@
 %module hlu
 
 %{
+#include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 #include <stdarg.h>
@@ -48,6 +49,7 @@ double c_dcapethermo(double *, double *, int, double, int,
                      double **, double, int *, int *, int *);
 extern void NGCALLF(dptlclskewt,DPTLCLSKEWT)(double *, double *, double *,
                                              double *, double *);
+extern NhlErrorTypes NglGaus(int, double **output);
 
 static PyObject* t_output_helper(PyObject *, PyObject *);
 
@@ -413,6 +415,10 @@ void set_PCMP04(int arg_num, float value)
     case 3:
       NGCALLF(pcmp04,PCMP04).plon = value;
   }
+}
+
+NhlErrorTypes NglGaus_p(int num, int n, int m, double *data_out[]) {
+  return NglGaus(num,data_out);
 }
 
 PyObject *mapgci(float alat, float alon, float blat, float blon, int npts)
@@ -2364,6 +2370,19 @@ import_array();
   $1 = &tempx;
 }
 
+%typemap (argout) (int nxir, int nyir, double *p_array_double_out[]) {
+  int dims[2];
+  PyObject *o;
+  dims[0] = $1;
+  dims[1] = $2;
+  o = (PyObject *)PyArray_FromDimsAndData(2,dims,PyArray_DOUBLE,
+                  (char *) $3[0]);
+  resultobj = t_output_helper(resultobj,o);
+}
+%typemap(in,numinputs=0) double *p_array_double_out[] (double *tempx) {
+  $1 = &tempx;
+}
+
 %typemap (argout) (int nx, float *t_array_float_out) {
   int dims[1];
   PyObject *o;
@@ -4027,6 +4046,8 @@ extern void set_nglRes_c(int, NhlString *);
 extern NhlString *get_nglRes_c(int);
 extern void set_nglRes_s(int, NhlString);
 extern NhlString get_nglRes_s(int);
+
+extern NhlErrorTypes NglGaus_p(int num, int nxir, int nyir, double *p_array_double_out[]);
 
 %newobject _NGGetNCARGEnv(const char *);
 %newobject  NhlSetValues (int, int res_id);

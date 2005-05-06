@@ -656,6 +656,7 @@ static swig_type_info *swig_types[13];
 
 #define SWIG_name    "_hlu"
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 #include <stdarg.h>
@@ -703,6 +704,7 @@ double c_dcapethermo(double *, double *, int, double, int,
                      double **, double, int *, int *, int *);
 extern void NGCALLF(dptlclskewt,DPTLCLSKEWT)(double *, double *, double *,
                                              double *, double *);
+extern NhlErrorTypes NglGaus(int, double **output);
 
 static PyObject* t_output_helper(PyObject *, PyObject *);
 
@@ -1068,6 +1070,10 @@ void set_PCMP04(int arg_num, float value)
     case 3:
       NGCALLF(pcmp04,PCMP04).plon = value;
   }
+}
+
+NhlErrorTypes NglGaus_p(int num, int n, int m, double *data_out[]) {
+  return NglGaus(num,data_out);
 }
 
 PyObject *mapgci(float alat, float alon, float blat, float blon, int npts)
@@ -1813,6 +1819,7 @@ extern void set_nglRes_c(int,NhlString *);
 extern NhlString *get_nglRes_c(int);
 extern void set_nglRes_s(int,NhlString);
 extern NhlString get_nglRes_s(int);
+extern NhlErrorTypes NglGaus_p(int,int,int,double *[]);
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22824,6 +22831,39 @@ static PyObject *_wrap_get_nglRes_s(PyObject *self, PyObject *args) {
 }
 
 
+static PyObject *_wrap_NglGaus_p(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    int arg1 ;
+    int arg2 ;
+    int arg3 ;
+    double **arg4 ;
+    int result;
+    double *tempx4 ;
+    
+    {
+        arg4 = &tempx4;
+    }
+    if(!PyArg_ParseTuple(args,(char *)"iii:NglGaus_p",&arg1,&arg2,&arg3)) goto fail;
+    result = (int)NglGaus_p(arg1,arg2,arg3,arg4);
+    
+    {
+        resultobj = PyInt_FromLong ((long) result);
+    }
+    {
+        int dims[2];
+        PyObject *o;
+        dims[0] = arg2;
+        dims[1] = arg3;
+        o = (PyObject *)PyArray_FromDimsAndData(2,dims,PyArray_DOUBLE,
+        (char *) arg4[0]);
+        resultobj = t_output_helper(resultobj,o);
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
 static PyMethodDef SwigMethods[] = {
 	 { (char *)"new_intp", _wrap_new_intp, METH_VARARGS },
 	 { (char *)"copy_intp", _wrap_copy_intp, METH_VARARGS },
@@ -23000,6 +23040,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"get_nglRes_c", _wrap_get_nglRes_c, METH_VARARGS },
 	 { (char *)"set_nglRes_s", _wrap_set_nglRes_s, METH_VARARGS },
 	 { (char *)"get_nglRes_s", _wrap_get_nglRes_s, METH_VARARGS },
+	 { (char *)"NglGaus_p", _wrap_NglGaus_p, METH_VARARGS },
 	 { NULL, NULL }
 };
 

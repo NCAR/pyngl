@@ -3120,3 +3120,6 @@ def gc_convert(angle,ctype):
     return d2r*angle*r2m*m2f/5280.
   else:
     print "gc_convert: unrecognized conversion type " + str(ctype)
+
+def gaus(n):
+  return NglGaus_p(n,2*n,2)[1]

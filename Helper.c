@@ -16,6 +16,10 @@
 #include <ncarg/hlu/CoordArrays.h>
 #include <ncarg/hlu/StreamlinePlot.h>
 #include <ncarg/hlu/VectorPlot.h>
+#include <stdlib.h>
+#include <ncarg/c.h>
+#include <ncarg/hlu/hlu.h>
+#include <ncarg/hlu/NresDB.h>
 
 extern double NGCALLF(dgcdist,DGCDIST)(double *,double *,double *,double *,
                                        int *);
@@ -29,6 +33,8 @@ extern double NGCALLF(dsatlftskewt,DSATLFTSKEWT)(double *,double *);
 extern double NGCALLF(dshowalskewt,DSHOWALSKEWT)(double *,double *,
                                                  double *,int *);
 extern double NGCALLF(dpwskewt,DPWSKEWT)(double *,double *,int*);
+
+extern void NGCALLF(gaqdncl,GAQDNCL)(int *, double *, double *, double *, int *, int *);
 
 NhlClass NhlPAppClass ()
 {
@@ -154,3 +160,28 @@ double c_dshowalskewt(double *p, double *t, double *td, int nlvls) {
 double c_dpwskewt(double *td, double *p, int n) {
   return  (double) NGCALLF(dpwskewt,DPWSKEWT)(td, p, &n);
 }
+
+NhlErrorTypes NglGaus (int nlat, double **output)
+{
+  int nl,lwork = 0,i,ierror,k;
+  double *theta,*wts,*work = NULL;
+  double rtod = (double)180.0/(double)3.14159265358979323846;
+
+  nl    = 2 * nlat;
+  theta = (double*)malloc(sizeof(double)*nl);
+  wts   = (double*)malloc(sizeof(double)*nl);
+  lwork = 4 * nl*(nl+1)+2;
+  work  = (double*)malloc(sizeof(double)*lwork);
+  NGCALLF(gaqdncl,GAQDNCL)(&nl,theta,wts,work,&lwork,&ierror);
+  free(work);
+  *output = (double*)malloc(sizeof(double)*nl*2);
+  for(i = 0; i < nl; i++) {
+    (*output)[2*i]    = rtod*theta[i] - 90.0;
+    (*output)[2*i+1]  = wts[i];
+  }
+  free(wts);
+  free(theta);
+
+  return NhlNOERROR;
+}
+
