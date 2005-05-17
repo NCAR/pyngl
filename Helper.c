@@ -192,6 +192,7 @@ NhlErrorTypes NglGaus (int nlat, double **output)
   }
   free(wts);
   free(theta);
+  free(work);
 
   return NhlNOERROR;
 }
