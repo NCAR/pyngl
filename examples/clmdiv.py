@@ -61,7 +61,7 @@ cmap = Numeric.array([[1.00,1.00,1.00],[0.00,0.00,0.00],[1.00,0.00,0.00],\
 rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
 wks_type = "ps"
-wks = Ngl.open_wks (wks_type,"climdiv",rlist)
+wks = Ngl.open_wks (wks_type,"clmdiv",rlist)
 
 #
 #  Create the plot.
