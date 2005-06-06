@@ -6,7 +6,7 @@
 #
 #  Import NumPy.
 #
-import Numeric,whrandom
+import Numeric,random
 
 #
 #  Import all names from the NetCDF module.
@@ -116,7 +116,7 @@ res_poly.gsEdgeColor = "black"
 #
 # Prepare to draw the polygons.
 #
-whrandom.seed(1,2,3)   # set a seed for the random number generator
+random.seed(10)   # set a seed for the random number generator
 
 #
 #  Get the polygon data and fill polygons with random colors in 
@@ -124,7 +124,7 @@ whrandom.seed(1,2,3)   # set a seed for the random number generator
 #
 for st in xrange(npoly):
   for cd in xrange(ncds[st]):
-    rand_num = int(29.*whrandom.random()+2.)
+    rand_num = int(29.*random.random()+2.)
     if (st == 42 and cd == 0):          # save value
       va1_rn = rand_num                 # VA clim div 1
     if (st == 42 and cd == 6):          # use value for
