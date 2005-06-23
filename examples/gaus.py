@@ -21,4 +21,6 @@ gau_info = Ngl.gaus(nlat/2)
 glat     = gau_info[:,0]
 gwgt     = gau_info[:,1]
 
+print glat,gwgt
+
 Ngl.end()
