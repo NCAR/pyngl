@@ -8,7 +8,7 @@ import Ngl
 #
 def print_usage():
   print """
-  usage: pynglgex [options] [example_names]
+  usage: pynglex [options] [example_names]
 
     options (must appear separately if more than one):
       -a 
