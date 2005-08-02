@@ -344,8 +344,17 @@ def set_contour_res(reslist,reslist1):
   if(reslist.has_key("cnFillOn") and reslist["cnFillOn"] > 0):
     if ( not (reslist.has_key("cnInfoLabelOn"))):
       reslist1["cnInfoLabelOn"] = False
-    if ( not (reslist.has_key("pmLabelBarDisplayMode"))):
+    if ( not (reslist.has_key("pmLabelBarDisplayMode")) and 
+         (not (reslist.has_key("lbLabelBarOn")) or 
+               reslist.has_key("lbLabelbarOn") and 
+                        reslist["lbLabelBarOn"] > 0)):
       reslist1["pmLabelBarDisplayMode"] = "Always"
+#
+# The ContourPlot object does not recognize the lbLabelBarOn resource
+# so we have to remove it after we've used it.
+#
+  if (reslist1.has_key("lbLabelBarOn")):
+    del reslist1["lbLabelBarOn"]
 #
 # If cnFillColors is set, don't set nglSpreadColors to True.
 #
@@ -407,8 +416,17 @@ def set_vector_res(reslist,reslist1):
        check_res_value(reslist["vcMonoFillArrowEdgeColor"],"False",0)) or
       (reslist.has_key("vcMonoWindBarbColor") and
        check_res_value(reslist["vcMonoWindBarbColor"],"False",0))):
-    if ( not (reslist.has_key("pmLabelBarDisplayMode"))):
+    if ( not (reslist.has_key("pmLabelBarDisplayMode")) and 
+         (not (reslist.has_key("lbLabelBarOn")) or 
+               reslist.has_key("lbLabelbarOn") and 
+                        reslist["lbLabelBarOn"] > 0)):
       reslist1["pmLabelBarDisplayMode"] = "Always"
+#
+# The VectorPlot object does not recognize the lbLabelBarOn resource
+# so we have to remove it after we've used it.
+#
+  if (reslist1.has_key("lbLabelBarOn")):
+    del reslist1["lbLabelBarOn"]
 #
 # If vcLevelColors is set, don't set nglSpreadColors to True.
 #
@@ -941,7 +959,6 @@ def contour(wks,array,rlistc=None):
   set_contour_res(rlist,rlist2)       # Set some addtl contour resources
   set_labelbar_res(rlist,rlist2,True) # Set some addtl labelbar resources
   set_tickmark_res(rlist,rlist3)      # Set some addtl tickmark resources
-    
 #
 #  Call the wrapped function and return.
 #
