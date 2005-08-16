@@ -773,6 +773,7 @@ def map(wks,rlistc=None):
   set_map_res(rlist,rlist1)           # Set some addtl map resources
 
   imp = map_wrap(wks,rlist1,pvoid())
+
   del rlist
   del rlist1
   return(lst2pobj(imp))
@@ -1555,6 +1556,50 @@ def yiqrgb(r,g,b):
 def get_named_color_index(wkid,name):
   return(NhlGetNamedColorIndex(wkid,name))
 
+def nnsetp(pname,val):
+  if (not isinstance(pname,types.StringType)):
+    print "nnsetp: Parameter '" + str(pname) + "' is not a string type." 
+    return None
+  if (isinstance(val,types.IntType)):
+    c_nnseti(pname,val)
+  elif (isinstance(val,types.FloatType)): 
+    c_nnsetrd(pname,val)
+  elif (isinstance(val,types.StringType)):
+    c_nnsetc(pname,val)
+  else:
+    print \
+      "nnsetp: specified value for " + pname + " is not of a recognized type." 
+  return None
+
+def nngetp(pname):
+  iparms = [                                                         \
+            "adf", "asc", "dup", "ext", "igr", "non", "rad",         \
+            "sdi", "upd", "mdm",                                     \
+            "ADF", "ASC", "DUP", "EXT", "IGR", "NON", "RAD",         \
+            "SDI", "UPD", "MDM"                                      \
+           ]
+  rparms = [                                                         \
+            "bI", "bJ", "hor", "magx", "magy", "magz", "nul", "ver", \
+            "Bi", "Bj", "HOR", "MAGX", "MAGY", "MAGZ", "NUL", "VER", \
+            "bi", "bj", "BI", "BJ"                                   \
+           ]
+  cparms = [                                                         \
+            "alg", "ALG", "erf", "ERF"                                \
+           ]
+  if (not isinstance(pname,types.StringType)):
+    print "nngetp: Parameter '" + str(pname) + "' is not a string type." 
+    return None
+  if (iparms.count(pname) > 0):
+    return c_nngeti(pname)
+  elif (rparms.count(pname) > 0):
+    return c_nngetrd(pname)
+  elif (cparms.count(pname) > 0):
+    return c_nngetcp(pname)
+  else:
+    print \
+      "nngetp: specified value for " + pname + " is not of a recognized type." 
+  return None
+
 def wmsetp(pname,val):
   if (not isinstance(pname,types.StringType)):
     print "wmsetp: Parameter '" + str(pname) + "' is not a string type." 
@@ -2125,6 +2170,7 @@ def skewt_bkg(wks, Opts):
       sx[2] = skewtx( temp[i+1], sy[2])
       sy[3] = skewty(rendt[i  ] )   
       sx[3] = skewtx( temp[i  ], sy[3])
+
 
 #
 #  Make sure the right sides line up with vertical line x=18.6 
@@ -3141,6 +3187,53 @@ def normalize_angle(ang,type):
     while(bang >= 180.):
       bang = bang - 360.
   return bang
+
+def vinth2p (dati, hbcofa, hbcofb, plevo, psfc, intyp, p0, ii, kxtrp):     
+#
+#  Argument plevi is calculated in the Fortran code, just zero it out below.
+#
+#  Argument ii is not used at this time - it is set to 1 in the
+#    call to the Fortran routine.
+#
+  if (len(dati.shape) > 4):
+    print "\n vinth2p: requires a minimum of 3 dimensions [lev]x[lat]x[lon] \n"\
+          "          and a maximum of 4 dimensions [time]x[lev]x[lat]x[lon] - \n"\
+          "          an array with " + str(len(dati.shape)) + " dimensions was entered.\n"
+    return None
+  if (len(dati.shape) == 3):
+    plevi = Numeric.zeros(dati.shape[0]+1,Numeric.Float)
+    return NglVinth2p (dati, len(plevo), dati.shape[1], dati.shape[2],    \
+                       hbcofa, hbcofb, p0, plevi, plevo, intyp,           \
+                       1, psfc, 1.e30, kxtrp, dati.shape[0]+1, dati.shape[0])
+#
+#  The case with an input array having four dimensions is resolved
+#  by calling the 3D case over the time variavle.
+#
+  elif (len(dati.shape) == 4):
+    if (type(dati[0,0,0,0]) == type(Numeric.array([0.],Numeric.Float))):
+#
+#  Delete ar_out if it exists, and define it to be the correct
+#  shape to hold the output.
+#
+      try:
+        del ar_out
+      except:
+        pass
+      ar_out = Numeric.zeros([dati.shape[0],len(plevo),dati.shape[2],  \
+                              dati.shape[3]],Numeric.Float)
+      plevi  = Numeric.zeros(dati.shape[1]+1,Numeric.Float)
+    else:
+      print "vinth2p: input data must be a Numeric array"
+      return None
+    for i in xrange(dati.shape[0]):
+      ar_out[i,:,:,:] = NglVinth2p (dati[i,:,:,:], len(plevo),              \
+                        dati.shape[2], dati.shape[3], hbcofa, hbcofb,       \
+                        p0, plevi, plevo, intyp, 1, psfc[i,:,:], 1.e30,     \
+                        kxtrp, dati.shape[1]+1, dati.shape[1])
+    return ar_out
+  else:
+    print "vinth2p - invalid input data array."
+    return None
 
 ################################################################
 #

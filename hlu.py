@@ -1694,6 +1694,18 @@ c_wmgetrp = _hlu.c_wmgetrp
 
 c_wmgetcp = _hlu.c_wmgetcp
 
+c_nnseti = _hlu.c_nnseti
+
+c_nnsetrd = _hlu.c_nnsetrd
+
+c_nnsetc = _hlu.c_nnsetc
+
+c_nngeti = _hlu.c_nngeti
+
+c_nngetrd = _hlu.c_nngetrd
+
+c_nngetcp = _hlu.c_nngetcp
+
 c_dgcdist = _hlu.c_dgcdist
 
 c_dcapethermo = _hlu.c_dcapethermo
@@ -1729,5 +1741,7 @@ set_nglRes_s = _hlu.set_nglRes_s
 get_nglRes_s = _hlu.get_nglRes_s
 
 NglGaus_p = _hlu.NglGaus_p
+
+NglVinth2p = _hlu.NglVinth2p
 
 

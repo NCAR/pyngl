@@ -705,6 +705,12 @@ double c_dcapethermo(double *, double *, int, double, int,
 extern void NGCALLF(dptlclskewt,DPTLCLSKEWT)(double *, double *, double *,
                                              double *, double *);
 extern NhlErrorTypes NglGaus(int, double **output);
+extern void NglVinth2p (double *dati, int, int, int, double *[], double *,
+                 double *, double, double *, double *, int, int, double *,
+                 double, int, int, int);
+extern void c_nnseti(NhlString,int);
+extern void c_nnsetrd(NhlString,double);
+extern void c_nnsetc(NhlString,NhlString);
 
 static PyObject* t_output_helper(PyObject *, PyObject *);
 
@@ -1802,6 +1808,12 @@ extern void c_wmsetcp(NhlString,NhlString);
 extern int c_wmgetip(NhlString);
 extern float c_wmgetrp(NhlString);
 extern NhlString c_wmgetcp(NhlString);
+extern void c_nnseti(NhlString,int);
+extern void c_nnsetrd(NhlString,double);
+extern void c_nnsetc(NhlString,NhlString);
+extern void c_nngeti(NhlString,int *);
+extern void c_nngetrd(NhlString,double *);
+extern NhlString c_nngetcp(NhlString);
 extern double c_dgcdist(double,double,double,double,int);
 extern double c_dcapethermo(double *,double *,int,double,int,double **,double,int *,int *,int *);
 extern void c_dptlclskewt(double,double,double,double *,double *);
@@ -1820,6 +1832,7 @@ extern NhlString *get_nglRes_c(int);
 extern void set_nglRes_s(int,NhlString);
 extern NhlString get_nglRes_s(int);
 extern NhlErrorTypes NglGaus_p(int,int,int,double *[]);
+extern void NglVinth2p(double *,int,int,int,double *[],double *,double *,double,double *,double *,int,int,double *,double,int,int,int);
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22467,6 +22480,108 @@ static PyObject *_wrap_c_wmgetcp(PyObject *self, PyObject *args) {
 }
 
 
+static PyObject *_wrap_c_nnseti(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    NhlString arg1 ;
+    int arg2 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"si:c_nnseti",&arg1,&arg2)) goto fail;
+    c_nnseti(arg1,arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_c_nnsetrd(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    NhlString arg1 ;
+    double arg2 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"sd:c_nnsetrd",&arg1,&arg2)) goto fail;
+    c_nnsetrd(arg1,arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_c_nnsetc(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    NhlString arg1 ;
+    NhlString arg2 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"ss:c_nnsetc",&arg1,&arg2)) goto fail;
+    c_nnsetc(arg1,arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_c_nngeti(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    NhlString arg1 ;
+    int *arg2 = (int *) 0 ;
+    int temp2 ;
+    
+    arg2 = &temp2;
+    if(!PyArg_ParseTuple(args,(char *)"s:c_nngeti",&arg1)) goto fail;
+    c_nngeti(arg1,arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    {
+        PyObject *o = PyInt_FromLong((long) (*arg2));
+        resultobj = t_output_helper(resultobj,o);
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_c_nngetrd(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    NhlString arg1 ;
+    double *arg2 = (double *) 0 ;
+    double temp2 ;
+    
+    arg2 = &temp2;
+    if(!PyArg_ParseTuple(args,(char *)"s:c_nngetrd",&arg1)) goto fail;
+    c_nngetrd(arg1,arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    {
+        PyObject *o = PyFloat_FromDouble((double) (*arg2));
+        resultobj = t_output_helper(resultobj,o);
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_c_nngetcp(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    NhlString arg1 ;
+    NhlString result;
+    
+    if(!PyArg_ParseTuple(args,(char *)"s:c_nngetcp",&arg1)) goto fail;
+    result = (NhlString)c_nngetcp(arg1);
+    
+    resultobj = result ? PyString_FromString(result) : Py_BuildValue((char*)"");
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
 static PyObject *_wrap_c_dgcdist(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     double arg1 ;
@@ -22864,6 +22979,92 @@ static PyObject *_wrap_NglGaus_p(PyObject *self, PyObject *args) {
 }
 
 
+static PyObject *_wrap_NglVinth2p(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    double *arg1 = (double *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    int arg4 ;
+    double **arg5 ;
+    double *arg6 = (double *) 0 ;
+    double *arg7 = (double *) 0 ;
+    double arg8 ;
+    double *arg9 = (double *) 0 ;
+    double *arg10 = (double *) 0 ;
+    int arg11 ;
+    int arg12 ;
+    double *arg13 = (double *) 0 ;
+    double arg14 ;
+    int arg15 ;
+    int arg16 ;
+    int arg17 ;
+    double *tempx5 ;
+    PyObject * obj0  = 0 ;
+    PyObject * obj4  = 0 ;
+    PyObject * obj5  = 0 ;
+    PyObject * obj7  = 0 ;
+    PyObject * obj8  = 0 ;
+    PyObject * obj11  = 0 ;
+    
+    {
+        arg5 = &tempx5;
+    }
+    if(!PyArg_ParseTuple(args,(char *)"OiiiOOdOOiiOdiii:NglVinth2p",&obj0,&arg2,&arg3,&arg4,&obj4,&obj5,&arg8,&obj7,&obj8,&arg11,&arg12,&obj11,&arg14,&arg15,&arg16,&arg17)) goto fail;
+    {
+        PyArrayObject *arr;
+        arr =
+        (PyArrayObject *) PyArray_ContiguousFromObject(obj0,PyArray_DOUBLE,0,0);
+        arg1 = (double *) arr->data;
+    }
+    {
+        PyArrayObject *arr;
+        arr =
+        (PyArrayObject *) PyArray_ContiguousFromObject(obj4,PyArray_DOUBLE,0,0);
+        arg6 = (double *) arr->data;
+    }
+    {
+        PyArrayObject *arr;
+        arr =
+        (PyArrayObject *) PyArray_ContiguousFromObject(obj5,PyArray_DOUBLE,0,0);
+        arg7 = (double *) arr->data;
+    }
+    {
+        PyArrayObject *arr;
+        arr =
+        (PyArrayObject *) PyArray_ContiguousFromObject(obj7,PyArray_DOUBLE,0,0);
+        arg9 = (double *) arr->data;
+    }
+    {
+        PyArrayObject *arr;
+        arr =
+        (PyArrayObject *) PyArray_ContiguousFromObject(obj8,PyArray_DOUBLE,0,0);
+        arg10 = (double *) arr->data;
+    }
+    {
+        PyArrayObject *arr;
+        arr =
+        (PyArrayObject *) PyArray_ContiguousFromObject(obj11,PyArray_DOUBLE,0,0);
+        arg13 = (double *) arr->data;
+    }
+    NglVinth2p(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13,arg14,arg15,arg16,arg17);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    {
+        int dims[3];
+        PyObject *o;
+        dims[0] = arg2;
+        dims[1] = arg3;
+        dims[2] = arg4;
+        o = (PyObject *)PyArray_FromDimsAndData(3,dims,PyArray_DOUBLE,
+        (char *) arg5[0]);
+        resultobj = t_output_helper(resultobj,o);
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
 static PyMethodDef SwigMethods[] = {
 	 { (char *)"new_intp", _wrap_new_intp, METH_VARARGS },
 	 { (char *)"copy_intp", _wrap_copy_intp, METH_VARARGS },
@@ -23023,6 +23224,12 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"c_wmgetip", _wrap_c_wmgetip, METH_VARARGS },
 	 { (char *)"c_wmgetrp", _wrap_c_wmgetrp, METH_VARARGS },
 	 { (char *)"c_wmgetcp", _wrap_c_wmgetcp, METH_VARARGS },
+	 { (char *)"c_nnseti", _wrap_c_nnseti, METH_VARARGS },
+	 { (char *)"c_nnsetrd", _wrap_c_nnsetrd, METH_VARARGS },
+	 { (char *)"c_nnsetc", _wrap_c_nnsetc, METH_VARARGS },
+	 { (char *)"c_nngeti", _wrap_c_nngeti, METH_VARARGS },
+	 { (char *)"c_nngetrd", _wrap_c_nngetrd, METH_VARARGS },
+	 { (char *)"c_nngetcp", _wrap_c_nngetcp, METH_VARARGS },
 	 { (char *)"c_dgcdist", _wrap_c_dgcdist, METH_VARARGS },
 	 { (char *)"c_dcapethermo", _wrap_c_dcapethermo, METH_VARARGS },
 	 { (char *)"c_dptlclskewt", _wrap_c_dptlclskewt, METH_VARARGS },
@@ -23041,6 +23248,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"set_nglRes_s", _wrap_set_nglRes_s, METH_VARARGS },
 	 { (char *)"get_nglRes_s", _wrap_get_nglRes_s, METH_VARARGS },
 	 { (char *)"NglGaus_p", _wrap_NglGaus_p, METH_VARARGS },
+	 { (char *)"NglVinth2p", _wrap_NglVinth2p, METH_VARARGS },
 	 { NULL, NULL }
 };
 

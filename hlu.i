@@ -50,6 +50,12 @@ double c_dcapethermo(double *, double *, int, double, int,
 extern void NGCALLF(dptlclskewt,DPTLCLSKEWT)(double *, double *, double *,
                                              double *, double *);
 extern NhlErrorTypes NglGaus(int, double **output);
+extern void NglVinth2p (double *dati, int, int, int, double *[], double *,
+                 double *, double, double *, double *, int, int, double *,
+                 double, int, int, int);
+extern void c_nnseti(NhlString,int);
+extern void c_nnsetrd(NhlString,double);
+extern void c_nnsetc(NhlString,NhlString);
 
 static PyObject* t_output_helper(PyObject *, PyObject *);
 
@@ -2348,6 +2354,13 @@ import_array();
   $1 = &tempx;
 }
 
+%typemap (argout) (char *string_out) {
+  $result = $1;  
+}
+%typemap(in,numinputs=0) char *string_out (char **tempc) {
+  $1 = tempc;
+}
+
 %typemap (argout) (int *numberd) {
   int dims[1];
   dims[0] = *($1);
@@ -2380,6 +2393,20 @@ import_array();
   resultobj = t_output_helper(resultobj,o);
 }
 %typemap(in,numinputs=0) double *p_array_double_out[] (double *tempx) {
+  $1 = &tempx;
+}
+
+%typemap (argout)(int nxir, int nyir, int nzir, double *p_array3_double_out[]) {
+  int dims[3];
+  PyObject *o;
+  dims[0] = $1;
+  dims[1] = $2;
+  dims[2] = $3;
+  o = (PyObject *)PyArray_FromDimsAndData(3,dims,PyArray_DOUBLE,
+                  (char *) $4[0]);
+  resultobj = t_output_helper(resultobj,o);
+}
+%typemap(in,numinputs=0) double *p_array3_double_out[] (double *tempx) {
   $1 = &tempx;
 }
 
@@ -4022,6 +4049,13 @@ extern int  c_wmgetip(NhlString);
 extern float c_wmgetrp(NhlString);
 extern NhlString c_wmgetcp(NhlString);
 
+extern void c_nnseti(NhlString, int);
+extern void c_nnsetrd(NhlString, double);
+extern void c_nnsetc(NhlString, NhlString);
+extern void c_nngeti(NhlString, int *OUTPUT);
+extern void c_nngetrd(NhlString, double *OUTPUT);
+extern NhlString c_nngetcp(NhlString);
+
 extern c_mapgci(float, float, float, float, int, float *, float*);
 extern double c_dgcdist(double, double, double, double, int);
 extern double c_dcapethermo(double *, double *, int, double, int, 
@@ -4048,6 +4082,14 @@ extern void set_nglRes_s(int, NhlString);
 extern NhlString get_nglRes_s(int);
 
 extern NhlErrorTypes NglGaus_p(int num, int nxir, int nyir, double *p_array_double_out[]);
+
+extern void NglVinth2p (double *sequence_as_double, 
+                 int nxir, int nyir, int nzir, double *p_array3_double_out[], 
+                 double *sequence_as_double,
+                 double *sequence_as_double, double, 
+                 double *sequence_as_double, double *sequence_as_double, 
+                 int, int, double *sequence_as_double, double,
+                 int, int, int);
 
 %newobject _NGGetNCARGEnv(const char *);
 %newobject  NhlSetValues (int, int res_id);
