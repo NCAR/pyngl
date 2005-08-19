@@ -44,7 +44,9 @@ Helper.o: Helper.c
 gsun.o: gsun.c gsun.h
 	$(CC) $(CCOPTIONS) $(PROJECTDEFINES) -O $(ALLINCLUDES) -c gsun.c
 
-InstallTarget($(MYNAME),$(INSTALL_DB),PyNGL)
-InstallTarget($(PYSRCS),$(INSTALL_DB),PyNGL)
+InstallTarget($(MYNAME),$(INSTALL_DB),$(PYNGLDIR))
+InstallTarget($(PYSRCS),$(INSTALL_DB),$(PYNGLDIR))
+InstallTarget($(MYNAME),$(INSTALL_DB),$(PYTHONPKGSDIR)/$(PYNGLDIR))
+InstallTarget($(PYSRCS),$(INSTALL_DB),$(PYTHONPKGSDIR)/$(PYNGLDIR))
 
 CleanFilesTarget($(OBJS) $(MYNAME))

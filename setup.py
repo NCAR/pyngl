@@ -12,16 +12,17 @@ import shutil
 from distutils.core import setup, Extension
 
 #
-# Set copy_files to True only if you first need to copy over
-# PyNGL supplemental files.  You should only do this if you
-# have built NCARG/NCL/PyNGL from source code.
+# Set copy_files to True only if you are about to create a new PyNGL
+# binary to give to a user. This will copy over all the supplemental
+# files you need with PyNGL (fontcaps, examples, map databases, etc)
+# to the local "ncarg" directory.
 #
 # Set copy_rangs to True if you want to copy over the RANGS/GSHHS
 # database. This database takes up about 100 megabytes.
 #
 # These variables are for internal use only.
 #
-copy_files = False
+copy_files = True
 copy_rangs = False
 
 #
@@ -36,11 +37,12 @@ pyngl_dir = pkgs_pth + "/PyNGL/ncarg"
 #
 # List directories that we need to get supplemental files from.
 #
-main_dirs   = ["ncarg","bin"]
-ncarg_dirs  = ["data","colormaps","database","fontcaps","graphcaps",\
-               "pynglex"]
-ncarg_files = ["sysresfile"]
-bin_files   = ["ctrans","med","psplit","pynglex"]
+main_dirs    = ["ncarg","bin"]
+ncarg_dirs   = ["data","colormaps","database","fontcaps","graphcaps"]
+pynglex_dirs = ["pynglex"] 
+ncarg_files  = ["sysresfile"]
+bin_files    = ["ctrans","med","psplit"]
+pynglex_scp  = ["pynglex"]
 
 if(copy_files):
 #
@@ -68,10 +70,14 @@ if(copy_files):
 #
   for i in xrange(len(ncarg_dirs)):
     shutil.copytree(ncl_lib + "ncarg/" + ncarg_dirs[i],"ncarg/"+ncarg_dirs[i])
+  for i in xrange(len(pynglex_dirs)):
+    shutil.copytree(pynglex_dirs[i],"ncarg/"+pynglex_dirs[i])
   for i in xrange(len(ncarg_files)):
     shutil.copy(ncl_lib + "ncarg/" + ncarg_files[i],"ncarg/")
   for i in xrange(len(bin_files)):
     shutil.copy(ncl_root + "bin/" + bin_files[i],"bin/")
+  for i in xrange(len(pynglex_scp)):
+    shutil.copy("../examples/" + pynglex_scp[i],"bin/")
 #
 # Copy rangs dir back, if necessary.
 #
