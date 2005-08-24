@@ -4933,7 +4933,6 @@ static PyObject *_wrap_open_wks_wrap(PyObject *self, PyObject *args) {
     PyObject * obj3 = 0 ;
     PyObject * obj4 = 0 ;
     
-    printf("Got to open workstation\n");
     if(!PyArg_ParseTuple(args,(char *)"ssOOO:open_wks_wrap",&arg1,&arg2,&obj2,&obj3,&obj4)) goto fail;
     {
         int i,pos=0,list_type,list_len,count;
