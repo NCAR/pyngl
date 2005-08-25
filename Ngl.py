@@ -37,6 +37,15 @@ def int_id(plot_id):
 def overlay(plot_id1,plot_id2):
   NhlAddOverlay(int_id(plot_id1),int_id(plot_id2),-1)
 
+def remove_overlay(plot_id1,plot_id2,restore):
+  NhlRemoveOverlay(int_id(plot_id1),int_id(plot_id2),restore)
+
+def add_annotation(plot_id1,plot_id2):
+  return NhlAddAnnotation(int_id(plot_id1),int_id(plot_id2))
+
+def remove_annotation(plot_id1,plot_id2):
+  NhlRemoveAnnotation(int_id(plot_id1),int_id(plot_id2))
+
 def lst2pobj(lst):
 #
 #  Converts a list of object ids returned from a plotting function
