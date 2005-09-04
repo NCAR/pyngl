@@ -37,7 +37,7 @@ ele   = cfile.variables["ele"][:]
 depth = cfile.variables["depth"][:]
 
 #
-#  Select a colormap and open an X11 window.
+#  Select a colormap and open a PostScript workstation.
 #
 rlist            = Ngl.Resources()
 rlist.wkColorMap = "rainbow+gray"

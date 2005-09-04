@@ -9,8 +9,8 @@
 #
 #   Description:     
 #            Given a simple mathematically generated data set,
-#            demonstrates Ngl.contour with all resources set
-#            to their defaults.
+#            demonstrates Ngl.contour with color filled contour
+#            levels.
 #
 import Ngl
 import Numeric

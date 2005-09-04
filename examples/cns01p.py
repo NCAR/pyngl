@@ -9,8 +9,7 @@
 #
 #   Description:     
 #            Given a simple mathematically generated data set,
-#            demonstrates Ngl.contour with all resources set
-#            to their defaults.
+#            demonstrates Ngl.contour with dashed contour lines.
 #
 import Ngl
 import Numeric
