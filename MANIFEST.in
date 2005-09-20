@@ -4,6 +4,7 @@ include PyNGL/Ngl.py
 include PyNGL/__init__.py
 include PyNGL/hlu.py
 include PyNGL/_hlu.so
+include PyNGL/Nio.so
 include PyNGL.pth
 recursive-include ncarg *
 recursive-include bin *
