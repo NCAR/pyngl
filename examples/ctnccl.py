@@ -16,11 +16,11 @@ import Nio
 #
 #  Open a netCDF file containing data off the coast of North Carolina.
 #
-#  This data is from the Naval Research Laboratory at the Stennis
-#  Space Center. For more information about this grid, see the
-#  article "Application of a Shelf-Scale Model to Wave-Induced
-#  Circulation: Rip Currents" (Mark Cobb and Cheryl Ann Blain,
-#  Ocean Dynamics and Prediction Branch).
+#  The Chesapeake Bay data is from the Naval Research Laboratory
+#  at the Stennis Space Center. For more information about this
+#  grid, see the article "Application of a Shelf-Scale Model to
+#  Wave-Induced Circulation: Rip Currents" (Mark Cobb and Cheryl
+#  Ann Blain, Ocean Dynamics and Prediction Branch).
 #
 dirc  = Ngl.ncargpath("data")
 cfile = Nio.open_file(dirc + "/cdf/ctnccl.nc","r")
