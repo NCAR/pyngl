@@ -4,9 +4,9 @@
 import Numeric
 
 #
-#  Import the NetCDF reader.
+#  Import Nio for a NetCDF reader.
 #
-from Scientific.IO.NetCDF import NetCDFFile
+import Nio
 
 #
 #  Import Ngl support functions.
@@ -16,9 +16,9 @@ import Ngl
 #  Open three netCDF files and get variables.
 #
 data_dir  = Ngl.ncargpath("data")
-cdf_file1 = NetCDFFile(data_dir + "/cdf/941110_P.cdf","r")
-cdf_file2 = NetCDFFile(data_dir + "/cdf/sstdata_netcdf.nc","r")
-cdf_file3 = NetCDFFile(data_dir + "/cdf/Pstorm.cdf","r")
+cdf_file1 = Nio.open_file(data_dir + "/cdf/941110_P.cdf","r")
+cdf_file2 = Nio.open_file(data_dir + "/cdf/sstdata_netcdf.nc","r")
+cdf_file3 = Nio.open_file(data_dir + "/cdf/Pstorm.cdf","r")
 
 psl = cdf_file1.variables["Psl"]   
 sst = cdf_file2.variables["sst"]  

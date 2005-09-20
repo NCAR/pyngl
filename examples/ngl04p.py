@@ -6,7 +6,7 @@ import Numeric, types
 #
 #  Import the NetCDF reader.
 #
-from Scientific.IO.NetCDF import NetCDFFile
+import Nio
 
 #
 #  Import Ngl support functions.
@@ -18,7 +18,7 @@ import Ngl
 #
 #     ncargpath("data") + "/grb/ced1.lf00.t00z.eta.grb"
 #
-file = NetCDFFile(Ngl.ncargpath("data") + "/cdf/ced1.lf00.t00z.eta.nc","r")
+file = Nio.open_file(Ngl.ncargpath("data") + "/grb/ced1.lf00.t00z.eta.grb","r")
 
 names = file.variables.keys()  #  Get the variable names
 print "\nVariable names:"      #  and print them out.
