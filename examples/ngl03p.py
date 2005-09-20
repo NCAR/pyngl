@@ -4,9 +4,9 @@
 import Numeric
 
 #
-#  Import the NetCDF reader.
+#  Import Nio read functions (for netCDF files).
 #
-from Scientific.IO.NetCDF import NetCDFFile
+import Nio
 
 #
 #  Import Ngl support functions.
@@ -16,8 +16,8 @@ import Ngl
 #  Open the netCDF files.
 #
 dirc  = Ngl.ncargpath("data")
-ufile = NetCDFFile(dirc + "/cdf/Ustorm.cdf","r")  # Open two netCDF files.
-vfile = NetCDFFile(dirc + "/cdf/Vstorm.cdf","r")
+ufile = Nio.open_file(dirc + "/cdf/Ustorm.cdf","r")  # Open two netCDF files.
+vfile = Nio.open_file(dirc + "/cdf/Vstorm.cdf","r")
 
 #
 #  Get the u/v variables.
@@ -67,7 +67,7 @@ vc = Ngl.vector(wks,ua,va,resources)
 
 #---------- Begin fourth plot ------------------------------------------
 
-tfile = NetCDFFile(dirc+"/cdf/Tstorm.cdf","r")    # Open a netCDF file.
+tfile = Nio.open_file(dirc+"/cdf/Tstorm.cdf","r")    # Open a netCDF file.
 temp = tfile.variables["t"]
 
 tempa = temp[0,:,:]

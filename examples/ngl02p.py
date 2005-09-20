@@ -4,9 +4,9 @@
 import Numeric,sys,os
 
 #
-#  Import the NetCDF reader.
+#  Import Nio read functions (for netCDF files).
 #
-from Scientific.IO.NetCDF import NetCDFFile
+import Nio
 
 #
 #  Import Ngl support functions.
@@ -16,7 +16,7 @@ import Ngl
 #  
 #  Open the netCDF file.
 #  
-cdf_file = NetCDFFile(Ngl.ncargpath("data") + "/cdf/contour.cdf","r")
+cdf_file = Nio.open_file(Ngl.ncargpath("data") + "/cdf/contour.cdf","r")
 
 #
 #  Associate Python variables with NetCDF variables.
