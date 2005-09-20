@@ -28,5 +28,5 @@ setup (name = "PyNGL",
                             define_macros=[('NeedFuncProto', None)],
                             include_dirs = pyngl_inc,
                             library_dirs = pyngl_lib,
-                            libraries = ["hlu", "ncarg", "ncarg_gks", "ncarg_c", "ngmath", "X11", "g2c"])]
+                            libraries = ["nfpfort", "hlu", "ncarg", "ncarg_gks", "ncarg_c", "ngmath", "X11", "g2c"])]
       )
