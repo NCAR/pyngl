@@ -15,10 +15,22 @@ import Ngl
 import Nio
 
 #
+#  To use the ScientificPython module to read in the netCDF file,
+#  comment out the above "import Nio" command, and uncomment the 
+#  import line below.
+#
+# from Scientific.IO.NetCDF import NetCDFFile
+
+#
 #  Open the netCDF files, get variables.
 #
 data_dir = Ngl.ncargpath("data")
 ice1     = Nio.open_file(data_dir + "/cdf/fice.nc","r")
+
+#
+#  This is the ScientificPython method for opening a netCDF file.
+#
+# ice1     = NetCDFFile(data_dir + "/cdf/fice.nc","r")
 
 #
 #  Create a masked array to accommodate missing values in the fice variable.

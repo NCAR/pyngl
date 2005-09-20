@@ -1,7 +1,7 @@
 #
-#  Import all names from the NetCDF module.
+#  Import Nio for reading netCDF files.
 #
-from Scientific.IO.NetCDF import NetCDFFile
+import Nio
 
 #
 #  Import Ngl support functions.
@@ -11,7 +11,7 @@ import Ngl
 #
 #  Open the netCDF file.
 #
-file = NetCDFFile(Ngl.ncargpath("data") + "/cdf/pop.nc","r")
+file = Nio.open_file(Ngl.ncargpath("data") + "/cdf/pop.nc","r")
 
 #
 #  Open a workstation.

@@ -9,6 +9,13 @@ import Numeric,sys,os
 import Nio
 
 #
+#  To use the ScientificPython module to read in the netCDF file,
+#  comment out the above "import Nio" command, and uncomment the 
+#  import line below.
+#
+# from Scientific.IO.NetCDF import NetCDFFile
+
+#
 #  Import Ngl support functions.
 #
 import Ngl
@@ -17,6 +24,11 @@ import Ngl
 #  Open the netCDF file.
 #  
 cdf_file = Nio.open_file(Ngl.ncargpath("data") + "/cdf/contour.cdf","r")
+
+#
+#  This is the ScientificPython method for opening a netCDF file.
+#
+# cdf_file = NetCDFFile(Ngl.ncargpath("data") + "/cdf/contour.cdf","r")
 
 #
 #  Associate Python variables with NetCDF variables.

@@ -9,9 +9,9 @@ import Numeric
 import Ngl
 
 #
-#  Import all names from the NetCDF module.
+#  Import Nio for reading netCDF files.
 #
-from Scientific.IO.NetCDF import NetCDFFile
+import Nio
 
 #
 # Open a netCDF file containing the geodesic grid and data on that grid.
@@ -26,7 +26,7 @@ from Scientific.IO.NetCDF import NetCDFFile
 #   http://kiwi.atmos.colostate.edu/BUGS/geodesic/interpolate.html
 #
 dirc  = Ngl.ncargpath("data")
-cfile = NetCDFFile(dirc + "/cdf/hswm_d000000p000.g2.nc","r")
+cfile = Nio.open_file(dirc + "/cdf/hswm_d000000p000.g2.nc","r")
 
 #
 #  Read the grid centers and the kinetic energy into local variables.

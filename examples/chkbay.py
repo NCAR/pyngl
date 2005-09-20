@@ -9,9 +9,9 @@ import Numeric
 import Ngl
 
 #
-#  Import all names from the NetCDF module.
+#  Import Nio for reading netCDF files.
 #
-from Scientific.IO.NetCDF import NetCDFFile
+import Nio
 
 #
 #  Open a netCDF file containing the Chesapeake Bay data.
@@ -26,7 +26,7 @@ from Scientific.IO.NetCDF import NetCDFFile
 #    https://sourceforge.net/projects/oceanmodelfiles
 #
 dirc  = Ngl.ncargpath("data")
-cfile = NetCDFFile(dirc + "/cdf/ctcbay.nc","r")
+cfile = Nio.open_file(dirc + "/cdf/ctcbay.nc","r")
 
 #
 #  Read the lat/lon/ele/depth arrays to Numeric arrays.

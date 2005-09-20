@@ -9,9 +9,9 @@ import Numeric
 import Ngl
 
 #
-#  Import all names from the NetCDF module.
+#  Import Nio for importing netCDF files.
 #
-from Scientific.IO.NetCDF import NetCDFFile
+import Nio
 
 #
 #  Open a netCDF file containing the grid and data from the HOMME
@@ -19,7 +19,7 @@ from Scientific.IO.NetCDF import NetCDFFile
 #  called SEAM (Spectral Element Atmosphere Model).
 #
 dirc  = Ngl.ncargpath("data")
-cfile = NetCDFFile(dirc + "/cdf/seam.nc")
+cfile = Nio.open_file(dirc + "/cdf/seam.nc")
 
 #
 #  Read the lat/lon/ps arrays to Numeric arrays, and convert

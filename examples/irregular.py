@@ -9,9 +9,9 @@
 import Numeric
 
 #
-#  Import the NetCDF reader.
+#  Import Nio for reading netCDF files.
 #
-from Scientific.IO.NetCDF import NetCDFFile
+import Nio
 
 #
 #  Import Ngl support functions.
@@ -22,7 +22,7 @@ import Ngl
 #  Open a netCDF file and get some data..
 #
 data_dir = Ngl.ncargpath("data")
-cdf_file = NetCDFFile(data_dir + "/cdf/ocean.nc","r")
+cdf_file = Nio.open_file(data_dir + "/cdf/ocean.nc","r")
 T        = cdf_file.variables["T"]    
 lat_t    = cdf_file.variables["lat_t"][:]
 z_t      = cdf_file.variables["z_t"][:] / 100.         # convert cm to m

@@ -9,9 +9,9 @@ import Numeric
 import Ngl
 
 #
-#  Import all names from the NetCDF module.
+#  Import Nio for reading netCDF files.
 #
-from Scientific.IO.NetCDF import *
+import Nio
 
 #
 #  Open a netCDF file containing data off the coast of North Carolina.
@@ -23,7 +23,7 @@ from Scientific.IO.NetCDF import *
 #  Ocean Dynamics and Prediction Branch).
 #
 dirc  = Ngl.ncargpath("data")
-cfile = NetCDFFile(dirc + "/cdf/ctnccl.nc","r")
+cfile = Nio.open_file(dirc + "/cdf/ctnccl.nc","r")
 
 #
 #  Read the lat/lon/ele/depth arrays to Numeric arrays.

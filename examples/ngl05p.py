@@ -9,6 +9,13 @@ import Numeric
 import Nio
 
 #
+#  To use the ScientificPython module to read in the netCDF file,
+#  comment out the above "import Nio" command, and uncomment the 
+#  import line below.
+#
+# from Scientific.IO.NetCDF import NetCDFFile
+
+#
 #  Import Ngl support functions.
 #
 import Ngl
@@ -19,6 +26,13 @@ data_dir  = Ngl.ncargpath("data")
 cdf_file1 = Nio.open_file(data_dir + "/cdf/941110_P.cdf","r")
 cdf_file2 = Nio.open_file(data_dir + "/cdf/sstdata_netcdf.nc","r")
 cdf_file3 = Nio.open_file(data_dir + "/cdf/Pstorm.cdf","r")
+
+#
+#  This is the ScientificPython method for opening netCDF files.
+#
+# cdf_file1 = NetCDFFile(data_dir + "/cdf/941110_P.cdf","r")
+# cdf_file2 = NetCDFFile(data_dir + "/cdf/sstdata_netcdf.nc","r")
+# cdf_file3 = NetCDFFile(data_dir + "/cdf/Pstorm.cdf","r")
 
 psl = cdf_file1.variables["Psl"]   
 sst = cdf_file2.variables["sst"]  

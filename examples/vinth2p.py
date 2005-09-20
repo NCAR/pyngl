@@ -1,11 +1,11 @@
 import Ngl,Numeric
-from Scientific.IO.NetCDF import NetCDFFile
+import Nio
 
 #
 #  Open the netCDF file containing the input data.
 #
 dirc  = Ngl.ncargpath("data")
-cfile = NetCDFFile(dirc+"/cdf/vinth2p.nc","r")
+cfile = Nio.open_file(dirc+"/cdf/vinth2p.nc","r")
 
 #
 #  Define the surface pressure value.

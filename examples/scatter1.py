@@ -4,10 +4,13 @@
 import Numeric
 
 #
-#  From Scientific import the NetCDF file reader and the 
-#  polynomial least squares function.
+# Import Nio for reading netCDF files.
 #
-from Scientific.IO.NetCDF import NetCDFFile
+import Nio
+
+#
+#  From Scientific import the the polynomial least squares function.
+#
 from Scientific.Functions.LeastSquares import polynomialLeastSquaresFit
 
 #
@@ -23,7 +26,7 @@ import Ngl
 #  Read the scattered data and extract the x, y, and color variables.
 #
 dirc  = Ngl.ncargpath("data")
-ncdf = NetCDFFile(dirc + "/cdf/scatter1.nc","r")
+ncdf = Nio.open_file(dirc + "/cdf/scatter1.nc","r")
 x = ncdf.variables["x"][:]
 y = ncdf.variables["y"][:]
 colors = ncdf.variables["colors"][:]

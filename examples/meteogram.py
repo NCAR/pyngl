@@ -5,9 +5,9 @@
 import copy
 
 #
-#  Import all names from the NetCDF module.
+#  Import Nio.
 #
-from Scientific.IO.NetCDF import NetCDFFile
+import Nio
 
 #
 #  Import Numeric and sys.
@@ -74,7 +74,7 @@ def smth9(x,p,q):
 #
 #  Read in the data variables from the NetCDF file.
 #
-cdf_file   = NetCDFFile(Ngl.ncargpath("data") + "/cdf/meteo_data.nc","r")
+cdf_file   = Nio.open_file(Ngl.ncargpath("data") + "/cdf/meteo_data.nc","r")
 tempisobar = cdf_file.variables["tempisobar"][:,:]  # temperature
 levels     = cdf_file.variables["levels"][:]        # levels
 taus       = cdf_file.variables["taus"][:]          # taus

@@ -9,9 +9,9 @@
 import Numeric,random
 
 #
-#  Import all names from the NetCDF module.
+#  Import Nio for reading netCDF files.
 #
-from Scientific.IO.NetCDF import NetCDFFile
+import Nio
 
 #
 #  Import Ngl support functions.
@@ -22,7 +22,7 @@ import Ngl
 #  Open the netCDF file containing the climate divisions polygons.
 #
 dirc = Ngl.ncargpath("data")
-ncdf = NetCDFFile(dirc + "/cdf/climdiv_polygons.nc","r")
+ncdf = Nio.open_file(dirc + "/cdf/climdiv_polygons.nc","r")
 
 #
 #  State names for the contiguous U.S. states.

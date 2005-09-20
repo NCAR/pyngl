@@ -9,15 +9,15 @@ import Numeric
 import Ngl
 
 #
-#  Import all names from the NetCDF module.
+#  Import Nio.
 #
-from Scientific.IO.NetCDF import NetCDFFile
+import Nio
 
 #
 # Open a netCDF file containing storm data.
 #
 dirc  = Ngl.ncargpath("data")
-tfile = NetCDFFile(dirc + "/cdf/Tstorm.cdf","r")
+tfile = Nio.open_file(dirc + "/cdf/Tstorm.cdf","r")
 
 #
 # Access the temperature arrays for the first 6 time steps.

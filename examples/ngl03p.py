@@ -9,6 +9,13 @@ import Numeric
 import Nio
 
 #
+#  To use the ScientificPython module to read in the netCDF file,
+#  comment out the above "import Nio" command, and uncomment the 
+#  import line below.
+#
+# from Scientific.IO.NetCDF import NetCDFFile
+
+#
 #  Import Ngl support functions.
 #
 import Ngl
@@ -18,6 +25,12 @@ import Ngl
 dirc  = Ngl.ncargpath("data")
 ufile = Nio.open_file(dirc + "/cdf/Ustorm.cdf","r")  # Open two netCDF files.
 vfile = Nio.open_file(dirc + "/cdf/Vstorm.cdf","r")
+
+#
+#  This is the ScientificPython method for opening netCDF files.
+#
+# ufile = NetCDFFile(dirc + "/cdf/Ustorm.cdf","r")  # Open two netCDF files.
+# vfile = NetCDFFile(dirc + "/cdf/Vstorm.cdf","r")
 
 #
 #  Get the u/v variables.
@@ -68,6 +81,11 @@ vc = Ngl.vector(wks,ua,va,resources)
 #---------- Begin fourth plot ------------------------------------------
 
 tfile = Nio.open_file(dirc+"/cdf/Tstorm.cdf","r")    # Open a netCDF file.
+#
+#  This is the ScientificPython method for opening netCDF files.
+#
+# tfile = NetCDFFile(dirc+"/cdf/Tstorm.cdf","r")    # Open a netCDF file.
+
 temp = tfile.variables["t"]
 
 tempa = temp[0,:,:]

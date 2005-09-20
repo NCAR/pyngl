@@ -4,7 +4,7 @@
 import Numeric, types
 
 #
-#  Import the NetCDF reader.
+#  Import the GRIB1 reader.
 #
 import Nio
 
@@ -14,9 +14,7 @@ import Nio
 import Ngl
 
 #
-#  Open the netCDF file.  This file is a netCDF version of the file:
-#
-#     ncargpath("data") + "/grb/ced1.lf00.t00z.eta.grb"
+#  Open the GRIB file.
 #
 file = Nio.open_file(Ngl.ncargpath("data") + "/grb/ced1.lf00.t00z.eta.grb","r")
 

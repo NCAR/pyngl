@@ -10,9 +10,9 @@
 import Numeric
 
 #
-#  Import all names from the NetCDF module.
+#  Import Nio.
 #
-from Scientific.IO.NetCDF import NetCDFFile
+import Nio
 
 #
 #  Import Ngl support functions.
@@ -36,7 +36,7 @@ def nint(r):
 #  Open the netCDF file containing the salinity data for the trajectories.
 #
 dirc = Ngl.ncargpath("data")
-ncdf = NetCDFFile(dirc+"/cdf/traj_data.nc","r")
+ncdf = Nio.open_file(dirc+"/cdf/traj_data.nc","r")
 
 #
 #  Define a color map and open a workstation.

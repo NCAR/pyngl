@@ -1,9 +1,9 @@
 import Numeric
 
 #
-#  Import all names from the NetCDF module.
+#  Import Nio for reading netCDF files.
 #
-from Scientific.IO.NetCDF import NetCDFFile
+import Nio
 
 #
 #  Import Ngl support functions.
@@ -22,7 +22,7 @@ import Ngl
 # Open netCDF file and read variables
 #
 dirc  = Ngl.ncargpath("data")
-cfile = NetCDFFile(dirc+"/cdf/trinidad.nc","r")
+cfile = Nio.open_file(dirc+"/cdf/trinidad.nc","r")
 
 data         = cfile.variables["data"]
 lat          = cfile.variables["lat"][:]
