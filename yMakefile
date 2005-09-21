@@ -14,7 +14,7 @@ EXTRA_LIBS = -lX11 -lftn
 LN_COMMANDS = $(LD) -shared
 
 #elif defined(SUN)
-EXTRA_LIBS = -R /opt/SUNWspro/lib -L/opt/SUNWspro/lib -lnsl -lsunmath -lm -lX11 -lXext
+EXTRA_LIBS = -R /opt/SUNWspro/prod/lib -L/opt/SUNWspro/prod/lib -R /opt/SUNWspro/lib -L/opt/SUNWspro/lib -lfsu -lsunmath -lompstubs -lm -lX11 -lXext
 LN_COMMANDS = $(LD) -G
 CCOPTIONS = 
 
