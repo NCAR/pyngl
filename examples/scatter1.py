@@ -11,7 +11,13 @@ import Nio
 #
 #  From Scientific import the the polynomial least squares function.
 #
+# You can download ScientificPython from:
+#
+#  http://starship.python.net/~hinsen/ScientificPython/
+#
 from Scientific.Functions.LeastSquares import polynomialLeastSquaresFit
+
+#
 
 #
 #  Import PyNGL.
