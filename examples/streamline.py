@@ -27,8 +27,8 @@ wks = Ngl.open_wks(wks_type,"streamline",rlist)
 #
 urot  = file.variables["urot"]
 vrot  = file.variables["vrot"]
-lat2d = file.variables["lat2d"][:,:]
-lon2d = file.variables["lon2d"][:,:]
+lat2d = file.variables["lat2d"]
+lon2d = file.variables["lon2d"]
 
 #
 # Set up resource list.
@@ -44,8 +44,8 @@ resources.nglFrame = False
 #
 # Coordinate arrays for data
 #
-resources.vfXArray = lon2d
-resources.vfYArray = lat2d
+resources.vfXArray = lon2d[::4,::4]
+resources.vfYArray = lat2d[::4,::4]
 
 if hasattr(urot,"_FillValue"):
   resources.vfMissingUValueV = urot._FillValue
@@ -61,7 +61,7 @@ resources.mpGridAndLimbOn        = False
 
 resources.tiMainString           = "Streamline plot without cyclic point added"
 
-plot = Ngl.streamline_map(wks,urot,vrot,resources) 
+plot = Ngl.streamline_map(wks,urot[::4,::4],vrot[::4,::4],resources) 
 
 #
 # Add a couple of lines showing the area where there's a gap in the
@@ -73,8 +73,8 @@ line_res.gsLineColor       = "Red"                # line color
 line_res.gsLineThicknessF  = 1.5                  # line thickness scale
 line_res.gsLineDashPattern = 2                    # dashed lines
 
-Ngl.polyline(wks,plot,lon2d[:,0],lat2d[:,0],line_res) 
-Ngl.polyline(wks,plot,lon2d[:,-1],lat2d[:,-1],line_res) 
+Ngl.polyline(wks,plot,lon2d[::4,0],lat2d[::4,0],line_res) 
+Ngl.polyline(wks,plot,lon2d[::4,-1],lat2d[::4,-1],line_res) 
 
 #
 # Add a text string explaining the lines.
@@ -91,10 +91,10 @@ Ngl.frame(wks)                                    # Now advance frame.
 # Add cyclic points.  Since lat2d/lon2d are 2D arrays, make them
 # cyclic the same way you do the 2D data array.
 #
-u   = Ngl.add_cyclic(urot)
-v   = Ngl.add_cyclic(vrot)
-lon = Ngl.add_cyclic(lon2d)
-lat = Ngl.add_cyclic(lat2d)
+u   = Ngl.add_cyclic(urot[::4,::4])
+v   = Ngl.add_cyclic(vrot[::4,::4])
+lon = Ngl.add_cyclic(lon2d[::4,::4])
+lat = Ngl.add_cyclic(lat2d[::4,::4])
 
 #
 # Specify new coordinate arrays for data.
@@ -112,8 +112,8 @@ plot = Ngl.streamline_map(wks,u,v,resources)
 #
 line_res.gsLineDashPattern = 0
 
-Ngl.polyline(wks,plot,lon2d[:,0],lat2d[:,0],line_res) 
-Ngl.polyline(wks,plot,lon2d[:,-1],lat2d[:,-1],line_res) 
+Ngl.polyline(wks,plot,lon2d[::4,0],lat2d[::4,0],line_res) 
+Ngl.polyline(wks,plot,lon2d[::4,-1],lat2d[::4,-1],line_res) 
 
 #
 # Add a text string explaining the lines.
