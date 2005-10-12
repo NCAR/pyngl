@@ -5,6 +5,7 @@ import site
 import types
 import string
 import Numeric
+import commands
 
 first_call_to_open_wks = 0
 
@@ -36,6 +37,119 @@ def int_id(plot_id):
 
 def overlay(plot_id1,plot_id2):
   NhlAddOverlay(int_id(plot_id1),int_id(plot_id2),-1)
+
+def ncargpath(type):
+  return NGGetNCARGEnv(type)
+
+def pynglpath_ncarg():
+#
+#  Find the root directory that contains the supplemental PyNGL files,
+#  like fontcaps, colormaps, and map databases. The default is to look
+#  in site-packages/PyNGL/ncarg. Otherwise, check the PYNGL_NCARG
+#  environment variable.
+#
+  pkgs_pth    = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
+                               'site-packages')
+  pyngl1_dir  = pkgs_pth + "/PyNGL/ncarg"
+  pyngl2_dir  = os.environ.get("PYNGL_NCARG")
+  ncarg_ncarg = None
+
+  if (pyngl2_dir != None and os.path.exists(pyngl2_dir)):
+    pyngl_ncarg = pyngl2_dir
+  elif (os.path.exists(pyngl1_dir)):
+    pyngl_ncarg = pyngl1_dir
+  elif (pyngl2_dir != None and os.path.exists(pyngl2_dir)):
+    pyngl_ncarg = pyngl2_dir
+  else:
+    print "pynglpath: directory" + pyngl1_dir + \
+          "\n           does not exist and " + \
+          "environment variable PYNGL_NCARG is not set." 
+    sys.exit()
+
+  return pyngl_ncarg
+
+def pynglpath(name):
+#
+#  Return absolute pathnames for various directories.
+#
+  if (name == "tmp"):
+    tmp_dir = os.environ.get("TMPDIR")
+    if (tmp_dir != None and os.path.exists(tmp_dir)):
+      return tmp_dir
+    else:
+      return "/tmp"
+  elif (name == "examples"):
+    examples_dir_envn = os.environ.get("PYNGL_EXAMPLES")
+    examples_dir_dflt = pynglpath_ncarg() + "/pynglex"
+    if (examples_dir_envn != None and os.path.exists(examples_dir_envn)):
+      return examples_dir_envn
+    elif (os.path.exists(examples_dir_dflt)):
+      return examples_dir_dflt
+    else:
+      print "pynglpath: examples directory does not exist."
+      return None
+  elif (name == "data"):
+    data_dir_envn = os.environ.get("PYNGL_DATA")
+    data_dir_dflt = pynglpath_ncarg() + "/data"
+    if (data_dir_envn != None and os.path.exists(data_dir_envn)):
+      return data_dir_envn
+    elif (os.path.exists(data_dir_dflt)):
+      return data_dir_dflt
+    else:
+      print "pynglpath: data directory does not exist."
+      return None
+  elif (name == "colormaps"):
+    color_dir_envn = os.environ.get("PYNGL_COLORMAPS")
+    color_dir_dflt = pynglpath_ncarg() + "/colormaps"
+    if (color_dir_envn != None and os.path.exists(color_dir_envn)):
+      return color_dir_envn
+    elif (os.path.exists(color_dir_dflt)):
+      return color_dir_dflt
+    else:
+      print "pynglpath: colormaps directory does not exist."
+      return None
+  elif (name == "rangs"):
+    rangs_dir_envn = os.environ.get("PYNGL_RANGS")
+    rangs_dir_dflt = pynglpath_ncarg() + "/rangs"
+    if (rangs_dir_envn != None and os.path.exists(rangs_dir_envn)):
+      return rangs_dir_envn
+    elif (os.path.exists(rangs_dir_dflt)):
+      return rangs_dir_dflt
+    else:
+      print "pynglpath: rangs directory does not exist."
+      return None
+  elif (name == "usrresfile"):
+    ures_dir_envn = os.environ.get("PYNGL_USRRESFILE")
+    ures_dir_dflt = commands.getoutput("ls ~/.hluresfile")
+    if (ures_dir_envn != None and os.path.exists(ures_dir_envn)):
+      return ures_dir_envn
+    elif (os.path.exists(ures_dir_dflt)):
+      return ures_dir_dflt
+    else:
+      print "pynglpath: useresfile directory does not exist."
+      return None
+  elif (name == "sysresfile"):
+    sres_dir_envn = os.environ.get("PYNGL_SYSRESFILE")
+    sres_dir_dflt = pynglpath_ncarg() + "/sysresfile"
+    if (sres_dir_envn != None and os.path.exists(sres_dir_envn)):
+      return sres_dir_envn
+    elif (os.path.exists(sres_dir_dflt)):
+      return sres_dir_dflt
+    else:
+      print "pynglpath: sysresfile directory does not exist."
+      return None
+  elif (name == "sysappres"):
+    ares_dir_envn = os.environ.get("PYNGL_SYSAPPRES")
+    ares_dir_dflt = pynglpath_ncarg() + "/sysresfile"
+    if (ares_dir_envn != None and os.path.exists(ares_dir_envn)):
+      return ares_dir_envn
+    elif (os.path.exists(ares_dir_dflt)):
+      return ares_dir_dflt
+    else:
+      print "pynglpath: sysresfile directory does not exist."
+      return None
+  else:
+    print 'pynglpath: input name "%s" not recognized' % (name)
 
 def remove_overlay(plot_id1,plot_id2,restore):
   NhlRemoveOverlay(int_id(plot_id1),int_id(plot_id2),restore)
@@ -633,45 +747,39 @@ def open_wks(wk_type,wk_name,wk_rlist=None):
       rlist1[key] = rlist[key]
 
 # 
-# Initialize the special resource values, and make sure 
-# NCARG_NCARG environment variable is set.
+#  Initialize the special resource values, and make sure 
+#  NCARG_NCARG environment variable is set.
 #
   if (first_call_to_open_wks == 0):
-#
-#  Find the root directory that contains the supplemental PyNGL files,
-#  like fontcaps, colormaps, and map databases. The default is to look
-#  in site-packages/PyNGL/ncarg. Otherwise, check the NCARG_PYNGL
-#  environment variable, and then ncargpath("ncarg").
-#
-    pkgs_pth  = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
-                             'site-packages')
-    pyngl1_dir  = pkgs_pth + "/PyNGL/ncarg"
-    pyngl2_dir  = os.environ.get("NCARG_PYNGL")
-    pyngl3_dir  = ncargpath("ncarg")
-    ncarg_ncarg = None
-
-    if (os.path.exists(pyngl1_dir)):
-      ncarg_ncarg = pyngl1_dir
-    else:
-      if (pyngl2_dir != None and os.path.exists(pyngl2_dir)):
-        ncarg_ncarg = pyngl2_dir
-      else:
-        if (pyngl3_dir != None and os.path.exists(pyngl3_dir)):
-          ncarg_ncarg = pyngl3_dir
 
 #
-# Only print out a message about pyngl1_dir, because the other two
-# directories are just shots in the dark.
+#  Set HLU environment variables.
 #
-    if (ncarg_ncarg == None):
-      print pyngl1_dir + " does not exist and cannot"
-      print "find alternative directory for PyNGL supplemental files."
-      sys.exit()
-    else:
-#
-#  Make sure NCARG_NCARG is set.
-#
-      os.environ["NCARG_NCARG"] = ncarg_ncarg
+    os.environ["NCARG_NCARG"] = pynglpath_ncarg()
+    tmp_dir = os.environ.get("TMPDIR")
+    if (tmp_dir != None and os.path.exists(tmp_dir)):
+      os.environ["TMPDIR"] = tmp_dir
+    examples_dir_envn = os.environ.get("PYNGL_EXAMPLES")
+    if (examples_dir_envn != None and os.path.exists(examples_dir_envn)):
+      os.environ["NCARG_NCLEX"] = examples_dir_envn
+    data_dir_envn = os.environ.get("PYNGL_DATA")
+    if (data_dir_envn != None and os.path.exists(data_dir_envn)):
+      os.environ["NCARG_DATA"] = data_dir_envn
+    color_dir_envn = os.environ.get("PYNGL_COLORMAPS")
+    if (color_dir_envn != None and os.path.exists(color_dir_envn)):
+      os.environ["NCARG_COLORMAPS"] = color_dir_envn
+    rangs_dir_envn = os.environ.get("PYNGL_RANGS")
+    if (rangs_dir_envn != None and os.path.exists(rangs_dir_envn)):
+      os.environ["NCARG_RANGS"] = rangs_dir_envn
+    ures_dir_envn = os.environ.get("PYNGL_USRRESFILE")
+    if (ures_dir_envn != None and os.path.exists(ures_dir_envn)):
+      os.environ["NCARG_USRRESFILE"] = ures_dir_envn
+    sres_dir_envn = os.environ.get("PYNGL_SYSRESFILE")
+    if (sres_dir_envn != None and os.path.exists(sres_dir_envn)):
+      os.environ["NCARG_SYSRESFILE"] = sres_dir_envn
+    ares_dir_envn = os.environ.get("PYNGL_SYSAPPRES")
+    if (ares_dir_envn != None and os.path.exists(ares_dir_envn)):
+      os.environ["NCARG_SYSAPPRES"] = ares_dir_envn
 
     first_call_to_open_wks = first_call_to_open_wks + 1
 
@@ -3174,9 +3282,6 @@ def natgrid(x,y,z,xo,yo):
     return None
   else:
     return zo
-
-def ncargpath(type):
-  return NGGetNCARGEnv(type)
 
 def normalize_angle(ang,type):
 #
