@@ -1,4 +1,46 @@
 #
+#  File:
+#    scatter1.py
+#
+#  Synopsis:
+#    Draws a scatter visualization using polymarkers.
+#
+#  Categories:
+#    Polymarkers
+#    Tickmarks
+#    Text
+#    XY plots
+#
+#  Author:
+#    Fred Clare
+#  
+#  Date of initial publication:
+#    October, 2004
+#
+#  Description:
+#    This example reads in some dummy of XY coordinates and
+#    associated color indices in the range from 1 to 4.  A
+#    scatter plot is drawn using markers colored and sized
+#    as per the color indices.  A least squares fit is calculated
+#    using a Scientific python function and its curve is drawn
+#    with an XY plot.
+#
+#  Effects illustrated:
+#    o  Polymarkers.
+#    o  Least squares fit.
+#    o  XY plot.
+#    o  Tickmark resource settings.
+# 
+#  Output:
+#    A single visualization is produced.
+#
+#  Notes:
+#    1.)  This visualization is similar in appearance to one provided 
+#         by Joel Norris of GFDL, but dummmy data are used.
+#    2.)  This example requires importing the Scientific package.
+#     
+
+#
 #  Import NumPy
 #
 import Numeric
@@ -31,7 +73,7 @@ import Ngl
 #
 #  Read the scattered data and extract the x, y, and color variables.
 #
-dirc  = Ngl.ncargpath("data")
+dirc  = Ngl.pynglpath("data")
 ncdf = Nio.open_file(dirc + "/cdf/scatter1.nc","r")
 x = ncdf.variables["x"][:]
 y = ncdf.variables["y"][:]

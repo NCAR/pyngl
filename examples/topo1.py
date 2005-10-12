@@ -1,3 +1,45 @@
+#
+#  File:
+#    topt1.py
+#
+#  Synopsis:
+#    Draws a topographic map of southern Colorado.
+#
+#  Category:
+#    Contours over maps
+#    Labelbar
+#    Maps
+#
+#  Author:
+#    Mary Haley
+#  
+#  Date of initial publication:
+#    September, 2004
+#
+#  Description:
+#    This example use elevations to draw a raster mode topographic
+#    visualization of an area of southern Colorado.
+#
+#  Effects illustrated:
+#    o  Reading from a NetCDF file.
+#    o  Setting map resources.
+#    o  Setting labelbar resources.
+#    o  Contouring in raster mode.
+#
+#  Output:
+#    A single visualization is produced showing a color raster
+#    contour topographic map of an area of southern Colorado.
+#
+#  Notes:
+#    The data is from the 1-degree (1:250,000) Digital Elevation
+#    Models (DEM) from the US Geological Survey Earth Resources
+#    Observation System (EROS) Data Center:
+#
+#      http://edc.usgs.gov/geodata/
+#
+#    It is freely available to anyone to download.
+#     
+
 import Numeric
 
 #
@@ -11,17 +53,10 @@ import Nio
 import Ngl
 
 #
-#  The data is from the 1-degree (1:250,000) Digital Elevation
-#  Models (DEM) from the US Geological Survey Earth Resources
-#  Observation System (EROS) Data Center:
-#
-#    http://edc.usgs.gov/geodata/
-#
-#  It is freely available to anyone to download.
 #
 # Open netCDF file and read variables
 #
-dirc  = Ngl.ncargpath("data")
+dirc  = Ngl.pynglpath("data")
 cfile = Nio.open_file(dirc+"/cdf/trinidad.nc","r")
 
 data         = cfile.variables["data"]

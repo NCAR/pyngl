@@ -1,10 +1,41 @@
+#
+#  File:
+#    vinth2p.py
+#
+#  Synopsis:
+#    Illustrates a call to the vinth2p function.
+#
+#  Category:
+#    Processing.
+#
+#  Author:
+#    Fred Clare
+#  
+#  Date of initial publication:
+#    August, 2005
+#
+#  Description:
+#    Reads from a NetCDF file, creates arguments and calls
+#    vinth2p, prints some return values.
+#
+#  Effects illustrated:
+#    o  Reading from a NetCDF file.
+#    o  A call to vinth2p.
+# 
+#  Output:
+#    Some of the returned variables are printed to standard 
+#    output.  No visualization is produced.
+#
+#  Notes:
+#     
+
 import Ngl,Numeric
 import Nio
 
 #
 #  Open the netCDF file containing the input data.
 #
-dirc  = Ngl.ncargpath("data")
+dirc  = Ngl.pynglpath("data")
 cfile = Nio.open_file(dirc+"/cdf/vinth2p.nc","r")
 
 #

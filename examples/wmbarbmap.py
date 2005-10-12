@@ -1,3 +1,37 @@
+#
+#  File:
+#    wmbarbmap.py
+#
+#  Synopsis:
+#    Draws several wind barbs over a map.
+#
+#  Category:
+#    Wind barbs
+#
+#  Author:
+#    Fred Clare
+#  
+#  Date of initial publication:
+#    March, 2005
+#
+#  Description:
+#    This example draws multiple wind barbs at various lat/lon
+#    positions over an orthographic map projection.  It illustrates
+#    how the wind barb directions are attenuated to accommodate for
+#    the latitude position.
+#
+#  Effects illustrated:
+#    o  Drawing wind barbs over maps.
+#    o  A map using an orthographic projection.
+#    o  Setting wind barb control parameters.
+# 
+#  Output:
+#    A single visualization is produced showing several wind barbs
+#    at different lat/lon positions.
+#
+#  Notes:
+#     
+
 import Ngl, Numeric
 
 #

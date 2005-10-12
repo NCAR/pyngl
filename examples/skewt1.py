@@ -1,21 +1,36 @@
 #
-#   File:    skewt1.py
+#  File:
+#    skewt1.py
 #
-#   Author:  Fred Clare (based on an NCL example of Dennis Shea)
-#            National Center for Atmospheric Research
-#            PO 3007, Boulder, Colorado
+#  Synopsis:
+#    Draws three skew-T background plots.
 #
-#   Date:    Tue Mar  1 12:28:42 MST 2005
+#  Category:
+#    Skew-T
 #
-#   Description:     
-#            Demonstrates three skew-T background plots: 
-#              1. All defaults. 
-#              2. Sets the two resources DrawColAreaFill and 
-#                 DrawHeightScale to "True". 
-#              3. Uses a centigrade scale [DrawFahrenheit = False] and 
-#                 heights are indicated in meters [DrawHeightScale=True 
-#                 and DrawHeightScaleFt=False ].
+#  Author:
+#    Fred Clare (based on a code of Dennis Shea).
+#  
+#  Date of original publication:
+#    March, 2005
 #
+#  Description:
+#    This example draws three skew-T background plots, first 
+#    using all defaults and then setting some skew-T resources.
+#
+#  Effects illustrated:
+#    o  Drawing skew-T backgrounds.
+#    o  Using skew-T resources.
+# 
+#  Output:
+#    This example produces three visualizations:
+#      1.)  A skew-T background using all defaults.
+#      2.)  A skew-T background with a height scale and background color.
+#      3.)  A skew-T background with a main title.
+#
+#  Notes:
+#     
+
 import Ngl
 
 wks_type = "ps"

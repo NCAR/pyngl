@@ -1,4 +1,48 @@
 #
+#  File:
+#    ngl05p.py
+#
+#  Synopsis:
+#    Draws contours over maps.
+#
+#  Category:
+#    Contouring over maps.
+#
+#  Author:
+#    Fred Clare (based on a code by Mary Haley).
+#  
+#  Date of initial publication:
+#    September, 2004
+#
+#  Description:
+#    This example draws contours over maps of varying degrees
+#    of complexity illustrating several map projections.
+#
+#  Effects illustrated:
+#    o  Reading in several NetCDF files using Nio.
+#    o  Using several map projections: cylindrical equidistant,
+#       orthographic, Lambert equal area.
+#    o  Contouring only over land.
+#    o  Controlling the number and spacing of contour levels.
+#    o  Changing font height and color.
+#    o  How to explicitly define contour levels.
+#    o  How to scale data that have missing values.
+# 
+#  Output:
+#    This examples produces four visualizations:
+#      1.)  A simple contour over a map using the default map
+#           projection (cylindrical equidistant).
+#      2.)  Contouring over the oceans using an orthographic
+#           projection and a fill pattern while coloring the 
+#           land masses with a single color.
+#      3.)  Color contours over a specified map area using a
+#           Lambert conformal projection.
+#      4.)  Contouring over the U.S. with specified solid colors
+#           for all land, U.S. water, and all other water.
+#  Notes:
+#     
+
+#
 #  Import NumPy.
 #
 import Numeric
@@ -22,7 +66,7 @@ import Ngl
 #
 #  Open three netCDF files and get variables.
 #
-data_dir  = Ngl.ncargpath("data")
+data_dir  = Ngl.pynglpath("data")
 cdf_file1 = Nio.open_file(data_dir + "/cdf/941110_P.cdf","r")
 cdf_file2 = Nio.open_file(data_dir + "/cdf/sstdata_netcdf.nc","r")
 cdf_file3 = Nio.open_file(data_dir + "/cdf/Pstorm.cdf","r")

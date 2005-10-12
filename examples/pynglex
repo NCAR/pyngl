@@ -60,12 +60,12 @@ if (argc < 2):
 #
 #  Find the root directory that contains pynglex example scripts.
 #  The default is in site-packages/PyNGL/ncarg. Otherwise, check
-#  the NCARG_PYNGL environment variable, and then ncargpath("ncarg").
+#  the PYNGL_NCARG environment variable, and then ncargpath("ncarg").
 #
 pkgs_pth    = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
                            'site-packages')
 pyngl1_dir  = pkgs_pth + "/PyNGL/ncarg"
-pyngl2_dir  = os.environ.get("NCARG_PYNGL")
+pyngl2_dir  = os.environ.get("PYNGL_NCARG")
 pyngl3_dir  = Ngl.ncargpath("ncarg")
 ncarg_ncarg = None
 

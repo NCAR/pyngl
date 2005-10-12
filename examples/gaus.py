@@ -1,8 +1,33 @@
+#
+#  File:
+#    gaus.py
+#
+#  Synopsis:
+#    Illustrates usage of the gaus function.
+#
+#  Category:
+#    Processing
+#
+#  Author:
+#    Fred Clare
+#  
+#  Date of initial publication:
+#    June, 2005
+#
+#  Description:
+#    Calls the gaus function to generate Gaussian
+#    latitutes and weights for a specified number
+#    of latitudes.
+#
+#  Effects illustrated:
+#    Calling the gaus function.
+# 
+#  Output:
+#    The calculated latitudes and weights are printed to
+#    standard output.  No visualization is produced.
+#     
+
 import Ngl
-#
-#  Generate gaussian latitudes and weights for a specified 
-#  number of latitudes:
-#
 
 #
 #  Specify the number of latitudes for the entire globe.

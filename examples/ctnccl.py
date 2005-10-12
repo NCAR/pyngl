@@ -1,4 +1,51 @@
 #
+#  File:
+#    ctnccl.py
+#
+#  Synopsis:
+#    Draws contours on a triangular mesh.
+#
+#  Category:
+#    Contours on non-rectangular grids
+#    Contours over maps
+#
+#  Author:
+#    Mary Haley
+#  
+#  Date of initial publication:
+#    October, 2004
+#
+#  Description:
+#    This example reads data defined on a triangular
+#    mesh and creates a colored contour visualization of 
+#    ocean depth off the coast of North Carolina.
+#
+#  Effects illustrated:
+#    o  Reading from a NetCDF file using Nio.
+#    o  How to spread colors evenly over a
+#         subset of a color table.
+#    o  How to specify explicit contour levels.
+#    o  Using a cylindrical equidistant map projection.
+#    o  How to specify map database resolution.
+#    o  How to turn off tickmarks.
+# 
+#  Output:
+#    A single visualization is produced.
+#
+#  Notes:
+#    1.)  This example requires the resource file ctnccl.res.
+#
+#    2.)  The data is from the Naval Research Laboratory at the Stennis
+#         Space Center. For more information about this grid, see the
+#         article "Application of a Shelf-Scale Model to Wave-Induced
+#         Circulation: Rip Currents" by Mark Cobb and Cheryl Ann Blain,
+#         of the Naval Research Lab, Stennis Space Center, MS, Ocean 
+#         Dynamics and Prediction Branch:
+#
+#           http://www.stormingmedia.us/30/3022/A302214.html.
+#
+
+#
 #  Import NumPy.
 #
 import Numeric
@@ -16,12 +63,7 @@ import Nio
 #
 #  Open a netCDF file containing data off the coast of North Carolina.
 #
-#  For more information about this grid, see the article
-#  "Application of a Shelf-Scale Model to Wave-Induced 
-# Circulation: Rip Currents" (Mark Cobb and Cheryl
-#  Ann Blain, Ocean Dynamics and Prediction Branch).
-#
-dirc  = Ngl.ncargpath("data")
+dirc  = Ngl.pynglpath("data")
 cfile = Nio.open_file(dirc + "/cdf/ctnccl.nc","r")
 
 #

@@ -1,4 +1,45 @@
 #
+#  File:
+#    ngl08p.py
+#
+#  Synopsis:
+#    Does a 2D interpolation for a colored contour and an XY plot.
+#
+#  Category:
+#    Contouring
+#    XY plots
+#    Label bar
+#    Legend
+#    Processing
+#
+#  Author:
+#    Fred Clare (based on a code of Mary Haley)
+#  
+#  Date of initial publication:
+#    September, 2005
+#
+#  Description:
+#    This example reads data from a NetCDF file, does an interpolation
+#    from randomply-spaced data to gridded data, then draws a colored
+#    contour plot and an XY plot to four different output files: a 
+#    PostScript file, a PDF file, an X11 window, and an NCGM file. 
+#
+#  Effects illustrated:
+#    o  Reading from a NetCDF file.
+#    o  Interpolating randomly-spaced data to gridded data.
+#    o  Producing output to all workstation types.
+#    o  Setting various legend resources.
+# 
+#  Output:
+#    This example produces two visualizations:
+#      1.) A colored contour plot with a label bar.
+#      2.) An XY plot with a legend.
+#
+#  Notes:
+#    This example requires the resource file ngl08p.res.
+#     
+
+#
 #  Import NumPy.
 #
 import Numeric
@@ -11,7 +52,7 @@ import Ngl
 #  
 #  Open the ASCII file.
 #  
-dirc    = Ngl.ncargpath("data")
+dirc    = Ngl.pynglpath("data")
 seismic = Ngl.asciiread(dirc + "/asc/seismic.asc" ,[52,3],"float")
 
 x = Numeric.array(seismic[:,0],Numeric.Float0)

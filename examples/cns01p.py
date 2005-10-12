@@ -1,15 +1,31 @@
 #
-#   File:    cex01.py
+#   File:    
+#     cns01p.py
 #
-#   Author:  Fred Clare (based on an example of Dave Brown)
-#            National Center for Atmospheric Research
-#            PO 3000, Boulder, Colorado
+#   Synopsis:
+#     Draws contours using dashed lines for contour levels.
 #
-#   Date:    Fri Nov 19 13:00:45 MST 2004
+#   Category:
+#     Contouring
+#
+#   Author:  
+#     Fred Clare (based on an example of Dave Brown)
+#
+#   Date of initial publication:    
+#     November, 2004
 #
 #   Description:     
-#            Given a simple mathematically generated data set,
-#            demonstrates Ngl.contour with dashed contour lines.
+#     Given a simple mathematically generated data set,
+#     demonstrates Ngl.contour with dashed contour-line levels.
+#
+#  Effects illustrated:
+#     o  Drawing a contour visualization with dashed contour lines
+#        produced by setting the resourcer "cnMonoLineDashPattern" 
+#        to False.
+#
+#  Output
+#     A single visualization is produced.
+# 
 #
 import Ngl
 import Numeric

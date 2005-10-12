@@ -1,4 +1,36 @@
 #
+#  File:
+#    legend.py
+#
+#  Synopsis:
+#    Demonstrates legends and legend resource settings.
+#
+#  Category:
+#    Legend
+#
+#  Author:
+#    Mary Haley
+#  
+#  Date of initial publication:
+#    March, 2005
+#
+#  Description:
+#    This example illustrates the effects of setting values
+#    for various legend resources.
+#
+#  Effects illustrated:
+#    Legend fonts, sizes, and orientation.
+# 
+#  Output:
+#    Four labelbar visualizations are produced showing:
+#      1.) default settings
+#      2.) changing the label font
+#      3.) changing the size and orientation
+#      4.) using lots of user-specified labels
+#
+#  Notes:
+      
+#
 #  Import Ngl support functions.
 #
 import Ngl

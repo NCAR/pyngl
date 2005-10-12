@@ -1,17 +1,60 @@
+#
+#  File:
+#    contour_xyz.py
+#
+#  Synopsis:
+#    Illustrates contouring randomly-spaced data.
+#
+#  Categories:
+#    Contouring on non-rectangular grids and raster contouring.
+#    Processing
+#    Polymarkers
+#
+#  Author:
+#    Dave Brown
+#  
+#  Date of initial publication:
+#    October, 2005
+#
+#  Description:
+#    This example shows the various ways that you can take 
+#    three one-dimensional arrays of the same length 
+#    (X,Y coordinate points with a corresponding data value) 
+#    and generate a contour plot. The first method used is 
+#    to interpolate the data to a 2D grid and then contour
+#    the 2D grid. The second method is to generate the contours 
+#    using triangulation. With both methods, both "area fill" 
+#    and "raster fill" methods are used, to show the differences.
+#
+#  Effects illustrated:
+#    o  Using Natgrid to interpolate 2D random data to a 
+#       rectangular grid.
+#    o  Raster contouring.
+#    o  Area fill contouring.
+#    o  Triangulation of the input data.
+# 
+#  Output:
+#    This example produces four visualizations:
+#      1.)  Contouring randomly-spaced data via interpolation
+#           to a regualar grid using area fill with the original
+#           data positions marked.
+#      2.)  Same as 1.) but using raster fill.
+#      3.)  Triangulating the data and contouring using raster fill
+#           on the tringular mesh.
+#      4.)  Same as 3.) but using area fill.
+#
+#  Notes:
+#     
+
 # 
 # Contouring random data
 #
-# This example shows the various ways that you can take three
-# one-dimensional arrays of the same length (X,Y coordinate points with
-# a corresponding data value) and generate a contour plot. The first
-# method used is to interpolate the data to a 2D grid and then contour
-# the 2D grid. The second method is to generate the contours using
-# triangulation. With both methods, both "area fill" and "raster fill"
-# methods are used, to show the differences.
 #
 #  Import NumPy.
 #
 import Numeric
+
+import sys
 
 #
 #  Import Ngl support functions.
@@ -21,7 +64,7 @@ import Ngl,Nio
 #  
 #  Open the ASCII file.
 #  
-dirc    = Ngl.ncargpath("data")
+dirc    = Ngl.pynglpath("data")
 seismic = Ngl.asciiread(dirc + "/asc/seismic.asc" ,[52,3],"float")
 
 #
@@ -67,8 +110,8 @@ wks   = Ngl.open_wks( "ps","contour_xyz",rlist)    # Open a PS workstation
                                                    # with the given colormap.
 
 #
-# Set up a resource list to contain the resources for our contour
-# various plots.
+# Set up a resource list to contain the resources for our various
+# contour plots.
 #
 resources                       = Ngl.Resources()
 resources.nglFrame              = False         # Don't advance frame.
@@ -126,7 +169,9 @@ Ngl.frame(wks)
 
 #
 #  Now draw contours using the triangulation method. Here, we use the
-#  X,Y,Z points directly.
+#  X,Y,Z points directly.  The automatic triangulation of the data is 
+#  triggered by "sfXArray", "sfYarray", and "z" being 1D arrays of the 
+#  same size.
 #
 resources.sfXArray              = x            # X axis data points
 resources.sfYArray              = y            # Y axis data points

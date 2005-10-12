@@ -1,3 +1,35 @@
+#
+#  File:
+#    wmbarb.py
+#
+#  Synopsis:
+#    Draws four different wind barbs at different positions.
+#
+#  Category:
+#    Wind barbs.
+#
+#  Author:
+#    Fred Clare
+#
+#  Date of initial publication:
+#    March, 2005 
+#
+#  Description:
+#    Draws four different wind barbs at different positions.
+#    Scales the sizes.
+#
+#  Effects illustrated:
+#    o  Drawing wind barbs.
+#    o  Setting and retrieving wind barb control parameters.
+# 
+#  Output:
+#    A single visualization is produced that draws the wind barbs.
+#    The retrieved control parameter WBS (for wind barb size) is
+#    printed to standard output.
+#
+#  Notes:
+#     
+
 import Ngl
 
 #

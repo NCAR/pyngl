@@ -1,4 +1,47 @@
 #
+#  File:
+#    ngl02p.py
+#
+#  Synopsis:
+#    Draws a sequence of contour visualizations from simple to more complex.
+#
+#  Category:
+#    Contouring
+#
+#  Author:
+#    Fred Clare (based on a code of Mary Haley)
+#  
+#  Date of initial publication:
+#    September, 2004
+#
+#  Description:
+#    This is the second of the tutorial examples and is meant to
+#    show PyNGL contourng basics by progressing through successively more
+#    complicated contouring visualizations.
+#
+#  Effects illustrated:
+#    o  Reading data from a NetCDF file.
+#    o  Handling missing values in data conversion.
+#    o  Contours with colored lines.
+#    o  Contours with hatch pattern fill.
+#    o  Turing off the lavel bar on a coutour plot.
+#    o  Color filled coutours.
+#    o  Using a long_name in a NetCDF file for a title.
+#    o  Writing data to an ASCII file.
+#    o  Contouring using grayscale contour levels.
+# 
+#  Output:
+#    Five contouring visualizations are produced:
+#      1.)  Contour with contour lines drawn in the foreground color.
+#      2.)  Contour with colored contour lines.
+#      3.)  Contour with hatch pattern fill.
+#      4.)  Contour with color fill.
+#      5.)  Contour with grayscale fill.
+#
+#  Notes:
+#     
+
+#
 #  Import Python modules to be used.
 #
 import Numeric,sys,os
@@ -23,12 +66,12 @@ import Ngl
 #  
 #  Open the netCDF file.
 #  
-cdf_file = Nio.open_file(Ngl.ncargpath("data") + "/cdf/contour.cdf","r")
+cdf_file = Nio.open_file(Ngl.pynglpath("data") + "/cdf/contour.cdf","r")
 
 #
 #  This is the ScientificPython method for opening a netCDF file.
 #
-# cdf_file = NetCDFFile(Ngl.ncargpath("data") + "/cdf/contour.cdf","r")
+# cdf_file = NetCDFFile(Ngl.pynglpath("data") + "/cdf/contour.cdf","r")
 
 #
 #  Associate Python variables with NetCDF variables.

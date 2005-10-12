@@ -1,4 +1,40 @@
 #
+#  File:
+#    ngl11p.py
+#
+#  Synopsis:
+#    Produces a contour plot with separate scales and an XY plot.
+#
+#  Categories:
+#    Contouring
+#    XY plots
+#    Processing
+#
+#  Author:
+#    Fred Clare (based on a code of Mary Haley)
+#  
+#  Date of initial publication:
+#    September, 2005
+#
+#  Description:
+#    Reads from an ASCII file, sets multiple tickmark values and draws
+#    a contour plot with separate scales on the left and right of
+#    the plot.  Draws an XY plot.
+#
+#  Effects illustrated:
+#    o  Setting many tickmark resource values.
+#    o  Adding a cyclic point.
+#    o  Reading from an ASCII file.
+# 
+#  Output:
+#    This example produces two visualizations:
+#      o  A contour plot with separate scales on either side of the plot.
+#      o  An XY plot.
+#
+#  Notes:
+#     
+
+#
 #  Import NumPy.
 #
 import Numeric,sys
@@ -19,7 +55,7 @@ rlist.wkColorMap = cmap
 wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"ngl11p",rlist)
 
-dirc     = Ngl.ncargpath("data")
+dirc     = Ngl.pynglpath("data")
 data     = Ngl.asciiread(dirc+"/asc/u.cocos",(39,14),"float")
 
 pressure  = data[:,0]    # First column of data is pressure (mb).

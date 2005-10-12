@@ -1,4 +1,43 @@
 #
+#  File:
+#    ngl06p.py
+#
+#  Synopsis:
+#    Draws vectors over maps.
+#
+#  Category:
+#    Vectors over maps.
+#
+#  Author:
+#    Fred Clare (based on a code of Mary Haley).
+#  
+#  Date of initial publication:
+#    September, 2004
+#
+#  Description:
+#    This example draws vectors over maps illustrating
+#    various vector resource settings and using a couple
+#    of different map projections.
+#
+#  Effects illustrated:
+#    o  Drawing vectors over specified map regions.
+#    o  Handling missing values in the data.
+#    o  Drawing colored vectors.
+#    o  Specifying vector sizes.
+#    o  Using filled vectors.
+#    o  Drawing a grid only over the oceans.
+#    o  Putting a horizontal label bar at the bottom of the plot.
+# 
+#  Output:
+#    This example produces three visualizations:
+#      1.)  Monocolored vectors over the U.S. 
+#      2.)  Colored vectors.
+#      3.)  Filled vectors over the U.S. with label bar at bottom.
+#
+#  Notes:
+#     
+
+#
 #  Import NumPy.
 #
 import Numeric
@@ -22,7 +61,7 @@ import Ngl
 #
 #  Open netCDF files.
 #
-dirc = Ngl.ncargpath("data")
+dirc = Ngl.pynglpath("data")
 
 #
 #  Open the netCDF files.
@@ -144,6 +183,8 @@ resources.vcFillArrowEdgeColor     = 1     # Draw the edges in black.
 resources.tiMainString      = ":F25:Wind velocity vectors"  # Title
 resources.tiMainFontHeightF = 0.03
 
+resources.pmLabelBarDisplayMode  = "Always"       # Turn on a label bar.
+resources.pmLabelBarSide         = "Bottom"       # Change orientation
 resources.lbOrientation          = "Horizontal"   # Orientation of label bar.
 resources.lbTitleString          = "TEMPERATURE (:S:o:N:F)" # Title for
 resources.lbTitleFont            = 25                       # label bar.

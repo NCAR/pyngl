@@ -1,4 +1,34 @@
 #
+#  File:
+#    ngl10p.py
+#
+#  Synopsis:
+#    Produces a publication XY plot.
+#
+#  Categories:
+#    XY plot
+#    Text
+#
+#  Author:
+#    Fred Clare (based on a code of Mary Haley)
+#  
+#  Date of initial publication:
+#    September, 2005
+#
+#  Description:
+#    This example produces a single publication quality XY plot.
+#
+#  Effects illustrated:
+#    o  XY plot markers and dashed lines.
+#    o  Function codes in text strings.
+# 
+#  Output:
+#    A single XY plot.
+#
+#  Notes:
+#     
+
+#
 #  Import NumPy.
 #
 import Numeric

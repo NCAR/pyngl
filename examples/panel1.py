@@ -1,4 +1,44 @@
 #
+#  File:
+#    panel1.py
+#
+#  Synopsis:
+#    Illustrates how to draw several visualizations on a single frame.
+#
+#  Category:
+#    Paneling
+#    Contours over maps
+#    Label bar
+#
+#  Author:
+#    Fred Clare (based on a code of Mary Haley)
+#  
+#  Date of initial publication:
+#    September, 2004
+#
+#  Description:
+#    Illustrates how to put multiple plots on a page and how
+#    to have each plot have its own label bar or have a common
+#    label bar for all plots on the page.
+#
+#  Effects illustrated:
+#    o  How to handle missing values.
+#    o  How to put multiple plots on a page.
+#    o  Drawing contours over maps.
+#    o  Some special paneling resources.
+#    o  Label bars on individual plots and a common label bar for all plots.
+#    o  How to put a label on each individual plot on a multi-plot frame.
+# 
+#  Output:
+#    This examples produces three visualizations:
+#      1.) Four contour plots on a single frame with individual label bars.
+#      2.) Same as 1.), but with additional white space around the plots.
+#      3.) Six plots on a page with labels applied and a common label bar.
+#
+#  Notes:
+#     
+
+#
 #  Import NumPy.
 #
 import Numeric
@@ -16,7 +56,7 @@ import Nio
 #
 # Open a netCDF file containing storm data.
 #
-dirc  = Ngl.ncargpath("data")
+dirc  = Ngl.pynglpath("data")
 tfile = Nio.open_file(dirc + "/cdf/Tstorm.cdf","r")
 
 #

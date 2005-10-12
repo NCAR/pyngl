@@ -1,4 +1,57 @@
 #
+#  File:
+#    chkbay.py
+#
+#  Synopsis:
+#    Draws contours on a triangular mesh.
+#
+#  Category:
+#    Contouring
+#
+#  Author:
+#    Mary Haley
+#  
+#  Date of initial publication:
+#    September, 2004
+#
+#  Description:
+#    This example reads data defined on a triangular
+#    mesh and creates colored contour visualizations of 
+#    the depth of water in the Chesapeake Bay.
+#
+#  Effects illustrated:
+#    o  Reading from a NetCDF file using Nio.
+#    o  Using a named color table.
+#    o  How to spread colors evenly over a
+#         subset of a color table.
+#    o  Using a cylindrical equidistant map projection.
+#    o  How to select a map database resolution.
+#    o  How to use function codes in text strings.
+#    o  How to use a ".res" file to set resources
+#         such as foreground/background color and font.
+# 
+#  Output:
+#    Two visualizations are produced, the first
+#    is a simple contour of the depth field and the
+#    second overlays that contour on a map of the
+#    Chesapeake Bay.
+#
+#  Notes:
+#    1.)  This example requires the resource file
+#         chkbay.res.
+#
+#    2.)  The grid definition and data came from the 
+#         Chesapeake Community Model Program Quoddy model:
+#  
+#            http://ccmp.chesapeake.org
+#    
+#         using the NOAA/NOS standardized hydrodynamic 
+#         model NetCDF format:
+#
+#            https://sourceforge.net/projects/oceanmodelfiles
+#
+
+#
 #  Import NumPy.
 #
 import Numeric
@@ -13,19 +66,7 @@ import Ngl
 #
 import Nio
 
-#
-#  Open a netCDF file containing the Chesapeake Bay data.
-#
-#  This data is from the Chesapeake Community Model Program Quoddy
-#  model:
-#
-#    http://ccmp.chesapeake.org
-#
-#  using the NOAA/NOS standardized hydrodynamic model NetCDF format:
-#
-#    https://sourceforge.net/projects/oceanmodelfiles
-#
-dirc  = Ngl.ncargpath("data")
+dirc  = Ngl.pynglpath("data")
 cfile = Nio.open_file(dirc + "/cdf/ctcbay.nc","r")
 
 #

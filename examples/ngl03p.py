@@ -1,4 +1,42 @@
 #
+#  File:
+#    ngl03.py
+#
+#  Synopsis:
+#    Vector visualizations from simple to complex.
+#
+#  Categories:
+#    Vectors
+#
+#  Author:
+#    Fred Clare (based on a code of Mary Haley)
+#  
+#  Date of initial publication:
+#    September, 2004
+#
+#  Description:
+#    This is the third of the tutorial examples and is meant to
+#    show PyNGL vector plot  basics by progressing through successively 
+#    more complicated examples.
+#
+#  Effects illustrated:
+#    o  Reading from a NetCDF file.
+#    o  Specifying vector reference size.
+#    o  Specifying missing values.
+#    o  Coloring vectors based on an associated array of colors.
+#    o  Coloring vectors based on scalar values.
+# 
+#  Output:
+#    Four visualizations are produced:
+#      1.)  Basic vector plot with no vectors where there are missing values.
+#      2.)  Vectors using a reference magnitude and length.
+#      3.)  Colored vectors.
+#      4.)  Color filled vector arrows colored using a scalar field.
+#
+#  Notes:
+#     
+
+#
 #  Import NumPy.
 #
 import Numeric
@@ -22,7 +60,7 @@ import Ngl
 #
 #  Open the netCDF files.
 #
-dirc  = Ngl.ncargpath("data")
+dirc  = Ngl.pynglpath("data")
 ufile = Nio.open_file(dirc + "/cdf/Ustorm.cdf","r")  # Open two netCDF files.
 vfile = Nio.open_file(dirc + "/cdf/Vstorm.cdf","r")
 
@@ -74,7 +112,7 @@ resources.vfXCEndV    = lon[len(lon[:])-1][0] # for vector plot.
 resources.vfYCStartV  = lat[0][0]
 resources.vfYCEndV    = lat[len(lat[:])-1][0]
 
-resources.pmLabelBarWidthF         = 0.1
+
 
 vc = Ngl.vector(wks,ua,va,resources)
 

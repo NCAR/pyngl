@@ -1,9 +1,47 @@
 #
-#  This code is based on an NCL code of John Ertl at the
-#  Fleet Numerical Meteorology and Oceanography Center
+#  File:
+#    meteogram.py
 #
-import copy
+#  Synopsis:
+#    Draws a meteogram.
+#
+#  Category:
+#    Meteogram
+#
+#  Author:
+#    Fred Clare (based on an NCL example of Mary Haley).
+#  
+#  Date of initial publication:
+#    September, 2004
+#
+#  Description:
+#    This example reads data from a NetCDF file and creates
+#    a meteogram visualizaton.  If you don't know what a
+#    meteogram is, run the example and look at the visualization.
+#
+#  Effects illustrated:
+#    o Reading in multiple variables from a NetCDF file
+#    o Using a 9-point smoothing function
+#    o Using multiple resource lists in the same visualization
+#    o Line contours, color filled contours, a vector plot, an xy plot
+#    o How to position several plots on one page
+#    o How to do direct overlays of one plot on another - in 
+#      this case overlaying a line contour on a filled contour
+#      and overlaying a wind barb vector plot on a countour plot
+#    o How to create a custom bar chart
+#    o How to reverse an axis
+#    o User specified tickmark labels, tickmark label fonts,  and 
+#      tickmark label angles
+#    
+#  Output:
+#    A single meteogram visualization is produced.
+#
+#  Notes:
+#    This code is based on an NCL code of John Ertl at the
+#    Fleet Numerical Meteorology and Oceanography Center
+#     
 
+import copy
 #
 #  Import Nio.
 #
@@ -74,7 +112,7 @@ def smth9(x,p,q):
 #
 #  Read in the data variables from the NetCDF file.
 #
-cdf_file   = Nio.open_file(Ngl.ncargpath("data") + "/cdf/meteo_data.nc","r")
+cdf_file   = Nio.open_file(Ngl.pynglpath("data") + "/cdf/meteo_data.nc","r")
 tempisobar = cdf_file.variables["tempisobar"][:,:]  # temperature
 levels     = cdf_file.variables["levels"][:]        # levels
 taus       = cdf_file.variables["taus"][:]          # taus

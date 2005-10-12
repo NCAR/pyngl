@@ -1,4 +1,40 @@
 #
+#  File:
+#    ngl09p.py
+#
+#  Synopsis:
+#    Illustrates Animation of contours over a map and using masked arrays.
+#
+#  Category:
+#    Contours over maps
+#
+#  Author:
+#    Fred Clare (based on a code of Mary Haley)
+#  
+#  Date of initial publication:
+#    September, 2005
+#
+#  Description:
+#    This example utilizes the MA (masked array) module of the
+#    Numerical Python pacakge to handle missing data values
+#
+#  Effects illustrated:
+#    o  The MA (masked array) module from the Numerical Python package.
+#    o  Adding a cyclic point.
+#    o  Looping to produce an animation.
+#    o  Using a stereographic map projection.
+#    o  Many map resource settings via the resource file ngl09p.res.
+#    o  Label bar resource settings via the resource file ngl09p.res.
+# 
+#  Output:
+#    The example produces twelve contour plots over a map using
+#    a stereographic map projection.
+#
+#  Notes:
+#    This example requires the resource file ngl09p.res.
+#     
+
+#
 #  Import the Masked array module from 
 #  Numerical Python; import sys
 #
@@ -24,7 +60,7 @@ import Nio
 #
 #  Open the netCDF files, get variables.
 #
-data_dir = Ngl.ncargpath("data")
+data_dir = Ngl.pynglpath("data")
 ice1     = Nio.open_file(data_dir + "/cdf/fice.nc","r")
 
 #

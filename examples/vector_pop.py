@@ -1,9 +1,51 @@
 #
-# Drawing vectors on a POP grid
+#  File:
+#    vector_pop.py
 #
-# This example shows how to draw vectors on a POP grid, and shows the
-# various ways you can set vector resources to thin the vectors, change
-# their lengths, and turn them into curly vectors.
+#  Synopsis:
+#    Shows how to plot vectors on a POP grid with land masked.
+#
+#  Category:
+#    Vectors over maps
+#
+#  Author:
+#    Dave Brown
+#  
+#  Date of initial publication:
+#    October, 2005
+#
+#  Description:
+#    This example shows how to draw vectors on a POP grid, and 
+#    shows the various ways you can set vector resources to thin 
+#    the vectors, change their lengths, and turn them into curly 
+#    vectors.  It also shows how to plot the underlying POP grid
+#    structure using cell fill mode will a transparent fill color.
+#
+#  Effects illustrated:
+#    o  Drawing vectors over maps using an orthographic projection.
+#    o  Drawing curly vectors.
+#    o  Using cell fill mode.
+#    o  Using named colors.
+#    o  Masking land.
+#    o  Defining cyclic points.
+# 
+#  Output:
+#    This example produces eight visualizations:
+#      1.)  Plots the underlying POP grid structure using cell 
+#           fill mode will a transparent fill color.
+#      2.)  Draws a full set of vectors over water.
+#      3.)  Same as 2.) but thins the vectors by drawing only
+#           every third one.
+#      4.)  Thins the vectors by using the vcMinDistanceF resource.
+#      5.)  Same as 4.) but makes the vectors longer.
+#      6.)  Same as 5.) but uses curly vectors.
+#      7.)  Same as 6.) but uses a different color map and colors
+#           the vectors by magnitude.
+#      8.)  Same as 7.) but uses filled arrows.
+#
+#  Notes:
+#     
+
 #
 #  Import Ngl support functions.
 #
@@ -13,7 +55,7 @@ import Numeric
 #
 #  Open the netCDF file.
 #
-dirc = Ngl.ncargpath("data")
+dirc = Ngl.pynglpath("data")
 file = Nio.open_file(dirc + "/cdf/pop.nc")
 
 #
@@ -83,7 +125,6 @@ cnres.tiMainString           = "Pop Grid cells -- grid stride [::3,::3]"
 plot = Ngl.contour_map(wks,temp[:-2:3,:-2:3],cnres) 
 
 Ngl.frame(wks)
-
 
 #
 # Now set up a vector resource variable.

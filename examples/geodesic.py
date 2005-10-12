@@ -1,4 +1,51 @@
 #
+#  File:
+#    geodesic.py
+#
+#  Synopsis:
+#    Draws colored contours on a map using a geodesic grid.
+#
+#  Category:
+#    Contours on maps
+#
+#  Author:
+#    Mary Haley
+#  
+#  Date of initial publication:
+#    September, 2004
+#
+#  Description:
+#    Reads in data defined on a geodesic grid (a grid of contiguous
+#    hexagons) and uses raster fill to draw contours of kinetic
+#    energy mapped onto an orthographic map projection.
+#
+#  Effects illustrated:
+#    o How to define a grid by specifying grid centers and boundaries
+#      of grid cells surrounding each grid center (in this case the
+#      grid cells are hexagons).
+#    o How to use raster fill mode for contouring.
+#    o How to use area fill mode for contouring.
+# 
+#  Output:
+#    Three visualizations are produced:
+#      1.) Raster fill contours
+#      2.) Smoothed raster fill contours
+#      3.) Area fill contours
+#
+#  Notes:
+#    1.)  For grid cells that are not triangles an algorithm is
+#         employed for converting the cells to triangles before
+#         contouring - direct contouring is available only for
+#         triangular meshes at this time.
+#
+#    2.)  The grid for this example was provided by Dave Randall, 
+#         Todd Ringler, and Ross Heikes of Colorado State University.
+#         The data was downloaded from:
+#
+#           http://kiwi.atmos.colostate.edu/BUGS/geodesic/interpolate.html
+#     
+
+#
 #  Import NumPy.
 #
 import Numeric
@@ -25,7 +72,7 @@ import Nio
 #
 #   http://kiwi.atmos.colostate.edu/BUGS/geodesic/interpolate.html
 #
-dirc  = Ngl.ncargpath("data")
+dirc  = Ngl.pynglpath("data")
 cfile = Nio.open_file(dirc + "/cdf/hswm_d000000p000.g2.nc","r")
 
 #

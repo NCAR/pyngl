@@ -1,7 +1,42 @@
 #
-#  This program implements a version of a trajectory plot
-#  based on an NCL code developed by NCAR's Climate and
-#  Global Dynamics Division.
+#  File:
+#    traj1.py
+#
+#  Synopsis:
+#    Draws lines and polymarkers over a map to trace the paths of bouys.
+#
+#  Categories:
+#    Maps
+#    Polylines
+#    Polygons
+#    Polymarkers
+#
+#  Author:
+#    Fred Clare
+#  
+#  Date of initial publication:
+#    September, 2004
+#
+#  Description:
+#    Draws lines and polymarkers over a map to trace the paths of 
+#    buoys set afloat off the eastern coast of South America.
+#    The colors of path segments indicate salinity measurements.
+#
+#  Effects illustrated:
+#    o  Reading from a NetCDF file.
+#    o  Polylines.
+#    o  Polygons.
+#    o  Polymarkers.
+#    o  Maps using a Cylindrical Equidistant projection.
+# 
+#  Output:
+#    A single visualization showing the paths of buoys set afloat
+#    off the eastern coast of South America.
+#
+#  Notes:
+#    This program implements a version of a trajectory plot
+#    based on an NCL code developed by NCAR's Climate and
+#    Global Dynamics Division.
 #
 
 #
@@ -35,7 +70,7 @@ def nint(r):
 #
 #  Open the netCDF file containing the salinity data for the trajectories.
 #
-dirc = Ngl.ncargpath("data")
+dirc = Ngl.pynglpath("data")
 ncdf = Nio.open_file(dirc+"/cdf/traj_data.nc","r")
 
 #
@@ -100,11 +135,10 @@ txres.txFont        = 22
 Ngl.text_ndc(wks,"Trajectories colored by salinity (ppt)",0.52,0.90,txres)
 del txres
 
-
 #
 #  Manually draw a labelbar using colors 4-12.
 #
-gsres = Ngl.Resources()      # Line resources.
+gsres = Ngl.Resources()  # Line resources.
 gsres.gsLineColor = 1    # Draw black boundaries around the label bar boxes.
 delx = 0.06
 dely = 0.03

@@ -1,4 +1,37 @@
 #
+#  File:
+#    ngl04p.py
+#
+#  Synopsis:
+#    Streamline visualizations.
+#
+#  Category:
+#    Streamlines
+#
+#  Author:
+#    Fred Clare (based on a code of Mary Haley)
+#  
+#  Date of initial publication:
+#    September, 2004
+#
+#  Description:
+#    Uses Nio to read from a GRIB file and draw several
+#    streamline visualizations.
+#
+#  Effects illustrated:
+#    o  Reading from a GRIB file.
+#    o  Drawing streamline visualizations.
+# 
+#  Output:
+#    This example produces three visualizations:
+#      1.)  A simple streamline plot.
+#      2.)  Colored streamlines.
+#      3.)  Streamlines with user specified arrow length and line spacing.
+#
+#  Notes:
+#     
+
+#
 #  Import NumPy and types.
 #
 import Numeric, types
@@ -16,7 +49,7 @@ import Ngl
 #
 #  Open the GRIB file.
 #
-file = Nio.open_file(Ngl.ncargpath("data") + "/grb/ced1.lf00.t00z.eta.grb","r")
+file = Nio.open_file(Ngl.pynglpath("data") + "/grb/ced1.lf00.t00z.eta.grb","r")
 
 names = file.variables.keys()  #  Get the variable names
 print "\nVariable names:"      #  and print them out.

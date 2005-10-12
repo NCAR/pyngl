@@ -1,21 +1,43 @@
 #
-#   File:    skewt2.py
+#  File:
+#    skewt2.py
 #
+#  Synopsis:
+#    Draws skew-T visualizations using dummy data.
+#
+#  Category:
+#    Skew-T
+#
+#  Author:
 #   Author:  Fred Clare (based on an NCL example of Dennis Shea)
-#            National Center for Atmospheric Research
-#            PO 3007, Boulder, Colorado
+#  
+#  Date of original publication:
+#    March, 2005
 #
-#   Date:    Tue Mar  1 12:38:22 MST 2005
+#  Description:
+#    This example draws two skew-T plots using real data.  The 
+#    winds from a (bogus) pibal are drawn using different colors.
+#
+#  Effects illustrated:
+#    o  Reading from an ASCII file.
+#    o  Flagging missing values.
+#    o  Plotting soundings and winds.
+#    o  Plotting wind barbs at height levels.
 # 
-#   Description:
-#            Produces two skew-T plots using real data.  The winds from 
-#            a (bogus) pibal are drawn using a different colors.
-#    
+#  Output:
+#    This example produce two visualizations:
+#      1.)  A Raob sounding with no winds.
+#      2,)  A Raob sounding with wind barbs at height levels and a
+#           height scale in feet.
+#
+#  Notes:
+#     
+
 import Ngl,Numeric
 
 nlvl = 30  
 ncol = 16
-TestData = Ngl.asciiread(Ngl.ncargpath("data") + "/asc/sounding_testdata.asc", \
+TestData = Ngl.asciiread(Ngl.pynglpath("data") + "/asc/sounding_testdata.asc", \
                    [nlvl,ncol], "float")
 
 p    = TestData[:,1]

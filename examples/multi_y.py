@@ -1,4 +1,52 @@
 #
+#  File:
+#    multi_y.py
+#
+#  Synopsis:
+#    Shows how to conflate two XY plots and how to add and remove annotations.
+#
+#  Categories:
+#    Annotations
+#    XY plots
+#    Special effects
+#
+#  Author:
+#    Mary Haley
+#  
+#  Date of initial publication:
+#    August, 2005
+#
+#  Description:
+#    This example shows:
+#       1.)  how to merge two XY plots into a single visualization.
+#       2.)  how to do the same thing as in 1.) by specifying
+#            the second plot as an annotation to the first.
+#       3.)  how to remove an annotation.
+#
+#  Effects illustrated:
+#    o  Reading data from an ASCII file.
+#    o  Controlling two separate plots so that they will have the
+#       same size an position on the frame.
+#    o  Setting several tickmark resources to turn some off and
+#       label others with user-specified labels and so forth.
+#    o  XY plots.
+#    o  Adding and removing annotations.
+# 
+#  Output:
+#    Five visualizations are produced:
+#      1.)  A simple XY plot.
+#      2.)  A second XY plot.
+#      3.)  An XY plot that merges the plots in 1.) and 2.).
+#      4.)  The same thing as in 3.) accomplished by making the
+#           second XY plot and annotation to the first.
+#      5.)  The plot in 4.) with the annotation removed, reproducing
+#           the plot in 1.).
+#
+#  Notes:
+#    This examples requires the resource file multi_y.res.
+#     
+
+#
 #  Import NumPy.
 #
 import Numeric
@@ -15,7 +63,7 @@ import Ngl
 #  1-129 standing for 0 deg - 360 deg in steps of 360/128.
 #  u and v are in m/s, and t is in deg K.
 #
-dirc     = Ngl.ncargpath("data")
+dirc     = Ngl.pynglpath("data")
 data     = Ngl.asciiread(dirc+"/asc/xy.asc",[516],"float")
 
 lon  = data[0:512:4]    # First column of data is longitude.

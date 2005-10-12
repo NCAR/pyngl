@@ -1,6 +1,36 @@
 #
-#  This program plots polygons defined by climate divisions;
-#  it is based on a GSUN code written by Mark Stevens.
+#  File:
+#    clmdiv.py
+#
+#  Synopsis:
+#    Draws U.S. geographic climate divisions as polygonal areas.
+#
+#  Categories:
+#    maps only
+#    polygons
+#
+#  Author:
+#    Fred Clare (based on an NCL script of Mark Stevens, CGD, NCAR)
+#  
+#  Date of initial publication:
+#    September, 2004
+#
+#  Description:
+#    This example reads polygon data defining the U.S. geographic
+#    climate divisions and produces a visualization of those divisions
+#    colored randomly. 
+#
+#  Effects illustrated:
+#      o  Defining a color map.
+#      o  Using a Lambert conformal map projection.
+#      o  How to select a map database resolution.
+#      o  How to color only specified map areas.
+#      o  How to draw color-filled polygons.
+#      o  Usage of the the Python "random" module.
+# 
+#  Output:
+#     A single visualization is produced showing the
+#     U.S. climate divisions.
 #
 
 #
@@ -21,7 +51,7 @@ import Ngl
 #
 #  Open the netCDF file containing the climate divisions polygons.
 #
-dirc = Ngl.ncargpath("data")
+dirc = Ngl.pynglpath("data")
 ncdf = Nio.open_file(dirc + "/cdf/climdiv_polygons.nc","r")
 
 #

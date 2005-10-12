@@ -1,16 +1,32 @@
 #
-#   File:    cex02.py
+#   File:    
+#     cn02p.py
 #
-#   Author:  Fred Clare (based on an example of Dave Brown)
-#            National Center for Atmospheric Research
-#            PO 3000, Boulder, Colorado
+#   Synopsis:
+#     Draws a simple color filled contour.
 #
-#   Date:    Fri Nov 19 13:00:45 MST 2004
+#   Category:
+#     Contouring
+#
+#   Author:  
+#     Fred Clare (based on an example of Dave Brown)
+#
+#   Date of initial publication:    
+#     November, 2004
 #
 #   Description:     
-#            Given a simple mathematically generated data set,
-#            demonstrates Ngl.contour with color filled contour
-#            levels.
+#     Given a simple mathematically generated data set,
+#     demonstrates Ngl.contour with color filled contour
+#     levels.
+#
+#  Effects illustrated:
+#     o  Drawing a contour visualization with color filled
+#        contour levels.
+#
+#  Output
+#     A single visualization is produced.
+# 
+
 #
 import Ngl
 import Numeric

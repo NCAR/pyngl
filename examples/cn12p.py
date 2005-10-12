@@ -1,5 +1,41 @@
 #
-#  Python version of the NCL example cn12n.
+#   File:
+#     cn12p.py
+#
+#   Synopsis:
+#     Draws a color filled contour map over Africa.
+#
+#   Category:
+#     Contours over maps
+#
+#   Author:
+#     Fred Clare (based on examples of Mary Haley and Dave Kennison).
+#
+#   Date of initial publication:    
+#     September, 2004
+#  
+#   Description:
+#     This example draws a map with filled contours appearing
+#     only over Africa.  In order to mask Africa from the map fill,
+#     the mpMaskAreaSpecifiers resource is used to mask all of
+#     the countries in Africa.
+#
+#  Effects illustrated
+#     o  Reading data from an ASCII file.
+#     o  Drawing color filled contours over specified geographic areas.
+#     o  Using a ".res" file to set many resources, for example to:
+#          + set fill colors
+#          + turn off high labels, info label, line labels, low labels.
+#          + turn on area masking.
+#          + set the map projection to "orthographic".
+#          + set several label bar resources.
+#
+#  Output:
+#     A single visualization is produced.
+#
+#  Notes: 
+#     This example requires the resource file cn12p.res.
+
 #
 #  Import NumPy.
 #
@@ -35,7 +71,7 @@ mask_specs =                                                                 \
 wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"cn12p")
 
-dirc = Ngl.ncargpath("data")
+dirc = Ngl.pynglpath("data")
 z    = Ngl.asciiread(dirc+"/asc/cn12n.asc",len_dims,"float")
  
 resources = Ngl.Resources()

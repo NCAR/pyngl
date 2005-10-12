@@ -1,24 +1,43 @@
 #
-#   File:    skewt3.py
+#  File:
+#    skewt3.py
 #
-#   Author:  Fred Clare (based on an NCL example of Dennis Shea)
-#            National Center for Atmospheric Research
-#            PO 3007, Boulder, Colorado
+#  Synopsis:
+#    Draws two skew-T plots using real data.
 #
-#   Date:    Tue Mar  1 14:58:28 MST 2005
+#  Category:
+#    Skew-T
+#
+#  Author:
+#    Fred Clare (based on an NCL example of Dennis Shea)
+#  
+#  Date of original publication:
+#    March, 2005
+#
+#  Description:
+#    Produces two skew-T plots using real data.
+#
+#  Effects illustrated:
+#    o  Reading from an ASCII file.
+#    o  Skew-T plots.
+#    o  Thinning wind barbs on skew-T plots.
+#    o  Changing the text function code flag.
 # 
-#   Description:
-#            Produces two plots using real data:
-#              1. Shows the full radiosonde.
-#              2. This "thins" the number of wind barbs plotted and 
-#                 uses a Centigrade scale.  Setting Wthin to 3 causes
-#                 the plotting of every third wind barb.
-#    
+#  Output:
+#    This example produces two visualizations:
+#      1.)  Shows the full radiosonde.
+#      2.)  "thins" the number of wind barbs plotted and
+#           uses a Centigrade scale.  Setting "Wthin" to 3 
+#           causes the plotting of every third wind barb.
+#
+#  Notes:
+#     
+
 import Ngl
   
 nlvl = 65
 ncol = 7
-TestData =  Ngl.asciiread(Ngl.ncargpath("data") + "/asc/sounding_ATS.asc", \
+TestData =  Ngl.asciiread(Ngl.pynglpath("data") + "/asc/sounding_ATS.asc", \
                           [nlvl,ncol], "float")
 
 #

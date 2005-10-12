@@ -1,4 +1,48 @@
 #
+#  File:
+#    ngl01p.py
+#
+#  Synopsis:
+#    Introductory tutorial example using resources for XY plots.
+#
+#  Category:
+#    XY plots
+#
+#  Author:
+#    Fred Clare
+#  
+#  Date of initial publication:
+#    September, 2004
+#
+#  Description:
+#    This is the first of the tutorial examples and is meant to
+#    show PyNGL basics by progressing through successively more
+#    complicated XY visualizations.
+#
+#  Effects illustrated:
+#    o  How to begin and end a PyNGL script.
+#    o  How to create and initialize variables
+#    o  How to create and draw XY visualizations.
+#    o  How to set resources to change the appearance of a visualization.
+#    o  How to read data from an ASCII file.
+#    o  How to title a visualization with a main title.
+#    o  How to title the X and Y axes of an XY visualization.
+#    o  How to use markers in XY visualizations.
+#    o  How to change line thicknesses.
+#
+#  Output:
+#    Five visualizations are produced:
+#      1.)  A simple XY plot with one curve.
+#      2.)  A simple XY plot with three curves and titling of X/Y axes.
+#      3.)  As in 2.) but changing the colors of the curves and
+#           the curve thicknesses.
+#      4.)  Same as 3.), but with a main title and using markers.
+#      5.)  XY plot with user specified labels for the curves.
+#
+#  Notes:
+#     
+
+#
 #  Import NumPy.
 #
 import Numeric
@@ -67,7 +111,7 @@ plot = Ngl.xy(wks,x,y2,resources)       # Draw an XY plot.
   
 #---------- Begin fifth plot ------------------------------------------
   
-filename = Ngl.ncargpath("data") + "/asc/xy.asc"
+filename = Ngl.pynglpath("data") + "/asc/xy.asc"
 data     = Ngl.asciiread(filename,(129,4),"float")
   
 #

@@ -1,4 +1,37 @@
 #
+#  File:
+#    labelbar.py
+#
+#  Synopsis:
+#    Demonstrates labelbars and labelbar resource settings.
+#
+#  Category:
+#    Labelbar
+#
+#  Author:
+#    Mary Haley
+#  
+#  Date of initial publication:
+#    March, 2005
+#
+#  Description:
+#    This example illustrates the effects of setting values
+#    for various labelbar resources.
+#
+#  Effects illustrated:
+#    Labelbar fonts, sizes, orientation, alignment, and fill patterns.
+# 
+#  Output:
+#    Four labelbar visualizations are produced showing:
+#      1.) default settings
+#      2.) changing the font and alignment
+#      3.) changing the size, orientation and fill pattern
+#      4.) using lots of user-specified labels
+#
+#  Notes:
+#     
+
+#
 #  Import Ngl support functions.
 #
 import Ngl

@@ -1,4 +1,46 @@
 #
+#  File:
+#    ngl07p.py
+#
+#  Synopsis:
+#    Uses spline interpolation and draws two XY plots on the same frame.
+#
+#  Categories:
+#    Polylines
+#    Polymarkers
+#    Text
+#    XY plots
+#    Processing
+#
+#  Author:
+#    Fred Clare
+#  
+#  Date of initial publication:
+#    September, 2004
+#
+#  Description:
+#    This examples uses one-dimensional spline interpolation 
+#    for a curve on an XY plot; it finds the integral at each
+#    abscissa in the XY plot and draws an XY plot of that on 
+#    the same frame.
+#
+#  Effects illustrated:
+#    o  Using functions from the Fitgrid package for interpolation
+#       and integration.
+#    o  How to draw two XY plots on the same frame.
+#    o  How to draw polylines, polymarkers, and text anywhere on a plot.
+#    o  Using named colors.
+#    o  Many tickmark resource settings.
+# 
+#  Output:
+#    This example produces a single visualization illustrating
+#    basic polyline, polymarker, and text capabilities as well as
+#    drawing two XY plots on the same frame.
+#
+#  Notes:
+#     
+
+#
 #  Import NumPy.
 #
 import Numeric

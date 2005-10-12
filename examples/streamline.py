@@ -1,4 +1,42 @@
 #
+#  File:
+#    streamline.py
+#
+#  Synopsis:
+#    Draws streamlines on a map over water only.
+#
+#  Category:
+#    Streamlines on a map.
+#
+#  Author:
+#    Mary Haley
+#  
+#  Date of original publication:
+#    December, 2004
+#
+#  Description:
+#    This example draws streamlines over water on a map using a
+#    Cylindrical Equidistant map projection.  The "add_cyclic"
+#    function is illustrated graphically.
+#
+#  Effects illustrated:
+#    o  Streamlines over maps.
+#    o  Adding cyclic points.
+#    o  Specifying colors by name.
+#    o  Polylines.
+#    o  Masking land areas.
+# 
+#  Output:
+#    This example produces two visualizations:
+#      1.)  Streamlines on a Cylindrical Equidistant map over water
+#           only highlighting missing cyclic points.
+#      2.)  Same as 1.) with the cyclic points added.
+#
+#  Notes:
+#    This example requires the resource file streamline.res.
+#     
+
+#
 #  Import Nio for reading netCDF files.
 #
 import Nio
@@ -11,7 +49,7 @@ import Ngl
 #
 #  Open the netCDF file.
 #
-file = Nio.open_file(Ngl.ncargpath("data") + "/cdf/pop.nc","r")
+file = Nio.open_file(Ngl.pynglpath("data") + "/cdf/pop.nc","r")
 
 #
 #  Open a workstation.

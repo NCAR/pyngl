@@ -1,16 +1,30 @@
 #
-#   File:    cex01.py
+#   File:    
+#     cn01p.py
 #
-#   Author:  Fred Clare (based on an example of Dave Brown)
-#            National Center for Atmospheric Research
-#            PO 3000, Boulder, Colorado
+#   Synopsis:
+#     Draws a simple contour using all defaults.
 #
-#   Date:    Fri Nov 19 13:00:45 MST 2004
+#   Category:
+#     Contouring
+#
+#   Author:  
+#     Fred Clare (based on an example of Dave Brown)
+#
+#   Date of initial publication:    
+#     November, 2004
 #
 #   Description:     
-#            Given a simple mathematically generated data set,
-#            demonstrates Ngl.contour with all resources set
-#            to their defaults.
+#     Given a simple mathematically generated data set,
+#     demonstrates Ngl.contour with all resources set
+#     to their defaults.
+#
+#  Effects illustrated:
+#     Drawing a contour visualization using all defaults.
+# 
+#  Output:
+#     A single visualization is produced.
+#
 #
 import Ngl
 import Numeric

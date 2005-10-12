@@ -1,4 +1,53 @@
 #
+#  File:
+#    seam.py
+#
+#  Synopsis:
+#    Illustrates contouring on the non-rectangular SEAM grid.
+#
+#  Category:
+#    Contouring on non-rectangular grids.
+#    Contouring over maps.
+#
+#  Author:
+#    Mary Haley
+#  
+#  Date of initial publication:
+#    October, 2004
+#
+#  Description:
+#    This example illustrates contouring on a non-rectangular grid
+#    over a map using one of three map projections (Orthographic, 
+#    Cylindrical Equidistant, Lambert Equal Area) and two fill 
+#    modes (AreaFill and RasterFill).
+#
+#  Effects illustrated:
+#    o  Reading from a NetCDF file.
+#    o  Contouring on a non-rectangualar grid (the SEAM grid).
+#    o  Contouring using raster fill and area fill modes.
+#    o  Using Orthographic, Cylindrical Equidistant, and Lambert Equal
+#       Area map projections.
+#    o  Using the raster fill smoothing option.
+#    o  Selecting a color map by name.
+#    o  The conditions when automatic triangulation of the input 
+#       array will be done.
+# 
+#  Output:
+#    This example produces five visualizations:
+#      1.)  A contour plot using an Orthographic map
+#           projection and fill mode "AreaFill".
+#      2.)  Same as 1.), but using fill mode "RasterFill".
+#      3.)  Same as 2.), but using a Cylindrical Equidistant
+#           map projection.
+#      4.)  Same as 3.), but using raster smoothing.
+#      5.)  Same as 4.), but using a Lambert Equal Area map
+#           projection.
+#
+#  Notes:
+#    This example requires the resource file seam.res.
+#     
+
+#
 #  Import NumPy.
 #
 import Numeric
@@ -18,12 +67,16 @@ import Nio
 #  (High-Order Multiscale Modeling Environment) model, formerly
 #  called SEAM (Spectral Element Atmosphere Model).
 #
-dirc  = Ngl.ncargpath("data")
+dirc  = Ngl.pynglpath("data")
 cfile = Nio.open_file(dirc + "/cdf/seam.nc")
 
 #
 #  Read the lat/lon/ps arrays to Numeric arrays, and convert
-#  to 1D.
+#  to 1D.  If the intput array to Ngl.contour (or any similar Ngl
+#  function) is given as a 1D array and the resources sfXArray
+#  and sfYArray are set to 1D arrays of the same size, then 
+#  Ngl.contour will automatically perform a triangular mesh
+#  conversion of the input array.
 #
 lon = Numeric.ravel(cfile.variables["lon2d"][:,:])
 lat = Numeric.ravel(cfile.variables["lat2d"][:,:])
