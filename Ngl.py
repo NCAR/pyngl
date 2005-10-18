@@ -38,9 +38,6 @@ def int_id(plot_id):
 def overlay(plot_id1,plot_id2):
   NhlAddOverlay(int_id(plot_id1),int_id(plot_id2),-1)
 
-def ncargpath(type):
-  return NGGetNCARGEnv(type)
-
 def pynglpath_ncarg():
 #
 #  Find the root directory that contains the supplemental PyNGL files,
@@ -150,6 +147,9 @@ def pynglpath(name):
       return None
   else:
     print 'pynglpath: input name "%s" not recognized' % (name)
+
+def ncargpath(type):
+  return pynglpath(type)
 
 def remove_overlay(plot_id1,plot_id2,restore):
   NhlRemoveOverlay(int_id(plot_id1),int_id(plot_id2),restore)
