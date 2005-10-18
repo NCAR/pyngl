@@ -58,44 +58,30 @@ if (argc < 2):
   sys.exit()
 
 #
-#  Find the root directory that contains pynglex example scripts.
-#  The default is in site-packages/PyNGL/ncarg. Otherwise, check
-#  the PYNGL_NCARG environment variable, and then ncargpath("ncarg").
+#  Determine the root directory that contains the PyNGL
+#  supplemental files (example sources, data, fontcaps, etc.)
+#  If the PYNGL_NCARG environment variable is set, its setting
+#  will override the default of
 #
-pkgs_pth    = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
-                           'site-packages')
-pyngl1_dir  = pkgs_pth + "/PyNGL/ncarg"
-pyngl2_dir  = os.environ.get("PYNGL_NCARG")
-pyngl3_dir  = Ngl.ncargpath("ncarg")
-ncarg_ncarg = None
-
-if (os.path.exists(pyngl1_dir)):
-  ncarg_ncarg = pyngl1_dir
-else:
-  if (pyngl2_dir != None and os.path.exists(pyngl2_dir)):
-    ncarg_ncarg = pyngl2_dir
+#   sys.prefix + "/lib/python" + sys.version[:3] + "/site-packages/PyNGL/ncarg"
+#
+#  Primarily for internal use, setting the environment variable
+#  PYNGL_EXAMPLES will set the directory for the example sources
+#  and resource file sources only (not the data, fontcaps, etc.)
+#  This allows pynglex to point to a directory containing test 
+#  examples.
+#
+root_dir = Ngl.pynglpath_ncarg()
+os.environ["NCARG_NCARG"] = root_dir
+example_dir = root_dir + "/pynglex"
+env_set_test = os.environ.get("PYNGL_EXAMPLES")
+if (env_set_test != None):
+  if (os.path.exists(env_set_test)):
+    example_dir = env_set_test
   else:
-    if (pyngl3_dir != None and os.path.exists(pyngl3_dir)):
-      ncarg_ncarg = pyngl3_dir
-
-#
-# Only print out a message about pyngl1_dir, because the other two
-# directories are just shots in the dark.
-#
-if (ncarg_ncarg == None):
-  print pyngl1_dir + " does not exist and cannot"
-  print "find alternative directory for PyNGL example scripts."
-  sys.exit()
-else:
-  example_dir = ncarg_ncarg + "/pynglex"
-  if (not (os.path.exists(example_dir))):
-    print "Example directory not found in " + ncarg_ncarg + "/pynglex"
-    sys.exit()
-
-#
-#  Make sure NCARG_NCARG is set for this script.
-#
-os.environ["NCARG_NCARG"] = ncarg_ncarg
+    print "  User-set directory PYNGL_EXAMPLES does not exist."
+    print "  Setting example directory to the default."
+    example_dir = root_dir + "/pynglex"
 
 #
 #  Parse the command line options (opts lists the options and
