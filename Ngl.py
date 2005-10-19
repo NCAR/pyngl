@@ -38,6 +38,28 @@ def int_id(plot_id):
 def overlay(plot_id1,plot_id2):
   NhlAddOverlay(int_id(plot_id1),int_id(plot_id2),-1)
 
+def ck_for_rangs(dir):
+#
+#  This function checks that the appropriate data files for
+#  the high-res database exist.
+#
+  file_names = (                                    \
+                "gshhs(0).rim", "gshhs(1).rim",     \
+                "gshhs(2).rim", "gshhs(3).rim",     \
+                "gshhs(4).rim",                     \
+                "rangs(0).cat", "rangs(0).cel",     \
+                "rangs(1).cat", "rangs(1).cel",     \
+                "rangs(2).cat", "rangs(2).cel",     \
+                "rangs(3).cat", "rangs(3).cel",     \
+                "rangs(4).cat", "rangs(4).cel"      \
+               )
+  for file in file_names:
+    fp_file = dir + "/" + file
+    if (not (os.path.exists(fp_file))):
+      print "\nRequired high-res database file: \n     " + fp_file + \
+            "\ndoes not exist."
+      sys.exit()
+
 def pynglpath_ncarg():
 #
 #  Find the root directory that contains the supplemental PyNGL files,
@@ -756,27 +778,38 @@ def open_wks(wk_type,wk_name,wk_rlist=None):
 #  Set HLU environment variables.
 #
     os.environ["NCARG_NCARG"] = pynglpath_ncarg()
+
     tmp_dir = os.environ.get("TMPDIR")
     if (tmp_dir != None and os.path.exists(tmp_dir)):
       os.environ["TMPDIR"] = tmp_dir
-    examples_dir_envn = os.environ.get("PYNGL_EXAMPLES")
-    if (examples_dir_envn != None and os.path.exists(examples_dir_envn)):
-      os.environ["NCARG_NCLEX"] = examples_dir_envn
-    data_dir_envn = os.environ.get("PYNGL_DATA")
-    if (data_dir_envn != None and os.path.exists(data_dir_envn)):
-      os.environ["NCARG_DATA"] = data_dir_envn
+    else:
+      os.environ["TMPDIR"] = "/tmp"
+
     color_dir_envn = os.environ.get("PYNGL_COLORMAPS")
     if (color_dir_envn != None and os.path.exists(color_dir_envn)):
       os.environ["NCARG_COLORMAPS"] = color_dir_envn
+
+#
+#  If "PYNGL_RANGS" is set, use it.  Otherwise set 
+#  the default RANGS directory.
+#
     rangs_dir_envn = os.environ.get("PYNGL_RANGS")
     if (rangs_dir_envn != None and os.path.exists(rangs_dir_envn)):
+      ck_for_rangs(rangs_dir_envn)
       os.environ["NCARG_RANGS"] = rangs_dir_envn
+    else:
+      dflt_rangs_path = pynglpath_ncarg() + "/rangs"
+      ck_for_rangs(dflt_rangs_path)
+      os.environ["NCARG_RANGS"] = pynglpath_ncarg() + "/rangs"
+
     ures_dir_envn = os.environ.get("PYNGL_USRRESFILE")
     if (ures_dir_envn != None and os.path.exists(ures_dir_envn)):
       os.environ["NCARG_USRRESFILE"] = ures_dir_envn
+
     sres_dir_envn = os.environ.get("PYNGL_SYSRESFILE")
     if (sres_dir_envn != None and os.path.exists(sres_dir_envn)):
       os.environ["NCARG_SYSRESFILE"] = sres_dir_envn
+
     ares_dir_envn = os.environ.get("PYNGL_SYSAPPRES")
     if (ares_dir_envn != None and os.path.exists(ares_dir_envn)):
       os.environ["NCARG_SYSAPPRES"] = ares_dir_envn
