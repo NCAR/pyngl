@@ -805,6 +805,8 @@ def open_wks(wk_type,wk_name,wk_rlist=None):
     ures_dir_envn = os.environ.get("PYNGL_USRRESFILE")
     if (ures_dir_envn != None and os.path.exists(ures_dir_envn)):
       os.environ["NCARG_USRRESFILE"] = ures_dir_envn
+    else:
+      os.environ["NCARG_USRRESFILE"] = "~/.hluresfile"
 
     sres_dir_envn = os.environ.get("PYNGL_SYSRESFILE")
     if (sres_dir_envn != None and os.path.exists(sres_dir_envn)):
