@@ -77,8 +77,6 @@ def pynglpath_ncarg():
     pyngl_ncarg = pyngl2_dir
   elif (os.path.exists(pyngl1_dir)):
     pyngl_ncarg = pyngl1_dir
-  elif (pyngl2_dir != None and os.path.exists(pyngl2_dir)):
-    pyngl_ncarg = pyngl2_dir
   else:
     print "pynglpath: directory" + pyngl1_dir + \
           "\n           does not exist and " + \
@@ -159,13 +157,13 @@ def pynglpath(name):
       return None
   elif (name == "sysappres"):
     ares_dir_envn = os.environ.get("PYNGL_SYSAPPRES")
-    ares_dir_dflt = pynglpath_ncarg() + "/sysresfile"
+    ares_dir_dflt = pynglpath_ncarg() + "/sysappres"
     if (ares_dir_envn != None and os.path.exists(ares_dir_envn)):
       return ares_dir_envn
     elif (os.path.exists(ares_dir_dflt)):
       return ares_dir_dflt
     else:
-      print "pynglpath: sysresfile directory does not exist."
+      print "pynglpath: sysappres directory does not exist."
       return None
   else:
     print 'pynglpath: input name "%s" not recognized' % (name)
@@ -815,6 +813,8 @@ def open_wks(wk_type,wk_name,wk_rlist=None):
     ares_dir_envn = os.environ.get("PYNGL_SYSAPPRES")
     if (ares_dir_envn != None and os.path.exists(ares_dir_envn)):
       os.environ["NCARG_SYSAPPRES"] = ares_dir_envn
+    else:
+      os.environ["NCARG_SYSAPPRES"] = pynglpath_ncarg() + "/sysappres"
 
     first_call_to_open_wks = first_call_to_open_wks + 1
 
