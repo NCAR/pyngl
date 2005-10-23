@@ -129,8 +129,14 @@ resources.mpProjection = "CylindricalEquidistant"
 #   rangs(3).zip    gshhs(3).zip
 #   rangs(4).zip    gshhs(4).zip
 #
-# Once you unzip these files, put them in the directory
-# $python_prefx/pythonx.y/site-packages/PyNGL/ncarg/database/rangs
+# Once you unzip these files, put them in the directory:
+#
+#  sys.prefix + "/lib/python" + sys.version[:3] + \
+#    "/site-packages/PyNGL/ncarg/rangs"
+#
+# If you don't have permissions to write in that directory, put the
+# files in a directory that you do have access to and then set the
+# environment variable PYNGL_RANGS to that directory.
 #
 # Now you can change the following resource to "HighRes".
 #
