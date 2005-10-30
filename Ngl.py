@@ -35,9 +35,6 @@ def int_id(plot_id):
     print "plot id is not valid"
     return None
 
-def overlay(plot_id1,plot_id2):
-  NhlAddOverlay(int_id(plot_id1),int_id(plot_id2),-1)
-
 def ck_for_rangs(dir):
 #
 #  This function checks that the appropriate data files for
@@ -84,101 +81,6 @@ def pynglpath_ncarg():
     sys.exit()
 
   return pyngl_ncarg
-
-def pynglpath(name):
-#
-#  Return absolute pathnames for various directories.
-#
-  if (name == "tmp"):
-    tmp_dir = os.environ.get("TMPDIR")
-    if (tmp_dir != None and os.path.exists(tmp_dir)):
-      return tmp_dir
-    else:
-      return "/tmp"
-  elif (name == "examples"):
-    examples_dir_envn = os.environ.get("PYNGL_EXAMPLES")
-    examples_dir_dflt = pynglpath_ncarg() + "/pynglex"
-    if (examples_dir_envn != None and os.path.exists(examples_dir_envn)):
-      return examples_dir_envn
-    elif (os.path.exists(examples_dir_dflt)):
-      return examples_dir_dflt
-    else:
-      print "pynglpath: examples directory does not exist."
-      return None
-  elif (name == "data"):
-    data_dir_envn = os.environ.get("PYNGL_DATA")
-    data_dir_dflt = pynglpath_ncarg() + "/data"
-    if (data_dir_envn != None and os.path.exists(data_dir_envn)):
-      return data_dir_envn
-    elif (os.path.exists(data_dir_dflt)):
-      return data_dir_dflt
-    else:
-      print "pynglpath: data directory does not exist."
-      return None
-  elif (name == "colormaps"):
-    color_dir_envn = os.environ.get("PYNGL_COLORMAPS")
-    color_dir_dflt = pynglpath_ncarg() + "/colormaps"
-    if (color_dir_envn != None and os.path.exists(color_dir_envn)):
-      return color_dir_envn
-    elif (os.path.exists(color_dir_dflt)):
-      return color_dir_dflt
-    else:
-      print "pynglpath: colormaps directory does not exist."
-      return None
-  elif (name == "rangs"):
-    rangs_dir_envn = os.environ.get("PYNGL_RANGS")
-    rangs_dir_dflt = pynglpath_ncarg() + "/rangs"
-    if (rangs_dir_envn != None and os.path.exists(rangs_dir_envn)):
-      return rangs_dir_envn
-    elif (os.path.exists(rangs_dir_dflt)):
-      return rangs_dir_dflt
-    else:
-      print "pynglpath: rangs directory does not exist."
-      return None
-  elif (name == "usrresfile"):
-    ures_dir_envn = os.environ.get("PYNGL_USRRESFILE")
-    ures_dir_dflt = commands.getoutput("ls ~/.hluresfile")
-    if (ures_dir_envn != None and os.path.exists(ures_dir_envn)):
-      return ures_dir_envn
-    elif (os.path.exists(ures_dir_dflt)):
-      return ures_dir_dflt
-    else:
-      print "pynglpath: useresfile directory does not exist."
-      return None
-  elif (name == "sysresfile"):
-    sres_dir_envn = os.environ.get("PYNGL_SYSRESFILE")
-    sres_dir_dflt = pynglpath_ncarg() + "/sysresfile"
-    if (sres_dir_envn != None and os.path.exists(sres_dir_envn)):
-      return sres_dir_envn
-    elif (os.path.exists(sres_dir_dflt)):
-      return sres_dir_dflt
-    else:
-      print "pynglpath: sysresfile directory does not exist."
-      return None
-  elif (name == "sysappres"):
-    ares_dir_envn = os.environ.get("PYNGL_SYSAPPRES")
-    ares_dir_dflt = pynglpath_ncarg() + "/sysappres"
-    if (ares_dir_envn != None and os.path.exists(ares_dir_envn)):
-      return ares_dir_envn
-    elif (os.path.exists(ares_dir_dflt)):
-      return ares_dir_dflt
-    else:
-      print "pynglpath: sysappres directory does not exist."
-      return None
-  else:
-    print 'pynglpath: input name "%s" not recognized' % (name)
-
-def ncargpath(type):
-  return pynglpath(type)
-
-def remove_overlay(plot_id1,plot_id2,restore):
-  NhlRemoveOverlay(int_id(plot_id1),int_id(plot_id2),restore)
-
-def add_annotation(plot_id1,plot_id2):
-  return NhlAddAnnotation(int_id(plot_id1),int_id(plot_id2))
-
-def remove_annotation(plot_id1,plot_id2):
-  NhlRemoveAnnotation(int_id(plot_id1),int_id(plot_id2))
 
 def lst2pobj(lst):
 #
@@ -671,12 +573,6 @@ def set_legend_res(reslist,reslist1):
     if (not (reslist.has_key("lgMonoMarkerSize"))):
       reslist1["lgMonoMarkerSize"] = False
 
-def change_workstation(obj,wks):
-  return NhlChangeWorkstation(int_id(obj),wks)
-
-def end():
-  NhlClose()
-
 def crt_dict(resource_i):
   dic = {}
   if (resource_i == None):
@@ -746,6 +642,863 @@ def set_spc_defaults(type):
   set_nglRes_s(46, "")      # nglAppResFileName
   set_nglRes_i(47, 0)       # nglXAxisType - default to irregular
   set_nglRes_i(48, 0)       # nglYAxisType - default to irregular
+
+
+def poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
+  set_spc_defaults(0)
+  rlist = crt_dict(rlistc)  
+  rlist1 = {}
+  for key in rlist.keys():
+    if (key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist1[key] = rlist[key]
+  ply = poly_wrap(wks,pobj2lst(plot),x,y,"double","double",len(x),0,0,pvoid(), \
+                      pvoid(),ptype,rlist1,pvoid())
+  del rlist
+  del rlist1
+  return None
+
+def add_poly(wks,plot,x,y,ptype,rlistc=None):
+  rlist = crt_dict(rlistc)  
+  rlist1 = {}
+  for key in rlist.keys():
+    if (key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist1[key] = rlist[key]
+  ply = add_poly_wrap(wks,pobj2lst(plot), x,y, "double","double",
+            len(x),0,0,pvoid(), pvoid(),ptype,rlist1,pvoid())
+  del rlist
+  del rlist1
+  return(lst2pobj(ply))
+
+def get_workspace_id():
+  return NhlGetWorkspaceObjectId()
+
+
+def ck_type(fcn,arg,typ):
+#
+#  Check on the type of the variable "arg" that is a
+#  variable in function "fcn" accroding to the flag "typ".
+#  Returns 0 if OK, 1 otherwise.
+#
+  if (typ == 0):
+#
+#  arg should be a singly-dimensioned Numeric array with ints, longs,
+#  or floats, or a scalar int, long, or float.
+#
+    if (type(arg) == type(Numeric.array([0],Numeric.Int))):
+      if (len(arg) == 0):
+        print "Warning: " + fcn + ": An empty array was encountered."
+        return 0
+      if (len(arg.shape) != 1):
+        print fcn + ": Numeric array argument must be singly-dimensioned."
+        return 1
+      a0 = arg[0]
+      if (type(a0)!=types.IntType and type(a0)!=types.FloatType and \
+          type(a0)!=types.LongType):
+        print fcn + \
+          ": Numeric array argument must be integers, longs, or floats."
+        return 1
+    elif (type(arg)==types.IntType or type(arg)==types.LongType or \
+          type(arg)==types.FloatType):
+      return 0
+    else:
+      print fcn + ": argument must be a Numeric array or numeric scalar."
+      return 1
+  else:
+    print "ck_type: invalid type flag"
+    return 1
+  return 0
+
+def skewty(pres):    # y-coord given pressure (mb)
+  if (ck_type("skewty",pres,0) != 0):
+    return None
+  try:
+    return(132.182-44.061*Numeric.log10(pres))
+  except:
+    return None
+# return (132.182-44.061*Numeric.log10(pres))
+def skewtx(temp,y):  # x-coord given temperature (c)
+  if (ck_type("skewtx",temp,0) != 0 or ck_type("skewtx",y,0) != 0):
+    return None
+  return (0.54*temp+0.90692*y)
+
+#########################################################################
+# 
+#   Processing functions:
+#     Ngl.add_cyclic
+#     Ngl.fspan
+#     Ngl.ftcurv
+#     Ngl.ftcurvp
+#     Ngl.ftcurvpi
+#     Ngl.gaus
+#     Ngl.gc_convert
+#     Ngl.gc_dist
+#     Ngl.gc_interp
+#     Ngl.ind
+#     Ngl.ismissing
+#     Ngl.natgrid
+#     Ngl.ncargpath
+#     Ngl.normalize_angle
+# 
+#########################################################################
+
+
+################################################################
+#
+#  Processing support functions.
+#
+################################################################
+
+def dptlclskewt(p, tc, tdc):
+  return c_dptlclskewt(p, tc, tdc)
+
+def dtmrskewt(w, p):
+  return c_dtmrskewt(w, p)
+
+def dtdaskewt(o,p):
+  return c_dtdaskewt(o, p)
+
+def dsatlftskewt(thw,p):
+  return c_dsatlftskewt(thw, p)
+
+def dshowalskewt(p,t,td,nlvls):
+  return c_dshowalskewt(p,t,td,nlvls)
+
+def dpwskewt(td,p,n):
+  return c_dpwskewt(td,p,n)
+
+################################################################
+#  
+#  Public functions in alphabetical order.
+#  
+################################################################
+def add_annotation(plot_id1,plot_id2):
+  return NhlAddAnnotation(int_id(plot_id1),int_id(plot_id2))
+
+#
+# Add a cyclic point in the x dimension (longitude dimension) to
+# a 2D array. If there is also a 1D lon coordinate array, add 360 to 
+# create the cyclic point.
+#
+def add_cyclic(data,lon_coord=None):
+#
+# Check input data to make sure it is 2D.
+#
+  dims = data.shape
+  if (len(dims) != 2):
+    print "add_cyclic: input must be a 2-dimensional array."
+    sys.exit()
+
+  ny  = dims[0]
+  nx  = dims[1]
+  nx1 = nx + 1
+
+#
+# Test longitude array, if it exists.
+#
+  if(lon_coord != None):
+    lon_coord_dims = lon_coord.shape
+    lon_coord_rank = len(lon_coord_dims)
+#
+# Longitude coordindate array must be 1D.
+#
+    if (lon_coord_rank != 1):
+      print "add_cyclic: longitude coordinate array must be a 1-dimensional."
+      sys.exit()
+#
+# Check dimension size against data array.
+#
+    nlon = lon_coord_dims[0]
+    if (nlon != nx):
+      print "add_cyclic: longitude coordinate array must be the same length as the rightmost dimension of the data array."
+      sys.exit()
+
+#
+# Create the new data array with one extra value in the X direction.
+#
+  newdata         = Numeric.zeros((ny,nx1),data.typecode())
+  newdata[:,0:nx] = data
+  newdata[:,nx]   = data[:,0]
+
+#
+# Add 360 to the longitude value in order to make it cyclic.
+#
+  if(lon_coord != None):
+    newloncoord       = Numeric.zeros(nx1,lon_coord.typecode())
+    newloncoord[0:nx] = lon_coord
+    newloncoord[nx]   = lon_coord[0] + 360
+
+    return newdata,newloncoord
+  else:
+    return newdata
+
+def add_polygon(wks,plot,x,y,rlistc=None):
+  return(add_poly(wks,plot,x,y,NhlPOLYGON,rlistc))
+
+def add_polyline(wks,plot,x,y,rlistc=None):
+  return(add_poly(wks,plot,x,y,NhlPOLYLINE,rlistc))
+
+def add_polymarker(wks,plot,x,y,rlistc=None):
+  return(add_poly(wks,plot,x,y,NhlPOLYMARKER,rlistc))
+
+def add_text(wks,plot,text,x,y,rlistc=None):
+  rlist = crt_dict(rlistc)  
+ 
+#
+#  Separate the resource dictionary into those resources
+#  that apply to am or tx.
+#
+  am_rlist  = {}
+  tx_rlist  = {}
+  for key in rlist.keys():
+    if (key[0:2] == "tx"):
+      tx_rlist[key] = rlist[key]
+    if (key[0:2] == "am"):
+      am_rlist[key] = rlist[key]
+
+#
+#  Call the wrapped function and return.
+#
+  atx = add_text_wrap(wks,pobj2lst(plot),text,x,y,"double","double",  \
+                          tx_rlist,am_rlist, pvoid())
+  del rlist
+  del tx_rlist
+  del am_rlist
+  return(lst2pobj(atx))
+
+def asciiread(filename,dims,type="float"):
+  file = open(filename)
+#
+#  If dims = -1, determine the number of valid tokens in
+#  the input file, otherwise calculate the number from
+#  the dims value.  If dims = -1 the return value will be
+#  a Numeric array containing of all the legal values,
+#  all other values are ignored.
+#
+  if (dims == -1):
+    nnum = 0
+    while (1):
+      line = file.readline()[0:-1]
+      if len(line) == 0:
+        break
+      toks = string.split(line)
+      for str in toks:
+        if (type == "integer"):
+          try:
+            string.atoi(str)
+            nnum = nnum+1
+          except:
+            pass
+        elif ((type == "float") or (type == "double")):
+          try:
+            string.atof(str)
+            nnum = nnum+1
+          except:
+            pass
+  else:
+    nnum = 1
+    if (not (isinstance(dims,types.ListType)) and \
+        not (isinstance(dims,types.TupleType))):
+      print 'asciiread: dims must be a list or a tuple'
+      return None
+    for m in xrange(len(dims)):
+      nnum = nnum*dims[m]
+ 
+  if (type == "integer"):
+    ar = Numeric.zeros(nnum,Numeric.int) 
+  elif (type == "float"):
+    ar = Numeric.zeros(nnum,Numeric.Float0) 
+  elif (type == "double"):
+    ar = Numeric.zeros(nnum,Numeric.Float) 
+  else:
+    print 'asciiread: type must be one of: "integer", "float", or "double".'
+    sys.exit()
+
+  count = 0
+  file.seek(0,0)
+  while (1):
+    line = file.readline()[0:-1]
+    if len(line) == 0:
+      break
+    toks = string.split(line)
+    for str in toks:
+      if (type == "integer"):
+        try:
+          ar[count] = string.atoi(str)
+          count = count+1
+        except:
+          pass
+      elif ((type == "float") or (type == "double")):
+        try:
+          ar[count] = string.atof(str)
+          count = count+1
+        except:
+          pass
+
+  if (count < nnum and dims != -1):
+    print "asciiread: Warning, fewer data items than specified array size."
+
+  file.close()
+  if (dims == -1):
+    return ar
+  else:
+    return Numeric.reshape(ar,dims)
+
+def change_workstation(obj,wks):
+  return NhlChangeWorkstation(int_id(obj),wks)
+
+def clear_workstation(obj):
+  NhlClearWorkstation(int_id(obj))
+
+def contour(wks,array,rlistc=None):
+
+#
+#  Make sure the array is 1D or 2D.
+#
+  if (len(array.shape) != 1 and len(array.shape) != 2):
+    print "contour - array must be 1D or 2D"
+    return None
+
+  set_spc_defaults(1)
+  rlist = crt_dict(rlistc)  
+ 
+#  Separate the resource dictionary into those resources
+#  that apply to ScalarField and those that apply to
+#  ContourPlot.
+#
+  rlist1 = {}
+  rlist2 = {}
+  rlist3 = {}
+  for key in rlist.keys():
+    if (key[0:2] == "sf"):
+      rlist1[key] = rlist[key]
+    elif(key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist2[key] = rlist[key]
+#
+# In addition, if this plot is potentially going to be overlaid
+# on an Irregular Plot Class (in order to lineariize or logize it)
+# then we need to keep track of all the tickmark resources, because
+# we'll have to reapply them to the IrregularPlot class.
+#
+      if(key[0:2] == "vp" or key[0:2] == "tm" or key[0:6] == "pmTick"):
+        rlist3[key] = rlist[key]
+
+  set_contour_res(rlist,rlist2)       # Set some addtl contour resources
+  set_labelbar_res(rlist,rlist2,True) # Set some addtl labelbar resources
+  set_tickmark_res(rlist,rlist3)      # Set some addtl tickmark resources
+#
+#  Call the wrapped function and return.
+#
+  if (len(array.shape) == 2):
+    icn = contour_wrap(wks,array,"double",array.shape[0],array.shape[1], \
+                           0, pvoid(),"",0,pvoid(),"", 0, pvoid(), rlist1, \
+                          rlist2,rlist3,pvoid())
+  else:
+    icn = contour_wrap(wks,array,"double",array.shape[0],-1, \
+                           0, pvoid(),"",0,pvoid(),"", 0, pvoid(), rlist1, \
+                          rlist2,rlist3,pvoid())
+
+  del rlist
+  del rlist1
+  del rlist2
+  del rlist3
+  return(lst2pobj(icn))
+
+def contour_map(wks,array,rlistc=None):
+#
+#  Make sure the array is 2D.
+#
+  if (len(array.shape) != 1 and len(array.shape) != 2):
+    print "contour_map - array must be 1D or 2D"
+    return None
+
+  set_spc_defaults(1)
+  rlist = crt_dict(rlistc)  
+ 
+#  Separate the resource dictionary into those resources
+#  that apply to ScalarField, MapPlot, and ContourPlot.
+#
+  rlist1 = {}
+  rlist2 = {}
+  rlist3 = {}
+  for key in rlist.keys():
+    if (key[0:2] == "sf"):
+      rlist1[key] = rlist[key]
+    elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
+          (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:2] == "tm") ):
+      rlist2[key] = rlist[key]
+    elif(key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist3[key] = rlist[key]
+
+  set_map_res(rlist,rlist2)           # Set some addtl map resources
+  set_contour_res(rlist,rlist3)       # Set some addtl contour resources
+  set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
+
+#
+#  Call the wrapped function and return.
+#
+  if (len(array.shape) == 2):
+        icm = contour_map_wrap(wks,array,"double", \
+                                array.shape[0],array.shape[1],0, \
+                                pvoid(),"",0,pvoid(),"", 0, pvoid(), \
+                                rlist1,rlist3,rlist2,pvoid())
+  else:
+        icm = contour_map_wrap(wks,array,"double", \
+                                array.shape[0],-1,0, \
+                                pvoid(),"",0,pvoid(),"", 0, pvoid(), \
+                                rlist1,rlist3,rlist2,pvoid())
+
+  del rlist
+  del rlist1
+  del rlist2
+  del rlist3
+  return(lst2pobj(icm))
+
+def destroy(obj):
+  return(NhlDestroy(int_id(obj)))
+
+def draw(obj):
+  return(NhlDraw(int_id(obj)))
+
+def draw_colormap(wks):
+  draw_colormap_wrap(wks)
+
+def end():
+  NhlClose()
+
+def frame(wks):
+  return(NhlFrame(wks))
+
+def fspan(min,max,num):
+  delta = (float(max-min)/float(num-1))
+  a = []
+  for i in range(num-1):
+    a.append(float(i)*delta)
+  a.append(max)
+  return Numeric.array(a,Numeric.Float0)
+
+def ftcurv(x,y,xo):
+  if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
+    dsizes_x = len(x)
+  elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_x = x.shape[0]
+  else:
+    print \
+     "ftcurv: type of argument 1 must be one of: list, tuple, or Numeric array"
+    return None
+  if ( ((type(y) == types.ListType) or (type(y) == types.TupleType)) ):
+    dsizes_y = len(y)
+  elif (type(y) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_y = y.shape[0]
+  else:
+    print \
+     "ftcurv: type of argument 2 must be one of: list, tuple, or Numeric array"
+    return None
+  if (dsizes_x != dsizes_y):
+    print "ftcurv: first and second arguments must be the same length."
+    return None
+
+  if ( ((type(xo) == types.ListType) or (type(xo) == types.TupleType)) ):
+    dsizes_xo = len(xo)
+  elif (type(xo) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_xo = xo.shape[0]
+
+  status,yo = ftcurvc(dsizes_x,x,y,dsizes_xo,xo)
+  if (status == 1):
+    print "ftcurv: input array must have at least three elements."
+    return None
+  elif (status == 2): 
+    print "ftcurv: input array values must be strictly increasing."
+    return None
+  else:
+    del status
+    return yo
+
+def ftcurvp(x,y,p,xo):
+  if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
+    dsizes_x = len(x)
+  elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_x = x.shape[0]
+  else:
+    print \
+     "ftcurvp: type of argument 1 must be one of: list, tuple, or Numeric array"
+    return None
+  if ( ((type(y) == types.ListType) or (type(y) == types.TupleType)) ):
+    dsizes_y = len(y)
+  elif (type(y) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_y = y.shape[0]
+  else:
+    print \
+     "ftcurvp: type of argument 2 must be one of: list, tuple, or Numeric array"
+    return None
+  if (dsizes_x != dsizes_y):
+    print "ftcurvp: first and second arguments must be the same length."
+    return None
+
+  if ( ((type(xo) == types.ListType) or (type(xo) == types.TupleType)) ):
+    dsizes_xo = len(xo)
+  elif (type(xo) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_xo = xo.shape[0]
+
+  status,yo = ftcurvpc(dsizes_x,x,y,p,dsizes_xo,xo)
+  if (status == 1):
+    print "ftcurvp: input array must have at least three elements."
+    return None
+  elif (status == 2):
+    print "ftcurvp: the period is strictly less than the span of the abscissae."
+    return None
+  else:
+    del status
+    return yo
+
+def ftcurvpi(xl, xr, p, x, y):
+  if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
+    dsizes_x = len(x)
+  elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_x = x.shape[0]
+  else:
+    print \
+     "ftcurvpi: type of argument 4 must be one of: list, tuple, or Numeric array"
+    return None
+  if ( ((type(y) == types.ListType) or (type(y) == types.TupleType)) ):
+    dsizes_y = len(y)
+  elif (type(y) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_y = y.shape[0]
+  else:
+    print \
+     "ftcurvpi: type of argument 5 must be one of: list, tuple, or Numeric array"
+    return None
+  if (dsizes_x != dsizes_y):
+    print "ftcurvpi: fourth and fifth arguments must be the same length."
+    return None
+
+  return (ftcurvpic(xl,xr,p,dsizes_x,x,y)[1])
+
+def gaus(n):
+  return NglGaus_p(n,2*n,2)[1]
+
+def gc_convert(angle,ctype):
+#
+#  Convert an angle in degrees along a great circle to
+#  radians, meters, kilometers, or feet.
+#
+  d2r =  0.0174532952   # degrees to radians
+  r2m = 6371220.        # radians to meters
+  m2f = 3.2808          # meters to feet
+
+  ck_type("gc_convert",angle,0)
+
+  dtype = ctype
+  if (ctype == 0):
+    dtype = "ra"
+  elif (ctype == 1):
+    dtype = "me"
+  elif (ctype == 2):
+    dtype = "ki"
+  elif (ctype == 3):
+    dtype = "fe"
+  elif (ctype == 4):
+    dtype = "mi"
+
+  if (dtype[0:2] == "ra"):
+    return d2r*angle
+  elif (dtype[0:2] == "me"):
+    return d2r*angle*r2m
+  elif (dtype[0:2] == "ki"):
+    return d2r*angle*r2m/1000.
+  elif (dtype[0:2] == "fe"):
+    return d2r*angle*r2m*m2f
+  elif (dtype[0:2] == "mi"):
+    return d2r*angle*r2m*m2f/5280.
+  else:
+    print "gc_convert: unrecognized conversion type " + str(ctype)
+
+def gc_dist(rlat1,rlon1,rlat2,rlon2):
+  return c_dgcdist(rlat1,rlon1,rlat2,rlon2,2)
+
+def gc_interp(rlat1,rlon1,rlat2,rlon2,numi):
+  num = abs(numi)
+  if (abs(num) < 2):
+    print "gc_interp: the number of points must be at least two."
+  elif (num == 2):
+    lat = Numeric.array([rlat1,rlat2],Numeric.Float0)
+    lon = Numeric.array([rlon1,rlon2],Numeric.Float0)
+    return [lat,lon]
+  else:
+    lat_tmp = Numeric.zeros(num,Numeric.Float0) 
+    lon_tmp = Numeric.zeros(num,Numeric.Float0) 
+    lat,lon = mapgci(rlat1,rlon1,rlat2,rlon2,num-2)
+    lon0_tmp = rlon1
+    lon1_tmp = rlon2
+#
+#  Adjust points to be in the desired range.
+#
+    for i in range(0,num-2):
+      if (numi > 0):
+        lon[i] = normalize_angle(lon[i],0)
+      else:
+        lon[i] = normalize_angle(lon[i],1)
+    if (numi > 0):
+      lon0_tmp = normalize_angle(lon0_tmp,0) 
+      lon1_tmp = normalize_angle(lon1_tmp,0)
+    else:
+      lon0_tmp = normalize_angle(lon0_tmp,1) 
+      lon1_tmp = normalize_angle(lon1_tmp,1)
+
+#
+#  Set up return arrays.
+#
+    lat_tmp[1:num-1] = lat[0:num-2]
+    lon_tmp[1:num-1] = lon[0:num-2]
+    lat_tmp[0]     = rlat1
+    lat_tmp[num-1] = rlat2
+    lon_tmp[0]     = lon0_tmp
+    lon_tmp[num-1] = lon1_tmp
+    del lat,lon
+
+    return lat_tmp,lon_tmp
+
+def get_double(obj,name):
+  return(NhlGetDouble(int_id(obj),name))
+
+def get_double_array(obj,name):
+  return(NhlGetDoubleArray(int_id(obj),name))
+
+def get_float(obj,name):
+  return(NhlGetFloat(int_id(obj),name))
+
+def get_float_array(obj,name):
+  return(NhlGetFloatArray(int_id(obj),name))
+
+def get_integer(obj,name):
+  return(NhlGetInteger(int_id(obj),name))
+
+def get_integer_array(obj,name):
+  return(NhlGetIntegerArray(int_id(obj),name))
+
+def get_MDdouble_array(obj,name):
+  return(NhlGetMDDoubleArray(int_id(obj),name))
+
+def get_MDfloat_array(obj,name):
+  rval = NhlGetMDFloatArray(int_id(obj),name)
+  if (rval[0] != -1):
+    print "get_MDfloat_array: error number %d" % (rval[0])
+    return None
+  return(rval[1])
+
+def get_MDinteger_array(obj,name):
+  return(NhlGetMDIntegerArray(int_id(obj),name))
+
+#
+#  Returns the color index whose associated color on the given
+#  workstation is closest to the color name supplied.
+#
+def get_named_color_index(wkid,name):
+  return(NhlGetNamedColorIndex(wkid,name))
+
+def get_string(obj,name):
+  return(NhlGetString(int_id(obj),name))
+
+def get_string_array(obj,name):
+  return(NhlGetStringArray(int_id(obj),name))
+
+def get_values(obj,rlistc):
+  rlist = crt_dict(rlistc)
+  values = NhlGetValues(int_id(obj),rlist)
+  del rlist
+  return (values)
+
+def hlsrgb(r,g,b):
+  return(c_hlsrgb(r,g,b))
+
+def hsvrgb(r,g,b):
+  return(c_hsvrgb(r,g,b))
+
+#
+#  Get indices of a list where the list values are true.
+#
+def ind(seq):
+  inds = []
+  for i in xrange(len(seq)):
+    if (seq[i] != 0):
+      inds.append(i)
+  return(inds)
+
+def ismissing(var,mval):
+#
+#  Returns an array of the same shape as "var" that
+#  has True values in all places where "var" has 
+#  missing values.
+#
+  if (ck_type("ismissing",var,0) != 0):
+    return None
+  else:
+    return(Numeric.equal(var,mval))
+
+def labelbar_ndc(wks,nbox,labels,x,y,rlistc=None):
+  set_spc_defaults(0)
+  rlist = crt_dict(rlistc)
+  rlist1 = {}
+  for key in rlist.keys():
+    if(key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist1[key] = rlist[key]
+
+  set_labelbar_res(rlist,rlist1,False) # Set some addtl labelbar resources
+
+  ilb = labelbar_ndc_wrap(wks,nbox,labels,len(labels),x,y, 
+                          "double","double",rlist1,pvoid())
+  del rlist
+  del rlist1
+  return (lst2pobj(ilb))
+
+def legend_ndc(wks,nitems,labels,x,y,rlistc=None):
+  set_spc_defaults(0)
+  rlist = crt_dict(rlistc)
+  rlist1 = {}
+  for key in rlist.keys():
+    if(key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist1[key] = rlist[key]
+
+  set_legend_res(rlist,rlist1)      # Set some addtl legend resources
+
+  ilb = legend_ndc_wrap(wks,nitems,labels,len(labels),x,y, 
+                        "double","double",rlist1,pvoid())
+  del rlist
+  del rlist1
+  return (lst2pobj(ilb))
+
+def map(wks,rlistc=None):
+  set_spc_defaults(1)
+  rlist = crt_dict(rlistc)  
+  rlist1 = {}
+  for key in rlist.keys():
+    if (key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist1[key] = rlist[key]
+
+  set_map_res(rlist,rlist1)           # Set some addtl map resources
+
+  imp = map_wrap(wks,rlist1,pvoid())
+
+  del rlist
+  del rlist1
+  return(lst2pobj(imp))
+
+def natgrid(x,y,z,xo,yo):
+  if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
+    dsizes_x = len(x)
+  elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_x = x.shape[0]
+  else:
+    print \
+     "natgrid: type of argument 1 must be one of: list, tuple, or Numeric array"
+    return None
+
+  if ( ((type(xo) == types.ListType) or (type(xo) == types.TupleType)) ):
+    dsizes_xo = len(xo)
+  elif (type(xo) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_xo = xo.shape[0]
+  else:
+    print \
+     "natgrid: type of argument 4 must be one of: list, tuple, or Numeric array"
+    return None
+
+  if ( ((type(yo) == types.ListType) or (type(yo) == types.TupleType)) ):
+    dsizes_yo = len(yo)
+  elif (type(yo) == type(Numeric.array([0],Numeric.Int0))):
+    dsizes_yo = yo.shape[0]
+  else:
+    print \
+     "natgrid: type of argument 5 must be one of: list, tuple, or Numeric array"
+    return None
+
+  ier,zo = \
+     natgridc(dsizes_x,x,y,z,dsizes_xo,dsizes_yo,xo,yo,dsizes_xo,dsizes_yo)
+
+  if (ier != 0):
+    print "natgrid: error number %d returned, see error table." % (ier)
+    del ier
+    return None
+  else:
+    return zo
+
+def ncargpath(type):
+  return pynglpath(type)
+
+def nngetp(pname):
+  iparms = [                                                         \
+            "adf", "asc", "dup", "ext", "igr", "non", "rad",         \
+            "sdi", "upd", "mdm",                                     \
+            "ADF", "ASC", "DUP", "EXT", "IGR", "NON", "RAD",         \
+            "SDI", "UPD", "MDM"                                      \
+           ]
+  rparms = [                                                         \
+            "bI", "bJ", "hor", "magx", "magy", "magz", "nul", "ver", \
+            "Bi", "Bj", "HOR", "MAGX", "MAGY", "MAGZ", "NUL", "VER", \
+            "bi", "bj", "BI", "BJ"                                   \
+           ]
+  cparms = [                                                         \
+            "alg", "ALG", "erf", "ERF"                                \
+           ]
+  if (not isinstance(pname,types.StringType)):
+    print "nngetp: Parameter '" + str(pname) + "' is not a string type." 
+    return None
+  if (iparms.count(pname) > 0):
+    return c_nngeti(pname)
+  elif (rparms.count(pname) > 0):
+    return c_nngetrd(pname)
+  elif (cparms.count(pname) > 0):
+    return c_nngetcp(pname)
+  else:
+    print \
+      "nngetp: specified value for " + pname + " is not of a recognized type." 
+  return None
+
+def nnsetp(pname,val):
+  if (not isinstance(pname,types.StringType)):
+    print "nnsetp: Parameter '" + str(pname) + "' is not a string type." 
+    return None
+  if (isinstance(val,types.IntType)):
+    c_nnseti(pname,val)
+  elif (isinstance(val,types.FloatType)): 
+    c_nnsetrd(pname,val)
+  elif (isinstance(val,types.StringType)):
+    c_nnsetc(pname,val)
+  else:
+    print \
+      "nnsetp: specified value for " + pname + " is not of a recognized type." 
+  return None
+
+def normalize_angle(ang,type):
+#
+#  This function normalizes the angle (assumed to be in degrees) to
+#  an equivalent angle in the range [0.,360.) if type equals 0, or
+#  to an equivalent angle in the range [-180.,180.) if type is not zero.
+#
+  bang = ang
+  if (type == 0):
+    while(bang < 0.):
+      bang = bang + 360.
+    while(bang >= 360.):
+      bang = bang - 360.
+  else:
+    while(bang < -180.):
+      bang = bang + 360.
+    while(bang >= 180.):
+      bang = bang - 360.
+  return bang
 
 def open_wks(wk_type,wk_name,wk_rlist=None):
   set_spc_defaults(1)
@@ -838,8 +1591,8 @@ def open_wks(wk_type,wk_name,wk_rlist=None):
   del rlist2
   return(iopn)
 
-def draw_colormap(wks):
-  draw_colormap_wrap(wks)
+def overlay(plot_id1,plot_id2):
+  NhlAddOverlay(int_id(plot_id1),int_id(plot_id2),-1)
 
 def panel(wks,plots,dims,rlistc=None):
   set_spc_defaults(1)
@@ -912,80 +1665,14 @@ def panel(wks,plots,dims,rlistc=None):
   del rlist
   del rlist1
 
-def map(wks,rlistc=None):
-  set_spc_defaults(1)
-  rlist = crt_dict(rlistc)  
-  rlist1 = {}
-  for key in rlist.keys():
-    if (key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
-    else:
-      rlist1[key] = rlist[key]
-
-  set_map_res(rlist,rlist1)           # Set some addtl map resources
-
-  imp = map_wrap(wks,rlist1,pvoid())
-
-  del rlist
-  del rlist1
-  return(lst2pobj(imp))
-
-def labelbar_ndc(wks,nbox,labels,x,y,rlistc=None):
-  set_spc_defaults(0)
-  rlist = crt_dict(rlistc)
-  rlist1 = {}
-  for key in rlist.keys():
-    if(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
-    else:
-      rlist1[key] = rlist[key]
-
-  set_labelbar_res(rlist,rlist1,False) # Set some addtl labelbar resources
-
-  ilb = labelbar_ndc_wrap(wks,nbox,labels,len(labels),x,y, 
-                          "double","double",rlist1,pvoid())
-  del rlist
-  del rlist1
-  return (lst2pobj(ilb))
-
-def legend_ndc(wks,nitems,labels,x,y,rlistc=None):
-  set_spc_defaults(0)
-  rlist = crt_dict(rlistc)
-  rlist1 = {}
-  for key in rlist.keys():
-    if(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
-    else:
-      rlist1[key] = rlist[key]
-
-  set_legend_res(rlist,rlist1)      # Set some addtl legend resources
-
-  ilb = legend_ndc_wrap(wks,nitems,labels,len(labels),x,y, 
-                        "double","double",rlist1,pvoid())
-  del rlist
-  del rlist1
-  return (lst2pobj(ilb))
-
-def poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
-  set_spc_defaults(0)
-  rlist = crt_dict(rlistc)  
-  rlist1 = {}
-  for key in rlist.keys():
-    if (key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
-    else:
-      rlist1[key] = rlist[key]
-  ply = poly_wrap(wks,pobj2lst(plot),x,y,"double","double",len(x),0,0,pvoid(), \
-                      pvoid(),ptype,rlist1,pvoid())
-  del rlist
-  del rlist1
-  return None
-
-def polymarker_ndc(wks,x,y,rlistc=None):
-  return(poly(wks,0,x,y,NhlPOLYMARKER,1,rlistc))
+def polygon(wks,plot,x,y,rlistc=None):
+  return(poly(wks,plot,x,y,NhlPOLYGON,0,rlistc))
 
 def polygon_ndc(wks,x,y,rlistc=None):
   return(poly(wks,0,x,y,NhlPOLYGON,1,rlistc))
+
+def polyline(wks,plot,x,y,rlistc=None):
+  return(poly(wks,plot,x,y,NhlPOLYLINE,0,rlistc))
 
 def polyline_ndc(wks,x,y,rlistc=None):
   return(poly(wks,0,x,y,NhlPOLYLINE,1,rlistc))
@@ -993,919 +1680,115 @@ def polyline_ndc(wks,x,y,rlistc=None):
 def polymarker(wks,plot,x,y,rlistc=None):  # plot converted in poly
   return(poly(wks,plot,x,y,NhlPOLYMARKER,0,rlistc))
 
-def polygon(wks,plot,x,y,rlistc=None):
-  return(poly(wks,plot,x,y,NhlPOLYGON,0,rlistc))
+def polymarker_ndc(wks,x,y,rlistc=None):
+  return(poly(wks,0,x,y,NhlPOLYMARKER,1,rlistc))
 
-def polyline(wks,plot,x,y,rlistc=None):
-  return(poly(wks,plot,x,y,NhlPOLYLINE,0,rlistc))
-
-def add_poly(wks,plot,x,y,ptype,rlistc=None):
-  rlist = crt_dict(rlistc)  
-  rlist1 = {}
-  for key in rlist.keys():
-    if (key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+def pynglpath(name):
+#
+#  Return absolute pathnames for various directories.
+#
+  if (name == "tmp"):
+    tmp_dir = os.environ.get("TMPDIR")
+    if (tmp_dir != None and os.path.exists(tmp_dir)):
+      return tmp_dir
     else:
-      rlist1[key] = rlist[key]
-  ply = add_poly_wrap(wks,pobj2lst(plot), x,y, "double","double",
-            len(x),0,0,pvoid(), pvoid(),ptype,rlist1,pvoid())
-  del rlist
-  del rlist1
-  return(lst2pobj(ply))
-
-def add_polymarker(wks,plot,x,y,rlistc=None):
-  return(add_poly(wks,plot,x,y,NhlPOLYMARKER,rlistc))
-
-def add_polygon(wks,plot,x,y,rlistc=None):
-  return(add_poly(wks,plot,x,y,NhlPOLYGON,rlistc))
-
-def add_polyline(wks,plot,x,y,rlistc=None):
-  return(add_poly(wks,plot,x,y,NhlPOLYLINE,rlistc))
-
-def contour_map(wks,array,rlistc=None):
-#
-#  Make sure the array is 2D.
-#
-  if (len(array.shape) != 1 and len(array.shape) != 2):
-    print "contour_map - array must be 1D or 2D"
-    return None
-
-  set_spc_defaults(1)
-  rlist = crt_dict(rlistc)  
- 
-#  Separate the resource dictionary into those resources
-#  that apply to ScalarField, MapPlot, and ContourPlot.
-#
-  rlist1 = {}
-  rlist2 = {}
-  rlist3 = {}
-  for key in rlist.keys():
-    if (key[0:2] == "sf"):
-      rlist1[key] = rlist[key]
-    elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
-          (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:2] == "tm") ):
-      rlist2[key] = rlist[key]
-    elif(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+      return "/tmp"
+  elif (name == "examples"):
+    examples_dir_envn = os.environ.get("PYNGL_EXAMPLES")
+    examples_dir_dflt = pynglpath_ncarg() + "/pynglex"
+    if (examples_dir_envn != None and os.path.exists(examples_dir_envn)):
+      return examples_dir_envn
+    elif (os.path.exists(examples_dir_dflt)):
+      return examples_dir_dflt
     else:
-      rlist3[key] = rlist[key]
-
-  set_map_res(rlist,rlist2)           # Set some addtl map resources
-  set_contour_res(rlist,rlist3)       # Set some addtl contour resources
-  set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
-
-#
-#  Call the wrapped function and return.
-#
-  if (len(array.shape) == 2):
-        icm = contour_map_wrap(wks,array,"double", \
-                                array.shape[0],array.shape[1],0, \
-                                pvoid(),"",0,pvoid(),"", 0, pvoid(), \
-                                rlist1,rlist3,rlist2,pvoid())
+      print "pynglpath: examples directory does not exist."
+      return None
+  elif (name == "data"):
+    data_dir_envn = os.environ.get("PYNGL_DATA")
+    data_dir_dflt = pynglpath_ncarg() + "/data"
+    if (data_dir_envn != None and os.path.exists(data_dir_envn)):
+      return data_dir_envn
+    elif (os.path.exists(data_dir_dflt)):
+      return data_dir_dflt
+    else:
+      print "pynglpath: data directory does not exist."
+      return None
+  elif (name == "colormaps"):
+    color_dir_envn = os.environ.get("PYNGL_COLORMAPS")
+    color_dir_dflt = pynglpath_ncarg() + "/colormaps"
+    if (color_dir_envn != None and os.path.exists(color_dir_envn)):
+      return color_dir_envn
+    elif (os.path.exists(color_dir_dflt)):
+      return color_dir_dflt
+    else:
+      print "pynglpath: colormaps directory does not exist."
+      return None
+  elif (name == "rangs"):
+    rangs_dir_envn = os.environ.get("PYNGL_RANGS")
+    rangs_dir_dflt = pynglpath_ncarg() + "/rangs"
+    if (rangs_dir_envn != None and os.path.exists(rangs_dir_envn)):
+      return rangs_dir_envn
+    elif (os.path.exists(rangs_dir_dflt)):
+      return rangs_dir_dflt
+    else:
+      print "pynglpath: rangs directory does not exist."
+      return None
+  elif (name == "usrresfile"):
+    ures_dir_envn = os.environ.get("PYNGL_USRRESFILE")
+    ures_dir_dflt = commands.getoutput("ls ~/.hluresfile")
+    if (ures_dir_envn != None and os.path.exists(ures_dir_envn)):
+      return ures_dir_envn
+    elif (os.path.exists(ures_dir_dflt)):
+      return ures_dir_dflt
+    else:
+      print "pynglpath: useresfile directory does not exist."
+      return None
+  elif (name == "sysresfile"):
+    sres_dir_envn = os.environ.get("PYNGL_SYSRESFILE")
+    sres_dir_dflt = pynglpath_ncarg() + "/sysresfile"
+    if (sres_dir_envn != None and os.path.exists(sres_dir_envn)):
+      return sres_dir_envn
+    elif (os.path.exists(sres_dir_dflt)):
+      return sres_dir_dflt
+    else:
+      print "pynglpath: sysresfile directory does not exist."
+      return None
+  elif (name == "sysappres"):
+    ares_dir_envn = os.environ.get("PYNGL_SYSAPPRES")
+    ares_dir_dflt = pynglpath_ncarg() + "/sysappres"
+    if (ares_dir_envn != None and os.path.exists(ares_dir_envn)):
+      return ares_dir_envn
+    elif (os.path.exists(ares_dir_dflt)):
+      return ares_dir_dflt
+    else:
+      print "pynglpath: sysappres directory does not exist."
+      return None
   else:
-        icm = contour_map_wrap(wks,array,"double", \
-                                array.shape[0],-1,0, \
-                                pvoid(),"",0,pvoid(),"", 0, pvoid(), \
-                                rlist1,rlist3,rlist2,pvoid())
+    print 'pynglpath: input name "%s" not recognized' % (name)
 
-  del rlist
-  del rlist1
-  del rlist2
-  del rlist3
-  return(lst2pobj(icm))
+def remove_annotation(plot_id1,plot_id2):
+  NhlRemoveAnnotation(int_id(plot_id1),int_id(plot_id2))
 
-def contour(wks,array,rlistc=None):
+def remove_overlay(plot_id1,plot_id2,restore):
+  NhlRemoveOverlay(int_id(plot_id1),int_id(plot_id2),restore)
 
-#
-#  Make sure the array is 1D or 2D.
-#
-  if (len(array.shape) != 1 and len(array.shape) != 2):
-    print "contour - array must be 1D or 2D"
-    return None
+def retrieve_colormap(wks):
+  return get_MDfloat_array(wks,"wkColorMap")
 
-  set_spc_defaults(1)
-  rlist = crt_dict(rlistc)  
- 
-#  Separate the resource dictionary into those resources
-#  that apply to ScalarField and those that apply to
-#  ContourPlot.
-#
-  rlist1 = {}
-  rlist2 = {}
-  rlist3 = {}
-  for key in rlist.keys():
-    if (key[0:2] == "sf"):
-      rlist1[key] = rlist[key]
-    elif(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
-    else:
-      rlist2[key] = rlist[key]
-#
-# In addition, if this plot is potentially going to be overlaid
-# on an Irregular Plot Class (in order to lineariize or logize it)
-# then we need to keep track of all the tickmark resources, because
-# we'll have to reapply them to the IrregularPlot class.
-#
-      if(key[0:2] == "vp" or key[0:2] == "tm" or key[0:6] == "pmTick"):
-        rlist3[key] = rlist[key]
+def rgbhls(r,g,b):
+  return(c_rgbhls(r,g,b))
 
-  set_contour_res(rlist,rlist2)       # Set some addtl contour resources
-  set_labelbar_res(rlist,rlist2,True) # Set some addtl labelbar resources
-  set_tickmark_res(rlist,rlist3)      # Set some addtl tickmark resources
-#
-#  Call the wrapped function and return.
-#
-  if (len(array.shape) == 2):
-    icn = contour_wrap(wks,array,"double",array.shape[0],array.shape[1], \
-                           0, pvoid(),"",0,pvoid(),"", 0, pvoid(), rlist1, \
-                          rlist2,rlist3,pvoid())
-  else:
-    icn = contour_wrap(wks,array,"double",array.shape[0],-1, \
-                           0, pvoid(),"",0,pvoid(),"", 0, pvoid(), rlist1, \
-                          rlist2,rlist3,pvoid())
+def rgbhsv(r,g,b):
+  return(c_rgbhsv(r,g,b))
 
-  del rlist
-  del rlist1
-  del rlist2
-  del rlist3
-  return(lst2pobj(icn))
-
-def xy(wks,xar,yar,rlistc=None):
-  set_spc_defaults(1)
-#
-#  Get input array dimension information.
-#
-  if ( ((type(xar) == types.ListType) or (type(xar) == types.TupleType)) ):
-    ndims_x = 1
-    dsizes_x = (len(xar),)
-  elif (type(xar) == type(Numeric.array([0],Numeric.Int0))):
-    ndims_x = (len(xar.shape))
-    dsizes_x = xar.shape
-  else:
-    print \
-      "xy: type of argument 2 must be one of: list, tuple, or Numeric array"
-    return None
-
-  if ( ((type(yar) == types.ListType) or (type(yar) == types.TupleType)) ):
-    ndims_y = 1
-    dsizes_y = (len(yar),)
-  elif (type(yar) == type(Numeric.array([0],Numeric.Int0))):
-    ndims_y = (len(yar.shape))
-    dsizes_y = yar.shape
-  else:
-    print \
-      "xy: type of argument 3 must be one of: list, tuple, or Numeric array"
-    return None
-
-  rlist = crt_dict(rlistc)  
- 
-#
-#  Separate the resource dictionary into those resources
-#  that apply to various lists.
-#
-  ca_rlist  = {}
-  xy_rlist  = {}
-  xyd_rlist = {}
-  for key in rlist.keys():
-    if (key[0:2] == "ca"):
-      ca_rlist[key] = rlist[key]
-    elif (key[0:2] == "xy"):
-      if (key[0:4] == "xyCo"):
-        xy_rlist[key] = rlist[key]
-      elif (key[0:3] == "xyX"):
-        xy_rlist[key] = rlist[key]
-      elif (key[0:3] == "xyY"):
-        xy_rlist[key] = rlist[key]
-      else:
-        xyd_rlist[key] = rlist[key]
-    elif(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
-    else:
-      xy_rlist[key] = rlist[key]
-
-#
-#  Call the wrapped function and return.
-#
-  ixy = xy_wrap(wks,xar,yar,"double","double",ndims_x,dsizes_x,ndims_y, \
-                    dsizes_y,0,0,pvoid(),pvoid(),ca_rlist,xy_rlist,xyd_rlist,
-                    pvoid())
-
-  del rlist
-  del ca_rlist
-  del xy_rlist
-  del xyd_rlist
-  return(lst2pobj(ixy))
-
-def y(wks,yar,rlistc=None):
-  
-#
-#  Get input array dimension information.
-#
-  if ( ((type(yar) == types.ListType) or (type(yar) == types.TupleType)) ):
-    ndims_y = 1
-    dsizes_y = (len(yar),)
-  elif (type(yar) == type(Numeric.array([0],Numeric.Int0))):
-    ndims_y = (len(yar.shape))
-    dsizes_y = yar.shape
-  else:
-    print \
-      "xy: type of argument 3 must be one of: list, tuple, or Numeric array"
-    return None
-
-  if (len(dsizes_y) == 1):
-    npts = dsizes_y
-  elif (len(dsizes_y) == 2):
-    npts = dsizes_y[1]
-  else:
-    print \
-      "y: array can have at most two dimensions"
-    return None
-    
-  return xy(wks,range(0,npts),yar,rlistc)
-
-def streamline(wks,uarray,varray,rlistc=None):
-
-  set_spc_defaults(1)
-  rlist = crt_dict(rlistc)  
- 
-#  Separate the resource dictionary into those resources
-#  that apply to VectorField and those that apply to
-#  StreamlinePlot.
-#
-  rlist1 = {}
-  rlist2 = {}
-  rlist3 = {}
-  for key in rlist.keys():
-    if (key[0:2] == "vf"):
-      rlist1[key] = rlist[key]
-    elif(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
-    else:
-      rlist2[key] = rlist[key]
-#
-# In addition, if this plot is potentially going to be overlaid
-# on an Irregular Plot Class (in order to lineariize or logize it)
-# then we need to keep track of all the tickmark resources, because
-# we'll have to reapply them to the IrregularPlot class.
-#
-      if(key[0:2] == "vp" or key[0:2] == "tm" or key[0:6] == "pmTick"):
-        rlist3[key] = rlist[key]
-    
-  set_streamline_res(rlist,rlist2)    # Set some addtl streamline resources
-  set_tickmark_res(rlist,rlist3)      # Set some addtl tickmark resources
-
-#
-#  Call the wrapped function and return.
-#
-  strm = streamline_wrap(wks,uarray,varray,"double","double",            \
-                         uarray.shape[0],uarray.shape[1],0,              \
-                         pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(),\
-                         rlist1,rlist2,rlist3,pvoid())
-  del rlist
-  del rlist1
-  del rlist2
-  del rlist3
-  return(lst2pobj(strm))
-
-def streamline_map(wks,uarray,varray,rlistc=None):
-
-  set_spc_defaults(1)
-  rlist = crt_dict(rlistc)  
- 
-#  Separate the resource dictionary into those resources
-#  that apply to VectorField, MapPlot, and StreamlinePlot.
-#
-  rlist1 = {}
-  rlist2 = {}
-  rlist3 = {}
-  for key in rlist.keys():
-    if (key[0:2] == "vf"):
-      rlist1[key] = rlist[key]
-    elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
-          (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:2] == "tm")):
-      rlist3[key] = rlist[key]
-    elif(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
-    else:
-      rlist2[key] = rlist[key]
-
-  set_map_res(rlist,rlist3)           # Set some addtl map resources
-  set_streamline_res(rlist,rlist2)    # Set some addtl streamline resources
-    
-#
-#  Call the wrapped function and return.
-#
-  strm = streamline_map_wrap(wks,uarray,varray,"double","double",         \
-                         uarray.shape[0],uarray.shape[1],0,               \
-                         pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(), \
-                         rlist1,rlist2,rlist3,pvoid())
-  del rlist
-  del rlist1
-  del rlist2
-  del rlist3
-  return(lst2pobj(strm))
-
-def vector(wks,uarray,varray,rlistc=None):
-
-  set_spc_defaults(1)
-  rlist = crt_dict(rlistc)  
- 
-#  Separate the resource dictionary into those resources
-#  that apply to VectorField and those that apply to
-#  VectorPlot.
-#
-  rlist1 = {}
-  rlist2 = {}
-  rlist3 = {}
-  for key in rlist.keys():
-    if (key[0:2] == "vf"):
-      rlist1[key] = rlist[key]
-    elif(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
-    else:
-      rlist2[key] = rlist[key]
-#
-# In addition, if this plot is potentially going to be overlaid
-# on an Irregular Plot Class (in order to lineariize or logize it)
-# then we need to keep track of all the tickmark resources, because
-# we'll have to reapply them to the IrregularPlot class.
-#
-      if(key[0:2] == "vp" or key[0:2] == "tm" or key[0:6] == "pmTick"):
-        rlist3[key] = rlist[key]
-    
-  set_vector_res(rlist,rlist2)        # Set some addtl vector resources
-  set_labelbar_res(rlist,rlist2,True) # Set some addtl labelbar resources
-  set_tickmark_res(rlist,rlist3)      # Set some addtl tickmark resources
-
-#
-#  Call the wrapped function and return.
-#
-  ivct = vector_wrap(wks,uarray,varray,"double","double",             \
-                     uarray.shape[0],uarray.shape[1],0,               \
-                     pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(), \
-                     rlist1,rlist2,rlist3,pvoid())
-  del rlist
-  del rlist1
-  del rlist2
-  del rlist3
-  return lst2pobj(ivct)
-
-def vector_map(wks,uarray,varray,rlistc=None):
-
-  set_spc_defaults(1)
-  rlist = crt_dict(rlistc)  
- 
-#  Separate the resource dictionary into those resources
-#  that apply to VectorField, MapPlot, and VectorPlot.
-#
-  rlist1 = {}
-  rlist2 = {}
-  rlist3 = {}
-  for key in rlist.keys():
-    if (key[0:2] == "vf"):
-      rlist1[key] = rlist[key]
-    elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
-          (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:2] == "tm") ):
-      rlist3[key] = rlist[key]
-    elif(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
-    else:
-      rlist2[key] = rlist[key]
-
-  set_map_res(rlist,rlist3)           # Set some addtl map resources
-  set_vector_res(rlist,rlist2)        # Set some addtl vector resources
-  set_labelbar_res(rlist,rlist2,True) # Set some addtl labelbar resources
-    
-#
-#  Call the wrapped function and return.
-#
-  ivct = vector_map_wrap(wks,uarray,varray,"double","double",         \
-                     uarray.shape[0],uarray.shape[1],0,               \
-                     pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(), \
-                     rlist1,rlist2,rlist3,pvoid())
-
-  del rlist
-  del rlist1
-  del rlist2
-  del rlist3
-  return lst2pobj(ivct)
-
-def vector_scalar(wks,uarray,varray,tarray,rlistc=None):
-
-  set_spc_defaults(1)
-  rlist = crt_dict(rlistc)  
- 
-#  Separate the resource dictionary into those resources
-#  that apply to VectorField, ScalarField, and VectorPlot.
-#
-  rlist1 = {}
-  rlist2 = {}
-  rlist3 = {}
-  rlist4 = {}
-  for key in rlist.keys():
-    if (key[0:2] == "vf"):
-      rlist1[key] = rlist[key]
-    elif(key[0:2] == "sf"):
-      rlist2[key] = rlist[key]
-    elif(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
-    else:
-      rlist3[key] = rlist[key]
-#
-# In addition, if this plot is potentially going to be overlaid
-# on an Irregular Plot Class (in order to lineariize or logize it)
-# then we need to keep track of all the tickmark resources, because
-# we'll have to reapply them to the IrregularPlot class.
-#
-      if(key[0:2] == "vp" or key[0:2] == "tm" or key[0:6] == "pmTick"):
-        rlist4[key] = rlist[key]
-    
-  set_vector_res(rlist,rlist3)        # Set some addtl vector resources
-  set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
-  set_tickmark_res(rlist,rlist4)      # Set some addtl tickmark resources
-
-#
-#  Call the wrapped function and return.
-#
-  ivct = vector_scalar_wrap(wks,uarray,varray,tarray,  \
-                     "double","double","double",         \
-                     uarray.shape[0],uarray.shape[1],0,               \
-                     pvoid(),"",0,pvoid(),"", 0, 0, 0, pvoid(), pvoid(), \
-                     pvoid(),rlist1,rlist2,rlist3,rlist4,pvoid())
-
-  del rlist
-  del rlist1
-  del rlist2
-  del rlist3
-  del rlist4
-  return lst2pobj(ivct)
-
-def vector_scalar_map(wks,uarray,varray,tarray,rlistc=None):
-
-  set_spc_defaults(1)
-  rlist = crt_dict(rlistc)  
- 
-#  Separate the resource dictionary into those resources
-#  that apply to VectorField, ScalarField, MapPlot, and 
-#  VectorPlot.
-#
-  rlist1 = {}
-  rlist2 = {}
-  rlist3 = {}
-  rlist4 = {}
-  for key in rlist.keys():
-    if (key[0:2] == "vf"):
-      rlist1[key] = rlist[key]
-    elif(key[0:2] == "sf"):
-      rlist2[key] = rlist[key]
-    elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
-          (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:2] == "tm") ):
-      rlist4[key] = rlist[key]
-    elif(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
-    else:
-      rlist3[key] = rlist[key]
-    
-  set_map_res(rlist,rlist4)           # Set some addtl map resources
-  set_vector_res(rlist,rlist3)        # Set some addtl vector resources
-  set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
-
-#
-#  Call the wrapped function and return.
-#
-  ivct = vector_scalar_map_wrap(wks,uarray,varray,tarray,  \
-                     "double","double","double",         \
-                     uarray.shape[0],uarray.shape[1],0,               \
-                     pvoid(),"",0,pvoid(),"", 0, 0, 0, pvoid(), pvoid(), \
-                     pvoid(),rlist1,rlist2,rlist3,rlist4,pvoid())
-
-  del rlist
-  del rlist1
-  del rlist2
-  del rlist3
-  del rlist4
-  return lst2pobj(ivct)
-
-def text_ndc(wks, text, x, y, rlistc=None):
-  set_spc_defaults(0)
-  rlist = crt_dict(rlistc)
-  rlist1 = {}
-  for key in rlist.keys():
-    if(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
-    else:
-      rlist1[key] = rlist[key]
-
-  itxt = text_ndc_wrap(wks,text,x,y,"double","double",rlist1,pvoid())
-  del rlist
-  del rlist1
-  return (lst2pobj(itxt))
-
-def add_text(wks,plot,text,x,y,rlistc=None):
-  rlist = crt_dict(rlistc)  
- 
-#
-#  Separate the resource dictionary into those resources
-#  that apply to am or tx.
-#
-  am_rlist  = {}
-  tx_rlist  = {}
-  for key in rlist.keys():
-    if (key[0:2] == "tx"):
-      tx_rlist[key] = rlist[key]
-    if (key[0:2] == "am"):
-      am_rlist[key] = rlist[key]
-
-#
-#  Call the wrapped function and return.
-#
-  atx = add_text_wrap(wks,pobj2lst(plot),text,x,y,"double","double",  \
-                          tx_rlist,am_rlist, pvoid())
-  del rlist
-  del tx_rlist
-  del am_rlist
-  return(lst2pobj(atx))
-
-def text(wks, plot, text, x, y, rlistc=None):
-  set_spc_defaults(0)
-  rlist = crt_dict(rlistc)
-  rlist1 = {}
-  for key in rlist.keys():
-    if(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
-    else:
-      rlist1[key] = rlist[key]
-  itxt = text_wrap(wks,pobj2lst(plot),text,x,y,"double","double",rlist1,pvoid())
-  del rlist
-  del rlist1
-  return(lst2pobj(itxt))
+def rgbyiq(r,g,b):
+  return(c_rgbyiq(r,g,b))
 
 def set_values(obj,rlistc=None):
   rlist = crt_dict(rlistc)
   values = NhlSetValues(int_id(obj),rlist)
   del rlist
   return values
-
-def retrieve_colormap(wks):
-  return get_MDfloat_array(wks,"wkColorMap")
-
-def get_values(obj,rlistc):
-  rlist = crt_dict(rlistc)
-  values = NhlGetValues(int_id(obj),rlist)
-  del rlist
-  return (values)
-
-def destroy(obj):
-  return(NhlDestroy(int_id(obj)))
-
-def clear_workstation(obj):
-  NhlClearWorkstation(int_id(obj))
-
-def update_workstation(obj):
-  NhlUpdateWorkstation(int_id(obj))
-
-def get_float(obj,name):
-  return(NhlGetFloat(int_id(obj),name))
-
-def get_integer(obj,name):
-  return(NhlGetInteger(int_id(obj),name))
-
-def get_string(obj,name):
-  return(NhlGetString(int_id(obj),name))
-
-def get_double(obj,name):
-  return(NhlGetDouble(int_id(obj),name))
-
-def get_integer_array(obj,name):
-  return(NhlGetIntegerArray(int_id(obj),name))
-
-def get_float_array(obj,name):
-  return(NhlGetFloatArray(int_id(obj),name))
-
-def get_double_array(obj,name):
-  return(NhlGetDoubleArray(int_id(obj),name))
-
-def get_string_array(obj,name):
-  return(NhlGetStringArray(int_id(obj),name))
-
-def get_MDfloat_array(obj,name):
-  rval = NhlGetMDFloatArray(int_id(obj),name)
-  if (rval[0] != -1):
-    print "get_MDfloat_array: error number %d" % (rval[0])
-    return None
-  return(rval[1])
-
-def get_MDdouble_array(obj,name):
-  return(NhlGetMDDoubleArray(int_id(obj),name))
-
-def get_MDinteger_array(obj,name):
-  return(NhlGetMDIntegerArray(int_id(obj),name))
-
-def frame(wks):
-  return(NhlFrame(wks))
-
-def draw(obj):
-  return(NhlDraw(int_id(obj)))
-
-def asciiread(filename,dims,type="float"):
-  file = open(filename)
-#
-#  If dims = -1, determine the number of valid tokens in
-#  the input file, otherwise calculate the number from
-#  the dims value.  If dims = -1 the return value will be
-#  a Numeric array containing of all the legal values,
-#  all other values are ignored.
-#
-  if (dims == -1):
-    nnum = 0
-    while (1):
-      line = file.readline()[0:-1]
-      if len(line) == 0:
-        break
-      toks = string.split(line)
-      for str in toks:
-        if (type == "integer"):
-          try:
-            string.atoi(str)
-            nnum = nnum+1
-          except:
-            pass
-        elif ((type == "float") or (type == "double")):
-          try:
-            string.atof(str)
-            nnum = nnum+1
-          except:
-            pass
-  else:
-    nnum = 1
-    if (not (isinstance(dims,types.ListType)) and \
-        not (isinstance(dims,types.TupleType))):
-      print 'asciiread: dims must be a list or a tuple'
-      return None
-    for m in xrange(len(dims)):
-      nnum = nnum*dims[m]
- 
-  if (type == "integer"):
-    ar = Numeric.zeros(nnum,Numeric.int) 
-  elif (type == "float"):
-    ar = Numeric.zeros(nnum,Numeric.Float0) 
-  elif (type == "double"):
-    ar = Numeric.zeros(nnum,Numeric.Float) 
-  else:
-    print 'asciiread: type must be one of: "integer", "float", or "double".'
-    sys.exit()
-
-  count = 0
-  file.seek(0,0)
-  while (1):
-    line = file.readline()[0:-1]
-    if len(line) == 0:
-      break
-    toks = string.split(line)
-    for str in toks:
-      if (type == "integer"):
-        try:
-          ar[count] = string.atoi(str)
-          count = count+1
-        except:
-          pass
-      elif ((type == "float") or (type == "double")):
-        try:
-          ar[count] = string.atof(str)
-          count = count+1
-        except:
-          pass
-
-  if (count < nnum and dims != -1):
-    print "asciiread: Warning, fewer data items than specified array size."
-
-  file.close()
-  if (dims == -1):
-    return ar
-  else:
-    return Numeric.reshape(ar,dims)
-
-def get_workspace_id():
-  return NhlGetWorkspaceObjectId()
-
-def rgbhls(r,g,b):
-  return(c_rgbhls(r,g,b))
-def hlsrgb(r,g,b):
-  return(c_hlsrgb(r,g,b))
-def rgbhsv(r,g,b):
-  return(c_rgbhsv(r,g,b))
-def hsvrgb(r,g,b):
-  return(c_hsvrgb(r,g,b))
-def rgbyiq(r,g,b):
-  return(c_rgbyiq(r,g,b))
-def yiqrgb(r,g,b):
-  return(c_yiqrgb(r,g,b))
-
-#
-#  Returns the color index whose associated color on the given
-#  workstation is closest to the color name supplied.
-#
-def get_named_color_index(wkid,name):
-  return(NhlGetNamedColorIndex(wkid,name))
-
-def nnsetp(pname,val):
-  if (not isinstance(pname,types.StringType)):
-    print "nnsetp: Parameter '" + str(pname) + "' is not a string type." 
-    return None
-  if (isinstance(val,types.IntType)):
-    c_nnseti(pname,val)
-  elif (isinstance(val,types.FloatType)): 
-    c_nnsetrd(pname,val)
-  elif (isinstance(val,types.StringType)):
-    c_nnsetc(pname,val)
-  else:
-    print \
-      "nnsetp: specified value for " + pname + " is not of a recognized type." 
-  return None
-
-def nngetp(pname):
-  iparms = [                                                         \
-            "adf", "asc", "dup", "ext", "igr", "non", "rad",         \
-            "sdi", "upd", "mdm",                                     \
-            "ADF", "ASC", "DUP", "EXT", "IGR", "NON", "RAD",         \
-            "SDI", "UPD", "MDM"                                      \
-           ]
-  rparms = [                                                         \
-            "bI", "bJ", "hor", "magx", "magy", "magz", "nul", "ver", \
-            "Bi", "Bj", "HOR", "MAGX", "MAGY", "MAGZ", "NUL", "VER", \
-            "bi", "bj", "BI", "BJ"                                   \
-           ]
-  cparms = [                                                         \
-            "alg", "ALG", "erf", "ERF"                                \
-           ]
-  if (not isinstance(pname,types.StringType)):
-    print "nngetp: Parameter '" + str(pname) + "' is not a string type." 
-    return None
-  if (iparms.count(pname) > 0):
-    return c_nngeti(pname)
-  elif (rparms.count(pname) > 0):
-    return c_nngetrd(pname)
-  elif (cparms.count(pname) > 0):
-    return c_nngetcp(pname)
-  else:
-    print \
-      "nngetp: specified value for " + pname + " is not of a recognized type." 
-  return None
-
-def wmsetp(pname,val):
-  if (not isinstance(pname,types.StringType)):
-    print "wmsetp: Parameter '" + str(pname) + "' is not a string type." 
-    return None
-  if (isinstance(val,types.FloatType)):
-    c_wmsetrp(pname,val)
-  elif (isinstance(val,types.IntType)): 
-    c_wmsetip(pname,val)
-  elif (isinstance(val,types.StringType)):
-    c_wmsetcp(pname,val)
-  else:
-    print \
-      "wmsetp: specified value for " + pname + " is not of a recognized type." 
-  return None
-
-def wmgetp(pname):
-  iparms = [                                                                \
-             "alo", "aoc", "asc", "awc", "cbc", "cc1", "cc2", "cc3", "cfc", \
-             "col", "dbc", "dtc", "hib", "hic", "hif", "his", "lc1", "lc2", \
-             "lc3", "lob", "lof", "los", "mxs", "nbz", "nms", "pai", "rbs", \
-             "rc1", "rc2", "rc3", "rc4", "rc5", "rev", "rfc", "rls", "ros", \
-             "sc1", "sc2", "sc3", "sc4", "slf", "sty", "t1c", "t2c", "wbf", \
-             "wfc", "wty", "ezf", "smf", "loc", "wdf", "unt",               \
-             "ALO", "AOC", "ASC", "AWC", "CBC", "CC1", "CC2", "CC3", "CFC", \
-             "COL", "DBC", "DTC", "HIB", "HIC", "HIF", "HIS", "LC1", "LC2", \
-             "LC3", "LOB", "LOF", "LOS", "MXS", "NBZ", "NMS", "PAI", "RBS", \
-             "RC1", "RC2", "RC3", "RC4", "RC5", "REV", "RFC", "RLS", "ROS", \
-             "SC1", "SC2", "SC3", "SC4", "SLF", "STY", "T1C", "T2C", "WBF", \
-             "WFC", "WTY", "EZF", "SMF", "LOC", "WDF", "UNT"                \
-           ] 
-
-  rparms = [                                                                \
-             "arc", "ard", "arl", "ars", "beg", "bet", "cht", "cmg", "cs1", \
-             "cs2", "dts", "dwd", "end", "lin", "lwd", "oer", "rht", "rmg", \
-             "sht", "sig", "sl1", "sl2", "smt", "swi", "tht", "wba", "wbc", \
-             "wbd", "wbl", "wbr", "wbs", "wbt", "wht", "blw",               \
-             "ARC", "ARD", "ARL", "ARS", "BEG", "BET", "CHT", "CMG", "CS1", \
-             "CS2", "DTS", "DWD", "END", "LIN", "LWD", "OER", "RHT", "RMG", \
-             "SHT", "SIG", "SL1", "SL2", "SMT", "SWI", "THT", "WBA", "WBC", \
-             "WBD", "WBL", "WBR", "WBS", "WBT", "WHT", "BLW"                \
-           ]
-
-  cparms = [ "erf", "fro", "ERF", "FRO" ]
-
-  if (not isinstance(pname,types.StringType)):
-    print "wmgetp: Parameter '" + str(pname) + "' is not a string type." 
-    return None
-  if (iparms.count(pname) > 0):
-    return c_wmgetip(pname)
-  elif (rparms.count(pname) > 0):
-    return c_wmgetrp(pname)
-  elif (cparms.count(pname) > 0):
-    return c_wmgetcp(pname)
-  else:
-    print \
-      "wmgetp: specified value for " + pname + " is not of a recognized type." 
-  return None
-
-def wmbarb(wks,x,y,u,v):
-#
-#  Get the GKS workstaton ID.
-#
-  gksid = get_integer(wks,"wkGksWorkId")
-
-#
-#  Process depending on whether we have scalar coordinates,
-#  Numeric arrays, or Python lists or tuples.
-#
-  t = type(Numeric.array([0],Numeric.Int0))   #  Type for Numeric arrays.
-  if (type(x) == t):
-    if ( (type(y) != t) or (type(u) != t) or (type(v) != t)):
-      print "wmbarb: If any argument is a Numeric array, they must all be."
-      return 1
-    rx = Numeric.ravel(x)
-    ry = Numeric.ravel(y)
-    ru = Numeric.ravel(u)
-    rv = Numeric.ravel(v)
-    for i in range(len(rx)):
-      c_wmbarbp(gksid,rx[i],ry[i],ru[i],rv[i])
-  elif(type(x) == types.ListType):
-    l = types.ListType
-    if ( (type(y) != l) or (type(u) != l) or (type(v) != l)):
-      print "wmbarb: If any argument is a Python list, they must all be."
-      return 1
-    for i in range(len(x)):
-      c_wmbarbp(gksid,x[i],y[i],u[i],v[i])
-  elif(type(x) == types.TupleType):
-    l = types.TupleType
-    if ( (type(y) != l) or (type(u) != l) or (type(v) != l)):
-      print "wmbarb: If any argument is a Python tuple, they must all be."
-      return 1
-    for i in range(len(x)):
-      c_wmbarbp(gksid,x[i],y[i],u[i],v[i])
-  elif (type(x)==types.IntType or type(x)==types.LongType or \
-        type(x)==types.FloatType):
-    c_wmbarbp(gksid,x,y,u,v)
-  return 0
-
-def wmbarbmap(wks,x,y,u,v):
-  ezf = wmgetp("ezf")
-  wdf = wmgetp("wdf")
-  wmsetp("ezf",1)
-  wmsetp("wdf",1)
-  wmbarb(wks,x,y,u,v)
-  wmsetp("ezf",ezf)
-  wmsetp("wdf",wdf)
-
-def ck_type(fcn,arg,typ):
-#
-#  Check on the type of the variable "arg" that is a
-#  variable in function "fcn" accroding to the flag "typ".
-#  Returns 0 if OK, 1 otherwise.
-#
-  if (typ == 0):
-#
-#  arg should be a singly-dimensioned Numeric array with ints, longs,
-#  or floats, or a scalar int, long, or float.
-#
-    if (type(arg) == type(Numeric.array([0],Numeric.Int))):
-      if (len(arg) == 0):
-        print "Warning: " + fcn + ": An empty array was encountered."
-        return 0
-      if (len(arg.shape) != 1):
-        print fcn + ": Numeric array argument must be singly-dimensioned."
-        return 1
-      a0 = arg[0]
-      if (type(a0)!=types.IntType and type(a0)!=types.FloatType and \
-          type(a0)!=types.LongType):
-        print fcn + \
-          ": Numeric array argument must be integers, longs, or floats."
-        return 1
-    elif (type(arg)==types.IntType or type(arg)==types.LongType or \
-          type(arg)==types.FloatType):
-      return 0
-    else:
-      print fcn + ": argument must be a Numeric array or numeric scalar."
-      return 1
-  else:
-    print "ck_type: invalid type flag"
-    return 1
-  return 0
-
-def skewty(pres):    # y-coord given pressure (mb)
-  if (ck_type("skewty",pres,0) != 0):
-    return None
-  try:
-    return(132.182-44.061*Numeric.log10(pres))
-  except:
-    return None
-# return (132.182-44.061*Numeric.log10(pres))
-def skewtx(temp,y):  # x-coord given temperature (c)
-  if (ck_type("skewtx",temp,0) != 0 or ck_type("skewtx",y,0) != 0):
-    return None
-  return (0.54*temp+0.90692*y)
 
 def skewt_bkg(wks, Opts):
 #
@@ -2994,348 +2877,300 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
   
   return skewt_bkgd
 
-#########################################################################
-# 
-#   Processing functions:
-#     Ngl.add_cyclic
-#     Ngl.fspan
-#     Ngl.ftcurv
-#     Ngl.ftcurvp
-#     Ngl.ftcurvpi
-#     Ngl.gaus
-#     Ngl.gc_convert
-#     Ngl.gc_dist
-#     Ngl.gc_interp
-#     Ngl.ind
-#     Ngl.ismissing
-#     Ngl.natgrid
-#     Ngl.ncargpath
-#     Ngl.normalize_angle
-# 
-#########################################################################
+def streamline(wks,uarray,varray,rlistc=None):
+
+  set_spc_defaults(1)
+  rlist = crt_dict(rlistc)  
+ 
+#  Separate the resource dictionary into those resources
+#  that apply to VectorField and those that apply to
+#  StreamlinePlot.
 #
-# Add a cyclic point in the x dimension (longitude dimension) to
-# a 2D array. If there is also a 1D lon coordinate array, add 360 to 
-# create the cyclic point.
-#
-def add_cyclic(data,lon_coord=None):
-#
-# Check input data to make sure it is 2D.
-#
-  dims = data.shape
-  if (len(dims) != 2):
-    print "add_cyclic: input must be a 2-dimensional array."
-    sys.exit()
-
-  ny  = dims[0]
-  nx  = dims[1]
-  nx1 = nx + 1
-
-#
-# Test longitude array, if it exists.
-#
-  if(lon_coord != None):
-    lon_coord_dims = lon_coord.shape
-    lon_coord_rank = len(lon_coord_dims)
-#
-# Longitude coordindate array must be 1D.
-#
-    if (lon_coord_rank != 1):
-      print "add_cyclic: longitude coordinate array must be a 1-dimensional."
-      sys.exit()
-#
-# Check dimension size against data array.
-#
-    nlon = lon_coord_dims[0]
-    if (nlon != nx):
-      print "add_cyclic: longitude coordinate array must be the same length as the rightmost dimension of the data array."
-      sys.exit()
-
-#
-# Create the new data array with one extra value in the X direction.
-#
-  newdata         = Numeric.zeros((ny,nx1),data.typecode())
-  newdata[:,0:nx] = data
-  newdata[:,nx]   = data[:,0]
-
-#
-# Add 360 to the longitude value in order to make it cyclic.
-#
-  if(lon_coord != None):
-    newloncoord       = Numeric.zeros(nx1,lon_coord.typecode())
-    newloncoord[0:nx] = lon_coord
-    newloncoord[nx]   = lon_coord[0] + 360
-
-    return newdata,newloncoord
-  else:
-    return newdata
-
-def fspan(min,max,num):
-  delta = (float(max-min)/float(num-1))
-  a = []
-  for i in range(num-1):
-    a.append(float(i)*delta)
-  a.append(max)
-  return Numeric.array(a,Numeric.Float0)
-
-def ftcurv(x,y,xo):
-  if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
-    dsizes_x = len(x)
-  elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_x = x.shape[0]
-  else:
-    print \
-     "ftcurv: type of argument 1 must be one of: list, tuple, or Numeric array"
-    return None
-  if ( ((type(y) == types.ListType) or (type(y) == types.TupleType)) ):
-    dsizes_y = len(y)
-  elif (type(y) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_y = y.shape[0]
-  else:
-    print \
-     "ftcurv: type of argument 2 must be one of: list, tuple, or Numeric array"
-    return None
-  if (dsizes_x != dsizes_y):
-    print "ftcurv: first and second arguments must be the same length."
-    return None
-
-  if ( ((type(xo) == types.ListType) or (type(xo) == types.TupleType)) ):
-    dsizes_xo = len(xo)
-  elif (type(xo) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_xo = xo.shape[0]
-
-  status,yo = ftcurvc(dsizes_x,x,y,dsizes_xo,xo)
-  if (status == 1):
-    print "ftcurv: input array must have at least three elements."
-    return None
-  elif (status == 2): 
-    print "ftcurv: input array values must be strictly increasing."
-    return None
-  else:
-    del status
-    return yo
-
-def ftcurvp(x,y,p,xo):
-  if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
-    dsizes_x = len(x)
-  elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_x = x.shape[0]
-  else:
-    print \
-     "ftcurvp: type of argument 1 must be one of: list, tuple, or Numeric array"
-    return None
-  if ( ((type(y) == types.ListType) or (type(y) == types.TupleType)) ):
-    dsizes_y = len(y)
-  elif (type(y) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_y = y.shape[0]
-  else:
-    print \
-     "ftcurvp: type of argument 2 must be one of: list, tuple, or Numeric array"
-    return None
-  if (dsizes_x != dsizes_y):
-    print "ftcurvp: first and second arguments must be the same length."
-    return None
-
-  if ( ((type(xo) == types.ListType) or (type(xo) == types.TupleType)) ):
-    dsizes_xo = len(xo)
-  elif (type(xo) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_xo = xo.shape[0]
-
-  status,yo = ftcurvpc(dsizes_x,x,y,p,dsizes_xo,xo)
-  if (status == 1):
-    print "ftcurvp: input array must have at least three elements."
-    return None
-  elif (status == 2):
-    print "ftcurvp: the period is strictly less than the span of the abscissae."
-    return None
-  else:
-    del status
-    return yo
-
-def ftcurvpi(xl, xr, p, x, y):
-  if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
-    dsizes_x = len(x)
-  elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_x = x.shape[0]
-  else:
-    print \
-     "ftcurvpi: type of argument 4 must be one of: list, tuple, or Numeric array"
-    return None
-  if ( ((type(y) == types.ListType) or (type(y) == types.TupleType)) ):
-    dsizes_y = len(y)
-  elif (type(y) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_y = y.shape[0]
-  else:
-    print \
-     "ftcurvpi: type of argument 5 must be one of: list, tuple, or Numeric array"
-    return None
-  if (dsizes_x != dsizes_y):
-    print "ftcurvpi: fourth and fifth arguments must be the same length."
-    return None
-
-  return (ftcurvpic(xl,xr,p,dsizes_x,x,y)[1])
-
-def gaus(n):
-  return NglGaus_p(n,2*n,2)[1]
-
-def gc_dist(rlat1,rlon1,rlat2,rlon2):
-  return c_dgcdist(rlat1,rlon1,rlat2,rlon2,2)
-
-def gc_interp(rlat1,rlon1,rlat2,rlon2,numi):
-  num = abs(numi)
-  if (abs(num) < 2):
-    print "gc_interp: the number of points must be at least two."
-  elif (num == 2):
-    lat = Numeric.array([rlat1,rlat2],Numeric.Float0)
-    lon = Numeric.array([rlon1,rlon2],Numeric.Float0)
-    return [lat,lon]
-  else:
-    lat_tmp = Numeric.zeros(num,Numeric.Float0) 
-    lon_tmp = Numeric.zeros(num,Numeric.Float0) 
-    lat,lon = mapgci(rlat1,rlon1,rlat2,rlon2,num-2)
-    lon0_tmp = rlon1
-    lon1_tmp = rlon2
-#
-#  Adjust points to be in the desired range.
-#
-    for i in range(0,num-2):
-      if (numi > 0):
-        lon[i] = normalize_angle(lon[i],0)
-      else:
-        lon[i] = normalize_angle(lon[i],1)
-    if (numi > 0):
-      lon0_tmp = normalize_angle(lon0_tmp,0) 
-      lon1_tmp = normalize_angle(lon1_tmp,0)
+  rlist1 = {}
+  rlist2 = {}
+  rlist3 = {}
+  for key in rlist.keys():
+    if (key[0:2] == "vf"):
+      rlist1[key] = rlist[key]
+    elif(key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
     else:
-      lon0_tmp = normalize_angle(lon0_tmp,1) 
-      lon1_tmp = normalize_angle(lon1_tmp,1)
+      rlist2[key] = rlist[key]
+#
+# In addition, if this plot is potentially going to be overlaid
+# on an Irregular Plot Class (in order to lineariize or logize it)
+# then we need to keep track of all the tickmark resources, because
+# we'll have to reapply them to the IrregularPlot class.
+#
+      if(key[0:2] == "vp" or key[0:2] == "tm" or key[0:6] == "pmTick"):
+        rlist3[key] = rlist[key]
+    
+  set_streamline_res(rlist,rlist2)    # Set some addtl streamline resources
+  set_tickmark_res(rlist,rlist3)      # Set some addtl tickmark resources
 
 #
-#  Set up return arrays.
+#  Call the wrapped function and return.
 #
-    lat_tmp[1:num-1] = lat[0:num-2]
-    lon_tmp[1:num-1] = lon[0:num-2]
-    lat_tmp[0]     = rlat1
-    lat_tmp[num-1] = rlat2
-    lon_tmp[0]     = lon0_tmp
-    lon_tmp[num-1] = lon1_tmp
-    del lat,lon
+  strm = streamline_wrap(wks,uarray,varray,"double","double",            \
+                         uarray.shape[0],uarray.shape[1],0,              \
+                         pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(),\
+                         rlist1,rlist2,rlist3,pvoid())
+  del rlist
+  del rlist1
+  del rlist2
+  del rlist3
+  return(lst2pobj(strm))
 
-    return lat_tmp,lon_tmp
+def streamline_map(wks,uarray,varray,rlistc=None):
 
-def gc_convert(angle,ctype):
+  set_spc_defaults(1)
+  rlist = crt_dict(rlistc)  
+ 
+#  Separate the resource dictionary into those resources
+#  that apply to VectorField, MapPlot, and StreamlinePlot.
 #
-#  Convert an angle in degrees along a great circle to
-#  radians, meters, kilometers, or feet.
+  rlist1 = {}
+  rlist2 = {}
+  rlist3 = {}
+  for key in rlist.keys():
+    if (key[0:2] == "vf"):
+      rlist1[key] = rlist[key]
+    elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
+          (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:2] == "tm")):
+      rlist3[key] = rlist[key]
+    elif(key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist2[key] = rlist[key]
+
+  set_map_res(rlist,rlist3)           # Set some addtl map resources
+  set_streamline_res(rlist,rlist2)    # Set some addtl streamline resources
+    
 #
-  d2r =  0.0174532952   # degrees to radians
-  r2m = 6371220.        # radians to meters
-  m2f = 3.2808          # meters to feet
+#  Call the wrapped function and return.
+#
+  strm = streamline_map_wrap(wks,uarray,varray,"double","double",         \
+                         uarray.shape[0],uarray.shape[1],0,               \
+                         pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(), \
+                         rlist1,rlist2,rlist3,pvoid())
+  del rlist
+  del rlist1
+  del rlist2
+  del rlist3
+  return(lst2pobj(strm))
 
-  ck_type("gc_convert",angle,0)
+def text(wks, plot, text, x, y, rlistc=None):
+  set_spc_defaults(0)
+  rlist = crt_dict(rlistc)
+  rlist1 = {}
+  for key in rlist.keys():
+    if(key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist1[key] = rlist[key]
+  itxt = text_wrap(wks,pobj2lst(plot),text,x,y,"double","double",rlist1,pvoid())
+  del rlist
+  del rlist1
+  return(lst2pobj(itxt))
 
-  dtype = ctype
-  if (ctype == 0):
-    dtype = "ra"
-  elif (ctype == 1):
-    dtype = "me"
-  elif (ctype == 2):
-    dtype = "ki"
-  elif (ctype == 3):
-    dtype = "fe"
-  elif (ctype == 4):
-    dtype = "mi"
+def text_ndc(wks, text, x, y, rlistc=None):
+  set_spc_defaults(0)
+  rlist = crt_dict(rlistc)
+  rlist1 = {}
+  for key in rlist.keys():
+    if(key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist1[key] = rlist[key]
 
-  if (dtype[0:2] == "ra"):
-    return d2r*angle
-  elif (dtype[0:2] == "me"):
-    return d2r*angle*r2m
-  elif (dtype[0:2] == "ki"):
-    return d2r*angle*r2m/1000.
-  elif (dtype[0:2] == "fe"):
-    return d2r*angle*r2m*m2f
-  elif (dtype[0:2] == "mi"):
-    return d2r*angle*r2m*m2f/5280.
-  else:
-    print "gc_convert: unrecognized conversion type " + str(ctype)
+  itxt = text_ndc_wrap(wks,text,x,y,"double","double",rlist1,pvoid())
+  del rlist
+  del rlist1
+  return (lst2pobj(itxt))
+
+def update_workstation(obj):
+  NhlUpdateWorkstation(int_id(obj))
+
+def vector(wks,uarray,varray,rlistc=None):
+
+  set_spc_defaults(1)
+  rlist = crt_dict(rlistc)  
+ 
+#  Separate the resource dictionary into those resources
+#  that apply to VectorField and those that apply to
+#  VectorPlot.
+#
+  rlist1 = {}
+  rlist2 = {}
+  rlist3 = {}
+  for key in rlist.keys():
+    if (key[0:2] == "vf"):
+      rlist1[key] = rlist[key]
+    elif(key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist2[key] = rlist[key]
+#
+# In addition, if this plot is potentially going to be overlaid
+# on an Irregular Plot Class (in order to lineariize or logize it)
+# then we need to keep track of all the tickmark resources, because
+# we'll have to reapply them to the IrregularPlot class.
+#
+      if(key[0:2] == "vp" or key[0:2] == "tm" or key[0:6] == "pmTick"):
+        rlist3[key] = rlist[key]
+    
+  set_vector_res(rlist,rlist2)        # Set some addtl vector resources
+  set_labelbar_res(rlist,rlist2,True) # Set some addtl labelbar resources
+  set_tickmark_res(rlist,rlist3)      # Set some addtl tickmark resources
 
 #
-#  Get indices of a list where the list values are true.
+#  Call the wrapped function and return.
 #
-def ind(seq):
-  inds = []
-  for i in xrange(len(seq)):
-    if (seq[i] != 0):
-      inds.append(i)
-  return(inds)
+  ivct = vector_wrap(wks,uarray,varray,"double","double",             \
+                     uarray.shape[0],uarray.shape[1],0,               \
+                     pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(), \
+                     rlist1,rlist2,rlist3,pvoid())
+  del rlist
+  del rlist1
+  del rlist2
+  del rlist3
+  return lst2pobj(ivct)
 
-def ismissing(var,mval):
+def vector_map(wks,uarray,varray,rlistc=None):
+
+  set_spc_defaults(1)
+  rlist = crt_dict(rlistc)  
+ 
+#  Separate the resource dictionary into those resources
+#  that apply to VectorField, MapPlot, and VectorPlot.
 #
-#  Returns an array of the same shape as "var" that
-#  has True values in all places where "var" has 
-#  missing values.
+  rlist1 = {}
+  rlist2 = {}
+  rlist3 = {}
+  for key in rlist.keys():
+    if (key[0:2] == "vf"):
+      rlist1[key] = rlist[key]
+    elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
+          (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:2] == "tm") ):
+      rlist3[key] = rlist[key]
+    elif(key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist2[key] = rlist[key]
+
+  set_map_res(rlist,rlist3)           # Set some addtl map resources
+  set_vector_res(rlist,rlist2)        # Set some addtl vector resources
+  set_labelbar_res(rlist,rlist2,True) # Set some addtl labelbar resources
+    
 #
-  if (ck_type("ismissing",var,0) != 0):
-    return None
-  else:
-    return(Numeric.equal(var,mval))
-
-def natgrid(x,y,z,xo,yo):
-  if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
-    dsizes_x = len(x)
-  elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_x = x.shape[0]
-  else:
-    print \
-     "natgrid: type of argument 1 must be one of: list, tuple, or Numeric array"
-    return None
-
-  if ( ((type(xo) == types.ListType) or (type(xo) == types.TupleType)) ):
-    dsizes_xo = len(xo)
-  elif (type(xo) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_xo = xo.shape[0]
-  else:
-    print \
-     "natgrid: type of argument 4 must be one of: list, tuple, or Numeric array"
-    return None
-
-  if ( ((type(yo) == types.ListType) or (type(yo) == types.TupleType)) ):
-    dsizes_yo = len(yo)
-  elif (type(yo) == type(Numeric.array([0],Numeric.Int0))):
-    dsizes_yo = yo.shape[0]
-  else:
-    print \
-     "natgrid: type of argument 5 must be one of: list, tuple, or Numeric array"
-    return None
-
-  ier,zo = \
-     natgridc(dsizes_x,x,y,z,dsizes_xo,dsizes_yo,xo,yo,dsizes_xo,dsizes_yo)
-
-  if (ier != 0):
-    print "natgrid: error number %d returned, see error table." % (ier)
-    del ier
-    return None
-  else:
-    return zo
-
-def normalize_angle(ang,type):
+#  Call the wrapped function and return.
 #
-#  This function normalizes the angle (assumed to be in degrees) to
-#  an equivalent angle in the range [0.,360.) if type equals 0, or
-#  to an equivalent angle in the range [-180.,180.) if type is not zero.
+  ivct = vector_map_wrap(wks,uarray,varray,"double","double",         \
+                     uarray.shape[0],uarray.shape[1],0,               \
+                     pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(), \
+                     rlist1,rlist2,rlist3,pvoid())
+
+  del rlist
+  del rlist1
+  del rlist2
+  del rlist3
+  return lst2pobj(ivct)
+
+def vector_scalar(wks,uarray,varray,tarray,rlistc=None):
+
+  set_spc_defaults(1)
+  rlist = crt_dict(rlistc)  
+ 
+#  Separate the resource dictionary into those resources
+#  that apply to VectorField, ScalarField, and VectorPlot.
 #
-  bang = ang
-  if (type == 0):
-    while(bang < 0.):
-      bang = bang + 360.
-    while(bang >= 360.):
-      bang = bang - 360.
-  else:
-    while(bang < -180.):
-      bang = bang + 360.
-    while(bang >= 180.):
-      bang = bang - 360.
-  return bang
+  rlist1 = {}
+  rlist2 = {}
+  rlist3 = {}
+  rlist4 = {}
+  for key in rlist.keys():
+    if (key[0:2] == "vf"):
+      rlist1[key] = rlist[key]
+    elif(key[0:2] == "sf"):
+      rlist2[key] = rlist[key]
+    elif(key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist3[key] = rlist[key]
+#
+# In addition, if this plot is potentially going to be overlaid
+# on an Irregular Plot Class (in order to lineariize or logize it)
+# then we need to keep track of all the tickmark resources, because
+# we'll have to reapply them to the IrregularPlot class.
+#
+      if(key[0:2] == "vp" or key[0:2] == "tm" or key[0:6] == "pmTick"):
+        rlist4[key] = rlist[key]
+    
+  set_vector_res(rlist,rlist3)        # Set some addtl vector resources
+  set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
+  set_tickmark_res(rlist,rlist4)      # Set some addtl tickmark resources
+
+#
+#  Call the wrapped function and return.
+#
+  ivct = vector_scalar_wrap(wks,uarray,varray,tarray,  \
+                     "double","double","double",         \
+                     uarray.shape[0],uarray.shape[1],0,               \
+                     pvoid(),"",0,pvoid(),"", 0, 0, 0, pvoid(), pvoid(), \
+                     pvoid(),rlist1,rlist2,rlist3,rlist4,pvoid())
+
+  del rlist
+  del rlist1
+  del rlist2
+  del rlist3
+  del rlist4
+  return lst2pobj(ivct)
+
+def vector_scalar_map(wks,uarray,varray,tarray,rlistc=None):
+
+  set_spc_defaults(1)
+  rlist = crt_dict(rlistc)  
+ 
+#  Separate the resource dictionary into those resources
+#  that apply to VectorField, ScalarField, MapPlot, and 
+#  VectorPlot.
+#
+  rlist1 = {}
+  rlist2 = {}
+  rlist3 = {}
+  rlist4 = {}
+  for key in rlist.keys():
+    if (key[0:2] == "vf"):
+      rlist1[key] = rlist[key]
+    elif(key[0:2] == "sf"):
+      rlist2[key] = rlist[key]
+    elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
+          (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:2] == "tm") ):
+      rlist4[key] = rlist[key]
+    elif(key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist3[key] = rlist[key]
+    
+  set_map_res(rlist,rlist4)           # Set some addtl map resources
+  set_vector_res(rlist,rlist3)        # Set some addtl vector resources
+  set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
+
+#
+#  Call the wrapped function and return.
+#
+  ivct = vector_scalar_map_wrap(wks,uarray,varray,tarray,  \
+                     "double","double","double",         \
+                     uarray.shape[0],uarray.shape[1],0,               \
+                     pvoid(),"",0,pvoid(),"", 0, 0, 0, pvoid(), pvoid(), \
+                     pvoid(),rlist1,rlist2,rlist3,rlist4,pvoid())
+
+  del rlist
+  del rlist1
+  del rlist2
+  del rlist3
+  del rlist4
+  return lst2pobj(ivct)
 
 def vinth2p (dati, hbcofa, hbcofb, plevo, psfc, intyp, p0, ii, kxtrp):     
 #
@@ -3384,27 +3219,205 @@ def vinth2p (dati, hbcofa, hbcofb, plevo, psfc, intyp, p0, ii, kxtrp):
     print "vinth2p - invalid input data array."
     return None
 
-################################################################
+def wmbarb(wks,x,y,u,v):
 #
-#  Processing support functions.
+#  Get the GKS workstaton ID.
 #
-################################################################
+  gksid = get_integer(wks,"wkGksWorkId")
 
-def dptlclskewt(p, tc, tdc):
-  return c_dptlclskewt(p, tc, tdc)
+#
+#  Process depending on whether we have scalar coordinates,
+#  Numeric arrays, or Python lists or tuples.
+#
+  t = type(Numeric.array([0],Numeric.Int0))   #  Type for Numeric arrays.
+  if (type(x) == t):
+    if ( (type(y) != t) or (type(u) != t) or (type(v) != t)):
+      print "wmbarb: If any argument is a Numeric array, they must all be."
+      return 1
+    rx = Numeric.ravel(x)
+    ry = Numeric.ravel(y)
+    ru = Numeric.ravel(u)
+    rv = Numeric.ravel(v)
+    for i in range(len(rx)):
+      c_wmbarbp(gksid,rx[i],ry[i],ru[i],rv[i])
+  elif(type(x) == types.ListType):
+    l = types.ListType
+    if ( (type(y) != l) or (type(u) != l) or (type(v) != l)):
+      print "wmbarb: If any argument is a Python list, they must all be."
+      return 1
+    for i in range(len(x)):
+      c_wmbarbp(gksid,x[i],y[i],u[i],v[i])
+  elif(type(x) == types.TupleType):
+    l = types.TupleType
+    if ( (type(y) != l) or (type(u) != l) or (type(v) != l)):
+      print "wmbarb: If any argument is a Python tuple, they must all be."
+      return 1
+    for i in range(len(x)):
+      c_wmbarbp(gksid,x[i],y[i],u[i],v[i])
+  elif (type(x)==types.IntType or type(x)==types.LongType or \
+        type(x)==types.FloatType):
+    c_wmbarbp(gksid,x,y,u,v)
+  return 0
 
-def dtmrskewt(w, p):
-  return c_dtmrskewt(w, p)
+def wmbarbmap(wks,x,y,u,v):
+  ezf = wmgetp("ezf")
+  wdf = wmgetp("wdf")
+  wmsetp("ezf",1)
+  wmsetp("wdf",1)
+  wmbarb(wks,x,y,u,v)
+  wmsetp("ezf",ezf)
+  wmsetp("wdf",wdf)
 
-def dtdaskewt(o,p):
-  return c_dtdaskewt(o, p)
+def wmgetp(pname):
+  iparms = [                                                                \
+             "alo", "aoc", "asc", "awc", "cbc", "cc1", "cc2", "cc3", "cfc", \
+             "col", "dbc", "dtc", "hib", "hic", "hif", "his", "lc1", "lc2", \
+             "lc3", "lob", "lof", "los", "mxs", "nbz", "nms", "pai", "rbs", \
+             "rc1", "rc2", "rc3", "rc4", "rc5", "rev", "rfc", "rls", "ros", \
+             "sc1", "sc2", "sc3", "sc4", "slf", "sty", "t1c", "t2c", "wbf", \
+             "wfc", "wty", "ezf", "smf", "loc", "wdf", "unt",               \
+             "ALO", "AOC", "ASC", "AWC", "CBC", "CC1", "CC2", "CC3", "CFC", \
+             "COL", "DBC", "DTC", "HIB", "HIC", "HIF", "HIS", "LC1", "LC2", \
+             "LC3", "LOB", "LOF", "LOS", "MXS", "NBZ", "NMS", "PAI", "RBS", \
+             "RC1", "RC2", "RC3", "RC4", "RC5", "REV", "RFC", "RLS", "ROS", \
+             "SC1", "SC2", "SC3", "SC4", "SLF", "STY", "T1C", "T2C", "WBF", \
+             "WFC", "WTY", "EZF", "SMF", "LOC", "WDF", "UNT"                \
+           ] 
 
-def dsatlftskewt(thw,p):
-  return c_dsatlftskewt(thw, p)
+  rparms = [                                                                \
+             "arc", "ard", "arl", "ars", "beg", "bet", "cht", "cmg", "cs1", \
+             "cs2", "dts", "dwd", "end", "lin", "lwd", "oer", "rht", "rmg", \
+             "sht", "sig", "sl1", "sl2", "smt", "swi", "tht", "wba", "wbc", \
+             "wbd", "wbl", "wbr", "wbs", "wbt", "wht", "blw",               \
+             "ARC", "ARD", "ARL", "ARS", "BEG", "BET", "CHT", "CMG", "CS1", \
+             "CS2", "DTS", "DWD", "END", "LIN", "LWD", "OER", "RHT", "RMG", \
+             "SHT", "SIG", "SL1", "SL2", "SMT", "SWI", "THT", "WBA", "WBC", \
+             "WBD", "WBL", "WBR", "WBS", "WBT", "WHT", "BLW"                \
+           ]
 
-def dshowalskewt(p,t,td,nlvls):
-  return c_dshowalskewt(p,t,td,nlvls)
+  cparms = [ "erf", "fro", "ERF", "FRO" ]
 
-def dpwskewt(td,p,n):
-  return c_dpwskewt(td,p,n)
+  if (not isinstance(pname,types.StringType)):
+    print "wmgetp: Parameter '" + str(pname) + "' is not a string type." 
+    return None
+  if (iparms.count(pname) > 0):
+    return c_wmgetip(pname)
+  elif (rparms.count(pname) > 0):
+    return c_wmgetrp(pname)
+  elif (cparms.count(pname) > 0):
+    return c_wmgetcp(pname)
+  else:
+    print \
+      "wmgetp: specified value for " + pname + " is not of a recognized type." 
+  return None
 
+def wmsetp(pname,val):
+  if (not isinstance(pname,types.StringType)):
+    print "wmsetp: Parameter '" + str(pname) + "' is not a string type." 
+    return None
+  if (isinstance(val,types.FloatType)):
+    c_wmsetrp(pname,val)
+  elif (isinstance(val,types.IntType)): 
+    c_wmsetip(pname,val)
+  elif (isinstance(val,types.StringType)):
+    c_wmsetcp(pname,val)
+  else:
+    print \
+      "wmsetp: specified value for " + pname + " is not of a recognized type." 
+  return None
+
+def xy(wks,xar,yar,rlistc=None):
+  set_spc_defaults(1)
+#
+#  Get input array dimension information.
+#
+  if ( ((type(xar) == types.ListType) or (type(xar) == types.TupleType)) ):
+    ndims_x = 1
+    dsizes_x = (len(xar),)
+  elif (type(xar) == type(Numeric.array([0],Numeric.Int0))):
+    ndims_x = (len(xar.shape))
+    dsizes_x = xar.shape
+  else:
+    print \
+      "xy: type of argument 2 must be one of: list, tuple, or Numeric array"
+    return None
+
+  if ( ((type(yar) == types.ListType) or (type(yar) == types.TupleType)) ):
+    ndims_y = 1
+    dsizes_y = (len(yar),)
+  elif (type(yar) == type(Numeric.array([0],Numeric.Int0))):
+    ndims_y = (len(yar.shape))
+    dsizes_y = yar.shape
+  else:
+    print \
+      "xy: type of argument 3 must be one of: list, tuple, or Numeric array"
+    return None
+
+  rlist = crt_dict(rlistc)  
+ 
+#
+#  Separate the resource dictionary into those resources
+#  that apply to various lists.
+#
+  ca_rlist  = {}
+  xy_rlist  = {}
+  xyd_rlist = {}
+  for key in rlist.keys():
+    if (key[0:2] == "ca"):
+      ca_rlist[key] = rlist[key]
+    elif (key[0:2] == "xy"):
+      if (key[0:4] == "xyCo"):
+        xy_rlist[key] = rlist[key]
+      elif (key[0:3] == "xyX"):
+        xy_rlist[key] = rlist[key]
+      elif (key[0:3] == "xyY"):
+        xy_rlist[key] = rlist[key]
+      else:
+        xyd_rlist[key] = rlist[key]
+    elif(key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
+    else:
+      xy_rlist[key] = rlist[key]
+
+#
+#  Call the wrapped function and return.
+#
+  ixy = xy_wrap(wks,xar,yar,"double","double",ndims_x,dsizes_x,ndims_y, \
+                    dsizes_y,0,0,pvoid(),pvoid(),ca_rlist,xy_rlist,xyd_rlist,
+                    pvoid())
+
+  del rlist
+  del ca_rlist
+  del xy_rlist
+  del xyd_rlist
+  return(lst2pobj(ixy))
+
+def y(wks,yar,rlistc=None):
+  
+#
+#  Get input array dimension information.
+#
+  if ( ((type(yar) == types.ListType) or (type(yar) == types.TupleType)) ):
+    ndims_y = 1
+    dsizes_y = (len(yar),)
+  elif (type(yar) == type(Numeric.array([0],Numeric.Int0))):
+    ndims_y = (len(yar.shape))
+    dsizes_y = yar.shape
+  else:
+    print \
+      "xy: type of argument 3 must be one of: list, tuple, or Numeric array"
+    return None
+
+  if (len(dsizes_y) == 1):
+    npts = dsizes_y
+  elif (len(dsizes_y) == 2):
+    npts = dsizes_y[1]
+  else:
+    print \
+      "y: array can have at most two dimensions"
+    return None
+    
+  return xy(wks,range(0,npts),yar,rlistc)
+
+def yiqrgb(r,g,b):
+  return(c_yiqrgb(r,g,b))
