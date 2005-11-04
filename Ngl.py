@@ -53,9 +53,33 @@ def ck_for_rangs(dir):
   for file in file_names:
     fp_file = dir + "/" + file
     if (not (os.path.exists(fp_file))):
-      print "\nRequired high-res database file: \n     " + fp_file + \
-            "\ndoes not exist."
-      sys.exit()
+      print '\nInfo message: The environment variable PYNGL_RANGS has '
+      print '   been set, but the required high-res database file'
+      print '   "' + fp_file + '"'
+      print '   is not in that directory.\n'
+      return None
+
+def ismissing(arg,mval):
+#
+#  Returns an array of the same shape as "arg" that
+#  has True values in all places where "arg" has 
+#  missing values.
+#
+    if (type(arg) == type(Numeric.array([0],Numeric.Int))):
+      pass
+    elif (type(arg)==types.IntType or type(arg)==types.LongType or \
+          type(arg)==types.FloatType):
+      pass
+    else:
+      print "ismissing: first argument must be a Numeric array."
+      return None
+    return(Numeric.equal(arg,mval))
+
+def get_values(obj,rlistc):
+  rlist = crt_dict(rlistc)
+  values = NhlGetValues(int_id(obj),rlist)
+  del rlist
+  return (values)
 
 def pynglpath_ncarg():
 #
@@ -1309,12 +1333,6 @@ def get_string(obj,name):
 def get_string_array(obj,name):
   return(NhlGetStringArray(int_id(obj),name))
 
-def get_values(obj,rlistc):
-  rlist = crt_dict(rlistc)
-  values = NhlGetValues(int_id(obj),rlist)
-  del rlist
-  return (values)
-
 def hlsrgb(r,g,b):
   return(c_hlsrgb(r,g,b))
 
@@ -1330,17 +1348,6 @@ def ind(seq):
     if (seq[i] != 0):
       inds.append(i)
   return(inds)
-
-def ismissing(var,mval):
-#
-#  Returns an array of the same shape as "var" that
-#  has True values in all places where "var" has 
-#  missing values.
-#
-  if (ck_type("ismissing",var,0) != 0):
-    return None
-  else:
-    return(Numeric.equal(var,mval))
 
 def labelbar_ndc(wks,nbox,labels,x,y,rlistc=None):
   set_spc_defaults(0)
@@ -1546,11 +1553,14 @@ def open_wks(wk_type,wk_name,wk_rlist=None):
 #
     rangs_dir_envn = os.environ.get("PYNGL_RANGS")
     if (rangs_dir_envn != None and os.path.exists(rangs_dir_envn)):
+#
+#  Check if the high-res file are there - if not issue a
+#  an information message to that effect.
+#
       ck_for_rangs(rangs_dir_envn)
       os.environ["NCARG_RANGS"] = rangs_dir_envn
     else:
       dflt_rangs_path = pynglpath_ncarg() + "/rangs"
-      ck_for_rangs(dflt_rangs_path)
       os.environ["NCARG_RANGS"] = pynglpath_ncarg() + "/rangs"
 
     ures_dir_envn = os.environ.get("PYNGL_USRRESFILE")
@@ -1728,11 +1738,8 @@ def pynglpath(name):
     rangs_dir_dflt = pynglpath_ncarg() + "/rangs"
     if (rangs_dir_envn != None and os.path.exists(rangs_dir_envn)):
       return rangs_dir_envn
-    elif (os.path.exists(rangs_dir_dflt)):
+    else: 
       return rangs_dir_dflt
-    else:
-      print "pynglpath: rangs directory does not exist."
-      return None
   elif (name == "usrresfile"):
     ures_dir_envn = os.environ.get("PYNGL_USRRESFILE")
     ures_dir_dflt = commands.getoutput("ls ~/.hluresfile")
