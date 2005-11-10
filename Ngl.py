@@ -1444,6 +1444,9 @@ def natgrid(x,y,z,xo,yo):
 def ncargpath(type):
   return pynglpath(type)
 
+def new_color(wks_id,r,g,b):
+  return NhlNewColor(int_id(wks_id),r,g,b)
+
 def nngetp(pname):
   iparms = [                                                         \
             "adf", "asc", "dup", "ext", "igr", "non", "rad",         \

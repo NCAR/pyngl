@@ -22,7 +22,7 @@ from distutils.core import setup, Extension
 #
 # These variables are for internal use only.
 #
-copy_files = True
+copy_files = False
 copy_rangs = False
 
 #
