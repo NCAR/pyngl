@@ -3240,6 +3240,7 @@ import_array();
   char **strings;
   double *dvals;
   int *ivals,array_type,rlist,ndims,*len_dims;
+  long *lvals;
   static ResInfo trname;
   char **trnames;
 
@@ -3467,12 +3468,11 @@ import_array();
  */
         if (array_type == PyArray_LONG || array_type == PyArray_INT) {
           arr = (PyArrayObject *) PyArray_ContiguousFromObject \
-                 ((PyObject *) value,PyArray_LONG,0,0);
-          ivals = (int *)arr->data;
+                     ((PyObject *) value,PyArray_LONG,0,0);
+          lvals = (long *)arr->data;
           ndims = arr->nd;
           len_dims = arr->dimensions;
-  
-          NhlRLSetMDIntegerArray(rlist,PyString_AsString(key),ivals,ndims,len_dims);
+          NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
         }
         else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
           arr = (PyArrayObject *) PyArray_ContiguousFromObject \
@@ -3509,6 +3509,7 @@ import_array();
   char **strings;
   double *dvals;
   int *ivals,array_type,rlist,ndims,*len_dims;
+  long *lvals;
   ResInfo trname;
   char **trnames;
 
@@ -3736,12 +3737,11 @@ import_array();
  */
         if (array_type == PyArray_LONG || array_type == PyArray_INT) {
           arr = (PyArrayObject *) PyArray_ContiguousFromObject \
-                 ((PyObject *) value,PyArray_LONG,0,0);
-          ivals = (int *)arr->data;
+                ((PyObject *) value,PyArray_LONG,0,0);
+          lvals = (long *)arr->data;
           ndims = arr->nd;
           len_dims = arr->dimensions;
-  
-          NhlRLSetMDIntegerArray(rlist,PyString_AsString(key),ivals,ndims,len_dims);
+          NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
         }
         else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
           arr = (PyArrayObject *) PyArray_ContiguousFromObject \
