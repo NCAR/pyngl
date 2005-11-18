@@ -16,16 +16,17 @@
 #  
 #   Description:
 #     This example draws an animation of filled contours over a map 
-#     showing surface temperatures. Instead of calling Ngl.contour_map
-#     for every time step, Ngl.set_values is used to change the data
-#     and title after the initial time step.
+#     showing surface temperatures (if "Animate" is set to True).
+#     Instead of calling Ngl.contour_map for every time step,
+#     Ngl.set_values is used to change the data and title after the
+#     initial time step.
 #
 #  Effects illustrated
 #     o  Reading data from a netCDF file.
 #     o  Creating a color map using RGB triplets.
 #     o  Drawing color filled contours over a map.
-#     o  Using Ngl.set_values to change the data.
-#     o  Using a ".res" file to set many resources, for example to:
+#     o  Using Ngl.set_values to change the data for the animation.
+#     o  Using a resource list to set many resources, for example to:
 #          + set color map
 #          + set contour levels
 #          + set fill colors
@@ -33,7 +34,9 @@
 #          + set some labelbar, title,  and tickmark resources
 #
 #  Output:
-#     An animation of 31 frames (one per day on January) is produced.
+#     If "Animate" is set to True, then an animation of 31 frames
+#     (one per day on January) is produced. Otherwise, just one frame
+#     is produced.
 #
 #  Notes: 
 
@@ -148,30 +151,27 @@ srlist1 = Ngl.Resources()
 srlist2 = Ngl.Resources()
 
 #
-# Loop through time and generate a contour/map plot at each time step.
+# Generate at least the first frame. Set "Animate" to True
+# if you want to generate the other 30 frames.
 #
-for nt in range(T.shape[0]):
-  print "plotting day ",nt+1
+print "plotting day 1"
+res.lbTitleString = "Day 1"
+map = Ngl.contour_map(wks,T[0,:,:],res)
 
-  if nt == 0:
-#
-# The first time in the loop, create and draw the contour/map.
-#
-# Note that you can use this call for all values of nt to
-# simplify your code, but if you have lots of time steps to
-# loop across, you may want to consider using Ngl.set_values
-# (see "else" below).
-#
-    res.lbTitleString = "Day " + str(nt+1)
-    map = Ngl.contour_map(wks,T[nt,:,:],res)
+Animate = False
 
-  else:
+if Animate:
 #
-# The next time in the loop, there's no need to recreate the
-# contour/map plot since the only thing changing is the data 
-# and the title, so use Ngl.set_values to change the necessary
-# two resources. Using Ngl.set_values will result in slightly
-# faster code.
+# Loop through time (the rightmost dimension of "T") and generate
+# a contour/map plot at each time step.
+#
+  for nt in range(1,T.shape[0]):
+    print "plotting day ",nt+1
+#
+# There's no need to recreate the contour/map plot since
+# the only thing changing is the data and the title, so
+# use Ngl.set_values to change the necessary two resources.
+# Using Ngl.set_values will result in slightly faster code.
 #
     srlist2.sfDataArray   = T[nt,:,:]  
     srlist1.lbTitleString = "Day " + str(nt+1)
@@ -184,5 +184,8 @@ for nt in range(T.shape[0]):
 #
     Ngl.draw(map.base)
     Ngl.frame(wks)
+else:
+  print "Only one frame was generated."
+  print "Set 'Animate' to True if you want to generate all 31 frames."
 
 Ngl.end()
