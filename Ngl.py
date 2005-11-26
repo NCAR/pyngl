@@ -1447,6 +1447,14 @@ def ncargpath(type):
 def new_color(wks_id,r,g,b):
   return NhlNewColor(int_id(wks_id),r,g,b)
 
+def set_color(wks_id,index,r,g,b):
+  NhlSetColor(int_id(wks_id),index,r,g,b)
+  return None
+
+def free_color(wks_id,index):
+  NhlFreeColor(int_id(wks_id),index)
+  return None
+
 def nngetp(pname):
   iparms = [                                                         \
             "adf", "asc", "dup", "ext", "igr", "non", "rad",         \
