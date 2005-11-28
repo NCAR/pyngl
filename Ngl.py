@@ -1104,7 +1104,7 @@ def fspan(min,max,num):
   delta = (float(max-min)/float(num-1))
   a = []
   for i in range(num-1):
-    a.append(float(i)*delta)
+    a.append(min + float(i)*delta)
   a.append(max)
   return Numeric.array(a,Numeric.Float0)
 
