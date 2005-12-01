@@ -9,7 +9,7 @@
 #    Processing.
 #
 #  Author:
-#    Dave Brown (modelled after an example of Konran Hinson).
+#    Dave Brown (modelled after an example of Konrad Hinson).
 #  
 #  Date of original publication:
 #    November, 2005
