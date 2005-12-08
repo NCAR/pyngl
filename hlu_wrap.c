@@ -1717,6 +1717,7 @@ extern NhlErrorTypes NhlClearWorkstation(int);
 extern NhlErrorTypes NhlRemoveAnnotation(int,int);
 extern int NhlAddAnnotation(int,int);
 extern int NhlAppGetDefaultParentId();
+extern int NhlGetParentWorkstation(int);
 extern char const *NhlClassName(int);
 extern NhlString NhlGetString(int,NhlString);
 extern int NhlAddData(int,NhlString,int);
@@ -1786,6 +1787,7 @@ extern nglPlotId streamline_map_wrap(int,void *,void *,char const *,char const *
 extern nglPlotId text_ndc_wrap(int,NhlString,void *,void *,char const *,char const *,ResInfo *,nglRes *);
 extern nglPlotId text_wrap(int,nglPlotId *,NhlString,void *,void *,char const *,char const *,ResInfo *,nglRes *);
 extern nglPlotId add_text_wrap(int,nglPlotId *,NhlString,void *,void *,char const *,char const *,ResInfo *,ResInfo *,nglRes *);
+extern void maximize_plots(int,nglPlotId *,int,int,nglRes *);
 extern void poly_wrap(int,nglPlotId *,void *,void *,char const *,char const *,int,int,int,void *,void *,NhlPolyType,ResInfo *,nglRes *);
 extern nglPlotId add_poly_wrap(int,nglPlotId *,void *,void *,char const *,char const *,int,int,int,void *,void *,NhlPolyType,ResInfo *,nglRes *);
 extern PyObject *mapgci(float,float,float,float,int);
@@ -3773,6 +3775,21 @@ static PyObject *_wrap_NhlAppGetDefaultParentId(PyObject *self, PyObject *args) 
     
     if(!PyArg_ParseTuple(args,(char *)":NhlAppGetDefaultParentId")) goto fail;
     result = (int)NhlAppGetDefaultParentId();
+    
+    resultobj = PyInt_FromLong((long)result);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_NhlGetParentWorkstation(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    int arg1 ;
+    int result;
+    
+    if(!PyArg_ParseTuple(args,(char *)"i:NhlGetParentWorkstation",&arg1)) goto fail;
+    result = (int)NhlGetParentWorkstation(arg1);
     
     resultobj = PyInt_FromLong((long)result);
     return resultobj;
@@ -19721,6 +19738,274 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
 }
 
 
+static PyObject *_wrap_maximize_plots(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    int arg1 ;
+    nglPlotId *arg2 = (nglPlotId *) 0 ;
+    int arg3 ;
+    int arg4 ;
+    nglRes *arg5 = (nglRes *) 0 ;
+    PyObject * obj1  = 0 ;
+    PyObject * obj4  = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"iOiiO:maximize_plots",&arg1,&obj1,&arg3,&arg4,&obj4)) goto fail;
+    {
+        int i;
+        nglPlotId inlist;
+        
+        PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
+        *l_map,       *l_xy     , *l_xydspec, *l_text,
+        *l_primitive, *l_cafield, *l_sffield, *l_vffield;
+        int      *ibase,       *icontour,  *ivector,   *istreamline,
+        *imap,        *ixy     ,  *ixydspec,  *itext,
+        *iprimitive,  *icafield,  *isffield,  *ivffield;
+        
+        if (PyList_Check(obj1) == 0) {
+            printf("PlotIds must be Python lists\n"); 
+        }
+        
+        l_base = PyList_GetItem(obj1,0);
+        if (l_base == Py_None) {
+            inlist.nbase = 0;
+            inlist.base = (int *) NULL;
+        }
+        else {
+            if (!PyList_Check(l_base)) {
+                printf("PlotId base element must be None or a Python list\n");
+            }
+            else {
+                inlist.nbase = PyList_Size(l_base);
+                ibase = (int *) malloc(inlist.nbase*sizeof(int));
+                for (i = 0; i < inlist.nbase; i++) {
+                    *(ibase+i) = (int) PyInt_AsLong(PyList_GetItem(l_base,i));
+                }
+                inlist.base = ibase;
+            }
+        }
+        
+        l_contour = PyList_GetItem(obj1,1);
+        if (l_contour == Py_None) {
+            inlist.ncontour = 0;
+            inlist.contour = (int *) NULL;
+        }
+        else {
+            if (!PyList_Check(l_contour)) {
+                printf("PlotId contour element must be None or a Python list\n");
+            }
+            else {
+                inlist.ncontour = PyList_Size(l_contour);
+                icontour = (int *) malloc(inlist.ncontour*sizeof(int));
+                for (i = 0; i < inlist.ncontour; i++) {
+                    *(icontour+i) = (int) PyInt_AsLong(PyList_GetItem(l_contour,i));
+                }
+                inlist.contour = icontour;
+            }
+        }
+        
+        l_vector = PyList_GetItem(obj1,2);
+        if (l_vector == Py_None) {
+            inlist.nvector = 0;
+            inlist.vector = (int *) NULL;
+        }
+        else {
+            if (!PyList_Check(l_vector)) {
+                printf("PlotId vector element must be None or a Python list\n");
+            }
+            else {
+                inlist.nvector = PyList_Size(l_vector);
+                ivector = (int *) malloc(inlist.nvector*sizeof(int));
+                for (i = 0; i < inlist.nvector; i++) {
+                    *(ivector+i) = (int) PyInt_AsLong(PyList_GetItem(l_vector,i));
+                }
+                inlist.vector = ivector;
+            }
+        }
+        
+        l_streamline = PyList_GetItem(obj1,3);
+        if (l_streamline == Py_None) {
+            inlist.nstreamline = 0;
+            inlist.streamline = (int *) NULL;
+        }
+        else {
+            if (!PyList_Check(l_streamline)) {
+                printf("PlotId streamline element must be None or a Python list\n");
+            }
+            else {
+                inlist.nstreamline = PyList_Size(l_streamline);
+                istreamline = (int *) malloc(inlist.nstreamline*sizeof(int));
+                for (i = 0; i < inlist.nstreamline; i++) {
+                    *(istreamline+i) = (int) PyInt_AsLong(PyList_GetItem(l_streamline,i));
+                }
+                inlist.streamline = istreamline;
+            }
+        }
+        
+        l_map = PyList_GetItem(obj1,4);
+        if (l_map == Py_None) {
+            inlist.nmap = 0;
+            inlist.map = (int *) NULL;
+        }
+        else {
+            if (!PyList_Check(l_map)) {
+                printf("PlotId map element must be None or a Python list\n");
+            }
+            else {
+                inlist.nmap = PyList_Size(l_map);
+                imap = (int *) malloc(inlist.nmap*sizeof(int));
+                for (i = 0; i < inlist.nmap; i++) {
+                    *(imap+i) = (int) PyInt_AsLong(PyList_GetItem(l_map,i));
+                }
+                inlist.map = imap;
+            }
+        }
+        
+        l_xy = PyList_GetItem(obj1,5);
+        if (l_xy == Py_None) {
+            inlist.nxy = 0;
+            inlist.xy = (int *) NULL;
+        }
+        else {
+            if (!PyList_Check(l_xy)) {
+                printf("PlotId xy element must be None or a Python list\n");
+            }
+            else {
+                inlist.nxy = PyList_Size(l_xy);
+                ixy = (int *) malloc(inlist.nxy*sizeof(int));
+                for (i = 0; i < inlist.nxy; i++) {
+                    *(ixy+i) = (int) PyInt_AsLong(PyList_GetItem(l_xy,i));
+                }
+                inlist.xy = ixy;
+            }
+        }
+        
+        l_xydspec = PyList_GetItem(obj1,6);
+        if (l_xydspec == Py_None) {
+            inlist.nxydspec = 0;
+            inlist.xydspec = (int *) NULL;
+        }
+        else {
+            if (!PyList_Check(l_xydspec)) {
+                printf("PlotId xydspec element must be None or a Python list\n");
+            }
+            else {
+                inlist.nxydspec = PyList_Size(l_xydspec);
+                ixydspec = (int *) malloc(inlist.nxydspec*sizeof(int));
+                for (i = 0; i < inlist.nxydspec; i++) {
+                    *(ixydspec+i) = (int) PyInt_AsLong(PyList_GetItem(l_xydspec,i));
+                }
+                inlist.xydspec = ixydspec;
+            }
+        }
+        
+        l_text = PyList_GetItem(obj1,7);
+        if (l_text == Py_None) {
+            inlist.ntext = 0;
+            inlist.text = (int *) NULL;
+        }
+        else {
+            if (!PyList_Check(l_text)) {
+                printf("PlotId text element must be None or a Python list\n");
+            }
+            else {
+                inlist.ntext = PyList_Size(l_text);
+                itext = (int *) malloc(inlist.ntext*sizeof(int));
+                for (i = 0; i < inlist.ntext; i++) {
+                    *(itext+i) = (int) PyInt_AsLong(PyList_GetItem(l_text,i));
+                }
+                inlist.text = itext;
+            }
+        }
+        
+        l_primitive = PyList_GetItem(obj1,8);
+        if (l_primitive == Py_None) {
+            inlist.nprimitive = 0;
+            inlist.primitive = (int *) NULL;
+        }
+        else {
+            if (!PyList_Check(l_primitive)) {
+                printf("PlotId primitive element must be None or a Python list\n");
+            }
+            else {
+                inlist.nprimitive = PyList_Size(l_primitive);
+                iprimitive = (int *) malloc(inlist.nprimitive*sizeof(int));
+                for (i = 0; i < inlist.nprimitive; i++) {
+                    *(iprimitive+i) = (int) PyInt_AsLong(PyList_GetItem(l_primitive,i));
+                }
+                inlist.primitive = iprimitive;
+            }
+        }
+        
+        l_cafield = PyList_GetItem(obj1,9);
+        if (l_cafield == Py_None) {
+            inlist.ncafield = 0;
+            inlist.cafield = (int *) NULL;
+        }
+        else {
+            if (!PyList_Check(l_cafield)) {
+                printf("PlotId cafield element must be None or a Python list\n");
+            }
+            else {
+                inlist.ncafield = PyList_Size(l_cafield);
+                icafield = (int *) malloc(inlist.ncafield*sizeof(int));
+                for (i = 0; i < inlist.ncafield; i++) {
+                    *(icafield+i) = (int) PyInt_AsLong(PyList_GetItem(l_cafield,i));
+                }
+                inlist.cafield = icafield;
+            }
+        }
+        
+        l_sffield = PyList_GetItem(obj1,10);
+        if (l_sffield == Py_None) {
+            inlist.nsffield = 0;
+            inlist.sffield = (int *) NULL;
+        }
+        else {
+            if (!PyList_Check(l_sffield)) {
+                printf("PlotId sffield element must be None or a Python list\n");
+            }
+            else {
+                inlist.nsffield = PyList_Size(l_sffield);
+                isffield = (int *) malloc(inlist.nsffield*sizeof(int));
+                for (i = 0; i < inlist.nsffield; i++) {
+                    *(isffield+i) = (int) PyInt_AsLong(PyList_GetItem(l_sffield,i));
+                }
+                inlist.sffield = isffield;
+            }
+        }
+        
+        l_vffield = PyList_GetItem(obj1,11);
+        if (l_vffield == Py_None) {
+            inlist.nvffield = 0;
+            inlist.vffield = (int *) NULL;
+        }
+        else {
+            if (!PyList_Check(l_vffield)) {
+                printf("PlotId vffield element must be None or a Python list\n");
+            }
+            else {
+                inlist.nvffield = PyList_Size(l_vffield);
+                ivffield = (int *) malloc(inlist.nvffield*sizeof(int));
+                for (i = 0; i < inlist.nvffield; i++) {
+                    *(ivffield+i) = (int) PyInt_AsLong(PyList_GetItem(l_vffield,i));
+                }
+                inlist.vffield = ivffield;
+            }
+        }
+        
+        arg2 = &inlist;
+    }
+    {
+        arg5 = (void *) &nglRlist;
+    }
+    maximize_plots(arg1,arg2,arg3,arg4,arg5);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
 static PyObject *_wrap_poly_wrap(PyObject *self, PyObject *args) {
     PyObject *resultobj;
     int arg1 ;
@@ -23132,6 +23417,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"NhlRemoveAnnotation", _wrap_NhlRemoveAnnotation, METH_VARARGS },
 	 { (char *)"NhlAddAnnotation", _wrap_NhlAddAnnotation, METH_VARARGS },
 	 { (char *)"NhlAppGetDefaultParentId", _wrap_NhlAppGetDefaultParentId, METH_VARARGS },
+	 { (char *)"NhlGetParentWorkstation", _wrap_NhlGetParentWorkstation, METH_VARARGS },
 	 { (char *)"NhlClassName", _wrap_NhlClassName, METH_VARARGS },
 	 { (char *)"NhlGetString", _wrap_NhlGetString, METH_VARARGS },
 	 { (char *)"NhlAddData", _wrap_NhlAddData, METH_VARARGS },
@@ -23201,6 +23487,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"text_ndc_wrap", _wrap_text_ndc_wrap, METH_VARARGS },
 	 { (char *)"text_wrap", _wrap_text_wrap, METH_VARARGS },
 	 { (char *)"add_text_wrap", _wrap_add_text_wrap, METH_VARARGS },
+	 { (char *)"maximize_plots", _wrap_maximize_plots, METH_VARARGS },
 	 { (char *)"poly_wrap", _wrap_poly_wrap, METH_VARARGS },
 	 { (char *)"add_poly_wrap", _wrap_add_poly_wrap, METH_VARARGS },
 	 { (char *)"panel_wrap", _wrap_panel_wrap, METH_VARARGS },

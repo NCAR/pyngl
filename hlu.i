@@ -3861,6 +3861,7 @@ extern NhlErrorTypes NhlClearWorkstation(int);
 extern NhlErrorTypes NhlRemoveAnnotation(int, int);
 extern int NhlAddAnnotation(int,int);
 extern int NhlAppGetDefaultParentId();
+extern int NhlGetParentWorkstation(int);
 extern const char *NhlClassName(int);
 extern NhlString NhlGetString(int, NhlString);
 extern int NhlAddData(int, NhlString, int);
@@ -4006,6 +4007,9 @@ extern nglPlotId add_text_wrap(int, nglPlotId *plot, NhlString, void *sequence_a
                              void *sequence_as_void, const char *,
                              const char *, ResInfo *rlist, ResInfo *rlist,
                              nglRes *rlist);
+
+extern void maximize_plots(int, nglPlotId *plot, int, int, nglRes *rlist);
+
 extern void poly_wrap(int, nglPlotId *plot, void *sequence_as_void, 
                        void *sequence_as_void, const char *type_x,
                        const char *type_y, int, int, int, void *, void*,
@@ -4149,6 +4153,7 @@ extern void NglVinth2p (double *sequence_as_double,
 %newobject  NhlRemoveAnnotation(int, int);
 %newobject  NhlAddAnnotation(int,int);
 %newobject  NhlAppGetDefaultParentId();
+%newobject  NhlGetParentWorkstation(int);
 %newobject  NhlClassName(int);
 %newobject  NhlGetString(int, NhlString);
 %newobject  NhlAddData(int, NhlString, int);
@@ -4278,6 +4283,9 @@ extern void NglVinth2p (double *sequence_as_double,
                              void *sequence_as_void, const char *,
                              const char *, ResInfo *rlist, ResInfo *rlist,
                              nglRes *rlist);
+
+%newobject maximize_plots(int, nglPlotId *plot, int, int, nglRes *rlist);
+
 %newobject  add_poly_wrap(int, nglPlotId *plot, void *sequence_as_void,                       void *sequence_as_void, const char *type_x,
                        const char *type_y, int, int, int, void *, void*,
                        NhlPolyType, ResInfo *rlist, nglRes *rlist);

@@ -421,11 +421,11 @@ void compute_ps_device_coords(int wks, nglPlotId *plots, int nplots,
 
 
 /*
- * This function maximizes the size of the plot in the viewport.
+ * This function maximizes the given plots in the viewport.
  */
 
-void maximize_plot(int wks, nglPlotId *plot, int nplots, int ispanel, 
-                   nglRes *special_res)
+void maximize_plots(int wks, nglPlotId *plot, int nplots, int ispanel, 
+                    nglRes *special_res)
 {
   NhlBoundingBox box; 
   float top, bot, lft, rgt, uw, uh;
@@ -529,7 +529,6 @@ void maximize_plot(int wks, nglPlotId *plot, int nplots, int ispanel,
     compute_ps_device_coords(wks, plot, nplots, special_res);
   }
 }
-
 
 /*
  * This function overlays the given plot object on an irregular object
@@ -1256,8 +1255,8 @@ void draw_and_frame(int wks, nglPlotId *plots, int nplots, int ispanel,
 {
   int i;
 
-  if(special_res->nglMaximize) maximize_plot(wks, plots, nplots, 
-                                             ispanel, special_res);
+  if(special_res->nglMaximize) maximize_plots(wks, plots, nplots, 
+                                              ispanel, special_res);
   if(special_res->nglDraw)  {
     for( i = 0; i < nplots; i++ ) {
       NhlDraw(*(plots[i].base));

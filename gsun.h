@@ -180,7 +180,7 @@ extern int *ispan(int, int, int);
 extern int is_res_set(ResInfo *, char *);
 extern void compute_ps_device_coords(int, nglPlotId *, int, nglRes *);
 
-extern void maximize_plot(int, nglPlotId *, int, int, nglRes *);
+extern void maximize_plots(int, nglPlotId *, int, int, nglRes *);
 
 extern void overlay_on_irregular(int, nglPlotId *asplot, ResInfo *, 
                                  ResInfo *, nglRes*);

@@ -1510,6 +1510,8 @@ NhlAddAnnotation = _hlu.NhlAddAnnotation
 
 NhlAppGetDefaultParentId = _hlu.NhlAppGetDefaultParentId
 
+NhlGetParentWorkstation = _hlu.NhlGetParentWorkstation
+
 NhlClassName = _hlu.NhlClassName
 
 NhlGetString = _hlu.NhlGetString
@@ -1647,6 +1649,8 @@ text_ndc_wrap = _hlu.text_ndc_wrap
 text_wrap = _hlu.text_wrap
 
 add_text_wrap = _hlu.add_text_wrap
+
+maximize_plots = _hlu.maximize_plots
 
 poly_wrap = _hlu.poly_wrap
 

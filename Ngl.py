@@ -1327,6 +1327,9 @@ def get_MDinteger_array(obj,name):
 def get_named_color_index(wkid,name):
   return(NhlGetNamedColorIndex(wkid,name))
 
+def get_parent_workstation(plot_id):
+  NhlGetParentWorkstation(int_id(plot_id))
+
 def get_string(obj,name):
   return(NhlGetString(int_id(obj),name))
 
@@ -1402,6 +1405,17 @@ def map(wks,rlistc=None):
   del rlist
   del rlist1
   return(lst2pobj(imp))
+
+def maximize_plot(wks,plot,rlistc=None):
+  set_spc_defaults(0)
+  rlist = crt_dict(rlistc)  
+  rlist1 = {}
+  for key in rlist.keys():
+    if (key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist1[key] = rlist[key]
+  maximize_plots(wks,pobj2lst(plot),1,0,pvoid())
 
 def natgrid(x,y,z,xo,yo):
   if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
