@@ -132,7 +132,7 @@ contour = Ngl.contour(wks,zt,resources)
 #
 #  Retrieve the default value for the tautness factor "bJ".
 #
-bJ_value = Ngl.nngetp("Bj")
+bJ_value = Ngl.nngetp("bJ")
 # print bJ_value
 
 Ngl.end()
