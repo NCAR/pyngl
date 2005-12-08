@@ -3,7 +3,7 @@
 #    natgrid1.py
 #
 #  Synopsis:
-#    natgrid example showing how to prevent negative interpolated values.
+#    Simple example showing natgrid, nnsetp, and nngetp usage.
 #
 #  Category:
 #    Processing
@@ -128,5 +128,11 @@ resources.tiMainString          = "Negative interpolants not allowed"
 zo = Ngl.natgrid(x, y, z, xo, yo)
 zt = Numeric.transpose(zo)
 contour = Ngl.contour(wks,zt,resources) 
+
+#
+#  Retrieve the default value for the tautness factor "bJ".
+#
+bJ_value = Ngl.nngetp("Bj")
+# print bJ_value
 
 Ngl.end()
