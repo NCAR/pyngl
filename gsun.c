@@ -1782,12 +1782,15 @@ nglPlotId xy_wrap(int wks, void *x, void *y, const char *type_x,
  */
   initialize_ids(&plot);
   plot.cafield    = (int *)malloc(sizeof(int));
+  plot.xydspec    = (int *)malloc(sizeof(int));
   plot.xy         = (int *)malloc(sizeof(int));
   plot.base       = (int *)malloc(sizeof(int));
   *(plot.cafield) = cafield;
+  *(plot.xydspec) = *xyds;
   *(plot.xy)      = xy;
   *(plot.base)    = xy;
   plot.ncafield   = 1;
+  plot.nxydspec   = 1;
   plot.nxy        = 1;
   plot.nbase      = plot.nxy;
 
