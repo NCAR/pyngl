@@ -130,9 +130,19 @@ print "style          = ",style," (should be 1)"
 del cmap
 cmap = Ngl.get_MDfloat_array(wks,"wkColorMap")
 
-print "\n-----------printing some more colormap values------------\n"
+print "\n-----------printing some more colormap values (float)------------\n"
 print "color index  6 (SaddleBrown)   = ",cmap[6,:]
 print "color index  7 (Chartreuse)    = ",cmap[7,:]
 print "color index 18 (PaleTurquoise) = ",cmap[18,:]
+
+#
+# Here's the "double" way to retrieve the color map.
+#
+dcmap = Ngl.get_MDdouble_array(wks,"wkColorMap")
+
+print "\n-----------printing even more colormap values (double)------------\n"
+print "color index  8 (BurlyWood)   = ",dcmap[8,:]
+print "color index 12 (DodgerBlue)  = ",dcmap[12,:]
+print "color index 19 (Peru)        = ",dcmap[19,:]
 
 Ngl.end()
