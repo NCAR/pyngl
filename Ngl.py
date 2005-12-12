@@ -1308,7 +1308,11 @@ def get_integer_array(obj,name):
   return(NhlGetIntegerArray(int_id(obj),name))
 
 def get_MDdouble_array(obj,name):
-  return(NhlGetMDDoubleArray(int_id(obj),name))
+  rval = NhlGetMDDoubleArray(int_id(obj),name)
+  if (rval[0] != -1):
+    print "get_MDdouble_array: error number %d" % (rval[0])
+    return None
+  return(rval[1])
 
 def get_MDfloat_array(obj,name):
   rval = NhlGetMDFloatArray(int_id(obj),name)
@@ -1318,7 +1322,11 @@ def get_MDfloat_array(obj,name):
   return(rval[1])
 
 def get_MDinteger_array(obj,name):
-  return(NhlGetMDIntegerArray(int_id(obj),name))
+  rval = NhlGetMDIntegerArray(int_id(obj),name)
+  if (rval[0] != -1):
+    print "get_MDinteger_array: error number %d" % (rval[0])
+    return None
+  return(rval[1])
 
 #
 #  Returns the color index whose associated color on the given
@@ -1822,6 +1830,33 @@ def set_values(obj,rlistc=None):
   del rlist
   return values
 
+#
+#  A dictionary for converting from new skew-T resource names
+#  to the originals.
+#
+RscConv = {  \
+           "sktWSpdWDir":"sktWspdWdir",              \
+           "sktHSpdHDir":"sktHspdHdir",              \
+           "sktWThin":"sktWthin",                    \
+           "sktColTemperature":"sktcolTemperature",  \
+           "sktColDewPt":"sktcolDewPt",              \
+           "sktColPPath":"sktcolPpath",              \
+           "sktColZLabel":"sktcolZlabel",            \
+           "sktColWindP":"sktcolWindP",              \
+           "sktColWindZ":"sktcolWindZ",              \
+           "sktColWindH":"sktcolWindH",              \
+           "sktColThermoInfo":"sktcolThermoInfo",    \
+           "sktPMissingV":"sktPmissingV",            \
+           "sktTCMissingV":"sktTCmissingV",          \
+           "sktTDCMissingV":"sktTDCmissingV",        \
+           "sktZMissingV":"sktZmissingV",            \
+           "sktWSpdMissingV":"sktWSPDmissingV",      \
+           "sktWDirMissingV":"sktWDIRmissingV",      \
+           "sktHMissingV":"sktHmissingV",            \
+           "sktHSpd":"sktHspd",                      \
+           "sktHDir":"sktHdir",                      \
+          }
+
 def skewt_bkg(wks, Opts):
 #
 #  This program generates a skew-t, log p thermodynamic diagram.  
@@ -1875,8 +1910,12 @@ def skewt_bkg(wks, Opts):
   if (len(crt_dict(Opts)) != 0):
     for key in OptsAtts.keys():
       setattr(localOpts,key,OptsAtts[key])
-
-
+#
+#  Check for new resource names and convert them to the original ones.
+#
+    for new_name in OptsAtts.keys():
+      if (RscConv.has_key(new_name)):
+        setattr(localOpts,RscConv[new_name],OptsAtts[new_name])
 #
 #  Declare isotherm values (Celcius) and pressures (hPa) where 
 #  isotherms intersect the edge of the skew-t diagram.
@@ -2552,6 +2591,15 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
 #  wspd = wind speed    [knots or m/s]
 #  wdir = meteorological wind direction
 #
+
+#
+#  Check for new resource names in dataOpts and convert them to
+#  the original ones and set them as dataOpts attributes.
+#
+  OptsAtts = crt_dict(dataOpts)
+  for new_name in OptsAtts.keys():
+    if (RscConv.has_key(new_name)):
+      setattr( dataOpts,RscConv[new_name],OptsAtts[new_name])
 #
 #  Set missing values for variables
 #  used in plotting the sounding and 
@@ -2559,50 +2607,36 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
 #
   if (hasattr(dataOpts,"sktPmissingV")):
     Pmissing = dataOpts.sktPmissingV
-  elif (hasattr(dataOpts,"sktPMissingV")):
-    Pmissing = dataOpts.sktPMissingV
   else:
     Pmissing = -999.
 #
   if (hasattr(dataOpts,"sktTCmissingV")):
     TCmissing = dataOpts.sktTCmissingV
-  elif (hasattr(dataOpts,"sktTCMissingV")):
-    TCmissing = dataOpts.sktTCMissingV
   else:
     TCmissing = -999.
 #
   if (hasattr(dataOpts,"sktTDCmissingV")):
     TDCmissing = dataOpts.sktTDCmissingV
-  elif (hasattr(dataOpts,"sktTDCMissingV")):
-    TDCmissing = dataOpts.sktTDCMissingV
   else:
     TDCmissing = -999.
 #
   if (hasattr(dataOpts,"sktZmissingV")):
     Zmissing = dataOpts.sktZmissingV
-  elif (hasattr(dataOpts,"sktZMissingV")):
-    Zmissing = dataOpts.sktZMissingV
   else:
     Zmissing = -999.
 #
   if (hasattr(dataOpts,"sktWSPDmissingV")):
     WSPDmissing = dataOpts.sktWSPDmissingV
-  elif (hasattr(dataOpts,"sktWSpdMissingV")):
-    WSPDmissing = dataOpts.sktWSpdMissingV
   else:
     WSPDmissing = -999.
 #
   if (hasattr(dataOpts,"sktWDIRmissingV")):
     WDIRmissing = dataOpts.sktWDIRmissingV
-  elif (hasattr(dataOpts,"sktWDirMissingV")):
-    WDIRmissing = dataOpts.sktWDirMissingV
   else:
     WDIRmissing = -999.
 #
   if (hasattr(dataOpts,"sktHmissingV")):
     Hmissing = dataOpts.sktHmissingV
-  elif (hasattr(dataOpts,"sktHMissingV")):
-    Hmissing = dataOpts.sktHMissingV
   else:
     Hmissing = -999.
 
@@ -2643,6 +2677,13 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
     if (len(OptsAtts) != 0):
       for key in OptsAtts.keys():
         setattr(localOpts,key,OptsAtts[key])
+#
+#  Check for new resource names in dataOpts and convert them to
+#  the original ones and set them for localOpts.
+#
+      for new_name in OptsAtts.keys():
+        if (RscConv.has_key(new_name)):
+          setattr(localOpts,RscConv[new_name],OptsAtts[new_name])
 
   vpXF                 = get_float(skewt_bkgd,"vpXF")
   vpYF                 = get_float(skewt_bkgd,"vpYF")
@@ -2671,43 +2712,21 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
 #
   if (hasattr(localOpts,"sktcolTemperature")):
     sktcolTemperature  = localOpts.sktcolTemperature
-  elif (hasattr(localOpts,"sktColTemperature")):
-    sktcolTemperature  = localOpts.sktColTemperature
-
   if (hasattr(localOpts,"sktcolDewPt")):
     sktcolDewPt  = localOpts.sktcolDewPt
-  elif (hasattr(localOpts,"sktColDewPt")):
-    sktcolDewPt  = localOpts.sktColDewPt
-
   if (hasattr(localOpts,"sktcolPpath")):
     sktcolPpath  = localOpts.sktcolPpath 
-  elif (hasattr(localOpts,"sktColPPath")):
-    sktcolPpath  = localOpts.sktColPPath 
-
-  if (hasattr(localOpts,"sktcolZlabel")):
+  if (hasattr(localOpts,"sktcolZLabel")):
     sktcolZLabel  = localOpts.sktcolZLabel 
-  elif (hasattr(localOpts,"sktColZLabel")):
-    sktcolZLabel  = localOpts.sktColZLabel 
-
   if (hasattr(localOpts,"sktcolWindP")):
     sktcolWindP  = localOpts.sktcolWindP 
-  elif (hasattr(localOpts,"sktColWindP")):
-    sktcolWindP  = localOpts.sktColWindP 
-
   if (hasattr(localOpts,"sktcolWindZ")):
     sktcolWindZ  = localOpts.sktcolWindZ 
-  elif (hasattr(localOpts,"sktColWindZ")):
-    sktcolWindZ  = localOpts.sktColWindZ 
-
   if (hasattr(localOpts,"sktcolWindH")):
     sktcolWindH  = localOpts.sktcolWindH 
-  elif (hasattr(localOpts,"sktColWindH")):
-    sktcolWindH  = localOpts.sktColWindH 
-
   if (hasattr(localOpts,"sktcolThermoInfo")):
     sktcolThermoInfo  = localOpts.sktcolThermoInfo 
-  elif (hasattr(localOpts,"sktColThermoInfo")):
-    sktcolThermoInfo  = localOpts.sktColThermoInfo 
+
 
 #
 #  Graphics style settings for the polyline draw.
@@ -2834,9 +2853,6 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
       if (hasattr(localOpts,"sktWthin") and localOpts.sktWthin > 1):
         nThin = localOpts.sktWthin
         idw   = IDW[::nThin]
-      elif (hasattr(localOpts,"sktWThin") and localOpts.sktWThin > 1):
-        nThin = localOpts.sktWThin
-        idw   = IDW[::nThin]
       else:
         idw   = IDW
 
@@ -2847,7 +2863,7 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
 #
 #  Wind speed and direction.
 #
-      if (localOpts.sktWspdWdir or localOpts.sktWSpdWDir):
+      if (localOpts.sktWspdWdir):
         dirw = 0.017453 * Numeric.take(WDIR,idw)
 
         up   = -Numeric.take(WSPD,idw) * Numeric.sin(dirw)
@@ -2876,7 +2892,7 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
 
       if (len(idz) > 0):
         zw  = Numeric.take(Z,idz)
-        if (localOpts.sktWspdWdir or localOpts.sktWSpdWDir):  # wind spd,dir (?)
+        if (localOpts.sktWspdWdir):          # wind spd,dir (?)
           dirz = 0.017453 * Numeric.take(WDIR,idz)
           uz   = -Numeric.take(WSPD,idz) * Numeric.sin(dirz)
           vz   = -Numeric.take(WSPD,idz) * Numeric.cos(dirz)
@@ -2908,15 +2924,6 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
 #  Allows other winds to be input as attributes of sounding.
 #
   if (localOpts.sktPlotWindH):
-
-#
-#  Check for alternate resource settings.
-#
-    if (hasattr(dataOpts,"sktHSpd")):
-      setattr(dataOpts,"sktHspd",dataOpts.sktHSpd)
-    if (hasattr(dataOpts,"sktHDir")):
-      setattr(dataOpts,"sktHDir",dataOpts.sktHDir)
-    
     if (hasattr(dataOpts,"sktHeight") and hasattr(dataOpts,"sktHspd") and  \
         hasattr(dataOpts,"sktHdir")):
       dimHeight = len(dataOpts.sktHeight)
@@ -2924,7 +2931,7 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
       dimHdir   = len(dataOpts.sktHdir  )
       if (dimHeight == dimHspd and dimHeight == dimHdir and \
           Numeric.logical_not(Numeric.alltrue(ismissing(dataOpts.sktHeight,Hmissing)))):
-        if (localOpts.sktHspdHdir or localOpts.sktHSpdHDir):
+        if (localOpts.sktHspdHdir):
           dirh = 0.017453 * dataOpts.sktHdir
           uh   = -dataOpts.sktHspd * Numeric.sin(dirh)
           vh   = -dataOpts.sktHspd * Numeric.cos(dirh)
