@@ -58,8 +58,8 @@ wks_type = "ps"
 wks = Ngl.open_wks(wks_type, "skewt2")
 
 skewtOpts                 = Ngl.Resources()
-skewtOpts.sktWSPDmissingV    = -999.     # Missing value for wind speed.
-skewtOpts.sktWDIRmissingV    = -999.     # Missing value for wind direction.
+skewtOpts.sktWSpdMissingV    = -999.     # Missing value for wind speed.
+skewtOpts.sktWDirMissingV    = -999.     # Missing value for wind direction.
 skewtOpts.sktDrawColAreaFill = True      # Default is False
 skewtOpts.tiMainString    = "Raob Data; No Winds" 
 
@@ -85,11 +85,11 @@ hdir = Numeric.array([ 315.,  225.,    45.,   135.], Numeric.Float0)
 
 dataOpts           = Ngl.Resources()  # Options describing data and plotting.
 dataOpts.sktPlotWindH = True          # Plot wind barbs at height levels.
-dataOpts.sktHspdHdir  = True          # Wind speed and dir [else: u,v].
+dataOpts.sktHSpdHDir  = True          # Wind speed and dir [else: u,v].
 
 dataOpts.sktHeight    = hght          # height of wind reports
-dataOpts.sktHspd      = hspd          # speed [or u component]
-dataOpts.sktHdir      = hdir          # dir   [or v component]
+dataOpts.sktHSpd      = hspd          # speed [or u component]
+dataOpts.sktHDir      = hdir          # dir   [or v component]
 
 skewtOpts                 = Ngl.Resources()
 skewtOpts.sktDrawHeightScale    = True
@@ -97,7 +97,7 @@ skewtOpts.sktDrawHeightScaleFt    = True
 skewtOpts.tiMainString    = "Raob; [Wind Reports]"
 skewtOpts.sktDrawColAreaFill = True    # default is False
 
-skewtOpts.sktcolWindZ = "Red"
+skewtOpts.sktColWindZ = "Red"
 skewt_bkgd = Ngl.skewt_bkg(wks, skewtOpts)
 skewt_data = Ngl.skewt_plt(wks, skewt_bkgd, p, tc, tdc, z, \
                                 wspd, wdir, dataOpts)
