@@ -77,7 +77,7 @@ Ngl.frame(wks)
 #  Plot 2 - thin the wind barbs and use Centigrade.
 #
 dataOpts       = Ngl.Resources()
-dataOpts.sktWthin = 3                  # Plot every 3rd wind barb
+dataOpts.sktWThin = 3                  # Plot every 3rd wind barb
 skewtOpts.tiMainString   = "ATS Rawindsonde: degC + Thin wind" 
 skewtOpts.sktDrawFahrenheit = False   # default is True
 
