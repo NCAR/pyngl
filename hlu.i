@@ -3834,6 +3834,8 @@ extern NhlBoolean NhlIsView(int);
 extern NhlBoolean NhlIsWorkstation(int);
 extern const char *NhlName(int);
 extern int NhlNewColor(int, float, float, float);
+extern int NhlNewDashPattern(int, NhlString);
+extern int NhlNewMarker(int, NhlString, int, float, float, float, float, float);
 extern NhlErrorTypes NhlSetColor(int, int, float, float, float);
 extern NhlErrorTypes NhlUpdateData(int);
 extern NhlErrorTypes NhlUpdateWorkstation(int);
@@ -4127,6 +4129,9 @@ extern void NglVinth2p (double *sequence_as_double,
 %newobject  NhlName(int);
 
 %newobject  NhlNewColor(int, float, float, float);
+%newobject  NhlNewDashPattern(int, NhlString);
+%newobject  NhlNewMarker(int, NhlString, int, float, float, float,
+                         float, float);
 %newobject  NhlSetColor(int, int, float, float, float);
 %newobject  NhlUpdateData(int);
 %newobject  NhlUpdateWorkstation(int);

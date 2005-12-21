@@ -1458,6 +1458,10 @@ NhlName = _hlu.NhlName
 
 NhlNewColor = _hlu.NhlNewColor
 
+NhlNewDashPattern = _hlu.NhlNewDashPattern
+
+NhlNewMarker = _hlu.NhlNewMarker
+
 NhlSetColor = _hlu.NhlSetColor
 
 NhlUpdateData = _hlu.NhlUpdateData

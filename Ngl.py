@@ -1469,6 +1469,15 @@ def ncargpath(type):
 def new_color(wks_id,r,g,b):
   return NhlNewColor(int_id(wks_id),r,g,b)
 
+def new_dash_pattern(wks_id,patterns):
+  return NhlNewDashPattern(int_id(wks_id),patterns)
+
+def new_marker(wks_id,marker_strings,font_nums,xoffset,yoffset, \
+               aspect_ratio, size, angle):
+  return NhlNewMarker(int_id(wks_id),marker_strings, \
+               font_nums,float(xoffset),float(yoffset), \
+               float(aspect_ratio), float(size), float(angle))
+
 def set_color(wks_id,index,r,g,b):
   NhlSetColor(int_id(wks_id),index,r,g,b)
   return None

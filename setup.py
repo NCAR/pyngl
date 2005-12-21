@@ -22,7 +22,7 @@ from distutils.core import setup, Extension
 #
 # These variables are for internal use only.
 #
-copy_files = False
+copy_files = True
 copy_rangs = False
 
 #
@@ -40,7 +40,7 @@ pyngl_dir = pkgs_pth + "/PyNGL/ncarg"
 main_dirs    = ["ncarg","bin"]
 ncarg_dirs   = ["data","colormaps","database","fontcaps","graphcaps"]
 pynglex_dirs = ["pynglex"] 
-ncarg_files  = ["sysresfile"]
+#ncarg_files  = ["sysresfile"]
 bin_files    = ["ctrans","med","psplit"]
 pynglex_scp  = ["pynglex"]
 
@@ -72,8 +72,8 @@ if(copy_files):
     shutil.copytree(ncl_lib + "ncarg/" + ncarg_dirs[i],"ncarg/"+ncarg_dirs[i])
   for i in xrange(len(pynglex_dirs)):
     shutil.copytree(pynglex_dirs[i],"ncarg/"+pynglex_dirs[i])
-  for i in xrange(len(ncarg_files)):
-    shutil.copy(ncl_lib + "ncarg/" + ncarg_files[i],"ncarg/")
+#  for i in xrange(len(ncarg_files)):
+#    shutil.copy(ncl_lib + "ncarg/" + ncarg_files[i],"ncarg/")
   for i in xrange(len(bin_files)):
     shutil.copy(ncl_root + "bin/" + bin_files[i],"bin/")
   for i in xrange(len(pynglex_scp)):
@@ -146,7 +146,7 @@ for i in xrange(len(pynglex_files)):
 for i in xrange(len(bin_files)):
   bin_files[i] = "bin/" + bin_files[i]
 
-res_file = ["ncarg/sysresfile"]
+res_file = ["sysresfile"]
 
 setup (name = "PyNGL",
        version="0.1.1b8",

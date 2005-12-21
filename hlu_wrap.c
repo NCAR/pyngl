@@ -1664,6 +1664,8 @@ extern NhlBoolean NhlIsView(int);
 extern NhlBoolean NhlIsWorkstation(int);
 extern char const *NhlName(int);
 extern int NhlNewColor(int,float,float,float);
+extern int NhlNewDashPattern(int,NhlString);
+extern int NhlNewMarker(int,NhlString,int,float,float,float,float,float);
 extern NhlErrorTypes NhlSetColor(int,int,float,float,float);
 extern NhlErrorTypes NhlUpdateData(int);
 extern NhlErrorTypes NhlUpdateWorkstation(int);
@@ -2915,6 +2917,44 @@ static PyObject *_wrap_NhlNewColor(PyObject *self, PyObject *args) {
     
     if(!PyArg_ParseTuple(args,(char *)"ifff:NhlNewColor",&arg1,&arg2,&arg3,&arg4)) goto fail;
     result = (int)NhlNewColor(arg1,arg2,arg3,arg4);
+    
+    resultobj = PyInt_FromLong((long)result);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_NhlNewDashPattern(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    int arg1 ;
+    NhlString arg2 ;
+    int result;
+    
+    if(!PyArg_ParseTuple(args,(char *)"is:NhlNewDashPattern",&arg1,&arg2)) goto fail;
+    result = (int)NhlNewDashPattern(arg1,arg2);
+    
+    resultobj = PyInt_FromLong((long)result);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_NhlNewMarker(PyObject *self, PyObject *args) {
+    PyObject *resultobj;
+    int arg1 ;
+    NhlString arg2 ;
+    int arg3 ;
+    float arg4 ;
+    float arg5 ;
+    float arg6 ;
+    float arg7 ;
+    float arg8 ;
+    int result;
+    
+    if(!PyArg_ParseTuple(args,(char *)"isifffff:NhlNewMarker",&arg1,&arg2,&arg3,&arg4,&arg5,&arg6,&arg7,&arg8)) goto fail;
+    result = (int)NhlNewMarker(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);
     
     resultobj = PyInt_FromLong((long)result);
     return resultobj;
@@ -23391,6 +23431,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"NhlIsWorkstation", _wrap_NhlIsWorkstation, METH_VARARGS },
 	 { (char *)"NhlName", _wrap_NhlName, METH_VARARGS },
 	 { (char *)"NhlNewColor", _wrap_NhlNewColor, METH_VARARGS },
+	 { (char *)"NhlNewDashPattern", _wrap_NhlNewDashPattern, METH_VARARGS },
+	 { (char *)"NhlNewMarker", _wrap_NhlNewMarker, METH_VARARGS },
 	 { (char *)"NhlSetColor", _wrap_NhlSetColor, METH_VARARGS },
 	 { (char *)"NhlUpdateData", _wrap_NhlUpdateData, METH_VARARGS },
 	 { (char *)"NhlUpdateWorkstation", _wrap_NhlUpdateWorkstation, METH_VARARGS },
