@@ -44,6 +44,7 @@ Helper.o: Helper.c
 gsun.o: gsun.c gsun.h
 	$(CC) $(CCOPTIONS) $(PROJECTDEFINES) -O $(ALLINCLUDES) -c gsun.c
 
+InstallTarget(sysresfile,$(INSTALL_DB),$(PYTHONPKGSDIR)/$(PYNGLDIR)/$(NCARGDIR))
 InstallTarget(PyNGL.pth,$(INSTALL_DB),$(PYTHONPKGSDIR))
 InstallTarget($(MYNAME),$(INSTALL_DB),$(PYNGLDIR))
 InstallTarget($(PYSRCS),$(INSTALL_DB),$(PYNGLDIR))

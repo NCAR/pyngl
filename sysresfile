@@ -1,0 +1,18 @@
+!
+!	Description:	This file contains all the system wide resource
+!			defaults used by PyNGL.
+!
+! Comments for ".res" files are preceded by a "!".
+! Remember
+! Quotes are not used in .res files.
+
+! White background/black foreground
+*wkForegroundColor     : (/0.,0.,0./)
+*wkBackgroundColor     : (/1.,1.,1./)
+
+! Font stuff
+*Font                  : Helvetica 
+
+! Function Codes [Default is a colon ]
+*TextFuncCode          : ~             
+*txFuncCode            : ~
