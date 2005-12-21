@@ -18,10 +18,10 @@
 #
 #  Description:
 #    This example shows:
-#       1.)  how to merge two XY plots into a single visualization.
+#       1.)  how to merge two XY plots into a single visualization
 #       2.)  how to do the same thing as in 1.) by specifying
-#            the second plot as an annotation to the first.
-#       3.)  how to remove an annotation.
+#            the second plot as an annotation to the first
+#       3.)  how to remove an annotation
 #
 #  Effects illustrated:
 #    o  Reading data from an ASCII file.
@@ -31,6 +31,7 @@
 #       label others with user-specified labels and so forth.
 #    o  XY plots.
 #    o  Adding and removing annotations.
+#    o  Creating your own dash pattern.
 # 
 #  Output:
 #    Five visualizations are produced:
@@ -202,10 +203,12 @@ res2.tmYRLabelFontHeightF = Ngl.get_float(plot1,"tmYLLabelFontHeightF")
 res2.tmYRMajorLengthF     = Ngl.get_float(plot1,"tmYLMajorLengthF")
 
 #
-# Change line color and thickness.
+# Change line pattern, color and thickness.
 #
+pattern = "$_____$_____$$_____$$_____$$_____$$_____$$___"
+res2.xyDashPattern    = Ngl.new_dash_pattern(wks,pattern)
 res2.xyLineColor      = "purple"
-res2.xyLineThicknessF = 2.0
+res2.xyLineThicknessF = 3.0
 
 #
 # Main title.
