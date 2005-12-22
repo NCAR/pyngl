@@ -1,6 +1,6 @@
 #
 #  File:
-#    markers.py
+#    scatter2.py
 #
 #  Synopsis:
 #    Draws random markers using user-defined markers.
