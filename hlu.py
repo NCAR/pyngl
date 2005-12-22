@@ -1,7 +1,9 @@
 # This file was created automatically by SWIG.
 # Don't modify this file, modify the SWIG interface instead.
 # This file is compatible with both classic and new-style classes.
+
 import _hlu
+
 def _swig_setattr(self,class_type,name,value):
     if (name == "this"):
         if isinstance(value, class_type):
@@ -25,6 +27,7 @@ try:
 except AttributeError:
     class _object : pass
     _newclass = 0
+del types
 
 
 NhlBACKGROUND = _hlu.NhlBACKGROUND
@@ -1349,6 +1352,7 @@ NhlHOLLOWFILL = _hlu.NhlHOLLOWFILL
 NhlNULLFILL = _hlu.NhlNULLFILL
 NhlSOLIDFILL = _hlu.NhlSOLIDFILL
 NhlWK_INITIAL_FILL_BUFSIZE = _hlu.NhlWK_INITIAL_FILL_BUFSIZE
+
 new_intp = _hlu.new_intp
 
 copy_intp = _hlu.copy_intp
@@ -1366,7 +1370,6 @@ delete_floatArray = _hlu.delete_floatArray
 floatArray_getitem = _hlu.floatArray_getitem
 
 floatArray_setitem = _hlu.floatArray_setitem
-
 NhlSETRL = _hlu.NhlSETRL
 NhlGETRL = _hlu.NhlGETRL
 NhlFATAL = _hlu.NhlFATAL
@@ -1396,6 +1399,7 @@ NhlENODATA = _hlu.NhlENODATA
 NhlECONSTFIELD = _hlu.NhlECONSTFIELD
 NhlEZEROFIELD = _hlu.NhlEZEROFIELD
 NhlEZEROSPAN = _hlu.NhlEZEROSPAN
+
 _NGGetNCARGEnv = _hlu._NGGetNCARGEnv
 
 NhlInitialize = _hlu.NhlInitialize
@@ -1751,5 +1755,4 @@ get_nglRes_s = _hlu.get_nglRes_s
 NglGaus_p = _hlu.NglGaus_p
 
 NglVinth2p = _hlu.NglVinth2p
-
 

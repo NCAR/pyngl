@@ -3484,7 +3484,7 @@ import_array();
         }
         else {
           printf(
-            "Numeric arrays must be of type int, int32, float, float0, float32, or float64.\n");
+            "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
             return NULL;
         }
       }
