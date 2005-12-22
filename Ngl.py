@@ -35,6 +35,20 @@ def int_id(plot_id):
     print "plot id is not valid"
     return None
 
+def arg_with_scalar(arg):
+#
+#  This function is to accommodate scalar arguments for 
+#  some functions that take lists, tuples, or Numeric arrays.
+#  The input argument is checked to see if it is a number and,
+#  if so, it is converted to a single-element list.  Otherwise
+#  the original argument is returned.
+#
+    if (type(arg)==types.IntType or type(arg)==types.LongType or \
+        type(arg)==types.FloatType):
+      return [arg]
+    else:
+      return arg
+
 def ck_for_rangs(dir):
 #
 #  This function checks that the appropriate data files for
@@ -677,8 +691,9 @@ def poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
       set_spc_res(key[3:],rlist[key])      
     else:
       rlist1[key] = rlist[key]
-  ply = poly_wrap(wks,pobj2lst(plot),x,y,"double","double",len(x),0,0,pvoid(), \
-                      pvoid(),ptype,rlist1,pvoid())
+  ply = poly_wrap(wks,pobj2lst(plot),arg_with_scalar(x),arg_with_scalar(y),
+                  "double","double",len(arg_with_scalar(x)),0,0,pvoid(), \
+                  pvoid(),ptype,rlist1,pvoid())
   del rlist
   del rlist1
   return None
