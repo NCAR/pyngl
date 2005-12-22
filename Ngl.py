@@ -1827,6 +1827,8 @@ def pynglpath(name):
     else:
       print "pynglpath: sysappres directory does not exist."
       return None
+  elif (name == "ncarg"):
+    return pynglpath_ncarg()
   else:
     print 'pynglpath: input name "%s" not recognized' % (name)
 
