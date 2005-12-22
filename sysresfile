@@ -6,6 +6,9 @@
 ! Remember
 ! Quotes are not used in .res files.
 
+! Default colormap
+*wkColorMap            : rainbow
+
 ! White background/black foreground
 *wkForegroundColor     : (/0.,0.,0./)
 *wkBackgroundColor     : (/1.,1.,1./)
