@@ -87,9 +87,7 @@ pa = 0.01*(pa*Numeric.not_equal(pa,p._FillValue)) +   \
 # Open a PostScript workstation and change the color map.
 #
 wks_type = "ps"
-rlist = Ngl.Resources()
-rlist.wkColorMap = "rainbow"
-wks = Ngl.open_wks(wks_type,"overlay1",rlist)
+wks = Ngl.open_wks(wks_type,"overlay1")
 
 #
 # Set up resource lists for vector, line contour, and

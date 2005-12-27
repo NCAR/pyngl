@@ -49,7 +49,7 @@ rlist = Ngl.Resources()
 #
 #  Specify a list of color map names.
 #
-color_files = ["thelix","GreenYellow","rainbow"]
+color_files = ["thelix","GreenYellow","gsltod"]
 
 #
 #  If you want to draw *all* color maps, uncomment the following
