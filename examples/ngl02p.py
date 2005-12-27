@@ -22,6 +22,7 @@
 #  Effects illustrated:
 #    o  Reading data from a NetCDF file.
 #    o  Handling missing values in data conversion.
+#    o  Changing the color map.
 #    o  Contours with colored lines.
 #    o  Contours with hatch pattern fill.
 #    o  Turing off the lavel bar on a coutour plot.
@@ -47,16 +48,9 @@
 import Numeric,sys,os
 
 #
-#  Import Nio read functions (for netCDF files).
+#  Import Nio (for reading netCDF files).
 #
 import Nio
-
-#
-#  To use the ScientificPython module to read in the netCDF file,
-#  comment out the above "import Nio" command, and uncomment the 
-#  import line below.
-#
-# from Scientific.IO.NetCDF import NetCDFFile
 
 #
 #  Import Ngl support functions.
@@ -84,18 +78,18 @@ lat  = cdf_file.variables["lat"]  # latitude
 lon  = cdf_file.variables["lon"]  # longitude
 
 #
-#  Open a workstation.
+#  Open a workstation and specify a different color map.
 #
+wkres = Ngl.Resources()
+wkres.wkColorMap = "default"
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"ngl02p")
+wks = Ngl.open_wks(wks_type,"ngl02p",wkres)
 
 resources = Ngl.Resources()
-
 #
-#  Define a Numeric data array containing the temperature
-#  for the first time step and first level.
-#  This array does not have the attributes that are
-#  associated with the variable temp.
+#  Define a Numeric data array containing the temperature for the
+#  first time step and first level. This array does not have the
+#  attributes that are associated with the variable temp.
 #
 tempa = temp[0,0,:,:]
 
@@ -150,6 +144,13 @@ plot = Ngl.contour(wks,tempa,resources)   # Draw a contour plot.
 
 #---------- Begin fourth plot ------------------------------------------
 
+#
+#  Specify a new color map.
+#
+rlist = Ngl.Resources()
+rlist.wkColorMap = "BlGrYeOrReVi200"
+Ngl.set_values(wks,rlist)
+
 resources.cnMonoFillPattern     = True     # Turn solid fill back on.
 resources.cnMonoFillColor       = False    # Use multiple colors.
 resources.cnLineLabelsOn        = False    # Turn off line labels.
@@ -157,11 +158,10 @@ resources.cnInfoLabelOn         = False    # Turn off informational
                                              # label.
 resources.pmLabelBarDisplayMode = "Always" # Turn on label bar.
 resources.cnLinesOn             = False    # Turn off contour lines.
-resources.nglSpreadColors       = False    # Do not interpolate color space.
 
-resources.tiMainFont      = 26
-resources.tiXAxisFont     = 26
-resources.tiYAxisFont     = 26
+resources.tiMainFont      = "Helvetica-bold"
+resources.tiXAxisFont     = "Helvetica-bold"
+resources.tiYAxisFont     = "Helvetica-bold"
 
 if hasattr(Z,"_FillValue"):
   resources.sfMissingValueV = Z._FillValue
@@ -181,11 +181,7 @@ cmap = Numeric.array([[0.00, 0.00, 0.00], [1.00, 1.00, 1.00], \
                       [0.70, 0.70, 0.70], [0.75, 0.75, 0.75], \
                       [0.80, 0.80, 0.80], [0.85, 0.85, 0.85]],Numeric.Float0)
 
-#
-#  Specify a new color map.
-#
-rlist = Ngl.Resources()
-rlist.wkColorMap = cmap
+rlist.wkColorMap = cmap       #  Specify a new color map.
 Ngl.set_values(wks,rlist)
 
 #

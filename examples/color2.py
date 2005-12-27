@@ -79,7 +79,7 @@ xyres.xyMarkers         = [11,12,15,16]
 xyres.xyMarkerColors    = ["Grey11","NavyBlue","SaddleBrown","DodgerBlue"]
 xyres.xyMarkLineMode    = "MarkLines"
 
-xyres.tiMainFont        = "times-bold"
+xyres.tiMainFont        = "helvetica-bold"
 xyres.tiMainString      = "Using named colors"
 
 #

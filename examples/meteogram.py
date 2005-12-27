@@ -174,24 +174,23 @@ uv_res              = copy.deepcopy(rh_res)
 #
 #  ------------ Relative humidity resources.. ----------------
 #
-rh_res.sfXArray       = taus             # Define X/Y axes values that
-rh_res.sfYArray       = levels           # all three data fields are on
-rh_res.tiYAxisString  = "Pressure (mb)"  # Y axes label.
-rh_res.tiYAxisFont    = 21               # Y axes font.
-rh_res.tiYAxisFontHeightF = 0.025        # Y axes font height.
-rh_res.tmYLMode       = "Explicit"       # Define own tick mark labels.
-rh_res.tmYLLabelFont  = 26               # Change the font.
-rh_res.tmYLValues     = levels
-rh_res.tmYLLabels     =  [                              \
+rh_res.sfXArray           = taus             # Define X/Y axes values that
+rh_res.sfYArray           = levels           # all three data fields are on
+rh_res.tiYAxisString      = "Pressure (mb)"  # Y axes label.
+rh_res.tiYAxisFontHeightF = 0.025            # Y axes font height.
+rh_res.tmYLMode           = "Explicit"       # Define own tick mark labels.
+rh_res.tmYLLabelFont      = "Times-Bold"     # Change the font.
+rh_res.tmYLValues         = levels
+rh_res.tmYLLabels         =  [                              \
                           "1000", "975", "950", "925",  \
                            "850", "700", "500", "400"   \
                          ]
-rh_res.tmYLMinorOn    = False            # No minor tick marks.
-rh_res.tiXAxisString        = ""         # X axes label.
-rh_res.tmXBMode             = "Explicit" # Define own tick mark labels.
-rh_res.tmXBLabelFont        = 26         # Change the font.
+rh_res.tmYLMinorOn          = False        # No minor tick marks.
+rh_res.tiXAxisString        = ""           # X axes label.
+rh_res.tmXBMode             = "Explicit"   # Define own tick mark labels.
+rh_res.tmXBLabelFont        = "Times-Bold" # Change the font.
 rh_res.tmXBValues           = taus
-rh_res.tmXBLabelFontHeightF = .016  # Font size
+rh_res.tmXBLabelFontHeightF = .016         # Font size
 rh_res.tmXBLabels           =                             \
                   [                                       \
                     "12z", "15z", "18z",  "21z", "Apr29", \
@@ -204,18 +203,18 @@ rh_res.tmXBLabels           =                             \
 #
 # insert a list
 #
-rh_res.tmXBLabelAngleF      = 90.        # change label angle
+rh_res.tmXBLabelAngleF   = 90.        # change label angle
 rh_res.tmXBMinorOn       = False        # No minor tick marks.
 rh_res.tmXBLabelJust     = "CenterCenter"
 rh_res.nglSpreadColorEnd = -2           # save last color (red) for cntr lines
 
-rh_res.cnFillOn        = True           # turns on color fill
-rh_res.cnLineLabelsOn  = True           # no contour labels
-rh_res.tiMainString    = "Meteogram for LGSA, 28/12Z"
-rh_res.tiMainFont      = 22
-rh_res.cnFillOn        = True           # turns on the color
-rh_res.pmLabelBarDisplayMode = "Never"  # turn off plotting label bar (on
-                                        #   by default.
+rh_res.cnFillOn              = True           # turns on color fill
+rh_res.cnLineLabelsOn        = True           # no contour labels
+rh_res.tiMainString          = "Meteogram for LGSA, 28/12Z"
+rh_res.tiMainFont            = "Helvetica-Bold"
+rh_res.cnFillOn              = True           # turns on the color
+rh_res.pmLabelBarDisplayMode = "Never"        # turn off plotting label bar
+                                              #  (on by default).
 
 #
 #  ------------ Temperature resources. ----------------------
@@ -244,10 +243,10 @@ rain_res.vpHeightF       = 0.10   # The height of the plot box
 rain_res.trYMinF         = 0.0    # min value on y-axis
 rain_res.trYMaxF         = 0.5    # max value on y-axis
 
-rain_res.tiXAxisString  = ""         # X axes label.
-rain_res.tmXBMode       = "Explicit" # Define own tick mark labels.
-rain_res.tmXBLabelFont  = 26         # Change the font.
-rain_res.tmYLLabelFont  = 26         # Change the font.
+rain_res.tiXAxisString  = ""            # X axes label.
+rain_res.tmXBMode       = "Explicit"    # Define own tick mark labels.
+rain_res.tmXBLabelFont  = "Times-Bold"  # Change the font.
+rain_res.tmYLLabelFont  = "Times-Bold"  # Change the font.
 rain_res.tmXBValues     = taus
 rain_res.tmXBLabels     = taus
 rain_res.tmXTOn         = False      # turn off the top tickmarks
@@ -259,8 +258,7 @@ rain_res.tmYLMajorLengthF        = 0.01    # tick length equal to the
 rain_res.tmYLMajorOutwardLengthF = 0.01    # total tick length
 rain_res.tmYLMinorLengthF        = 0.005
 rain_res.tmYLMinorOutwardLengthF = 0.005
-rain_res.tiYAxisFont    = 21               # Y axes font.
-rain_res.tiYAxisFontHeightF = 0.015        # Y axes font height.
+rain_res.tiYAxisFontHeightF      = 0.015        # Y axes font height.
 rain_res.tiYAxisString           = "3hr rain total"  # Y axis label.
 
 
@@ -274,22 +272,21 @@ tempsfc_res.vpYF            = 0.17   # The top side of the plot box
 tempsfc_res.vpWidthF        = 0.72   # The Width of the plot box
 tempsfc_res.vpHeightF       = 0.10   # The height of the plot box
 
-tempsfc_res.tiXAxisString  = ""            # X axes label.
-tempsfc_res.tiYAxisFont    = 21               # Y axes font.
-tempsfc_res.tiYAxisFontHeightF = 0.015        # Y axes font height.
-tempsfc_res.tiYAxisString  = "Temp at 2m"  # Y axis label.
-tempsfc_res.tmXBMode       = "Explicit"    # Define own tick mark labels.
-tempsfc_res.tmXBLabelFont  = 26            # Change the font.
-tempsfc_res.tmYLLabelFont  = 26            # Change the font.
-tempsfc_res.tmXBValues     = taus
-tempsfc_res.tmXBLabels     = taus
-tempsfc_res.tmXTOn         = False         # turn off the top tickmarks
-tempsfc_res.xyLineThicknesses = 2
-tempsfc_res.xyLineColor    =  "red"
+tempsfc_res.tiXAxisString      = ""             # X axes label.
+tempsfc_res.tiYAxisFontHeightF = 0.015          # Y axes font height.
+tempsfc_res.tiYAxisString      = "Temp at 2m"   # Y axis label.
+tempsfc_res.tmXBMode           = "Explicit"     # Define own tick mark labels.
+tempsfc_res.tmXBLabelFont      = "Times-Bold"   # Change the font.
+tempsfc_res.tmYLLabelFont      = "Times-Bold"   # Change the font.
+tempsfc_res.tmXBValues         = taus
+tempsfc_res.tmXBLabels         = taus
+tempsfc_res.tmXTOn             = False          # turn off the top tickmarks
+tempsfc_res.xyLineThicknesses  = 2
+tempsfc_res.xyLineColor        =  "red"
 
 tempsfc_res.nglDraw         = False     # Don't draw individual plot.
 tempsfc_res.nglFrame        = False     # Don't advance frame.
-tempsfc_res.nglMaximize     = False    # Do not maximize plot in frame 
+tempsfc_res.nglMaximize     = False     # Do not maximize plot in frame 
 
 #
 #  Create the four plots (they won't get drawn here, because nglDraw

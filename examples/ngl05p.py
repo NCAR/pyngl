@@ -116,19 +116,13 @@ map = Ngl.contour_map(wks,psl,resources)
 
 #----------- Begin second plot -----------------------------------------
 
-cmap = Ngl.get_MDfloat_array(wks,"wkColorMap")
-cmap[0] = [1.,1.,1.]
-cmap[1] = [0.,0.,0.]
-
-rlist = Ngl.Resources()
-rlist.wkColorMap = cmap
-Ngl.set_values(wks,rlist)
+ic = Ngl.new_color(wks,0.75,0.75,0.75)   # Add gray to the color map
 
 resources.mpProjection = "Orthographic" # Change the map projection.
 resources.mpCenterLonF = 180.           # Rotate the projection.
 resources.mpFillOn     = True           # Turn on map fill.
-resources.mpFillColors = [0,-1,28,-1]   # Fill land and leave oceans
-                                          # and inland water transparent.
+resources.mpFillColors = [0,-1,ic,-1]   # Fill land and leave oceans
+                                        # and inland water transparent.
 
 resources.vpXF      = 0.1    # Change the size and location of the
 resources.vpYF      = 0.9    # plot on the viewport.
@@ -157,7 +151,7 @@ resources.cnLineDrawOrder      = "Predraw" # Draw lines and filled
 resources.cnFillDrawOrder      = "Predraw" # areas before map gets
                                              # drawn.
 
-resources.tiMainString = ":F26:" + cdf_file2.title
+resources.tiMainString = "~F26~" + cdf_file2.title
 
 resources.sfXCStartV = min(sst_lon)   # Define where contour plot
 resources.sfXCEndV   = max(sst_lon)   # should lie on the map plot.
@@ -176,13 +170,14 @@ resources = Ngl.Resources()
 if hasattr(pf,"_FillValue"):
   resources.sfMissingValueV = pf._FillValue
 
-resources.tiXAxisString = ":F25:longitude"
-resources.tiYAxisString = ":F25:latitude"
+resources.tiXAxisString = "~F25~longitude"
+resources.tiYAxisString = "~F25~latitude"
 
 resources.cnFillOn              = True     # Turn on contour fill.
 resources.cnLineLabelsOn        = False    # Turn off line labels.
 resources.cnInfoLabelOn         = False    # Turn off info label.
-resources.nglSpreadColors = False    # Do not interpolate color space.
+
+resources.nglSpreadColorEnd     = -2       # Don't include gray in contours.
 
 resources.sfXCStartV = min(pf_lon)   # Define where contour plot
 resources.sfXCEndV   = max(pf_lon)   # should lie on the map plot.
@@ -202,7 +197,7 @@ resources.mpPerimOn   = True        # Turn on map perimeter.
 
 resources.pmTickMarkDisplayMode = "Never"  # Turn off map tickmarks.
 
-resources.tiMainString = ":F26:January 1996 storm" # Set a title.
+resources.tiMainString = "~F26~January 1996 storm" # Set a title.
 
 resources.vpXF      = 0.1    # Change the size and location of the
 resources.vpYF      = 0.9    # plot on the viewport.
@@ -229,7 +224,7 @@ map = Ngl.contour_map(wks,pfa,resources) # Convert pf to "mb" and
 txres = Ngl.Resources()
 txres.txFontHeightF = 0.025  # for a text string.
 txres.txFontColor   = 4
-Ngl.text_ndc(wks,":F25:Pressure (mb)",.41,.185,txres)
+Ngl.text_ndc(wks,"~F25~Pressure (mb)",.41,.185,txres)
 Ngl.frame(wks)   # Advance the frame.
 
 #---------- Begin fourth plot ------------------------------------------
@@ -238,7 +233,6 @@ del resources.tiXAxisString  # Delete some resources you don't
 del resources.tiYAxisString  # need anymore.
 del resources.nglFrame
 
-del cmap
 cmap = Numeric.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
                       [.560, .500, .700], [.300, .300, .700], \
                       [.100, .100, .700], [.000, .100, .700], \
@@ -266,7 +260,7 @@ resources.cnFillDrawOrder       = "Predraw"       # Draw contours first.
 resources.cnLevelSelectionMode = "ExplicitLevels" # Define own levels.
 resources.cnLevels             = Numeric.arange(985.,1046.,5.)
 
-resources.lbTitleString  = ":F25:pressure (mb)" # Title for label bar.
+resources.lbTitleString  = "~F25~pressure (mb)" # Title for label bar.
 resources.cnLinesOn      = False         # Turn off contour lines.
 resources.lbOrientation  = "Horizontal"  # Label bar orientation.
 
@@ -280,6 +274,7 @@ if hasattr(pf,"_FillValue"):
         pf._FillValue*Numeric.equal(pfa,pf._FillValue)
 else:
   pfa = 0.01*pfa
+
 map = Ngl.contour_map(wks,pfa,resources)
 
 del map

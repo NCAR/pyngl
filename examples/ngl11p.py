@@ -68,8 +68,8 @@ unew = Ngl.add_cyclic(u)  # Add cyclic points to u.
 
 resources = Ngl.Resources()
 
-resources.tiMainString   = ":F26:Cocos Island"   # Main title.
-resources.tiYAxisString  = ":F25:Pressure (mb)"  # Y axes label.
+resources.tiMainString   = "~F26~Cocos Island"   # Main title.
+resources.tiYAxisString  = "~F25~Pressure (mb)"  # Y axes label.
 
 resources.sfYCStartV = max(pressure)   # Indicate start and end of left
 resources.sfYCEndV   = min(pressure)   # Y axes values.
@@ -78,7 +78,7 @@ resources.trYReverse  = True    # Reverse the Y values.
 resources.trYLog      = True    # Use log scale.
 
 resources.tmXBMode      = "Explicit"   # Define your own tick mark labels.
-resources.tmXBLabelFont = 25           # Change font of labels.
+resources.tmXBLabelFont = "times-roman"  # Change font of labels.
 resources.tmXBLabelFontHeightF = 0.015 # Change font height of labels.
 resources.tmXBMinorOn   = False        # No minor tick marks.
 resources.tmXBValues    = range(0,13,1) # Location to put tick mark labels
@@ -88,7 +88,7 @@ resources.tmXBLabels    = ["Jan","Feb","Mar","Apr","May","Jun",\
 
 resources.tmYUseLeft    = False      # Keep right axis independent of left.
 resources.tmYRLabelsOn  = True       # Turn on right axis labels.
-resources.tmYRLabelFont = 25         # Change font of labels.
+resources.tmYRLabelFont = "times-roman"   # Change font of labels.
 resources.tmYROn        = True       # Turn on right axis tick marks.
 resources.tmYRMinorOn   = False      # No minor tick marks.
 
@@ -99,7 +99,7 @@ resources.tmYRValues    = pnice       # At each "nice" pressure value,
 resources.tmYRLabels    = hnice       # put a "height" value label.
 
 resources.tmYLMode      = "Explicit" # Define own tick mark labels.
-resources.tmYLLabelFont = 25         # Change the font.
+resources.tmYLLabelFont = "times-roman"  # Change the font.
 resources.tmYLValues    = [1000.,  800., 700., 500., 400., 300., \
                                250.,  200., 150., 100.,  50.]
 resources.tmYLLabels    = ["1000","800","700","500","400","300", \
@@ -142,13 +142,13 @@ Ngl.draw(contour)  # Draw the contour plot.
 
 txres               = Ngl.Resources()    # Annotate plot with some text.
 txres.txFontHeightF = 0.015
-Ngl.text_ndc(wks,":F25:U Component",  .270,.815,txres)
-Ngl.text_ndc(wks,":F25:(m-s:S:-1:N:)",.765,.815,txres)
+Ngl.text_ndc(wks,"~F25~U Component",  .270,.815,txres)
+Ngl.text_ndc(wks,"~F25~(m-s~S~-1~N~)",.765,.815,txres)
 
 
 txres.txFontHeightF = 0.025   # Label right Y axis.
 txres.txAngleF      = 90.
-Ngl.text_ndc(wks,":F25:Height (km)",.89,.5,txres)
+Ngl.text_ndc(wks,"~F25~Height (km)",.89,.5,txres)
 
 Ngl.frame(wks) # Advance the frame.
 
@@ -157,17 +157,18 @@ Ngl.frame(wks) # Advance the frame.
 del resources 
 resources = Ngl.Resources()
 
-resources.tiMainString  = ":F26:Cocos Island"
-resources.tiXAxisString = ":F25:Month"
-resources.tiYAxisString = ":F25:Amplitude (m/s)"
+resources.tiMainString  = "~F26~Cocos Island"
+resources.tiXAxisString = "~F25~Month"
+resources.tiYAxisString = "~F25~Amplitude (m/s)"
 
 resources.tmXBMode      = "Explicit"   # Define your own tick mark labels.
-resources.tmXBLabelFont = 25           # Change font of labels.
+resources.tmXBLabelFont = "times-roman"   # Change font of labels.
 resources.tmXBLabelFontHeightF = 0.015 # Change font height of labels.
 resources.tmXBMinorOn   = False        # No minor tick marks.
 resources.tmXBValues    = range(0,13,1)# Values from 0 to 12.
 resources.tmXBLabels    = ["Jan","Feb","Mar","Apr","May","Jun",\
                            "Jul","Aug","Sep","Oct","Nov","Dec","Jan"]
+resources.tmYLLabelFont = "times-roman"  # Change the font.
 
 xy = Ngl.xy(wks,range(0,13,1),unew,resources) # Create and draw an XY plot.
 

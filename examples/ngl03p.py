@@ -97,13 +97,12 @@ resources.vcMinFracLengthF = 0.33
 resources.vcRefMagnitudeF  = 20.0
 resources.vcRefLengthF     = 0.045
 resources.vcMonoLineArrowColor  = False   # Draw vectors in color.
-resources.nglSpreadColors = False    # Do not interpolate color space.
 
 vc = Ngl.vector(wks,ua,va,resources)
 
 #----------- Begin third plot -----------------------------------------
 
-resources.tiMainString  = ":F26:wind velocity vectors - January 1996"
+resources.tiMainString  = "~F22~wind velocity vectors - January 1996"
 resources.tiXAxisString = "longitude"
 resources.tiYAxisString = "latitude"
  
@@ -162,9 +161,8 @@ resources.vcMonoFillArrowFillColor = False # in different colors
 resources.vcFillArrowEdgeColor     = 1     # Draw the edges in black.
 resources.vcFillArrowWidthF        = 0.055 # Make vectors thinner.
 
-resources.tiMainString      = ":F26:wind velocity vectors colored by temperature " + temp_units
+resources.tiMainString      = "~F22~wind velocity vectors colored by temperature " + temp_units
 resources.tiMainFontHeightF = 0.02  # Make font slightly smaller.
-resources.lbLabelFont       = 21    # Change font of label bar labels.
 
 vc = Ngl.vector_scalar(wks,ua,va,tempa,resources) # Draw a vector plot of
 

@@ -86,9 +86,9 @@ plot = Ngl.xy(wks,x,y2,resources)    # Draw the plot.
   
 #----------- Begin third plot -----------------------------------------
   
-resources.xyLineColors        = [2,3,4]    # Define line colors.
-resources.xyLineThicknesses   = [1.,2.,5.] # Define line thicknesses
-                                           # (1.0 is the default).
+resources.xyLineColors        = [189,107,24]  # Define line colors.
+resources.xyLineThicknesses   = [1.,2.,5.]    # Define line thicknesses
+                                              # (1.0 is the default).
   
 plot = Ngl.xy(wks,x,y2,resources)         
   
@@ -103,7 +103,7 @@ resources.tiYAxisFont     = "Helvetica" # Font for Y axis label
   
 resources.xyMarkLineModes = ["Lines","Markers","MarkLines"]
 resources.xyMarkers       = [0,1,3]     # (none, dot, asterisk)
-resources.xyMarkerColor   = 3           # Marker color
+resources.xyMarkerColor   = 107         # Marker color
 resources.xyMarkerSizeF   = 0.03        # Marker size (default
                                           # is 0.01)
   
@@ -139,13 +139,13 @@ resources.tiYAxisString          = "m/s"
 resources.tiXAxisFontHeightF     = 0.02        # Change the font size.
 resources.tiYAxisFontHeightF     = 0.02
   
-resources.xyLineColors           = [3,4]       # Set the line colors.
+resources.xyLineColors           = [107,24]       # Set the line colors.
 resources.xyLineThicknessF       = 2.0         # Double the width.
   
 resources.xyLabelMode            = "Custom"    # Label XY curves.
 resources.xyExplicitLabels       = ["U","V"]   # Labels for curves
 resources.xyLineLabelFontHeightF = 0.02        # Font size and color
-resources.xyLineLabelFontColor   = 2           # for line labels
+resources.xyLineLabelFontColor   = 189         # for line labels
   
 plot = Ngl.xy(wks,lon,uv,resources) # Draw an XY plot with 2 curves.
 

@@ -119,7 +119,7 @@ contour = Ngl.contour(xwks,zt,resources)
 
 del resources
 resources = Ngl.Resources()
-resources.tiMainString        = ":F26:slices"   # Define a title.
+resources.tiMainString        = "~F26~slices"   # Define a title.
 
 resources.xyLineColors        = [2,8,10,14]    # Define line colors.
 resources.xyLineThicknessF    = 3.0             # Define line thickness.

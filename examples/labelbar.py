@@ -36,8 +36,10 @@
 #
 import Ngl
 
+wkres            = Ngl.Resources()
+wkres.wkColorMap = "default"
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"labelbar")
+wks = Ngl.open_wks(wks_type,"labelbar",wkres)
 
 labels = ["One","Two","Three","Four","Five","Six"]
 
@@ -51,7 +53,7 @@ Ngl.frame(wks)
 # Change the font and alignment of the labels.
 #
 rlist                  = Ngl.Resources()
-rlist.lbLabelFont      = 21
+rlist.lbLabelFont      = "Times-Bold"
 rlist.lbLabelAlignment = "InteriorEdges"
 
 lb = Ngl.labelbar_ndc(wks,5,labels,0.3,0.9,rlist)
@@ -60,6 +62,7 @@ Ngl.frame(wks)
 #
 # Change the size, orientation, the fill to solid fill.
 #
+del rlist.lbLabelFont
 rlist.vpWidthF          = 0.85
 rlist.vpHeightF         = 0.20
 rlist.lbMonoFillPattern = 21

@@ -119,7 +119,7 @@ resources.sfXArray              = xo            # X axis data points
 resources.sfYArray              = yo            # Y axis data points
 
 resources.tiMainString          = "Interpolation to a 2D grid (AreaFill)"
-resources.tiMainFont            = "Times-Bold"
+resources.tiMainFont            = "Helvetica-Bold"
 resources.tiXAxisString         = "x values"    # X axis label.
 resources.tiYAxisString         = "y values"    # Y axis label.
 

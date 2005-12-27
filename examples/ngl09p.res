@@ -72,10 +72,8 @@
 *pmLabelBarWidthF            : 0.07
 *pmLabelBarHeightF           : 0.65
 *lbPerimOn                   : False
-*lbLabelFont                 : 25
 
 ! 
-! Change the font and height of the main title.
+! Change the height of the main title.
 !
-*tiMainFont                  : 25
 *tiMainFontHeightF           : 0.027

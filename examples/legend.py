@@ -35,8 +35,10 @@
 #
 import Ngl
 
+wkres            = Ngl.Resources()
+wkres.wkColorMap = "default"
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"legend")
+wks = Ngl.open_wks(wks_type,"legend",wkres)
 
 labels = ["One","Two","Three","Four","Five","Six"]
 
@@ -47,10 +49,11 @@ lg = Ngl.legend_ndc(wks,5,labels,0.3,0.9)
 Ngl.frame(wks)
 
 #
-# Change the font of the labels.
+# Change the font and line thickness of the labels.
 #
 rlist                  = Ngl.Resources()
-rlist.lgLabelFont      = 21
+rlist.lgLineThicknessF = 4.0
+rlist.lgLabelFont      = "Times-bold"
 
 lg = Ngl.legend_ndc(wks,5,labels,0.3,0.9,rlist)
 Ngl.frame(wks)
@@ -58,6 +61,7 @@ Ngl.frame(wks)
 #
 # Change the orientation and size.
 #
+del rlist.lgLabelFont
 rlist.vpWidthF          = 0.85
 rlist.vpHeightF         = 0.20
 rlist.lgOrientation     = "Horizontal"

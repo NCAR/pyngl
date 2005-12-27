@@ -173,8 +173,8 @@ for st in xrange(npoly):
 # Add a title.
 #
 res_txt               = Ngl.Resources()         # text resources
-res_txt.txFontHeightF = 0.03                # select font size
-res_txt.txFont        = 22                  # font
+res_txt.txFontHeightF = 0.03                    # select font size
+res_txt.txFont        = "helvetica-bold"        # font
 Ngl.text_ndc (wks, "Climate Division Polygons", 0.5, 0.78, res_txt)
 
 Ngl.frame(wks)

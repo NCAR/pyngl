@@ -98,9 +98,9 @@ resources.caYMissingV = -999.
 resources.vpWidthF     = 0.8
 resources.vpXF         = 0.13
 
-resources.tiMainString  = ":F22:Sulfur Emissions" # ":F22:" changes
-resources.tiXAxisString = ":F22:Year"             # the font to "22"
-resources.tiYAxisString = ":F22:Tg s/yr"          # which is helvetica
+resources.tiMainString  = "~F22~Sulfur Emissions" # "~F22~" changes
+resources.tiXAxisString = "~F22~Year"             # the font to "22"
+resources.tiYAxisString = "~F22~Tg s/yr"          # which is helvetica
                                                     # bold.
 resources.tmXBLabelFont = 21
 resources.tmYLLabelFont = 21
@@ -119,7 +119,7 @@ xy = Ngl.xy(wks,time,y,resources)  # Create and draw XY plot.
 txresources               = Ngl.Resources()
 txresources.txFontHeightF = 0.015
 txresources.txJust        = "CenterLeft" # Default is "CenterCenter".
-txresources.txFuncCode    = "~"          # Default is ":"
+txresources.txFuncCode    = "~"          # Default is "~"
 
 strings = ["Wigley (Moller/IPCC)",\
        "~F22~CSM-proposed:~F~~C~(Orn et.al./GEIA + Smith)",\

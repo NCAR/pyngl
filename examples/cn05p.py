@@ -120,8 +120,6 @@ res.cnLevelSpacingF      = 2.25
 res.lbBoxLinesOn  = False
 res.lbLabelStride = 6
 res.lbOrientation = "Horizontal"
-res.lbTitleFont   = "Helvetica"
-res.lbLabelFont   = "Helvetica"
 
 #
 # Set a map resource.
@@ -133,15 +131,7 @@ res.mpGeophysicalLineColor = "Black"
 # Set some title resources.
 #
 res.tiMainString      = "January Global Surface Temperature (K)"
-res.tiMainFont        = "helvetica"
 res.tiMainFontHeightF = 0.02
-res.tiMainFontColor   = "yellow"
-
-#
-# Set some tickmark resources.
-#
-res.tmXBLabelFont = "helvetica"
-res.tmYLLabelFont = "helvetica"
 
 #
 # Create a couple of variables to hold resources that will change

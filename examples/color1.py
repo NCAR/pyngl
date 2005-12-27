@@ -19,6 +19,11 @@
 #    draw the maps as a table of colors and index 
 #    values.  By uncommenting designated sections 
 #    of the code all available color maps can be drawn.
+#    Note that PyNGL internally sets the background and
+#    foreground colors to white and black respectively. If
+#    you want to change this, you will need to set the
+#    resources wkBackgroundColor and wkForegroundColor when
+#    you create the workstation.
 #
 #  Effects illustrated:
 #    Changing color maps in a loop.
