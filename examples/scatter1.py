@@ -125,7 +125,7 @@ txres = Ngl.Resources()
 txres.txFont = "helvetica-bold"
 txres.txFontHeightF = 0.02
 txres.txJust = "CenterLeft"
-Ngl.text_ndc(wks,"LWP=0.5 x 1.55 x 10:S:-6:N: x Thickness:S1:2", \
+Ngl.text_ndc(wks,"LWP=0.5 x 1.55 x 10~S~-6~N~ x Thickness~S1~2", \
                   0.24,0.85,txres)
 
 xpos = 0.245

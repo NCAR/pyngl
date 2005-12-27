@@ -120,12 +120,22 @@ if hasattr(temp,"_FillValue"):
 plot = []
 resources.cnFillOn            = True    # Turn on contour fill.
 resources.lbLabelStride       = 2       # Label every other box
-resources.lbLabelFontHeightF  = 0.02
+
+#
+# Set some font heights to make them slightly bigger than the default.
+# Turn off nglScale, because this resource wants to set the axes font
+# heights for you.
+#
+resources.nglScale               = False
+resources.cnLineLabelFontHeightF = 0.025
+resources.tiMainFontHeightF      = 0.037
+resources.lbLabelFontHeightF     = 0.032
+resources.tmXBLabelFontHeightF   = 0.030
+resources.tmYLLabelFontHeightF   = 0.030
 
 for i in range(0,nplots):
   resources.tiMainString  = "Temperature at time = " + str(i)
   plot.append(Ngl.contour(wks,temp[i,:,:],resources))
-
 
 Ngl.panel(wks,plot[0:4],[2,2])    # Draw 2 rows/2 columns of plots.
 
@@ -133,7 +143,7 @@ Ngl.panel(wks,plot[0:4],[2,2])    # Draw 2 rows/2 columns of plots.
 # Now add some extra white space around each plot.
 #
 
-panelres  = Ngl.Resources()
+panelres                            = Ngl.Resources()
 panelres.nglPanelYWhiteSpacePercent = 5.
 panelres.nglPanelXWhiteSpacePercent = 5.
 Ngl.panel(wks,plot[0:4],[2,2],panelres)    # Draw 2 rows/2 columns of plots.
@@ -155,11 +165,15 @@ resources.cnMinLevelValF       = 245.
 resources.cnMaxLevelValF       = 302.5
 resources.cnLevelSpacingF      =   2.5
 
+resources.tmXBLabelFontHeightF   = 0.020
+resources.tmYLLabelFontHeightF   = 0.020
+
 resources.mpLimitMode    = "LatLon"  # Limit portion of map that is viewed.
 resources.mpMinLatF      = min(lat)
 resources.mpMaxLatF      = max(lat)
 resources.mpMinLonF      = min(lon)
 resources.mpMaxLonF      = max(lon)
+
 resources.pmLabelBarDisplayMode = "Never"   # Turn off labelbar, since we
                                             # will use a global labelbar
                                             # in the panel.
@@ -172,10 +186,23 @@ for i in range(0,nplots):
   plot.append(Ngl.contour_map(wks,temp[i,:,:],resources))
 
 #
+# Draw two titles at the top. Draw these before the panel stuff,
+# so that the maximization works properly.
+#
+textres               = Ngl.Resources()
+textres.txFontHeightF = 0.025   # Size of title.
+
+Ngl.text_ndc(wks,"~F22~Temperature (K) at every six hours",0.5,.97,textres)
+
+textres.txFontHeightF = 0.02    # Make second title slightly smaller.
+
+Ngl.text_ndc(wks,"~F22~January 1996",0.5,.935,textres)
+
+#
 # Set some resources for the paneled plots.
 #
+del panelres
 panelres          = Ngl.Resources()
-panelres.nglFrame = False                   # Don't advance the frame.
 
 #
 # Set up some labelbar resources.  Set nglPanelLabelBar to True to
@@ -203,19 +230,5 @@ if(wks_type == "ps" or wks_type == "pdf"):
 # Draw 3 rows and 2 columns of plots.
 #
 Ngl.panel(wks,plot[0:nplots],[3,2],panelres)  
-
-#
-# Draw two titles at the top.
-#
-textres               = Ngl.Resources()
-textres.txFontHeightF = 0.025   # Size of title.
-
-Ngl.text_ndc(wks,":F26:Temperature (K) at every six hours",0.5,.97,textres)
-
-textres.txFontHeightF = 0.02    # Make second title slightly smaller.
-
-Ngl.text_ndc(wks,":F26:January 1996",0.5,.935,textres)
-
-Ngl.frame(wks)   # Advance the frame.
 
 Ngl.end()
