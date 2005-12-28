@@ -2106,8 +2106,8 @@ def skewt_bkg(wks, Opts):
 #
   if (localOpts.sktDrawColLine):
     colGreen  = "Green"
-    colBrown  = "Brown"
-    colTan    = "Tan"
+    colBrown  = "Orange4"
+    colTan    = "DarkGoldenRod1"
   else:
     colGreen  = "Foreground"
     colBrown  = "Foreground"
@@ -2284,8 +2284,8 @@ def skewt_bkg(wks, Opts):
     del txOpts
 
   if (localOpts.sktDrawColAreaFill):
-    color1 = "PaleGreen1"           # "LightGreen"
-    color2 = "MintCream"            # "Azure"
+    color1 = "PaleGreen2"           # "LightGreen"
+    color2 = "White"            # "Azure"
     gsOpts = Resources()
     for i in xrange(0,ntemp-1):
       if (i%2 == 0):                 # alternate colors
@@ -2730,8 +2730,8 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
   sktcolZLabel      = "Foreground"
   sktcolWindP       = "Black"   
   sktcolWindZ       = "Blue"   
-  sktcolWindH       = "Magenta"    
-  sktcolThermoInfo  = "Sienna"
+  sktcolWindH       = "OrangeRed3"    
+  sktcolThermoInfo  = "Goldenrod4"
 
 #
 #  Change defaults.
