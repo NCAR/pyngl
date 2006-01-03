@@ -2045,26 +2045,42 @@ def set_values(obj,rlistc=None):
 #  to the originals.
 #
 RscConv = {  \
-           "sktWSpdWDir":"sktWspdWdir",              \
-           "sktHSpdHDir":"sktHspdHdir",              \
-           "sktWThin":"sktWthin",                    \
-           "sktColTemperature":"sktcolTemperature",  \
-           "sktColDewPt":"sktcolDewPt",              \
-           "sktColPPath":"sktcolPpath",              \
-           "sktColZLabel":"sktcolZlabel",            \
-           "sktColWindP":"sktcolWindP",              \
-           "sktColWindZ":"sktcolWindZ",              \
-           "sktColWindH":"sktcolWindH",              \
-           "sktColThermoInfo":"sktcolThermoInfo",    \
-           "sktPMissingV":"sktPmissingV",            \
-           "sktTCMissingV":"sktTCmissingV",          \
-           "sktTDCMissingV":"sktTDCmissingV",        \
-           "sktZMissingV":"sktZmissingV",            \
-           "sktWSpdMissingV":"sktWSPDmissingV",      \
-           "sktWDirMissingV":"sktWDIRmissingV",      \
-           "sktHMissingV":"sktHmissingV",            \
-           "sktHSpd":"sktHspd",                      \
-           "sktHDir":"sktHdir",                      \
+           "sktColoredBandsOn":"sktDrawColAreaFill",                 \
+           "sktDewPointLineColor":"sktcolDewPt",                     \
+           "sktDewPointMissingV":"sktTDCmissingV",              \
+           "sktDryAdiabaticLinesOn":"sktDrawDryAdiabat",             \
+           "sktGeopotentialLabelColor":"sktcolZLabel",               \
+           "sktGeopotentialLabelsOn":"sktPrintZ",                   \
+           "sktGeopotentialMissingV":"sktZmissingV",            \
+           "sktGeopotentialWindBarbColor":"sktcolWindZ",             \
+           "sktHeightScaleOn":"sktDrawHeightScale",                  \
+           "sktHeightWindBarbColor":"sktcolWindH",                   \
+           "sktHeightWindBarbPositionMissingV":"sktHmissingV",  \
+           "sktHeightWindBarbPositions":"sktHeight",                 \
+           "sktHeightWindBarbDirections":"sktHdir",              \
+           "sktHeightWindBarbSpeeds":"sktHspd",                  \
+           "sktHeightWindBarbsOn":"sktPlotWindH",                   \
+           "sktIsobarLinesOn":"sktDrawIsobar",                       \
+           "sktIsothermalLinesOn":"sktDrawIsotherm",                 \
+           "sktMixingRatioLinesOn":"sktDrawMixRatio",                \
+           "sktMoistAdiabaticLinesOn":"sktDrawMoistAdiabat",         \
+           "sktParcelPathLineColor":"sktcolPpath",                   \
+           "sktParcelPathLineOn":"sktCape",                         \
+           "sktParcelPathStartCoordinate":"sktParcel",              \
+           "sktPressureMissingV":"sktPmissingV",                \
+           "sktPressureWindBarbColor":"sktcolWindP",                 \
+           "sktPressureWindBarbStride":"sktWthin",                   \
+           "sktPressureWindBarbsOn":"sktPlotWindP",                 \
+           "sktStdAtmosphereLineOn":"sktDrawStandardAtm",            \
+           "sktStdAtmosphereLineThicknessF":"sktDrawStandardAtmThk", \
+           "sktTemperatureMissingV":"sktTCmissingV",            \
+           "sktTemperatureSoundingLineColor":"sktcolTemperature",    \
+           "sktThermoInfoLabelColor":"sktcolThermoInfo",             \
+           "sktThermoInfoLabelOn":"sktThermoInfo",                  \
+           "sktUseMultipleLineColors":"sktDrawColLine",              \
+           "sktWindBarbLineOn":"sktDrawWind",                        \
+           "sktWindDirectionMissingV":"sktWDIRmissingV",        \
+           "sktWindSpeedMissingV":"sktWSPDmissingV",            \
           }
 
 def skewt_bkg(wks, Opts):
@@ -2114,7 +2130,7 @@ def skewt_bkg(wks, Opts):
 #  overlap localOpts attributes.
 #
   if (not isinstance(Opts,Resources)):
-    print "skewt_bkg: argument 2 must be an Nlg Resources instance"
+    print "skewt_bkg: argument 2 must be an Ngl Resources instance"
     return None
   OptsAtts = crt_dict(Opts)
   if (len(crt_dict(Opts)) != 0):
@@ -2126,6 +2142,31 @@ def skewt_bkg(wks, Opts):
     for new_name in OptsAtts.keys():
       if (RscConv.has_key(new_name)):
         setattr(localOpts,RscConv[new_name],OptsAtts[new_name])
+#
+#  Check for new sktTemperatureUnits or sktHeightScaleUnits resources,
+#  as these take string values rather than True/False values.
+#  The original names (sktDrawFahrenheit/sktHeightScaleFt) for these
+#  two resources took True/False values.
+#
+        if (hasattr(localOpts,"sktTemperatureUnits")):
+          if(string.lower(localOpts.sktTemperatureUnits) == "celsius"):
+            localOpts.sktDrawFahrenheit = False    # default is True
+          elif(string.lower(localOpts.sktTemperatureUnits) == "fahrenheit"):
+            localOpts.sktDrawFahrenheit = True    # default is True
+          else:
+            localOpts.sktDrawFahrenheit = True    # default is True
+            print "Warning - skewt_bkg: 'sktTemperatureUnits' must be set to 'fahrenheit' or 'celsius'. Defaulting to 'fahrenheit'."
+
+        if (hasattr(localOpts,"sktHeightScaleUnits")):
+          if(string.lower(localOpts.sktHeightScaleUnits) == "km"):
+            localOpts.sktDrawHeightScaleFt = False    # default is True
+          elif(string.lower(localOpts.sktHeightScaleUnits) == \
+                            "feet"):
+            localOpts.sktDrawHeightScaleFt = True    # default is True
+          else:
+            localOpts.sktDrawHeightScaleFt = True    # default is True
+            print "Warning - skewt_bkg: 'sktHeightScaleUnits' must be set to 'feet' or 'km'. Defaulting to 'feet'."
+
 #
 #  Declare isotherm values (Celcius) and pressures (hPa) where 
 #  isotherms intersect the edge of the skew-t diagram.
@@ -2468,8 +2509,8 @@ def skewt_bkg(wks, Opts):
     del txOpts
 
   if (localOpts.sktDrawColAreaFill):
-    color1 = "PaleGreen2"           # "LightGreen"
-    color2 = "White"            # "Azure"
+    color1 = "PaleGreen2"            # "LightGreen"
+    color2 = "Background"            # "Azure"
     gsOpts = Resources()
     for i in xrange(0,ntemp-1):
       if (i%2 == 0):                 # alternate colors
@@ -2881,7 +2922,7 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
 #
   if (dataOpts != None):
     if (not isinstance(dataOpts,Resources)):
-      print "skewt_plt: last argument must be an Nlg Resources instance."
+      print "skewt_plt: last argument must be an Ngl Resources instance."
       return None
     OptsAtts = crt_dict(dataOpts)
     if (len(OptsAtts) != 0):
@@ -2894,6 +2935,31 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
       for new_name in OptsAtts.keys():
         if (RscConv.has_key(new_name)):
           setattr(localOpts,RscConv[new_name],OptsAtts[new_name])
+#
+#  Check for new sktPressureWindBarbComponents or sktHeightWindBarbComponents
+#  resources, as these take string values rather than True/False values.
+#  The original names (sktWspdWdir/sktHspdHdir) for these two resources
+#  took True/False values.
+#
+        if (hasattr(localOpts,"sktPressureWindBarbComponents")):
+          if(string.lower(localOpts.sktPressureWindBarbComponents) == "uv"):
+            localOpts.sktWspdWdir = False    # default is True
+          elif(string.lower(localOpts.sktPressureWindBarbComponents) == \
+                            "speeddirection"):
+            localOpts.sktWspdWdir = True    # the default
+          else:
+            localOpts.sktWspdWdir = True    # the default
+            print "Warning - skewt_plt: 'sktPressureWindBarbComponents' must be set to 'SpeedDirection' or 'UV'. Defaulting to 'SpeedDirection'."
+
+        if (hasattr(localOpts,"sktHeightWindBarbComponents")):
+          if(string.lower(localOpts.sktHeightWindBarbComponents) == "uv"):
+            localOpts.sktHspdHdir = False    # default is True
+          elif(string.lower(localOpts.sktHeightWindBarbComponents) == \
+                            "speeddirection"):
+            localOpts.sktHspdHdir = True    # the default
+          else:
+            localOpts.sktHspdHdir = True    # the default
+            print "Warning - skewt_plt: 'sktHeightWindBarbComponents' must be set to 'SpeedDirection' or 'UV'. Defaulting to 'SpeedDirection'."
 
   vpXF                 = get_float(skewt_bkgd,"vpXF")
   vpYF                 = get_float(skewt_bkgd,"vpYF")
@@ -2979,7 +3045,7 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
     if (hasattr(localOpts,"sktTCmissingV")):
       TCmissing = localOpts.sktTCmissingV
       if (ismissing(tc,TCmissing)):
-        print "skewt_plt: tc (temperature) cannot have missing values if sktThermoInfo is True."
+        print "skewt_plt: tc (temperature) cannot have missing values if sktThermoInfoLabelOn is True."
         return None
     TCmissing = -999.
     cape,tpar,nlLcl,nlLfc,nlCross  =  \
@@ -3134,20 +3200,20 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
 #  Allows other winds to be input as attributes of sounding.
 #
   if (localOpts.sktPlotWindH):
-    if (hasattr(dataOpts,"sktHeight") and hasattr(dataOpts,"sktHspd") and  \
-        hasattr(dataOpts,"sktHdir")):
-      dimHeight = len(dataOpts.sktHeight)
-      dimHspd   = len(dataOpts.sktHspd  )
-      dimHdir   = len(dataOpts.sktHdir  )
+    if (hasattr(localOpts,"sktHeight") and hasattr(localOpts,"sktHspd") and  \
+        hasattr(localOpts,"sktHdir")):
+      dimHeight = len(localOpts.sktHeight)
+      dimHspd   = len(localOpts.sktHspd  )
+      dimHdir   = len(localOpts.sktHdir  )
       if (dimHeight == dimHspd and dimHeight == dimHdir and \
-          Numeric.logical_not(Numeric.alltrue(ismissing(dataOpts.sktHeight,Hmissing)))):
+          Numeric.logical_not(Numeric.alltrue(ismissing(localOpts.sktHeight,Hmissing)))):
         if (localOpts.sktHspdHdir):
-          dirh = 0.017453 * dataOpts.sktHdir
-          uh   = -dataOpts.sktHspd * Numeric.sin(dirh)
-          vh   = -dataOpts.sktHspd * Numeric.cos(dirh)
+          dirh = 0.017453 * localOpts.sktHdir
+          uh   = -localOpts.sktHspd * Numeric.sin(dirh)
+          vh   = -localOpts.sktHspd * Numeric.cos(dirh)
         else:
-          uh   = dataOpts.sktHspd
-          vh   = dataOpts.sktHdir
+          uh   = localOpts.sktHspd
+          vh   = localOpts.sktHdir
 
         mv0  = Numeric.logical_not(ismissing(P,Pmissing))
         mv1  = Numeric.logical_not(ismissing(Z,Zmissing))
@@ -3158,7 +3224,7 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
           print "Warning - skewt_plt: attempt to plot wind barbs at specified heights when there are no coordinates where pressure and geopotential are both defined."
         else:
           Pv   = Numeric.take(P,idzp)
-          ph   = ftcurv(Zv,Pv,dataOpts.sktHeight)
+          ph   = ftcurv(Zv,Pv,localOpts.sktHeight)
 
           wbcol = wmgetp("col")             # get current color index
           wmsetp("col",get_named_color_index(wks,sktcolWindH)) # set new color
@@ -3170,7 +3236,7 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
             wmbarb(wks, xhWind, yhWind, uh, vh )
           wmsetp("col",wbcol)              # reset to initial color value
     else:
-      print ("skewt_plt: Opts.sktPlotWindH = True but dataOpts.sktHeight/Hspd/Hdir are missing")
+      print ("skewt_plt: sktHeightWindBarbsOn = True but sktHeightWindBarbPositions/sktHeightWindBarbSpeeds/sktHeightWindBarbDirections are missing")
   
   return skewt_bkgd
 
