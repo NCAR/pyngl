@@ -31,6 +31,8 @@
 #           causes the plotting of every third wind barb.
 #
 #  Notes:
+#    This example was updated in January 2006 to include the new
+#    Skew-T resource names decided on.
 #     
 
 import Ngl
@@ -56,15 +58,9 @@ wks = Ngl.open_wks(wks_type, "skewt3")
 #
 #  Plot1 - Create background skew-T and plot sounding.
 #
-skewtOpts                 = Ngl.Resources()
-skewtOpts.sktDrawColAreaFill = True    # default is False
-
-#
-#  Change the title function code flag to "~" (away from
-#  colon), since there will be colons in the titles.
-#
-skewtOpts.tiMainFuncCode  = "~"
-skewtOpts.tiMainString    = "ATS Rawindsonde: default dataOpts" 
+skewtOpts                   = Ngl.Resources()
+skewtOpts.sktColoredBandsOn = True                 # default is False
+skewtOpts.tiMainString      = "ATS Rawindsonde: default dataOpts" 
 
 skewt_bkgd = Ngl.skewt_bkg(wks, skewtOpts)
 skewt_data = Ngl.skewt_plt(wks, skewt_bkgd, p, tc, tdc, z, \
@@ -76,10 +72,11 @@ Ngl.frame(wks)
 #
 #  Plot 2 - thin the wind barbs and use Centigrade.
 #
-dataOpts       = Ngl.Resources()
-dataOpts.sktWThin = 3                  # Plot every 3rd wind barb
-skewtOpts.tiMainString   = "ATS Rawindsonde: degC + Thin wind" 
-skewtOpts.sktDrawFahrenheit = False   # default is True
+dataOpts                           = Ngl.Resources()
+dataOpts.sktPressureWindBarbStride = 3           # Plot every 3rd wind barb
+
+skewtOpts.sktTemperatureUnits      = "celsius"   # default is "fahrenheit"
+skewtOpts.tiMainString             = "ATS Rawindsonde: degC + Thin wind" 
 
 skewt_bkgd = Ngl.skewt_bkg(wks, skewtOpts)
 skewt_data = Ngl.skewt_plt(wks, skewt_bkgd, p, tc, tdc, z,  \

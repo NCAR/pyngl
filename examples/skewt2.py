@@ -31,6 +31,8 @@
 #           height scale in feet.
 #
 #  Notes:
+#    This example was updated in January 2006 to include the new
+#    Skew-T resource names decided on.
 #     
 
 import Ngl,Numeric
@@ -57,11 +59,13 @@ wdir = -999.*Numeric.ones(nlvl,Numeric.Float0)
 wks_type = "ps"
 wks = Ngl.open_wks(wks_type, "skewt2")
 
-skewtOpts                 = Ngl.Resources()
-skewtOpts.sktWSpdMissingV    = -999.     # Missing value for wind speed.
-skewtOpts.sktWDirMissingV    = -999.     # Missing value for wind direction.
-skewtOpts.sktDrawColAreaFill = True      # Default is False
-skewtOpts.tiMainString    = "Raob Data; No Winds" 
+skewtOpts                          = Ngl.Resources()
+skewtOpts.sktWindSpeedMissingV     = -999.     # Missing value for 
+                                               # wind speed.
+skewtOpts.sktWindDirectionMissingV = -999.     # Missing value for 
+                                               # wind direction.
+skewtOpts.sktColoredBandsOn        = True      # Default is False
+skewtOpts.tiMainString             = "Raob Data; No Winds" 
 
 skewt_bkgd = Ngl.skewt_bkg(wks, skewtOpts)
 skewt_data = Ngl.skewt_plt(wks, skewt_bkgd, p, tc, tdc, z,  \
@@ -83,21 +87,26 @@ hght = Numeric.array([1500., 6000., 10000., 15000.], Numeric.Float0) # Meters
 hspd = Numeric.array([  50.,   27.,   123.,    13.], Numeric.Float0)
 hdir = Numeric.array([ 315.,  225.,    45.,   135.], Numeric.Float0)
 
-dataOpts           = Ngl.Resources()  # Options describing data and plotting.
-dataOpts.sktPlotWindH = True          # Plot wind barbs at height levels.
-dataOpts.sktHSpdHDir  = True          # Wind speed and dir [else: u,v].
+dataOpts                               = Ngl.Resources()  # Options describing 
+                                                          # data and plotting.
+dataOpts.sktHeightWindBarbsOn          = True             # Plot wind barbs at
+                                                          # height levels.
+dataOpts.sktPressureWindBarbComponents = "SpeedDirection" # Wind speed and 
+                                                          # dir [else: u,v].
 
-dataOpts.sktHeight    = hght          # height of wind reports
-dataOpts.sktHSpd      = hspd          # speed [or u component]
-dataOpts.sktHDir      = hdir          # dir   [or v component]
+dataOpts.sktHeightWindBarbPositions  = hght        # height of wind reports
+dataOpts.sktHeightWindBarbSpeeds     = hspd        # speed
+                                                   # [or u components]
+dataOpts.sktHeightWindBarbDirections = hdir        # direction
+                                                   # [or v components]
 
-skewtOpts                 = Ngl.Resources()
-skewtOpts.sktDrawHeightScale    = True
-skewtOpts.sktDrawHeightScaleFt    = True
-skewtOpts.tiMainString    = "Raob; [Wind Reports]"
-skewtOpts.sktDrawColAreaFill = True    # default is False
+skewtOpts                              = Ngl.Resources()
+skewtOpts.sktHeightScaleOn             = True      # default is False
+skewtOpts.sktHeightScaleUnits          = "feet"    # default is "feet"
+skewtOpts.sktColoredBandsOn            = True      # default is False
+skewtOpts.sktGeopotentialWindBarbColor = "Red"
+skewtOpts.tiMainString                 = "Raob; [Wind Reports]"
 
-skewtOpts.sktColWindZ = "Red"
 skewt_bkgd = Ngl.skewt_bkg(wks, skewtOpts)
 skewt_data = Ngl.skewt_plt(wks, skewt_bkgd, p, tc, tdc, z, \
                                 wspd, wdir, dataOpts)

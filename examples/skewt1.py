@@ -29,6 +29,8 @@
 #      3.)  A skew-T background with a main title.
 #
 #  Notes:
+#    This example was updated in January 2006 to include the new
+#    Skew-T resource names decided on.
 #     
 
 import Ngl
@@ -50,10 +52,10 @@ del skewtOpts
 #
 #  Second plot - fancier background 
 #
-skewtOpts                  = Ngl.Resources()
-skewtOpts.sktDrawColAreaFill  = True    # default is False
-skewtOpts.sktDrawHeightScale  = True    # default is False
-skewtOpts.tiMainString     = "USAF Skew T, Log(p); DOD-WPC 9-16-1"
+skewtOpts                   = Ngl.Resources()
+skewtOpts.sktColoredBandsOn = True    # default is False
+skewtOpts.sktHeightScaleOn  = True    # default is False
+skewtOpts.tiMainString      = "USAF Skew T, Log(p); DOD-WPC 9-16-1"
  
 skewt_bkgd     = Ngl.skewt_bkg(wks, skewtOpts)
 Ngl.draw(skewt_bkgd)
@@ -63,12 +65,12 @@ del skewtOpts
 #
 #  Third plot - fancier background 
 #
-skewtOpts                  = Ngl.Resources()
-skewtOpts.sktDrawColAreaFill  = True    # default is False
-skewtOpts.sktDrawHeightScale  = True    # default is False
-skewtOpts.sktDrawHeightScaleFt= False   # default is True
-skewtOpts.sktDrawFahrenheit   = False   # default is True
-skewtOpts.tiMainString     = "Centigrade - Meters"
+skewtOpts                     = Ngl.Resources()
+skewtOpts.sktColoredBandsOn   = True    # default is False
+skewtOpts.sktHeightScaleOn    = True    # default is False
+skewtOpts.sktHeightScaleUnits = "km"    # default is "feet"
+skewtOpts.sktTemperatureUnits = "celsius"   # default is "fahrenheit"
+skewtOpts.tiMainString        = "Centigrade - Meters"
 
 skewt_bkgd = Ngl.skewt_bkg(wks, skewtOpts)
 Ngl.draw(skewt_bkgd)
