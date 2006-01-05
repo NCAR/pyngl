@@ -1011,7 +1011,7 @@ def asciiread(filename,dims,type="float"):
       nnum = nnum*dims[m]
  
   if (type == "integer"):
-    ar = Numeric.zeros(nnum,Numeric.int) 
+    ar = Numeric.zeros(nnum,Numeric.Int) 
   elif (type == "float"):
     ar = Numeric.zeros(nnum,Numeric.Float0) 
   elif (type == "double"):
