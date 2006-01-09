@@ -808,7 +808,36 @@ def ck_type(fcn,arg,typ):
       else:
         return 0
     else:
-      print fcn + ": argument must be a Numeric array, Numeric scalar, list, or tuple."
+      print fcn + ": argument must be a Numeric array, or a scalar, list, or tuple."
+      return 1
+  elif (typ == 2):
+#
+#  arg should be a Numeric array with ints, longs,
+#  or floats, or a scalar int, long, or float, or a list of ints, longs,
+#  or floats or a tuple of ints, longs or floats.
+#  
+    if (type(arg) == type(Numeric.array([0],Numeric.Int))):
+      if (len(arg) == 0):
+        print "Warning: " + fcn + ": An empty array was encountered."
+        return 0
+      return 0
+    elif (type(arg)==types.IntType or type(arg)==types.LongType or \
+          type(arg)==types.FloatType):
+      return 0
+    elif (type(arg)==types.ListType or type(arg)==types.TupleType):
+      if (len(arg) == 0):
+        print "Warning: " + fcn + ": An empty list was encountered."
+        return 0
+      a0 = arg[0]
+      if (type(a0)!=types.IntType and type(a0)!=types.FloatType and \
+          type(a0)!=types.LongType):
+        print fcn + \
+          ": Lists must have integers, longs, or floats."
+        return 1
+      else:
+        return 0
+    else:
+      print fcn + ": argument must be a Numeric array, or a scalar, list, or tuple."
       return 1
   else:
     print "ck_type: invalid type flag"
@@ -1424,58 +1453,67 @@ def get_string_array(obj,name):
   return(NhlGetStringArray(int_id(obj),name))
 
 def hlsrgb(h,l,s):
-  if (ck_type("hlsrgb",h,1) or ck_type("hlsrgb",l,1) or ck_type("hlsrgb",s,1)):
-    return None
   if (is_scalar(h) and is_scalar(l) and is_scalar(s)):
     return(c_hlsrgb(h,l,s))
   elif (is_array(h) and is_array(l) and is_array(s)):
-    dimc = len(h)
+    ishape = h.shape
+    dimc = len(h.flat)
     rr = Numeric.zeros(dimc,Numeric.Float0)
     gr = Numeric.zeros(dimc,Numeric.Float0)
     br = Numeric.zeros(dimc,Numeric.Float0)
     for i in xrange(dimc):
-      rr[i],gr[i],br[i] = c_hlsrgb(h[i],l[i],s[i])
+      rr[i],gr[i],br[i] = c_hlsrgb(h.flat[i],l.flat[i],s.flat[i])
+    rr.shape = gr.shape = br.shape = ishape
+    del ishape,dimc
     return rr,gr,br
   elif ( ( is_list(h) and  is_list(l) and  is_list(s)) or    \
          (is_tuple(h) and is_tuple(l) and is_tuple(s)) ):
-    rr = []
-    gr = []
-    br = []
-    for i in xrange(len(h)):
-      xr, xg, xb = c_hlsrgb(h[i],l[i],s[i])
-      rr.append(xr)
-      gr.append(xg)
-      br.append(xb)
-    return rr,gr,br
-  else:
-    print "hlsrgb: arguments must be scalars, 1D arrays, lists or tuples of numbers"
-
-def hsvrgb(h,s,v):
-  if (ck_type("hsvrgb",h,1) or ck_type("hsvrgb",s,1) or ck_type("hsvrgb",v,1)):
-    return None
-  if (is_scalar(h) and is_scalar(s) and is_scalar(v)):
-    return(c_hsvrgb(h,s,v))
-  elif (is_array(h) and is_array(s) and is_array(v)):
-    dimc = len(h)
+    hi = Numeric.array(h,Numeric.Float0)
+    li = Numeric.array(l,Numeric.Float0)
+    si = Numeric.array(s,Numeric.Float0)
+    ishape = hi.shape
+    dimc = len(hi.flat)
     rr = Numeric.zeros(dimc,Numeric.Float0)
     gr = Numeric.zeros(dimc,Numeric.Float0)
     br = Numeric.zeros(dimc,Numeric.Float0)
-    for i in xrange(len(h)):
-      rr[i],gr[i],br[i] = c_hsvrgb(h[i],s[i],v[i])
+    for i in xrange(dimc):
+      rr[i], gr[i], br[i] = c_hlsrgb(hi.flat[i],li.flat[i],si.flat[i])
+    rr.shape = gr.shape = br.shape = ishape
+    del hi,li,si,ishape,dimc
+    return rr,gr,br
+  else:
+    print "hlsrgb: arguments must be scalars, Numeric arrays, lists or tuples."
+
+def hsvrgb(h,s,v):
+  if (is_scalar(h) and is_scalar(s) and is_scalar(v)):
+    return(c_hsvrgb(h,s,v))
+  elif (is_array(h) and is_array(s) and is_array(v)):
+    ishape = h.shape
+    dimc = len(h.flat)
+    rr = Numeric.zeros(dimc,Numeric.Float0)
+    gr = Numeric.zeros(dimc,Numeric.Float0)
+    br = Numeric.zeros(dimc,Numeric.Float0)
+    for i in xrange(dimc):
+      rr[i],gr[i],br[i] = c_hsvrgb(h.flat[i],s.flat[i],v.flat[i])
+    rr.shape = gr.shape = br.shape = ishape
     return rr,gr,br
   elif ( ( is_list(h) and  is_list(s) and  is_list(v)) or    \
          (is_tuple(h) and is_tuple(s) and is_tuple(v)) ):
-    rr = []
-    gr = []
-    br = []
-    for i in xrange(len(h)):
-      xr, xg, xb = c_hsvrgb(h[i],s[i],v[i])
-      rr.append(xr)
-      gr.append(xg)
-      br.append(xb)
+    hi = Numeric.array(h,Numeric.Float0)
+    si = Numeric.array(s,Numeric.Float0)
+    vi = Numeric.array(v,Numeric.Float0)
+    ishape = hi.shape
+    dimc = len(hi.flat)
+    rr = Numeric.zeros(dimc,Numeric.Float0)
+    gr = Numeric.zeros(dimc,Numeric.Float0)
+    br = Numeric.zeros(dimc,Numeric.Float0)
+    for j in xrange(dimc):
+      rr[j],gr[j],br[j] = c_hsvrgb(hi.flat[j],si.flat[j],vi.flat[j])
+    rr.shape = gr.shape = br.shape = ishape
+    del hi,si,vi,dimc,ishape
     return rr,gr,br
   else:
-    print "hsvrgb: arguments must be scalars, 1D arrays, lists or tuples of numbers"
+    print "hsvrgb: arguments must be scalars, Numeric arrays, lists or tuples."
 
 #
 #  Get indices of a list where the list values are true.
@@ -1954,85 +1992,104 @@ def retrieve_colormap(wks):
   return get_MDfloat_array(wks,"wkColorMap")
 
 def rgbhls(r,g,b):
-  if (ck_type("rgbhls",r,1) or ck_type("rgbhls",g,1) or ck_type("rgbhls",b,1)):
-    return None
   if (is_scalar(r) and is_scalar(g) and is_scalar(b)):
     return(c_rgbhls(r,g,b))
   elif (is_array(r) and is_array(g) and is_array(b)):
-    dimc = len(r)
+    ishape = r.shape
+    dimc = len(r.flat)
     hr = Numeric.zeros(dimc,Numeric.Float0)
     lr = Numeric.zeros(dimc,Numeric.Float0)
     sr = Numeric.zeros(dimc,Numeric.Float0)
-    for i in xrange(len(r)):
-      hr[i],lr[i],sr[i] = c_rgbhls(r[i],g[i],b[i])
+    for i in xrange(dimc):
+      hr[i],lr[i],sr[i] = c_rgbhls(r.flat[i],g.flat[i],b.flat[i])
+    hr.shape = lr.shape = sr.shape = ishape
+    del dimc,ishape
     return hr,lr,sr
   elif ( ( is_list(r) and  is_list(g) and  is_list(b)) or    \
          (is_tuple(r) and is_tuple(g) and is_tuple(b)) ):
-    hr = []
-    lr = []
-    sr = []
-    for i in xrange(len(r)):
-      xh, xl, xs = c_rgbhls(r[i],g[i],b[i])
-      hr.append(xh)
-      lr.append(xl)
-      sr.append(xs)
+    ri = Numeric.array(r,Numeric.Float0)
+    gi = Numeric.array(g,Numeric.Float0)
+    bi = Numeric.array(b,Numeric.Float0)
+    ishape = ri.shape
+    dimc = len(ri.flat)
+    hr = Numeric.zeros(dimc,Numeric.Float0)
+    lr = Numeric.zeros(dimc,Numeric.Float0)
+    sr = Numeric.zeros(dimc,Numeric.Float0)
+    for i in xrange(dimc):
+      hr[i], lr[i], sr[i] = c_rgbhls(ri.flat[i],gi.flat[i],bi.flat[i])
+    hr.shape = lr.shape = sr.shape = ishape
+    del ri,gi,bi,dimc,ishape
     return hr,lr,sr
   else:
     print "rgbhls: arguments must be scalars, 1D arrays, lists or tuples of numbers"
 
 def rgbhsv(r,g,b):
-  if (ck_type("rgbhsv",r,1) or ck_type("rgbhsv",g,1) or ck_type("rgbhsv",b,1)):
-    return None
   if (is_scalar(r) and is_scalar(g) and is_scalar(b)):
     return(c_rgbhsv(r,g,b))
   elif (is_array(r) and is_array(g) and is_array(b)):
-    dimc = len(r)
+    ishape = r.shape
+    dimc = len(r.flat)
     hr = Numeric.zeros(dimc,Numeric.Float0)
     sr = Numeric.zeros(dimc,Numeric.Float0)
     vr = Numeric.zeros(dimc,Numeric.Float0)
-    for i in xrange(len(r)):
-      hr[i],sr[i],vr[i] = c_rgbhsv(r[i],g[i],b[i])
+    for i in xrange(dimc):
+      hr[i],sr[i],vr[i] = c_rgbhsv(r.flat[i],g.flat[i],b.flat[i])
+    hr.shape = sr.shape = vr.shape = ishape
+    del ishape,dimc
     return hr,sr,vr
   elif ( ( is_list(r) and  is_list(g) and  is_list(b)) or    \
          (is_tuple(r) and is_tuple(g) and is_tuple(b)) ):
-    hr = []
-    sr = []
-    vr = []
-    for i in xrange(len(r)):
-      xh, xs, xv = c_rgbhsv(r[i],g[i],b[i])
-      hr.append(xh)
-      sr.append(xs)
-      vr.append(xv)
+    ri = Numeric.array(r,Numeric.Float0)
+    gi = Numeric.array(g,Numeric.Float0)
+    bi = Numeric.array(b,Numeric.Float0)
+    ishape = ri.shape
+    dimc = len(ri.flat)
+    hr = Numeric.zeros(dimc,Numeric.Float0)
+    sr = Numeric.zeros(dimc,Numeric.Float0)
+    vr = Numeric.zeros(dimc,Numeric.Float0)
+    for j in xrange(dimc):
+      hr[j], sr[j], vr[j] = c_rgbhsv(ri.flat[j],gi.flat[j],bi.flat[j])
+    hr.shape = sr.shape = vr.shape = ishape
+    del ri,gi,bi,ishape,dimc
     return hr,sr,vr
   else:
-    print "rgbhsv: arguments must be scalars, 1D arrays, lists or tuples of numbers"
+    print "rgbhsv: arguments must be scalars, Numeirc arrays, lists or tuples of numbers"
 
 def rgbyiq(r,g,b):
-  if (ck_type("rgbyiq",r,1) or ck_type("rgbyiq",g,1) or ck_type("rgbyiq",b,1)):
-    return None
+#
+#  Check if input is a Numeric array, scalar, list, or tuple.
+#
   if (is_scalar(r) and is_scalar(g) and is_scalar(b)):
+    y,i,q = c_rgbyiq(r,g,b)
     return(c_rgbyiq(r,g,b))
   elif (is_array(r) and is_array(g) and is_array(b)):
-    dimc = len(r)
+    ishape = r.shape
+    dimc = len(r.flat)
     yr = Numeric.zeros(dimc,Numeric.Float0)
     ir = Numeric.zeros(dimc,Numeric.Float0)
     qr = Numeric.zeros(dimc,Numeric.Float0)
-    for i in xrange(len(r)):
-      yr[i],ir[i],qr[i] = c_rgbyiq(r[i],g[i],b[i])
+    for i in xrange(len(r.flat)):
+      yr[i],ir[i],qr[i] = c_rgbyiq(r.flat[i],g.flat[i],b.flat[i])
+    yr.shape = ir.shape = qr.shape = ishape
+    del ishape,dimc
     return yr,ir,qr
   elif ( ( is_list(r) and  is_list(g) and  is_list(b)) or    \
          (is_tuple(r) and is_tuple(g) and is_tuple(b)) ):
-    yr = []
-    ir = []
-    qr = []
-    for i in xrange(len(r)):
-      xy, xi, xq = c_rgbyiq(r[i],g[i],b[i])
-      yr.append(xy)
-      ir.append(xi)
-      qr.append(xq)
+    ri = Numeric.array(r,Numeric.Float0)
+    gi = Numeric.array(g,Numeric.Float0)
+    bi = Numeric.array(b,Numeric.Float0)
+    ishape = ri.shape
+    dimc = len(ri.flat)
+    yr = Numeric.zeros(dimc,Numeric.Float0)
+    ir = Numeric.zeros(dimc,Numeric.Float0)
+    qr = Numeric.zeros(dimc,Numeric.Float0)
+    for i in xrange(dimc):
+      yr[i], ir[i], qr[i] = c_rgbyiq(ri.flat[i],gi.flat[i],bi.flat[i])
+    yr.shape = ir.shape = qr.shape = ishape
+    del ri,gi,bi,ishape,dimc
     return yr,ir,qr
   else:
-    print "rgbyiq: arguments must be scalars, 1D arrays, lists or tuples of numbers"
+    print "rgbyiq: arguments must be scalars, Numeric arrays, lists or tuples of numbers"
 
 def set_values(obj,rlistc=None):
   rlist = crt_dict(rlistc)
@@ -3783,28 +3840,33 @@ def y(wks,yar,rlistc=None):
   return xy(wks,range(0,npts),yar,rlistc)
 
 def yiqrgb(y,i,q):
-  if (ck_type("yiqrgb",y,1) or ck_type("yiqrgb",i,1) or ck_type("yiqrgb",q,1)):
-    return None
   if (is_scalar(y) and is_scalar(i) and is_scalar(q)):
     return(c_yiqrgb(y,i,q))
   elif (is_array(y) and is_array(i) and is_array(q)):
-    dimc = len(y)
+    ishape = y.shape
+    dimc = len(y.flat)
     rr = Numeric.zeros(dimc,Numeric.Float0)
     gr = Numeric.zeros(dimc,Numeric.Float0)
     br = Numeric.zeros(dimc,Numeric.Float0)
     for j in xrange(dimc):
-      rr[j],gr[j],br[j] = c_yiqrgb(y[j],i[j],q[j])
+      rr[j],gr[j],br[j] = c_yiqrgb(y.flat[j],i.flat[j],q.flat[j])
+    rr.shape = gr.shape = br.shape = ishape
+    del dimc,ishape
     return rr,gr,br
   elif ( ( is_list(y) and  is_list(i) and  is_list(q)) or    \
          (is_tuple(y) and is_tuple(i) and is_tuple(q)) ):
-    rr = []
-    gr = []
-    br = []
-    for j in xrange(len(y)):
-      xr, xg, xb = c_yiqrgb(y[j],i[j],q[j])
-      rr.append(xr)
-      gr.append(xg)
-      br.append(xb)
+    yi = Numeric.array(y,Numeric.Float0)
+    ii = Numeric.array(i,Numeric.Float0)
+    qi = Numeric.array(q,Numeric.Float0)
+    ishape = yi.shape
+    dimc = len(yi.flat)
+    rr = Numeric.zeros(dimc,Numeric.Float0)
+    gr = Numeric.zeros(dimc,Numeric.Float0)
+    br = Numeric.zeros(dimc,Numeric.Float0)
+    for j in xrange(dimc):
+      rr[j],gr[j],br[j] = c_yiqrgb(yi.flat[j],ii.flat[j],qi.flat[j])
+    rr.shape = gr.shape = br.shape = ishape
+    del yi,ii,qi,ishape,dimc
     return rr,gr,br
   else:
-    print "yiqrgb: arguments must be scalars, 1D arrays, lists or tuples of numbers"
+    print "yiqrgb: arguments must be scalars, Numeric arrays, lists or tuples of numbers"
