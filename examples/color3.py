@@ -205,9 +205,9 @@ if (Numeric.greater(Numeric.fabs([h-120., s-1., v-1.]), eps)):
 eps = 0.01
 
 #
-#  YIQ to RGB: (0.59, -0.28, -0.52) -> (0., 1., 0.)
+#  YIQ to RGB: (0.58701, -0.27431, -0.52299) -> (0., 1., 0.)
 #
-r,g,b = Ngl.yiqrgb(0.59, -0.28, -0.52)
+r,g,b = Ngl.yiqrgb(0.58701, -0.27431, -0.52299)
 if (Numeric.greater(Numeric.fabs([r, g-1., b]), eps)):
   print "color3: yiqrgb test failed"
 
