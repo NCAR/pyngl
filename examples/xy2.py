@@ -3,7 +3,7 @@
 #    xy2.py
 #
 #  Synopsis:
-#    Illustrates how to add primitives to an XY plot.
+#    Illustrates how to add primitives and text to an XY plot.
 #
 #  Categories:
 #    paneling
@@ -19,16 +19,15 @@
 #    January 2006
 #
 #  Description:
-#    This example shows how to attach primitives to an XY plot so that
-#    when the plot is resized and drawn, the primitives are
-#    automatically resized and drawn.
+#    This example shows how to attach primitives and text to an XY
+#    plot so that when the plot is resized and drawn, the primitives
+#    and text are automatically resized and drawn.
 
 #  Effects illustrated:
-#    o  Attaching primitives to a plot.
 #    o  Using named colors to create a color map.
+#    o  Attaching primitives to a plot.
+#    o  Attaching text to a plot.
 #    o  Panelling plots.
-#    o  Setting tickmark resources to get different sets and styles 
-#       of axes drawn.
 # 
 #  Output:
 #     A single visualization with two plots is produced.
@@ -70,7 +69,8 @@ ysquare = [-0.5,-0.5, 0.5, 0.5,-0.5]    # for polygon.
 #
 wks_type = "ps"
 rlist = Ngl.Resources()
-rlist.wkColorMap = ["white","black","blue","hotpink","yellow","green"]
+rlist.wkColorMap = ["white","black","blue","hotpink","yellow","green",\
+                    "coral4","gray75"]
 wks = Ngl.open_wks(wks_type,"xy2",rlist)
 
 #
@@ -152,6 +152,37 @@ xdots2 = x[42:48:5]
 ydots2 = y[42:48:5]
 prim13 = Ngl.add_polyline(wks,xy2,x[42:48],y[42:48],gsres)
 prim14 = Ngl.add_polymarker(wks,xy2,xdots2,ydots2,gsres)
+
+#
+# Now add some text strings.
+#
+txres               = Ngl.Resources()
+txres.txFont        = "helvetica-bold"
+txres.txFontColor   = "coral4"
+txres.txFontHeightF = 0.037
+txres.txJust        = "BottomCenter"
+
+text1  = Ngl.add_text(wks,xy1,"this is a text string",32.,0.5,txres)
+
+#
+# Slanted strings
+#
+txres.txJust    = "BottomRight"
+txres.txAngleF  = -45.
+text2b = Ngl.add_text(wks,xy2,"some slanted",32.,.5,txres)
+txres.txJust    = "BottomLeft"
+txres.txAngleF  =  45.
+text2b = Ngl.add_text(wks,xy2,"text strings",32.,.5,txres)
+
+#
+# Filled text box.
+#
+txres.txAngleF              = 0.
+txres.txJust                = "CenterLeft"
+txres.txPerimOn             = True
+txres.txFontColor           = "black"
+txres.txBackgroundFillColor = "gray75"
+text4  = Ngl.add_text(wks,xy1,"filled text box",3.,-1.0,txres)
 
 #
 # Now that our primitives have been added to both plots, panel them.
