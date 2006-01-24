@@ -1080,7 +1080,7 @@ def asciiread(filename,dims,type="float"):
     return Numeric.reshape(ar,dims)
 
 def change_workstation(obj,wks):
-  return NhlChangeWorkstation(int_id(obj),wks)
+  NhlChangeWorkstation(int_id(obj),wks)
 
 def clear_workstation(obj):
   NhlClearWorkstation(int_id(obj))
@@ -1194,19 +1194,24 @@ def contour_map(wks,array,rlistc=None):
   return(lst2pobj(icm))
 
 def destroy(obj):
-  return(NhlDestroy(int_id(obj)))
+  NhlDestroy(int_id(obj))
+  return None
 
 def draw(obj):
-  return(NhlDraw(int_id(obj)))
+  NhlDraw(int_id(obj))
+  return None
 
 def draw_colormap(wks):
   draw_colormap_wrap(wks)
+  return None
 
 def end():
   NhlClose()
+  return None
 
 def frame(wks):
-  return(NhlFrame(wks))
+  NhlFrame(wks)
+  return None
 
 def fspan(min,max,num):
   delta = (float(max-min)/float(num-1))
@@ -1637,8 +1642,8 @@ def new_color(wks_id,r,g,b):
 def new_dash_pattern(wks_id,patterns):
   return NhlNewDashPattern(int_id(wks_id),patterns)
 
-def new_marker(wks_id,marker_strings,font_nums,xoffset,yoffset, \
-               aspect_ratio, size, angle):
+def new_marker(wks_id,marker_strings,font_nums,xoffset=0.,yoffset=0., \
+               aspect_ratio=1., size=1., angle=0.):
   return NhlNewMarker(int_id(wks_id),marker_strings, \
                font_nums,float(xoffset),float(yoffset), \
                float(aspect_ratio), float(size), float(angle))
