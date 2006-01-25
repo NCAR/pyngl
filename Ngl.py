@@ -3834,7 +3834,7 @@ def y(wks,yar,rlistc=None):
     return None
 
   if (len(dsizes_y) == 1):
-    npts = dsizes_y
+    npts = dsizes_y[0]
   elif (len(dsizes_y) == 2):
     npts = dsizes_y[1]
   else:
