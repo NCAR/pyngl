@@ -86,7 +86,7 @@ text_res.txFont = "Helvetica-Bold"
 for i in xrange(0,len(colors)):
 #
 #  delx_0 - horizontal spacing between boxes.
-#  delx_2 - width of a box.
+#  delx_1 - width of a box.
 #  dely_0 - vertical spacing between boxes.
 #  dely_1 - height of a box.
 #
