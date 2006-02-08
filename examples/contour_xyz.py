@@ -106,8 +106,9 @@ cmap = Numeric.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
 
 rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
-wks   = Ngl.open_wks( "ps","contour_xyz",rlist)    # Open a PS workstation 
-                                                   # with the given colormap.
+wks_type = "ps"
+wks   = Ngl.open_wks( wks_type,"contour_xyz",rlist)  # Open a PS workstation 
+                                                     # with the given colormap.
 
 #
 # Set up a resource list to contain the resources for our various
