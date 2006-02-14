@@ -1990,7 +1990,7 @@ def pynglpath(name):
 def remove_annotation(plot_id1,plot_id2):
   NhlRemoveAnnotation(int_id(plot_id1),int_id(plot_id2))
 
-def remove_overlay(plot_id1,plot_id2,restore):
+def remove_overlay(plot_id1,plot_id2,restore=0):
   NhlRemoveOverlay(int_id(plot_id1),int_id(plot_id2),restore)
 
 def retrieve_colormap(wks):
@@ -2096,7 +2096,7 @@ def rgbyiq(r,g,b):
   else:
     print "rgbyiq: arguments must be scalars, Numeric arrays, lists or tuples of numbers"
 
-def set_values(obj,rlistc=None):
+def set_values(obj,rlistc):
   rlist = crt_dict(rlistc)
   values = NhlSetValues(int_id(obj),rlist)
   del rlist
