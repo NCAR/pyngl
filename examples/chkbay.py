@@ -50,6 +50,13 @@
 #
 #            https://sourceforge.net/projects/oceanmodelfiles
 #
+#    3.)  If you want high resolution map coastlines you will
+#         need to download the appropriate data files, if you
+#         have not done so.  For details, see:
+#
+#            http://www.pyngl.ucar.edu/Graphics/rangs.shtml
+#
+#
 
 #
 #  Import NumPy.
@@ -116,29 +123,10 @@ contour = Ngl.contour(wks,depth,resources)
 resources.mpProjection = "CylindricalEquidistant"
 
 #
-# If you want high resolution map coastlines, download the RANGS/GSHHS
-# files from:
-#
-#     http://www.io-warnemuende.de/homepages/rfeistel/index.html
-#
-# The files you need are:
-#
-#   rangs(0).zip    gshhs(0).zip
-#   rangs(1).zip    gshhs(1).zip
-#   rangs(2).zip    gshhs(2).zip
-#   rangs(3).zip    gshhs(3).zip
-#   rangs(4).zip    gshhs(4).zip
-#
-# Once you unzip these files, put them in the directory:
-#
-#  sys.prefix + "/lib/python" + sys.version[:3] + \
-#    "/site-packages/PyNGL/ncarg/rangs"
-#
-# If you don't have permissions to write in that directory, put the
-# files in a directory that you do have access to and then set the
-# environment variable PYNGL_RANGS to that directory.
-#
-# Now you can change the following resource to "HighRes".
+# Once the high resolution coastline data files have been
+# downloaded (see the Notes section above for details), to
+# access them you need to change the following resource 
+# to "HighRes".
 #
 resources.mpDataBaseVersion = "MediumRes"
 
