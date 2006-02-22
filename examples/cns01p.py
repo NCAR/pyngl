@@ -3,7 +3,7 @@
 #     cns01p.py
 #
 #   Synopsis:
-#     Draws contours using dashed lines for contour levels.
+#     Draws contours using dashed lines and user-specified labels.
 #
 #   Category:
 #     Contouring
@@ -22,9 +22,14 @@
 #     o  Drawing a contour visualization with dashed contour lines
 #        produced by setting the resourcer "cnMonoLineDashPattern" 
 #        to False.
+#     o  Drawing a contour visualization with user-specified labels
+#     o  Retrieving string arrays.
 #
 #  Output
-#     A single visualization is produced.
+#     Two visualizations are produced:
+#       1.)  A simple contour plot with dashed contour lines.
+#       2.)  Same as 1.), but with user-specified line labels.
+#
 # 
 #
 import Ngl
@@ -44,7 +49,7 @@ for i in xrange(len(ispn)):
 T = 100. - 8.*Numeric.sqrt(T)
 
 #
-#  Open a workstation and draw the contour plot.
+#  Open a workstation and draw a contour plot.
 #
 wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"cns01p")
@@ -52,6 +57,28 @@ wks = Ngl.open_wks(wks_type,"cns01p")
 res = Ngl.Resources()
 res.cnMonoLineDashPattern = False
 
-Ngl.contour(wks,T,res)
+plot1 = Ngl.contour(wks,T,res)
+
+# 
+#  Retrieve the automatically set line labels.  
+#  These will be: ['-80', '-60', '-40', '-20', '0', '20', '40', '60', '80']
+#
+line_labels1 = Ngl.get_string_array(plot1,"cnLineLabelStrings")
+
+#
+#  Set explicit line labels.  Notice that the dash line
+#  setting carries over from the first plot.
+#
+res.cnExplicitLineLabelsOn = True
+res.cnLineLabelStrings = ["Lab1",  "Lab2", "Lab3", "Lab4", "Lab5",
+                          "Lab6",  "Lab7", "Lab8", "Lab9"]
+plot2 = Ngl.contour(wks,T,res)
+
+#
+#  Retrieve the explicitly set line labels.
+#  These will be: ['Lab1', 'Lab2', 'Lab3', 'Lab4', 'Lab5', 
+#                  'Lab6', 'Lab7', 'Lab8', 'Lab9']
+#
+line_labels2 = Ngl.get_string_array(plot2,"cnLineLabelStrings")
 
 Ngl.end()
