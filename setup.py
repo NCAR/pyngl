@@ -40,9 +40,16 @@ pyngl_dir = pkgs_pth + "/PyNGL/ncarg"
 main_dirs    = ["ncarg","bin"]
 ncarg_dirs   = ["data","colormaps","database","fontcaps","graphcaps"]
 pynglex_dirs = ["pynglex"] 
-#ncarg_files  = ["sysresfile"]
 bin_files    = ["ctrans","med","psplit"]
 pynglex_scp  = ["pynglex"]
+#
+# The sysresfile is kind of a special file, because we are not
+# using the one that is part of NCL, but rather one that we have
+# modified specifically for PyNGL. This file should reside in the
+# main "pyngl/src" directory, and will get copied to "ncarg/" 
+# eventually, where it will reside under the "site-packages/PyNGL"
+# directory.
+ncarg_files  = ["sysresfile"]
 
 if(copy_files):
 #
@@ -72,8 +79,8 @@ if(copy_files):
     shutil.copytree(ncl_lib + "ncarg/" + ncarg_dirs[i],"ncarg/"+ncarg_dirs[i])
   for i in xrange(len(pynglex_dirs)):
     shutil.copytree(pynglex_dirs[i],"ncarg/"+pynglex_dirs[i])
-#  for i in xrange(len(ncarg_files)):
-#    shutil.copy(ncl_lib + "ncarg/" + ncarg_files[i],"ncarg/")
+  for i in xrange(len(ncarg_files)):
+    shutil.copy(ncarg_files[i],"ncarg/")
   for i in xrange(len(bin_files)):
     shutil.copy(ncl_root + "bin/" + bin_files[i],"bin/")
   for i in xrange(len(pynglex_scp)):
@@ -146,10 +153,10 @@ for i in xrange(len(pynglex_files)):
 for i in xrange(len(bin_files)):
   bin_files[i] = "bin/" + bin_files[i]
 
-res_file = ["sysresfile"]
+res_file = ["ncarg/sysresfile"]
 
 setup (name = "PyNGL",
-       version="0.1.1b8",
+       version="0.1.1b9",
        author="Dave Brown, Fred Clare, Mary Haley",
        author_email="fred@ucar.edu,haley@ucar.edu",
        description = "2D visualization library",
