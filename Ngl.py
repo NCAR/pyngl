@@ -1490,9 +1490,7 @@ def hlsrgb(h,l,s):
     print "hlsrgb: arguments must be scalars, Numeric arrays, lists or tuples."
 
 def hsvrgb(h,s,v):
-  if (is_scalar(h) and is_scalar(s) and is_scalar(v)):
-    return(c_hsvrgb(h,s,v))
-  elif (is_array(h) and is_array(s) and is_array(v)):
+  if (is_array(h) and is_array(s) and is_array(v)):
     ishape = h.shape
     dimc = len(h.flat)
     rr = Numeric.zeros(dimc,Numeric.Float0)
@@ -1518,7 +1516,7 @@ def hsvrgb(h,s,v):
     del hi,si,vi,dimc,ishape
     return rr,gr,br
   else:
-    print "hsvrgb: arguments must be scalars, Numeric arrays, lists or tuples."
+    return(c_hsvrgb(h,s,v))
 
 #
 #  Get indices of a list where the list values are true.
