@@ -46,7 +46,9 @@
 #    o Possible warnings to standard out if color conversion tests fail.
 #
 
-import Ngl, Numeric, math
+import Ngl 
+import math
+import Numeric
 #
 #  Define the hues, and saturations, and values (the HSV) to be used.
 #
@@ -175,28 +177,28 @@ eps = 0.00001
 #  HLS to RGB: (120., 50., 100.) -> (1., 0., 0.)
 #
 r,g,b = Ngl.hlsrgb(120., 50., 100.)
-if (Numeric.greater(Numeric.fabs([r-1., g, b]), eps)):
+if Numeric.sometrue(Numeric.greater(Numeric.fabs([r-1., g, b]), eps)):
   print "color3: hlsrgb test failed"
 
 #
 #  RGB to HLS: (1., 0., 0.) -> (120., 50., 100.)
 #
 h,l,s = Ngl.rgbhls(1., 0., 0.)
-if (Numeric.greater(Numeric.fabs([h-120., l-50., s-100.]), eps)):
+if Numeric.sometrue(Numeric.greater(Numeric.fabs([h-120.,l-50.,s-100.]), eps)):
  print "color3: rgbhls test failed"
 
 #
 #  HSV to RGB: (120., 1., 1.) -> (0., 1., 0.)
 #
 r,g,b = Ngl.hsvrgb(120., 1., 1.)   
-if (Numeric.greater(Numeric.fabs([r, g-1., b]), eps)):
+if Numeric.sometrue(Numeric.greater(Numeric.fabs([r, g-1., b]), eps)):
   print "color3: hsvrgb test failed"
 
 #
 #  RGB to HSV: (0., 1., 0.) -> (120., 1., 1.)
 #
 h,s,v = Ngl.rgbhsv(0., 1., 0.)        
-if (Numeric.greater(Numeric.fabs([h-120., s-1., v-1.]), eps)):
+if Numeric.sometrue(Numeric.greater(Numeric.fabs([h-120., s-1., v-1.]), eps)):
  print "color3: hsvrgb test failed"
 
 #
@@ -208,14 +210,14 @@ eps = 0.01
 #  YIQ to RGB: (0.58701, -0.27431, -0.52299) -> (0., 1., 0.)
 #
 r,g,b = Ngl.yiqrgb(0.58701, -0.27431, -0.52299)
-if (Numeric.greater(Numeric.fabs([r, g-1., b]), eps)):
+if Numeric.sometrue(Numeric.greater(Numeric.fabs([r, g-1., b]), eps)):
   print "color3: yiqrgb test failed"
 
 #
 #  RGB to YIQ: (1., 1., 1.) -> (1., 0., 0.)
 #
 y,i,q = Ngl.rgbyiq(1., 1., 1.)
-if (Numeric.greater(Numeric.fabs([y-1., i, q]), eps)):
+if Numeric.sometrue(Numeric.greater(Numeric.fabs([y-1., i, q]), eps)):
  print "color3: rgbyiq test failed"
       
 Ngl.end()
