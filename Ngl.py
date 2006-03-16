@@ -1458,9 +1458,7 @@ def get_string_array(obj,name):
   return(NhlGetStringArray(int_id(obj),name))
 
 def hlsrgb(h,l,s):
-  if (is_scalar(h) and is_scalar(l) and is_scalar(s)):
-    return(c_hlsrgb(h,l,s))
-  elif (is_array(h) and is_array(l) and is_array(s)):
+  if (is_array(h) and is_array(l) and is_array(s)):
     ishape = h.shape
     dimc = len(h.flat)
     rr = Numeric.zeros(dimc,Numeric.Float0)
@@ -1487,7 +1485,7 @@ def hlsrgb(h,l,s):
     del hi,li,si,ishape,dimc
     return rr,gr,br
   else:
-    print "hlsrgb: arguments must be scalars, Numeric arrays, lists or tuples."
+    return(c_hlsrgb(h,l,s))
 
 def hsvrgb(h,s,v):
   if (is_array(h) and is_array(s) and is_array(v)):
@@ -1995,9 +1993,7 @@ def retrieve_colormap(wks):
   return get_MDfloat_array(wks,"wkColorMap")
 
 def rgbhls(r,g,b):
-  if (is_scalar(r) and is_scalar(g) and is_scalar(b)):
-    return(c_rgbhls(r,g,b))
-  elif (is_array(r) and is_array(g) and is_array(b)):
+  if (is_array(r) and is_array(g) and is_array(b)):
     ishape = r.shape
     dimc = len(r.flat)
     hr = Numeric.zeros(dimc,Numeric.Float0)
@@ -2024,12 +2020,10 @@ def rgbhls(r,g,b):
     del ri,gi,bi,dimc,ishape
     return hr,lr,sr
   else:
-    print "rgbhls: arguments must be scalars, 1D arrays, lists or tuples of numbers"
+    return(c_rgbhls(r,g,b))
 
 def rgbhsv(r,g,b):
-  if (is_scalar(r) and is_scalar(g) and is_scalar(b)):
-    return(c_rgbhsv(r,g,b))
-  elif (is_array(r) and is_array(g) and is_array(b)):
+  if (is_array(r) and is_array(g) and is_array(b)):
     ishape = r.shape
     dimc = len(r.flat)
     hr = Numeric.zeros(dimc,Numeric.Float0)
@@ -2056,16 +2050,13 @@ def rgbhsv(r,g,b):
     del ri,gi,bi,ishape,dimc
     return hr,sr,vr
   else:
-    print "rgbhsv: arguments must be scalars, Numeirc arrays, lists or tuples of numbers"
+    return(c_rgbhsv(r,g,b))
 
 def rgbyiq(r,g,b):
 #
 #  Check if input is a Numeric array, scalar, list, or tuple.
 #
-  if (is_scalar(r) and is_scalar(g) and is_scalar(b)):
-    y,i,q = c_rgbyiq(r,g,b)
-    return(c_rgbyiq(r,g,b))
-  elif (is_array(r) and is_array(g) and is_array(b)):
+  if (is_array(r) and is_array(g) and is_array(b)):
     ishape = r.shape
     dimc = len(r.flat)
     yr = Numeric.zeros(dimc,Numeric.Float0)
@@ -2092,7 +2083,7 @@ def rgbyiq(r,g,b):
     del ri,gi,bi,ishape,dimc
     return yr,ir,qr
   else:
-    print "rgbyiq: arguments must be scalars, Numeric arrays, lists or tuples of numbers"
+    return(c_rgbyiq(r,g,b))
 
 def set_values(obj,rlistc):
   rlist = crt_dict(rlistc)
@@ -3843,9 +3834,7 @@ def y(wks,yar,rlistc=None):
   return xy(wks,range(0,npts),yar,rlistc)
 
 def yiqrgb(y,i,q):
-  if (is_scalar(y) and is_scalar(i) and is_scalar(q)):
-    return(c_yiqrgb(y,i,q))
-  elif (is_array(y) and is_array(i) and is_array(q)):
+  if (is_array(y) and is_array(i) and is_array(q)):
     ishape = y.shape
     dimc = len(y.flat)
     rr = Numeric.zeros(dimc,Numeric.Float0)
@@ -3872,4 +3861,4 @@ def yiqrgb(y,i,q):
     del yi,ii,qi,ishape,dimc
     return rr,gr,br
   else:
-    print "yiqrgb: arguments must be scalars, Numeric arrays, lists or tuples of numbers"
+    return(c_yiqrgb(y,i,q))
