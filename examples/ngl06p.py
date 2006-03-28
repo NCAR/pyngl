@@ -100,10 +100,10 @@ if hasattr(v,"_FillValue"):
 
 nlon = len(lon)
 nlat = len(lat)
-resources.vfXCStartV  = lon[0][0]             # Define X/Y axes range
-resources.vfXCEndV    = lon[len(lon[:])-1][0] # for vector plot.
-resources.vfYCStartV  = lat[0][0]
-resources.vfYCEndV    = lat[len(lat[:])-1][0]
+resources.vfXCStartV  = float(lon[0])             # Define X/Y axes range
+resources.vfXCEndV    = float(lon[len(lon[:])-1]) # for vector plot.
+resources.vfYCStartV  = float(lat[0])
+resources.vfYCEndV    = float(lat[len(lat[:])-1])
 
 map = Ngl.vector_map(wks,ua,va,resources)  # Draw a vector plot of u and v
 
@@ -124,10 +124,10 @@ rlist.wkColorMap = cmap
 Ngl.set_values(wks,rlist)
 
 resources.mpLimitMode       = "Corners"  # Zoom in on the plot area.
-resources.mpLeftCornerLonF  = lon[0][0]
-resources.mpRightCornerLonF = lon[len(lon[:])-1][0]
-resources.mpLeftCornerLatF  = lat[0][0]
-resources.mpRightCornerLatF = lat[len(lat[:])-1][0]
+resources.mpLeftCornerLonF  = float(lon[0])
+resources.mpRightCornerLonF = float(lon[len(lon[:])-1])
+resources.mpLeftCornerLatF  = float(lat[0])
+resources.mpRightCornerLatF = float(lat[len(lat[:])-1])
 
 resources.mpPerimOn         =   True    # Turn on map perimeter.
 
