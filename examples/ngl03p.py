@@ -106,10 +106,10 @@ resources.tiMainString  = "~F22~wind velocity vectors - January 1996"
 resources.tiXAxisString = "longitude"
 resources.tiYAxisString = "latitude"
  
-resources.vfXCStartV  = lon[0][0]            # Define X/Y axes range
-resources.vfXCEndV    = lon[len(lon[:])-1][0] # for vector plot.
-resources.vfYCStartV  = lat[0][0]
-resources.vfYCEndV    = lat[len(lat[:])-1][0]
+resources.vfXCStartV  = float(lon[0])             # Define X/Y axes range
+resources.vfXCEndV    = float(lon[len(lon[:])-1]) # for vector plot.
+resources.vfYCStartV  = float(lat[0])
+resources.vfYCEndV    = float(lat[len(lat[:])-1])
 
 
 
