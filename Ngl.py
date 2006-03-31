@@ -1956,7 +1956,7 @@ def pynglpath(name):
     elif (os.path.exists(ures_dir_dflt)):
       return ures_dir_dflt
     else:
-      print "pynglpath: useresfile directory does not exist."
+      print "pynglpath: no usrresfile specified."
       return None
   elif (name == "sysresfile"):
     sres_dir_envn = os.environ.get("PYNGL_SYSRESFILE")
