@@ -62,13 +62,8 @@ cfile = Nio.open_file(dirc+"/cdf/trinidad.nc","r")
 data         = cfile.variables["data"]
 lat          = cfile.variables["lat"][:]
 lon          = cfile.variables["lon"][:]
-minmax_elevE = cfile.variables["minmax_elevE"][:]
-minmax_elevW = cfile.variables["minmax_elevW"][:]
 map_cornersW = cfile.variables["map_cornersW"][:]
 map_cornersE = cfile.variables["map_cornersE"][:]
-
-min_elev = min(minmax_elevE,minmax_elevW)
-max_elev = max(minmax_elevE,minmax_elevW)
 
 cmap = Numeric.array([[1.00, 1.00, 1.00],[0.00, 0.00, 0.00], \
                       [0.51, 0.13, 0.94],[0.00, 0.00, 0.59], \
