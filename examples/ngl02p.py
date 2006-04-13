@@ -25,7 +25,7 @@
 #    o  Changing the color map.
 #    o  Contours with colored lines.
 #    o  Contours with hatch pattern fill.
-#    o  Turing off the label bar on a coutour plot.
+#    o  Turning off the label bar on a coutour plot.
 #    o  Color filled coutours.
 #    o  Using a long_name in a NetCDF file for a title.
 #    o  Writing data to an ASCII file.
