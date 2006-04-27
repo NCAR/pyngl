@@ -113,7 +113,7 @@ print "color index 15 (Gold)     = ",cmap[15,:]
 #
 cmap_len    = Ngl.get_integer(wks,"wkColorMapLen")
 markers     = Ngl.get_integer_array(xy.xydspec,"xyMarkers")
-thicknesses = Ngl.get_double_array(xy.xydspec,"xyLineThicknesses")
+thicknesses = Ngl.get_float_array(xy.xydspec,"xyLineThicknesses")
 line_mode   = Ngl.get_string(xy.xydspec,"xyMarkLineMode")
 style       = Ngl.get_integer(xy,"xyYStyle")
 
@@ -134,15 +134,5 @@ print "\n-----------printing some more colormap values (float)------------\n"
 print "color index  6 (SaddleBrown)   = ",cmap[6,:]
 print "color index  7 (Chartreuse)    = ",cmap[7,:]
 print "color index 18 (PaleTurquoise) = ",cmap[18,:]
-
-#
-# Here's the "double" way to retrieve the color map.
-#
-dcmap = Ngl.get_MDdouble_array(wks,"wkColorMap")
-
-print "\n-----------printing even more colormap values (double)------------\n"
-print "color index  8 (BurlyWood)   = ",dcmap[8,:]
-print "color index 12 (DodgerBlue)  = ",dcmap[12,:]
-print "color index 19 (Peru)        = ",dcmap[19,:]
 
 Ngl.end()
