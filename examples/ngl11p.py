@@ -35,7 +35,7 @@
 #     
 
 #
-#  Import NumPy.
+#  Import Numeric.
 #
 import Numeric,sys
 

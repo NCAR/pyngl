@@ -50,7 +50,7 @@
 # Contouring random data
 #
 #
-#  Import NumPy.
+#  Import Numeric.
 #
 import Numeric
 

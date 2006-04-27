@@ -46,7 +46,7 @@
 #     
 
 #
-#  Import NumPy.
+#  Import Numeric.
 #
 import Numeric
 
