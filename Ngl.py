@@ -810,39 +810,6 @@ def ck_type(fcn,arg,typ):
     else:
       print fcn + ": argument must be a Numeric array, or a scalar, list, or tuple."
       return 1
-  elif (typ == 2):
-#
-#  arg should be a Numeric array with ints, longs,
-#  or floats, or a scalar int, long, or float, or a list of ints, longs,
-#  or floats or a tuple of ints, longs or floats.
-#  
-    if (type(arg) == type(Numeric.array([0],Numeric.Int))):
-      if (len(arg) == 0):
-        print "Warning: " + fcn + ": An empty array was encountered."
-        return 0
-      return 0
-    elif (type(arg)==types.IntType or type(arg)==types.LongType or \
-          type(arg)==types.FloatType):
-      return 0
-    elif (type(arg)==types.ListType or type(arg)==types.TupleType):
-      if (len(arg) == 0):
-        print "Warning: " + fcn + ": An empty list was encountered."
-        return 0
-      a0 = arg[0]
-      if (type(a0)!=types.IntType and type(a0)!=types.FloatType and \
-          type(a0)!=types.LongType):
-        print fcn + \
-          ": Lists must have integers, longs, or floats."
-        return 1
-      else:
-        return 0
-    else:
-      print fcn + ": argument must be a Numeric array, or a scalar, list, or tuple."
-      return 1
-  else:
-    print "ck_type: invalid type flag"
-    return 1
-  return 0
 
 def skewty(pres):    # y-coord given pressure (mb)
   if (ck_type("skewty",pres,0) != 0):
