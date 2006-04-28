@@ -120,6 +120,9 @@ typedef struct {
  */
   int nglXAxisType;
   int nglYAxisType;
+
+  int nglPointTickmarksOutward;
+
 } nglRes;
 
 /*
@@ -188,6 +191,8 @@ extern void overlay_on_irregular(int, nglPlotId *asplot, ResInfo *,
 extern void spread_colors(int, int, int, int, char*, char*, int);
 
 extern void scale_plot(int,ResInfo *);
+
+extern void point_tickmarks_out(int,ResInfo *);
 
 extern float *coerce_to_float(void *, const char *, int);
 

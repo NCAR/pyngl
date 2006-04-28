@@ -844,6 +844,9 @@ void set_nglRes_i(int pos, int ival) {
   else if (pos == 48) {
     nglRlist.nglYAxisType = ival;
   }
+  else if (pos == 49) {
+    nglRlist.nglPointTickmarksOutward = ival;
+  }
   else {
     printf("set_nglRes_i: invalid argument %d\n",pos);
   }
@@ -921,6 +924,9 @@ int get_nglRes_i(int pos) {
   }
   else if (pos == 48) {
     return(nglRlist.nglYAxisType);
+  }
+  else if (pos == 49) {
+    return(nglRlist.nglPointTickmarksOutward);
   }
   else {
     printf("get_nglRes_i: invalid argument %d\n",pos);

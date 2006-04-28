@@ -733,6 +733,13 @@ void overlay_on_irregular(int wks, nglPlotId *plot, ResInfo *plot_res,
  */ 
   if(special_res->nglScale) scale_plot(*(plot->base),plot_res);
 
+/*
+ * Point tickmarks outward if requested specifically by user.
+ */
+  if(special_res->nglPointTickmarksOutward) {
+    point_tickmarks_out(*(plot->base),plot_res);
+  }
+
   return;
 }
 
@@ -896,6 +903,51 @@ void scale_plot(int plot, ResInfo *res)
      !is_res_set(res,"tmEqualizeXYSizes")) {
     NhlRLSetInteger(srlist, "tmEqualizeXYSizes", 1);
   }
+  NhlSetValues(plot,srlist);
+  return;
+}
+
+/*
+ * This function retrieves the current tickmark lengths and points
+ * them outward.
+ */
+
+void point_tickmarks_out(int plot, ResInfo *res)
+{
+  int srlist, grlist, mode;
+  float xb_length, xt_length, yl_length, yr_length;
+  float xb_mlength, xt_mlength, yl_mlength, yr_mlength;
+
+  srlist = NhlRLCreate(NhlSETRL);
+  grlist = NhlRLCreate(NhlGETRL);
+
+  NhlRLClear(grlist);
+  NhlRLGetFloat(grlist,"tmXBMajorLengthF", &xb_length);
+  NhlRLGetFloat(grlist,"tmXTMajorLengthF", &xt_length);
+  NhlRLGetFloat(grlist,"tmYLMajorLengthF", &yl_length);
+  NhlRLGetFloat(grlist,"tmYRMajorLengthF", &yr_length);
+  NhlRLGetFloat(grlist,"tmXBMinorLengthF", &xb_mlength);
+  NhlRLGetFloat(grlist,"tmXTMinorLengthF", &xt_mlength);
+  NhlRLGetFloat(grlist,"tmYLMinorLengthF", &yl_mlength);
+  NhlRLGetFloat(grlist,"tmYRMinorLengthF", &yr_mlength);
+  NhlGetValues(plot,grlist);
+
+/*
+ * Reset these resources, making the outward length equal to the
+ * total length.
+ */
+
+  NhlRLClear(srlist);
+
+  NhlRLSetFloat(srlist, "tmXBMajorOutwardLengthF", xb_length);
+  NhlRLSetFloat(srlist, "tmXTMajorOutwardLengthF", xt_length);
+  NhlRLSetFloat(srlist, "tmYLMajorOutwardLengthF", yl_length);
+  NhlRLSetFloat(srlist, "tmYRMajorOutwardLengthF", yr_length);
+  NhlRLSetFloat(srlist, "tmXBMinorOutwardLengthF", xb_mlength);
+  NhlRLSetFloat(srlist, "tmXTMinorOutwardLengthF", xt_mlength);
+  NhlRLSetFloat(srlist, "tmYLMinorOutwardLengthF", yl_mlength);
+  NhlRLSetFloat(srlist, "tmYRMinorOutwardLengthF", yr_mlength);
+
   NhlSetValues(plot,srlist);
   return;
 }
@@ -1673,8 +1725,14 @@ nglPlotId contour_wrap(int wks, void *data, const char *type, int ylen,
 /*
  * Make tickmarks and axis labels the same size.
  */
-
   if(special_res->nglScale) scale_plot(contour,cn_res);
+
+/*
+ * Point tickmarks outward if requested specifically by user.
+ */
+  if(special_res->nglPointTickmarksOutward) {
+    point_tickmarks_out(contour,cn_res);
+  }
 
 /*
  * Initialize plot id structure.
@@ -1774,8 +1832,14 @@ nglPlotId xy_wrap(int wks, void *x, void *y, const char *type_x,
 /*
  * Make tickmarks and axis labels the same size.
  */
-
   if(special_res->nglScale) scale_plot(xy,xy_res);
+
+/*
+ * Point tickmarks outward if requested specifically by user.
+ */
+  if(special_res->nglPointTickmarksOutward) {
+    point_tickmarks_out(xy,xy_res);
+  }
 
 /*
  * Initialize plot ids.
@@ -1890,8 +1954,14 @@ nglPlotId vector_wrap(int wks, void *u, void *v, const char *type_u,
 /*
  * Make tickmarks and axis labels the same size.
  */
-
   if(special_res->nglScale) scale_plot(vector,vc_res);
+
+/*
+ * Point tickmarks outward if requested specifically by user.
+ */
+  if(special_res->nglPointTickmarksOutward) {
+    point_tickmarks_out(vector,vc_res);
+  }
 
 /*
  * Initialize plot ids.
@@ -1979,8 +2049,14 @@ nglPlotId streamline_wrap(int wks, void *u, void *v, const char *type_u,
 /*
  * Make tickmarks and axis labels the same size.
  */
-
   if(special_res->nglScale) scale_plot(streamline,st_res);
+
+/*
+ * Point tickmarks outward if requested specifically by user.
+ */
+  if(special_res->nglPointTickmarksOutward) {
+    point_tickmarks_out(streamline,st_res);
+  }
 
 /*
  * Set up plot id structure to return.

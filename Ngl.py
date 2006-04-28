@@ -420,6 +420,8 @@ def set_spc_res(resource_name,value):
         print "set_spc_res: Unknown value for " + resource_name
     else:
       set_nglRes_i(48, lval) 
+  elif (resource_name == "PointTickmarksOutward"):
+    set_nglRes_i(49, lval) 
   else:
     print "set_spc_res: Unknown special resource ngl" + resource_name
 
@@ -705,6 +707,7 @@ def set_spc_defaults(type):
   set_nglRes_s(46, "")      # nglAppResFileName
   set_nglRes_i(47, 0)       # nglXAxisType - default to irregular
   set_nglRes_i(48, 0)       # nglYAxisType - default to irregular
+  set_nglRes_i(49, 0)       # nglPointTickmarksOutward
 
 
 def poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
