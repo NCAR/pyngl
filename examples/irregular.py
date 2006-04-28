@@ -82,7 +82,7 @@ resources = Ngl.Resources()
 
 resources.sfXArray        = lat_t
 resources.sfYArray        = z_t
-resources.sfMissingValueV = T._FillValue[0]
+resources.sfMissingValueV = float(T._FillValue[0])
 
 resources.cnFillOn        = True
 resources.cnLineLabelsOn  = False
