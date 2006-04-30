@@ -48,7 +48,7 @@
 #     
 
 #
-#  Import Numeric.
+#  Import NumPy.
 #
 import Numeric
 
@@ -250,17 +250,10 @@ Ngl.frame(wks)
 # Just to show it can be done, add the second plot as an annotation
 # of the first plot.
 #
-anno = Ngl.add_annotation(plot1,plot2)
-
-#
-# Set the "zone" such that the second plot is centered directly
-# over the first plot.  Also, set amResizeNotify to True so that
-# if plot1 is resized, plot2 will be resized with it.
-#
 sres                = Ngl.Resources()
 sres.amZone         = 0     # '0' means centered over base plot.
 sres.amResizeNotify = True
-Ngl.set_values(anno,sres)
+anno = Ngl.add_annotation(plot1,plot2,sres)
 
 #
 # Change the main title to reflect this is an added annotation.
@@ -270,7 +263,8 @@ sres.tiMainString = "One plot added as annotation of another"
 Ngl.set_values(plot1,sres)
 
 #
-# Now you just draw plot1, and plot2 will be drawn automatically.
+# Now if you draw plot1, and plot2 will be drawn automatically.  Also,
+# if you resize plot1, the attached plot2 will resize automatically.
 #
 Ngl.draw(plot1)
 Ngl.frame(wks)
