@@ -877,8 +877,12 @@ def dpwskewt(td,p,n):
 #  Public functions in alphabetical order.
 #  
 ################################################################
-def add_annotation(plot_id1,plot_id2):
-  return NhlAddAnnotation(int_id(plot_id1),int_id(plot_id2))
+def add_annotation(plot_id1,plot_id2,rlistc=None):
+  rlist = crt_dict(rlistc)
+  anno = NhlAddAnnotation(int_id(plot_id1),int_id(plot_id2))
+  values = NhlSetValues(int_id(anno),rlist)
+  del rlist
+  return anno
 
 #
 # Add a cyclic point in the x dimension (longitude dimension) to
