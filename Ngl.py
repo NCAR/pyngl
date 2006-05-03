@@ -762,12 +762,16 @@ def ck_type(fcn,arg,typ):
       if (len(arg.shape) != 1):
         print fcn + ": Numeric array argument must be singly-dimensioned."
         return 1
-      a0 = arg[0]
-      if (type(a0)!=types.IntType and type(a0)!=types.FloatType and \
-          type(a0)!=types.LongType):
-        print fcn + \
-          ": Numeric array argument must be integers, longs, or floats."
-        return 1
+#
+#  Commented out this test since you get different results
+#  depending on whether you are using Numeric 23.8 or 24.2.
+#
+#     a0 = arg[0]
+#     if (type(a0)!=types.IntType and type(a0)!=types.FloatType and \
+#         type(a0)!=types.LongType):
+#       print fcn + \
+#         ": Numeric array argument must be integers, longs, or floats."
+#       return 1
       return 0
     elif (type(arg)==types.IntType or type(arg)==types.LongType or \
           type(arg)==types.FloatType):
@@ -815,16 +819,17 @@ def ck_type(fcn,arg,typ):
       return 1
 
 def skewty(pres):    # y-coord given pressure (mb)
-  if (ck_type("skewty",pres,0) != 0):
-    return None
-  try:
-    return(132.182-44.061*Numeric.log10(pres))
-  except:
-    return None
+# if (ck_type("skewty",pres,0) != 0):
+#   return None
+# try:
+  return(132.182-44.061*Numeric.log10(pres))
+# except:
+#   return None
 # return (132.182-44.061*Numeric.log10(pres))
+
 def skewtx(temp,y):  # x-coord given temperature (c)
-  if (ck_type("skewtx",temp,0) != 0 or ck_type("skewtx",y,0) != 0):
-    return None
+# if (ck_type("skewtx",temp,0) != 0 or ck_type("skewtx",y,0) != 0):
+#   return None
   return (0.54*temp+0.90692*y)
 
 #########################################################################
@@ -1304,7 +1309,7 @@ def gc_convert(angle,ctype):
   r2m = 6371220.        # radians to meters
   m2f = 3.2808          # meters to feet
 
-  ck_type("gc_convert",angle,0)
+# ck_type("gc_convert",angle,0)
 
   dtype = ctype
   if (ctype == 0):
