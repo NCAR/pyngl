@@ -108,7 +108,7 @@ else:
 #  Set the scalarfield missing value if temp has one specified.
 #
 if hasattr(temp,"_FillValue"):
-  resources.sfMissingValueV = temp._FillValue[0]
+  resources.sfMissingValueV = float(temp._FillValue[0])
 
 #
 #  Specify the main title base on the long_name attribute of temp.
@@ -164,7 +164,7 @@ resources.tiXAxisFont     = "Helvetica-bold"
 resources.tiYAxisFont     = "Helvetica-bold"
 
 if hasattr(Z,"_FillValue"):
-  resources.sfMissingValueV = Z._FillValue
+  resources.sfMissingValueV = float(Z._FillValue)
 if hasattr(Z,"long_name"):
   resources.tiMainString = Z.long_name
 plot = Ngl.contour(wks,Z[0,0,:,:],resources)    # Draw a contour plot.

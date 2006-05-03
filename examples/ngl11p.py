@@ -71,8 +71,8 @@ resources = Ngl.Resources()
 resources.tiMainString   = "~F26~Cocos Island"   # Main title.
 resources.tiYAxisString  = "~F25~Pressure (mb)"  # Y axes label.
 
-resources.sfYCStartV = max(pressure)   # Indicate start and end of left
-resources.sfYCEndV   = min(pressure)   # Y axes values.
+resources.sfYCStartV = float(max(pressure))   # Indicate start and end of left
+resources.sfYCEndV   = float(min(pressure))   # Y axes values.
 
 resources.trYReverse  = True    # Reverse the Y values.
 resources.trYLog      = True    # Use log scale.

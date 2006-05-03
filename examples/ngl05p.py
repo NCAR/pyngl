@@ -43,7 +43,7 @@
 #     
 
 #
-#  Import Numeric.
+#  Import NumPy.
 #
 import Numeric
 
@@ -107,10 +107,10 @@ wks = Ngl.open_wks(wks_type,"ngl05p")
  
 resources = Ngl.Resources()
 
-resources.sfXCStartV = min(psl_lon)
-resources.sfXCEndV   = max(psl_lon)
-resources.sfYCStartV = min(psl_lat)
-resources.sfYCEndV   = max(psl_lat)
+resources.sfXCStartV = float(min(psl_lon))
+resources.sfXCEndV   = float(max(psl_lon))
+resources.sfYCStartV = float(min(psl_lat))
+resources.sfYCEndV   = float(max(psl_lat))
 
 map = Ngl.contour_map(wks,psl,resources)
 
@@ -153,10 +153,10 @@ resources.cnFillDrawOrder      = "Predraw" # areas before map gets
 
 resources.tiMainString = "~F26~" + cdf_file2.title
 
-resources.sfXCStartV = min(sst_lon)   # Define where contour plot
-resources.sfXCEndV   = max(sst_lon)   # should lie on the map plot.
-resources.sfYCStartV = min(sst_lat)
-resources.sfYCEndV   = max(sst_lat)
+resources.sfXCStartV = float(min(sst_lon))   # Define where contour plot
+resources.sfXCEndV   = float(max(sst_lon))   # should lie on the map plot.
+resources.sfYCStartV = float(min(sst_lat))
+resources.sfYCEndV   = float(max(sst_lat))
 
 resources.pmLabelBarDisplayMode = "Never"  # Turn off the label bar.
 
@@ -179,20 +179,20 @@ resources.cnInfoLabelOn         = False    # Turn off info label.
 
 resources.nglSpreadColorEnd     = -2       # Don't include gray in contours.
 
-resources.sfXCStartV = min(pf_lon)   # Define where contour plot
-resources.sfXCEndV   = max(pf_lon)   # should lie on the map plot.
-resources.sfYCStartV = min(pf_lat)
-resources.sfYCEndV   = max(pf_lat)
+resources.sfXCStartV = float(min(pf_lon))   # Define where contour plot
+resources.sfXCEndV   = float(max(pf_lon))   # should lie on the map plot.
+resources.sfYCStartV = float(min(pf_lat))
+resources.sfYCEndV   = float(max(pf_lat))
 
 resources.mpProjection = "LambertEqualArea"  # Change the map projection.
 resources.mpCenterLonF = (pf_lon[pf_nlon-1] + pf_lon[0])/2
 resources.mpCenterLatF = (pf_lat[pf_nlat-1] + pf_lat[0])/2
 
 resources.mpLimitMode = "LatLon"    # Limit the map view.
-resources.mpMinLonF   = min(pf_lon)
-resources.mpMaxLonF   = max(pf_lon)
-resources.mpMinLatF   = min(pf_lat)
-resources.mpMaxLatF   = max(pf_lat)
+resources.mpMinLonF   = float(min(pf_lon))
+resources.mpMaxLonF   = float(max(pf_lon))
+resources.mpMinLatF   = float(min(pf_lat))
+resources.mpMaxLatF   = float(max(pf_lat))
 resources.mpPerimOn   = True        # Turn on map perimeter.
 
 resources.pmTickMarkDisplayMode = "Never"  # Turn off map tickmarks.

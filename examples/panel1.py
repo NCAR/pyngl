@@ -169,10 +169,10 @@ resources.tmXBLabelFontHeightF   = 0.020
 resources.tmYLLabelFontHeightF   = 0.020
 
 resources.mpLimitMode    = "LatLon"  # Limit portion of map that is viewed.
-resources.mpMinLatF      = min(lat)
-resources.mpMaxLatF      = max(lat)
-resources.mpMinLonF      = min(lon)
-resources.mpMaxLonF      = max(lon)
+resources.mpMinLatF      = float(min(lat))
+resources.mpMaxLatF      = float(max(lat))
+resources.mpMinLonF      = float(min(lon))
+resources.mpMaxLonF      = float(max(lon))
 
 resources.pmLabelBarDisplayMode = "Never"   # Turn off labelbar, since we
                                             # will use a global labelbar
