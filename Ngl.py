@@ -7,6 +7,10 @@ import string
 import Numeric
 import commands
 
+import pyngl_version
+__version__ = pyngl_version.version
+del pyngl_version
+
 first_call_to_open_wks = 0
 
 class Resources:

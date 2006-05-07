@@ -1,6 +1,7 @@
 include setup.py
 include README
 include PyNGL/Ngl.py
+include PyNGL/pyngl_version.py
 include PyNGL/__init__.py
 include PyNGL/hlu.py
 include PyNGL/_hlu.so

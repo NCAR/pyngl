@@ -1,5 +1,5 @@
 MYNAME	= _hlu.so
-PYSRCS  = Ngl.py hlu.py __init__.py
+PYSRCS  = Ngl.py hlu.py __init__.py pyngl_version.py
 
 SRCS = Helper.c hlu_wrap.c gsun.c
 OBJS = Helper.o hlu_wrap.o gsun.o

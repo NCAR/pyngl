@@ -11,6 +11,11 @@ import site
 import shutil
 from distutils.core import setup, Extension
 
+# Get version info.
+
+execfile('pyngl_version.py')
+pyngl_version = version
+
 #
 # Set copy_files to True only if you are about to create a new PyNGL
 # binary to give to a user. This will copy over all the supplemental
@@ -156,7 +161,7 @@ for i in xrange(len(bin_files)):
 res_file = ["ncarg/sysresfile"]
 
 setup (name = "PyNGL",
-       version="0.1.1b9",
+       version = pyngl_version,
        author="Dave Brown, Fred Clare, Mary Haley",
        author_email="fred@ucar.edu,haley@ucar.edu",
        description = "2D visualization library",
