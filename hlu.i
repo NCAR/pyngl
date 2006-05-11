@@ -35,7 +35,11 @@
 
 #include <ncarg/gks.h>
 
+#ifdef NUMPY
+#include <numpy/arrayobject.h>
+#else
 #include <Numeric/arrayobject.h>
+#endif
 
 #define min(x,y) ((x) < (y) ? (x) : (y) )
 #define pow2(x)  ((x)*(x))
@@ -2287,7 +2291,11 @@ void bndary()
 // Include the required NumPy header.
 //
 %header %{
+#ifdef NUMPY
+#include <numpy/arrayobject.h>
+#else
 #include <Numeric/arrayobject.h>
+#endif
 %}
 
 //
@@ -3439,6 +3447,79 @@ import_array();
             break;
         }
       }
+%#ifdef NUMPY
+/*
+ *  Check for scalars.
+ */
+      else if (PyArray_IsAnyScalar(value)) {
+/*
+ *  Check for Python Scalars.
+ */
+        if (PyArray_IsPythonScalar(value)) {
+/*
+ *  value is a Python int.
+ */
+          if (PyInt_Check(value)) {
+            NhlRLSetInteger(rlist,PyString_AsString(key),
+                               (int) PyInt_AsLong(value));
+          }
+/*
+ *  value is a Python float.
+ */
+          else if (PyFloat_Check(value)) {
+            NhlRLSetDouble(rlist,PyString_AsString(key),
+                               PyFloat_AsDouble(value));
+          }
+/*
+ *  value is a Python long.
+ */
+          else if (PyLong_Check(value)) {
+            NhlRLSetInteger(rlist,PyString_AsString(key),
+                               (int) PyInt_AsLong(value));
+          }
+/*
+ *  value is a Python string
+ */
+          else if (PyString_Check(value)) {
+            NhlRLSetString(rlist,PyString_AsString(key),
+                               PyString_AsString(value));
+          }
+        }
+/*
+ *  otherwise we have numpy scalars
+ */
+        else {
+/*
+ *  value is a numpy int.
+ */
+          if (PyArray_IsScalar(value,Int)) {
+            NhlRLSetInteger(rlist,PyString_AsString(key),
+                               (int) PyInt_AsLong(value));
+          }
+/*
+ *  value is a numpy float.
+ */
+          else if (PyArray_IsScalar(value,Float)) {
+            NhlRLSetDouble(rlist,PyString_AsString(key),
+                               PyFloat_AsDouble(value));
+          }
+/*
+ *  value is a numpy long.
+ */
+          else if (PyArray_IsScalar(value,Long)) {
+            NhlRLSetInteger(rlist,PyString_AsString(key),
+                               (int) PyInt_AsLong(value));
+          }
+/*
+ *  value is a numpy string
+ */
+          else if (PyArray_IsScalar(value,String)) {
+            NhlRLSetString(rlist,PyString_AsString(key),
+                               PyString_AsString(value));
+          }
+        }
+      }
+%#else
 /*
  *  value is an int.
  */
@@ -3463,6 +3544,7 @@ import_array();
       else if (PyString_Check(value)) {
         NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
       }
+%#endif
 /*
  *  value is an array.
  */

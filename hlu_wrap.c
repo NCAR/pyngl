@@ -741,7 +741,11 @@ static swig_type_info *swig_types[13];
 
 #include <ncarg/gks.h>
 
+#ifdef NUMPY
+#include <numpy/arrayobject.h>
+#else
 #include <Numeric/arrayobject.h>
+#endif
 
 #define min(x,y) ((x) < (y) ? (x) : (y) )
 #define pow2(x)  ((x)*(x))
@@ -1688,7 +1692,11 @@ static void floatArray_setitem(float *ary, int index, float value) {
 }
 
 
+#ifdef NUMPY
+#include <numpy/arrayobject.h>
+#else
 #include <Numeric/arrayobject.h>
+#endif
 
 extern char const *_NGGetNCARGEnv(char const *);
 extern void NhlInitialize();
@@ -5197,6 +5205,79 @@ static PyObject *_wrap_open_wks_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -5221,6 +5302,7 @@ static PyObject *_wrap_open_wks_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -5464,6 +5546,79 @@ static PyObject *_wrap_open_wks_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -5488,6 +5643,7 @@ static PyObject *_wrap_open_wks_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -5801,6 +5957,79 @@ static PyObject *_wrap_labelbar_ndc_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -5825,6 +6054,7 @@ static PyObject *_wrap_labelbar_ndc_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -6292,6 +6522,79 @@ static PyObject *_wrap_legend_ndc_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -6316,6 +6619,7 @@ static PyObject *_wrap_legend_ndc_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -6764,6 +7068,79 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -6788,6 +7165,7 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -7031,6 +7409,79 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -7055,6 +7506,7 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -7298,6 +7750,79 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -7322,6 +7847,7 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -7741,6 +8267,79 @@ static PyObject *_wrap_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -7765,6 +8364,7 @@ static PyObject *_wrap_map_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -8213,6 +8813,79 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -8237,6 +8910,7 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -8480,6 +9154,79 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -8504,6 +9251,7 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -8747,6 +9495,79 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -8771,6 +9592,7 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -9238,6 +10060,79 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -9262,6 +10157,7 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -9505,6 +10401,79 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -9529,6 +10498,7 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -9772,6 +10742,79 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -9796,6 +10839,7 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -10241,6 +11285,79 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -10265,6 +11382,7 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -10508,6 +11626,79 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -10532,6 +11723,7 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -10775,6 +11967,79 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -10799,6 +12064,7 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -11260,6 +12526,79 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -11284,6 +12623,7 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -11527,6 +12867,79 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -11551,6 +12964,7 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -11794,6 +13208,79 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -11818,6 +13305,7 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -12279,6 +13767,79 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -12303,6 +13864,7 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -12546,6 +14108,79 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -12570,6 +14205,7 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -12813,6 +14449,79 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -12837,6 +14546,7 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -13313,6 +15023,79 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -13337,6 +15120,7 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -13580,6 +15364,79 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -13604,6 +15461,7 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -13847,6 +15705,79 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -13871,6 +15802,7 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -14114,6 +16046,79 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -14138,6 +16143,7 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -14614,6 +16620,79 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -14638,6 +16717,7 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -14881,6 +16961,79 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -14905,6 +17058,7 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -15148,6 +17302,79 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -15172,6 +17399,7 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -15415,6 +17643,79 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -15439,6 +17740,7 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -15900,6 +18202,79 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -15924,6 +18299,7 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -16167,6 +18543,79 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -16191,6 +18640,7 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -16434,6 +18884,79 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -16458,6 +18981,7 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -16919,6 +19443,79 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -16943,6 +19540,7 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -17186,6 +19784,79 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -17210,6 +19881,7 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -17453,6 +20125,79 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -17477,6 +20222,7 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -17915,6 +20661,79 @@ static PyObject *_wrap_text_ndc_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -17939,6 +20758,7 @@ static PyObject *_wrap_text_ndc_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -18624,6 +21444,79 @@ static PyObject *_wrap_text_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -18648,6 +21541,7 @@ static PyObject *_wrap_text_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -19335,6 +22229,79 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -19359,6 +22326,7 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -19602,6 +22570,79 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -19626,6 +22667,7 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -20587,6 +23629,79 @@ static PyObject *_wrap_poly_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -20611,6 +23726,7 @@ static PyObject *_wrap_poly_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -21151,6 +24267,79 @@ static PyObject *_wrap_add_poly_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -21175,6 +24364,7 @@ static PyObject *_wrap_add_poly_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -21860,6 +25050,79 @@ static PyObject *_wrap_panel_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -21884,6 +25147,7 @@ static PyObject *_wrap_panel_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
@@ -22127,6 +25391,79 @@ static PyObject *_wrap_panel_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
+#ifdef NUMPY
+                /*
+                 *  Check for scalars.
+                 */
+                else if (PyArray_IsAnyScalar(value)) {
+                    /*
+                     *  Check for Python Scalars.
+                     */
+                    if (PyArray_IsPythonScalar(value)) {
+                        /*
+                         *  value is a Python int.
+                         */
+                        if (PyInt_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python float.
+                         */
+                        else if (PyFloat_Check(value)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a Python long.
+                         */
+                        else if (PyLong_Check(value)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a Python string
+                         */
+                        else if (PyString_Check(value)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                    /*
+                     *  otherwise we have numpy scalars
+                     */
+                    else {
+                        /*
+                         *  value is a numpy int.
+                         */
+                        if (PyArray_IsScalar(value,Int)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy float.
+                         */
+                        else if (PyArray_IsScalar(value,Float)) {
+                            NhlRLSetDouble(rlist,PyString_AsString(key),
+                            PyFloat_AsDouble(value));
+                        }
+                        /*
+                         *  value is a numpy long.
+                         */
+                        else if (PyArray_IsScalar(value,Long)) {
+                            NhlRLSetInteger(rlist,PyString_AsString(key),
+                            (int) PyInt_AsLong(value));
+                        }
+                        /*
+                         *  value is a numpy string
+                         */
+                        else if (PyArray_IsScalar(value,String)) {
+                            NhlRLSetString(rlist,PyString_AsString(key),
+                            PyString_AsString(value));
+                        }
+                    }
+                }
+#else
                 /*
                  *  value is an int.
                  */
@@ -22151,6 +25488,7 @@ static PyObject *_wrap_panel_wrap(PyObject *self, PyObject *args) {
                 else if (PyString_Check(value)) {
                     NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
                 }
+#endif
                 /*
                  *  value is an array.
                  */
