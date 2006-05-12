@@ -11,6 +11,7 @@ import pyngl_version
 __version__ = pyngl_version.version
 del pyngl_version
 
+
 first_call_to_open_wks = 0
 
 class Resources:
@@ -738,8 +739,9 @@ def add_poly(wks,plot,x,y,ptype,rlistc=None):
       set_spc_res(key[3:],rlist[key])      
     else:
       rlist1[key] = rlist[key]
-  ply = add_poly_wrap(wks,pobj2lst(plot), x,y, "double","double",
-            len(x),0,0,pvoid(), pvoid(),ptype,rlist1,pvoid())
+  ply = add_poly_wrap(wks,pobj2lst(plot), arg_with_scalar(x), \
+            arg_with_scalar(y), "double","double",            \
+            len(arg_with_scalar(x)),0,0,pvoid(), pvoid(),ptype,rlist1,pvoid())
   del rlist
   del rlist1
   return(lst2pobj(ply))
