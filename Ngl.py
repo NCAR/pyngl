@@ -4,13 +4,23 @@ import sys, os
 import site
 import types
 import string
-import Numeric
 import commands
 
 import pyngl_version
 __version__ = pyngl_version.version
 del pyngl_version
 
+#
+#  Flag for NumPy compatibility.
+#
+try:
+  path = os.environ["USE_NUMPY"]
+  import numpy as Numeric
+  HAS_NUM = 2
+  print "use numpy"
+except:
+  import Numeric
+  HAS_NUM = 1
 
 first_call_to_open_wks = 0
 
@@ -41,14 +51,33 @@ def int_id(plot_id):
     return None
 
 def is_scalar(arg):
-  if (type(arg)==types.IntType or type(arg)==types.LongType or \
-      type(arg)==types.FloatType):
-    return True
-  else:
-    return False
+  if (HAS_NUM == 1):
+    if (type(arg)==types.IntType or type(arg)==types.LongType or \
+        type(arg)==types.FloatType):
+      return True
+    elif (type(arg) == type(Numeric.array([0]))):
+      if (len(arg.shape) == 0):
+        return True
+      else:
+        return False
+    else:
+      return False
+  elif (HAS_NUM == 2):
+    if (isinstance(arg,Numeric.generic)):
+      return True
+    elif (type(arg)==types.IntType or type(arg)==types.LongType or \
+        type(arg)==types.FloatType):
+      return True
+    elif (type(arg) == type(Numeric.array([0]))):
+      if (len(arg.shape) == 0):
+        return True
+      else:
+        return False
+    else:
+      return False
 
 def is_array(arg):
-  if (type(arg) == type(Numeric.array([0],Numeric.Int))):
+  if (type(arg) == type(Numeric.array([0]))):
     return True
   else:
     return False
@@ -109,14 +138,23 @@ def ismissing(arg,mval):
 #  has True values in all places where "arg" has 
 #  missing values.
 #
-    if (type(arg) == type(Numeric.array([0],Numeric.Int))):
-      pass
-    elif (type(arg)==types.IntType or type(arg)==types.LongType or \
-          type(arg)==types.FloatType):
-      pass
-    else:
-      print "ismissing: first argument must be a Numeric array."
-      return None
+    if (HAS_NUM == 1):
+      if (type(arg) == type(Numeric.array([0],Numeric.Int))):
+        pass
+      elif (type(arg)==types.IntType or type(arg)==types.LongType or \
+            type(arg)==types.FloatType):
+        pass
+      else:
+        print "ismissing: first argument must be a Numeric array or scalar."
+        return None
+    elif (HAS_NUM == 2):
+      if (isinstance(arg,Numeric.generic)):
+        pass
+      elif (type(arg) == type(Numeric.array([0]))):
+        pass
+      else:
+        print "ismissing: first argument must be a numpy array or scalar."
+        return None
     return(Numeric.equal(arg,mval))
 
 def get_values(obj,rlistc):
@@ -749,93 +787,10 @@ def add_poly(wks,plot,x,y,ptype,rlistc=None):
 def get_workspace_id():
   return NhlGetWorkspaceObjectId()
 
-
-def ck_type(fcn,arg,typ):
-#
-#  Check on the type of the variable "arg" that is a
-#  variable in function "fcn" accroding to the flag "typ".
-#  Returns 0 if OK, 1 otherwise.
-#
-  if (typ == 0):
-#
-#  arg should be a singly-dimensioned Numeric array with ints, longs,
-#  or floats, or a scalar int, long, or float.
-#
-    if (type(arg) == type(Numeric.array([0],Numeric.Int))):
-      if (len(arg) == 0):
-        print "Warning: " + fcn + ": An empty array was encountered."
-        return 0
-      if (len(arg.shape) != 1):
-        print fcn + ": Numeric array argument must be singly-dimensioned."
-        return 1
-#
-#  Commented out this test since you get different results
-#  depending on whether you are using Numeric 23.8 or 24.2.
-#
-#     a0 = arg[0]
-#     if (type(a0)!=types.IntType and type(a0)!=types.FloatType and \
-#         type(a0)!=types.LongType):
-#       print fcn + \
-#         ": Numeric array argument must be integers, longs, or floats."
-#       return 1
-      return 0
-    elif (type(arg)==types.IntType or type(arg)==types.LongType or \
-          type(arg)==types.FloatType):
-      return 0
-    else:
-      print fcn + ": argument must be a Numeric array or numeric scalar."
-      return 1
-  elif (typ == 1):
-#
-#  arg should be a singly-dimensioned Numeric array with ints, longs,
-#  or floats, or a scalar int, long, or float, or a list of ints, longs,
-#  or floats or a tuple of ints, longs or floats.
-#  
-    if (type(arg) == type(Numeric.array([0],Numeric.Int))):
-      if (len(arg) == 0):
-        print "Warning: " + fcn + ": An empty array was encountered."
-        return 0
-      if (len(arg.shape) != 1):
-        print fcn + ": Numeric array argument must be singly-dimensioned."
-        return 1
-      a0 = arg[0]
-      if (type(a0)!=types.IntType and type(a0)!=types.FloatType and \
-          type(a0)!=types.LongType):
-        print fcn + \
-          ": Numeric array argument must have integers, longs, or floats."
-        return 1
-      return 0
-    elif (type(arg)==types.IntType or type(arg)==types.LongType or \
-          type(arg)==types.FloatType):
-      return 0
-    elif (type(arg)==types.ListType or type(arg)==types.TupleType):
-      if (len(arg) == 0):
-        print "Warning: " + fcn + ": An empty list was encountered."
-        return 0
-      a0 = arg[0]
-      if (type(a0)!=types.IntType and type(a0)!=types.FloatType and \
-          type(a0)!=types.LongType):
-        print fcn + \
-          ": Lists must have integers, longs, or floats."
-        return 1
-      else:
-        return 0
-    else:
-      print fcn + ": argument must be a Numeric array, or a scalar, list, or tuple."
-      return 1
-
 def skewty(pres):    # y-coord given pressure (mb)
-# if (ck_type("skewty",pres,0) != 0):
-#   return None
-# try:
   return(132.182-44.061*Numeric.log10(pres))
-# except:
-#   return None
-# return (132.182-44.061*Numeric.log10(pres))
 
 def skewtx(temp,y):  # x-coord given temperature (c)
-# if (ck_type("skewtx",temp,0) != 0 or ck_type("skewtx",y,0) != 0):
-#   return None
   return (0.54*temp+0.90692*y)
 
 #########################################################################
@@ -936,7 +891,10 @@ def add_cyclic(data,lon_coord=None):
 #
 # Create the new data array with one extra value in the X direction.
 #
-  newdata         = Numeric.zeros((ny,nx1),data.typecode())
+  if (HAS_NUM == 1):
+    newdata         = Numeric.zeros((ny,nx1),data.typecode())
+  elif (HAS_NUM == 2):
+    newdata         = Numeric.zeros((ny,nx1),data.dtype.char)
   newdata[:,0:nx] = data
   newdata[:,nx]   = data[:,0]
 
@@ -944,7 +902,10 @@ def add_cyclic(data,lon_coord=None):
 # Add 360 to the longitude value in order to make it cyclic.
 #
   if(lon_coord != None):
-    newloncoord       = Numeric.zeros(nx1,lon_coord.typecode())
+    if (HAS_NUM == 1):
+      newloncoord       = Numeric.zeros(nx1,lon_coord.typecode())
+    elif (HAS_NUM == 2):
+      newloncoord       = Numeric.zeros(nx1,lon_coord.dtype.char)
     newloncoord[0:nx] = lon_coord
     newloncoord[nx]   = lon_coord[0] + 360
 
@@ -1315,8 +1276,6 @@ def gc_convert(angle,ctype):
   r2m = 6371220.        # radians to meters
   m2f = 3.2808          # meters to feet
 
-# ck_type("gc_convert",angle,0)
-
   dtype = ctype
   if (ctype == 0):
     dtype = "ra"
@@ -1443,14 +1402,22 @@ def get_string_array(obj,name):
   return(NhlGetStringArray(int_id(obj),name))
 
 def hlsrgb(h,l,s):
-  if (is_array(h) and is_array(l) and is_array(s)):
+  if (is_scalar(h) and is_scalar(l) and is_scalar(s)):
+    return(c_hlsrgb(h,l,s))
+  elif (is_array(h) and is_array(l) and is_array(s)):
     ishape = h.shape
-    dimc = len(h.flat)
+    if (HAS_NUM == 1):
+      dimc = len(h.flat)
+    elif (HAS_NUM == 2):
+      dimc = len(h.ravel())
     rr = Numeric.zeros(dimc,Numeric.Float0)
     gr = Numeric.zeros(dimc,Numeric.Float0)
     br = Numeric.zeros(dimc,Numeric.Float0)
     for i in xrange(dimc):
-      rr[i],gr[i],br[i] = c_hlsrgb(h.flat[i],l.flat[i],s.flat[i])
+      if (HAS_NUM == 1):
+        rr[i],gr[i],br[i] = c_hlsrgb(h.flat[i],l.flat[i],s.flat[i])
+      elif (HAS_NUM == 2):
+        rr[i],gr[i],br[i] = c_hlsrgb(h.ravel()[i],l.ravel()[i],s.ravel()[i])
     rr.shape = gr.shape = br.shape = ishape
     del ishape,dimc
     return rr,gr,br
@@ -1460,27 +1427,41 @@ def hlsrgb(h,l,s):
     li = Numeric.array(l,Numeric.Float0)
     si = Numeric.array(s,Numeric.Float0)
     ishape = hi.shape
-    dimc = len(hi.flat)
+    if (HAS_NUM == 1):
+      dimc = len(hi.flat)
+    elif (HAS_NUM == 2):
+      dimc = len(hi.ravel())
     rr = Numeric.zeros(dimc,Numeric.Float0)
     gr = Numeric.zeros(dimc,Numeric.Float0)
     br = Numeric.zeros(dimc,Numeric.Float0)
     for i in xrange(dimc):
-      rr[i], gr[i], br[i] = c_hlsrgb(hi.flat[i],li.flat[i],si.flat[i])
+      if (HAS_NUM == 1):
+        rr[i], gr[i], br[i] = c_hlsrgb(hi.flat[i],li.flat[i],si.flat[i])
+      if (HAS_NUM == 1):
+        rr[i], gr[i], br[i] = c_hlsrgb(hi.ravel()[i],li.ravel()[i],si.ravel()[i])
     rr.shape = gr.shape = br.shape = ishape
     del hi,li,si,ishape,dimc
     return rr,gr,br
   else:
-    return(c_hlsrgb(h,l,s))
+    print "hlsrgb: arguments must be scalars, arrays, lists or tuples."
 
 def hsvrgb(h,s,v):
-  if (is_array(h) and is_array(s) and is_array(v)):
+  if (is_scalar(h) and is_scalar(s) and is_scalar(v)):
+    return(c_hsvrgb(h,s,v))
+  elif (is_array(h) and is_array(s) and is_array(v)):
     ishape = h.shape
-    dimc = len(h.flat)
+    if (HAS_NUM == 1):
+      dimc = len(h.flat)
+    elif (HAS_NUM == 2):
+      dimc = len(h.ravel())
     rr = Numeric.zeros(dimc,Numeric.Float0)
     gr = Numeric.zeros(dimc,Numeric.Float0)
     br = Numeric.zeros(dimc,Numeric.Float0)
     for i in xrange(dimc):
-      rr[i],gr[i],br[i] = c_hsvrgb(h.flat[i],s.flat[i],v.flat[i])
+      if (HAS_NUM == 1):
+        rr[i],gr[i],br[i] = c_hsvrgb(h.flat[i],s.flat[i],v.flat[i])
+      elif (HAS_NUM == 2):
+        rr[i],gr[i],br[i] = c_hsvrgb(h.ravel()[i],s.ravel()[i],v.ravel()[i])
     rr.shape = gr.shape = br.shape = ishape
     return rr,gr,br
   elif ( ( is_list(h) and  is_list(s) and  is_list(v)) or    \
@@ -1489,17 +1470,23 @@ def hsvrgb(h,s,v):
     si = Numeric.array(s,Numeric.Float0)
     vi = Numeric.array(v,Numeric.Float0)
     ishape = hi.shape
-    dimc = len(hi.flat)
+    if (HAS_NUM == 1):
+      dimc = len(hi.flat)
+    if (HAS_NUM == 2):
+      dimc = len(hi.ravel())
     rr = Numeric.zeros(dimc,Numeric.Float0)
     gr = Numeric.zeros(dimc,Numeric.Float0)
     br = Numeric.zeros(dimc,Numeric.Float0)
     for j in xrange(dimc):
-      rr[j],gr[j],br[j] = c_hsvrgb(hi.flat[j],si.flat[j],vi.flat[j])
+      if (HAS_NUM == 1):
+        rr[j],gr[j],br[j] = c_hsvrgb(hi.flat[j],si.flat[j],vi.flat[j])
+      elif (HAS_NUM == 2):
+        rr[j],gr[j],br[j] = c_hsvrgb(hi.ravel()[j],si.ravel()[j],vi.ravel()[j])
     rr.shape = gr.shape = br.shape = ishape
     del hi,si,vi,dimc,ishape
     return rr,gr,br
   else:
-    return(c_hsvrgb(h,s,v))
+    print "hsvrgb: arguments must be scalars, arrays, lists or tuples."
 
 #
 #  Get indices of a list where the list values are true.
@@ -1941,7 +1928,7 @@ def pynglpath(name):
     elif (os.path.exists(ures_dir_dflt)):
       return ures_dir_dflt
     else:
-      print "pynglpath: no usrresfile specified."
+      print "pynglpath: useresfile directory does not exist."
       return None
   elif (name == "sysresfile"):
     sres_dir_envn = os.environ.get("PYNGL_SYSRESFILE")
@@ -1978,14 +1965,22 @@ def retrieve_colormap(wks):
   return get_MDfloat_array(wks,"wkColorMap")
 
 def rgbhls(r,g,b):
-  if (is_array(r) and is_array(g) and is_array(b)):
+  if (is_scalar(r) and is_scalar(g) and is_scalar(b)):
+    return(c_rgbhls(r,g,b))
+  elif (is_array(r) and is_array(g) and is_array(b)):
     ishape = r.shape
-    dimc = len(r.flat)
+    if (HAS_NUM == 1):
+      dimc = len(r.flat)
+    elif (HAS_NUM == 2):
+      dimc = len(r.ravel())
     hr = Numeric.zeros(dimc,Numeric.Float0)
     lr = Numeric.zeros(dimc,Numeric.Float0)
     sr = Numeric.zeros(dimc,Numeric.Float0)
     for i in xrange(dimc):
-      hr[i],lr[i],sr[i] = c_rgbhls(r.flat[i],g.flat[i],b.flat[i])
+      if (HAS_NUM == 1):
+        hr[i],lr[i],sr[i] = c_rgbhls(r.flat[i],g.flat[i],b.flat[i])
+      elif (HAS_NUM == 2):
+        hr[i],lr[i],sr[i] = c_rgbhls(r.ravel()[i],g.ravel()[i],b.ravel()[i])
     hr.shape = lr.shape = sr.shape = ishape
     del dimc,ishape
     return hr,lr,sr
@@ -1995,27 +1990,42 @@ def rgbhls(r,g,b):
     gi = Numeric.array(g,Numeric.Float0)
     bi = Numeric.array(b,Numeric.Float0)
     ishape = ri.shape
-    dimc = len(ri.flat)
+    if (HAS_NUM == 1):
+      dimc = len(ri.flat)
+    if (HAS_NUM == 2):
+      dimc = len(ri.ravel())
     hr = Numeric.zeros(dimc,Numeric.Float0)
     lr = Numeric.zeros(dimc,Numeric.Float0)
     sr = Numeric.zeros(dimc,Numeric.Float0)
     for i in xrange(dimc):
-      hr[i], lr[i], sr[i] = c_rgbhls(ri.flat[i],gi.flat[i],bi.flat[i])
+      if (HAS_NUM == 1):
+        hr[i], lr[i], sr[i] = c_rgbhls(ri.flat[i],gi.flat[i],bi.flat[i])
+      if (HAS_NUM == 2):
+        hr[i], lr[i], sr[i] = c_rgbhls(ri.ravel()[i],gi.ravel()[i],bi.ravel()[i])
     hr.shape = lr.shape = sr.shape = ishape
     del ri,gi,bi,dimc,ishape
     return hr,lr,sr
   else:
-    return(c_rgbhls(r,g,b))
+    print "rgbhls: arguments must be scalars, arrays, lists or tuples."
+
 
 def rgbhsv(r,g,b):
+  if (is_scalar(r) and is_scalar(g) and is_scalar(b)):
+    return(c_rgbhsv(r,g,b))
   if (is_array(r) and is_array(g) and is_array(b)):
     ishape = r.shape
-    dimc = len(r.flat)
+    if (HAS_NUM == 1):
+      dimc = len(r.flat)
+    elif (HAS_NUM == 2):
+      dimc = len(r.ravel())
     hr = Numeric.zeros(dimc,Numeric.Float0)
     sr = Numeric.zeros(dimc,Numeric.Float0)
     vr = Numeric.zeros(dimc,Numeric.Float0)
     for i in xrange(dimc):
-      hr[i],sr[i],vr[i] = c_rgbhsv(r.flat[i],g.flat[i],b.flat[i])
+      if (HAS_NUM == 1):
+        hr[i],sr[i],vr[i] = c_rgbhsv(r.flat[i],g.flat[i],b.flat[i])
+      elif (HAS_NUM == 2):
+        hr[i],sr[i],vr[i] = c_rgbhsv(r.ravel()[i],g.ravel()[i],b.ravel()[i])
     hr.shape = sr.shape = vr.shape = ishape
     del ishape,dimc
     return hr,sr,vr
@@ -2025,30 +2035,44 @@ def rgbhsv(r,g,b):
     gi = Numeric.array(g,Numeric.Float0)
     bi = Numeric.array(b,Numeric.Float0)
     ishape = ri.shape
-    dimc = len(ri.flat)
+    if (HAS_NUM == 1):
+      dimc = len(ri.flat)
+    elif (HAS_NUM == 2):
+      dimc = len(ri.ravel())
     hr = Numeric.zeros(dimc,Numeric.Float0)
     sr = Numeric.zeros(dimc,Numeric.Float0)
     vr = Numeric.zeros(dimc,Numeric.Float0)
     for j in xrange(dimc):
-      hr[j], sr[j], vr[j] = c_rgbhsv(ri.flat[j],gi.flat[j],bi.flat[j])
+      if (HAS_NUM == 1):
+        hr[j], sr[j], vr[j] = c_rgbhsv(ri.flat[j],gi.flat[j],bi.flat[j])
+      if (HAS_NUM == 2):
+        hr[j], sr[j], vr[j] = c_rgbhsv(ri.ravel()[j],gi.ravel()[j],bi.ravel()[j])
     hr.shape = sr.shape = vr.shape = ishape
     del ri,gi,bi,ishape,dimc
     return hr,sr,vr
   else:
-    return(c_rgbhsv(r,g,b))
+    print "rgbhsv: arguments must be scalars, arrays, lists or tuples."
 
 def rgbyiq(r,g,b):
 #
 #  Check if input is a Numeric array, scalar, list, or tuple.
 #
-  if (is_array(r) and is_array(g) and is_array(b)):
+  if (is_scalar(r) and is_scalar(g) and is_scalar(b)):
+    return(c_rgbyiq(r,g,b))
+  elif (is_array(r) and is_array(g) and is_array(b)):
     ishape = r.shape
-    dimc = len(r.flat)
+    if (HAS_NUM == 1):
+      dimc = len(r.flat)
+    elif (HAS_NUM == 2):
+      dimc = len(r.ravel())
     yr = Numeric.zeros(dimc,Numeric.Float0)
     ir = Numeric.zeros(dimc,Numeric.Float0)
     qr = Numeric.zeros(dimc,Numeric.Float0)
-    for i in xrange(len(r.flat)):
-      yr[i],ir[i],qr[i] = c_rgbyiq(r.flat[i],g.flat[i],b.flat[i])
+    for i in xrange(dimc):
+      if (HAS_NUM == 1):
+        yr[i],ir[i],qr[i] = c_rgbyiq(r.flat[i],g.flat[i],b.flat[i])
+      if (HAS_NUM == 2):
+        yr[i],ir[i],qr[i] = c_rgbyiq(r.ravel()[i],g.ravel()[i],b.ravel()[i])
     yr.shape = ir.shape = qr.shape = ishape
     del ishape,dimc
     return yr,ir,qr
@@ -2058,17 +2082,23 @@ def rgbyiq(r,g,b):
     gi = Numeric.array(g,Numeric.Float0)
     bi = Numeric.array(b,Numeric.Float0)
     ishape = ri.shape
-    dimc = len(ri.flat)
+    if (HAS_NUM == 1):
+      dimc = len(ri.flat)
+    elif (HAS_NUM == 2):
+      dimc = len(ri.ravel())
     yr = Numeric.zeros(dimc,Numeric.Float0)
     ir = Numeric.zeros(dimc,Numeric.Float0)
     qr = Numeric.zeros(dimc,Numeric.Float0)
     for i in xrange(dimc):
-      yr[i], ir[i], qr[i] = c_rgbyiq(ri.flat[i],gi.flat[i],bi.flat[i])
+      if (HAS_NUM == 1):
+        yr[i], ir[i], qr[i] = c_rgbyiq(ri.flat[i],gi.flat[i],bi.flat[i])
+      elif (HAS_NUM == 2):
+        yr[i], ir[i], qr[i] = c_rgbyiq(ri.ravel[i],gi.ravel[i],bi.ravel[i])
     yr.shape = ir.shape = qr.shape = ishape
     del ri,gi,bi,ishape,dimc
     return yr,ir,qr
   else:
-    return(c_rgbyiq(r,g,b))
+    print "rgbyiq: arguments must be scalars, arrays, lists or tuples."
 
 def set_values(obj,rlistc):
   rlist = crt_dict(rlistc)
@@ -3593,7 +3623,17 @@ def vinth2p (dati, hbcofa, hbcofb, plevo, psfc, intyp, p0, ii, kxtrp):
 #  by calling the 3D case over the time variavle.
 #
   elif (len(dati.shape) == 4):
-    if (type(dati[0,0,0,0]) == type(Numeric.array([0.],Numeric.Float))):
+    if (                                                                    \
+         (                                                                  \
+           (HAS_NUM == 1) and                                               \
+           (type(dati[0,0,0,0]) == type(Numeric.array([0.],Numeric.Float))) \
+         ) or                                                               \
+         (                                                                  \
+           (HAS_NUM == 2) and                                               \
+           (type(dati) == type(Numeric.array([0.],Numeric.Float)))          \
+         )                                                                  \
+       ):
+
 #
 #  Delete ar_out if it exists, and define it to be the correct
 #  shape to hold the output.
@@ -3819,14 +3859,22 @@ def y(wks,yar,rlistc=None):
   return xy(wks,range(0,npts),yar,rlistc)
 
 def yiqrgb(y,i,q):
+  if (is_scalar(y) and is_scalar(i) and is_scalar(q)):
+    return(c_yiqrgb(y,i,q))
   if (is_array(y) and is_array(i) and is_array(q)):
     ishape = y.shape
-    dimc = len(y.flat)
+    if (HAS_NUM == 1):
+      dimc = len(y.flat)
+    elif (HAS_NUM == 2):
+      dimc = len(y.ravel())
     rr = Numeric.zeros(dimc,Numeric.Float0)
     gr = Numeric.zeros(dimc,Numeric.Float0)
     br = Numeric.zeros(dimc,Numeric.Float0)
     for j in xrange(dimc):
-      rr[j],gr[j],br[j] = c_yiqrgb(y.flat[j],i.flat[j],q.flat[j])
+      if (HAS_NUM == 1):
+        rr[j],gr[j],br[j] = c_yiqrgb(y.flat[j],i.flat[j],q.flat[j])
+      elif (HAS_NUM == 2):
+        rr[j],gr[j],br[j] = c_yiqrgb(y.ravel()[j],i.ravel()[j],q.ravel()[j])
     rr.shape = gr.shape = br.shape = ishape
     del dimc,ishape
     return rr,gr,br
@@ -3836,14 +3884,20 @@ def yiqrgb(y,i,q):
     ii = Numeric.array(i,Numeric.Float0)
     qi = Numeric.array(q,Numeric.Float0)
     ishape = yi.shape
-    dimc = len(yi.flat)
+    if (HAS_NUM == 1):
+      dimc = len(yi.flat)
+    elif (HAS_NUM == 2):
+      dimc = len(yi.ravel())
     rr = Numeric.zeros(dimc,Numeric.Float0)
     gr = Numeric.zeros(dimc,Numeric.Float0)
     br = Numeric.zeros(dimc,Numeric.Float0)
     for j in xrange(dimc):
-      rr[j],gr[j],br[j] = c_yiqrgb(yi.flat[j],ii.flat[j],qi.flat[j])
+      if (HAS_NUM == 1):
+        rr[j],gr[j],br[j] = c_yiqrgb(yi.flat[j],ii.flat[j],qi.flat[j])
+      elif (HAS_NUM == 2):
+        rr[j],gr[j],br[j] = c_yiqrgb(yi.ravel()[j],ii.ravel()[j],qi.ravel()[j])
     rr.shape = gr.shape = br.shape = ishape
     del yi,ii,qi,ishape,dimc
     return rr,gr,br
   else:
-    return(c_yiqrgb(y,i,q))
+    print "yiqrgb: arguments must be scalars, arrays, lists or tuples."
