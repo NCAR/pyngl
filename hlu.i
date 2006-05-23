@@ -35,7 +35,7 @@
 
 #include <ncarg/gks.h>
 
-#ifdef NUMPY
+#ifdef USE_NUMPY
 #include <numpy/arrayobject.h>
 #else
 #include <Numeric/arrayobject.h>
@@ -2291,7 +2291,7 @@ void bndary()
 // Include the required NumPy header.
 //
 %header %{
-#ifdef NUMPY
+#ifdef USE_NUMPY
 #include <numpy/arrayobject.h>
 #else
 #include <Numeric/arrayobject.h>
@@ -3447,7 +3447,7 @@ import_array();
             break;
         }
       }
-%#ifdef NUMPY
+%#ifdef USE_NUMPY
 /*
  *  Check for scalars.
  */

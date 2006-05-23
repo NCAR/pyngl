@@ -741,7 +741,7 @@ static swig_type_info *swig_types[13];
 
 #include <ncarg/gks.h>
 
-#ifdef NUMPY
+#ifdef USE_NUMPY
 #include <numpy/arrayobject.h>
 #else
 #include <Numeric/arrayobject.h>
@@ -1692,7 +1692,7 @@ static void floatArray_setitem(float *ary, int index, float value) {
 }
 
 
-#ifdef NUMPY
+#ifdef USE_NUMPY
 #include <numpy/arrayobject.h>
 #else
 #include <Numeric/arrayobject.h>
@@ -5205,7 +5205,7 @@ static PyObject *_wrap_open_wks_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -5546,7 +5546,7 @@ static PyObject *_wrap_open_wks_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -5957,7 +5957,7 @@ static PyObject *_wrap_labelbar_ndc_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -6522,7 +6522,7 @@ static PyObject *_wrap_legend_ndc_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -7068,7 +7068,7 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -7409,7 +7409,7 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -7750,7 +7750,7 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -8267,7 +8267,7 @@ static PyObject *_wrap_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -8813,7 +8813,7 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -9154,7 +9154,7 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -9495,7 +9495,7 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -10060,7 +10060,7 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -10401,7 +10401,7 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -10742,7 +10742,7 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -11285,7 +11285,7 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -11626,7 +11626,7 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -11967,7 +11967,7 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -12526,7 +12526,7 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -12867,7 +12867,7 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -13208,7 +13208,7 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -13767,7 +13767,7 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -14108,7 +14108,7 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -14449,7 +14449,7 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -15023,7 +15023,7 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -15364,7 +15364,7 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -15705,7 +15705,7 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -16046,7 +16046,7 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -16620,7 +16620,7 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -16961,7 +16961,7 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -17302,7 +17302,7 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -17643,7 +17643,7 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -18202,7 +18202,7 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -18543,7 +18543,7 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -18884,7 +18884,7 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -19443,7 +19443,7 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -19784,7 +19784,7 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -20125,7 +20125,7 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -20661,7 +20661,7 @@ static PyObject *_wrap_text_ndc_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -21444,7 +21444,7 @@ static PyObject *_wrap_text_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -22229,7 +22229,7 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -22570,7 +22570,7 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -23629,7 +23629,7 @@ static PyObject *_wrap_poly_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -24267,7 +24267,7 @@ static PyObject *_wrap_add_poly_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -25050,7 +25050,7 @@ static PyObject *_wrap_panel_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
@@ -25391,7 +25391,7 @@ static PyObject *_wrap_panel_wrap(PyObject *self, PyObject *args) {
                         break;
                     }
                 }
-#ifdef NUMPY
+#ifdef USE_NUMPY
                 /*
                  *  Check for scalars.
                  */
