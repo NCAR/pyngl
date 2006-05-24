@@ -9,10 +9,20 @@
 # the PyNGL binary (_hlu.so), and I install this in the build directory.
 #
 
+try:
+  path = os.environ["USE_NUMPY"]
+  HAS_NUM = 2
+except:
+  HAS_NUM = 1
+
 import os
 from distutils.core import setup, Extension
 
-DMACROS =  [('USE_NUMPY','1')]
+if HAS_NUM == 2:
+  DMACROS =  [('NeedFuncProto', None),('USE_NUMPY',None)]
+else:
+  DMACROS =  [('NeedFuncProto',None)]
+  
 
 pyngl_inc = [os.getenv("NCARG_ROOT") + "/include"]
 pyngl_lib = [os.getenv("NCARG_ROOT") + "/lib", "/usr/X11R6/lib", "/sw/lib"]
@@ -27,7 +37,7 @@ setup (name = "PyNGL",
                            [os.path.join('', 'Helper.c'),
                             os.path.join('', 'hlu_wrap.c'), 
                             os.path.join('', 'gsun.c')],
-                            define_macros=[('NeedFuncProto', None),('UseNumpy',None)],
+                            define_macros = DMACROS,
                             include_dirs = pyngl_inc,
                             library_dirs = pyngl_lib,
                             libraries = ["nfpfort", "hlu", "ncarg", "ncarg_gks", "ncarg_c", "ngmath", "X11", "g2c"])]
