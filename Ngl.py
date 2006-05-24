@@ -17,7 +17,6 @@ try:
   path = os.environ["USE_NUMPY"]
   import numpy as Numeric
   HAS_NUM = 2
-  print "use numpy"
 except:
   import Numeric
   HAS_NUM = 1
