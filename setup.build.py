@@ -12,6 +12,8 @@
 import os
 from distutils.core import setup, Extension
 
+DMACROS =  [('USE_NUMPY','1')]
+
 pyngl_inc = [os.getenv("NCARG_ROOT") + "/include"]
 pyngl_lib = [os.getenv("NCARG_ROOT") + "/lib", "/usr/X11R6/lib", "/sw/lib"]
 setup (name = "PyNGL",
@@ -25,7 +27,7 @@ setup (name = "PyNGL",
                            [os.path.join('', 'Helper.c'),
                             os.path.join('', 'hlu_wrap.c'), 
                             os.path.join('', 'gsun.c')],
-                            define_macros=[('NeedFuncProto', None)],
+                            define_macros=[('NeedFuncProto', None),('UseNumpy',None)],
                             include_dirs = pyngl_inc,
                             library_dirs = pyngl_lib,
                             libraries = ["nfpfort", "hlu", "ncarg", "ncarg_gks", "ncarg_c", "ngmath", "X11", "g2c"])]
