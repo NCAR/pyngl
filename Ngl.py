@@ -792,6 +792,11 @@ def add_poly(wks,plot,x,y,ptype,rlistc=None):
   return(lst2pobj(ply))
 
 def get_workspace_id():
+  """
+Returns a reference to the current Workspace object.
+
+wid = Ngl.get_workspace_id()
+  """
   return NhlGetWorkspaceObjectId()
 
 def skewty(pres):    # y-coord given pressure (mb)
@@ -851,6 +856,21 @@ def dpwskewt(td,p,n):
 #  
 ################################################################
 def add_annotation(plot_id1,plot_id2,rlistc=None):
+  """
+Adds an annotation to a given plot and returns an integer that
+represents the annotation added.
+
+anno = Ngl.add_annotation(base_id, annotation_id, res=None)
+
+base_id -- The PlotId of the plot of which you want to add the annotation.
+
+annotation_id -- The PlotId of the annotation you want to attach to
+                 the plot.
+
+res -- An instance of the Resources class having annotation resources
+       as attributes.
+  """
+
   rlist = crt_dict(rlistc)
   anno = NhlAddAnnotation(int_id(plot_id1),int_id(plot_id2))
   values = NhlSetValues(int_id(anno),rlist)
@@ -863,6 +883,20 @@ def add_annotation(plot_id1,plot_id2,rlistc=None):
 # create the cyclic point.
 #
 def add_cyclic(data,lon_coord=None):
+  """
+Adds cyclic points to an array and returns a Numeric array of the
+same type as data with one more element in the rightmost dimension.
+
+datap = Ngl.add_cyclic(data, longitude=None)
+
+data -- A two-dimensional array to which you want to add a cyclic
+        point in the rightmost dimension.
+
+longitude -- An optional one-dimensional array, representing
+             longitude values, that you want to add a cyclic
+             point to.
+
+  """
 #
 # Check input data to make sure it is 2D.
 #
@@ -921,15 +955,82 @@ def add_cyclic(data,lon_coord=None):
     return newdata
 
 def add_polygon(wks,plot,x,y,rlistc=None):
+  """
+Adds a polygon to an existing plot and returns a PlotId representing
+the polygon added.
+
+pgon = Ngl.add_polygon(wks, plot, x, y, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+plot -- The id of the plot which you want to add the polygon to.
+
+x, y -- One-dimensional arrays containing the x, y coordinates of the
+        polygon.
+
+res -- An instance of the Resources class having GraphicStyle
+       resources as attributes.
+  """
+
   return(add_poly(wks,plot,x,y,NhlPOLYGON,rlistc))
 
 def add_polyline(wks,plot,x,y,rlistc=None):
+  """
+Adds polylines to an existing plot and returns a PlotId representing
+polylines added.
+
+pline = Ngl.add_polyline(wks, plot, x, y, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+plot -- The id of the plot which you want to add the polylines to.
+
+x, y -- One-dimensional arrays containing the x, y coordinates of the
+        polylines.
+
+res -- An instance of the Resources class having GraphicStyle
+       resources as attributes.
+  """
   return(add_poly(wks,plot,x,y,NhlPOLYLINE,rlistc))
 
 def add_polymarker(wks,plot,x,y,rlistc=None):
+  """
+Adds polymarkers to an existing plot and returns a PlotId representing
+polymarkers added.
+
+pmarker = Ngl.add_polymarker(wks, plot, x, y, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+plot -- The id of the plot which you want to add the polymarkers to.
+
+x, y -- One-dimensional arrays containing the x, y coordinates of the
+        polymarkers.
+
+res -- An instance of the Resources class having GraphicStyle
+       resources as attributes.
+  """
   return(add_poly(wks,plot,x,y,NhlPOLYMARKER,rlistc))
 
 def add_text(wks,plot,text,x,y,rlistc=None):
+  """
+Adds text strings to an existing plot and returns a PlotId representing
+the text strings added.
+
+txt = Ngl.add_text(wks, plot, text, x, y, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+plot -- The id of the plot which you want to add the text strings to.
+
+text -- An array of text strings to add.
+
+x, y -- One-dimensional arrays containing the x, y coordinates of the
+        text strings.
+
+res -- An instance of the Resources class having TextItem
+       resources as attributes.
+  """
   rlist = crt_dict(rlistc)  
  
 #
@@ -955,6 +1056,20 @@ def add_text(wks,plot,text,x,y,rlistc=None):
   return(lst2pobj(atx))
 
 def asciiread(filename,dims,type="float"):
+  """
+Reads data from an ASCII file and returns a Numeric array.
+
+array = Ngl.asciiread(filename, dims, type='float')
+
+filename -- The name of the ASCII file to read.
+
+dims -- A list or tuple specifying the dimension sizes (or -1 to read
+        all values into a 1-dimensional array).
+
+type -- An optional argument specifying the type of the data you are
+        reading. The legal values are: 'integer', 'float', or
+        'double'.
+  """
   file = open(filename)
 #
 #  If dims = -1, determine the number of valid tokens in
@@ -1033,12 +1148,42 @@ def asciiread(filename,dims,type="float"):
     return Numeric.reshape(ar,dims)
 
 def change_workstation(obj,wks):
+  """
+Changes the workstation that plots will be drawn to.
+
+Ngl.change_workstation(plot, wks)
+
+plot -- The identifier returned from calling a plotting function
+        (Ngl.xy, Ngl.contour_map etc).
+
+wks -- The identifier returned from calling Ngl.open_wks.
+  """
   NhlChangeWorkstation(int_id(obj),wks)
 
 def clear_workstation(obj):
+  """
+Clears a specified workstation.
+
+Ngl.clear_workstation(wks)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+  """
   NhlClearWorkstation(int_id(obj))
 
 def contour(wks,array,rlistc=None):
+  """
+Creates and draws a contour plot, and returns a PlotId of the plot
+created.
+
+plot = Ngl.contour(wks, data, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks
+
+data -- The data to contour.
+
+res -- An instance of the Resources class having PyNGL resources as
+       attributes.
+  """
 
 #
 #  Make sure the array is 1D or 2D.
@@ -1095,6 +1240,20 @@ def contour(wks,array,rlistc=None):
   return(lst2pobj(icn))
 
 def contour_map(wks,array,rlistc=None):
+  """
+Creates and draws contours over a map, and returns a PlotId of the plot
+created.
+
+plot = Ngl.contour_map(wks, data, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks
+
+data -- The data to contour.
+
+res -- An instance of the Resources class having PyNGL resources as
+       attributes.
+  """
+
 #
 #  Make sure the array is 2D.
 #
@@ -1147,26 +1306,73 @@ def contour_map(wks,array,rlistc=None):
   return(lst2pobj(icm))
 
 def destroy(obj):
+  """
+Destroys an Ngl object.
+
+Ngl.destroy(object)
+
+object -- The identifier returned from calling any object creation
+          function, like Ngl.xy, Ngl.contour, Ngl.open_wks, etc.
+  """
   NhlDestroy(int_id(obj))
   return None
 
 def draw(obj):
+  """
+Draws an Ngl plot object.
+
+Ngl.draw(plot)
+
+plot -- The identifier returned from calling any plot object creation
+        function, like Ngl.xy, Ngl.contour, Ngl.vector_map, etc.
+  """
   NhlDraw(int_id(obj))
   return None
 
 def draw_colormap(wks):
+  """
+Draws the current color map and advances the frame.
+
+Ngl.draw_colormap(wks)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+  """
   draw_colormap_wrap(wks)
   return None
 
 def end():
+  """
+Terminates a PyNGL script, flushes all buffers, and closes all
+internal files.
+
+Ngl.end()
+  """
   NhlClose()
   return None
 
 def frame(wks):
+  """
+Terminates a picture on a specified workstation.
+
+Ngl.frame(wks)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+  """
   NhlFrame(wks)
   return None
 
 def fspan(min,max,num):
+  """
+Returns an array of evenly-spaced floating point numbers.
+
+sarray = Ngl.fspan(start, end, num)
+
+start -- Value at which to start.
+
+end -- Value at which to end.
+
+num -- Number of equally-spaced points desired between start and end.
+  """
   delta = (float(max-min)/float(num-1))
   a = []
   for i in range(num-1):
@@ -1175,6 +1381,24 @@ def fspan(min,max,num):
   return Numeric.array(a,Numeric.Float0)
 
 def ftcurv(x,y,xo):
+  """
+Calculates an interpolatory spline through a sequence of functional
+values.
+
+iarray = Ngl.ftcurv(xi, yi, xo)
+
+xi -- An array containing the abscissae for the input function, with
+      rightmost dimension npts. If xi is multi-dimensional, it must
+      have the same dimension sizes as yi.
+
+yi -- An array of any dimensionality, whose rightmost dimension is
+      npts, containing the functional values of the input
+      function. That is, yi(...,k) is the functional value at
+      xi(...,k) for k=0,npts-1.
+
+xo -- A 1D array of length nxo containing the abscissae for the
+      interpolated values.
+  """
   if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
     dsizes_x = len(x)
   elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
@@ -1212,6 +1436,27 @@ def ftcurv(x,y,xo):
     return yo
 
 def ftcurvp(x,y,p,xo):
+  """
+Calculates an interpolatory spline under tension through a sequence of
+functional values for a periodic function.
+
+iarray = Ngl.ftcurvp(xi, yi, p, xo)
+
+xi -- An array containing the abscissae for the input function, with
+      rightmost dimension npts. If xi is multi-dimensional, it must
+      have the same dimension sizes as yi.
+
+yi -- An array of any dimensionality, whose rightmost dimension is
+      npts, containing the functional values of the input
+      function. That is, yi(...,k) is the functional value at
+      xi(...,k) for k=0,npts-1.
+
+p -- A scalar value specifying the period of the input function; the
+     value must not be less than xi(npts-1) - xi(0).
+
+xo -- A 1D array of length nxo containing the abscissae for the
+      interpolated values.
+  """
   if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
     dsizes_x = len(x)
   elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
@@ -1249,6 +1494,28 @@ def ftcurvp(x,y,p,xo):
     return yo
 
 def ftcurvpi(xl, xr, p, x, y):
+  """
+Calculates an integral of an interpolatory spline between two
+specified points.
+
+iarray = Ngl.ftcurvpi(xl, xr, p, xi, yi)
+
+xl -- A scalar value containing the lower limit of the integration.
+
+xr -- A scalar value containing the upper limit of the integration.
+
+p -- A scalar value specifying the period of the input function; the
+     value must not be less than xi(npts-1) - xi(0).
+
+xi -- An array containing the abscissae for the input function, with
+      rightmost dimension npts. If xi is multi-dimensional, it must
+      have the same dimension sizes as yi.
+
+yi -- An array of any dimensionality, whose rightmost dimension is
+      npts, containing the functional values of the input
+      function. That is, yi(...,k) is the functional value at
+      xi(...,k) for k=0,npts-1.
+  """
   if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
     dsizes_x = len(x)
   elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
@@ -1272,9 +1539,37 @@ def ftcurvpi(xl, xr, p, x, y):
   return (ftcurvpic(xl,xr,p,dsizes_x,x,y)[1])
 
 def gaus(n):
+  """
+Computes gaussian latitudes and weights and returns a Numeric array
+dimensioned 2*nlat-by-2.
+
+ginfo = Ngl.gaus(nlat)
+
+nlat -- A scalar integer equal to the number of latitude points per
+        hemisphere.
+  """
   return NglGaus_p(n,2*n,2)[1]
 
 def gc_convert(angle,ctype):
+  """
+Converts degrees along a great circle to radians, meters, feet, or
+kilometers and returns a Numeric array of the same shape as angle.
+
+conv_vals = Ngl.gc_convert(angle, type)
+
+angle -- A one-dimensional Numeric array (or scalar value) of angles
+         (in degrees).
+
+type -- A string (or integer) indicating the units you want to convert
+        to. Legal values are:
+
+        "radians"    (or 0)
+        "meters"     (or 1)
+        "kilometers" (or 2)
+        "feet"       (or 3)
+        "miles"      (or 4)
+  """
+
 #
 #  Convert an angle in degrees along a great circle to
 #  radians, meters, kilometers, or feet.
@@ -1309,9 +1604,35 @@ def gc_convert(angle,ctype):
     print "gc_convert: unrecognized conversion type " + str(ctype)
 
 def gc_dist(rlat1,rlon1,rlat2,rlon2):
+  """
+Calculates the distance in degrees along a great circle between two
+points.
+
+dist = Ngl.gc_dist(lat1, lon1, lat2, lon2)
+
+lat1, lon1 -- Latitude and longitude of first point on the globe.
+
+lat2, lon2 -- Latitude and longitude of second point on the globe.
+  """
   return c_dgcdist(rlat1,rlon1,rlat2,rlon2,2)
 
 def gc_interp(rlat1,rlon1,rlat2,rlon2,numi):
+  """
+Interpolates points along a great circle between two specified points
+on the globe. The returned latitudes and longitudes are returned as
+Numeric arrays in degrees in the interval [0.,360) if npts is positive
+and in the interval [-180.,180.) if npts is negative.
+
+lat,lon = Ngl.gc_interp(lat1, lon1, lat2, lon2, npts)
+
+lat1, lon1 -- Latitude and longitude, in degrees, of the first point
+              on the globe.
+
+lat2, lon2 -- Latitude and longitude, in degrees, of second point on
+              the globe.
+
+npts -- The number of equally-spaced points you want to interpolate to.
+  """
   num = abs(numi)
   if (abs(num) < 2):
     print "gc_interp: the number of points must be at least two."
@@ -1360,15 +1681,59 @@ def get_double_array(obj,name):
   return(NhlGetDoubleArray(int_id(obj),name))
 
 def get_float(obj,name):
+  """
+Retrieves the value of a resource that uses a float scalar.
+
+fval = Ngl.get_float(plotid, resource_name)
+
+plotid -- The identifier returned from Ngl.open_wks, or any PyNGL
+          function that returns a PlotId.
+
+resource_name -- The name of the resource whose value you want to
+                 retrieve.
+  """  
   return(NhlGetFloat(int_id(obj),name))
 
 def get_float_array(obj,name):
+  """
+Retrieves the value of a resource that uses a one-dimensional float array.
+
+farr = Ngl.get_float_array(plotid, resource_name)
+
+plotid -- The identifier returned from Ngl.open_wks, or any PyNGL
+          function that returns a PlotId.
+
+resource_name -- The name of the resource whose value you want to
+                 retrieve.
+  """
   return(NhlGetFloatArray(int_id(obj),name))
 
 def get_integer(obj,name):
+  """
+Retrieves the value of a resource that uses an integer scalar.
+
+ival = Ngl.get_integer(plotid, resource_name)
+
+plotid -- The identifier returned from Ngl.open_wks, or any PyNGL
+          function that returns a PlotId.
+
+resource_name -- The name of the resource whose value you want to
+                 retrieve.
+  """  
   return(NhlGetInteger(int_id(obj),name))
 
 def get_integer_array(obj,name):
+  """
+Retrieves the value of a resource that uses a one-dimensional integer array.
+
+iarr = Ngl.get_integer_array(plotid, resource_name)
+
+plotid -- The identifier returned from Ngl.open_wks, or any PyNGL
+          function that returns a PlotId.
+
+resource_name -- The name of the resource whose value you want to
+                 retrieve.
+  """
   return(NhlGetIntegerArray(int_id(obj),name))
 
 def get_MDdouble_array(obj,name):
@@ -1379,6 +1744,18 @@ def get_MDdouble_array(obj,name):
   return(rval[1])
 
 def get_MDfloat_array(obj,name):
+  """
+Retrieves the value of a resource that uses a multi-dimensional float
+array.
+
+farr = Ngl.get_MDfloat_array(plotid, resource_name)
+
+plotid -- The identifier returned from Ngl.open_wks, or any PyNGL
+          function that returns a PlotId.
+
+resource_name - The name of the resource whose value you want to
+                retrieve.
+  """
   rval = NhlGetMDFloatArray(int_id(obj),name)
   if (rval[0] != -1):
     print "get_MDfloat_array: error number %d" % (rval[0])
@@ -1386,6 +1763,18 @@ def get_MDfloat_array(obj,name):
   return(rval[1])
 
 def get_MDinteger_array(obj,name):
+  """
+Retrieves the value of a resource that uses a multi-dimensional
+integer array.
+
+iarr = Ngl.get_MDinteger_array(plotid, resource_name)
+
+plotid -- The identifier returned from Ngl.open_wks, or any PyNGL
+          function that returns a PlotId.
+
+resource_name - The name of the resource whose value you want to
+                retrieve.
+  """
   rval = NhlGetMDIntegerArray(int_id(obj),name)
   if (rval[0] != -1):
     print "get_MDinteger_array: error number %d" % (rval[0])
@@ -1397,18 +1786,70 @@ def get_MDinteger_array(obj,name):
 #  workstation is closest to the color name supplied.
 #
 def get_named_color_index(wkid,name):
+  """
+Returns the color index whose associated color on the given
+workstation is closest to the color name supplied.
+
+cindex = Ngl.get_named_color_index(wks, color_name)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+color_name -- A color name from the rgb.txt file.
+  """
   return(NhlGetNamedColorIndex(wkid,name))
 
 def get_parent_workstation(plot_id):
   NhlGetParentWorkstation(int_id(plot_id))
 
 def get_string(obj,name):
+  """
+Retrieves the value of a resource that uses a string.
+
+str = Ngl.get_string(plotid, resource_name)
+
+plotid -- The identifier returned from Ngl.open_wks, or any PyNGL
+          function that returns a PlotId.
+
+resource_name -- The name of the resource whose value you want to retrieve.
+  """
   return(NhlGetString(int_id(obj),name))
 
 def get_string_array(obj,name):
+  """
+Retrieves the value of a resource that uses a one-dimensional string
+array.
+
+sarr = Ngl.get_string_array(plotid, resource_name)
+
+plotid -- The identifier returned from Ngl.open_wks, or any PyNGL
+          function that returns a PlotId.
+
+resource_name -- The name of the resource whose value you want to
+                 retrieve.
+  """
   return(NhlGetStringArray(int_id(obj),name))
 
 def hlsrgb(h,l,s):
+  """
+Converts from the HLS color space to RGB.
+
+r, g, b = Ngl.hlsrgb(h, l, s)
+
+h -- Hue values in the range [0.,360.). A hue of "0." corresponds to
+     blue.
+
+l -- Lightness values in the range [0.,100.]. Lightness is a measure
+     of the quantity of light - a lightness of 0. is black, and a
+     lightness of 100. gives white. The pure hues occur at lightness
+     value 50.
+
+s -- Saturation values in the range [0.,100.]. Saturation is a measure
+     of how much white light is mixed with the color. Colors having a
+     saturation value of 0. represent grays with a gray intensity
+     value equal to the lightness L. Colors with a saturation value of
+     100. are fully saturated colors. The hue is undefined when
+     S=0. The fully saturated pure hues occur when S=100. and L=50.
+  """
   if (is_scalar(h) and is_scalar(l) and is_scalar(s)):
     return(c_hlsrgb(h,l,s))
   elif (is_array(h) and is_array(l) and is_array(s)):
@@ -1453,6 +1894,23 @@ def hlsrgb(h,l,s):
     print "hlsrgb: arguments must be scalars, arrays, lists or tuples."
 
 def hsvrgb(h,s,v):
+  """
+Converts from the HSV color space to RGB.
+
+r, g, b = Ngl.hsvrgb(h, s, v)
+
+h -- Hue values in the range [0.,360.). A hue of 0. corresponds to
+     red.
+
+s -- Saturation values in the range [0.,1.]. Saturation is a measure
+     of how much white light is mixed with the color. Saturation
+     values of 0. represent grays (with a gray value equal to the
+     value V). Saturation values of 1. are fully saturated colors. The
+     hue is undefined when S=0. The fully saturated pure hues occur
+     when S=1. and V=1.
+
+v -- Values for the value component in the range [0.,1.].
+  """
   if (is_scalar(h) and is_scalar(s) and is_scalar(v)):
     return(c_hsvrgb(h,s,v))
   elif (is_array(h) and is_array(s) and is_array(v)):
@@ -1628,6 +2086,15 @@ def set_color(wks_id,index,r,g,b):
   return None
 
 def free_color(wks_id,index):
+  """
+Removes a color entry from a workstation.
+
+Ngl.free_color(workstation, color_index)
+
+workstation -- An identifier returned from calling Ngl.open_wks.
+
+color_index -- An integer scalar specifying a color index.
+  """
   NhlFreeColor(int_id(wks_id),index)
   return None
 
@@ -1972,6 +2439,33 @@ def retrieve_colormap(wks):
   return get_MDfloat_array(wks,"wkColorMap")
 
 def rgbhls(r,g,b):
+  """
+Converts from the RGB color space to HLS.
+
+h, l, s = Ngl.rgbhls(r, g, b)
+
+r, g, b -- Intensity values for red, green, and blue in the range
+           [0.1.].
+
+Return Values
+
+h -- The hue of the input point in HLS color space, in the range
+     [0.,360.). A value of (0.,0.,1.) in the input space will result
+     in a hue of 0. in the output space.
+
+l -- The lightness value of the input point in HLS color space in the
+     range [0.,100.]. Lightness is a measure of the quantity of light
+     - a lightness of 0. is black, and a lightness of 100. is
+     white. The pure hues occur at lightness value 50.
+
+s -- The saturation value of the input point in HLS color space in the
+     range [0.,100.]. Saturation is a measure of how much white light
+     is mixed with the color. Saturation values of 0. represent grays
+     (with a gray value equal to the lightness value L). Saturation
+     values of 100. are fully saturated colors. The hue is undefined
+     when S=0. The fully saturated pure hues occur when S=100. and
+     L=50. The saturation value should be thought of as a percentage.
+  """
   if (is_scalar(r) and is_scalar(g) and is_scalar(b)):
     return(c_rgbhls(r,g,b))
   elif (is_array(r) and is_array(g) and is_array(b)):
@@ -2017,6 +2511,31 @@ def rgbhls(r,g,b):
 
 
 def rgbhsv(r,g,b):
+  """
+Converts from the RGB color space to HSV.
+
+h, s, v = Ngl.rgbhsv(r, g, b)
+
+r, g, b -- Intensity values for red, green, and blue in the range
+           [0.1.].
+
+Return values
+
+h -- Represents the hue of the input point in HSV color space. A value
+     of (R,0.,0.) in the input space will result in a hue of 0. in the
+     output space.
+
+s -- The saturation value of the input point in HSV color space, in
+     the range [0.,1.]. Saturation is a measure of how much white
+     light is mixed with the color. Saturation values of 0. represent
+     grays (with a gray value equal to V). Saturation values of 1. are
+     fully saturated colors. The hue is technically undefined when
+     S=0.; the code leaves H at its previous value when
+     S=0. (0. initially). The fully saturated pure hues occur when
+     S=1. and V=1.
+
+v -- The value in HSV space, in the range [0.,1.].
+  """
   if (is_scalar(r) and is_scalar(g) and is_scalar(b)):
     return(c_rgbhsv(r,g,b))
   if (is_array(r) and is_array(g) and is_array(b)):
@@ -2061,6 +2580,23 @@ def rgbhsv(r,g,b):
     print "rgbhsv: arguments must be scalars, arrays, lists or tuples."
 
 def rgbyiq(r,g,b):
+  """
+Converts from the RGB color space to YIQ.
+
+y, i, q = Ngl.rgbyiq(r, g, b)
+
+r, g, b -- Intensity values for red, green, blue in the range [0.1.].
+
+Return values
+
+y -- Y component (luminance) values in the range [0.,1.].
+
+i -- I component (chrominance orange-blue) values in the range [-0.6,
+     0.6].
+
+q -- Q component (chrominance purple-green) values in the range
+     [-0.52, 0.52].
+  """
 #
 #  Check if input is a Numeric array, scalar, list, or tuple.
 #
@@ -3314,6 +3850,18 @@ def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
   return skewt_bkgd
 
 def streamline(wks,uarray,varray,rlistc=None):
+  """
+Creates and draws streamlines, and returns a PlotId of the plot created.
+
+plot = Ngl.streamline(wks, u, v, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks
+
+u,v -- The streamline data.
+
+res -- An instance of the Resources class having PyNGL resources as
+       attributes.
+  """
 
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
@@ -3358,6 +3906,19 @@ def streamline(wks,uarray,varray,rlistc=None):
   return(lst2pobj(strm))
 
 def streamline_map(wks,uarray,varray,rlistc=None):
+  """
+Creates and draws streamlines over a map, and returns a PlotId of the
+plot created.
+
+plot = Ngl.streamline_map(wks, u, v, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks
+
+u,v -- The streamline data.
+
+res -- An instance of the Resources class having PyNGL resources as
+       attributes.
+  """
 
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
@@ -3425,9 +3986,28 @@ def text_ndc(wks, text, x, y, rlistc=None):
   return (lst2pobj(itxt))
 
 def update_workstation(obj):
+  """
+Flushes all output to a specified workstation.
+
+Ngl.update_workstation(wks)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+  """
   NhlUpdateWorkstation(int_id(obj))
 
 def vector(wks,uarray,varray,rlistc=None):
+  """
+Creates and draws vectors, and returns a PlotId of the plot created.
+
+plot = Ngl.vector(wks, u, v, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks
+
+u,v -- The vector data.
+
+res -- An instance of the Resources class having PyNGL resources as
+       attributes.
+  """
 
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
@@ -3473,6 +4053,19 @@ def vector(wks,uarray,varray,rlistc=None):
   return lst2pobj(ivct)
 
 def vector_map(wks,uarray,varray,rlistc=None):
+  """
+Creates and draws vectors over a map, and returns a PlotId of the plot
+created.
+
+plot = Ngl.vector_map(wks, u, v, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks
+
+u,v -- The vector data.
+
+res -- An instance of the Resources class having PyNGL resources as
+       attributes.
+  """
 
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
@@ -3513,6 +4106,21 @@ def vector_map(wks,uarray,varray,rlistc=None):
   return lst2pobj(ivct)
 
 def vector_scalar(wks,uarray,varray,tarray,rlistc=None):
+  """
+Creates and draws vectors colored according to a scalar field, and
+returns a PlotId of the plot created.
+
+plot = Ngl.vector_scalar(wks, u, v, data, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks
+
+u,v -- The vector data.
+
+data - The scalar data.
+
+res -- An instance of the Resources class having PyNGL resources as
+       attributes.
+  """
 
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
@@ -3563,6 +4171,21 @@ def vector_scalar(wks,uarray,varray,tarray,rlistc=None):
   return lst2pobj(ivct)
 
 def vector_scalar_map(wks,uarray,varray,tarray,rlistc=None):
+  """
+Creates and draws vectors over a map colored according to a scalar
+field, and returns a PlotId of the plot created.
+
+plot = Ngl.vector_scalar_map(wks, u, v, data, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks
+
+u,v -- The vector data.
+
+data - The scalar data.
+
+res -- An instance of the Resources class having PyNGL resources as
+       attributes.
+  """
 
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
@@ -3866,6 +4489,24 @@ def y(wks,yar,rlistc=None):
   return xy(wks,range(0,npts),yar,rlistc)
 
 def yiqrgb(y,i,q):
+  """
+Converts from the YIQ color space to RGB.
+
+r, g, b = Ngl.yiqrgb(y, i, q)
+
+y -- Y component (luminance) values in the range [0.,1.].
+
+i -- I component (chrominance orange-blue) values in the range [-0.6,
+     0.6].
+
+q -- Q component (chrominance purple-green) values in the range
+     [-0.52, 0.52].
+
+Return values
+
+r, g, b -- The red, green, and blue intensity values in the range
+           [0.,1.].
+  """
   if (is_scalar(y) and is_scalar(i) and is_scalar(q)):
     return(c_yiqrgb(y,i,q))
   if (is_array(y) and is_array(i) and is_array(q)):
