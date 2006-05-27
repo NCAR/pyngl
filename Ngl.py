@@ -1,3 +1,11 @@
+"""
+PyNGL is a Python language module designed for publication-quality
+visualization of data. PyNGL stands for "Python Interface to the
+NCL Graphics Libraries," and it is pronounced "pingle."
+
+      http://www.pyngl.ucar.edu/
+"""
+
 from hlu import *
 import hlu
 import sys, os
