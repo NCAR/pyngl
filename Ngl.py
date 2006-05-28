@@ -867,8 +867,8 @@ base_id -- The PlotId of the plot of which you want to add the annotation.
 annotation_id -- The PlotId of the annotation you want to attach to
                  the plot.
 
-res -- An instance of the Resources class having annotation resources
-       as attributes.
+res -- An optional instance of the Resources class having annotation
+      resources as attributes.
   """
 
   rlist = crt_dict(rlistc)
@@ -968,10 +968,9 @@ plot -- The id of the plot which you want to add the polygon to.
 x, y -- One-dimensional arrays containing the x, y coordinates of the
         polygon.
 
-res -- An instance of the Resources class having GraphicStyle
+res -- An optional instance of the Resources class having GraphicStyle
        resources as attributes.
-  """
-
+"""
   return(add_poly(wks,plot,x,y,NhlPOLYGON,rlistc))
 
 def add_polyline(wks,plot,x,y,rlistc=None):
@@ -988,7 +987,7 @@ plot -- The id of the plot which you want to add the polylines to.
 x, y -- One-dimensional arrays containing the x, y coordinates of the
         polylines.
 
-res -- An instance of the Resources class having GraphicStyle
+res -- An optional instance of the Resources class having GraphicStyle
        resources as attributes.
   """
   return(add_poly(wks,plot,x,y,NhlPOLYLINE,rlistc))
@@ -1007,7 +1006,7 @@ plot -- The id of the plot which you want to add the polymarkers to.
 x, y -- One-dimensional arrays containing the x, y coordinates of the
         polymarkers.
 
-res -- An instance of the Resources class having GraphicStyle
+res -- An optional instance of the Resources class having GraphicStyle
        resources as attributes.
   """
   return(add_poly(wks,plot,x,y,NhlPOLYMARKER,rlistc))
@@ -1028,7 +1027,7 @@ text -- An array of text strings to add.
 x, y -- One-dimensional arrays containing the x, y coordinates of the
         text strings.
 
-res -- An instance of the Resources class having TextItem
+res -- An optional instance of the Resources class having TextItem
        resources as attributes.
   """
   rlist = crt_dict(rlistc)  
@@ -1181,8 +1180,8 @@ wks -- The identifier returned from calling Ngl.open_wks
 
 data -- The data to contour.
 
-res -- An instance of the Resources class having PyNGL resources as
-       attributes.
+res -- An optional instance of the Resources class having PyNGL
+       resources as attributes.
   """
 
 #
@@ -1250,8 +1249,8 @@ wks -- The identifier returned from calling Ngl.open_wks
 
 data -- The data to contour.
 
-res -- An instance of the Resources class having PyNGL resources as
-       attributes.
+res -- An optional instance of the Resources class having PyNGL
+       resources as attributes.
   """
 
 #
@@ -1983,11 +1982,11 @@ nboxes -- The number of labelbar boxes.
 
 labels -- An array of label strings for the labelbar boxes.
 
-x, y -- The NDC values defining the coordinates of the upper left
-        corner of the labelbar.
+x, y -- The NDC values (values from 0 to 1) defining the
+        coordinates of the upper left corner of the labelbar.
 
-res -- An instance of the Resources class having Labelbar resources as
-       attributes.
+res -- An optional instance of the Resources class having Labelbar
+       resources as attributes.
   """
   set_spc_defaults(0)
   rlist = crt_dict(rlistc)
@@ -2019,11 +2018,11 @@ nitems -- The number of legend items.
 
 labels -- An array of label strings for the legend.
 
-x, y -- The NDC values defining the coordinates of the upper left
-         corner of the legend.
+x, y -- The NDC values (values from 0 to 1) defining the coordinates
+         of the upper left corner of the legend.
 
-res -- An instance of the Resources class having Labelbar resources as
-       attributes.
+res -- An optional instance of the Resources class having Labelbar
+       resources as attributes.
   """
   set_spc_defaults(0)
   rlist = crt_dict(rlistc)
@@ -2050,8 +2049,8 @@ pid = Ngl.map(wks, res=None)
 
 wks -- The identifier returned from calling Ngl.open_wks. 
 
-res -- An instance of the Resources class having Map resources as
-       attributes.
+res -- An optional instance of the Resources class having Map
+       resources as attributes.
   """
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
@@ -2081,8 +2080,8 @@ wks -- The identifier returned from calling Ngl.open_wks.
 plotid -- The identifier returned from calling any graphics routine
           like Ngl.xy or Ngl.contour_map.
 
-res -- An (optional) instance of the Resources class having PyNGL
-       resources as attributes.
+res -- An optional optional instance of the Resources class having
+       PyNGL resources as attributes.
   """
   set_spc_defaults(0)
   rlist = crt_dict(rlistc)  
@@ -2239,6 +2238,18 @@ angle -- An optional scalar that is the angle at which to rotate the
                float(aspect_ratio), float(size), float(angle))
 
 def set_color(wks_id,index,r,g,b):
+  """
+Sets a color in the color map of the given workstation.
+
+Ngl.set_color(wks, index, red, green, blue)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+index -- The index value in the color map of which to replace with the
+         given color.
+
+red, green, blue -- Floating point values between 0.0 and 1.0 inclusive.
+  """
   NhlSetColor(int_id(wks_id),index,r,g,b)
   return None
 
@@ -2356,8 +2367,8 @@ type -- The type of workstation to open. Some valids types include
 
 name -- The name of the workstation.
 
-res -- An instance of the Resources class having Workstation resources
-       as attributes.
+res -- An optional instance of the Resources class having Workstation
+       resources as attributes.
   """
   set_spc_defaults(1)
   global first_call_to_open_wks
@@ -2458,8 +2469,8 @@ Overlays one plot onto another.
 
 Ngl.overlay(PlotId_base, PlotId_overlay)
 
-PlotId_base -- The id of the plot you want to overlay PlotId_overlay
-               on.
+PlotId_base -- The id of the plot on which you want to overlay
+               PlotId_overlay.
 
 PlotId_overlay -- The id of the plot you want to overlay on
                   PlotId_base.
@@ -2467,6 +2478,25 @@ PlotId_overlay -- The id of the plot you want to overlay on
   NhlAddOverlay(int_id(plot_id1),int_id(plot_id2),-1)
 
 def panel(wks,plots,dims,rlistc=None):
+  """
+Draws multiple plots on a single frame.  Each plot must be the same
+size in order for this procedure to work correctly.
+
+Ngl.panel(wks, plots, dims, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+plots -- An array of plot identifiers, each one created by calling any
+         of the graphics routines like Ngl.xy or Ngl.contour_map.
+
+dims -- An array of integers indicating the configuration of the plots
+        on the frame. dims can either be two integers representing the
+        number of rows and columns of the paneled lots, or a list of
+        integers representing the number of plots per row.
+ 
+res -- An optional instance of the Resources class having PyNGL
+       resources as attributes.
+  """
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
   rlist1 = {}
@@ -2538,24 +2568,119 @@ def panel(wks,plots,dims,rlistc=None):
   del rlist1
 
 def polygon(wks,plot,x,y,rlistc=None):
+  """
+Draws a filled polygon on an existing plot.
+
+Ngl.polygon(wks, plot, x, y, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+plot -- The id of the plot on which you want to draw the polygon
+
+x, y -- One-dimensional Numeric arrays or Python lists containing the
+        x, y coordinates of the polygon, which must be in the same 
+        coordinate space as the plot.
+
+res -- An optional instance of the Resources class having
+       GraphicStyle resources as attributes.
+  """
   return(poly(wks,plot,x,y,NhlPOLYGON,0,rlistc))
 
 def polygon_ndc(wks,x,y,rlistc=None):
+  """
+Draws a filled polygon on the viewport.
+
+Ngl.polygon_ndc(wks, x, y, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+x, y -- One-dimensional Numeric arrays or Python lists containing the
+        x, y NDC coordinates (values from 0 to 1) of the polygon.
+
+res -- An optional instance of the Resources class having
+       GraphicStyle resources as attributes.
+  """
   return(poly(wks,0,x,y,NhlPOLYGON,1,rlistc))
 
 def polyline(wks,plot,x,y,rlistc=None):
+  """
+Draw polylines on an existing plot.
+
+Ngl.polyline(wks, plot, x, y, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+plot -- The id of the plot on which you want to draw the polylines.
+
+x, y -- One-dimensional Numeric arrays or Python lists containing the
+        x, y coordinates of the polylines, which must be in the same 
+        coordinate space as the plot.
+
+res -- An optional instance of the Resources class having
+       GraphicStyle resources as attributes.
+  """
   return(poly(wks,plot,x,y,NhlPOLYLINE,0,rlistc))
 
 def polyline_ndc(wks,x,y,rlistc=None):
+  """
+Draws polylines on the viewport.
+
+Ngl.polyline_ndc(wks, x, y, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+x, y -- One-dimensional Numeric arrays or Python lists containing the
+        x, y NDC coordinates (values from 0 to 1) of the polylines.
+
+res -- An optional instance of the Resources class having
+       GraphicStyle resources as attributes.
+  """
   return(poly(wks,0,x,y,NhlPOLYLINE,1,rlistc))
 
 def polymarker(wks,plot,x,y,rlistc=None):  # plot converted in poly
+  """
+Draw polymarkers on an existing plot.
+
+Ngl.polymarker(wks, plot, x, y, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+plot -- The id of the plot on which you want to draw the polymarkers.
+
+x, y -- One-dimensional Numeric arrays or Python lists containing the
+        x, y coordinates of the polymarkers, which must be in the same 
+        coordinate space as the plot.
+
+res -- An optional instance of the Resources class having
+       GraphicStyle resources as attributes.
+  """
   return(poly(wks,plot,x,y,NhlPOLYMARKER,0,rlistc))
 
 def polymarker_ndc(wks,x,y,rlistc=None):
+  """
+Draws polymarkers on the viewport.
+
+Ngl.polymarker_ndc(wks, x, y, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+x, y -- One-dimensional Numeric arrays or Python lists containing the
+        x, y NDC coordinates (values from 0 to 1) of the polymarkers.
+
+res -- An optional instance of the Resources class having
+       GraphicStyle resources as attributes.
+  """
   return(poly(wks,0,x,y,NhlPOLYMARKER,1,rlistc))
 
 def pynglpath(name):
+  """
+Returns the full path names of various installed PyNGL components.
+
+pname = Ngl.pynglpath(name)
+
+name -- A string representing abbreviated name for which you want a
+        directory path returned.
+  """
 #
 #  Return absolute pathnames for various directories.
 #
@@ -2638,12 +2763,46 @@ def pynglpath(name):
     print 'pynglpath: input name "%s" not recognized' % (name)
 
 def remove_annotation(plot_id1,plot_id2):
+  """
+Removes an annotation from the given plot.
+
+Ngl.remove_annotation(PlotId_base, annotation_id)
+
+PlotId_base -- The id of the plot from which you want to remove the
+               annotation.
+
+annotation_id -- The id of the annotation which was attached to
+                 PlotId_base via call to Ngl.add_annotation.
+  """
   NhlRemoveAnnotation(int_id(plot_id1),int_id(plot_id2))
 
-def remove_overlay(plot_id1,plot_id2,restore=0):
+def remove_overlay(plot_id1,plot_id2,restore=False):
+  """
+Removes an overlaid plot from the given plot.
+
+Ngl.remove_overlay(PlotId_base, PlotId_overlay, restore=False)
+
+PlotId_base -- The id of the plot from which you want to remove the
+               overlay.
+
+PlotId_overlay -- The id of the plot which was overlaid on PlotId_base.
+
+restore -- An optional logical value. If True and the member plot
+           initially was a base plot of an overlay with its own
+           members, the member plots are returned to the plot being
+           removed.
+  """
   NhlRemoveOverlay(int_id(plot_id1),int_id(plot_id2),restore)
 
 def retrieve_colormap(wks):
+  """
+Retrieves the current color map associated with the given workstation
+and returns a 2-dimensional Numeric array of RGB values.
+
+cmap = Ngl.retrieve_colormap(wks)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+  """
   return get_MDfloat_array(wks,"wkColorMap")
 
 def rgbhls(r,g,b):
@@ -2852,6 +3011,18 @@ q -- Q component (chrominance purple-green) values in the range
     print "rgbyiq: arguments must be scalars, arrays, lists or tuples."
 
 def set_values(obj,rlistc):
+  """
+Sets resource values for a specified plot object.
+
+ier = Ngl.set_values(plotid, res)
+
+plotid -- The identifier returned from calling any object creation
+          function, like Ngl.xy, Ngl.contour_map, or Ngl.open_wks.
+
+res -- An optional instance of the Resources class having PyNGL
+       resources as attributes containing the resources you want to
+set.
+  """
   rlist = crt_dict(rlistc)
   values = NhlSetValues(int_id(obj),rlist)
   del rlist
@@ -2901,6 +3072,16 @@ RscConv = {  \
           }
 
 def skewt_bkg(wks, Opts):
+  """
+Creates a background chart for Skew T, Log P plotting.
+
+sbkg = Ngl.skewt_bkg(wks, res)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+res -- A required instance of the Resources class having special
+       "skt" resources as attributes.
+  """
 #
 #  This program generates a skew-t, log p thermodynamic diagram.  
 #  This program was derived to reproduce the USAF skew-t, log p diagram
@@ -3651,6 +3832,35 @@ def skewt_bkg(wks, Opts):
 
 def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR, 
              dataOpts=None):
+  """
+Plots soundings and (optionally) winds on Skew T, Log P charts created
+by Ngl.skewt_bkg.
+
+splt = Ngl.skewt_plt(wks, bkgd, P, TC, TDC, Z, WSPD, WDIR, dataOpts=None)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+bkgd -- The identifier returned from calling Ngl.skewt_bkg.
+
+P -- An array of pressure values (mb/hPa).
+
+TC -- An array of the same length as P containing temperature values (C).
+
+TDC -- An array of the same length as P containing dew point
+       temperature values (C).
+
+Z -- An array of the same length as P containing geopotential values
+     (gpm).
+
+WSPD -- An array of the same length as P containing wind speed values
+        (knots or m/s).
+
+WDIR -- An array of the same length as P containing meteorological
+        wind direction values.
+
+dataOpts -- An optional instance of the Resources class having
+            special "skt" resources as attributes.
+  """
 #
 #  p    =  pressure     [mb / hPa]
 #  tc   = temperature   [C]
@@ -4067,8 +4277,8 @@ wks -- The identifier returned from calling Ngl.open_wks
 
 u,v -- The streamline data.
 
-res -- An instance of the Resources class having PyNGL resources as
-       attributes.
+res -- An optional instance of the Resources class having PyNGL
+       resources as attributes.
   """
 
   set_spc_defaults(1)
@@ -4124,8 +4334,8 @@ wks -- The identifier returned from calling Ngl.open_wks
 
 u,v -- The streamline data.
 
-res -- An instance of the Resources class having PyNGL resources as
-       attributes.
+res -- An optional instance of the Resources class having PyNGL
+       resources as attributes.
   """
 
   set_spc_defaults(1)
@@ -4213,8 +4423,8 @@ wks -- The identifier returned from calling Ngl.open_wks
 
 u,v -- The vector data.
 
-res -- An instance of the Resources class having PyNGL resources as
-       attributes.
+res -- An optional instance of the Resources class having PyNGL
+       resources as attributes.
   """
 
   set_spc_defaults(1)
@@ -4271,8 +4481,8 @@ wks -- The identifier returned from calling Ngl.open_wks
 
 u,v -- The vector data.
 
-res -- An instance of the Resources class having PyNGL resources as
-       attributes.
+res -- An optional instance of the Resources class having PyNGL
+       resources as attributes.
   """
 
   set_spc_defaults(1)
@@ -4326,8 +4536,8 @@ u,v -- The vector data.
 
 data - The scalar data.
 
-res -- An instance of the Resources class having PyNGL resources as
-       attributes.
+res -- An optional instance of the Resources class having PyNGL
+       resources as attributes.
   """
 
   set_spc_defaults(1)
@@ -4391,8 +4601,8 @@ u,v -- The vector data.
 
 data - The scalar data.
 
-res -- An instance of the Resources class having PyNGL resources as
-       attributes.
+res -- An optional instance of the Resources class having PyNGL
+       resources as attributes.
   """
 
   set_spc_defaults(1)
