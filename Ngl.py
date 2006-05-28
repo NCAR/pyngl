@@ -1957,6 +1957,13 @@ v -- Values for the value component in the range [0.,1.].
 #  Get indices of a list where the list values are true.
 #
 def ind(seq):
+  """
+Returns the integer indices of a Python list where the list values are true.
+
+tindex = Ngl.ind(plist)
+
+plist -- A Python list, tuple, or one-dimensional Numeric array.
+  """
   inds = []
   for i in xrange(len(seq)):
     if (seq[i] != 0):
@@ -1964,6 +1971,24 @@ def ind(seq):
   return(inds)
 
 def labelbar_ndc(wks,nbox,labels,x,y,rlistc=None):
+  """
+Creates and draws a labelbar anywhere in the viewport, and returns
+a PlotId representing the labelbar created.
+
+pid = Ngl.labelbar_ndc(wks, nboxes, labels, x, y, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+nboxes -- The number of labelbar boxes.
+
+labels -- An array of label strings for the labelbar boxes.
+
+x, y -- The NDC values defining the coordinates of the upper left
+        corner of the labelbar.
+
+res -- An instance of the Resources class having Labelbar resources as
+       attributes.
+  """
   set_spc_defaults(0)
   rlist = crt_dict(rlistc)
   rlist1 = {}
@@ -1982,6 +2007,24 @@ def labelbar_ndc(wks,nbox,labels,x,y,rlistc=None):
   return (lst2pobj(ilb))
 
 def legend_ndc(wks,nitems,labels,x,y,rlistc=None):
+  """
+Draws a legend anywhere in the viewport, and returns a PlotId
+representing the labelbar created.
+
+pid = Ngl.legend_ndc(wks, nitems, labels, x, y, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+nitems -- The number of legend items.
+
+labels -- An array of label strings for the legend.
+
+x, y -- The NDC values defining the coordinates of the upper left
+         corner of the legend.
+
+res -- An instance of the Resources class having Labelbar resources as
+       attributes.
+  """
   set_spc_defaults(0)
   rlist = crt_dict(rlistc)
   rlist1 = {}
@@ -2000,6 +2043,16 @@ def legend_ndc(wks,nitems,labels,x,y,rlistc=None):
   return (lst2pobj(ilb))
 
 def map(wks,rlistc=None):
+  """
+Creates and draws a map, and returns a PlotId of the map plot created.
+
+pid = Ngl.map(wks, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks. 
+
+res -- An instance of the Resources class having Map resources as
+       attributes.
+  """
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
   rlist1 = {}
@@ -2018,6 +2071,19 @@ def map(wks,rlistc=None):
   return(lst2pobj(imp))
 
 def maximize_plot(wks,plot,rlistc=None):
+  """
+Maximizes the size of the given plot on the workstation.
+
+Ngl.maximize_plot(wks, plotid, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+plotid -- The identifier returned from calling any graphics routine
+          like Ngl.xy or Ngl.contour_map.
+
+res -- An (optional) instance of the Resources class having PyNGL
+       resources as attributes.
+  """
   set_spc_defaults(0)
   rlist = crt_dict(rlistc)  
   rlist1 = {}
@@ -2029,6 +2095,23 @@ def maximize_plot(wks,plot,rlistc=None):
   maximize_plots(wks,pobj2lst(plot),1,0,pvoid())
 
 def natgrid(x,y,z,xo,yo):
+  """
+Uses a natural neighbor algorithm to interpolate 2-dimensional
+randomly spaced data to a defined output grid.
+
+xarray = Ngl.natgrid(x, y, z, xo, yo)
+
+x, y -- One-dimensional arrays of the X and Y coordinate points of the
+        input data.
+
+z -- The one-dimensional input data to be interpolated, of the same
+     length as x and y. Can be a Numeric float array or a Python list
+     or tuple.
+
+xo, yo -- One-dimensional Numeric float arrays or Python lists (of
+          length numxout and numyout) containing the coordinate points
+          of the output data grid.
+  """
   if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
     dsizes_x = len(x)
   elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
@@ -2070,13 +2153,87 @@ def ncargpath(type):
   return pynglpath(type)
 
 def new_color(wks_id,r,g,b):
+  """
+Adds the given color to the end of the color map of the given
+workstation and returns the integer index of the 
+the new color.
+
+index = Ngl.new_color(wks, red, green, blue)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+red, green, blue -- Floating point values between 0.0 and 1.0
+                    inclusive.
+  """
   return NhlNewColor(int_id(wks_id),r,g,b)
 
 def new_dash_pattern(wks_id,patterns):
+  """
+Adds a new dash pattern to the existing table of dash patterns, and
+returns the integer index of the new pattern.
+
+index = Ngl.new_dash_pattern(wks, dash_pattern)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+dash_pattern -- A string indicating the dash pattern to create.  The
+                dash pattern string can be any length, and should
+                be generated using a combination of "$" and "_"
+                characters. The "$" represents a pen-down, and the
+                "_" represents a pen-up.
+  """
   return NhlNewDashPattern(int_id(wks_id),patterns)
 
 def new_marker(wks_id,marker_strings,font_nums,xoffset=0.,yoffset=0., \
                aspect_ratio=1., size=1., angle=0.):
+  """
+Adds a new marker to the existing table of markers and returns the
+integer index of the new marker.
+
+nmark = Ngl.new_marker(wks, marker_strings, font_nums, xoffset=0., yoffset=0., 
+                       aspect_ratio=1., size=1., angle=0.)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+marker_strings -- A single string (or list of strings) to indicate
+                  what characters to pick from the font number (or
+                  list of font numbers) in the font_nums argument
+                  below. The strings will usually be a single
+                  character, but that is not a requirement. For
+                  example, you could create "Hello world" as a marker
+                  (see Example 5).
+                 
+font_nums -- An integer scalar (or list of scalars, having the same
+             length as the list of strings in the marker_strings
+             argument) containing the font table numbers indicating
+             which font table to use for the characters in the marker
+             strings.
+
+xoffset, yoffset -- Optional scalar arguments that are the X and Y
+                    offsets of the marker. The units for these offsets
+                    are character widths, that is, an x offset of
+                    1. would move the marker a character width to the
+                    right. In most cases these offsets are used for
+                    only slight adjustments. The default value of 0.0
+                    indicates no offset.
+
+aspect_ratio -- An optional scalar that is the aspect ratio of the
+                marker. A value greater than 1. stretches the marker
+                in the vertical direction, and a value less than
+                1. stretches it in the horizontal direction. The
+                default of 1.0 produces a square aspect ratio. A value
+                less than 0. will be set to the default.
+
+size -- An optional scalar size multiplier for the default marker
+        size. (a size less than 0. will default to 1.) A value of
+        2. doubles the marker size, and value of 0.5 halves the marker
+        size. The default is 1.0. A size less than 0. will be set to
+        the default.
+
+angle -- An optional scalar that is the angle at which to rotate the
+         marker counter-clockwise; it must be greater than or equal to
+         0. The default of 0.0 produces no rotation.
+  """
   return NhlNewMarker(int_id(wks_id),marker_strings, \
                font_nums,float(xoffset),float(yoffset), \
                float(aspect_ratio), float(size), float(angle))
@@ -2099,6 +2256,13 @@ color_index -- An integer scalar specifying a color index.
   return None
 
 def nngetp(pname):
+  """
+Retrieves control parameter values for Ngl.natgrid.
+
+pvalue = Ngl.nngetp(pname)
+
+pname -- Name of the parameter whose value you want to retrieve.
+  """
   iparms = [                                                         \
             "adf", "asc", "dup", "ext", "igr", "non", "rad",         \
             "sdi", "upd", "mdm",                                     \
@@ -2128,6 +2292,15 @@ def nngetp(pname):
   return None
 
 def nnsetp(pname,val):
+  """
+Sets control parameter values for Ngl.natgrid.
+
+Ngl.nnsetp(pname, pvalue)
+
+pname -- Name of the parameter whose value you want to retrieve.
+
+pvalue -- Value of the parameter you want to set.
+  """
   if (not isinstance(pname,types.StringType)):
     print "nnsetp: Parameter '" + str(pname) + "' is not a string type." 
     return None
@@ -2143,6 +2316,16 @@ def nnsetp(pname,val):
   return None
 
 def normalize_angle(ang,type):
+  """
+Normalizes any angle in degrees to be in the interval [0.,360.) or
+[-180.,180.).
+
+nangle = Ngl.normalize_angle(angle, option)
+
+angle -- An angle in degrees.
+
+option -- An option flag that is either zero or non-zero.
+  """
 #
 #  This function normalizes the angle (assumed to be in degrees) to
 #  an equivalent angle in the range [0.,360.) if type equals 0, or
@@ -2162,6 +2345,20 @@ def normalize_angle(ang,type):
   return bang
 
 def open_wks(wk_type,wk_name,wk_rlist=None):
+  """
+Opens a workstation on which to draw graphics, and returns a PlotID
+representing the workstation created.
+
+wks = Ngl.open_wks(type, name, res=None)
+
+type -- The type of workstation to open. Some valids types include
+        "ps", "eps", "pdf", "ncgm", and "X11".
+
+name -- The name of the workstation.
+
+res -- An instance of the Resources class having Workstation resources
+       as attributes.
+  """
   set_spc_defaults(1)
   global first_call_to_open_wks
   rlist = crt_dict(wk_rlist)
@@ -2256,6 +2453,17 @@ def open_wks(wk_type,wk_name,wk_rlist=None):
   return(iopn)
 
 def overlay(plot_id1,plot_id2):
+  """
+Overlays one plot onto another.
+
+Ngl.overlay(PlotId_base, PlotId_overlay)
+
+PlotId_base -- The id of the plot you want to overlay PlotId_overlay
+               on.
+
+PlotId_overlay -- The id of the plot you want to overlay on
+                  PlotId_base.
+  """
   NhlAddOverlay(int_id(plot_id1),int_id(plot_id2),-1)
 
 def panel(wks,plots,dims,rlistc=None):
