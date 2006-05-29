@@ -1,103 +1,104 @@
 #!/usr/bin/env python
 #
-# To install PyNGL:
+# To build and/or install PyNGL:
 #
-#     python setup.py install
+#   python setup.py install
 #
-
-import os,sys
-from os.path import join
-import site
+import sys,os
 import shutil
 from distutils.core import setup, Extension
+
+try:
+  path = os.environ["USE_NUMPY"]
+  HAS_NUM = 2
+except:
+  HAS_NUM = 1
+
+use_cvs = os.environ.get('USE_CVS')
 
 # Get version info.
 
 execfile('pyngl_version.py')
 pyngl_version = version
 
-#
-# Set copy_files to True only if you are about to create a new PyNGL
-# binary to give to a user. This will copy over all the supplemental
-# files you need with PyNGL (fontcaps, examples, map databases, etc)
-# to the local "ncarg" directory.
-#
-# Set copy_rangs to True if you want to copy over the RANGS/GSHHS
-# database. This database takes up about 100 megabytes.
-#
-# These variables are for internal use only.
-#
-copy_files = False
-copy_rangs = False
+if HAS_NUM == 2:
+  DMACROS =  [('NeedFuncProto', None),('USE_NUMPY',None)]
+else:
+  DMACROS =  [('NeedFuncProto',None)]
 
 #
-# Get the root of where PyNGL will live, and the extra PyNGL
+# Get the root of where PyNGL will live, and where the extra PyNGL
 # data files (fontcaps, graphcaps, map databases, example
-# scripts, etc)
+# scripts, etc) will be installled.
 #
-pkgs_pth  = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
-            'site-packages')
-pyngl_dir = pkgs_pth + "/PyNGL/ncarg"
+pkgs_pth       = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
+                              'site-packages')
+pyngl_dir      = os.path.join(pkgs_pth, os.path.join('PyNGL','ncarg'))
+pyngl_data_dir = os.path.join(pyngl_dir, 'data')
 
 #
-# List directories that we need to get supplemental files from.
 #
-main_dirs    = ["ncarg","bin"]
-ncarg_dirs   = ["data","colormaps","database","fontcaps","graphcaps"]
-pynglex_dirs = ["pynglex"] 
-bin_files    = ["ctrans","med","psplit"]
-pynglex_scp  = ["pynglex"]
+# Get root and various other directories of installed files.
 #
-# The sysresfile is kind of a special file, because we are not
-# using the one that is part of NCL, but rather one that we have
-# modified specifically for PyNGL. This file should reside in the
-# main "pyngl/src" directory, and will get copied to "ncarg/" 
-# eventually, where it will reside under the "site-packages/PyNGL"
-# directory.
-ncarg_files  = ["sysresfile"]
-
-if(copy_files):
-#
-# Get root directory of the files.
-#
-  ncl_root = os.getenv("NCARG_ROOT") + "/"
-  ncl_lib  = ncl_root + "lib/"
-
-  moved_rangs    = False
-  rangs_dir_from = ncl_lib + "ncarg/database/rangs"
-  rangs_dir_to   = ncl_lib + "ncarg/rangs"
-  if(not copy_rangs and os.path.exists(rangs_dir_from)):
-    print "Moving rangs database out of the way..."
-    os.rename(rangs_dir_from,rangs_dir_to)
-    moved_rangs = True
-#
-# Remove local directories if they exist, so we can start anew.
-#
-  for i in xrange(len(main_dirs)):
-    shutil.rmtree(main_dirs[i],ignore_errors=True)
-    os.mkdir(main_dirs[i])
+ncl_root      = os.getenv("NCARG_ROOT")
+ncl_bin       = os.path.join(ncl_root,'bin')
+ncl_lib       = os.path.join(ncl_root,'lib')
+ncl_inc       = [os.path.join(ncl_root,'include')]
+ncl_ncarg_dir = os.path.join(ncl_lib,'ncarg')
+ncl_data_dir  = os.path.join(ncl_ncarg_dir,'data')
 
 #
-# Copy over the files.
+# Get the list of pynglex *.py and *.res files. You have a choice of
+# checking out a new directory from CVS, or using the "examples" directory.
+# If you use the "examples" directory, make sure it doesn't have 
+# any extraneous files, like *.ps files.
 #
-  for i in xrange(len(ncarg_dirs)):
-    shutil.copytree(ncl_lib + "ncarg/" + ncarg_dirs[i],"ncarg/"+ncarg_dirs[i])
-  for i in xrange(len(pynglex_dirs)):
-    shutil.copytree(pynglex_dirs[i],"ncarg/"+pynglex_dirs[i])
-  for i in xrange(len(ncarg_files)):
-    shutil.copy(ncarg_files[i],"ncarg/")
-  for i in xrange(len(bin_files)):
-    shutil.copy(ncl_root + "bin/" + bin_files[i],"bin/")
-  for i in xrange(len(pynglex_scp)):
-    shutil.copy("../examples/" + pynglex_scp[i],"bin/")
-#
-# Copy rangs dir back, if necessary.
-#
-  if(moved_rangs):
-    print "Moving rangs database back..."
-    os.rename(rangs_dir_to,rangs_dir_from)
+if use_cvs:
+  pynglex_dir = "Scripts"
+  os.system("/bin/rm -rf " + pynglex_dir)
+  os.system("cvs co pynglex")
+  pynglex_files = os.listdir(pynglex_dir)
+else:
+  pynglex_dir = "../examples"
+  pynglex_files = os.listdir(pynglex_dir)
+  if os.path.exists(os.path.join(pynglex_dir,'makefile')):
+    pynglex_files.remove("makefile")
 
-del bin_files
+#
+# Remove everything but *.py and *.res files from the list of files.
+#
+pynglex_files.remove("yMakefile")
+pynglex_files.remove("CVS")
+pynglex_files.remove("pynglex")
+
+#
+# Prepend the full directory path leading to files.
+#
+for i in xrange(len(pynglex_files)):
+  pynglex_files[i] = os.path.join(pynglex_dir,pynglex_files[i])
+
+#
+# Gather up the executables we want to install as part of PyNGL.
+# Get the NCAR Graphics executables from the installed location
+# ($NCARG_ROOT).
+#
+bin_files  = ["ctrans","med","psplit"]
+for i in xrange(len(bin_files)):
+  bin_files[i] = os.path.join(ncl_bin,bin_files[i])
+bin_files.append(os.path.join(pynglex_dir,'pynglex'))
+
+#
+# Location of system and NCARG include files and libraries.
+#
+# To include additional libraries, you can add them here, or, on
+# the UNIX command line, you can type something like:
+#
+#  python setup.py build_ext -L/sw/lib
+#
+# You will then have to type "python setup.py install" separately to
+# install the package.
+#
+ncl_and_sys_libs = [ncl_lib, "/usr/X11R6/lib"]
 
 #
 #
@@ -112,74 +113,79 @@ del bin_files
 # individually. I think "os.walk" might be something to look into
 # here.
 #
-
-asc_files      = os.listdir("ncarg/data/asc")
-dbin_files     = os.listdir("ncarg/data/bin")
-cdf_files      = os.listdir("ncarg/data/cdf")
-grb_files      = os.listdir("ncarg/data/grb")
-colormap_files = os.listdir("ncarg/colormaps")
-database_files = os.listdir("ncarg/database")
-fontcap_files  = os.listdir("ncarg/fontcaps")
-graphcap_files = os.listdir("ncarg/graphcaps")
-pynglex_files  = os.listdir("ncarg/pynglex")
-bin_files      = os.listdir("bin")
+asc_files      = os.listdir(os.path.join(ncl_data_dir,'asc'))
+dbin_files     = os.listdir(os.path.join(ncl_data_dir,'bin'))
+cdf_files      = os.listdir(os.path.join(ncl_data_dir,'cdf'))
+grb_files      = os.listdir(os.path.join(ncl_data_dir,'grb'))
+colormap_files = os.listdir(os.path.join(ncl_ncarg_dir,'colormaps'))
+fontcap_files  = os.listdir(os.path.join(ncl_ncarg_dir,'fontcaps'))
+graphcap_files = os.listdir(os.path.join(ncl_ncarg_dir,'graphcaps'))
+database_files = os.listdir(os.path.join(ncl_ncarg_dir,'database'))
+database_files.remove("rangs")
 
 #
-# os.listdir doesn't include the relative directory path...
+# os.listdir doesn't include the relative directory path, so add it
+# back here.
 #
 for i in xrange(len(asc_files)):
-  asc_files[i] = "ncarg/data/asc/" + asc_files[i]
+  asc_files[i] = os.path.join(ncl_data_dir,'asc',asc_files[i])
 
 for i in xrange(len(dbin_files)):
-  dbin_files[i] = "ncarg/data/bin/" + dbin_files[i]
+  dbin_files[i] = os.path.join(ncl_data_dir,'bin',dbin_files[i])
 
 for i in xrange(len(cdf_files)):
-  cdf_files[i] = "ncarg/data/cdf/" + cdf_files[i]
+  cdf_files[i] = os.path.join(ncl_data_dir,'cdf',cdf_files[i])
 
 for i in xrange(len(grb_files)):
-  grb_files[i] = "ncarg/data/grb/" + grb_files[i]
+  grb_files[i] = os.path.join(ncl_data_dir,'grb',grb_files[i])
 
 for i in xrange(len(colormap_files)):
-  colormap_files[i] = "ncarg/colormaps/" + colormap_files[i]
+  colormap_files[i] = os.path.join(ncl_ncarg_dir,'colormaps',colormap_files[i])
 
 for i in xrange(len(database_files)):
-  database_files[i] = "ncarg/database/" + database_files[i]
+  database_files[i] = os.path.join(ncl_ncarg_dir,'database',database_files[i])
 
 for i in xrange(len(fontcap_files)):
-  fontcap_files[i] = "ncarg/fontcaps/" + fontcap_files[i]
+  fontcap_files[i] = os.path.join(ncl_ncarg_dir,'fontcaps',fontcap_files[i])
 
 for i in xrange(len(graphcap_files)):
-  graphcap_files[i] = "ncarg/graphcaps/" + graphcap_files[i]
+  graphcap_files[i] = os.path.join(ncl_ncarg_dir,'graphcaps',graphcap_files[i])
 
+res_file = 'sysresfile'
 
-for i in xrange(len(pynglex_files)):
-  pynglex_files[i] = "ncarg/pynglex/" + pynglex_files[i]
+#
+# Gather up the *.py module files.
+#
+py_files= ['Ngl.py','hlu.py','__init__.py','pyngl_version.py']
 
-for i in xrange(len(bin_files)):
-  bin_files[i] = "bin/" + bin_files[i]
-
-res_file = ["ncarg/sysresfile"]
-
+#
+# Here's the setup function.
+#
 setup (name = "PyNGL",
        version = pyngl_version,
-       author="Dave Brown, Fred Clare, Mary Haley",
-       author_email="fred@ucar.edu,haley@ucar.edu",
+       author="Fred Clare and Mary Haley",
        description = "2D visualization library",
-       long_description = "PyNGL is a Python language module designed for publication-quality visualization of data. PyNGL stands for 'Python Interface to the NCL Graphics Libraries,' and it is pronounced 'pingle.' It now contains the 'Nio' module, which enables NetCDF-like access for NetCDF (rw), HDF (rw), GRIB (r), and CCM (r) data files",
+       long_description = "PyNGL is a Python language module designed for publication-quality visualization of data. PyNGL stands for 'Python Interface to the NCL Graphics Libraries,' and it is pronounced 'pingle.'",
        url = "http://www.pyngl.ucar.edu/",
-       packages = ['PyNGL'],
-       data_files = [("bin",                   bin_files),
+       package_dir = { 'PyNGL' : ''},
+       scripts = bin_files,
+       data_files = [(os.path.join(pyngl_dir,'pynglex'),pynglex_files),
                      (pkgs_pth,                ["PyNGL.pth"]),
-                     (pkgs_pth+"/PyNGL",       ["PyNGL/_hlu.so"]),
-                     (pkgs_pth+"/PyNGL",       ["PyNGL/Nio.so"]),
-                     (pyngl_dir,               res_file),
-                     (pyngl_dir + "/data/asc", asc_files),
-                     (pyngl_dir + "/data/bin", dbin_files),
-                     (pyngl_dir + "/data/cdf", cdf_files),
-                     (pyngl_dir + "/data/grb", grb_files),
-                     (pyngl_dir + "/colormaps",colormap_files),
-                     (pyngl_dir + "/database", database_files),
-                     (pyngl_dir + "/fontcaps", fontcap_files),
-                     (pyngl_dir + "/graphcaps",graphcap_files),
-                     (pyngl_dir + "/pynglex",  pynglex_files)]
+                     (os.path.join(pkgs_pth,'PyNGL'), py_files),
+                     (os.path.join(pyngl_data_dir,'asc'), asc_files),
+                     (os.path.join(pyngl_data_dir,'bin'), dbin_files),
+                     (os.path.join(pyngl_data_dir,'cdf'), cdf_files),
+                     (os.path.join(pyngl_data_dir,'grb'), grb_files),
+                     (os.path.join(pyngl_dir,'colormaps'),colormap_files),
+                     (os.path.join(pyngl_dir,'database'), database_files),
+                     (os.path.join(pyngl_dir,'fontcaps'), fontcap_files),
+                     (os.path.join(pyngl_dir,'graphcaps'),graphcap_files),
+                     (pyngl_dir, [res_file])],
+       ext_package = 'PyNGL',
+       ext_modules = [Extension('_hlu', 
+                           ['Helper.c','hlu_wrap.c','gsun.c'],
+                            define_macros = DMACROS,
+                            library_dirs = ncl_and_sys_libs,
+                            include_dirs = ncl_inc,
+                            libraries = ["nfpfort", "hlu", "ncarg", "ncarg_gks", "ncarg_c", "ngmath", "X11", "g2c"])]
       )
