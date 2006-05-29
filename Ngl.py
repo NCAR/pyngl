@@ -4375,6 +4375,24 @@ res -- An optional instance of the Resources class having PyNGL
   return(lst2pobj(strm))
 
 def text(wks, plot, text, x, y, rlistc=None):
+  """
+Draws text strings on an existing plot.
+
+txt = Ngl.text(wks, plot, text, x, y, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+plot -- The id of the plot which you want to draw the text strings on.
+
+text -- An array of text strings.
+
+x, y -- One-dimensional arrays containing the x, y coordinates of the
+        text strings, which must be in the same coordinate space as
+        the plot.
+
+res -- An optional variable containing a list of TextItem resources,
+       attached as attributes.
+  """
   set_spc_defaults(0)
   rlist = crt_dict(rlistc)
   rlist1 = {}
@@ -4389,6 +4407,22 @@ def text(wks, plot, text, x, y, rlistc=None):
   return(lst2pobj(itxt))
 
 def text_ndc(wks, text, x, y, rlistc=None):
+  """
+Draws text strings on the viewport.
+
+txt = Ngl.text_ndc(wks, text, x, y, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+text -- An array of text strings.
+
+x, y -- Scalars, one-dimensional Numeric arrays, or Python lists
+        containing the x, y NDC coordinates (values from 0 to 1) of
+        the text strings.
+
+res -- An (optional) instance of the Resources class having TextItem
+       resources as attributes.
+  """
   set_spc_defaults(0)
   rlist = crt_dict(rlistc)
   rlist1 = {}
@@ -4650,6 +4684,49 @@ res -- An optional instance of the Resources class having PyNGL
   return lst2pobj(ivct)
 
 def vinth2p (dati, hbcofa, hbcofb, plevo, psfc, intyp, p0, ii, kxtrp):     
+  """
+Interpolates CCSM hybrid coordinates to pressure coordinates.  A
+multi-dimensional Numeric array of the same shape as datai is
+returned, except that the input level coordinate is replaced by
+plevo.
+
+array = Ngl.vinth2p(datai, hbcofa, hbcofb, plevo, psfc, intyp, p0, ii,
+                    kxtrp)
+
+datai -- A Numeric array of 3 or 4 dimensions. This array needs to
+         contain a level dimension in hybrid coordinates. The order of
+         the dimensions is specific. The three rightmost dimensions
+         must be level x lat x lon [e.g. TS(time,lev,lat,lon)]. The
+         order of the level dimension must be top-to-bottom.
+
+hbcofa -- A one-dimensional Numeric array or Python list containing
+          the hybrid A coefficients. Must have the same dimension as
+          the level dimension of datai. The order must be
+          top-to-bottom.
+
+hbcofb -- A one-dimensional Numeric array or Python list containing
+          the hybrid B coefficients. Must have the same dimension as
+          the level dimension of datai. The order must be
+          top-to-bottom.
+
+plevo -- A one-dimensional Numeric array of output pressure levels in
+         mb.
+
+psfc -- A multi-dimensional Numeric array of surface pressures in
+        Pa. Must have the same dimension sizes as the corresponding
+        dimensions of datai.
+
+intyp -- A scalar integer value equal to the interpolation type: 1 =
+         LINEAR, 2 = LOG, 3 = LOG LOG.
+
+p0 -- A scalar value equal to surface reference pressure in mb.
+
+ii -- Not used at this time. Set to 1.
+
+kxtrp -- A logical value. If False, then no extrapolation is done when
+         the pressure level is outside of the range of psfc.
+  """
+
 #
 #  Argument plevi is calculated in the Fortran code, just zero it out below.
 #
@@ -4707,6 +4784,20 @@ def vinth2p (dati, hbcofa, hbcofb, plevo, psfc, intyp, p0, ii, kxtrp):
     return None
 
 def wmbarb(wks,x,y,u,v):
+  """
+Draws wind barbs at specified locations.
+
+Ngl.wmbarb(wks, x, y, dx, dy)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+x, y -- Scalars, one-dimensional Numeric arrays or Python lists
+        specifying X and Y coordinate values.
+
+dx, dy -- Scalars, one-dimensional Numeric arrays or Python lists
+          specifying X and Y components of wind vectors at the
+          associated (x,y) coordinates.
+  """
 #
 #  Get the GKS workstaton ID.
 #
@@ -4747,6 +4838,21 @@ def wmbarb(wks,x,y,u,v):
   return 0
 
 def wmbarbmap(wks,x,y,u,v):
+  """
+Draws wind barbs over maps at specified locations.
+
+Ngl.wmbarbmap(wks, lat, lon, u, v)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+lat, lon -- Scalars, one-dimensional Numeric arrays or Python lists
+            specifying latitude and longitude coordinate values (in
+            degrees).
+
+u, v -- Scalars, one-dimensional Numeric arrays or Python lists
+        specifying the zonal and meridional "x" and "y" wind
+        components at the associated lat,lon coordinates.
+  """
   ezf = wmgetp("ezf")
   wdf = wmgetp("wdf")
   wmsetp("ezf",1)
@@ -4756,6 +4862,16 @@ def wmbarbmap(wks,x,y,u,v):
   wmsetp("wdf",wdf)
 
 def wmgetp(pname):
+  """
+Retrieves control parameter values for the Ngl.wmbarb and Ngl.wmbarbmap
+procedures.
+
+value = Ngl.wmgetp(pname)
+
+pname -- Name of the parameter whose value you want to retrieve.
+
+value -- The return value of the given input parameter.
+  """
   iparms = [                                                                \
              "alo", "aoc", "asc", "awc", "cbc", "cc1", "cc2", "cc3", "cfc", \
              "col", "dbc", "dtc", "hib", "hic", "hif", "his", "lc1", "lc2", \
@@ -4799,6 +4915,15 @@ def wmgetp(pname):
   return None
 
 def wmsetp(pname,val):
+  """
+Sets control parameter values for Ngl.wmbarb and Ngl.wmbarbmap procedures.
+
+Ngl.wmsetp(pname, pvalue)
+
+pname -- Name of the parameter to set.
+
+pvalue -- Value of the parameter you want to set.
+  """
   if (not isinstance(pname,types.StringType)):
     print "wmsetp: Parameter '" + str(pname) + "' is not a string type." 
     return None
@@ -4814,6 +4939,23 @@ def wmsetp(pname,val):
   return None
 
 def xy(wks,xar,yar,rlistc=None):
+  """
+Creates and draws an XY plot, and returns a PlotId representing the XY
+plot created.
+
+xyplot = Ngl.xy(wks, x, y, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+x, y -- The X and Y coordinates of the curve(s). These values can be
+        one-dimensional Numeric arrays, Python lists or
+        two-dimensional Numeric arrays. If x and/or y are
+        two-dimensional, then the leftmost dimension determines the
+        number of curves.
+
+res -- An (optional) instance of the Resources class having PyNGL
+       resources as attributes.
+  """
   set_spc_defaults(1)
 #
 #  Get input array dimension information.
@@ -4880,6 +5022,23 @@ def xy(wks,xar,yar,rlistc=None):
   return(lst2pobj(ixy))
 
 def y(wks,yar,rlistc=None):
+  """
+Creates and draws an XY plot using index values for the X axis, and
+returns a PlotId representing the XY plot created.
+
+yplot = Ngl.y(wks, y, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+y -- The Y coordinates of the curve(s). y can be a one-dimensional
+     Numeric array, a Python list, or a two-dimensional Numeric
+     array. If y is two-dimensional, then the leftmost dimension
+     determines the number of curves and the rightmost dimension
+     defines the number of points (npts).
+
+res -- An (optional) instance of the Resources class having PyNGL
+       resources as attributes.
+  """
   
 #
 #  Get input array dimension information.
