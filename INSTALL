@@ -1,0 +1,32 @@
+
+To build and install PyNGL, type;
+
+   python setup.py install
+
+This installation assumes that you have NCAR Graphics files (like
+fontcaps, databases, ctrans, med) installed to $NCARG_ROOT/{bin,lib}.
+
+By default, the "pynglex" script and example *.py files will get
+copied from the "examples" directory in this directory. This means if
+you have extraneous files in this directory, they may get installed
+too. (Files like "Makefile" and "yMakefile" will not get installed.)
+
+To avoid this, you can force the setup.py file to get a clean copy
+of the example scripts by doing a "cvs co". To get setup.py to do this,
+setenv USE_CVS to 1.
+
+To just build the _hlu.so file and not install anything, type:
+
+   python setup.py build_ext
+
+If you need to include additional system library paths, like "/sw/lib"
+for MacOSX, then you can add this library to the "ncl_and_sys_libs"
+variable in setup.py, or you can type:
+
+  python setup.py build_ext -L/sw/lib
+
+There are other things you can include on the line like this. For
+more information, type:
+
+  python setup.py build_ext --help
+

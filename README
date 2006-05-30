@@ -1,0 +1,69 @@
+
+PyNGL ("pingle") stands for "Python NCL Graphics Library" and is a
+Python package for producing publication-quality 2D visualizations.
+
+Nio is a Python module that allows read and/or write access to a
+variety of data formats (netCDF, GRIB1, HDF4, HDF-EOS2, CCM History
+tape) using an interface modelled on netCDF.  This module is part of
+the PyNGL version 0.1.1b8
+
+The 2D visualizations can be drawn on an X11 window or saved as as
+PostScript, PDF, or NCGM file.
+
+Interfaces exist for the rapid display of:
+
+    Contour plots
+    XY plots
+    World map projections
+    Vector plots
+    Streamline plots
+    Output primitives (lines, markers, polygons, text)
+
+In order to run PyNGL, you must have Numeric installed, and optionally
+ScientificPython (for running some of the examples that open netCDF
+files).
+
+For documentation, see:
+
+  http://www.pyngl.ucar.edu/
+
+The documentation contains line-by-line explanations of PyNGL scripts.
+
+Bug reports and feedback are appreciated (see email addresses below).
+
+David Brown, Fred Clare, and Mary Haley
+National Center for Atmospheric Research
+1850 Table Mesa Drive
+Boulder, CO  80305
+USA
+E-Mail: dbrown@ucar.edu, fred@ucar.edu, haley@ucar.edu
+
+
+Installation:
+-------------
+
+Required: Python 2.3 or higher and Numeric 23.1 or higher.  Earlier or
+later versions of these packages may work, but we haven't tested all
+of them.
+
+Installation is simple:
+
+    python setup.py install
+
+(the second command requires root privileges on many installations).
+
+
+Examples:
+---------
+
+To run a PyNGL example, type:
+
+   pynglex ngl01p
+
+This will generate a PostScript file called "ngl01p.ps" containing XY
+plots.
+
+For a complete list of PyNGL examples, type:
+
+   pynglex -a
+
