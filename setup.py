@@ -33,6 +33,7 @@ else:
 #
 pkgs_pth       = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
                               'site-packages')
+python_bin_dir = os.path.join(sys.prefix,'bin')
 pyngl_dir      = os.path.join(pkgs_pth, os.path.join('PyNGL','ncarg'))
 pyngl_data_dir = os.path.join(pyngl_dir, 'data')
 
@@ -169,9 +170,9 @@ setup (name = "PyNGL",
        long_description = "PyNGL is a Python language module designed for publication-quality visualization of data. PyNGL stands for 'Python Interface to the NCL Graphics Libraries,' and it is pronounced 'pingle.'",
        url = "http://www.pyngl.ucar.edu/",
        package_dir = { 'PyNGL' : ''},
-       scripts = bin_files,
        data_files = [(os.path.join(pyngl_dir,'pynglex'),pynglex_files),
                      (pkgs_pth,                ["PyNGL.pth"]),
+                     (python_bin_dir,bin_files),
                      (os.path.join(pkgs_pth,'PyNGL'), py_files),
                      (os.path.join(pyngl_data_dir,'asc'), asc_files),
                      (os.path.join(pyngl_data_dir,'bin'), dbin_files),
