@@ -121,7 +121,8 @@ colormap_files = os.listdir(os.path.join(ncl_ncarg_dir,'colormaps'))
 fontcap_files  = os.listdir(os.path.join(ncl_ncarg_dir,'fontcaps'))
 graphcap_files = os.listdir(os.path.join(ncl_ncarg_dir,'graphcaps'))
 database_files = os.listdir(os.path.join(ncl_ncarg_dir,'database'))
-database_files.remove("rangs")
+if os.path.exists(os.path.join(ncl_ncarg_dir,'database','rangs')):
+  database_files.remove("rangs")
 
 #
 # os.listdir doesn't include the relative directory path, so add it
