@@ -58,7 +58,7 @@ if (os.path.exists("nio01.nc")):
 #  for writing.
 #
 hatt = "Created " + time.ctime(time.time()) + " by " + getUserName()
-file = Nio.open_file("nio01.nc", "w", hatt)
+file = Nio.open_file("nio01.nc", "w", None, hatt)
 
 #
 #  Create some global attributes.
