@@ -37,9 +37,10 @@
 #     This example requires the resource file cn12p.res.
 
 #
-#  Import Numeric.
+#  Import Numeric and sys.
 #
-import Numeric,sys
+import Numeric
+import sys
 
 #
 #  Import Ngl support functions.

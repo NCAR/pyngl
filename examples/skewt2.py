@@ -35,7 +35,8 @@
 #    Skew-T resource names decided on.
 #     
 
-import Ngl,Numeric
+import Ngl
+import Numeric
 
 nlvl = 30  
 ncol = 16

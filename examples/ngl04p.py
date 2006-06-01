@@ -34,7 +34,8 @@
 #
 #  Import Numeric and types.
 #
-import Numeric, types
+import Numeric 
+import types
 
 #
 #  Import the GRIB1 reader.

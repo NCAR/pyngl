@@ -32,9 +32,10 @@
 #     
 
 #
-#  Import Numeric.
+#  Import Numeric and random.
 #
-import Numeric, random
+import Numeric 
+import random
 
 #
 #  Import Ngl support functions.

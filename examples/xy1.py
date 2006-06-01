@@ -30,7 +30,8 @@
 #  Notes:
 #     
 
-import Ngl, Numeric, math
+import Ngl, math
+import Numeric
 
 #
 # Create dummy data for XY plot.

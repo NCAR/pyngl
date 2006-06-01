@@ -43,7 +43,9 @@
 #
 #  Import Numeric, Ngl, and Nio support functions.
 #
-import Numeric, Ngl, Nio
+import Numeric 
+import Ngl 
+import Nio
 
 #
 # Read some variables off the file.

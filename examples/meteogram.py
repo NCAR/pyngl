@@ -50,7 +50,8 @@ import Nio
 #
 #  Import Numeric and sys.
 #
-import Numeric,sys
+import Numeric
+import sys
 
 #
 #  Import the PyNGL module names.

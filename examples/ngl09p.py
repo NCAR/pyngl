@@ -38,7 +38,9 @@
 #  Import the Masked array module from 
 #  Numerical Python; import sys
 #
-import Numeric,MA,sys
+import Numeric
+import MA
+import sys
 
 #
 #  Import Ngl support functions.

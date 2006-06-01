@@ -29,7 +29,8 @@
 #  Notes:
 #     
 
-import Ngl,Numeric
+import Ngl
+import Numeric
 import Nio
 
 #

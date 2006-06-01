@@ -45,7 +45,8 @@
 #
 #  Import Python modules to be used.
 #
-import Numeric,sys,os
+import Numeric
+import sys,os
 
 #
 #  Import Nio (for reading netCDF files).

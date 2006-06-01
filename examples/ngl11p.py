@@ -35,9 +35,10 @@
 #     
 
 #
-#  Import Numeric.
+#  Import Numeric and sys.
 #
-import Numeric,sys
+import Numeric
+import sys
 
 #
 #  Import NGL support functions.

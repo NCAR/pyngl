@@ -30,7 +30,9 @@
 #  Notes:
 #     
 
-import Numeric, Nio, time, os
+import Numeric 
+import Nio 
+import time, os
 
 #
 #  Function to retrieve the user's name.

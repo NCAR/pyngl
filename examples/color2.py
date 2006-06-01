@@ -30,7 +30,8 @@
 #     
 
 import Ngl
-import Numeric,os
+import Numeric
+import os
 
 #
 # Create an array of named colors for use as a color map. These

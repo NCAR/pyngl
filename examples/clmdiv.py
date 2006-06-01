@@ -34,9 +34,10 @@
 #
 
 #
-#  Import Numeric.
+#  Import Numeric and random.
 #
-import Numeric,random
+import Numeric
+import random
 
 #
 #  Import Nio for reading netCDF files.

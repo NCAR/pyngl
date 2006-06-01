@@ -32,7 +32,8 @@
 #  Notes:
 #     
 
-import Ngl, Numeric
+import Ngl 
+import Numeric
 
 #
 #  Draw some wind barbs over a map.
