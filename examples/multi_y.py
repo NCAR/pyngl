@@ -48,11 +48,6 @@
 #     
 
 #
-#  Import NumPy.
-#
-import Numeric
-
-#
 #  Import Ngl support functions.
 #
 import Ngl
