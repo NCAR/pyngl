@@ -23,8 +23,10 @@ pyngl_version = version
 
 if HAS_NUM == 2:
   DMACROS =  [('NeedFuncProto', None),('USE_NUMPY',None)]
+  print '====> building with numpy/arrayobject.h'
 else:
   DMACROS =  [('NeedFuncProto',None)]
+  print '====> building with Numeric/arrayobject.h'
 
 #
 # Get the root of where PyNGL will live, and where the extra PyNGL
