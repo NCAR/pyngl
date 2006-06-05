@@ -61,18 +61,19 @@ if use_cvs:
   os.system("/bin/rm -rf " + pynglex_dir)
   os.system("cvs co pynglex")
   pynglex_files = os.listdir(pynglex_dir)
-else:
-  pynglex_dir = "../examples"
-  pynglex_files = os.listdir(pynglex_dir)
-  if os.path.exists(os.path.join(pynglex_dir,'makefile')):
-    pynglex_files.remove("makefile")
-
 #
 # Remove everything but *.py and *.res files from the list of files.
 #
-pynglex_files.remove("yMakefile")
-pynglex_files.remove("CVS")
-pynglex_files.remove("pynglex")
+  pynglex_files.remove("yMakefile")
+  pynglex_files.remove("CVS")
+  pynglex_files.remove("pynglex")
+else:
+  pynglex_dir = "../examples"
+  all_pynglex_files = os.listdir(pynglex_dir)
+  pynglex_files = []
+  for file in all_pynglex_files:
+    if (file[-3:] == ".py" or file[-4:] == ".res"):
+      pynglex_files.append(file)
 
 #
 # Prepend the full directory path leading to files.
@@ -101,7 +102,10 @@ bin_files.append(os.path.join(pynglex_dir,'pynglex'))
 # You will then have to type "python setup.py install" separately to
 # install the package.
 #
-ncl_and_sys_libs = [ncl_lib, "/usr/X11R6/lib"]
+ncl_and_sys_lib_paths = [ncl_lib, "/usr/X11R6/lib"]
+
+if sys.platform == "darwin":
+    ncl_and_sys_lib_paths.append('/sw/lib')
 
 #
 #
@@ -162,6 +166,51 @@ res_file = 'sysresfile'
 #
 py_files= ['Ngl.py','hlu.py','__init__.py','pyngl_version.py']
 
+
+#
+# List the extra arguments and libraries that we need on the load line.
+#
+EXTRA_LINK_ARGS = ""
+LIBRARIES = ["nfpfort", "hlu", "ncarg", "ncarg_gks", "ncarg_c", "ngmath", "X11", "g2c"]
+
+
+#
+# The IRIX system is problematic, because distuils uses "-all" as one of the
+# options to "ld".  This causes all objects from all archives to be linked
+# in, and hence you get some undefined references from libraries like the
+# Spherepack library, which you shouldn't need (yet). The solution around this
+# is to use "-notall" in conjunction with "-all", but the "extra_link_args"
+# parameter that you are supposed to use puts this at the *end* of the ld
+# line, which doesn't work. It needs to be at the beginning.
+#
+# So, for now, on tempest, I'm having to build the darn *.so file
+# by hand with:
+#
+# ld -64 -shared -all build/temp.irix64-6.5-2.4/Helper.o \
+#   build/temp.irix64-6.5-2.4/hlu_wrap.o build/temp.irix64-6.5-2.4/gsun.o \
+#  -L/fis/scd/home/ncargd/dev/opt/IRIX64_6.5_mips4_64/lib -L/usr/X11R6/lib \
+#  -lnfpfort -lhlu -lncarg -lncarg_gks -lncarg_c -lngmath -lX11 -lftn -lm \
+#  -o build/lib.irix64-6.5-2.4/PyNGL/_hlu.so -notall
+#
+# I use the build_on_irix64 script for this. Run the build_on_irix64 script
+# instead of this setup.py script.
+#
+
+if sys.platform == "irix6-64":
+    print "Warning: This setup.py file will not work on an irix6-64 system."
+    print "Use 'build_on_irix64' instead."
+#
+# This is for later, if we ever get this to work.
+#
+    LIBRARIES.remove('g2c')
+    LIBRARIES.append('ftn')
+    LIBRARIES.append('m')
+    EXTRA_LINK_ARGS = ['-notall']
+
+if sys.platform == "aix5":
+    LIBRARIES.remove('g2c')
+    LIBRARIES.append('xlf90')
+
 #
 # Here's the setup function.
 #
@@ -189,7 +238,8 @@ setup (name = "PyNGL",
        ext_modules = [Extension('_hlu', 
                            ['Helper.c','hlu_wrap.c','gsun.c'],
                             define_macros = DMACROS,
-                            library_dirs = ncl_and_sys_libs,
+                            extra_link_args = EXTRA_LINK_ARGS,
+                            library_dirs = ncl_and_sys_lib_paths,
                             include_dirs = ncl_inc,
-                            libraries = ["nfpfort", "hlu", "ncarg", "ncarg_gks", "ncarg_c", "ngmath", "X11", "g2c"])]
+                            libraries = LIBRARIES)]
       )

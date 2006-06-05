@@ -1,0 +1,6 @@
+#!/bin/csh -f
+
+python setup.py build_ext
+ld -64 -shared -notall build/temp.irix64-6.5-2.4/Helper.o build/temp.irix64-6.5-2.4/hlu_wrap.o build/temp.irix64-6.5-2.4/gsun.o -L/fis/scd/home/ncargd/dev/opt/IRIX64_6.5_mips4_64/lib -L/usr/X11R6/lib -lnfpfort -lhlu -lncarg -lncarg_gks -lncarg_c -lngmath -lX11 -lftn -lm -o build/lib.irix64-6.5-2.4/PyNGL/_hlu.so
+python setup.py install
+
