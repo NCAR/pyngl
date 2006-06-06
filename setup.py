@@ -15,6 +15,7 @@ except:
   HAS_NUM = 1
 
 use_cvs = os.environ.get('USE_CVS')
+pynio2pyngl = os.environ.get('PYNIO2PYNGL')
 
 # Get version info.
 
@@ -33,11 +34,13 @@ else:
 # data files (fontcaps, graphcaps, map databases, example
 # scripts, etc) will be installled.
 #
-pkgs_pth       = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
-                              'site-packages')
-python_bin_dir = os.path.join(sys.prefix,'bin')
-pyngl_dir      = os.path.join(pkgs_pth, os.path.join('PyNGL','ncarg'))
-pyngl_data_dir = os.path.join(pyngl_dir, 'data')
+pkgs_pth        = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
+                               'site-packages')
+python_bin_dir  = os.path.join(sys.prefix,'bin')
+pyngl_dir       = os.path.join(pkgs_pth, os.path.join('PyNGL'))
+pynio_dir       = os.path.join(pkgs_pth, os.path.join('PyNIO'))
+pyngl_ncarg_dir = os.path.join(pyngl_dir, os.path.join('ncarg'))
+pyngl_data_dir  = os.path.join(pyngl_ncarg_dir, 'data')
 
 #
 #
@@ -108,7 +111,6 @@ if sys.platform == "darwin":
     ncl_and_sys_lib_paths.append('/sw/lib')
 
 #
-#
 # List all the extra files that need to be installed with PyNGL.
 # These files include example PyNGL scripts, data for the scripts,
 # fonts, map databases, colormaps, and other databases.
@@ -166,6 +168,15 @@ res_file = 'sysresfile'
 #
 py_files= ['Ngl.py','hlu.py','__init__.py','pyngl_version.py']
 
+#
+# If PYNIO2PYNGL is set, then make sure we include the PyNIO files.
+#
+
+pynio_files = []
+if pynio2pyngl:
+  pynio_files = ['Nio.py', 'pynio_version.py', 'nio.so']
+  for i in xrange(len(pynio_files)):
+    pynio_files[i] = os.path.join(pynio_dir,pynio_files[i])
 
 #
 # List the extra arguments and libraries that we need on the load line.
@@ -200,7 +211,7 @@ if sys.platform == "irix6-64":
     print "Warning: This setup.py file will not work on an irix6-64 system."
     print "Use 'build_on_irix64' instead."
 #
-# This is for later, if we ever get this to work.
+# This is for later, if we ever get this to work under IRIX.
 #
     LIBRARIES.remove('g2c')
     LIBRARIES.append('ftn')
@@ -221,7 +232,7 @@ setup (name = "PyNGL",
        long_description = "PyNGL is a Python language module designed for publication-quality visualization of data. PyNGL stands for 'Python Interface to the NCL Graphics Libraries,' and it is pronounced 'pingle.'",
        url = "http://www.pyngl.ucar.edu/",
        package_dir = { 'PyNGL' : ''},
-       data_files = [(os.path.join(pyngl_dir,'pynglex'),pynglex_files),
+       data_files = [(os.path.join(pyngl_ncarg_dir,'pynglex'),pynglex_files),
                      (pkgs_pth,                ["PyNGL.pth"]),
                      (python_bin_dir,bin_files),
                      (os.path.join(pkgs_pth,'PyNGL'), py_files),
@@ -229,11 +240,12 @@ setup (name = "PyNGL",
                      (os.path.join(pyngl_data_dir,'bin'), dbin_files),
                      (os.path.join(pyngl_data_dir,'cdf'), cdf_files),
                      (os.path.join(pyngl_data_dir,'grb'), grb_files),
-                     (os.path.join(pyngl_dir,'colormaps'),colormap_files),
-                     (os.path.join(pyngl_dir,'database'), database_files),
-                     (os.path.join(pyngl_dir,'fontcaps'), fontcap_files),
-                     (os.path.join(pyngl_dir,'graphcaps'),graphcap_files),
-                     (pyngl_dir, [res_file])],
+                     (os.path.join(pyngl_ncarg_dir,'colormaps'),colormap_files),
+                     (os.path.join(pyngl_ncarg_dir,'database'), database_files),
+                     (os.path.join(pyngl_ncarg_dir,'fontcaps'), fontcap_files),
+                     (os.path.join(pyngl_ncarg_dir,'graphcaps'),graphcap_files),
+                     (pyngl_dir,pynio_files),
+                     (pyngl_ncarg_dir, [res_file])],
        ext_package = 'PyNGL',
        ext_modules = [Extension('_hlu', 
                            ['Helper.c','hlu_wrap.c','gsun.c'],
