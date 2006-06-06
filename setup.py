@@ -4,19 +4,45 @@
 #
 #   python setup.py install
 #
+# There are three environment variables, that if set, will change
+# the behavior of this script:
+#
+#    USE_NUMPY     - Create a Numpy version of PyNGL
+#    USE_CVS         Use CVS to get the latest version of the pynglex files.
+#    INCLUDE_PYNIO - Copy over PyNIO files from PyNIO installed location.
+#
 import sys,os
 import shutil
 from distutils.core import setup, Extension
 
+#
+# Determine whether we want to build a Numeric or Numpy version
+# of PyNGL.
+#
 try:
   path = os.environ["USE_NUMPY"]
   HAS_NUM = 2
 except:
   HAS_NUM = 1
 
-use_cvs = os.environ.get('USE_CVS')
-pynio2pyngl = os.environ.get('PYNIO2PYNGL')
+#
+# Should we copy over the PyNIO files?
+#
+try:
+  path = os.environ["INCLUDE_PYNIO"]
+  include_pynio = True
+except:
+  include_pynio = False
 
+#
+# Should we use CVS for getting the latest pynglex examples?
+#
+try:
+  path = os.environ["USE_CVS"]
+  use_cvs = True
+except:
+  use_cvs = False
+   
 # Get version info.
 
 execfile('pyngl_version.py')
@@ -169,11 +195,11 @@ res_file = 'sysresfile'
 py_files= ['Ngl.py','hlu.py','__init__.py','pyngl_version.py']
 
 #
-# If PYNIO2PYNGL is set, then make sure we include the PyNIO files.
+# If INCLUDE_PYNIO is set, then make sure we include the PyNIO files.
 #
 
 pynio_files = []
-if pynio2pyngl:
+if include_pynio:
   pynio_files = ['Nio.py', 'pynio_version.py', 'nio.so']
   for i in xrange(len(pynio_files)):
     pynio_files[i] = os.path.join(pynio_dir,pynio_files[i])
