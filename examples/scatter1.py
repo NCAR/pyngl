@@ -59,8 +59,6 @@ import Nio
 from Scientific.Functions.LeastSquares import polynomialLeastSquaresFit
 
 #
-
-#
 #  Import PyNGL.
 #
 import Ngl
