@@ -21,9 +21,8 @@
 #    This example reads in some dummy of XY coordinates and
 #    associated color indices in the range from 1 to 4.  A
 #    scatter plot is drawn using markers colored and sized
-#    as per the color indices.  A least squares fit is calculated
-#    using a Scientific python function and its curve is drawn
-#    with an XY plot.
+#    as per the color indices.  A quadratic least squares fit 
+#    is calculated.
 #
 #  Effects illustrated:
 #    o  Polymarkers.
