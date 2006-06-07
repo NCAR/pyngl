@@ -2369,6 +2369,9 @@ name -- The name of the workstation.
 res -- An optional instance of the Resources class having Workstation
        resources as attributes.
   """
+#
+#  Do a test for NumPy/Numeric compatibility.
+#
   set_spc_defaults(1)
   global first_call_to_open_wks
   rlist = crt_dict(wk_rlist)
