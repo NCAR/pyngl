@@ -109,8 +109,7 @@ def arg_with_scalar(arg):
 #  if so, it is converted to a single-element list.  Otherwise
 #  the original argument is returned.
 #
-    if (type(arg)==types.IntType or type(arg)==types.LongType or \
-        type(arg)==types.FloatType):
+    if (is_scalar(arg)):
       return [arg]
     else:
       return arg
