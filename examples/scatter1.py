@@ -189,7 +189,7 @@ plot = Ngl.xy(wks,x,y,resources) # Draw least squares quadratic.
 #
 mres = Ngl.Resources()
 mres.gsMarkerIndex = 1
-for i in xrange(len(data)):
+for i in xrange(len(x)):
   if (color_index[i] == 1): 
     mres.gsMarkerColor = "black"
     mres.gsMarkerSizeF =  0.01 #Increase marker size by a factor of 10.
