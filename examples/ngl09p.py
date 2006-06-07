@@ -33,13 +33,11 @@
 #    This example requires the resource file ngl09p.res.
 #     
 
-#
-#  Import the Masked array module from 
-#  Numerical Python; import sys
-#
 import Numeric
+#
+#  Import the Masked array module.
+#
 import MA
-import sys
 
 #
 #  Import Ngl support functions.
