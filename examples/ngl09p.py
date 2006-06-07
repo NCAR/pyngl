@@ -15,11 +15,10 @@
 #    September, 2005
 #
 #  Description:
-#    This example utilizes the MA (masked array) module of the
-#    Numerical Python pacakge to handle missing data values
+#    This example utilizes masked arrays handle missing data values
 #
 #  Effects illustrated:
-#    o  The MA (masked array) module from the Numerical Python package.
+#    o  masked arrays to handle missing values.
 #    o  Adding a cyclic point.
 #    o  Looping to produce an animation.
 #    o  Using a stereographic map projection.
