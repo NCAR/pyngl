@@ -177,12 +177,12 @@ a = polynomialLeastSquaresFit(params, data)
 #
 num  = 301
 delx = 1000./num
-x    = Numeric.zeros(num,Numeric.Float0)
-y    = Numeric.zeros(num,Numeric.Float0)
+u    = Numeric.zeros(num,Numeric.Float0)
+v    = Numeric.zeros(num,Numeric.Float0)
 for i in xrange(num):
-  x[i] = float(i)*delx
-  y[i] = a[0][0]+a[0][1]*x[i]+a[0][2]*x[i]*x[i]
-plot = Ngl.xy(wks,x,y,resources) # Draw least squares quadratic.
+  u[i] = float(i)*delx
+  v[i] = a[0][0]+a[0][1]*u[i]+a[0][2]*u[i]*u[i]
+plot = Ngl.xy(wks,u,v,resources) # Draw least squares quadratic.
 
 #
 #  Draw a marker at each data point using the specified color index.
