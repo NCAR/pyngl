@@ -121,6 +121,8 @@ file.close()
 #
 file = Nio.open_file("nio01.nc", "r")
 
+print "\nOn read, a summary of the file contents:"
+print file
 print "\nOn read, file dimensions:"
 print "  " + str(file.dimensions)
 print "On read, file variables:"
@@ -130,6 +132,8 @@ print "  " + str(file.variables)
 #  Read the first row of "foo".
 #
 foo = file.variables["foo"]
+print "\nOn read, a summary of variable 'foo':'"
+print foo
 foo_array = foo[:]
 foo_units = foo.units
 
