@@ -202,7 +202,7 @@ for i in xrange(len(x)):
   elif (color_index[i] == 4):
     mres.gsMarkerColor = "green"
     mres.gsMarkerSizeF =  0.05 #Increase marker size by a factor of 10.
-  Ngl.polymarker(wks,plot,[data[i][0]],[data[i][1]],mres) # Draw polymarkers.
+  Ngl.polymarker(wks,plot,x[i],y[i],mres) # Draw polymarkers.
 
 Ngl.frame(wks)
 
