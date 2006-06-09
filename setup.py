@@ -13,6 +13,10 @@
 #
 import sys,os
 import shutil
+import fileinput
+import re
+import tempfile
+
 from distutils.core import setup, Extension
 
 #
@@ -83,11 +87,11 @@ ncl_data_dir  = os.path.join(ncl_ncarg_dir,'data')
 # Get the list of pynglex *.py and *.res files. You have a choice of
 # checking out a new directory from CVS, or using the "examples" directory.
 # If you use the "examples" directory, make sure it doesn't have 
-# any extraneous files, like *.ps files.
+# any extraneous files.
 #
+pynglex_dir = "Scripts"
+os.system("/bin/rm -rf " + pynglex_dir)
 if use_cvs:
-  pynglex_dir = "Scripts"
-  os.system("/bin/rm -rf " + pynglex_dir)
   os.system("cvs co pynglex")
   pynglex_files = os.listdir(pynglex_dir)
 #
@@ -97,18 +101,112 @@ if use_cvs:
   pynglex_files.remove("CVS")
   pynglex_files.remove("pynglex")
 else:
-  pynglex_dir = "../examples"
-  all_pynglex_files = os.listdir(pynglex_dir)
+#
+# Create a Scripts directory and copy the .py and .res files
+# from the ../examples directory into the Scripts directory.
+# The executable ../examples/pynglex must also be copied.
+#
+  all_pynglex_files = os.listdir("../examples")
+  os.system("mkdir Scripts")
   pynglex_files = []
   for file in all_pynglex_files:
     if (file[-3:] == ".py" or file[-4:] == ".res"):
       pynglex_files.append(file)
+      os.system("cp ../examples/" + file + " Scripts")
+  os.system("cp ../examples/pynglex Scripts")
 
 #
 # Prepend the full directory path leading to files.
 #
 for i in xrange(len(pynglex_files)):
   pynglex_files[i] = os.path.join(pynglex_dir,pynglex_files[i])
+
+####################################################################
+#                                                                  #
+#  Begin code for mods to the example sources for NumPy support.   #
+#                                                                  #
+####################################################################
+#
+# Modify the example sources appropriately if NumPy support is
+# requested.  For all examples except "metrogram.py," "scatter1.py," 
+# and "ngl09p.py" this is just a matter of replacing "import Numeric"
+# with "import numpy as Numeric".  The cases of "meteogram.py"
+# and "ngl09p.py" are handled as special cases in the if block below; 
+# "scatter1.py" is then handled separately.
+#
+if (HAS_NUM == 2):
+  for line in fileinput.input(pynglex_files,inplace=1):
+    if (re.search("^import Numeric",line) != None):
+      print "import numpy as Numeric"
+    elif (os.path.basename(fileinput.filename()) == "meteogram.py" and  \
+        re.search("typecode()",line) != None):
+      print line.replace("typecode()","dtype.char"),
+    elif (os.path.basename(fileinput.filename()) == "ngl09p.py" and     \
+        re.search("import MA",line) != None):
+      print line.replace("import MA","import numpy.core.ma as MA"),
+    elif (os.path.basename(fileinput.filename()) == "ngl09p.py" and     \
+        re.search("MA.Float0",line) != None):
+      print line.replace("MA.Float0","MA.floating"),
+    else:
+      print line,
+  for file in pynglex_files:
+    if (os.path.basename(file) == "scatter1.py"):
+      scatter_src = open(file,"r")
+      scatter_new = tempfile.TemporaryFile()
+
+      while(1):
+        line = scatter_src.readline()
+        if (line == ""):
+          break
+        elif (re.search("From Scientific import",line) != None):
+          while (re.search("^from",line) == None):
+            line = scatter_src.readline()
+          line = scatter_src.readline()
+        elif (re.search("Put the data",line) != None):
+          while (re.search("^plot =",line) == None):
+            line = scatter_src.readline()
+          line = scatter_src.readline()
+          scatter_new.write("""#
+#  Do a quadratic least squares fit.
+#
+npoints = len(x)
+a = Numeric.zeros([npoints,3],Numeric.Float32)
+for m in xrange(npoints):
+  a[m,0] = 1.
+  for j in xrange(1,3):
+    a[m,j] = x[m]*a[m,j-1]
+c = (Numeric.linalg.lstsq(a,y,rcond=1.e-15))[0]
+
+#
+#  Draw the least squares quadratic curve.
+#
+num  = 301
+delx = 1000./num
+xp    = Numeric.zeros(num,Numeric.Float0)
+yp    = Numeric.zeros(num,Numeric.Float0)
+for i in xrange(num):
+  xp[i] = float(i)*delx
+  yp[i] = c[0]+c[1]*xp[i]+c[2]*xp[i]*xp[i]
+plot = Ngl.xy(wks,xp,yp,resources) # Draw least squares quadratic.
+
+""")
+        scatter_new.write(line)
+
+#
+#  Write the new NumPy source back over the Numeric source.
+#
+      scatter_src.close()
+      scatter_src = open(file,"w+")
+      scatter_new.seek(0)
+      for line in scatter_new.readlines():
+        scatter_src.write(line)
+      scatter_src.close()
+      scatter_new.close()
+########################################################
+#                                                      #
+#  End of mods to example sources for NumPy support.   #
+#                                                      #
+########################################################
 
 #
 # Gather up the executables we want to install as part of PyNGL.
