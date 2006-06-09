@@ -5,10 +5,31 @@ NCL Graphics Libraries," and it is pronounced "pingle."
 
       http://www.pyngl.ucar.edu/
 """
+#
+#  Flag for NumPy compatibility.
+#
+import os
+try:
+  path = os.environ["USE_NUMPY"]
+  import numpy as Numeric
+  HAS_NUM = 2
+except:
+  import Numeric
+  HAS_NUM = 1
+
+#
+#  Define the __array_module__  and __array_module_version__ attributes.
+#
+import sys
+if (sys.modules.has_key("numpy")):
+  __array_module__ = "numpy"
+  from numpy import __version__ as __array_module_version__
+else:
+  __array_module__ = "Numeric" 
+  from Numeric import  __version__ as __array_module_version__
 
 from hlu import *
 import hlu
-import sys, os
 import site
 import types
 import string
@@ -18,16 +39,6 @@ import pyngl_version
 __version__ = pyngl_version.version
 del pyngl_version
 
-#
-#  Flag for NumPy compatibility.
-#
-try:
-  path = os.environ["USE_NUMPY"]
-  import numpy as Numeric
-  HAS_NUM = 2
-except:
-  import Numeric
-  HAS_NUM = 1
 
 first_call_to_open_wks = 0
 
@@ -2369,8 +2380,6 @@ name -- The name of the workstation.
 res -- An optional instance of the Resources class having Workstation
        resources as attributes.
   """
-#
-#  Do a test for NumPy/Numeric compatibility.
 #
   set_spc_defaults(1)
   global first_call_to_open_wks
