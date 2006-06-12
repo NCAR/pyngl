@@ -307,7 +307,10 @@ if include_pynio:
 #
 EXTRA_LINK_ARGS = ""
 LIBRARIES = ["nfpfort", "hlu", "ncarg", "ncarg_gks", "ncarg_c", "ngmath", "X11", "g2c"]
+INCLUDE_PATHS = ncl_inc
 
+if (HAS_NUM == 2):
+  INCLUDE_PATHS.insert(0,os.path.join(pkgs_pth,"numpy/core/include"))
 
 #
 # The IRIX system is problematic, because distuils uses "-all" as one of the
@@ -375,7 +378,7 @@ setup (name = "PyNGL",
                            ['Helper.c','hlu_wrap.c','gsun.c'],
                             define_macros = DMACROS,
                             extra_link_args = EXTRA_LINK_ARGS,
+                            include_dirs = INCLUDE_PATHS,
                             library_dirs = ncl_and_sys_lib_paths,
-                            include_dirs = ncl_inc,
                             libraries = LIBRARIES)]
       )
