@@ -146,7 +146,7 @@ if (HAS_NUM == 2):
       print line.replace("import MA","import numpy.core.ma as MA"),
     elif (os.path.basename(fileinput.filename()) == "ngl09p.py" and     \
         re.search("MA.Float0",line) != None):
-      print line.replace("MA.Float0","MA.floating"),
+      print line.replace("MA.Float0","dtype=float"),
     else:
       print line,
   for file in pynglex_files:
