@@ -3290,7 +3290,7 @@ import_array();
  */
         if (PyList_Check(PyTuple_GetItem(value,0)) ||
            PyTuple_Check(PyTuple_GetItem(value,0))) {
-          printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+          printf("Tuple values are not allowed to have list or tuple items.\n");
           return NULL;
         }
         list_len = PyTuple_Size(value);
@@ -3633,7 +3633,7 @@ import_array();
  */
         if (PyList_Check(PyTuple_GetItem(value,0)) ||
            PyTuple_Check(PyTuple_GetItem(value,0))) {
-          printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+          printf("Tuple values are not allowed to have list or tuple items.\n");
           return NULL;
         }
         list_len = PyTuple_Size(value);
