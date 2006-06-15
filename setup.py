@@ -21,13 +21,33 @@ from distutils.core import setup, Extension
 
 #
 # Determine whether we want to build a Numeric or Numpy version
-# of PyNGL.
+# of PyNGL.  If the environment variable USE_NUMPY is set, it will
+# try to build a NumPy version. USE_NUMPY doesn't need to be set to
+# any value; it just has to be set.
 #
 try:
   path = os.environ["USE_NUMPY"]
-  HAS_NUM = 2
+  use_numpy = True
 except:
-  HAS_NUM = 1
+  use_numpy = False
+
+if use_numpy:
+  try:
+    import numpy
+    HAS_NUM = 2
+  except ImportError:
+    try:
+      print 'cannot find NumPy; defaulting to Numeric'
+      import Numeric
+      HAS_NUM = 1
+    except ImportError:
+      HAS_NUM = 0
+else:
+  try:
+    import Numeric
+    HAS_NUM = 1
+  except ImportError:
+    HAS_NUM = 0
 
 #
 # Should we copy over the PyNIO files?
@@ -47,17 +67,30 @@ try:
 except:
   use_cvs = False
    
-# Get version info.
+#
+# Create pyngl_version.py file that contains version and
+# array module info.
+#
+os.system("/bin/rm -rf pyngl_version.py")
 
-execfile('pyngl_version.py')
-pyngl_version = version
+pyngl_version = open('version','r').readlines()[0].strip('\n')
+vfile = open('pyngl_version.py','w')
+vfile.write("version = '%s'\n" % pyngl_version)
+vfile.write("HAS_NUM = %d\n" % HAS_NUM)
 
 if HAS_NUM == 2:
-  DMACROS =  [('NeedFuncProto', None),('USE_NUMPY',None)]
   print '====> building with numpy/arrayobject.h'
+  DMACROS =  [('NeedFuncProto', None),('USE_NUMPY',None)]
+  from numpy import __version__ as array_module_version
+  vfile.write("array_module = 'numpy'\n")
 else:
-  DMACROS =  [('NeedFuncProto',None)]
   print '====> building with Numeric/arrayobject.h'
+  DMACROS =  [('NeedFuncProto',None)]
+  from Numeric import  __version__ as array_module_version
+  vfile.write("array_module = 'Numeric'\n")
+
+vfile.write("array_module_version = '%s'\n" % array_module_version)
+vfile.close()
 
 #
 # Get the root of where PyNGL will live, and where the extra PyNGL
@@ -354,7 +387,9 @@ if sys.platform == "aix5":
 #
 setup (name = "PyNGL",
        version = pyngl_version,
-       author="Fred Clare and Mary Haley",
+       author = "Fred Clare and Mary Haley",
+       maintainer = "Mary Haley",
+       maintainer_email = "haley@ucar.edu",
        description = "2D visualization library",
        long_description = "PyNGL is a Python language module designed for publication-quality visualization of data. PyNGL stands for 'Python Interface to the NCL Graphics Libraries,' and it is pronounced 'pingle.'",
        url = "http://www.pyngl.ucar.edu/",
@@ -382,3 +417,8 @@ setup (name = "PyNGL",
                             library_dirs = ncl_and_sys_lib_paths,
                             libraries = LIBRARIES)]
       )
+
+#
+# Cleanup: remove the Scripts directory.
+#
+os.system("/bin/rm -rf " + pynglex_dir)

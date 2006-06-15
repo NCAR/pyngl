@@ -6,27 +6,55 @@ NCL Graphics Libraries," and it is pronounced "pingle."
       http://www.pyngl.ucar.edu/
 """
 #
-#  Flag for NumPy compatibility.
+#  Get version number and flag for NumPy compatibility.
 #
-import os
-try:
-  path = os.environ["USE_NUMPY"]
-  import numpy as Numeric
-  HAS_NUM = 2
-except:
-  import Numeric
-  HAS_NUM = 1
+#  Also, get the __array_module__  and __array_module_version__
+#  attributes.
+#
+import pyngl_version
+__version__              = pyngl_version.version
+__array_module__         = pyngl_version.array_module
+__array_module_version__ = pyngl_version.array_module_version
+HAS_NUM                  = pyngl_version.HAS_NUM
+del pyngl_version
 
 #
-#  Define the __array_module__  and __array_module_version__ attributes.
+# Test to make sure we can actually load NumPy or Numeric, and
+# that we are dealing with a reasonable version.
 #
-import sys
-if (sys.modules.has_key("numpy")):
-  __array_module__ = "numpy"
-  from numpy import __version__ as __array_module_version__
+if HAS_NUM == 2:
+  try:
+    import numpy as Numeric
+# 
+# If we are dealing with a NumPy version that is less than 1.0.0, then
+# check the version that PyNGL was built with against this version.
+#
+    if Numeric.__version__[0] == '0' and \
+       Numeric.__version__ < __array_module_version__:
+      print 'Warning: your version of NumPy may be older than what PyNGL'
+      print 'was built with. You could have compatibility problems.'
+      print 'PyNGL was built with NumPy version',__array_module__version,'
+      print 'and you are importing version',Numeric.__version__
+  except ImportError:
+    print 'Cannot find NumPy, cannot proceed.'
+    print 'Perhaps you need to install the Numeric version of PyNGL instead.'
+    exit
 else:
-  __array_module__ = "Numeric" 
-  from Numeric import  __version__ as __array_module_version__
+  try:
+    import Numeric
+#
+# I decided to comment this section out, because a Numeric 24 version
+# of PyNGL seems to work okay with Numeric 23.x (23.8 anyway).
+#
+#    if Numeric.__version__[0] != __array_module_version__[0]:
+#      print 'Warning: your version of Numeric is different from what PyNGL'
+#      print 'was built with. You may have compatibility problems.'
+#      print 'PyNGL was built with Numeric version',__array_module_version__'
+#      print 'and you are importing version',Numeric.__version__
+  except ImportError:
+    print 'Cannot find Numeric, cannot proceed'
+    print 'Perhaps you need to install the NumPy version of PyNGL instead.'
+    exit
 
 from hlu import *
 import hlu
@@ -34,11 +62,8 @@ import site
 import types
 import string
 import commands
-
-import pyngl_version
-__version__ = pyngl_version.version
-del pyngl_version
-
+import sys
+import os
 
 first_call_to_open_wks = 0
 
