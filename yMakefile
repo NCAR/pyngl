@@ -2,7 +2,7 @@ MYNAME	= _hlu.so
 PYSRCS  = Ngl.py hlu.py __init__.py pyngl_version.py
 
 #ifdef UseNumpy
-NUMPY_DEFS = -DUSE_NUMPY
+NUMPY_DEFS = -DUSE_NUMPY -I$(PYTHONPKGSDIR)/numpy/core/include
 #endif
 
 SRCS = Helper.c hlu_wrap.c gsun.c
