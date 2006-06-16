@@ -33,8 +33,8 @@ if HAS_NUM == 2:
        Numeric.__version__ < __array_module_version__:
       print 'Warning: your version of NumPy may be older than what PyNGL'
       print 'was built with. You could have compatibility problems.'
-      print 'PyNGL was built with NumPy version',__array_module__version,'
-      print 'and you are importing version',Numeric.__version__
+      print 'PyNGL was built with NumPy version',__array_module_version__,'and you are'
+      print 'importing version',Numeric.__version__
   except ImportError:
     print 'Cannot find NumPy, cannot proceed.'
     print 'Perhaps you need to install the Numeric version of PyNGL instead.'
@@ -49,7 +49,7 @@ else:
 #    if Numeric.__version__[0] != __array_module_version__[0]:
 #      print 'Warning: your version of Numeric is different from what PyNGL'
 #      print 'was built with. You may have compatibility problems.'
-#      print 'PyNGL was built with Numeric version',__array_module_version__'
+#      print 'PyNGL was built with Numeric version',__array_module_version__
 #      print 'and you are importing version',Numeric.__version__
   except ImportError:
     print 'Cannot find Numeric, cannot proceed'
