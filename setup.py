@@ -267,6 +267,10 @@ ncl_and_sys_lib_paths = [ncl_lib, "/usr/X11R6/lib"]
 if sys.platform == "darwin":
     ncl_and_sys_lib_paths.append('/sw/lib')
 
+if sys.platform == "linux2" and os.uname()[-1] == "x86_64":
+    ncl_and_sys_lib_paths.append('/usr/X11R6/lib64')
+
+
 #
 # List all the extra files that need to be installed with PyNGL.
 # These files include example PyNGL scripts, data for the scripts,
