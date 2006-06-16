@@ -27,7 +27,7 @@ EXTRA_LIBS = -lm -lc -lxlf90 -lxlf -lxlopt
 LN_COMMANDS = $(LD) -bnoquiet -G -bnoentry -bexpall
 
 #elif defined(linux)
-EXTRA_LIBS = -L/Users/fred/lib -L/usr/X11R6/lib -lX11 -lXext -lg2c
+EXTRA_LIBS = -L/usr/X11R6/lib -lX11 -lXext -lg2c
 LN_COMMANDS = gcc -shared
 
 #elif defined(Darwin)
