@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import sys,getopt,os,re,site,commands,string,fileinput
-import Ngl
 
 #
 #  pynglex usage statement
@@ -20,6 +19,9 @@ def print_usage():
         The -w option requires a type be specified.
       -n
         Copy over the source files, but do not execute.
+      -p
+        Execute the numpy version of the examples, if there are both
+        numpy and Numeric examples available
       -l
         List out the available example names.
       -h
@@ -58,38 +60,12 @@ if (argc < 2):
   sys.exit()
 
 #
-#  Determine the root directory that contains the PyNGL
-#  supplemental files (example sources, data, fontcaps, etc.)
-#  If the PYNGL_NCARG environment variable is set, its setting
-#  will override the default of
-#
-#   sys.prefix + "/lib/python" + sys.version[:3] + "/site-packages/PyNGL/ncarg"
-#
-#  Primarily for internal use, setting the environment variable
-#  PYNGL_EXAMPLES will set the directory for the example sources
-#  and resource file sources only (not the data, fontcaps, etc.)
-#  This allows pynglex to point to a directory containing test 
-#  examples.
-#
-root_dir = Ngl.pynglpath_ncarg()
-os.environ["NCARG_NCARG"] = root_dir
-example_dir = root_dir + "/pynglex"
-env_set_test = os.environ.get("PYNGL_EXAMPLES")
-if (env_set_test != None):
-  if (os.path.exists(env_set_test)):
-    example_dir = env_set_test
-  else:
-    print "  User-set directory PYNGL_EXAMPLES does not exist."
-    print "  Setting example directory to the default."
-    example_dir = root_dir + "/pynglex"
-
-#
 #  Parse the command line options (opts lists the options and
 #  pargs lists the non-option arguments).  The non-option arguments
 #  will be example name requests.
 #
 try:
-  opts,pargs = getopt.getopt(sys.argv[1:],"w:anlh",["type="])
+  opts,pargs = getopt.getopt(sys.argv[1:],"w:anlph",["type="])
 except getopt.GetoptError,e:
   print "pynglex - command line parsing error: ", e
   sys.exit()
@@ -105,6 +81,45 @@ odict = crt_dic(opts)
 if (odict.has_key("-h")):
   print_usage()
   sys.exit()
+
+#
+# Try to generate numpy version of examples if "-p" is specified.
+#
+if (odict.has_key("-p")):
+  try:
+    import PyNGL_numpy.Ngl as Ngl
+  except:
+    print "Warning: don't have numpy version of example(s)."
+    print "Will execute Numeric version of example(s) instead."
+    import Ngl
+else:
+  import Ngl
+
+#
+#  Determine the root directory that contains the PyNGL
+#  supplemental files (example sources, data, fontcaps, etc.)
+#  If the PYNGL_NCARG environment variable is set, its setting
+#  will override the default of
+#
+#   sys.prefix + "/lib/python" + sys.version[:3] + "/site-packages/PyNGL/ncarg"
+#
+#  Primarily for internal use, setting the environment variable
+#  PYNGL_EXAMPLES will set the directory for the example sources
+#  and resource file sources only (not the data, fontcaps, etc.)
+#  This allows pynglex to point to a directory containing test 
+#  examples.
+#
+root_dir = Ngl.pynglpath_ncarg()
+os.environ["NCARG_NCARG"] = root_dir
+example_dir = Ngl.pynglpath("examples")
+env_set_test = os.environ.get("PYNGL_EXAMPLES")
+if (env_set_test != None):
+  if (os.path.exists(env_set_test)):
+    example_dir = env_set_test
+  else:
+    print "  User-set directory PYNGL_EXAMPLES does not exist."
+    print "  Setting example directory to the default."
+    example_dir = Ngl.pynglpath("pynglex")
 
 #
 #  List out the available examples.
