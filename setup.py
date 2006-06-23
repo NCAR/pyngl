@@ -69,7 +69,7 @@ if HAS_NUM == 1 or HAS_NUM == 3:
     HAS_NUM = HAS_NUM-1
     if HAS_NUM == 0:
       print "Cannot find Numeric or numpy; good-bye!"
-    exit
+      exit
 
 #
 # Should we copy over the PyNIO files and include them as part of
