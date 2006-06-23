@@ -6,7 +6,7 @@ NCL Graphics Libraries," and it is pronounced "pingle."
       http://www.pyngl.ucar.edu/
 """
 #
-#  Get version number and flag for NumPy compatibility.
+#  Get version number and flag for numpy compatibility.
 #
 #  Also, get the __array_module__  and __array_module_version__
 #  attributes.
@@ -16,27 +16,26 @@ __version__              = pyngl_version.version
 __array_module__         = pyngl_version.array_module
 __array_module_version__ = pyngl_version.array_module_version
 HAS_NUM                  = pyngl_version.HAS_NUM
-del pyngl_version
 
 #
-# Test to make sure we can actually load NumPy or Numeric, and
+# Test to make sure we can actually load numpy or Numeric, and
 # that we are dealing with a reasonable version.
 #
 if HAS_NUM == 2:
   try:
     import numpy as Numeric
 # 
-# If we are dealing with a NumPy version that is less than 1.0.0, then
+# If we are dealing with a numpy version that is less than 1.0.0, then
 # check the version that PyNGL was built with against this version.
 #
     if Numeric.__version__[0] == '0' and \
        Numeric.__version__ < __array_module_version__:
-      print 'Warning: your version of NumPy may be older than what PyNGL'
+      print 'Warning: your version of numpy may be older than what PyNGL'
       print 'was built with. You could have compatibility problems.'
-      print 'PyNGL was built with NumPy version',__array_module_version__,'and you are'
+      print 'PyNGL was built with numpy version',__array_module_version__,'and you are'
       print 'importing version',Numeric.__version__
   except ImportError:
-    print 'Cannot find NumPy, cannot proceed.'
+    print 'Cannot find numpy, cannot proceed.'
     print 'Perhaps you need to install the Numeric version of PyNGL instead.'
     exit
 else:
@@ -53,7 +52,7 @@ else:
 #      print 'and you are importing version',Numeric.__version__
   except ImportError:
     print 'Cannot find Numeric, cannot proceed'
-    print 'Perhaps you need to install the NumPy version of PyNGL instead.'
+    print 'Perhaps you need to install the numpy version of PyNGL instead.'
     exit
 
 from hlu import *
@@ -64,6 +63,9 @@ import string
 import commands
 import sys
 import os
+
+pkgs_pth    = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
+                           'site-packages')
 
 first_call_to_open_wks = 0
 
@@ -212,8 +214,6 @@ def pynglpath_ncarg():
 #  in site-packages/PyNGL/ncarg. Otherwise, check the PYNGL_NCARG
 #  environment variable.
 #
-  pkgs_pth    = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
-                               'site-packages')
   pyngl1_dir  = pkgs_pth + "/PyNGL/ncarg"
   pyngl2_dir  = os.environ.get("PYNGL_NCARG")
   ncarg_ncarg = None
@@ -2728,7 +2728,17 @@ name -- A string representing abbreviated name for which you want a
       return "/tmp"
   elif (name == "examples"):
     examples_dir_envn = os.environ.get("PYNGL_EXAMPLES")
-    examples_dir_dflt = pynglpath_ncarg() + "/pynglex"
+#
+# The pynglex directory is unique for the Numeric and numpy modules,
+# so figure out which one we have and create the path to the pynglex
+# examples accordingly.
+#
+    if sys.modules.has_key("PyNGL_numpy.Ngl"):
+      examples_dir_dflt = os.path.join(pkgs_pth,"PyNGL_numpy","ncarg",
+                                       "pynglex")
+    else:
+      examples_dir_dflt = os.path.join(pynglpath_ncarg(),"pynglex")
+
     if (examples_dir_envn != None and os.path.exists(examples_dir_envn)):
       return examples_dir_envn
     elif (os.path.exists(examples_dir_dflt)):
