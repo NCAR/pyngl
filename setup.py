@@ -546,7 +546,7 @@ if HAS_NUM == 3:
 #
 # Start with fresh build.
 #
-  os.system("touch Helper.c hlu_wrap.c gsun.c gsun.h")
+  os.system("find build -name '*.o' -exec /bin/rm {} \;")
 
   DATA_FILES = [(os.path.join(pyngl_numpy_ncarg_dir,'pynglex'),
                 pynglex_numpy_files),
