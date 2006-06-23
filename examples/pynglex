@@ -19,7 +19,7 @@ def print_usage():
         The -w option requires a type be specified.
       -n
         Copy over the source files, but do not execute.
-      -p
+      --numpy
         Execute the numpy version of the examples, if there are both
         numpy and Numeric examples available
       -l
@@ -65,7 +65,7 @@ if (argc < 2):
 #  will be example name requests.
 #
 try:
-  opts,pargs = getopt.getopt(sys.argv[1:],"w:anlph",["type="])
+  opts,pargs = getopt.getopt(sys.argv[1:],"w:anlh",["numpy","type="])
 except getopt.GetoptError,e:
   print "pynglex - command line parsing error: ", e
   sys.exit()
@@ -83,9 +83,9 @@ if (odict.has_key("-h")):
   sys.exit()
 
 #
-# Try to generate numpy version of examples if "-p" is specified.
+# Try to generate numpy version of examples if "--numpy" is specified.
 #
-if (odict.has_key("-p")):
+if (odict.has_key("--numpy")):
   try:
     import PyNGL_numpy.Ngl as Ngl
   except:
