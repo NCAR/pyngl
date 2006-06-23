@@ -125,8 +125,13 @@ vfile.close()
 pkgs_pth        = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
                                'site-packages')
 python_bin_dir  = os.path.join(sys.prefix,'bin')
-pyngl_dir       = os.path.join(pkgs_pth, os.path.join('PyNGL'))
-pynio_dir       = os.path.join(pkgs_pth, os.path.join('PyNIO'))
+if HAS_NUM == 1 or HAS_NUM == 3:
+  pyngl_dir       = os.path.join(pkgs_pth, os.path.join('PyNGL'))
+  pynio_dir       = os.path.join(pkgs_pth, os.path.join('PyNIO'))
+elif HAS_NUM == 2:
+  pyngl_dir       = os.path.join(pkgs_pth, os.path.join('PyNGL_numpy'))
+  pynio_dir       = os.path.join(pkgs_pth, os.path.join('PyNIO_numpy'))
+
 pyngl_ncarg_dir = os.path.join(pyngl_dir, os.path.join('ncarg'))
 pyngl_data_dir  = os.path.join(pyngl_ncarg_dir, 'data')
 #
@@ -224,9 +229,9 @@ if HAS_NUM > 1:
   for line in fileinput.input(pynglex_files_to_mod,inplace=1):
     if (re.search("import Numeric",line) != None):
       print "import numpy as Numeric"
-    elif( HAS_NUM == 3 and re.search("^import Ngl",line) != None):
+    elif(re.search("^import Ngl",line) != None):
       print "import PyNGL_numpy.Ngl as Ngl"
-    elif( HAS_NUM == 3 and re.search("^import Nio",line) != None):
+    elif(re.search("^import Nio",line) != None):
       print "import PyNGL_numpy.Nio as Nio"
     elif (os.path.basename(fileinput.filename()) == "meteogram.py" and  \
         re.search("typecode()",line) != None):
@@ -391,13 +396,16 @@ py_files= ['Ngl.py','hlu.py','__init__.py','pyngl_version.py']
 #
 
 pynio_files = []
-pynio_numpy_files = []
+if HAS_NUM == 3:
+  pynio_numpy_files = []
 if include_pynio:
   pynio_files = ['Nio.py', 'pynio_version.py', 'nio.so']
   for i in xrange(len(pynio_files)):
-    pynio_numpy_files.append(pynio_files[i])
+    if HAS_NUM == 3:
+      pynio_numpy_files.append(pynio_files[i])
     pynio_files[i] = os.path.join(pynio_dir,pynio_files[i])
-    pynio_numpy_files[i] = os.path.join(pynio_numpy_dir,pynio_numpy_files[i])
+    if HAS_NUM == 3:
+      pynio_numpy_files[i] = os.path.join(pynio_numpy_dir,pynio_numpy_files[i])
 
 #
 # List the extra arguments and libraries that we need on the load line.
@@ -473,7 +481,7 @@ EXT_MODULES = [Extension('_hlu',
 DATA_FILES = [(os.path.join(pyngl_ncarg_dir,'pynglex'),pynglex_files),
               (pkgs_pth,                ["PyNGL.pth"]),
               (python_bin_dir,bin_files),
-              (os.path.join(pkgs_pth,'PyNGL'), py_files),
+              (pyngl_dir,py_files),
               (os.path.join(pyngl_data_dir,'asc'), asc_files),
               (os.path.join(pyngl_data_dir,'bin'), dbin_files),
               (os.path.join(pyngl_data_dir,'cdf'), cdf_files),
@@ -487,7 +495,8 @@ DATA_FILES = [(os.path.join(pyngl_ncarg_dir,'pynglex'),pynglex_files),
 #
 # Here's the setup function.
 #
-setup (name = "PyNGL",
+if HAS_NUM == 1 or HAS_NUM == 3:
+  setup (name = "PyNGL",
        version = pyngl_version,
        author = "Fred Clare and Mary Haley",
        maintainer = "Mary Haley",
@@ -498,6 +507,20 @@ setup (name = "PyNGL",
        package_dir = { 'PyNGL' : ''},
        data_files = DATA_FILES,
        ext_package = 'PyNGL',
+       ext_modules = EXT_MODULES
+      )
+elif HAS_NUM == 2:
+  setup (name = "PyNGL_numpy",
+       version = pyngl_version,
+       author = "Fred Clare and Mary Haley",
+       maintainer = "Mary Haley",
+       maintainer_email = "haley@ucar.edu",
+       description = "2D visualization library",
+       long_description = "PyNGL is a Python language module designed for publication-quality visualization of data. PyNGL stands for 'Python Interface to the NCL Graphics Libraries,' and it is pronounced 'pingle.'",
+       url = "http://www.pyngl.ucar.edu/",
+       package_dir = { 'PyNGL_numpy' : ''},
+       data_files = DATA_FILES,
+       ext_package = 'PyNGL_numpy',
        ext_modules = EXT_MODULES
       )
 

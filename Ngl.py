@@ -214,7 +214,10 @@ def pynglpath_ncarg():
 #  in site-packages/PyNGL/ncarg. Otherwise, check the PYNGL_NCARG
 #  environment variable.
 #
-  pyngl1_dir  = pkgs_pth + "/PyNGL/ncarg"
+  if sys.modules.has_key("PyNGL_numpy.Ngl"):
+    pyngl1_dir  = pkgs_pth + "/PyNGL_numpy/ncarg"
+  else:
+    pyngl1_dir  = pkgs_pth + "/PyNGL/ncarg"
   pyngl2_dir  = os.environ.get("PYNGL_NCARG")
   ncarg_ncarg = None
 
