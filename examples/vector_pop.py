@@ -49,7 +49,8 @@
 #
 #  Import Ngl support functions.
 #
-import Ngl,Nio
+import Ngl
+import Nio
 import Numeric
 
 #

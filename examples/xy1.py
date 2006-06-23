@@ -30,7 +30,8 @@
 #  Notes:
 #     
 
-import Ngl, math
+import Ngl
+import math
 import Numeric
 
 #

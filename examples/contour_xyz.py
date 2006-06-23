@@ -59,7 +59,8 @@ import sys
 #
 #  Import Ngl support functions.
 #
-import Ngl,Nio
+import Ngl
+import Nio
 
 #  
 #  Open the ASCII file.

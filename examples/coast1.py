@@ -39,7 +39,8 @@
 #
 #  Import packages needed.
 #
-import Ngl, os
+import Ngl
+import os
 
 wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"coast1")

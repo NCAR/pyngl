@@ -30,7 +30,8 @@
 #     
 
 import Numeric 
-import Nio,Ngl
+import Nio
+import Ngl
 import time,os
 
 

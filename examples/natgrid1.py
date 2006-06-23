@@ -37,8 +37,8 @@
 #
 #  Notes:
 #     
-import Numeric   #  Numerical python.
-import Ngl       #  Ngl support functions.
+import Numeric
+import Ngl
 
 #  
 #  Open the ASCII file of seismic data.

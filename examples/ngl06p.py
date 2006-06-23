@@ -49,7 +49,7 @@ import Nio
 
 #
 #  To use the ScientificPython module to read in the netCDF file,
-#  comment out the above "import Nio" command, and uncomment the 
+#  comment out the above "import" command, and uncomment the 
 #  import line below.
 #
 # from Scientific.IO.NetCDF import NetCDFFile

@@ -30,7 +30,8 @@
 #     
 
 import Numeric 
-import Nio,Ngl 
+import Nio
+import Ngl
 
 print """
 This example prints all Nio docstrings. For clarity each docstring

@@ -28,7 +28,8 @@
 #    o One plot is produced with sixteen sample color boxes.
 #
 
-import Ngl, math
+import Ngl
+import math
 import Numeric
 
 #
