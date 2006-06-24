@@ -301,10 +301,11 @@ for array_module in array_modules:
     DMACROS =  [('NeedFuncProto', None),('USE_NUMPY',None)]
 
 #----------------------------------------------------------------------
+#
 # Here are the instructions for compiling the "_hlu.so" file.
 #
 #----------------------------------------------------------------------
-  print '====> Installing',array_module,'to',pyngl_pkg_name,'package directory.'
+  print '====> Installing files to',pyngl_pkg_name,'package directory.'
 
   EXT_MODULES = [Extension('_hlu', 
                  ['Helper.c','hlu_wrap.c','gsun.c'],
