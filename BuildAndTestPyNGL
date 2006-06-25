@@ -68,6 +68,20 @@ else if ("$name" == "reader.scd.ucar.edu") then
   setenv USE_NUMERPY
   unsetenv USE_NUMPY
   unsetenv DISPLAY
+else if ("$name" == "longs") then
+  set test_dir = "/fs/scd/home1/haley/tmp/pyngl/longs"
+  set platform = "linux-i686"
+  set DO_SCP
+  set scpit    = "cp"
+  set scp_dir  = "/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
+#
+# Set system specific environment variables.
+#
+  setenv USE_CVS
+  setenv INCLUDE_PYNIO
+  setenv USE_NUMERPY
+  unsetenv USE_NUMPY
+  unsetenv DISPLAY
 else if ("$name" == "meeker") then
   set test_dir = "/fs/scd/home1/haley/tmp/pyngl/meeker"
   set platform = "solaris-2.9-sun4u"
