@@ -23,10 +23,19 @@ end
 #
 set name       = `uname -n`
 set python_bin = `which python`
-set python_dir = $python_bin:h:h
+set bin_dir    = $python_bin:h
+set python_dir = $bin_dir:h
 
 echo "The name of the machine is '$name'."
 echo "python lives in $python_bin."
+
+
+set version          = "1.0.0"
+set python_version   = "2.4"
+
+set pyngl_dir        = "$NCARG/pyngl/src"
+set pynio_dir        = "$NCARG/pynio"
+set dist_dir         = "$pyngl_dir/dist"
 
 if ("$name" == "willow.local") then
   set test_dir = "/Users/haley/tmp/willow"
@@ -39,6 +48,10 @@ if ("$name" == "willow.local") then
 #
   setenv HAS_HDFEOS 0
   unsetenv USE_CVS
+  setenv INCLUDE_PYNIO
+  setenv USE_NUMERPY
+  unsetenv USE_NUMPY
+  unsetenv DISPLAY
 else if ("$name" == "reader.scd.ucar.edu") then
   set test_dir = "/Users/haley/tmp/reader"
 
@@ -51,27 +64,85 @@ else if ("$name" == "reader.scd.ucar.edu") then
 #
   setenv HAS_HDFEOS 0
   setenv USE_CVS
+  setenv INCLUDE_PYNIO
+  setenv USE_NUMERPY
+  unsetenv USE_NUMPY
+  unsetenv DISPLAY
+else if ("$name" == "meeker") then
+  set test_dir = "/fs/scd/home1/haley/tmp/pyngl/meeker"
+  set platform = "solaris-2.9-sun4u"
+  set DO_SCP
+  set scpit    = "cp"
+  set scp_dir  = "/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
+#
+# Set system specific environment variables.
+#
+  setenv USE_CVS
+#
+# Set up build directories since we have to compile files by hand.
+#
+  set build_pyngl_lib_dir  = "$pyngl_dir/build/lib.$platform-$python_version"
+  set build_pyngl_temp_dir = "$pyngl_dir/build/temp.$platform-$python_version"
+  set build_pynio_lib_dir  = "$pynio_dir/build/lib.$platform-$python_version"
+  set build_pynio_temp_dir = "$pynio_dir/build/temp.$platform-$python_version"
+
+  /bin/rm -rf $pynio_dir/build
+  /bin/rm -rf $pyngl_dir/build
+
+  mkdir $pyngl_dir/build
+  mkdir $build_pyngl_lib_dir
+  mkdir $build_pyngl_lib_dir/PyNGL
+  mkdir $build_pyngl_lib_dir/PyNGL_numpy
+  mkdir $build_pyngl_temp_dir
+
+  mkdir $pynio_dir/build
+  mkdir $build_pynio_lib_dir
+  mkdir $build_pynio_lib_dir/PyNIO
+  mkdir $build_pynio_lib_dir/PyNIO_numpy
+  mkdir $build_pynio_temp_dir
+
+#
+# Since we have to do builds by hand, we can't do both at the same time
+# via the USE_NUMERPY env var.
+#
+  setenv INCLUDE_PYNIO
+  unsetenv USE_NUMERPY
+  unsetenv USE_NUMPY
+else if ("$name" == "tempest") then
+  set test_dir = "/ptmp/haley/pyngl"
+  set platform = "irix64-6.5"
+  set DO_SCP
+  set scpit    = "scp"
+  set scp_dir  = "meeker:/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
+#
+# Set system specific environment variables.
+#
+  setenv USE_CVS
+#
+# Since we have to do builds by hand, we can't do both at the same time
+# via the USE_NUMERPY env var. Also, tempest doesn't have numpy installed.
+#
+  setenv INCLUDE_PYNIO
+  unsetenv USE_NUMERPY
+  unsetenv USE_NUMPY
+else
+  setenv INCLUDE_PYNIO
+  setenv USE_NUMERPY
+  unsetenv USE_NUMPY
+  unsetenv DISPLAY
 endif
 
-set version          = "1.0.0"
-set python_version   = "2.4"
-
+#
+# Set up directories for running pynglex and set up names
+# of tar files.
+#
 set numeric_test_dir = "$test_dir/numeric"
 set numpy_test_dir   = "$test_dir/numpy"
-set python_pkg_dir   = "$python_dir/lib/python$version/site-packages"
-set pyngl_dir        = "$NCARG/pyngl/src"
-set pynio_dir        = "$NCARG/pynio"
-set dist_dir         = "$pyngl_dir/dist"
-
+set python_pkg_dir   = "$python_dir/lib/python$python_version/site-packages"
 set numeric_tar_file = "$dist_dir/PyNGL-$version.$platform.tar"
 set numpy_tar_file   = "$dist_dir/PyNGL_numpy-$version.$platform.tar"
 set numeric_gz_file  = "$numeric_tar_file.gz"
 set numpy_gz_file    = "$numpy_tar_file.gz"
-
-unsetenv DISPLAY
-setenv INCLUDE_PYNIO
-unsetenv USE_NUMPY
-setenv USE_NUMERPY
 
 if ($?TestOnly) then
   goto TEST:
@@ -87,13 +158,44 @@ endif
 #
 /bin/rm -rf $python_pkg_dir/PyN*
 
-cd $pynio_dir
-/bin/rm -rf build
-python setup.py install
+#
+# We can't use setup.py to generate *.o or *.so files on meeker, because
+# it wants to use the gcc compiler, which is hosed on meeker. The
+# Python documentation is not real clear how to override compilers and
+# compiler options, so I'm doing it the hard way here.
+#
+if ("$name" == "meeker") then
+  cd $pynio_dir
+  ./BuildOnMeeker
+  python setup.py install
 
-cd $pyngl_dir
-/bin/rm -rf build
-python setup.py install
+  cd $pyngl_dir
+  ./BuildOnMeeker
+  python setup.py install
+else if ("$name" == "tempest") then
+  cd $pynio_dir
+  python setup.py install
+
+#
+# We can't use setup.py to generate _hlu.so on tempest, because
+# it uses an "-all" option which causes PyNGL to core dump.
+# This option has to be included in a particular spot in the ld line,
+# and if you try to use the extra_compiler_args type argument to add
+# it, it gets put at the end of the line which doesn't work. <sigh>
+#
+  cd $pyngl_dir
+  python setup.py build_ext
+  ./BuildOnTempest
+  python setup.py install
+else
+  cd $pynio_dir
+  /bin/rm -rf build
+  python setup.py install
+
+  cd $pyngl_dir
+  /bin/rm -rf build
+  python setup.py install
+endif
 
 #
 # Create binary distribution files.
@@ -101,10 +203,36 @@ python setup.py install
 python setup.py bdist_dumb --relative
 
 #
+# Have to do this whole thing separately on meeker for a numpy
+# build.
+#
+if ("$name" == "meeker") then
+  setenv USE_NUMPY
+
+  cd $pynio_dir
+  ./BuildOnMeekerNumpy
+  python setup.py install
+
+  cd $pyngl_dir
+  ./BuildOnMeekerNumpy
+  python setup.py install
+
+#
+# Create binary distribution files.
+#
+  python setup.py bdist_dumb --relative
+
+endif
+
+#
 # Copy both gzipped tarfiles to backup directory.
 #
 if ($?DO_SCP) then
-  $scpit $numeric_gz_file $numpy_gz_file $scp_dir
+  if ("$name" == "tempest") then
+    $scpit $numeric_gz_file $scp_dir
+  else
+    $scpit $numeric_gz_file $numpy_gz_file $scp_dir
+  endif
 endif
 
 TEST::
@@ -135,6 +263,13 @@ cd $numeric_test_dir
 pynglex -a >&! pynglex.numeric.$platform.out
 
 #
+# No numpy on tempest, so skip this part.
+#
+if ("$name" == "tempest") then
+  goto THEEND:
+endif
+
+#
 # Test the Numpy version of PyNGL and PyNIO fresh from the
 # binary distribution we just created.
 #
@@ -159,3 +294,5 @@ tar -xf $numpy_tar_file
 cd $numpy_test_dir
 /bin/rm -rf *
 pynglex --numpy -a >&! pynglex.numpy.$platform.out
+
+THEEND::
