@@ -1,0 +1,161 @@
+#!/bin/csh -fx
+#
+# This script is for Mary to build a Numeric and numpy version of
+# both PyNIO and PyNGL, test that all the files got built and
+# installed, and then test the distribution using "pynglex".
+# It will optionally copy the distribution files to another directory.
+#
+# I will use this file especially to build PyNGL on some of the
+# problem systems, like meeker and tempest. 
+#
+set echo verbose timestamp
+
+while ($#argv > 0)
+  switch ($1)
+  case "-t":
+    set TestOnly
+    shift
+  endsw
+end
+
+#
+# Get the machine name and the location of python.
+#
+set name       = `uname -n`
+set python_bin = `which python`
+set python_dir = $python_bin:h:h
+
+echo "The name of the machine is '$name'."
+echo "python lives in $python_bin."
+
+if ("$name" == "willow.local") then
+  set test_dir = "/Users/haley/tmp/willow"
+  set platform = "darwin-7.9.0-Power_Macintosh"
+#  set DO_SCP               # May require Crypto card login
+  set scpit    = "scp"
+  set scp_dir  = "meeker.scd.ucar.edu:/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
+#
+# Set system specific environment variables.
+#
+  setenv HAS_HDFEOS 0
+  unsetenv USE_CVS
+else if ("$name" == "reader.scd.ucar.edu") then
+  set test_dir = "/Users/haley/tmp/reader"
+
+  set platform = "darwin-8.6.0-Power_Macintosh"
+  set DO_SCP
+  set scpit    = "scp"
+  set scp_dir  = "meeker.scd.ucar.edu:/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
+#
+# Set system specific environment variables.
+#
+  setenv HAS_HDFEOS 0
+  setenv USE_CVS
+endif
+
+set version          = "1.0.0"
+set python_version   = "2.4"
+
+set numeric_test_dir = "$test_dir/numeric"
+set numpy_test_dir   = "$test_dir/numpy"
+set python_pkg_dir   = "$python_dir/lib/python$version/site-packages"
+set pyngl_dir        = "$NCARG/pyngl/src"
+set pynio_dir        = "$NCARG/pynio"
+set dist_dir         = "$pyngl_dir/dist"
+
+set numeric_tar_file = "$dist_dir/PyNGL-$version.$platform.tar"
+set numpy_tar_file   = "$dist_dir/PyNGL_numpy-$version.$platform.tar"
+set numeric_gz_file  = "$numeric_tar_file.gz"
+set numpy_gz_file    = "$numpy_tar_file.gz"
+
+unsetenv DISPLAY
+setenv INCLUDE_PYNIO
+unsetenv USE_NUMPY
+setenv USE_NUMERPY
+
+if ($?TestOnly) then
+  goto TEST:
+endif
+
+# 
+# Remove distribution directory.
+#
+/bin/rm -rf $dist_dir
+
+#
+# Get ready to build both numpy and Numeric versions.
+#
+/bin/rm -rf $python_pkg_dir/PyN*
+
+cd $pynio_dir
+/bin/rm -rf build
+python setup.py install
+
+cd $pyngl_dir
+/bin/rm -rf build
+python setup.py install
+
+#
+# Create binary distribution files.
+#
+python setup.py bdist_dumb --relative
+
+#
+# Copy both gzipped tarfiles to backup directory.
+#
+if ($?DO_SCP) then
+  $scpit $numeric_gz_file $numpy_gz_file $scp_dir
+endif
+
+TEST::
+#
+# Remove the installation and install the Numeric version of PyNGL
+# and PyNIO fresh from the binary distribution we just created.
+#
+/bin/rm -rf $python_pkg_dir/PyN*
+cd $dist_dir
+gunzip $numeric_gz_file
+
+#
+# Test that all the files are there.
+#
+/bin/rm -rf bin lib
+tar -xf $numeric_tar_file
+../CheckPyNGLFiles
+/bin/rm -rf bin lib
+
+cd $python_dir
+tar -xf $numeric_tar_file
+
+#
+# Test the Numeric distribution.
+#
+cd $numeric_test_dir
+/bin/rm -rf *
+pynglex -a >&! pynglex.numeric.$platform.out
+
+#
+# Test the Numpy version of PyNGL and PyNIO fresh from the
+# binary distribution we just created.
+#
+/bin/rm -rf $python_pkg_dir/PyN*
+cd $dist_dir
+gunzip $numpy_gz_file
+
+#
+# Test that all the files are here.
+#
+/bin/rm -rf bin lib
+tar -xf $numpy_tar_file
+../CheckPyNGLFiles -n
+/bin/rm -rf bin lib
+
+cd $python_dir
+tar -xf $numpy_tar_file
+
+#
+# Test the numpy distribution.
+#
+cd $numpy_test_dir
+/bin/rm -rf *
+pynglex --numpy -a >&! pynglex.numpy.$platform.out
