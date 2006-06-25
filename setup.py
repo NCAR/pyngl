@@ -1,16 +1,34 @@
 #!/usr/bin/env python
 #
-# To build and/or install PyNGL:
+# This script is for building and installing PyNGL. It is assumed
+# that NCAR Graphics and NCL libraries and include files have been
+# built and installed to $NCARG_ROOT/{lib,include} and that
+# applications like "ctrans" and "med" are in $NCARG_ROOT/bin.
+#
+# To build and install PyNGL:
 #
 #   python setup.py install
 #
-# There are four environment variables, that if set, will change
+# To build PyNGL but not install it:
+#
+#   python setup.py build_ext
+#
+# To create a binary distribution:
+#
+#   python setup.py bdist_dumb --relative
+#
+# If no environment variables are set, this script will create
+# a Numeric version of PyNGL.
+#
+# There are four environment variables that if set, will change
 # the behavior of this script:
 #
+#    USE_NUMPY     - Create a numpy version of PyNGL only.
+#
 #    USE_NUMERPY   - Create a Numeric *and* numpy version of PyNGL. This
-#                    will create two packages: PyNGL and PyNG_numpy.
-#    USE_NUMPY     - Create a numpy version of PyNGL
+#                    will create two packages: PyNGL and PyNGL_numpy.
 #    USE_CVS         Use CVS to get the latest version of the pynglex files.
+#
 #    INCLUDE_PYNIO - Copy over PyNIO files from PyNIO installed location.
 #                    and include as part of PyNGL package.
 #
@@ -21,17 +39,17 @@ from distutils.core import setup, Extension
 #
 # Determine whether we want to build a Numeric and/or Numpy version
 # of PyNGL.  If the environment variable USE_NUMPY is set, it will
-# try to build a NumPy version. USE_NUMPY doesn't need to be set to
+# try to build a numpy version. USE_NUMPY doesn't need to be set to
 # any value; it just has to be set.  If USE_NUMERPY is set, then
 # both versions of PyNGL will be built, and the Numeric version will
 # be put in package PyNGL, and the numpy version in package PyNGL_numpy.
 #
 # HAS_NUM will be set by this script depending on USE_NUMPY and USE_NUMERPY.
 #
-# HAS_NUM = 3 --> install both numpy and Numeric versions of module
-# HAS_NUM = 2 --> install numpy version of module
-# HAS_NUM = 1 --> install Numeric version of module
-# HAS_NUM = 0 --> You're hosed, you have neither module
+# HAS_NUM = 3 --> install both numpy and Numeric versions of PyNGL
+# HAS_NUM = 2 --> install numpy version of PyNGL
+# HAS_NUM = 1 --> install Numeric version of PyNGL
+# HAS_NUM = 0 --> You're hosed as numpy or Numeric don't exist.
 #
 try:
   path = os.environ["USE_NUMERPY"]
@@ -73,7 +91,16 @@ else:
 
 #
 # Should we copy over the PyNIO files and include them as part of
-# the PyNGL distribution?
+# the PyNGL distribution?  If so, you better have already run:
+#
+# python setup.py install
+#
+# in the pynio source directory. This script expects to find PyNIO
+# installed in the PyNIO package if you are doing a Numeric build,
+# and in the PyNIO_numpy package if you are doing a numpy build.
+#
+# This script does not yet check if PyNIO is installed on your system,
+# so it will complain if it can't find the files.
 #
 try:
   path = os.environ["INCLUDE_PYNIO"]
@@ -93,7 +120,7 @@ except:
 #
 # Initialize some variables.
 #
-pyngl_vfile     = "pyngl_version.py"     # PyNGL version file.
+pyngl_vfile     = "pyngl_version.py"         # PyNGL version file.
 pkgs_pth        = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
                                'site-packages')
 python_bin_dir  = os.path.join(sys.prefix,'bin')
@@ -105,14 +132,14 @@ pynglex_dir     = "Scripts"                  # Don't change this!
 ncl_root      = os.getenv("NCARG_ROOT")
 ncl_bin       = os.path.join(ncl_root,'bin')
 ncl_lib       = os.path.join(ncl_root,'lib')
-ncl_inc       = [os.path.join(ncl_root,'include')]
+ncl_inc       = os.path.join(ncl_root,'include')
 ncl_ncarg_dir = os.path.join(ncl_lib,'ncarg')
 ncl_data_dir  = os.path.join(ncl_ncarg_dir,'data')
 
 #
 # Gather up the executables we want to install as part of PyNGL.
 # We will get the NCAR Graphics executables from the installed
-# location ($NCARG_ROOT).
+# location ($NCARG_ROOT/bin).
 #
 bin_files = ["ctrans","med","psplit"]
 for i in xrange(len(bin_files)):
@@ -260,7 +287,7 @@ for array_module in array_modules:
 # This seems kludgy to me, but I need to make sure that if both 
 # numpy and Numeric versions of PyNGL are being built, we clean
 # the *.o files beforehand. This is because "setup" puts the *.o files
-# in the same location (build/temp.xxxx) every time, regardless of which
+# in the same location (build/temp.xxxx/.) every time, regardless of which
 # package we're building. Maybe there's a way to tell setup to put the
 # *.o files in a different directory, but I haven't found it yet.
 #
@@ -275,7 +302,7 @@ for array_module in array_modules:
 # Some of these variables will be used as build (compilation) parameters.
 #
 #----------------------------------------------------------------------
-  INCLUDE_PATHS = ncl_inc
+  INCLUDE_PATHS = [ncl_inc]
 
   if array_module == 'Numeric':
     from Numeric import  __version__ as array_module_version
@@ -321,10 +348,10 @@ for array_module in array_modules:
 # graphcaps, map databases, example scripts, etc) will be installed.
 #
 #----------------------------------------------------------------------
-  pyngl_dir       = os.path.join(pkgs_pth, os.path.join(pyngl_pkg_name))
-  pynio_dir       = os.path.join(pkgs_pth, os.path.join(pynio_pkg_name))
+  pyngl_dir       = os.path.join(pkgs_pth, pyngl_pkg_name)
+  pynio_dir       = os.path.join(pkgs_pth, pynio_pkg_name)
 
-  pyngl_ncarg_dir = os.path.join(pyngl_dir, os.path.join('ncarg'))
+  pyngl_ncarg_dir = os.path.join(pyngl_dir, 'ncarg')
   pyngl_data_dir  = os.path.join(pyngl_ncarg_dir, 'data')
 
 #
@@ -433,7 +460,7 @@ for array_module in array_modules:
                 (os.path.join(pyngl_ncarg_dir,'graphcaps'),graphcap_files),
                 (pyngl_ncarg_dir, res_file)]
 #
-# Here's the setup function.
+# Here's the setup function that will build and install everything.
 #
   setup (name = pyngl_pkg_name,
          version = pyngl_version,
@@ -444,7 +471,7 @@ for array_module in array_modules:
          long_description = "PyNGL is a Python language module designed for publication-quality visualization of data. PyNGL stands for 'Python Interface to the NCL Graphics Libraries,' and it is pronounced 'pingle.'",
          url = "http://www.pyngl.ucar.edu/",
          package_dir = { pyngl_pkg_name : ''},
-         data_files = DATA_FILES,
+         data_files  = DATA_FILES,
          ext_package = pyngl_pkg_name,
          ext_modules = EXT_MODULES
       )
