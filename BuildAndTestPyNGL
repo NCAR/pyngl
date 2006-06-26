@@ -289,6 +289,7 @@ tar -xf $numeric_tar_file
 cd $numeric_test_dir
 /bin/rm -rf *
 pynglex -a >&! pynglex.numeric.$platform.out
+$pyngl_dir/CheckPynglexFiles
 
 #
 # No numpy on tempest, so skip this part.
@@ -322,5 +323,6 @@ tar -xf $numpy_tar_file
 cd $numpy_test_dir
 /bin/rm -rf *
 pynglex --numpy -a >&! pynglex.numpy.$platform.out
+$pyngl_dir/CheckPynglexFiles
 
 THEEND::
