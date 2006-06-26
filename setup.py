@@ -283,19 +283,6 @@ if sys.platform == "aix5":
 #----------------------------------------------------------------------
 
 for array_module in array_modules:
-#
-# This seems kludgy to me, but I need to make sure that if both 
-# numpy and Numeric versions of PyNGL are being built, we clean
-# the *.o files beforehand. This is because "setup" puts the *.o files
-# in the same location (build/temp.xxxx/.) every time, regardless of which
-# package we're building. Maybe there's a way to tell setup to put the
-# *.o files in a different directory, but I haven't found it yet.
-#
-  if len(array_modules) > 1:
-    print "====> Removing build's *.o and *.so files..."
-    os.system("find build -name '*.o' -exec /bin/rm {} \;")
-    os.system("find build -name '*.so' -exec /bin/rm {} \;")
-
 #----------------------------------------------------------------------
 #
 # Initialize variables for whether we are doing a Numeric or numpy build.
@@ -332,7 +319,7 @@ for array_module in array_modules:
 # Here are the instructions for compiling the "_hlu.so" file.
 #
 #----------------------------------------------------------------------
-  print '====> Installing files to',pyngl_pkg_name,'package directory.'
+  print '====> Installing the',array_module,'version of PyNGL to the',pyngl_pkg_name,'package directory.'
 
   EXT_MODULES = [Extension('_hlu', 
                  ['Helper.c','hlu_wrap.c','gsun.c'],
@@ -359,12 +346,25 @@ for array_module in array_modules:
 # in the list of files to be packaged up with PyNGL.
 #
   if include_pynio:
-    print '====> Will be including PyNIO files in',pyngl_pkg_name,'package.'
+    print '====> Will be including the PyNIO files in the',pyngl_pkg_name,'package directory.'
     pynio_files = ['Nio.py', 'pynio_version.py', 'nio.so']
     for i in xrange(len(pynio_files)):
       pynio_files[i] = os.path.join(pynio_dir,pynio_files[i])
   else:
     pynio_files = []
+
+#
+# This seems kludgy to me, but I need to make sure that if both 
+# numpy and Numeric versions of PyNGL are being built, we clean
+# the *.o files beforehand. This is because "setup" puts the *.o files
+# in the same location (build/temp.xxxx/.) every time, regardless of which
+# package we're building. Maybe there's a way to tell setup to put the
+# *.o files in a different directory, but I haven't found it yet.
+#
+  if len(array_modules) > 1:
+    print "====> Removing build's *.o and *.so files..."
+    os.system("find build -name '*.o' -exec /bin/rm {} \;")
+    os.system("find build -name '*.so' -exec /bin/rm {} \;")
 
 #----------------------------------------------------------------------
 #
