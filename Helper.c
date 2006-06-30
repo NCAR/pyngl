@@ -186,7 +186,7 @@ double c_dpwskewt(double *td, double *p, int n) {
 
 NhlErrorTypes NglGaus (int nlat, double **output)
 {
-  int nl,lwork = 0,i,ierror,k;
+  int nl,lwork = 0,i,ierror;
   double *theta,*wts,*work = NULL;
   double rtod = (double)180.0/(double)3.14159265358979323846;
 
@@ -222,7 +222,6 @@ void NglVinth2p (double *dati, int nlevo, int nlat, int imax,
 }
 char *c_nngetcp(char *pnam) {
   static char xc[100];
-  int i;
 
   c_nngetc(pnam,xc);
   return &xc[0];
