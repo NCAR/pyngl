@@ -371,7 +371,8 @@ for array_module in array_modules:
 # Create version file that contains version and array module info.
 #
 #----------------------------------------------------------------------
-  os.system("/bin/rm -rf " + pyngl_vfile)
+  if os.path.exists(pyngl_vfile):
+    os.system("/bin/rm -rf " + pyngl_vfile)
 
   pyngl_version = open('version','r').readlines()[0].strip('\n')
 
@@ -477,6 +478,9 @@ for array_module in array_modules:
       )
 
 #
-# Cleanup: remove the Scripts directory.
+# Cleanup: remove the Scripts directory and pyngl_version.py file.
 #
 os.system("/bin/rm -rf " + pynglex_dir)
+
+if os.path.exists(pyngl_vfile):
+  os.system("/bin/rm -rf " + pyngl_vfile)
