@@ -160,7 +160,10 @@ bin_files.append(os.path.join(pynglex_dir,'pynglex'))
 ncl_and_sys_lib_paths = [ncl_lib, "/usr/X11R6/lib"]
 
 if sys.platform == "darwin":
-    ncl_and_sys_lib_paths.append('/sw/lib')
+    dirs = ['/sw/lib','/Users/haley/lib/gcc-lib/i386-apple-darwin8.6.1/4.0.3']
+    for dir in dirs:
+      if(os.path.exists(dir)):
+        ncl_and_sys_lib_paths.append(dir)
 
 if sys.platform == "linux2" and os.uname()[-1] == "x86_64":
     ncl_and_sys_lib_paths.append('/usr/X11R6/lib64')
@@ -275,6 +278,16 @@ if sys.platform == "irix6-64":
 if sys.platform == "aix5":
     LIBRARIES.remove('g2c')
     LIBRARIES.append('xlf90')
+
+#
+# Special test for Intel Mac platform, which is using the g95 compiler
+# and needs f95 loaded.
+#
+if sys.platform == "darwin":
+    dir = '/Users/haley/lib/gcc-lib/i386-apple-darwin8.6.1/4.0.3'
+    if dir in ncl_and_sys_lib_paths:
+      LIBRARIES.remove('g2c')
+      LIBRARIES.append('f95')
 
 #----------------------------------------------------------------------
 #

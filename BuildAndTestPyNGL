@@ -52,10 +52,25 @@ if ("$name" == "willow.local") then
   setenv USE_NUMERPY
   unsetenv USE_NUMPY
   unsetenv DISPLAY
+else if ("$name" == "clock.scd.ucar.edu") then
+  set test_dir = "/Users/haley/tmp"
+  set platform = "darwin-8.6.1-i386"
+#  set DO_SCP               # May require Crypto card login
+  set scpit    = "scp"
+  set scp_dir  = "meeker.scd.ucar.edu:/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
+#
+# Set system specific environment variables.
+#
+  setenv HAS_HDFEOS 0
+  unsetenv USE_CVS
+  setenv INCLUDE_PYNIO
+  setenv USE_NUMERPY
+  unsetenv USE_NUMPY
+  unsetenv DISPLAY
 else if ("$name" == "reader.scd.ucar.edu") then
   set test_dir = "/Users/haley/tmp/reader"
 
-  set platform = "darwin-8.6.0-Power_Macintosh"
+  set platform = "darwin-8.7.0-Power_Macintosh"
   set DO_SCP
   set scpit    = "scp"
   set scp_dir  = "meeker.scd.ucar.edu:/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
