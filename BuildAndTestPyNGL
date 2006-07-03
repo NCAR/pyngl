@@ -97,7 +97,7 @@ else if ("$name" == "longs") then
   setenv USE_NUMERPY
   unsetenv USE_NUMPY
   unsetenv DISPLAY
-else if ("$name" == "ln0126en") then
+else if ("$name" == "ln0126en" || "$name" == "ln0127en") then
   set test_dir = "/ptmp/haley/pyngl"
   set platform = "linux-x86_64"
   set DO_SCP
