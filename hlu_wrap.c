@@ -2159,7 +2159,7 @@ static PyObject *_wrap_NhlSetValues(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -2353,7 +2353,10 @@ static PyObject *_wrap_NhlSetValues(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -2361,7 +2364,10 @@ static PyObject *_wrap_NhlSetValues(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -2489,7 +2495,7 @@ static PyObject *_wrap_NhlNDCPolyline(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg3 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -2500,7 +2506,7 @@ static PyObject *_wrap_NhlNDCPolyline(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg4 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -2534,7 +2540,7 @@ static PyObject *_wrap_NhlNDCPolymarker(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg3 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -2545,7 +2551,7 @@ static PyObject *_wrap_NhlNDCPolymarker(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg4 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -2579,7 +2585,7 @@ static PyObject *_wrap_NhlNDCPolygon(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg3 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -2590,7 +2596,7 @@ static PyObject *_wrap_NhlNDCPolygon(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg4 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -2624,7 +2630,7 @@ static PyObject *_wrap_NhlDataPolyline(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg3 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -2635,7 +2641,7 @@ static PyObject *_wrap_NhlDataPolyline(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg4 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -2669,7 +2675,7 @@ static PyObject *_wrap_NhlDataPolymarker(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg3 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -2680,7 +2686,7 @@ static PyObject *_wrap_NhlDataPolymarker(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg4 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -2714,7 +2720,7 @@ static PyObject *_wrap_NhlDataPolygon(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg3 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -2725,7 +2731,7 @@ static PyObject *_wrap_NhlDataPolygon(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg4 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -3265,7 +3271,7 @@ static PyObject *_wrap_NhlRLSetMDFloatArray(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg3 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -3303,7 +3309,7 @@ static PyObject *_wrap_NhlRLSetFloatArray(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg3 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -3443,7 +3449,7 @@ static PyObject *_wrap_NhlGetValues(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -3637,7 +3643,10 @@ static PyObject *_wrap_NhlGetValues(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -3645,7 +3654,10 @@ static PyObject *_wrap_NhlGetValues(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -4153,7 +4165,7 @@ static PyObject *_wrap_NhlPNDCToData(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg2 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -4164,7 +4176,7 @@ static PyObject *_wrap_NhlPNDCToData(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg3 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -4199,7 +4211,7 @@ static PyObject *_wrap_NhlPDataToNDC(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg2 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -4210,7 +4222,7 @@ static PyObject *_wrap_NhlPDataToNDC(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg3 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -4896,7 +4908,7 @@ static PyObject *_wrap_c_cprect(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj0,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg1 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -4907,7 +4919,7 @@ static PyObject *_wrap_c_cprect(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj4,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg5 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -4943,7 +4955,7 @@ static PyObject *_wrap_c_cpcldr(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj0,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg1 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -4954,7 +4966,7 @@ static PyObject *_wrap_c_cpcldr(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg2 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -5048,7 +5060,7 @@ static PyObject *_wrap_open_wks_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -5316,7 +5328,10 @@ static PyObject *_wrap_open_wks_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -5324,7 +5339,10 @@ static PyObject *_wrap_open_wks_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -5389,7 +5407,7 @@ static PyObject *_wrap_open_wks_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -5657,7 +5675,10 @@ static PyObject *_wrap_open_wks_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -5665,7 +5686,10 @@ static PyObject *_wrap_open_wks_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -5800,7 +5824,7 @@ static PyObject *_wrap_labelbar_ndc_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -6068,7 +6092,10 @@ static PyObject *_wrap_labelbar_ndc_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -6076,7 +6103,10 @@ static PyObject *_wrap_labelbar_ndc_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -6365,7 +6395,7 @@ static PyObject *_wrap_legend_ndc_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -6633,7 +6663,10 @@ static PyObject *_wrap_legend_ndc_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -6641,7 +6674,10 @@ static PyObject *_wrap_legend_ndc_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -6911,7 +6947,7 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -7179,7 +7215,10 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -7187,7 +7226,10 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -7252,7 +7294,7 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -7520,7 +7562,10 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -7528,7 +7573,10 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -7593,7 +7641,7 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -7861,7 +7909,10 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -7869,7 +7920,10 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -8110,7 +8164,7 @@ static PyObject *_wrap_map_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -8378,7 +8432,10 @@ static PyObject *_wrap_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -8386,7 +8443,10 @@ static PyObject *_wrap_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -8656,7 +8716,7 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -8924,7 +8984,10 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -8932,7 +8995,10 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -8997,7 +9063,7 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -9265,7 +9331,10 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -9273,7 +9342,10 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -9338,7 +9410,7 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -9606,7 +9678,10 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -9614,7 +9689,10 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -9903,7 +9981,7 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -10171,7 +10249,10 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -10179,7 +10260,10 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -10244,7 +10328,7 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -10512,7 +10596,10 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -10520,7 +10607,10 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -10585,7 +10675,7 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -10853,7 +10943,10 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -10861,7 +10954,10 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -11128,7 +11224,7 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -11396,7 +11492,10 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -11404,7 +11503,10 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -11469,7 +11571,7 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -11737,7 +11839,10 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -11745,7 +11850,10 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -11810,7 +11918,7 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -12078,7 +12186,10 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -12086,7 +12197,10 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -12369,7 +12483,7 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -12637,7 +12751,10 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -12645,7 +12762,10 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -12710,7 +12830,7 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -12978,7 +13098,10 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -12986,7 +13109,10 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -13051,7 +13177,7 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -13319,7 +13445,10 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -13327,7 +13456,10 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -13610,7 +13742,7 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -13878,7 +14010,10 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -13886,7 +14021,10 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -13951,7 +14089,7 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -14219,7 +14357,10 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -14227,7 +14368,10 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -14292,7 +14436,7 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -14560,7 +14704,10 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -14568,7 +14715,10 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -14866,7 +15016,7 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -15134,7 +15284,10 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -15142,7 +15295,10 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -15207,7 +15363,7 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -15475,7 +15631,10 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -15483,7 +15642,10 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -15548,7 +15710,7 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -15816,7 +15978,10 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -15824,7 +15989,10 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -15889,7 +16057,7 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -16157,7 +16325,10 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -16165,7 +16336,10 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -16463,7 +16637,7 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -16731,7 +16905,10 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -16739,7 +16916,10 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -16804,7 +16984,7 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -17072,7 +17252,10 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -17080,7 +17263,10 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -17145,7 +17331,7 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -17413,7 +17599,10 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -17421,7 +17610,10 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -17486,7 +17678,7 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -17754,7 +17946,10 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -17762,7 +17957,10 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -18045,7 +18243,7 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -18313,7 +18511,10 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -18321,7 +18522,10 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -18386,7 +18590,7 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -18654,7 +18858,10 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -18662,7 +18869,10 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -18727,7 +18937,7 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -18995,7 +19205,10 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -19003,7 +19216,10 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -19286,7 +19502,7 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -19554,7 +19770,10 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -19562,7 +19781,10 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -19627,7 +19849,7 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -19895,7 +20117,10 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -19903,7 +20128,10 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -19968,7 +20196,7 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -20236,7 +20464,10 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -20244,7 +20475,10 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -20504,7 +20738,7 @@ static PyObject *_wrap_text_ndc_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -20772,7 +21006,10 @@ static PyObject *_wrap_text_ndc_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -20780,7 +21017,10 @@ static PyObject *_wrap_text_ndc_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -21287,7 +21527,7 @@ static PyObject *_wrap_text_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -21555,7 +21795,10 @@ static PyObject *_wrap_text_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -21563,7 +21806,10 @@ static PyObject *_wrap_text_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -22072,7 +22318,7 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -22340,7 +22586,10 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -22348,7 +22597,10 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -22413,7 +22665,7 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -22681,7 +22933,10 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -22689,7 +22944,10 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -23472,7 +23730,7 @@ static PyObject *_wrap_poly_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -23740,7 +23998,10 @@ static PyObject *_wrap_poly_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -23748,7 +24009,10 @@ static PyObject *_wrap_poly_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -24110,7 +24374,7 @@ static PyObject *_wrap_add_poly_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -24378,7 +24642,10 @@ static PyObject *_wrap_add_poly_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -24386,7 +24653,10 @@ static PyObject *_wrap_add_poly_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -24893,7 +25163,7 @@ static PyObject *_wrap_panel_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -25161,7 +25431,10 @@ static PyObject *_wrap_panel_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -25169,7 +25442,10 @@ static PyObject *_wrap_panel_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -25234,7 +25510,7 @@ static PyObject *_wrap_panel_wrap(PyObject *self, PyObject *args) {
                      */
                     if (PyList_Check(PyTuple_GetItem(value,0)) ||
                     PyTuple_Check(PyTuple_GetItem(value,0))) {
-                        printf("Tuple vlaues are not allowed to have list or tuple items.\n");
+                        printf("Tuple values are not allowed to have list or tuple items.\n");
                         return NULL;
                     }
                     list_len = PyTuple_Size(value);
@@ -25502,7 +25778,10 @@ static PyObject *_wrap_panel_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_LONG,0,0);
                         lvals = (long *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
                     }
                     else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -25510,7 +25789,10 @@ static PyObject *_wrap_panel_wrap(PyObject *self, PyObject *args) {
                         ((PyObject *) value,PyArray_DOUBLE,0,0);
                         dvals = (double *)arr->data;
                         ndims = arr->nd;
-                        len_dims = arr->dimensions;
+                        len_dims = (int *)malloc(ndims*sizeof(int));
+                        for(i = 0; i < ndims; i++ ) {
+                            len_dims[i] = arr->dimensions[i];
+                        }
                         NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
                     }
                     else {
@@ -25645,7 +25927,7 @@ static PyObject *_wrap_natgridc(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg2 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -25656,7 +25938,7 @@ static PyObject *_wrap_natgridc(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg3 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -25667,7 +25949,7 @@ static PyObject *_wrap_natgridc(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg4 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -25678,7 +25960,7 @@ static PyObject *_wrap_natgridc(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj6,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg7 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -25689,7 +25971,7 @@ static PyObject *_wrap_natgridc(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj7,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg8 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -25735,7 +26017,7 @@ static PyObject *_wrap_ftcurvc(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg2 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -25746,7 +26028,7 @@ static PyObject *_wrap_ftcurvc(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg3 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -25757,7 +26039,7 @@ static PyObject *_wrap_ftcurvc(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj4,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg5 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -25791,7 +26073,7 @@ static PyObject *_wrap_ftcurvpc(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg2 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -25802,7 +26084,7 @@ static PyObject *_wrap_ftcurvpc(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg3 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -25813,7 +26095,7 @@ static PyObject *_wrap_ftcurvpc(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj5,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg6 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -25846,7 +26128,7 @@ static PyObject *_wrap_ftcurvpic(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj4,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg5 = (float *) d2f(tdims, (double *) arr->data);
     }
@@ -25857,7 +26139,7 @@ static PyObject *_wrap_ftcurvpic(PyObject *self, PyObject *args) {
         (PyArrayObject *) PyArray_ContiguousFromObject(obj5,PyArray_DOUBLE,0,0);
         ndims = arr->nd;
         for (i = 0; i < ndims; i++) {
-            tdims *= arr->dimensions[i];
+            tdims *= (int) arr->dimensions[i];
         }
         arg6 = (float *) d2f(tdims, (double *) arr->data);
     }

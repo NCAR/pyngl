@@ -2329,7 +2329,7 @@ import_array();
    (PyArrayObject *) PyArray_ContiguousFromObject($input,PyArray_DOUBLE,0,0);
   ndims = arr->nd;
   for (i = 0; i < ndims; i++) {
-    tdims *= arr->dimensions[i];
+    tdims *= (int) arr->dimensions[i];
   }
   $1 = (float *) d2f(tdims, (double *) arr->data);
 }
@@ -3559,7 +3559,10 @@ import_array();
                      ((PyObject *) value,PyArray_LONG,0,0);
           lvals = (long *)arr->data;
           ndims = arr->nd;
-          len_dims = arr->dimensions;
+          len_dims = (int *)malloc(ndims*sizeof(int));
+          for(i = 0; i < ndims; i++ ) {
+            len_dims[i] = arr->dimensions[i];
+          }
           NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
         }
         else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -3567,7 +3570,10 @@ import_array();
                  ((PyObject *) value,PyArray_DOUBLE,0,0);
           dvals = (double *)arr->data;
           ndims = arr->nd;
-          len_dims = arr->dimensions;
+          len_dims = (int *)malloc(ndims*sizeof(int));
+          for(i = 0; i < ndims; i++ ) {
+            len_dims[i] = arr->dimensions[i];
+          }
           NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
         }
         else {
@@ -3828,7 +3834,10 @@ import_array();
                 ((PyObject *) value,PyArray_LONG,0,0);
           lvals = (long *)arr->data;
           ndims = arr->nd;
-          len_dims = arr->dimensions;
+          len_dims = (int *)malloc(ndims*sizeof(int));
+          for(i = 0; i < ndims; i++ ) {
+            len_dims[i] = arr->dimensions[i];
+          }
           NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
         }
         else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
@@ -3836,7 +3845,10 @@ import_array();
                  ((PyObject *) value,PyArray_DOUBLE,0,0);
           dvals = (double *)arr->data;
           ndims = arr->nd;
-          len_dims = arr->dimensions;
+          len_dims = (int *)malloc(ndims*sizeof(int));
+          for(i = 0; i < ndims; i++ ) {
+            len_dims[i] = arr->dimensions[i];
+          }
           NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
         }
         else {
