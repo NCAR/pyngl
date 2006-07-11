@@ -1399,7 +1399,7 @@ int coord_array(void *x, void *y, const char *type_x, const char *type_y,
                 int is_missing_x, int is_missing_y,
                 void *FillValue_x, void *FillValue_y, int ca_rlist)
 {
-  int app, carray, length[1];
+  int app, carray, length[2];
 
 /*
  * Retrieve application id.
@@ -3428,7 +3428,7 @@ void draw_colormap_wrap(int wks)
   int i, j, k, ii, jj, ibox, nrows, ncols, ncolors, maxcols, ntotal, offset;
   int grlist, sr_list, tx_rlist, ln_rlist, gn_rlist;
   int reset_colormap, cmap_ndims, *cmap_dimsizes;
-  float width, height, *xpos, *ypos, xbox[5], ybox[4], xbox2[5], ybox2[5];
+  float width, height, *xpos, *ypos, xbox[5], ybox[5], xbox2[5], ybox2[5];
   float txpos, typos;
   float *cmap, *cmapnew, font_height, font_space;
   char tmpstr[5];
