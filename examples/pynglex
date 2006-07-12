@@ -20,8 +20,9 @@ def print_usage():
       -n
         Copy over the source files, but do not execute.
       --numpy
-        Execute the numpy version of the examples, if there are both
-        numpy and Numeric examples available
+        Execute the numpy version of the examples. You must have
+        the numpy version of the PyNGL package installed in order
+        for this to work.
       -l
         List out the available example names.
       -h
