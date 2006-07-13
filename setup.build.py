@@ -118,6 +118,16 @@ except:
   use_cvs = False
    
 #
+# Should we copy all the installed files to somewhere under this
+# directory so we can tar them up for a distribution?
+#
+try:
+  path = os.environ["COPY_FILES"]
+  copy_files = True
+except:
+  copy_files = False
+   
+#
 # Initialize some variables.
 #
 pyngl_vfile     = "pyngl_version.py"         # PyNGL version file.
@@ -478,11 +488,11 @@ for array_module in array_modules:
 #
   setup (name = pyngl_pkg_name,
          version = pyngl_version,
-         author = "Fred Clare and Mary Haley",
+         author = "DaveBrown, Fred Clare, and Mary Haley",
          maintainer = "Mary Haley",
          maintainer_email = "haley@ucar.edu",
          description = "2D visualization library",
-         long_description = "PyNGL is a Python language module designed for publication-quality visualization of data. PyNGL stands for 'Python Interface to the NCL Graphics Libraries,' and it is pronounced 'pingle.'",
+       long_description = "PyNGL is a Python language module designed for publication-quality visualization of data. PyNGL stands for 'Python Interface to the NCL Graphics Libraries,' and it is pronounced 'pingle.' It now contains the 'Nio' module, which enables NetCDF-like access for NetCDF (rw), HDF (rw), GRIB (r), and CCM (r) data files",
          url = "http://www.pyngl.ucar.edu/",
          package_dir = { pyngl_pkg_name : ''},
          data_files  = DATA_FILES,
@@ -490,10 +500,74 @@ for array_module in array_modules:
          ext_modules = EXT_MODULES
       )
 
+# 
+# This section is for gathering up all the files we need to make 
+# a complete PyNGL/PyNIO distribution that can be installed by
+# an outside user with "python setup.py install".
+#
+  if copy_files:
+#
+# Copy installed package files back to our current directory so we can
+# "sdist" them into a distribution.
+#
+# First, remove some directories that we want to create from scratch.
+#
+    os.system('/bin/rm -rf ' + pyngl_pkg_name)
+    os.system('/bin/rm -rf bin')
+    os.system('/bin/rm -rf ' + pyngl_pkg_name + '-' + pyngl_version)
+    os.mkdir(pyngl_pkg_name)
+    os.mkdir('bin')
+
+    os.system('/bin/cp -r ' + pyngl_dir + '/* ' + pyngl_pkg_name + '/.')
+  
+    for i in xrange(len(bin_files)):
+      os.system('/bin/cp ' + bin_files[i] + ' bin/.')
+#
+# Copy over the appropriate "setup.py" file.
+#
+    os.system('/bin/cp setup.' + array_module + '.py setup.py')
+
+#
+# Generate a MANIFEST.in file.
+#
+  man_file = 'MANIFEST.in'
+  if os.path.exists(man_file):
+    os.system("/bin/rm -rf " + man_file)
+  if os.path.exists('MANIFEST'):
+    os.system("/bin/rm -rf MANIFEST")
+
+  mfile = open(man_file,'w')
+  if array_module == 'Numeric':
+    mfile.write("include PyNGL.pth\n")
+
+  mfile.write("include setup.py\n")
+  mfile.write("include README\n")
+  mfile.write("recursive-include " + pyngl_pkg_name + " *\n")
+  mfile.write("recursive-include bin *\n")
+  mfile.close()
+
+#
+# Run the command to create the "source" distribution. This file
+# name will not have a system name as part of the name.
+#
+  os.system("python setup.py sdist")
+
 #
 # Cleanup: remove the Scripts directory and pyngl_version.py file.
+# If copy_files was True, then remove files created by this process.
 #
+
 os.system("/bin/rm -rf " + pynglex_dir)
 
 if os.path.exists(pyngl_vfile):
   os.system("/bin/rm -rf " + pyngl_vfile)
+
+
+if copy_files:
+  print 'removing some files'
+  print 'removing ' + pyngl_pkg_name
+  print 'removing bin'
+  print 'removing setup.py MANIFEST MANIFEST.in'
+  os.system('/bin/rm -rf ' + pyngl_pkg_name)
+  os.system('/bin/rm -rf bin')
+  os.system('/bin/rm -rf setup.py MANIFEST MANIFEST.in')

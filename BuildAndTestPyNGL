@@ -16,6 +16,11 @@ while ($#argv > 0)
     set TestOnly
     shift
   endsw
+
+  case "-b":
+    set BuildOnly
+    shift
+  endsw
 end
 
 #
@@ -42,6 +47,13 @@ set pyngl_dir        = "$NCARG/pyngl/src"
 set pynio_dir        = "$NCARG/pynio"
 set dist_dir         = "$pyngl_dir/dist"
 
+# 
+# Set environment variables that will be the same no matter what
+# system we're on.
+#
+setenv INCLUDE_PYNIO
+setenv COPY_FILES
+
 if ("$name" == "willow.local") then
   set test_dir = "/Users/haley/tmp/willow"
   set platform = "darwin-7.9.0-Power_Macintosh"
@@ -53,7 +65,6 @@ if ("$name" == "willow.local") then
 #
   setenv HAS_HDFEOS 0
   unsetenv USE_CVS
-  setenv INCLUDE_PYNIO
   setenv USE_NUMERPY
   unsetenv USE_NUMPY
   unsetenv DISPLAY
@@ -68,7 +79,6 @@ else if ("$name" == "clock.scd.ucar.edu") then
 #
   setenv HAS_HDFEOS 0
   unsetenv USE_CVS
-  setenv INCLUDE_PYNIO
   setenv USE_NUMERPY
   unsetenv USE_NUMPY
   unsetenv DISPLAY
@@ -84,7 +94,6 @@ else if ("$name" == "reader.scd.ucar.edu") then
 #
   setenv HAS_HDFEOS 0
   setenv USE_CVS
-  setenv INCLUDE_PYNIO
   setenv USE_NUMERPY
   unsetenv USE_NUMPY
   unsetenv DISPLAY
@@ -98,7 +107,6 @@ else if ("$name" == "longs" || "$name" == "jupiter.scd.ucar.edu") then
 # Set system specific environment variables.
 #
   setenv USE_CVS
-  setenv INCLUDE_PYNIO
   setenv USE_NUMERPY
   unsetenv USE_NUMPY
   unsetenv DISPLAY
@@ -112,7 +120,6 @@ else if ("$name" == "ln0126en" || "$name" == "ln0127en") then
 # Set system specific environment variables.
 #
   setenv USE_CVS
-  setenv INCLUDE_PYNIO
   setenv USE_NUMERPY
   unsetenv USE_NUMPY
   unsetenv DISPLAY
@@ -153,7 +160,6 @@ else if ("$name" == "meeker") then
 # Since we have to do builds by hand, we can't do both at the same time
 # via the USE_NUMERPY env var.
 #
-  setenv INCLUDE_PYNIO
   unsetenv USE_NUMERPY
   unsetenv USE_NUMPY
 else if ("$name" == "tempest") then
@@ -170,11 +176,9 @@ else if ("$name" == "tempest") then
 # Since we have to do builds by hand, we can't do both at the same time
 # via the USE_NUMERPY env var. Also, tempest doesn't have numpy installed.
 #
-  setenv INCLUDE_PYNIO
   unsetenv USE_NUMERPY
   unsetenv USE_NUMPY
 else
-  setenv INCLUDE_PYNIO
   setenv USE_NUMERPY
   unsetenv USE_NUMPY
   unsetenv DISPLAY
@@ -187,6 +191,10 @@ endif
 set numeric_test_dir = "$test_dir/numeric"
 set numpy_test_dir   = "$test_dir/numpy"
 set python_pkg_dir   = "$python_dir/lib/python$python_version/site-packages"
+set generic_numeric_tar_file = "$dist_dir/PyNGL-$version.tar"
+set generic_numeric_gz_file  = "$dist_dir/PyNGL-$version.tar.gz"
+set generic_numpy_tar_file = "$dist_dir/PyNGL_numpy-$version.tar"
+set generic_numpy_gz_file  = "$dist_dir/PyNGL_numpy-$version.tar.gz"
 set numeric_tar_file = "$dist_dir/PyNGL-$version.$platform.tar"
 set numpy_tar_file   = "$dist_dir/PyNGL_numpy-$version.$platform.tar"
 set numeric_gz_file  = "$numeric_tar_file.gz"
@@ -207,7 +215,7 @@ endif
 /bin/rm -rf $python_pkg_dir/PyN*
 
 #
-# We can't use setup.py to generate *.o or *.so files on meeker, because
+# We can't use setup.build.py to generate *.o or *.so files on meeker, because
 # it wants to use the gcc compiler, which is hosed on meeker. The
 # Python documentation is not real clear how to override compilers and
 # compiler options, so I'm doing it the hard way here.
@@ -219,22 +227,22 @@ if ("$name" == "meeker") then
 
   cd $pyngl_dir
   ./BuildOnMeeker
-  python setup.py install
+  python setup.build.py install
 else if ("$name" == "tempest") then
   cd $pynio_dir
   python setup.py install
 
 #
-# We can't use setup.py to generate _hlu.so on tempest, because
+# We can't use setup.build.py to generate _hlu.so on tempest, because
 # it uses an "-all" option which causes PyNGL to core dump.
 # This option has to be included in a particular spot in the ld line,
 # and if you try to use the extra_compiler_args type argument to add
 # it, it gets put at the end of the line which doesn't work. <sigh>
 #
   cd $pyngl_dir
-  python setup.py build_ext
+  python setup.build.py build_ext
   ./BuildOnTempest
-  python setup.py install
+  python setup.build.py install
 else
   cd $pynio_dir
   /bin/rm -rf build
@@ -242,13 +250,23 @@ else
 
   cd $pyngl_dir
   /bin/rm -rf build
-  python setup.py install
+  python setup.build.py install
 endif
 
 #
-# Create binary distribution files.
+# There should now be one or two files in "dist" that contain the
+# Numeric and numpy distributions of PyNGL and PyNIO. We
+# need to rename these files because they are too generic.
 #
-python setup.py bdist_dumb --relative
+if (-e $dist_dir) then
+  cd $dist_dir
+  if (-e $generic_numeric_gz_file) then
+    /bin/mv $generic_numeric_gz_file $numeric_gz_file
+  endif
+  if (-e $generic_numpy_gz_file) then
+    /bin/mv $generic_numpy_gz_file $numpy_gz_file
+  endif
+endif
 
 #
 # Have to do this whole thing separately on meeker for a numpy
@@ -263,12 +281,14 @@ if ("$name" == "meeker") then
 
   cd $pyngl_dir
   ./BuildOnMeekerNumpy
-  python setup.py install
+  python setup.build.py install
 
-#
-# Create binary distribution files.
-#
-  python setup.py bdist_dumb --relative
+  if (-e $dist_dir) then
+    cd $dist_dir
+    if (-e $generic_numpy_gz_file) then
+      /bin/mv $generic_numpy_gz_file $numpy_gz_file
+    endif
+  endif
 
 endif
 
@@ -283,6 +303,10 @@ if ($?DO_SCP) then
   endif
 endif
 
+if ($?BuildOnly) then
+  goto THEEND:
+endif
+
 TEST::
 #
 # Remove the installation and install the Numeric version of PyNGL
@@ -295,13 +319,13 @@ gunzip $numeric_gz_file
 #
 # Test that all the files are there.
 #
-/bin/rm -rf bin lib
+/bin/rm -rf $dist_dir/PyNGL-$version
 tar -xf $numeric_tar_file
-../CheckPyNGLFiles
-/bin/rm -rf bin lib
-
-cd $python_dir
-tar -xf $numeric_tar_file
+cd PyNGL-$version
+python setup.py install
+../../CheckPyNGLFiles
+cd ..
+/bin/rm -rf $dist_dir/PyNGL-$version
 
 #
 # Test the Numeric distribution.
@@ -310,6 +334,12 @@ cd $numeric_test_dir
 /bin/rm -rf *
 pynglex -a >&! pynglex.numeric.$platform.out
 $pyngl_dir/CheckPynglexFiles
+
+#
+# Gzip the file again.
+#
+cd $dist_dir
+gzip -f9 $numeric_tar_file
 
 #
 # No numpy on tempest, so skip this part.
@@ -329,13 +359,13 @@ gunzip $numpy_gz_file
 #
 # Test that all the files are here.
 #
-/bin/rm -rf bin lib
+/bin/rm -rf $dist_dir/PyNGL_numpy-$version
 tar -xf $numpy_tar_file
-../CheckPyNGLFiles -n
-/bin/rm -rf bin lib
-
-cd $python_dir
-tar -xf $numpy_tar_file
+cd PyNGL_numpy-$version
+python setup.py install
+../../CheckPyNGLFiles -n
+cd ..
+/bin/rm -rf $dist_dir/PyNGL_numpy-$version
 
 #
 # Test the numpy distribution.
@@ -344,5 +374,15 @@ cd $numpy_test_dir
 /bin/rm -rf *
 pynglex --numpy -a >&! pynglex.numpy.$platform.out
 $pyngl_dir/CheckPynglexFiles
+
+#
+# Gzip the file again.
+#
+cd $dist_dir
+gzip -f9 $numpy_tar_file
+
+#
+# Clean up
+#
 
 THEEND::
