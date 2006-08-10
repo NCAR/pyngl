@@ -7,15 +7,15 @@
 #
 # To build and install PyNGL:
 #
-#   python setup.py install
+#   python setup.build.py install
 #
 # To build PyNGL but not install it:
 #
-#   python setup.py build_ext
+#   python setup.build.py build_ext
 #
 # To create a binary distribution:
 #
-#   python setup.py bdist_dumb --relative
+#   python setup.build.py bdist_dumb --relative
 #
 # If no environment variables are set, this script will create
 # a Numeric version of PyNGL.
@@ -122,10 +122,10 @@ except:
 # directory so we can tar them up for a distribution?
 #
 try:
-  path = os.environ["COPY_FILES"]
-  copy_files = True
+  path = os.environ["CREATE_DISTRIBUTION"]
+  create_distribution = True
 except:
-  copy_files = False
+  create_distribution = False
    
 #
 # Initialize some variables.
@@ -162,9 +162,9 @@ bin_files.append(os.path.join(pynglex_dir,'pynglex'))
 # To include additional libraries, you can add them here, or, on
 # the UNIX command line, you can type something like:
 #
-#  python setup.py build_ext -L/sw/lib
+#  python setup.build.py build_ext -L/sw/lib
 #
-# You will then have to type "python setup.py install" separately to
+# You will then have to type "python setup.build.py install" separately to
 # install the package.
 #
 ncl_and_sys_lib_paths = [ncl_lib, "/usr/X11R6/lib"]
@@ -271,11 +271,11 @@ LIBRARIES = ["nfpfort", "hlu", "ncarg", "ncarg_gks", "ncarg_c", "ngmath", "X11",
 #  -o build/lib.irix64-6.5-2.4/PyNGL/_hlu.so -notall
 #
 # I use the build_on_irix64 script for this. Run the build_on_irix64 script
-# instead of this setup.py script.
+# instead of this setup.build.py script.
 #
 
 if sys.platform == "irix6-64":
-    print "Warning: This setup.py file will not work on an irix6-64 system."
+    print "Warning: This setup.build.py file will not work on an irix6-64 system."
     print "Use 'build_on_irix64' instead."
 #
 # This is for later, if we ever get this to work under IRIX.
@@ -385,9 +385,8 @@ for array_module in array_modules:
 # *.o files in a different directory, but I haven't found it yet.
 #
   if len(array_modules) > 1:
-    print "====> Removing build's *.o and *.so files..."
+    print "====> Removing build's *.o files..."
     os.system("find build -name '*.o' -exec /bin/rm {} \;")
-    os.system("find build -name '*.so' -exec /bin/rm {} \;")
 
 #----------------------------------------------------------------------
 #
@@ -505,7 +504,7 @@ for array_module in array_modules:
 # a complete PyNGL/PyNIO distribution that can be installed by
 # an outside user with "python setup.py install".
 #
-  if copy_files:
+  if create_distribution:
 #
 # Copy installed package files back to our current directory so we can
 # "sdist" them into a distribution.
@@ -528,33 +527,36 @@ for array_module in array_modules:
     os.system('/bin/cp setup.' + array_module + '.py setup.py')
 
 #
-# Generate a MANIFEST.in file.
+# Generate a MANIFEST.in file. This is the file that setup.py sdist
+# uses to determine which files to tar up for the "source" distribution.
+# In our case, because we don't release source code, the "source" 
+# distribution is really a binary distribution.
 #
-  man_file = 'MANIFEST.in'
-  if os.path.exists(man_file):
-    os.system("/bin/rm -rf " + man_file)
-  if os.path.exists('MANIFEST'):
-    os.system("/bin/rm -rf MANIFEST")
+    man_file = 'MANIFEST.in'
+    if os.path.exists(man_file):
+      os.system("/bin/rm -rf " + man_file)
+    if os.path.exists('MANIFEST'):
+      os.system("/bin/rm -rf MANIFEST")
 
-  mfile = open(man_file,'w')
-  if array_module == 'Numeric':
-    mfile.write("include PyNGL.pth\n")
+    mfile = open(man_file,'w')
+    if array_module == 'Numeric':
+      mfile.write("include PyNGL.pth\n")
 
-  mfile.write("include setup.py\n")
-  mfile.write("include README\n")
-  mfile.write("recursive-include " + pyngl_pkg_name + " *\n")
-  mfile.write("recursive-include bin *\n")
-  mfile.close()
+    mfile.write("include setup.py\n")
+    mfile.write("include README\n")
+    mfile.write("recursive-include " + pyngl_pkg_name + " *\n")
+    mfile.write("recursive-include bin *\n")
+    mfile.close()
 
 #
 # Run the command to create the "source" distribution. This file
 # name will not have a system name as part of the name.
 #
-  os.system("python setup.py sdist")
+    os.system("python setup.py sdist")
 
 #
 # Cleanup: remove the Scripts directory and pyngl_version.py file.
-# If copy_files was True, then remove files created by this process.
+# If create_distribution was True, then remove files created by this process.
 #
 
 os.system("/bin/rm -rf " + pynglex_dir)
@@ -563,7 +565,7 @@ if os.path.exists(pyngl_vfile):
   os.system("/bin/rm -rf " + pyngl_vfile)
 
 
-if copy_files:
+if create_distribution:
   print 'removing some files'
   print 'removing ' + pyngl_pkg_name
   print 'removing bin'
