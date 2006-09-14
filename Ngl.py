@@ -1342,6 +1342,21 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist3
   return(lst2pobj(icm))
 
+def delete_wks (wks):
+  """
+Deletes a workstation object that was created using open_wks.
+Calling this function after you are finished drawing to a workstation
+provides for the sequential opening and deleting of an indefinite number of
+workstations, thus avoiding any restrictions on the maximum number of
+simultaneously open workstations of a given type.
+
+Ngl.delete_wks(wks))
+
+wks -- The identifier returned from calling Ngl.open_wks.
+  """
+  NhlDestroy(wks)
+  return None
+
 def destroy(obj):
   """
 Destroys an Ngl object.
