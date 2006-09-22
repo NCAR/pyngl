@@ -63,6 +63,7 @@ import string
 import commands
 import sys
 import os
+import math
 
 pkgs_pth    = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
                            'site-packages')
@@ -855,6 +856,8 @@ def skewtx(temp,y):  # x-coord given temperature (c)
 #     Ngl.gc_convert
 #     Ngl.gc_dist
 #     Ngl.gc_interp
+#     Ngl.gc_tarea
+#     Ngl.gc_qarea
 #     Ngl.ind
 #     Ngl.ismissing
 #     Ngl.natgrid
@@ -1725,6 +1728,91 @@ npts -- The number of equally-spaced points you want to interpolate to.
     del lat,lon
 
     return lat_tmp,lon_tmp
+
+def gc_tarea(lat1, lon1, lat2, lon2, lat3, lon3, radius=1.):
+  """
+Finds the area of a triangular patch on a sphere whose vertices
+are given in degrees as lat/lon pairs.
+
+area = Ngl.gc_tarea(lat1, lon1, lat2, lon2, lat3, lon3, radius=1.)
+
+lat1, lon1 -- Latitude and longitude, in degrees, of the first vertex.
+              These can be scalars, lists, or Numeric arrays.
+
+lat2, lon2 -- Latitude and longitude, in degrees, of the second vertex.
+              These can be scalars, lists, or Numeric arrays.
+
+lat3, lon3 -- Latitude and longitude, in degrees, of the third vertex.
+              These can be scalars, lists, or Numeric arrays.
+
+radius     -- An optional argument specifying the radius of the sphere.
+
+The returned object is a scalar if the arguments are scalars,
+or a Numeric array of the same size as the input arrays otherwise.
+Any area returned is that bounded by the arcs of great circles
+connecting the vertices.
+
+  """
+  lat1t = Numeric.array(lat1)
+  lon1t = Numeric.array(lon1)
+  lat2t = Numeric.array(lat2)
+  lon2t = Numeric.array(lon2)
+  lat3t = Numeric.array(lat3)
+  lon3t = Numeric.array(lon3)
+  rtn = Numeric.zeros(len(lat1t),Numeric.Float)
+  pi  = 4.*math.atan(1.)
+  d2r = pi/180.
+  tol = 1.e-7
+  for i in xrange(len(lat1t)):
+    a = d2r*gc_dist(lat1t[i], lon1t[i], lat2t[i], lon2t[i])
+    b = d2r*gc_dist(lat2t[i], lon2t[i], lat3t[i], lon3t[i])
+    c = d2r*gc_dist(lat3t[i], lon3t[i], lat1t[i], lon1t[i])
+    sa, sb, sc = math.sin(a), math.sin(b), math.sin(c)
+    if (abs(sa) < tol or abs(sb) < tol or abs(sc) < tol):
+      print "gc_tarea: input vertices must be distinct and not be polar opposites."
+      sys.exit()
+    ca, cb, cc = math.cos(a), math.cos(b), math.cos(c)
+    sang1 = math.acos( (ca-cb*cc)/(sb*sc) )
+    sang2 = math.acos( (cb-ca*cc)/(sa*sc) )
+    sang3 = math.acos( (cc-ca*cb)/(sa*sb) )
+    rtn[i] = radius*radius*(sang1 + sang2 + sang3 - pi)
+  del lat1t,lon1t,lat2t,lon2t,lat3t,lon3t,a,b,c,sa,sb,sc,ca,cb,cc, \
+      sang1,sang2,sang3,tol
+  if (is_scalar(lat1)):
+    return rtn[0]
+  else:
+    return rtn
+
+def gc_qarea(lat1, lon1, lat2, lon2, lat3, lon3, lat4, lon4, radius=1.):
+  """
+Finds the area of a convex quadrilateral patch on a sphere whose vertices
+are given in degrees as lat/lon pairs.
+
+area = Ngl.gc_qarea(lat1, lon1, lat2, lon2, lat3, lon3, radius=1.)
+
+lat1, lon1 -- Latitude and longitude, in degrees, of the first vertex.
+              These can be scalars, lists, or Numeric arrays.
+
+lat2, lon2 -- Latitude and longitude, in degrees, of the second vertex.
+              These can be scalars, lists, or Numeric arrays.
+
+lat3, lon3 -- Latitude and longitude, in degrees, of the third vertex.
+              These can be scalars, lists, or Numeric arrays.
+
+lat4, lon4 -- Latitude and longitude, in degrees, of the fourth vertex.
+              These can be scalars, lists, or Numeric arrays.
+
+radius     -- An optional argument specifying the radius of the sphere.
+
+The returned spherical area is a scalar if the arguments are scalars
+or a Numeric array of the same size as the input arrays otherwise.
+The vertices must be entered in either clockwise or counter-clockwise order.
+A returned area is that bounded by arcs of great circles connecting
+the vertices.
+
+  """
+  return gc_tarea(lat1, lon1, lat2, lon2, lat3, lon3, radius=radius) +  \
+         gc_tarea(lat1, lon1, lat3, lon3, lat4, lon4, radius=radius)
 
 def get_double(obj,name):
   return(NhlGetDouble(int_id(obj),name))
