@@ -354,13 +354,6 @@ for array_module in array_modules:
 
 #----------------------------------------------------------------------
 #
-# Here are the instructions for creating the "fplib.so" file.
-#
-#----------------------------------------------------------------------
-  os.system("f2py -c fplib.pyf /Users/fred/lib/libnfpfort.a")
-
-#----------------------------------------------------------------------
-#
 # Get the directories of where the extra PyNGL data files (fontcaps,
 # graphcaps, map databases, example scripts, etc) will be installed.
 #
