@@ -227,7 +227,7 @@ def pynglpath_ncarg():
   elif (os.path.exists(pyngl1_dir)):
     pyngl_ncarg = pyngl1_dir
   else:
-    print "pynglpath: directory" + pyngl1_dir + \
+    print "pynglpath: directory " + pyngl1_dir + \
           "\n           does not exist and " + \
           "environment variable PYNGL_NCARG is not set." 
     sys.exit()
