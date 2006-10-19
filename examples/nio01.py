@@ -79,7 +79,7 @@ file.create_dimension(  "t", None) # unlimited dimension
 #
 #  Create some variables.
 #
-foo = file.create_variable("foo", Numeric.Int, ("n", "xyz"))
+foo = file.create_variable("foo", "i", ("n", "xyz"))
 foo[:,:] = 0.                    #  Initialize foo to zeros.
 foo[0,:] = [42., 42.1, 42.2]     #  Specify the first row.
 foo[:,1] = 1.                    #  Column one is "1." everywhere.
@@ -99,7 +99,7 @@ print "  " + str(foo.dimensions)
 #
 #  Create a second integer variable.
 #
-bar = file.create_variable("bar", Numeric.Int, ("t", "n"))
+bar = file.create_variable("bar","i", ("t", "n"))
 for i in range(10):
   bar[i] = i            #  Each row of "n" integers equals the row number.
 
