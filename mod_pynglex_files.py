@@ -21,9 +21,20 @@ def modify_pynglex_files(files_to_modify):
       print "import PyNGL_numpy.Ngl as Ngl"
     elif(re.search("^import Nio",line) != None):
       print "import PyNGL_numpy.Nio as Nio"
+    elif(re.search("Numeric.Float0",line) != None):
+      print line.replace("Numeric.Float0","Numeric.float"),
+    elif(re.search("Numeric.Int0",line) != None):
+      print line.replace("Numeric.Int0","Numeric.int"),
+    elif(re.search("Numeric.Float",line) != None):
+      print line.replace("Numeric.Float","Numeric.float"),
+    elif(re.search("Numeric.Int",line) != None):
+      print line.replace("Numeric.Int","Numeric.int"),
     elif (os.path.basename(fileinput.filename()) == "meteogram.py" and  \
-        re.search("typecode()",line) != None):
+      re.search("typecode()",line) != None):
       print line.replace("typecode()","dtype.char"),
+    elif (os.path.basename(fileinput.filename()) == "meteogram.py" and  \
+      re.search("(ind_above_zero)",line) != None):
+      print line.replace("(ind_above_zero)","(ind_above_zero[0])"),
     elif (os.path.basename(fileinput.filename()) == "ngl09p.py" and     \
         re.search("import MA",line) != None):
       print line.replace("import MA","import numpy.core.ma as MA"),
@@ -53,7 +64,7 @@ def modify_pynglex_files(files_to_modify):
 #  Do a quadratic least squares fit.
 #
 npoints = len(x)
-a = Numeric.zeros([npoints,3],Numeric.Float32)
+a = Numeric.zeros([npoints,3],Numeric.float)
 for m in xrange(npoints):
   a[m,0] = 1.
   for j in xrange(1,3):
@@ -65,8 +76,8 @@ c = (Numeric.linalg.lstsq(a,y,rcond=1.e-15))[0]
 #
 num  = 301
 delx = 1000./num
-xp    = Numeric.zeros(num,Numeric.Float0)
-yp    = Numeric.zeros(num,Numeric.Float0)
+xp    = Numeric.zeros(num,Numeric.float)
+yp    = Numeric.zeros(num,Numeric.float)
 for i in xrange(num):
   xp[i] = float(i)*delx
   yp[i] = c[0]+c[1]*xp[i]+c[2]*xp[i]*xp[i]

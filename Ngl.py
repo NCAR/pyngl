@@ -96,6 +96,24 @@ def int_id(plot_id):
     print "plot id is not valid"
     return None
 
+def is_list_or_tuple(arg):
+  if ( ((type(arg) == types.ListType) or (type(arg) == types.TupleType)) ):
+    return True
+  else:
+    return False
+  
+def  is_numerpy_array(arg):
+  if (HAS_NUM == 1 and type(arg) == type(Numeric.array([0],Numeric.Int0))):
+    return True
+  if (HAS_NUM == 2):
+    try:
+      if (type(arg) == type(Numeric.array([0],Numeric.Int0))):
+        return True
+    except:
+      if (type(arg) == type(Numeric.array([0],Numeric.int))):
+        return True
+  return False
+
 def is_scalar(arg):
   if (HAS_NUM == 1):
     if (type(arg)==types.IntType or type(arg)==types.LongType or \
@@ -152,6 +170,40 @@ def arg_with_scalar(arg):
       return [arg]
     else:
       return arg
+
+def numerpy_int_zeros(num):
+#
+# This function creates a Numeric.zeros int array.
+#
+  try:
+    return Numeric.zeros(num,Numeric.Int) 
+  except:
+    return Numeric.zeros(num,'i')
+
+def numerpy_float0_zeros(num):
+#
+# This function creates a Numeric.zeros float0 array.
+#
+  try:
+    return Numeric.zeros(num,Numeric.Float0) 
+  except:
+    return Numeric.zeros(num,'f')
+
+def numerpy_float_zeros(num):
+#
+# This function creates a Numeric.zeros float array.
+#
+# This doesn't work under Numeric 24.2:
+#
+#  return Numeric.zeros(num,'f')
+# 
+# because the type of a single element of a Numeric.zeros 'f' 
+# array is still an array!
+#
+  try:
+    return Numeric.zeros(num,Numeric.Float) 
+  except:
+    return Numeric.zeros(num,'f')
 
 def ck_for_rangs(dir):
 #
@@ -839,7 +891,10 @@ wid = Ngl.get_workspace_id()
   return NhlGetWorkspaceObjectId()
 
 def skewty(pres):    # y-coord given pressure (mb)
-  return(132.182-44.061*Numeric.log10(pres))
+  if (HAS_NUM == 1):
+    return(132.182-44.061*Numeric.log10(pres))
+  else:
+    return(132.182-44.061*Numeric.lib.scimath.log10(pres))
 
 def skewtx(temp,y):  # x-coord given temperature (c)
   return (0.54*temp+0.90692*y)
@@ -1148,11 +1203,11 @@ type -- An optional argument specifying the type of the data you are
       nnum = nnum*dims[m]
  
   if (type == "integer"):
-    ar = Numeric.zeros(nnum,Numeric.Int) 
+    ar = numerpy_int_zeros(nnum)
   elif (type == "float"):
-    ar = Numeric.zeros(nnum,Numeric.Float0) 
+    ar = numerpy_float0_zeros(nnum)
   elif (type == "double"):
-    ar = Numeric.zeros(nnum,Numeric.Float) 
+    ar = numerpy_float_zeros(nnum)
   else:
     print 'asciiread: type must be one of: "integer", "float", or "double".'
     sys.exit()
@@ -1433,7 +1488,7 @@ num -- Number of equally-spaced points desired between start and end.
   for i in range(num-1):
     a.append(min + float(i)*delta)
   a.append(max)
-  return Numeric.array(a,Numeric.Float0)
+  return Numeric.array(a,'f')
 
 def ftcurv(x,y,xo):
   """
@@ -1454,17 +1509,17 @@ yi -- An array of any dimensionality, whose rightmost dimension is
 xo -- A 1D array of length nxo containing the abscissae for the
       interpolated values.
   """
-  if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
+  if is_list_or_tuple(x):
     dsizes_x = len(x)
-  elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
+  elif is_numerpy_array(x):
     dsizes_x = x.shape[0]
   else:
     print \
      "ftcurv: type of argument 1 must be one of: list, tuple, or Numeric array"
     return None
-  if ( ((type(y) == types.ListType) or (type(y) == types.TupleType)) ):
+  if is_list_or_tuple(y):
     dsizes_y = len(y)
-  elif (type(y) == type(Numeric.array([0],Numeric.Int0))):
+  elif is_numerpy_array(y):
     dsizes_y = y.shape[0]
   else:
     print \
@@ -1474,9 +1529,9 @@ xo -- A 1D array of length nxo containing the abscissae for the
     print "ftcurv: first and second arguments must be the same length."
     return None
 
-  if ( ((type(xo) == types.ListType) or (type(xo) == types.TupleType)) ):
+  if is_list_or_tuple(xo):
     dsizes_xo = len(xo)
-  elif (type(xo) == type(Numeric.array([0],Numeric.Int0))):
+  elif is_numerpy_array(xo):
     dsizes_xo = xo.shape[0]
 
   status,yo = ftcurvc(dsizes_x,x,y,dsizes_xo,xo)
@@ -1512,17 +1567,17 @@ p -- A scalar value specifying the period of the input function; the
 xo -- A 1D array of length nxo containing the abscissae for the
       interpolated values.
   """
-  if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
+  if is_list_or_tuple(x):
     dsizes_x = len(x)
-  elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
+  elif is_numerpy_array(x):
     dsizes_x = x.shape[0]
   else:
     print \
      "ftcurvp: type of argument 1 must be one of: list, tuple, or Numeric array"
     return None
-  if ( ((type(y) == types.ListType) or (type(y) == types.TupleType)) ):
+  if is_list_or_tuple(y):
     dsizes_y = len(y)
-  elif (type(y) == type(Numeric.array([0],Numeric.Int0))):
+  elif is_numerpy_array(y):
     dsizes_y = y.shape[0]
   else:
     print \
@@ -1532,9 +1587,9 @@ xo -- A 1D array of length nxo containing the abscissae for the
     print "ftcurvp: first and second arguments must be the same length."
     return None
 
-  if ( ((type(xo) == types.ListType) or (type(xo) == types.TupleType)) ):
+  if is_list_or_tuple(xo):
     dsizes_xo = len(xo)
-  elif (type(xo) == type(Numeric.array([0],Numeric.Int0))):
+  elif is_numerpy_array(xo):
     dsizes_xo = xo.shape[0]
 
   status,yo = ftcurvpc(dsizes_x,x,y,p,dsizes_xo,xo)
@@ -1571,17 +1626,17 @@ yi -- An array of any dimensionality, whose rightmost dimension is
       function. That is, yi(...,k) is the functional value at
       xi(...,k) for k=0,npts-1.
   """
-  if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
+  if is_list_or_tuple(x):
     dsizes_x = len(x)
-  elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
+  elif is_numerpy_array(x):
     dsizes_x = x.shape[0]
   else:
     print \
      "ftcurvpi: type of argument 4 must be one of: list, tuple, or Numeric array"
     return None
-  if ( ((type(y) == types.ListType) or (type(y) == types.TupleType)) ):
+  if is_list_or_tuple(y):
     dsizes_y = len(y)
-  elif (type(y) == type(Numeric.array([0],Numeric.Int0))):
+  elif is_numerpy_array(y):
     dsizes_y = y.shape[0]
   else:
     print \
@@ -1692,12 +1747,12 @@ npts -- The number of equally-spaced points you want to interpolate to.
   if (abs(num) < 2):
     print "gc_interp: the number of points must be at least two."
   elif (num == 2):
-    lat = Numeric.array([rlat1,rlat2],Numeric.Float0)
-    lon = Numeric.array([rlon1,rlon2],Numeric.Float0)
+    lat = Numeric.array([rlat1,rlat2],'f')
+    lon = Numeric.array([rlon1,rlon2],'f')
     return [lat,lon]
   else:
-    lat_tmp = Numeric.zeros(num,Numeric.Float0) 
-    lon_tmp = Numeric.zeros(num,Numeric.Float0) 
+    lat_tmp = numerpy_float0_zeros(num)
+    lon_tmp = numerpy_float0_zeros(num)
     lat,lon = mapgci(rlat1,rlon1,rlat2,rlon2,num-2)
     lon0_tmp = rlon1
     lon1_tmp = rlon2
@@ -1759,7 +1814,7 @@ connecting the vertices.
   lon2t = Numeric.array(lon2)
   lat3t = Numeric.array(lat3)
   lon3t = Numeric.array(lon3)
-  rtn = Numeric.zeros(len(lat1t),Numeric.Float)
+  rtn = numerpy_float_zeros(len(lat1t))
   pi  = 4.*math.atan(1.)
   d2r = pi/180.
   tol = 1.e-7
@@ -1998,9 +2053,9 @@ s -- Saturation values in the range [0.,100.]. Saturation is a measure
       dimc = len(h.flat)
     elif (HAS_NUM == 2):
       dimc = len(h.ravel())
-    rr = Numeric.zeros(dimc,Numeric.Float0)
-    gr = Numeric.zeros(dimc,Numeric.Float0)
-    br = Numeric.zeros(dimc,Numeric.Float0)
+    rr = numerpy_float0_zeros(dimc)
+    gr = numerpy_float0_zeros(dimc)
+    br = numerpy_float0_zeros(dimc)
     for i in xrange(dimc):
       if (HAS_NUM == 1):
         rr[i],gr[i],br[i] = c_hlsrgb(h.flat[i],l.flat[i],s.flat[i])
@@ -2011,17 +2066,17 @@ s -- Saturation values in the range [0.,100.]. Saturation is a measure
     return rr,gr,br
   elif ( ( is_list(h) and  is_list(l) and  is_list(s)) or    \
          (is_tuple(h) and is_tuple(l) and is_tuple(s)) ):
-    hi = Numeric.array(h,Numeric.Float0)
-    li = Numeric.array(l,Numeric.Float0)
-    si = Numeric.array(s,Numeric.Float0)
+    hi = Numeric.array(h,'f')
+    li = Numeric.array(l,'f')
+    si = Numeric.array(s,'f')
     ishape = hi.shape
     if (HAS_NUM == 1):
       dimc = len(hi.flat)
     elif (HAS_NUM == 2):
       dimc = len(hi.ravel())
-    rr = Numeric.zeros(dimc,Numeric.Float0)
-    gr = Numeric.zeros(dimc,Numeric.Float0)
-    br = Numeric.zeros(dimc,Numeric.Float0)
+    rr = numerpy_float0_zeros(dimc)
+    gr = numerpy_float0_zeros(dimc)
+    br = numerpy_float0_zeros(dimc)
     for i in xrange(dimc):
       if (HAS_NUM == 1):
         rr[i], gr[i], br[i] = c_hlsrgb(hi.flat[i],li.flat[i],si.flat[i])
@@ -2059,9 +2114,9 @@ v -- Values for the value component in the range [0.,1.].
       dimc = len(h.flat)
     elif (HAS_NUM == 2):
       dimc = len(h.ravel())
-    rr = Numeric.zeros(dimc,Numeric.Float0)
-    gr = Numeric.zeros(dimc,Numeric.Float0)
-    br = Numeric.zeros(dimc,Numeric.Float0)
+    rr = numerpy_float0_zeros(dimc)
+    gr = numerpy_float0_zeros(dimc)
+    br = numerpy_float0_zeros(dimc)
     for i in xrange(dimc):
       if (HAS_NUM == 1):
         rr[i],gr[i],br[i] = c_hsvrgb(h.flat[i],s.flat[i],v.flat[i])
@@ -2071,17 +2126,17 @@ v -- Values for the value component in the range [0.,1.].
     return rr,gr,br
   elif ( ( is_list(h) and  is_list(s) and  is_list(v)) or    \
          (is_tuple(h) and is_tuple(s) and is_tuple(v)) ):
-    hi = Numeric.array(h,Numeric.Float0)
-    si = Numeric.array(s,Numeric.Float0)
-    vi = Numeric.array(v,Numeric.Float0)
+    hi = Numeric.array(h,'f')
+    si = Numeric.array(s,'f')
+    vi = Numeric.array(v,'f')
     ishape = hi.shape
     if (HAS_NUM == 1):
       dimc = len(hi.flat)
     if (HAS_NUM == 2):
       dimc = len(hi.ravel())
-    rr = Numeric.zeros(dimc,Numeric.Float0)
-    gr = Numeric.zeros(dimc,Numeric.Float0)
-    br = Numeric.zeros(dimc,Numeric.Float0)
+    rr = numerpy_float0_zeros(dimc)
+    gr = numerpy_float0_zeros(dimc)
+    br = numerpy_float0_zeros(dimc)
     for j in xrange(dimc):
       if (HAS_NUM == 1):
         rr[j],gr[j],br[j] = c_hsvrgb(hi.flat[j],si.flat[j],vi.flat[j])
@@ -2252,27 +2307,27 @@ xo, yo -- One-dimensional Numeric float arrays or Python lists (of
           length numxout and numyout) containing the coordinate points
           of the output data grid.
   """
-  if ( ((type(x) == types.ListType) or (type(x) == types.TupleType)) ):
+  if is_list_or_tuple(x):
     dsizes_x = len(x)
-  elif (type(x) == type(Numeric.array([0],Numeric.Int0))):
+  elif is_numerpy_array(x):
     dsizes_x = x.shape[0]
   else:
     print \
      "natgrid: type of argument 1 must be one of: list, tuple, or Numeric array"
     return None
 
-  if ( ((type(xo) == types.ListType) or (type(xo) == types.TupleType)) ):
+  if is_list_or_tuple(xo):
     dsizes_xo = len(xo)
-  elif (type(xo) == type(Numeric.array([0],Numeric.Int0))):
+  elif is_numerpy_array(xo):
     dsizes_xo = xo.shape[0]
   else:
     print \
      "natgrid: type of argument 4 must be one of: list, tuple, or Numeric array"
     return None
 
-  if ( ((type(yo) == types.ListType) or (type(yo) == types.TupleType)) ):
+  if is_list_or_tuple(yo):
     dsizes_yo = len(yo)
-  elif (type(yo) == type(Numeric.array([0],Numeric.Int0))):
+  elif is_numerpy_array(yo):
     dsizes_yo = yo.shape[0]
   else:
     print \
@@ -2993,9 +3048,9 @@ s -- The saturation value of the input point in HLS color space in the
       dimc = len(r.flat)
     elif (HAS_NUM == 2):
       dimc = len(r.ravel())
-    hr = Numeric.zeros(dimc,Numeric.Float0)
-    lr = Numeric.zeros(dimc,Numeric.Float0)
-    sr = Numeric.zeros(dimc,Numeric.Float0)
+    hr = numerpy_float0_zeros(dimc)
+    lr = numerpy_float0_zeros(dimc)
+    sr = numerpy_float0_zeros(dimc)
     for i in xrange(dimc):
       if (HAS_NUM == 1):
         hr[i],lr[i],sr[i] = c_rgbhls(r.flat[i],g.flat[i],b.flat[i])
@@ -3006,17 +3061,17 @@ s -- The saturation value of the input point in HLS color space in the
     return hr,lr,sr
   elif ( ( is_list(r) and  is_list(g) and  is_list(b)) or    \
          (is_tuple(r) and is_tuple(g) and is_tuple(b)) ):
-    ri = Numeric.array(r,Numeric.Float0)
-    gi = Numeric.array(g,Numeric.Float0)
-    bi = Numeric.array(b,Numeric.Float0)
+    ri = Numeric.array(r,'f')
+    gi = Numeric.array(g,'f')
+    bi = Numeric.array(b,'f')
     ishape = ri.shape
     if (HAS_NUM == 1):
       dimc = len(ri.flat)
     if (HAS_NUM == 2):
       dimc = len(ri.ravel())
-    hr = Numeric.zeros(dimc,Numeric.Float0)
-    lr = Numeric.zeros(dimc,Numeric.Float0)
-    sr = Numeric.zeros(dimc,Numeric.Float0)
+    hr = numerpy_float0_zeros(dimc)
+    lr = numerpy_float0_zeros(dimc)
+    sr = numerpy_float0_zeros(dimc)
     for i in xrange(dimc):
       if (HAS_NUM == 1):
         hr[i], lr[i], sr[i] = c_rgbhls(ri.flat[i],gi.flat[i],bi.flat[i])
@@ -3063,9 +3118,9 @@ v -- The value in HSV space, in the range [0.,1.].
       dimc = len(r.flat)
     elif (HAS_NUM == 2):
       dimc = len(r.ravel())
-    hr = Numeric.zeros(dimc,Numeric.Float0)
-    sr = Numeric.zeros(dimc,Numeric.Float0)
-    vr = Numeric.zeros(dimc,Numeric.Float0)
+    hr = numerpy_float0_zeros(dimc)
+    sr = numerpy_float0_zeros(dimc)
+    vr = numerpy_float0_zeros(dimc)
     for i in xrange(dimc):
       if (HAS_NUM == 1):
         hr[i],sr[i],vr[i] = c_rgbhsv(r.flat[i],g.flat[i],b.flat[i])
@@ -3076,17 +3131,17 @@ v -- The value in HSV space, in the range [0.,1.].
     return hr,sr,vr
   elif ( ( is_list(r) and  is_list(g) and  is_list(b)) or    \
          (is_tuple(r) and is_tuple(g) and is_tuple(b)) ):
-    ri = Numeric.array(r,Numeric.Float0)
-    gi = Numeric.array(g,Numeric.Float0)
-    bi = Numeric.array(b,Numeric.Float0)
+    ri = Numeric.array(r,'f')
+    gi = Numeric.array(g,'f')
+    bi = Numeric.array(b,'f')
     ishape = ri.shape
     if (HAS_NUM == 1):
       dimc = len(ri.flat)
     elif (HAS_NUM == 2):
       dimc = len(ri.ravel())
-    hr = Numeric.zeros(dimc,Numeric.Float0)
-    sr = Numeric.zeros(dimc,Numeric.Float0)
-    vr = Numeric.zeros(dimc,Numeric.Float0)
+    hr = numerpy_float0_zeros(dimc)
+    sr = numerpy_float0_zeros(dimc)
+    vr = numerpy_float0_zeros(dimc)
     for j in xrange(dimc):
       if (HAS_NUM == 1):
         hr[j], sr[j], vr[j] = c_rgbhsv(ri.flat[j],gi.flat[j],bi.flat[j])
@@ -3127,9 +3182,9 @@ q -- Q component (chrominance purple-green) values in the range
       dimc = len(r.flat)
     elif (HAS_NUM == 2):
       dimc = len(r.ravel())
-    yr = Numeric.zeros(dimc,Numeric.Float0)
-    ir = Numeric.zeros(dimc,Numeric.Float0)
-    qr = Numeric.zeros(dimc,Numeric.Float0)
+    yr = numerpy_float0_zeros(dimc)
+    ir = numerpy_float0_zeros(dimc)
+    qr = numerpy_float0_zeros(dimc)
     for i in xrange(dimc):
       if (HAS_NUM == 1):
         yr[i],ir[i],qr[i] = c_rgbyiq(r.flat[i],g.flat[i],b.flat[i])
@@ -3140,17 +3195,17 @@ q -- Q component (chrominance purple-green) values in the range
     return yr,ir,qr
   elif ( ( is_list(r) and  is_list(g) and  is_list(b)) or    \
          (is_tuple(r) and is_tuple(g) and is_tuple(b)) ):
-    ri = Numeric.array(r,Numeric.Float0)
-    gi = Numeric.array(g,Numeric.Float0)
-    bi = Numeric.array(b,Numeric.Float0)
+    ri = Numeric.array(r,'f')
+    gi = Numeric.array(g,'f')
+    bi = Numeric.array(b,'f')
     ishape = ri.shape
     if (HAS_NUM == 1):
       dimc = len(ri.flat)
     elif (HAS_NUM == 2):
       dimc = len(ri.ravel())
-    yr = Numeric.zeros(dimc,Numeric.Float0)
-    ir = Numeric.zeros(dimc,Numeric.Float0)
-    qr = Numeric.zeros(dimc,Numeric.Float0)
+    yr = numerpy_float0_zeros(dimc)
+    ir = numerpy_float0_zeros(dimc)
+    qr = numerpy_float0_zeros(dimc)
     for i in xrange(dimc):
       if (HAS_NUM == 1):
         yr[i], ir[i], qr[i] = c_rgbyiq(ri.flat[i],gi.flat[i],bi.flat[i])
@@ -3325,17 +3380,17 @@ res -- A required instance of the Resources class having special
           [                                                     \
            -100.,-90.,-80.,-70.,-60.,-50.,-40.,-30.,            \
             -20.,-10.,  0., 10., 20., 30., 40., 50.             \
-          ], Numeric.Float0)
+          ],'f')
   lendt = Numeric.array(                                        \
           [                                                     \
             132., 181., 247., 337., 459., 625., 855.,1050.,     \
            1050.,1050.,1050.,1050.,1050.,1050.,1050.,1050.      \
-          ], Numeric.Float0)
+          ],'f')
   rendt = Numeric.array(                                        \
           [                                                     \
             100., 100., 100., 100., 100., 100., 100., 135.,     \
             185., 251., 342., 430., 500., 580., 730., 993.      \
-          ], Numeric.Float0)
+          ],'f')
           
   ntemp = len(temp)
   if (len(temp) != len(lendt) or len(lendt) != len(rendt)):
@@ -3351,17 +3406,17 @@ res -- A required instance of the Resources class having special
          [                                           \
           1050., 1000.,  850.,  700.,  500.,  400.,  \
            300.,  250.,  200.,  150.,  100.          \
-         ], Numeric.Float0)
+         ],'f')
   xpl  = Numeric.array(                              \
          [                                           \
           -19.0, -19.0, -19.0, -19.0, -19.0, -19.0,  \
           -19.0, -19.0, -19.0, -19.0, -19.0          \
-         ], Numeric.Float0)
+         ],'f')
   xpr  = Numeric.array(                              \
          [                                           \
            27.10, 27.10, 27.10, 27.10, 22.83, 18.60, \
            18.60, 18.60, 18.60, 18.60, 18.60         \
-         ], Numeric.Float0)
+         ],'f')
   npres = len(pres)
   if (len(pres) != len(xpl) or len(xpl) != len(xpr)):
     print "skewt_bkg: lengths of pres, xpl, xpr do not match"
@@ -3376,19 +3431,19 @@ res -- A required instance of the Resources class having special
             -30., -20., -10.,   0.,  10.,  20.,  30.,  \
              40.,  50.,  60.,  70.,  80.,  90., 100.,  \
             110., 120., 130., 140., 150., 160., 170.   \
-           ], Numeric.Float0)
+           ],'f')
   lendth = Numeric.array(                              \
            [                                           \
             880., 670., 512., 388., 292., 220., 163.,  \
             119., 100., 100., 100., 100., 100., 100.,  \
             100., 100., 100., 100., 100., 100., 100.   \
-           ], Numeric.Float0)
+           ],'f')
   rendth = Numeric.array(                                    \
            [                                                 \
             1050., 1050., 1050., 1050., 1050., 1050., 1050., \
             1050., 1003.,  852.,  728.,  618.,  395.,  334., \
              286.,  245.,  210.,  180.,  155.,  133.,  115.  \
-           ], Numeric.Float0)
+           ],'f')
   ntheta = len(theta)
   if (len(theta) != len(lendth) or len(lendth) != len(rendth)):
     print "skewt_bkg: lengths of pres, xpl, xpr do not match"
@@ -3400,11 +3455,11 @@ res -- A required instance of the Resources class having special
   pseudo = Numeric.array(                               \
            [                                            \
               32., 28., 24., 20., 16., 12.,  8.         \
-           ], Numeric.Float0)
+           ],'f')
   lendps = Numeric.array(                               \
            [                                            \
               250., 250., 250., 250., 250., 250., 250.  \
-           ], Numeric.Float0)
+           ],'f')
   npseudo= len(pseudo)          # moist adiabats
 
 #
@@ -3414,17 +3469,17 @@ res -- A required instance of the Resources class having special
   mixrat = Numeric.array(                      \
            [                                   \
               20., 12., 8., 5., 3., 2., 1.     \
-           ], Numeric.Float0)
+           ],'f')
   nmix  = len(mixrat)           # mixing ratios
 
 #
 #  Declare local stuff: arrays/variables for storing x,y positions
 #  during iterations to draw curved line, etc.
 #
-  sx    = Numeric.zeros(200, Numeric.Float0)
-  sy    = Numeric.zeros(200, Numeric.Float0)
-  xx    = Numeric.zeros(  2, Numeric.Float0)
-  yy    = Numeric.zeros(  2, Numeric.Float0)
+  sx    = numerpy_float0_zeros(200)
+  sy    = numerpy_float0_zeros(200)
+  xx    = numerpy_float0_zeros(  2)
+  yy    = numerpy_float0_zeros(  2)
   m2f   =    3.2808            # meter-to-feet
   f2m   = 1./3.2808            # feet-to-meter
 
@@ -3445,11 +3500,11 @@ res -- A required instance of the Resources class having special
   xc = Numeric.array(                               \
        [                                            \
           xmin, xmin, xmax, xmax, 18.60, 18.6, xmin \
-       ], Numeric.Float0)
+       ],'f')
   yc = Numeric.array(                               \
        [                                            \
           ymin, ymax, ymax,  9.0, 17.53, ymin, ymin \
-       ], Numeric.Float0)
+       ],'f')
 
 #
 #  Depending on how options are set, create Standard Atm Info.
@@ -3461,19 +3516,19 @@ res -- A required instance of the Resources class having special
 #
 #  U.S. Standard ATmosphere (km), source: Hess/Riegel.
 #
-    zsa = Numeric.array(range(0,17)).astype(Numeric.Float0)
+    zsa = Numeric.array(range(0,17),'f')
     psa = Numeric.array(                                     \
           [                                                  \
            1013.25, 898.71, 794.90, 700.99, 616.29, 540.07,  \
             471.65, 410.46, 355.82, 307.24, 264.19, 226.31,  \
             193.93, 165.33, 141.35, 120.86, 103.30
-          ], Numeric.Float0)
+          ],'f')
     tsa = Numeric.array(                                     \
           [                                                  \
               15.0,   8.5,    2.0,   -4.5,  -11.0,  -17.5,   \
              -24.0, -30.5,  -37.0,  -43.5,  -50.0,  -56.5,   \
              -56.5, -56.5,  -56.5,  -56.5,  -56.5            \
-          ], Numeric.Float0)
+          ],'f')
     nlvl = len(psa)
 
 #
@@ -3499,10 +3554,10 @@ res -- A required instance of the Resources class having special
 #
 
   if (localOpts.sktDrawFahrenheit):
-    tf = Numeric.array(range(-20,110,20),Numeric.Int)  # deg F
+    tf = Numeric.array(range(-20,110,20),'i')           # deg F
     tc = 0.55555 * (tf - 32.)                           # deg C
   else:
-    tc = Numeric.array(range(-30,50,10)).astype(Numeric.Float0)
+    tc = Numeric.array(range(-30,50,10),'f')
 
 #
 #  Don't draw the plot or advance the frame in the call to xy.
@@ -3617,13 +3672,13 @@ res -- A required instance of the Resources class having special
     xyOpts.tmYRMinorOn             = False       # No minor tick marks.
     xyOpts.tmYRMode                = "Explicit"  # Define tick mark labels.
 
-    zkm = Numeric.array(range(0,17)).astype(Numeric.Float0)
+    zkm = Numeric.array(range(0,17),'f')
     pkm = ftcurv(zsa, psa, zkm)
     zft = Numeric.array(                                  \
           [                                               \
              0.,  2.,  4.,  6.,  8., 10., 12., 14., 16.,  \
             18., 20., 25., 30., 35., 40., 45., 50.        \
-          ], Numeric.Float0)
+          ],'f')
     pft = ftcurv(zsa, psa, f2m * zft)  # p corresponding to zkm
 
     if (localOpts.sktDrawHeightScaleFt):
@@ -3696,31 +3751,31 @@ res -- A required instance of the Resources class having special
         sy[0:nx+1] = Numeric.array(                               \
                      [                                            \
                        2.9966, ymax, ymax, 38.317, ymin, ymin     \
-                     ], Numeric.Float0)                         
+                     ],'f')
         sx[0:nx+1] = Numeric.array(                               \
                      [                                            \
                        xmin, xmin, -17.0476, 18.60, 18.60, 18.359 \
-                     ], Numeric.Float0)                         
+                     ],'f')
       if (temp[i] ==   0.):
         nx = 4
         sy[0:nx+1] = Numeric.array(                               \
                      [                                            \
                         ymax, ymax, 16.148, 17.53, 20.53          \
-                     ], Numeric.Float0)                         
+                     ],'f')
         sx[0:nx+1] = Numeric.array(                               \
                      [                                            \
                        -0.8476, 4.5523, 20.045, 18.60, 18.60      \
-                     ], Numeric.Float0)                         
+                     ],'f')
       if (temp[i] == 30.):
         nx = 4
         sy[0:nx+1] = Numeric.array(                               \
                      [                                            \
                        ymax, ymax, 6.021, 9.0, 10.422             \
-                     ], Numeric.Float0)                         
+                     ],'f')
         sx[0:nx+1] = Numeric.array(                               \
                      [                                            \
                        15.3523 , 20.7523 , 27.0974, 27.0974, 25.6525  \
-                     ], Numeric.Float0)                         
+                     ],'f')
       polygon(wks, xyplot, sx[0:nx+1], sy[0:nx+1], gsOpts)
 #
 #  Upper left triangle.
@@ -3729,11 +3784,11 @@ res -- A required instance of the Resources class having special
     sy[0:3] = Numeric.array(              \
                  [                        \
                    ymin, ymin, 38.747     \
-                 ], Numeric.Float0)
+                 ],'f')
     sx[0:3] = Numeric.array(              \
                  [                        \
                    -14.04, -18.955, -18.955 \
-                 ], Numeric.Float0)                         
+                 ],'f')
     polygon(wks, xyplot, sx[0:3], sy[0:3], gsOpts)
 #
 #  Lower right triangle.
@@ -3742,11 +3797,11 @@ res -- A required instance of the Resources class having special
     sy[0:3] = Numeric.array(              \
                  [                        \
                    ymax, 0.1334, ymax     \
-                 ], Numeric.Float0)
+                 ],'f')
     sx[0:3] = Numeric.array(              \
                  [                        \
                    xmax, xmax, 26.1523    \
-                 ], Numeric.Float0)                         
+                 ],'f')
     polygon(wks, xyplot, sx[0:3],sy[0:3],gsOpts)
     del gsOpts
 
@@ -3958,7 +4013,10 @@ res -- A required instance of the Resources class having special
       presWind[0]   = 1013.          # override 1050
       xWind         = skewtx (45. , skewty(presWind[0])) 
       sx[0:npres] = xWind            # "x" location of wind plot
-      sy[0:npres] = skewty(presWind).astype(Numeric.Float0)
+      try:
+        sy[0:npres] = skewty(presWind).astype(Numeric.Float0)
+      except:
+        sy[0:npres] = skewty(presWind).astype(Numeric.float)
       polyline   (wks, xyplot, sx[0:npres], sy[0:npres], gsOpts)
       polymarker (wks, xyplot, sx[1:npres], sy[1:npres], gsOpts)
                                      # zwind => Pibal reports
@@ -3966,13 +4024,16 @@ res -- A required instance of the Resources class having special
                               [0.,  1.,  2.,  3.,  4.,  5.,  6.,  \
                                7.,  8.,  9., 10., 12., 14., 16.,  \
                               18., 20., 25., 30., 35., 40., 45.,  \
-                              50.], Numeric.Float0)
+                              50.],'f')
       zkmWind = zftWind*f2m
       pkmWind = ftcurv(zsa, psa, zkmWind)
       nzkmW   = len(zkmWind)
 
       sx[0:nzkmW]  = xWind              # "x" location of wind plot
-      sy[0:nzkmW]  = skewty(pkmWind).astype(Numeric.Float0)
+      try:
+        sy[0:nzkmW]  = skewty(pkmWind).astype(Numeric.Float0)
+      except:
+        sy[0:nzkmW]  = skewty(pkmWind).astype(Numeric.float)
 
       gsOpts.gsMarkerIndex      = 16     # "circle_filled" -> Pibal
       gsOpts.gsMarkerSizeF      = 0.0035 # 0.007 is default
@@ -4274,7 +4335,7 @@ dataOpts -- An optional instance of the Resources class having
     Pprint = Numeric.array(                                 \
                            [1000., 850., 700., 500., 400.,  \
                              300., 250., 200., 150., 100.   \
-                           ], Numeric.Float0)
+                           ],'f')
 
     yz = skewty(1000.)
     xz = skewtx(-30., yz)        # constant "x"
@@ -4330,7 +4391,7 @@ dataOpts -- An optional instance of the Resources class having
       wbcol = wmgetp("col")                # get current wbarb color
       wmsetp("col",get_named_color_index(wks,sktcolWindP)) # set new color
       ypWind = skewty(pw)
-      xpWind = Numeric.ones(len(pw),Numeric.Float0)
+      xpWind = Numeric.ones(len(pw),'f')
 #
 #  Location of wind barb.
 #
@@ -4369,7 +4430,7 @@ dataOpts -- An optional instance of the Resources class having
         wbcol = wmgetp("col")
         wmsetp("col",get_named_color_index(wks,sktcolWindZ)) 
         yzWind = skewty(pz)
-        xzWind = Numeric.ones(len(pz),Numeric.Float0)
+        xzWind = Numeric.ones(len(pz),'f')
         xzWind = skewtx(45., skewty(1013.)) * xzWind
  
         wmbarb(wks, xzWind, yzWind, uz, vz )
@@ -4404,12 +4465,11 @@ dataOpts -- An optional instance of the Resources class having
         else:
           Pv   = Numeric.take(P,idzp)
           ph   = ftcurv(Zv,Pv,localOpts.sktHeight)
-
           wbcol = wmgetp("col")             # get current color index
           wmsetp("col",get_named_color_index(wks,sktcolWindH)) # set new color
   
           yhWind = skewty(ph)
-          xhWind = Numeric.ones(len(ph), Numeric.Float0)
+          xhWind = Numeric.ones(len(ph),'f')
           xhWind = skewtx(45., skewty(1013.)) * xhWind
           if (yhWind != None and xhWind != None):
             wmbarb(wks, xhWind, yhWind, uh, vh )
@@ -4891,7 +4951,7 @@ kxtrp -- A logical value. If False, then no extrapolation is done when
           "          an array with " + str(len(dati.shape)) + " dimensions was entered.\n"
     return None
   if (len(dati.shape) == 3):
-    plevi = Numeric.zeros(dati.shape[0]+1,Numeric.Float)
+    plevi = numerpy_float_zeros(dati.shape[0]+1)
     return NglVinth2p (dati, len(plevo), dati.shape[1], dati.shape[2],    \
                        hbcofa, hbcofb, p0, plevi, plevo, intyp,           \
                        1, psfc, 1.e30, kxtrp, dati.shape[0]+1, dati.shape[0])
@@ -4907,7 +4967,7 @@ kxtrp -- A logical value. If False, then no extrapolation is done when
          ) or                                                               \
          (                                                                  \
            (HAS_NUM == 2) and                                               \
-           (type(dati) == type(Numeric.array([0.],Numeric.Float)))          \
+           (type(dati) == type(Numeric.array([0.],Numeric.float)))          \
          )                                                                  \
        ):
 
@@ -4919,9 +4979,9 @@ kxtrp -- A logical value. If False, then no extrapolation is done when
         del ar_out
       except:
         pass
-      ar_out = Numeric.zeros([dati.shape[0],len(plevo),dati.shape[2],  \
-                              dati.shape[3]],Numeric.Float)
-      plevi  = Numeric.zeros(dati.shape[1]+1,Numeric.Float)
+      ar_out = numerpy_float_zeros([dati.shape[0],len(plevo),dati.shape[2],  \
+                              dati.shape[3]])
+      plevi  = numerpy_float_zeros(dati.shape[1]+1)
     else:
       print "vinth2p: input data must be a Numeric array"
       return None
@@ -4959,7 +5019,7 @@ dx, dy -- Scalars, one-dimensional Numeric arrays or Python lists
 #  Process depending on whether we have scalar coordinates,
 #  Numeric arrays, or Python lists or tuples.
 #
-  t = type(Numeric.array([0],Numeric.Int0))   #  Type for Numeric arrays.
+  t = type(Numeric.array([0],'i'))
   if (type(x) == t):
     if ( (type(y) != t) or (type(u) != t) or (type(v) != t)):
       print "wmbarb: If any argument is a Numeric array, they must all be."
@@ -5112,10 +5172,10 @@ res -- An (optional) instance of the Resources class having PyNGL
 #
 #  Get input array dimension information.
 #
-  if ( ((type(xar) == types.ListType) or (type(xar) == types.TupleType)) ):
+  if is_list_or_tuple(xar):
     ndims_x = 1
     dsizes_x = (len(xar),)
-  elif (type(xar) == type(Numeric.array([0],Numeric.Int0))):
+  elif is_numerpy_array(xar):
     ndims_x = (len(xar.shape))
     dsizes_x = xar.shape
   else:
@@ -5123,10 +5183,10 @@ res -- An (optional) instance of the Resources class having PyNGL
       "xy: type of argument 2 must be one of: list, tuple, or Numeric array"
     return None
 
-  if ( ((type(yar) == types.ListType) or (type(yar) == types.TupleType)) ):
+  if is_list_or_tuple(yar):
     ndims_y = 1
     dsizes_y = (len(yar),)
-  elif (type(yar) == type(Numeric.array([0],Numeric.Int0))):
+  elif is_numerpy_array(yar):
     ndims_y = (len(yar.shape))
     dsizes_y = yar.shape
   else:
@@ -5195,10 +5255,10 @@ res -- An (optional) instance of the Resources class having PyNGL
 #
 #  Get input array dimension information.
 #
-  if ( ((type(yar) == types.ListType) or (type(yar) == types.TupleType)) ):
+  if is_list_or_tuple(yar):
     ndims_y = 1
     dsizes_y = (len(yar),)
-  elif (type(yar) == type(Numeric.array([0],Numeric.Int0))):
+  elif is_numerpy_array(yar):
     ndims_y = (len(yar.shape))
     dsizes_y = yar.shape
   else:
@@ -5244,9 +5304,9 @@ r, g, b -- The red, green, and blue intensity values in the range
       dimc = len(y.flat)
     elif (HAS_NUM == 2):
       dimc = len(y.ravel())
-    rr = Numeric.zeros(dimc,Numeric.Float0)
-    gr = Numeric.zeros(dimc,Numeric.Float0)
-    br = Numeric.zeros(dimc,Numeric.Float0)
+    rr = numerpy_float0_zeros(dimc)
+    gr = numerpy_float0_zeros(dimc)
+    br = numerpy_float0_zeros(dimc)
     for j in xrange(dimc):
       if (HAS_NUM == 1):
         rr[j],gr[j],br[j] = c_yiqrgb(y.flat[j],i.flat[j],q.flat[j])
@@ -5257,17 +5317,17 @@ r, g, b -- The red, green, and blue intensity values in the range
     return rr,gr,br
   elif ( ( is_list(y) and  is_list(i) and  is_list(q)) or    \
          (is_tuple(y) and is_tuple(i) and is_tuple(q)) ):
-    yi = Numeric.array(y,Numeric.Float0)
-    ii = Numeric.array(i,Numeric.Float0)
-    qi = Numeric.array(q,Numeric.Float0)
+    yi = Numeric.array(y,'f')
+    ii = Numeric.array(i,'f')
+    qi = Numeric.array(q,'f')
     ishape = yi.shape
     if (HAS_NUM == 1):
       dimc = len(yi.flat)
     elif (HAS_NUM == 2):
       dimc = len(yi.ravel())
-    rr = Numeric.zeros(dimc,Numeric.Float0)
-    gr = Numeric.zeros(dimc,Numeric.Float0)
-    br = Numeric.zeros(dimc,Numeric.Float0)
+    rr = numerpy_float0_zeros(dimc)
+    gr = numerpy_float0_zeros(dimc)
+    br = numerpy_float0_zeros(dimc)
     for j in xrange(dimc):
       if (HAS_NUM == 1):
         rr[j],gr[j],br[j] = c_yiqrgb(yi.flat[j],ii.flat[j],qi.flat[j])
