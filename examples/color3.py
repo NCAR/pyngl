@@ -77,8 +77,8 @@ text_res = Ngl.Resources()
 #
 #  Set up arrays to hold the polygon coordinates.
 #
-x = Numeric.zeros(4,Numeric.Float)
-y = Numeric.zeros(4,Numeric.Float)
+x = Numeric.zeros(4,'f')
+y = Numeric.zeros(4,'f')
 
 #
 #  Open a workstation with a black background and a white

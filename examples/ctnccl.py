@@ -83,7 +83,7 @@ depth = cfile.variables["dat"][:]
 #
 # Create colormap
 #
-cmap = Numeric.zeros((104,3),Numeric.Float0)
+cmap = Numeric.zeros((104,3),'f')
 cmap[0] = [1.,1.,1.]
 cmap[1] = [0.,0.,0.]
 cmap[2] = [.5,.5,.5]

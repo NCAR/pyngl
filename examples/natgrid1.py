@@ -49,9 +49,9 @@ seismic = Ngl.asciiread(dirc + "/asc/seismic.asc" ,[52,3],"float")
 #
 #  Extract coordinate triples from the data file.
 #
-x = Numeric.array(seismic[:,0],Numeric.Float0)
-y = Numeric.array(seismic[:,1],Numeric.Float0)
-z = Numeric.array(seismic[:,2],Numeric.Float0)-785.
+x = Numeric.array(seismic[:,0],'f')
+y = Numeric.array(seismic[:,1],'f')
+z = Numeric.array(seismic[:,2],'f')-785.
 
 #
 #  Define output grid for the calls to "natgrid".
@@ -76,7 +76,7 @@ cmap = Numeric.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
                       [0.20, 0.80, 0.00], [0.20, 0.40, 0.00], \
                       [0.20, 0.45, 0.40], [0.20, 0.40, 0.80], \
                       [0.60, 0.40, 0.80], [0.60, 0.80, 0.80], \
-                      [0.60, 0.80, 0.40], [1.00, 0.60, 0.80]],Numeric.Float0)
+                      [0.60, 0.80, 0.40], [1.00, 0.60, 0.80]],'f')
 rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
 

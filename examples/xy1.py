@@ -40,8 +40,8 @@ import Numeric
 
 npts  = 501
 xspan = Ngl.fspan(0,npts-1,npts)
-x     = Numeric.zeros([npts],Numeric.Float0)
-y     = Numeric.zeros([npts],Numeric.Float0)
+x     = Numeric.zeros([npts],'f')
+y     = Numeric.zeros([npts],'f')
 
 for i in range(0,npts):
   x[i] = 500.+.9*xspan[i]*math.cos(0.031415926535898*xspan[i])

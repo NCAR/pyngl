@@ -42,7 +42,7 @@ import Numeric
 #
 #  Specify a color map and open an output workstation.
 #
-cmap = Numeric.array([[1., 1., 1.], [0., 0., 0.], [1., 0., 0.]], Numeric.Float0)
+cmap = Numeric.array([[1., 1., 1.], [0., 0., 0.], [1., 0., 0.]], 'f')
 rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
 wks_type = "ps"
@@ -70,10 +70,10 @@ map = Ngl.map(wks,mpres)
 #
 #  Draw an array of vertical wind barbs over the above map.
 #
-lat = Numeric.zeros([3,2,5],Numeric.Float0)
-lon = Numeric.zeros([3,2,5],Numeric.Float0)
-u   = Numeric.zeros([3,2,5],Numeric.Float0)
-v   = Numeric.zeros([3,2,5],Numeric.Float0)
+lat = Numeric.zeros([3,2,5],'f')
+lon = Numeric.zeros([3,2,5],'f')
+u   = Numeric.zeros([3,2,5],'f')
+v   = Numeric.zeros([3,2,5],'f')
 
 lat[0,:,:] = 65
 lat[1,:,:] = 70

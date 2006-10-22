@@ -75,13 +75,13 @@ ncdf = Nio.open_file(dirc + "/cdf/scatter1.nc","r")
 x = ncdf.variables["x"][:]
 y = ncdf.variables["y"][:]
 colors = ncdf.variables["colors"][:]
-color_index = colors.astype(Numeric.Int)
+color_index = colors.astype('i')
 
 #
 #  Specify a color map and open an output workstation.
 #
 cmap = Numeric.array([[1., 1., 1.], [0., 0., 0.], [1., 0., 0.], \
-                      [0., 0., 1.], [0., 1., 0.]], Numeric.Float0)
+                      [0., 0., 1.], [0., 1., 0.]], 'f')
 rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
 wks_type = "ps"
@@ -177,8 +177,8 @@ a = polynomialLeastSquaresFit(params, data)
 #
 num  = 301
 delx = 1000./num
-u    = Numeric.zeros(num,Numeric.Float0)
-v    = Numeric.zeros(num,Numeric.Float0)
+u    = Numeric.zeros(num,'f')
+v    = Numeric.zeros(num,'f')
 for i in xrange(num):
   u[i] = float(i)*delx
   v[i] = a[0][0]+a[0][1]*u[i]+a[0][2]*u[i]*u[i]

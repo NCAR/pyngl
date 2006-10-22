@@ -144,7 +144,7 @@ resources.cnLineThicknessF     = 2.0   # Double the line thickness.
 resources.cnFillOn           = True  # Turn on contour level fill.
 resources.cnMonoFillColor    = True  # Use one fill color.
 resources.cnMonoFillPattern  = False # Use multiple fill patterns.
-FillPatterns = Numeric.zeros([ncn+1],Numeric.Int)-1
+FillPatterns = Numeric.zeros([ncn+1],'i')-1
 FillPatterns[ncn-1:ncn+1] =  17
 resources.cnFillPatterns     = FillPatterns
 resources.cnLineDrawOrder      = "Predraw" # Draw lines and filled
@@ -242,7 +242,7 @@ cmap = Numeric.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
                       [.570, .420, .000], [.700, .285, .000], \
                       [.700, .180, .000], [.870, .050, .000], \
                       [1.00, .000, .000], [0.00, 1.00, 1.00], \
-                      [.700, .700, .700]],Numeric.Float0)
+                      [.700, .700, .700]],'f')
 
 rlist = Ngl.Resources()
 rlist.wkColorMap = cmap

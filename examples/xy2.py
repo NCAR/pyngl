@@ -53,7 +53,7 @@ y = Numeric.sin(PI*x/32.)        # Y points for first XY plot
 #
 # Set up arrays for polygons, polymarkers, and polylines.
 #
-xx = Numeric.array([1.,32.,64.],Numeric.Float0)
+xx = Numeric.array([1.,32.,64.],'f')
 ytopline = [ 0.5, 0.5, 0.5]     # Top line
 ymidline = [ 0.0, 0.0, 0.0]     # Middle line
 ybotline = [-0.5,-0.5,-0.5]     # Bottom line

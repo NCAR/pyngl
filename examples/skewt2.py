@@ -51,8 +51,8 @@ tdc  = TestData[:,9]
 #
 #  Set winds to missing values so that they will not be plotted.
 #
-wspd = -999.*Numeric.ones(nlvl,Numeric.Float0)
-wdir = -999.*Numeric.ones(nlvl,Numeric.Float0)
+wspd = -999.*Numeric.ones(nlvl,'f')
+wdir = -999.*Numeric.ones(nlvl,'f')
 
 #
 #  Plot 1 - Create background skew-T and plot sounding.
@@ -84,9 +84,9 @@ wdir = Ngl.fspan(0., 360., nlvl)   # wind direction.
 #
 #  Create a few artificial "pibal" reports.
 #
-hght = Numeric.array([1500., 6000., 10000., 15000.], Numeric.Float0) # Meters
-hspd = Numeric.array([  50.,   27.,   123.,    13.], Numeric.Float0)
-hdir = Numeric.array([ 315.,  225.,    45.,   135.], Numeric.Float0)
+hght = Numeric.array([1500., 6000., 10000., 15000.], 'f') # Meters
+hspd = Numeric.array([  50.,   27.,   123.,    13.], 'f')
+hdir = Numeric.array([ 315.,  225.,    45.,   135.], 'f')
 
 dataOpts                               = Ngl.Resources()  # Options describing 
                                                           # data and plotting.

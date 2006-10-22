@@ -73,7 +73,7 @@ plot = Ngl.xy(wks,x,y)   # Draw an XY plot.
 y2 = Numeric.array([[0., 0.7, 1., 0.7, 0., -0.7, -1., -0.7, 0.],  \
                     [2., 2.7, 3., 2.7, 2.,  1.3,  1.,  1.3, 2.],  \
                     [4., 4.7, 5., 4.7, 4.,  3.3,  3.,  3.3, 4.]], \
-                    Numeric.Float0)
+                    'f')
   
 #
 #  Set resources for titling.
@@ -118,7 +118,7 @@ data     = Ngl.asciiread(filename,(129,4),"float")
 #  Define a two-dimensional array of data values based on
 #  columns two and three of the input data.
 #
-uv = Numeric.zeros((2,129),Numeric.Float0)
+uv = Numeric.zeros((2,129),'f')
 uv[0,:] = data[:,1]
 uv[1,:] = data[:,2]
   

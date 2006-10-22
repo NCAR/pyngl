@@ -58,13 +58,13 @@ wks = Ngl.open_wks(wks_type,"color2",rlist)
 #
 # Create four data sets.
 #
-y  = Numeric.zeros([4,21],Numeric.Float0)
+y  = Numeric.zeros([4,21],'f')
 
 pi4 = 3.14159/4.
 ptmp = Numeric.sin(pi4*Numeric.arange(0,21))
 
 for i in range(4):
-  y[i,:] = (i+ptmp).astype(Numeric.Float0)
+  y[i,:] = (i+ptmp).astype('f')
 
 #
 # Set up a resource list for the XY plot.

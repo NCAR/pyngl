@@ -56,7 +56,7 @@ def neg_dash_contours(contour):
 # 
 # Create an array to hold the line dash patterns.
 #
-  patterns = Numeric.zeros((len(levels)),Numeric.Int)
+  patterns = Numeric.zeros((len(levels)),'i')
   patterns[:] = 0     # solid line
 #
 # Make contour lines above 0 dashed.

@@ -55,9 +55,9 @@ import Ngl
 dirc    = Ngl.pynglpath("data")
 seismic = Ngl.asciiread(dirc + "/asc/seismic.asc" ,[52,3],"float")
 
-x = Numeric.array(seismic[:,0],Numeric.Float0)
-y = Numeric.array(seismic[:,1],Numeric.Float0)
-z = Numeric.array(seismic[:,2],Numeric.Float0)
+x = Numeric.array(seismic[:,0],'f')
+y = Numeric.array(seismic[:,1],'f')
+z = Numeric.array(seismic[:,2],'f')
 
 numxout = 20     # Define output grid for call to "natgrid".
 numyout = 20
@@ -84,7 +84,7 @@ cmap = Numeric.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
                       [0.20, 0.80, 0.00], [0.20, 0.40, 0.00], \
                       [0.20, 0.45, 0.40], [0.20, 0.40, 0.80], \
                       [0.60, 0.40, 0.80], [0.60, 0.80, 0.80], \
-                      [0.60, 0.80, 0.40], [1.00, 0.60, 0.80]],Numeric.Float0)
+                      [0.60, 0.80, 0.40], [1.00, 0.60, 0.80]],'f')
 rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
 xwks   = Ngl.open_wks( "x11","ngl08p",rlist) # Open an X11 workstation.

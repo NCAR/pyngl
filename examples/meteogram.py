@@ -82,7 +82,7 @@ def smth9(x,p,q):
   po4 = p/4.
   qo4 = q/4.
 
-  output = Numeric.zeros([ni,nj],Numeric.Float0)
+  output = Numeric.zeros([ni,nj],'f')
   for j in xrange(1,nj-1):
     for i in xrange(1,ni-1):
       jm1 = j-1
@@ -138,7 +138,7 @@ colors = Numeric.array([                                               \
                          [220,255,220], [190,255,190], [120,255,120],  \
                          [ 80,255, 80], [ 50,200, 50], [ 20,150, 20],  \
                          [255,  0,  0]                                 \
-                       ],Numeric.Float0) / 255.
+                       ],'f') / 255.
 rlist = Ngl.Resources()
 rlist.wkColorMap = colors
 wks_type = "ps"
