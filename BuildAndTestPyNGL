@@ -28,7 +28,7 @@ end
 #
 set name       = `uname -n`
 if ("$name" == "jupiter.scd.ucar.edu") then
-  set path=("/fs/scd/home1/ncargd/dev/i686_Linux_2_4_2-2/bin" $path)
+  set path=("/fs/scd/home1/ncargd/dev/opt/Linux_i686_gcc4/bin" $path)
   rehash
 endif
 
@@ -100,7 +100,7 @@ else if ("$name" == "reader.scd.ucar.edu") then
   unsetenv USE_NUMPY
   unsetenv DISPLAY
 else if ("$name" == "longs" || "$name" == "jupiter.scd.ucar.edu") then
-  set test_dir = "/fs/scd/home1/haley/tmp/pyngl/longs"
+  set test_dir = "/fs/scd/home1/haley/tmp/pyngl/jupiter"
   set platform = "linux-i686"
   set DO_SCP
   set scpit    = "cp"
