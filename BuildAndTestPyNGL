@@ -94,7 +94,7 @@ else if ("$name" == "reader.scd.ucar.edu") then
 #
 # Set system specific environment variables.
 #
-  setenv HAS_HDFEOS 0
+  setenv HAS_HDFEOS 1
   setenv USE_CVS
   setenv USE_NUMERPY
   unsetenv USE_NUMPY
