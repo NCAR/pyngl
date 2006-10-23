@@ -299,6 +299,13 @@ if sys.platform == "darwin":
       LIBRARIES.remove('g2c')
       LIBRARIES.append('f95')
 
+if sys.platform == "sunos5":
+    os.environ["CC"]="/opt/SUNWspro/bin/cc"
+    LIBRARIES.remove('g2c')
+    LIBRARIES.append('f77compat')
+    LIBRARIES.append('fsu')
+    LIBRARIES.append('sunmath')
+
 #----------------------------------------------------------------------
 #
 # Loop through the modules for which we want to create versions of PyNGL.

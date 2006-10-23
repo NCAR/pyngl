@@ -6,7 +6,7 @@
 # It will optionally copy the distribution files to another directory.
 #
 # I will use this file especially to build PyNGL on some of the
-# problem systems, like meeker and tempest. 
+# problem systems, like meeker, windom, and tempest. 
 #
 set echo verbose timestamp
 
@@ -40,7 +40,7 @@ echo "The name of the machine is '$name'."
 echo "python lives in $python_bin."
 
 
-set version          = "1.0.0"
+set version          = "1.0.1"
 set python_version   = "2.4"
 
 set pyngl_dir        = "$NCARG/pyngl/src"
@@ -53,13 +53,15 @@ set dist_dir         = "$pyngl_dir/dist"
 #
 setenv INCLUDE_PYNIO
 setenv COPY_FILES
+unsetenv PYNIO2PYNGL
+setenv CREATE_DISTRIBUTION
 
 if ("$name" == "willow.local") then
   set test_dir = "/Users/haley/tmp/willow"
   set platform = "darwin-7.9.0-Power_Macintosh"
 #  set DO_SCP               # May require Crypto card login
   set scpit    = "scp"
-  set scp_dir  = "meeker.scd.ucar.edu:/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
+  set scp_dir  = "windom.ucar.edu:/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
 #
 # Set system specific environment variables.
 #
@@ -73,7 +75,7 @@ else if ("$name" == "clock.scd.ucar.edu") then
   set platform = "darwin-8.6.1-i386"
 #  set DO_SCP               # May require Crypto card login
   set scpit    = "scp"
-  set scp_dir  = "meeker.scd.ucar.edu:/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
+  set scp_dir  = "windom.ucar.edu:/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
 #
 # Set system specific environment variables.
 #
@@ -88,7 +90,7 @@ else if ("$name" == "reader.scd.ucar.edu") then
   set platform = "darwin-8.7.0-Power_Macintosh"
   set DO_SCP
   set scpit    = "scp"
-  set scp_dir  = "meeker.scd.ucar.edu:/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
+  set scp_dir  = "windom.ucar.edu:/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
 #
 # Set system specific environment variables.
 #
@@ -110,12 +112,25 @@ else if ("$name" == "longs" || "$name" == "jupiter.scd.ucar.edu") then
   setenv USE_NUMERPY
   unsetenv USE_NUMPY
   unsetenv DISPLAY
+else if ("$name" == "windom") then
+  set test_dir = "/fs/scd/home1/haley/tmp/pyngl/windom"
+  set platform = "solaris-2.10-sun4u"
+  set DO_SCP
+  set scpit    = "cp"
+  set scp_dir  = "/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
+#
+# Set system specific environment variables.
+#
+  setenv USE_CVS
+  setenv USE_NUMERPY
+  unsetenv USE_NUMPY
+  unsetenv DISPLAY
 else if ("$name" == "ln0126en" || "$name" == "ln0127en") then
   set test_dir = "/ptmp/haley/pyngl"
   set platform = "linux-x86_64"
   set DO_SCP
   set scpit    = "scp"
-  set scp_dir  = "meeker.scd.ucar.edu:/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
+  set scp_dir  = "windom.ucar.edu:/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
 #
 # Set system specific environment variables.
 #
@@ -124,7 +139,7 @@ else if ("$name" == "ln0126en" || "$name" == "ln0127en") then
   unsetenv USE_NUMPY
   unsetenv DISPLAY
 else if ("$name" == "meeker") then
-  set test_dir = "/fs/scd/home1/haley/tmp/pyngl/meeker"
+  set test_dir = "/fs/scd/home1/haley/tmp/pyngl/$name"
   set platform = "solaris-2.9-sun4u"
   set DO_SCP
   set scpit    = "cp"
@@ -167,7 +182,7 @@ else if ("$name" == "tempest") then
   set platform = "irix64-6.5"
   set DO_SCP
   set scpit    = "scp"
-  set scp_dir  = "meeker:/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
+  set scp_dir  = "windom:/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
 #
 # Set system specific environment variables.
 #
@@ -191,10 +206,10 @@ endif
 set numeric_test_dir = "$test_dir/numeric"
 set numpy_test_dir   = "$test_dir/numpy"
 set python_pkg_dir   = "$python_dir/lib/python$python_version/site-packages"
-set generic_numeric_tar_file = "$dist_dir/PyNGL-$version.tar"
-set generic_numeric_gz_file  = "$dist_dir/PyNGL-$version.tar.gz"
-set generic_numpy_tar_file = "$dist_dir/PyNGL_numpy-$version.tar"
-set generic_numpy_gz_file  = "$dist_dir/PyNGL_numpy-$version.tar.gz"
+set gen_numer_tar_file = "$dist_dir/PyNGL-$version.tar"
+set gen_numer_gz_file  = "$dist_dir/PyNGL-$version.tar.gz"
+set gen_numpy_tar_file = "$dist_dir/PyNGL_numpy-$version.tar"
+set gen_numpy_gz_file  = "$dist_dir/PyNGL_numpy-$version.tar.gz"
 set numeric_tar_file = "$dist_dir/PyNGL-$version.$platform.tar"
 set numpy_tar_file   = "$dist_dir/PyNGL_numpy-$version.$platform.tar"
 set numeric_gz_file  = "$numeric_tar_file.gz"
@@ -215,10 +230,17 @@ endif
 /bin/rm -rf $python_pkg_dir/PyN*
 
 #
-# We can't use setup.build.py to generate *.o or *.so files on meeker, because
-# it wants to use the gcc compiler, which is hosed on meeker. The
-# Python documentation is not real clear how to override compilers and
-# compiler options, so I'm doing it the hard way here.
+# We can't use setup.build.py to generate *.o or *.so files on meeker or
+# windom, because they want to use the gcc compiler, which is hosed (or
+# just old) on both systems. The Python documentation is not real clear 
+# how to override compilers and compiler options, so I'm doing it the
+# hard way here.
+#
+# Later note: I think I have setup.build.py working for windom, which
+# is a Solaris 10 machine. I still have to use the Sun compiler to
+# build things, and I do this via an environment variable setting 
+# for CC. However, I'm keeping the code below for meeker just so I don't
+# forget how this was done.
 #
 if ("$name" == "meeker") then
   cd $pynio_dir
@@ -260,11 +282,11 @@ endif
 #
 if (-e $dist_dir) then
   cd $dist_dir
-  if (-e $generic_numeric_gz_file) then
-    /bin/mv $generic_numeric_gz_file $numeric_gz_file
+  if (-e $gen_numer_gz_file) then
+    /bin/mv $gen_numer_gz_file $numeric_gz_file
   endif
-  if (-e $generic_numpy_gz_file) then
-    /bin/mv $generic_numpy_gz_file $numpy_gz_file
+  if (-e $gen_numpy_gz_file) then
+    /bin/mv $gen_numpy_gz_file $numpy_gz_file
   endif
 endif
 
@@ -285,11 +307,10 @@ if ("$name" == "meeker") then
 
   if (-e $dist_dir) then
     cd $dist_dir
-    if (-e $generic_numpy_gz_file) then
-      /bin/mv $generic_numpy_gz_file $numpy_gz_file
+    if (-e $gen_numpy_gz_file) then
+      /bin/mv $gen_numpy_gz_file $numpy_gz_file
     endif
   endif
-
 endif
 
 #
