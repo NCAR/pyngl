@@ -15,11 +15,12 @@ while ($#argv > 0)
   case "-t":
     set TestOnly
     shift
-  endsw
+    breaksw
 
   case "-b":
     set BuildOnly
     shift
+    breaksw
   endsw
 end
 
