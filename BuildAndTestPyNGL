@@ -40,8 +40,7 @@ set python_dir = $bin_dir:h
 echo "The name of the machine is '$name'."
 echo "python lives in $python_bin."
 
-
-set version          = "1.0.1"
+set version          = `head -1 ./version`
 set python_version   = "2.4"
 
 set pyngl_dir        = "$NCARG/pyngl/src"

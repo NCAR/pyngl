@@ -32,7 +32,8 @@
 #    INCLUDE_PYNIO - Copy over PyNIO files from PyNIO installed location.
 #                    and include as part of PyNGL package.
 #
-import sys,os
+import sys,os,re
+import fileinput
 import shutil
 from distutils.core import setup, Extension
 
@@ -494,7 +495,7 @@ for array_module in array_modules:
 #
   setup (name = pyngl_pkg_name,
          version = pyngl_version,
-         author = "DaveBrown, Fred Clare, and Mary Haley",
+         author = "Dave Brown, Fred Clare, and Mary Haley",
          maintainer = "Mary Haley",
          maintainer_email = "haley@ucar.edu",
          description = "2D visualization library",
@@ -532,6 +533,14 @@ for array_module in array_modules:
 # Copy over the appropriate "setup.py" file.
 #
     os.system('/bin/cp setup.' + array_module + '.py setup.py')
+#
+# Modify it and update the version number in the file.
+#
+    for line in fileinput.input('setup.py',inplace=1):
+      if (re.search("version=XXXX,",line) != None):
+        print "version = '" + pyngl_version + "',"
+      else:
+        print line,
 
 #
 # Generate a MANIFEST.in file. This is the file that setup.py sdist

@@ -103,7 +103,7 @@ for i in xrange(len(so_files)):
   so_files[i] = join(pyngl_pkg_name,so_files[i])
 
 setup (name = pyngl_pkg_name,
-       version='1.0.1',
+       version=XXXX,
        author='Dave Brown, Fred Clare, Mary Haley',
        author_email='dbrown@ucar.edu,fred@ucar.edu,haley@ucar.edu',
        maintainer = 'Mary Haley',
