@@ -84,17 +84,31 @@ if (odict.has_key("-h")):
   sys.exit()
 
 #
-# Try to generate numpy version of examples if "--numpy" is specified.
+# Try to generate numpy version of examples if "--numpy" is specified or
+# if the Numeric version can't be imported, and vice versa.
 #
 if (odict.has_key("--numpy")):
   try:
     import PyNGL_numpy.Ngl as Ngl
   except:
-    print "Warning: don't have numpy version of example(s)."
-    print "Will execute Numeric version of example(s) instead."
-    import Ngl
+    print "\nWarning: You don't appear to have the numpy version of PyNGL"
+    print "         installed. I will try the numeric version instead.\n"
+    try:
+      import Ngl
+    except:
+      print "Error: You don't appear to have the numeric version of PyNGL either.\n"
+      sys.exit()
 else:
-  import Ngl
+  try:
+    import Ngl
+  except:
+    print "\nWarning: You don't appear to have the numeric version of PyNGL"
+    print "         installed. I will try the numpy version instead.\n"
+    try:
+      import PyNGL_numpy.Ngl as Ngl
+    except:
+      print "Error: You don't appear to have the numpy version of PyNGL either.\n"
+      sys.exit()
 
 #
 #  Determine the root directory that contains the PyNGL
