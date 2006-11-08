@@ -58,7 +58,8 @@ setenv CREATE_DISTRIBUTION
 
 if ("$name" == "willow.local") then
   set test_dir = "/Users/haley/tmp/willow"
-  set platform = "darwin-7.9.0-Power_Macintosh"
+  set plat_version = `uname -r`
+  set platform = "darwin-$plat_version-Power_Macintosh"
 #  set DO_SCP               # May require Crypto card login
   set scpit    = "scp"
   set scp_dir  = "windom.ucar.edu:/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
@@ -72,7 +73,8 @@ if ("$name" == "willow.local") then
   unsetenv DISPLAY
 else if ("$name" == "clock.scd.ucar.edu") then
   set test_dir = "/Users/haley/tmp"
-  set platform = "darwin-8.6.1-i386"
+  set plat_version = `uname -r`
+  set platform = "darwin-$plat_version-i386"
 #  set DO_SCP               # May require Crypto card login
   set scpit    = "scp"
   set scp_dir  = "windom.ucar.edu:/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
@@ -87,7 +89,8 @@ else if ("$name" == "clock.scd.ucar.edu") then
 else if ("$name" == "reader.scd.ucar.edu") then
   set test_dir = "/Users/haley/tmp/reader"
 
-  set platform = "darwin-8.7.0-Power_Macintosh"
+  set plat_version = `uname -r`
+  set platform = "darwin-$plat_version-Power_Macintosh"
   set DO_SCP
   set scpit    = "scp"
   set scp_dir  = "windom.ucar.edu:/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
