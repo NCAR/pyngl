@@ -65,7 +65,7 @@ if ("$name" == "willow.local") then
 #
 # Set system specific environment variables.
 #
-  setenv HAS_HDFEOS 0
+  setenv HAS_HDFEOS 1
   unsetenv USE_CVS
   setenv USE_NUMERPY
   unsetenv USE_NUMPY
@@ -100,8 +100,13 @@ else if ("$name" == "reader.scd.ucar.edu") then
   unsetenv USE_NUMPY
   unsetenv DISPLAY
 else if ("$name" == "longs" || "$name" == "jupiter.scd.ucar.edu") then
-  set test_dir = "/fs/scd/home1/haley/tmp/pyngl/jupiter"
-  set platform = "linux-i686"
+  if ("$name" == "longs") then
+    set test_dir = "/fs/scd/home1/haley/tmp/pyngl/longs"
+    set platform = "linux-i686.gcc3"
+  else
+    set test_dir = "/fs/scd/home1/haley/tmp/pyngl/jupiter"
+    set platform = "linux-i686.gcc4"
+  endif
   set DO_SCP
   set scpit    = "cp"
   set scp_dir  = "/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
