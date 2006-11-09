@@ -98,7 +98,11 @@ py_files = ['Ngl.py','Nio.py','hlu.py','__init__.py','pyngl_version.py',\
 for i in xrange(len(py_files)):
   py_files[i] = join(pyngl_pkg_name,py_files[i])
 
-so_files = ['_hlu.so','nio.so']
+if sys.platform == "cygwin":
+  so_files = ['_hlu.dll','nio.dll']
+else:
+  so_files = ['_hlu.so','nio.so']
+
 for i in xrange(len(so_files)):
   so_files[i] = join(pyngl_pkg_name,so_files[i])
 

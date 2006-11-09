@@ -378,7 +378,10 @@ for array_module in array_modules:
 #
   if include_pynio:
     print '====> Will be including the PyNIO files in the',pyngl_pkg_name,'package directory.'
-    pynio_files = ['Nio.py', 'pynio_version.py', 'nio.so']
+    if sys.platform == "cygwin":
+      pynio_files = ['Nio.py', 'pynio_version.py', 'nio.dll']
+    else:
+      pynio_files = ['Nio.py', 'pynio_version.py', 'nio.so']
     for i in xrange(len(pynio_files)):
       pynio_files[i] = os.path.join(pynio_dir,pynio_files[i])
   else:

@@ -6,7 +6,7 @@
 # It will optionally copy the distribution files to another directory.
 #
 # I will use this file especially to build PyNGL on some of the
-# problem systems, like meeker, windom, and tempest. 
+# problem systems, like meeker and tempest. 
 #
 set echo verbose timestamp
 
@@ -201,6 +201,23 @@ else if ("$name" == "tempest") then
 #
   unsetenv USE_NUMERPY
   unsetenv USE_NUMPY
+else if ("$name" == "jewell") then
+  set test_dir = "/home/haley/tmp"
+  set platform = "cygwin"
+  unset DO_SCP
+#  set DO_SCP
+#  set scpit    = "scp"
+#  set scp_dir  = "windom.ucar.edu:/fs/scd/home1/ncargd/dist/tarfiles/pyngl/."
+#
+# Set system specific environment variables.
+#
+  unsetenv USE_CVS
+#
+# I couldn't get numpy 1.0 built under Cygwin, for now, only do a 
+# Numeric version.
+#
+  unsetenv USE_NUMERPY
+  setenv USE_NUMPY
 else
   setenv USE_NUMERPY
   unsetenv USE_NUMPY
@@ -325,7 +342,7 @@ endif
 # Copy both gzipped tarfiles to backup directory.
 #
 if ($?DO_SCP) then
-  if ("$name" == "tempest") then
+  if ("$name" == "tempest" || "$name" == "jewell") then
     $scpit $numeric_gz_file $scp_dir
   else
     $scpit $numeric_gz_file $numpy_gz_file $scp_dir
@@ -371,9 +388,9 @@ cd $dist_dir
 gzip -f9 $numeric_tar_file
 
 #
-# No numpy on tempest, so skip this part.
+# No numpy on tempest or jewell, so skip this part.
 #
-if ("$name" == "tempest") then
+if ("$name" == "tempest" || "$name" == "jewell") then
   goto THEEND:
 endif
 
