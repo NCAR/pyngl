@@ -1439,6 +1439,68 @@ plot -- The identifier returned from calling any plot object creation
   NhlDraw(int_id(obj))
   return None
 
+def define_colormap(wks,cmap):
+  """
+Defines a new color map for the given workstation.
+
+Ngl.define_colormap(wks,cmap)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+cmap -- An n x 3 array of RGB triplets, or a predefined colormap name.
+  """
+  cres = Resources()
+  cres.wkColorMap = cmap
+  set_values(wks,cres)
+  return None
+
+def merge_colormaps(wks,cmap1,cmap2):
+  """
+Merges two color maps into one for the given workstation.
+
+Ngl.merge_colormaps(wks,cmap1,cmap2)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+cmap1 -- An n x 3 array of RGB triplets, or a predefined colormap name.
+
+cmap2 -- A second n x 3 array of RGB triplets, or a predefined colormap name.
+  """
+#
+# Retrieve original color map in case we need to reset it.
+#
+  orig_cmap = retrieve_colormap(wks)
+# 
+# Set and retrieve both color maps so we can then get the RGB triplets.
+#
+# For second color map, toss the first two colors (background/foreground).
+#
+  define_colormap(wks,cmap1)
+  rgb_cmap1 = retrieve_colormap(wks)
+
+  define_colormap(wks,cmap2)
+  o_rgb_cmap2 = retrieve_colormap(wks)
+  rgb_cmap2   = o_rgb_cmap2[2:,:]          # Drop colors 0 and 1.
+
+  ncmap1 = rgb_cmap1.shape[0]              # Size of colormaps
+  ncmap2 = rgb_cmap2.shape[0]
+
+  if (ncmap1 + ncmap2) > 256:
+    print "merge_colormaps - Warning, the two color maps combined must have 256 or fewer colors."
+    print "Keeping original color map."
+    define_colormap(wks,orig_cmap)
+    return None
+
+#
+# Merge two colormaps into one.
+#
+  new_cmap = Numeric.zeros((ncmap1+ncmap2,3),rgb_cmap1.typecode())
+  new_cmap[:ncmap1,:] = rgb_cmap1
+  new_cmap[ncmap1:,:] = rgb_cmap2
+  
+  define_colormap(wks,new_cmap)
+  return None
+
 def draw_colormap(wks):
   """
 Draws the current color map and advances the frame.
