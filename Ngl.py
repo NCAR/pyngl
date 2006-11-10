@@ -1400,6 +1400,21 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist3
   return(lst2pobj(icm))
 
+def define_colormap(wks,cmap):
+  """
+Defines a new color map for the given workstation.
+
+Ngl.define_colormap(wks,cmap)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+cmap -- An n x 3 array of RGB triplets, or a predefined colormap name.
+  """
+  cres = Resources()
+  cres.wkColorMap = cmap
+  set_values(wks,cres)
+  return None
+
 def delete_wks (wks):
   """
 Deletes a workstation object that was created using open_wks.
@@ -1439,68 +1454,6 @@ plot -- The identifier returned from calling any plot object creation
   NhlDraw(int_id(obj))
   return None
 
-def define_colormap(wks,cmap):
-  """
-Defines a new color map for the given workstation.
-
-Ngl.define_colormap(wks,cmap)
-
-wks -- The identifier returned from calling Ngl.open_wks.
-
-cmap -- An n x 3 array of RGB triplets, or a predefined colormap name.
-  """
-  cres = Resources()
-  cres.wkColorMap = cmap
-  set_values(wks,cres)
-  return None
-
-def merge_colormaps(wks,cmap1,cmap2):
-  """
-Merges two color maps into one for the given workstation.
-
-Ngl.merge_colormaps(wks,cmap1,cmap2)
-
-wks -- The identifier returned from calling Ngl.open_wks.
-
-cmap1 -- An n x 3 array of RGB triplets, or a predefined colormap name.
-
-cmap2 -- A second n x 3 array of RGB triplets, or a predefined colormap name.
-  """
-#
-# Retrieve original color map in case we need to reset it.
-#
-  orig_cmap = retrieve_colormap(wks)
-# 
-# Set and retrieve both color maps so we can then get the RGB triplets.
-#
-# For second color map, toss the first two colors (background/foreground).
-#
-  define_colormap(wks,cmap1)
-  rgb_cmap1 = retrieve_colormap(wks)
-
-  define_colormap(wks,cmap2)
-  o_rgb_cmap2 = retrieve_colormap(wks)
-  rgb_cmap2   = o_rgb_cmap2[2:,:]          # Drop colors 0 and 1.
-
-  ncmap1 = rgb_cmap1.shape[0]              # Size of colormaps
-  ncmap2 = rgb_cmap2.shape[0]
-
-  if (ncmap1 + ncmap2) > 256:
-    print "merge_colormaps - Warning, the two color maps combined must have 256 or fewer colors."
-    print "Keeping original color map."
-    define_colormap(wks,orig_cmap)
-    return None
-
-#
-# Merge two colormaps into one.
-#
-  new_cmap = Numeric.zeros((ncmap1+ncmap2,3),rgb_cmap1.typecode())
-  new_cmap[:ncmap1,:] = rgb_cmap1
-  new_cmap[ncmap1:,:] = rgb_cmap2
-  
-  define_colormap(wks,new_cmap)
-  return None
-
 def draw_colormap(wks):
   """
 Draws the current color map and advances the frame.
@@ -1510,6 +1463,50 @@ Ngl.draw_colormap(wks)
 wks -- The identifier returned from calling Ngl.open_wks.
   """
   draw_colormap_wrap(wks)
+  return None
+
+def draw_ndc_grid(wks):
+  """
+Draws grid lines at 0.1 NDC intervals and labels them.
+
+Ngl.draw_ndc_grid(wks)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+  """
+  igray = new_color(wks,0.72,0.72,0.72)        # Add gray.
+
+  gridres = Resources()                        # polyline mods desired
+  gridres.gsLineColor            = igray       # color of lines
+  gridres.gsLineThicknessF       = 1.5         # thickness of lines
+  gridres.gsLineDashPattern      = 1	       # dash the lines
+  gridres.gsLineLabelFontColor   = igray       # color of labels
+  gridres.gsLineLabelFontHeightF = 0.0105      # size of labels
+
+#
+# Draw and label vertical and horizontal lines at 0.1 intervals.
+#
+  for gh in range(1,10):
+    gridres.gsLineLabelString = gh*10/100.     # adds a line label string
+
+    polyline_ndc(wks,[0.,1.],[gh*10/100.,gh*10/100.],gridres)
+    polyline_ndc(wks,[gh*10/100.,gh*10/100.],[0.,1.],gridres)
+
+#
+# Draw and label vertical and horizontal lines at the very
+# edges at 0.01 and 0.99 NDC.
+#
+  gridres.gsLineLabelString = 0.01
+  polyline_ndc(wks,[0.,1.],[0.01,0.01],gridres)
+
+  gridres.gsLineLabelString = 0.99
+  polyline_ndc(wks,[0.,1.],[0.99,0.99],gridres)
+
+  gridres.gsLineLabelString = 0.01
+  polyline_ndc(wks,[0.01,0.01],[0.,1.],gridres)
+
+  gridres.gsLineLabelString = 0.99
+  polyline_ndc(wks,[0.99,0.99],[0.,1.],gridres)
+
   return None
 
 def end():
@@ -2350,6 +2347,53 @@ res -- An optional optional instance of the Resources class having
     else:
       rlist1[key] = rlist[key]
   maximize_plots(wks,pobj2lst(plot),1,0,pvoid())
+
+def merge_colormaps(wks,cmap1,cmap2):
+  """
+Merges two color maps into one for the given workstation.
+
+Ngl.merge_colormaps(wks,cmap1,cmap2)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+cmap1 -- An n x 3 array of RGB triplets, or a predefined colormap name.
+
+cmap2 -- A second n x 3 array of RGB triplets, or a predefined colormap name.
+  """
+#
+# Retrieve original color map in case we need to reset it.
+#
+  orig_cmap = retrieve_colormap(wks)
+# 
+# Set and retrieve both color maps so we can then get the RGB triplets.
+#
+# For second color map, toss the first two colors (background/foreground).
+#
+  define_colormap(wks,cmap1)
+  rgb_cmap1 = retrieve_colormap(wks)
+
+  define_colormap(wks,cmap2)
+  o_rgb_cmap2 = retrieve_colormap(wks)
+  rgb_cmap2   = o_rgb_cmap2[2:,:]          # Drop colors 0 and 1.
+
+  ncmap1 = rgb_cmap1.shape[0]              # Size of colormaps
+  ncmap2 = rgb_cmap2.shape[0]
+
+  if (ncmap1 + ncmap2) > 256:
+    print "merge_colormaps - Warning, the two color maps combined must have 256 or fewer colors."
+    print "Keeping original color map."
+    define_colormap(wks,orig_cmap)
+    return None
+
+#
+# Merge two colormaps into one.
+#
+  new_cmap = Numeric.zeros((ncmap1+ncmap2,3),rgb_cmap1.typecode())
+  new_cmap[:ncmap1,:] = rgb_cmap1
+  new_cmap[ncmap1:,:] = rgb_cmap2
+  
+  define_colormap(wks,new_cmap)
+  return None
 
 def natgrid(x,y,z,xo,yo):
   """
