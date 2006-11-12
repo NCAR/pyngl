@@ -563,6 +563,19 @@ def set_spc_res(resource_name,value):
       set_nglRes_i(48, lval) 
   elif (resource_name == "PointTickmarksOutward"):
     set_nglRes_i(49, lval) 
+  elif (resource_name == "XRefLine"):
+    set_nglRes_f(50, lval) 
+  elif (resource_name == "YRefLine"):
+    set_nglRes_f(51, lval) 
+  elif (resource_name == "XRefLineThicknessF"):
+    set_nglRes_f(52, lval) 
+  elif (resource_name == "YRefLineThicknessF"):
+    set_nglRes_f(53, lval) 
+  elif (resource_name == "XRefLineColor"):
+    set_nglRes_i(54, lval) 
+  elif (resource_name == "YRefLineColor"):
+    set_nglRes_i(55, lval) 
+
   else:
     print "set_spc_res: Unknown special resource ngl" + resource_name
 
@@ -849,6 +862,12 @@ def set_spc_defaults(type):
   set_nglRes_i(47, 0)       # nglXAxisType - default to irregular
   set_nglRes_i(48, 0)       # nglYAxisType - default to irregular
   set_nglRes_i(49, 0)       # nglPointTickmarksOutward
+  set_nglRes_f(50, -999.)   # nglXRefLine
+  set_nglRes_f(51, -999.)   # nglYRefLine
+  set_nglRes_f(52, 1.)      # nglXRefLineThicknessF
+  set_nglRes_f(53, 1.)      # nglYRefLineThicknessF
+  set_nglRes_i(54, 1)       # nglXRefLineColor
+  set_nglRes_i(55, 1)       # nglYRefLineColor
 
 
 def poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
@@ -5314,6 +5333,8 @@ res -- An (optional) instance of the Resources class having PyNGL
       ca_rlist[key] = rlist[key]
     elif (key[0:2] == "xy"):
       if (key[0:4] == "xyCo"):
+        xy_rlist[key] = rlist[key]
+      if (key[0:4] == "xyCu"):
         xy_rlist[key] = rlist[key]
       elif (key[0:3] == "xyX"):
         xy_rlist[key] = rlist[key]

@@ -851,6 +851,12 @@ void set_nglRes_i(int pos, int ival) {
   else if (pos == 49) {
     nglRlist.nglPointTickmarksOutward = ival;
   }
+  else if (pos == 54) {
+    nglRlist.nglXRefLineColor = ival;
+  }
+  else if (pos == 55) {
+    nglRlist.nglYRefLineColor = ival;
+  }
   else {
     printf("set_nglRes_i: invalid argument %d\n",pos);
   }
@@ -932,6 +938,12 @@ int get_nglRes_i(int pos) {
   else if (pos == 49) {
     return(nglRlist.nglPointTickmarksOutward);
   }
+  else if (pos == 54) {
+    return(nglRlist.nglXRefLineColor);
+  }
+  else if (pos == 55) {
+    return(nglRlist.nglYRefLineColor);
+  }
   else {
     printf("get_nglRes_i: invalid argument %d\n",pos);
   }
@@ -1007,6 +1019,18 @@ void set_nglRes_f(int pos, float ival) {
   else if (pos == 45) {
     nglRlist.nglPanelFigureStringsFontHeightF = ival;
   }
+  else if (pos == 50) {
+    nglRlist.nglXRefLine = ival;
+  }
+  else if (pos == 51) {
+    nglRlist.nglYRefLine = ival;
+  }
+  else if (pos == 52) {
+    nglRlist.nglXRefLineThicknessF = ival;
+  }
+  else if (pos == 53) {
+    nglRlist.nglYRefLineThicknessF = ival;
+  }
   else {
     printf ("set_nglRes_f: invalid argument %d\n",pos);
   }
@@ -1081,6 +1105,18 @@ float get_nglRes_f(int pos) {
   }
   else if (pos == 45) {
     return(nglRlist.nglPanelFigureStringsFontHeightF);
+  }
+  else if (pos == 50) {
+    return(nglRlist.nglXRefLine);
+  }
+  else if (pos == 51) {
+    return(nglRlist.nglYRefLine);
+  }
+  else if (pos == 52) {
+    return(nglRlist.nglXRefLineThicknessF);
+  }
+  else if (pos == 53) {
+    return(nglRlist.nglYRefLineThicknessF);
   }
   else {
     printf ("get_nglRes_f: invalid argument %d\n",pos);

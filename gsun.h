@@ -122,6 +122,15 @@ typedef struct {
   int nglYAxisType;
 
   int nglPointTickmarksOutward;
+/*
+ * Special resources for X and/or Y reference lines.
+ */
+  float nglXRefLine;
+  float nglYRefLine;
+  float nglXRefLineThicknessF;
+  float nglYRefLineThicknessF;
+  int   nglXRefLineColor;
+  int   nglYRefLineColor;
 
 } nglRes;
 
@@ -191,6 +200,8 @@ extern void overlay_on_irregular(int, nglPlotId *asplot, ResInfo *,
 extern void spread_colors(int, int, int, int, char*, char*, int);
 
 extern void scale_plot(int,ResInfo *);
+
+extern void add_ref_line(int,int,nglRes*);
 
 extern void point_tickmarks_out(int,ResInfo *);
 

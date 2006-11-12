@@ -908,6 +908,112 @@ void scale_plot(int plot, ResInfo *res)
 }
 
 /*
+ * Add a straight reference line to an XY plot. 0=x, 1=y.
+ */
+void add_ref_line(int wks, int plot, nglRes *special_res)
+{
+  int xgsid, ygsid, srlist, prlist, grlist;
+  int *xprim_object, *yprim_object, color;
+  float xmin, xmax, ymin, ymax, x[2], y[2], thickness;
+
+  prlist = NhlRLCreate(NhlSETRL);
+  srlist = NhlRLCreate(NhlSETRL);
+  grlist = NhlRLCreate(NhlGETRL);
+
+/*
+ * Clear getvalues resource list and use it to retrieve axes limits.
+ */
+  NhlRLClear(grlist);
+
+  if(special_res->nglYRefLine != -999.) {
+    NhlRLGetFloat(grlist,"trXMinF", &xmin);
+    NhlRLGetFloat(grlist,"trXMaxF", &xmax);
+  }
+  if(special_res->nglXRefLine != -999.) {
+    NhlRLGetFloat(grlist,"trYMinF", &ymin);
+    NhlRLGetFloat(grlist,"trYMaxF", &ymax);
+  }
+  NhlGetValues(plot,grlist);
+
+  if(special_res->nglYRefLine != -999.) {
+/*
+ * Create graphic style object on which to draw primitives.
+ */
+    ygsid = create_graphicstyle_object(wks);
+
+    NhlRLClear(prlist);
+    NhlRLClear(srlist);
+
+    x[0] = xmin;
+    x[1] = xmax;
+    y[0] = special_res->nglYRefLine;
+    y[1] = special_res->nglYRefLine;
+
+/*
+ * Set some GraphicStyle resources. 
+ */
+    thickness = special_res->nglYRefLineThicknessF;
+    color     = special_res->nglYRefLineColor;
+    NhlRLSetInteger(srlist,"gsLineColor",color);
+    NhlRLSetFloat(srlist,"gsLineThicknessF",thickness);
+    NhlSetValues(ygsid,srlist);
+
+/*
+ * Set some Primitive resources. 
+ */
+    NhlRLSetFloatArray(prlist,"prXArray",   x, 2);
+    NhlRLSetFloatArray(prlist,"prYArray",   y, 2);
+    NhlRLSetInteger   (prlist,"prPolyType", NhlPOLYLINE);
+    NhlRLSetInteger   (prlist,"prGraphicStyle", ygsid);
+
+/*
+ * Create the object and attach it to the XY plot.
+ */
+    yprim_object = (int*)malloc(sizeof(int));
+    NhlCreate(yprim_object,"YRefPrimitive",NhlprimitiveClass,wks,prlist);
+    NhlAddPrimitive(plot,*yprim_object,-1);
+  }
+  if(special_res->nglXRefLine != -999.) {
+/*
+ * Create graphic style object on which to draw primitives.
+ */
+    xgsid = create_graphicstyle_object(wks);
+
+    NhlRLClear(prlist);
+    NhlRLClear(srlist);
+
+    x[0] = special_res->nglXRefLine;
+    x[1] = special_res->nglXRefLine;
+    y[0] = ymin;
+    y[1] = ymax;
+
+/*
+ * Set some GraphicStyle resources. 
+ */
+    thickness = special_res->nglXRefLineThicknessF;
+    color     = special_res->nglXRefLineColor;
+    NhlRLSetInteger(srlist,"gsLineColor",color);
+    NhlRLSetFloat(srlist,"gsLineThicknessF",thickness);
+    NhlSetValues(xgsid,srlist);
+
+/*
+ * Set some Primitive resources. 
+ */
+    NhlRLSetFloatArray(prlist,"prXArray",   x, 2);
+    NhlRLSetFloatArray(prlist,"prYArray",   y, 2);
+    NhlRLSetInteger   (prlist,"prPolyType", NhlPOLYLINE);
+    NhlRLSetInteger   (prlist,"prGraphicStyle", xgsid);
+
+/*
+ * Create the object and attach it to the XY plot.
+ */
+    xprim_object = (int*)malloc(sizeof(int));
+    NhlCreate(xprim_object,"XRefPrimitive",NhlprimitiveClass,wks,prlist);
+    NhlAddPrimitive(plot,*xprim_object,-1);
+  }
+
+}
+/*
  * This function retrieves the current tickmark lengths and points
  * them outward.
  */
@@ -931,11 +1037,6 @@ void point_tickmarks_out(int plot, ResInfo *res)
   NhlRLGetFloat(grlist,"tmYLMinorLengthF", &yl_mlength);
   NhlRLGetFloat(grlist,"tmYRMinorLengthF", &yr_mlength);
   NhlGetValues(plot,grlist);
-
-/*
- * Reset these resources, making the outward length equal to the
- * total length.
- */
 
   NhlRLClear(srlist);
 
@@ -1296,6 +1397,17 @@ void initialize_resources(nglRes *res, int list_type)
  */
   res->nglXAxisType =  0;
   res->nglYAxisType =  0;
+
+/*
+ * Special resources for drawing a vertical or horizontal X or Y
+ * reference line.
+ */
+  res->nglXRefLine           = -999.;
+  res->nglYRefLine           = -999.;
+  res->nglXRefLineThicknessF = 1.;
+  res->nglYRefLineThicknessF = 1.;
+  res->nglXRefLineColor      = 1;
+  res->nglYRefLineColor      = 1;
 }
 
 /*
@@ -1833,6 +1945,13 @@ nglPlotId xy_wrap(int wks, void *x, void *y, const char *type_x,
  * Make tickmarks and axis labels the same size.
  */
   if(special_res->nglScale) scale_plot(xy,xy_res);
+
+/*
+ * Add an X and/or Y reference line if requested.
+ */
+  if(special_res->nglYRefLine != -999 || special_res->nglXRefLine != -999) {
+    add_ref_line(wks,xy,special_res);
+  }
 
 /*
  * Point tickmarks outward if requested specifically by user.
