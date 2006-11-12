@@ -21,7 +21,7 @@
 #     the countries in Africa.
 #
 #  Effects illustrated
-#     o  Reading data from an ASCII file.
+#     o  Generating test data using generate_2d_array.
 #     o  Drawing color filled contours over specified geographic areas.
 #     o  Using a ".res" file to set many resources, for example to:
 #          + set fill colors
@@ -73,7 +73,7 @@ wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"cn12p")
 
 dirc = Ngl.pynglpath("data")
-z    = Ngl.asciiread(dirc+"/asc/cn12n.asc",len_dims,"float")
+z    = Ngl.generate_2d_array ([40,40],15,15,-10.,110.)
  
 resources = Ngl.Resources()
 resources.sfXCStartV  = -18.0
