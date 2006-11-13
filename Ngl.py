@@ -1999,13 +1999,45 @@ iseed -- an optional argument specifying a seed for the random number
          generator.  If iseed is outside the range 0 to 99, it will
          be set to 0.
   """  
+#
+#  Globals for random numbers.
+#
   global dfran_iseq
   dfran_iseq = seed
 #
+#  Check arguments.
+#
+  try:
+    alen = len(dims)
+  except:
+    print "generate_2d_array: first argument must be a list, tuple, or array having two elements specifying the dimensions of the output array."
+    return None
+  if (alen != 2):   
+    print "generate_2d_array: first argument must have two elements specifying the dimensions of the output array."
+    return None
+  if (int(dims[0]) <=1 and int(dims[1]) <=1):
+    print "generate_2d_array: array must have at least two elements."
+    return None
+  if (num_low < 1):
+    print "generate_2d_array: number of lows must be at least 1 - defaulting to 1."
+    num_low = 1
+  if (num_low > 25):
+    print "generate_2d_array: number of lows must be at most 25 - defaulting to 25."
+    num_high =25
+  if (num_high < 1):
+    print "generate_2d_array: number of highs must be at least 1 - defaulting to 1."
+    num_high = 1
+  if (num_high > 25):
+    print "generate_2d_array: number of highs must be at most 25 - defaulting to 25."
+    num_high =25
+  if (seed > 100 or seed < 0):
+    print "generate_2d_array: seed must be in the interval [0,100] - seed set to 0."
+    seed = 0
+#
 #  Dims are reversed in order to get the same results as the NCL function.
 #
-  nx = dims[1]
-  ny = dims[0]
+  nx = int(dims[1])
+  ny = int(dims[0])
   out_array = Numeric.zeros([nx,ny],Numeric.Float64)
   tmp_array = Numeric.zeros([3,51],Numeric.Float64)
   fovm = 9./float(nx)
