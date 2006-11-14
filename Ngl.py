@@ -5465,7 +5465,7 @@ res -- An (optional) instance of the Resources class having PyNGL
     elif (key[0:2] == "xy"):
       if (key[0:4] == "xyCo"):
         xy_rlist[key] = rlist[key]
-      if (key[0:4] == "xyCu"):
+      elif (key[0:4] == "xyCu"):
         xy_rlist[key] = rlist[key]
       elif (key[0:3] == "xyX"):
         xy_rlist[key] = rlist[key]
