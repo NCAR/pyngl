@@ -1977,11 +1977,13 @@ the vertices.
   return gc_tarea(lat1, lon1, lat2, lon2, lat3, lon3, radius=radius) +  \
          gc_tarea(lat1, lon1, lat3, lon3, lat4, lon4, radius=radius)
 
-def generate_2d_array(dims, num_low, num_high, minv, maxv, seed=0):
+def generate_2d_array(dims, num_low, num_high, minv, maxv, seed=0, \
+                      highs_at=None, lows_at=None):
   """
-Generate smooth 2D arrays primarily for use in examples.
+Generates smooth 2D arrays primarily for use in examples.
 
-array = generate_2d_array(dims, num_low, num_high, minv, maxv, seed=0)
+array = generate_2d_array(dims, num_low, num_high, minv, maxv, seed=0,
+                          highs_at=None, lows_at=None)
 
 dims -- a list (or array) containing the dimensions of the
         two-dimensional array to be returned.
@@ -1998,6 +2000,16 @@ minv, maxv -- The exact minimum and maximum values that the output array
 iseed -- an optional argument specifying a seed for the random number
          generator.  If iseed is outside the range 0 to 99, it will
          be set to 0.
+
+lows_at -- an optional argument that is a list of coordinate  
+           pairs specifying where the lows will occur.  If this
+           argument appears, then its length must equal num_low and
+           the coordinates must be in the ranges specified in dims.
+
+highs_at -- an optional argument that is a list of coordinate  
+            pairs specifying where the highs will occur.  If this
+            argument appears, then its length must equal num_high and
+            the coordinates must be in the ranges specified in dims.
   """  
 #
 #  Globals for random numbers.
@@ -2033,6 +2045,13 @@ iseed -- an optional argument specifying a seed for the random number
   if (seed > 100 or seed < 0):
     print "generate_2d_array: seed must be in the interval [0,100] - seed set to 0."
     seed = 0
+  if (lows_at != None):
+    if (len(lows_at) != num_low):
+      print "generate_2d_array: the list of positions for the lows must be the same size as num_low."
+  if (highs_at != None):
+    if (len(highs_at) != num_high):
+      print "generate_2d_array: the list of positions for the highs must be the same size as num_high."
+
 #
 #  Dims are reversed in order to get the same results as the NCL function.
 #
@@ -2045,38 +2064,49 @@ iseed -- an optional argument specifying a seed for the random number
   nlow = max(1,min(25,num_low))
   nhgh = max(1,min(25,num_high))
   ncnt = nlow + nhgh
+
 #
-  for k in xrange(ncnt):
-    tmp_array[0,k] = 1.+(float(nx)-1.)*dfran()
-    tmp_array[1,k] = 1.+(float(ny)-1.)*dfran()
-    if (k < num_low):
+  for k in xrange(num_low):
+    if (lows_at != None):
+      tmp_array[0,k] =  float(lows_at[k][1])   # lows at specified locations.
+      tmp_array[1,k] =  float(lows_at[k][0])
       tmp_array[2,k] = -1.
     else:
+      tmp_array[0,k] =  1.+(float(nx)-1.)*dfran() # lows at random locations.
+      tmp_array[1,k] =  1.+(float(ny)-1.)*dfran() # lows at random locations.
+      tmp_array[2,k] = -1.
+  for k in xrange(num_low,num_low+num_high):
+    if (highs_at != None):
+      tmp_array[0,k] =  float(highs_at[k-num_low][1])  # highs locations
+      tmp_array[1,k] =  float(highs_at[k-num_low][0])  # highs locations
       tmp_array[2,k] =  1.
-#
+    else:
+      tmp_array[0,k] =  1.+(float(nx)-1.)*dfran() # highs at random locations.
+      tmp_array[1,k] =  1.+(float(ny)-1.)*dfran() # highs at random locations.
+      tmp_array[2,k] =  1.
+  
   dmin =  1.e+36
   dmax = -1.e+36
+  midpt = 0.5*(minv + maxv)
   for j in xrange(ny):
     for i in xrange(nx):
-      out_array[i,j] = 0.5*(minv + maxv)
+      out_array[i,j] = midpt
       for k in xrange(ncnt):
-        tempi = (fovm*(float(i+1)-tmp_array[0,k]))
-        tempj = (fovn*(float(j+1)-tmp_array[1,k]))
+        tempi = fovm*(float(i+1)-tmp_array[0,k])
+        tempj = fovn*(float(j+1)-tmp_array[1,k])
         temp  = -(tempi*tempi + tempj*tempj)
         if (temp >= -20.):
           out_array[i,j] = out_array[i,j] +    \
-             0.5*(maxv-minv)*tmp_array[2,k]*math.exp(temp)
+             midpt*tmp_array[2,k]*math.exp(temp)
       dmin = min(dmin,out_array[i,j])
       dmax = max(dmax,out_array[i,j])
                    
-  for j in xrange(ny):
-    for i in xrange(nx):
-      out_array[i,j] = \
-        (((out_array[i,j]-dmin)/(dmax-dmin))*(maxv-minv))+minv
+  out_array = (((out_array-dmin)/(dmax-dmin))*(maxv-minv))+minv
 
   del tmp_array
 
   return Numeric.transpose(out_array,[1,0])
+
 
 def get_double(obj,name):
   return(NhlGetDouble(int_id(obj),name))
