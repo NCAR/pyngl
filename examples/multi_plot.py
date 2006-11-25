@@ -42,12 +42,17 @@
 #
 #  Import Numeric and the Masked Array module.
 #
-import Numeric,MA
+import Numeric
+#
+#  Import the Masked array module.
+#
+import MA
 
 #
 # Import Ngl and Nio for file I/O and graphics.
 #
-import Ngl, Nio
+import Ngl
+import Nio
 
 #
 #  Open the netCDF files, get variables, add cyclic points.
@@ -66,6 +71,8 @@ icem = a.variables["Icemask"][:,:]
 
 # Keep topo where icem.eq.1
 topo = MA.where(icem == 1, topo,1e20)
+# Convert to Numeric array
+topo = MA.filled(topo)
 topo,Lon = Ngl.add_cyclic(topo,Lon)
 
 sst       = b.variables["SST"][:,:]

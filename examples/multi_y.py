@@ -44,7 +44,6 @@
 #           the plot in 1.).
 #
 #  Notes:
-#    This examples requires the resource file multi_y.res.
 #     
 
 #

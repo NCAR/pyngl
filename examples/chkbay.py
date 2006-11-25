@@ -27,8 +27,6 @@
 #    o  Using a cylindrical equidistant map projection.
 #    o  How to select a map database resolution.
 #    o  How to use function codes in text strings.
-#    o  How to use a ".res" file to set resources
-#         such as foreground/background color and font.
 # 
 #  Output:
 #    Two visualizations are produced, the first
@@ -37,10 +35,7 @@
 #    Chesapeake Bay.
 #
 #  Notes:
-#    1.)  This example requires the resource file
-#         chkbay.res.
-#
-#    2.)  The grid definition and data came from the 
+#    1.)  The grid definition and data came from the 
 #         Chesapeake Community Model Program Quoddy model:
 #  
 #            http://ccmp.chesapeake.org
@@ -50,7 +45,7 @@
 #
 #            https://sourceforge.net/projects/oceanmodelfiles
 #
-#    3.)  If you want high resolution map coastlines you will
+#    2.)  If you want high resolution map coastlines you will
 #         need to download the appropriate data files, if you
 #         have not done so.  For details, see:
 #
@@ -146,11 +141,10 @@ resources.mpMinLatF             = ys     #  36.6342
 resources.mpMaxLatF             = ye     #  39.6212
 
 #
-# In the chkbay.res file, a resource is being set to indicate the "~"
-# character is to represent a function code. A function code signals an
-# operation you want to apply to the following text.  In this case,
-# ~H10Q~ inserts 10 horizontal spaces before the text, and ~C~ causes
-# a line feed (carriage return.
+# In PyNGL, the "~" character represents a function code. A function
+# code signals an operation you want to apply to the following text.
+# In this case, ~H10Q~ inserts 10 horizontal spaces before the text,
+# and ~C~ causes a line feed (carriage return).
 #
 
 resources.tiMainString       = "~H10Q~Chesapeake Bay~C~Bathymetry~H16Q~meters"

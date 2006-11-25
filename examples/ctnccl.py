@@ -33,9 +33,7 @@
 #    A single visualization is produced.
 #
 #  Notes:
-#    1.)  This example requires the resource file ctnccl.res.
-#
-#    2.)  The data is from the Naval Research Laboratory at the Stennis
+#    1.)  The data is from the Naval Research Laboratory at the Stennis
 #         Space Center. For more information about this grid, see the
 #         article "Application of a Shelf-Scale Model to Wave-Induced
 #         Circulation: Rip Currents" by Mark Cobb and Cheryl Ann Blain,
@@ -44,7 +42,7 @@
 #
 #           http://www.stormingmedia.us/30/3022/A302214.html.
 #
-#    3.)  If you want high resolution map coastlines you will
+#    2.)  If you want high resolution map coastlines you will
 #         need to download the appropriate data files, if you
 #         have not done so.  For details, see:
 #

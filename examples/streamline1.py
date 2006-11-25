@@ -33,7 +33,6 @@
 #      2.)  Same as 1.) with the cyclic points added.
 #
 #  Notes:
-#    This example requires the resource file streamline.res.
 #     
 
 #

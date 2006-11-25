@@ -44,7 +44,6 @@
 #           projection.
 #
 #  Notes:
-#    This example requires the resource file seam.res.
 #     
 
 #
