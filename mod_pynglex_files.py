@@ -4,11 +4,11 @@ import tempfile
 
 #
 # Modify the example sources appropriately if numpy support is
-# requested.  For all examples except "meteogram.py," "scatter1.py," 
-# and "ngl09p.py" this is just a matter of replacing "import Numeric"
-# with "import numpy as Numeric".  The cases of "meteogram.py"
-# and "ngl09p.py" are handled as special cases in the if block below; 
-# "scatter1.py" is then handled separately.
+# requested.  For all examples except for a few such as "meteogram.py,"
+# "scatter1.py," and "ngl09p.py" this is just a matter of replacing
+# "import Numeric" with "import numpy as Numeric".  The cases of
+# "meteogram.py" and "ngl09p.py" are handled as special cases in the if
+# block below; "scatter1.py" is then handled separately.
 #
 def modify_pynglex_files(files_to_modify):
 
@@ -27,6 +27,9 @@ def modify_pynglex_files(files_to_modify):
     elif (os.path.basename(fileinput.filename()) == "meteogram.py" and  \
       re.search("(ind_above_zero)",line) != None):
       print line.replace("(ind_above_zero)","(ind_above_zero[0])"),
+    elif (os.path.basename(fileinput.filename()) == "multi_plot.py" and     \
+        re.search("import MA",line) != None):
+      print line.replace("import MA","import numpy.core.ma as MA")
     elif (os.path.basename(fileinput.filename()) == "ngl09p.py" and     \
         re.search("import MA",line) != None):
       print line.replace("import MA","import numpy.core.ma as MA"),

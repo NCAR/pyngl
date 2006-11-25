@@ -396,8 +396,9 @@ for array_module in array_modules:
 # *.o files in a different directory, but I haven't found it yet.
 #
   if len(array_modules) > 1:
-    print "====> Removing build's *.o files..."
+    print "====> Removing build's *.o and *.so files..."
     os.system("find build -name '*.o' -exec /bin/rm {} \;")
+    os.system("find build -name '*.so' -exec /bin/rm {} \;")
 
 #----------------------------------------------------------------------
 #

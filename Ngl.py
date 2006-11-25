@@ -102,9 +102,12 @@ def is_list_or_tuple(arg):
   else:
     return False
   
-def  is_numerpy_array(arg):
+def is_numeric_array(arg):
   if (HAS_NUM == 1 and type(arg) == type(Numeric.array([0],Numeric.Int0))):
     return True
+  return False
+
+def is_numpy_array(arg):
   if (HAS_NUM == 2):
     try:
       if (type(arg) == type(Numeric.array([0],Numeric.Int0))):
@@ -112,6 +115,13 @@ def  is_numerpy_array(arg):
     except:
       if (type(arg) == type(Numeric.array([0],Numeric.int))):
         return True
+  return False
+
+def is_numerpy_array(arg):
+  if is_numeric_array(arg):
+    return True
+  if is_numpy_array(arg):
+    return True
   return False
 
 def is_scalar(arg):
@@ -1098,6 +1108,162 @@ longitude -- An optional one-dimensional array, representing
     return newdata,newloncoord
   else:
     return newdata
+
+#
+# In order to change the axes limits for the case where sfXArray and/or
+# sfYArray are being set to arrays, you need to create a new data array
+# that has one extra element on the axis side you want to change the
+# limit for.
+#
+# This function checks which axes limits are to be changed, and creates
+# new data and coord arrays with the extra element(s) added. The data
+# array must have a missing value associated with it.
+
+def change_coord_limits(data,fillvalue,xcoord=None,ycoord=None, \
+                        xmin=None,xmax=None,ymin=None,ymax=None):
+  """
+Changes the minimum and/or maximum limits of X and/or Y coordinate arrays
+and creates a new data array and new coordinate array(s).
+
+new_data,new_xcoord,new_ycoord = Ngl.change_coord_limits(data,fillvalue,
+                                      xcoord=None,ycoord=None, 
+                                      xmin=None,xmax=None,ymin=None,ymax=None)
+
+data -- A two-dimensional array that will be used to create a new
+        data array to which you want to add new minimum and/or maximum
+        values to the X and/or Y coordinate arrays.
+
+fillvalue = The value to use for missing values in data.
+
+xcoord,ycoord -- Optional coordinate arrays for the X or Y axes. At
+                 least one of these must be set.
+
+xmin,xmax -- Optional new minimum or maximum values for the X coordinate
+             array. At least one of these must be set if xcoord is set.
+
+ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
+             array. At least one of these must be set if ycoord is set.
+
+  """
+
+  if (len(data.shape) != 2):
+    print "change_coord_limits - array must be 2D"
+    sys.exit()
+
+#
+# Check for whether one or both elements of X and/or Y arrays are to
+# be added.
+#
+  if xcoord == None and ycoord == None:
+    print "change_coord_limits: At least one of xcoord and/or ycoord must be set to an array"
+    sys.exit()
+
+  nx       = data.shape[1]
+  ny       = data.shape[0]
+  ix_start = 0
+  iy_start = 0
+  ix_end   = nx
+  iy_end   = ny
+
+  new_nx = nx
+  new_ny = ny
+
+  if xcoord != None:
+    if (len(xcoord.shape) != 1):
+      print "change_coord_limits - X coord array must be 1D"
+      sys.exit()
+
+    if xmin == None and xmax == None:
+      print "change_coord_limits: If xcoord is specified, then one of xmin, xmax must be specified"
+      sys.exit()
+    if xcoord.shape[0] != nx:
+      print "change_coord_limits: xcoord must be the same length as the second dimension of data"
+      sys.exit()
+#
+# Test if one or two elements are to be added.
+#
+    if xmin != None:
+      ix_start = 1
+      new_nx   = new_nx + 1
+    ix_end = nx + ix_start
+
+    if xmax != None:
+      new_nx   = new_nx + 1
+
+  if ycoord != None:
+    if (len(ycoord.shape) != 1):
+      print "change_coord_limits - Y coord array must be 1D"
+      sys.exit()
+
+    if ymin == None and ymax == None:
+      print "change_coord_limits: If ycoord is specified, then one of ymin, ymax must be specified"
+      sys.exit()
+
+    if ycoord.shape[0] != ny:
+      print "change_coord_limits: ycoord must be the same length as the first dimension of data"
+      sys.exit()
+#
+# Test if one or two elements are to be added.
+#
+    if ymin != None:
+      iy_start = 1
+      new_ny   = new_ny + 1
+
+    iy_end = ny + iy_start
+
+    if ymax != None:
+      new_ny = new_ny + 1
+
+#
+# Create new arrays.
+#
+  if (HAS_NUM == 1):
+    new_data = Numeric.zeros((new_ny,new_nx),data.typecode())
+    if xcoord != None:
+      new_xcoord = Numeric.zeros(new_nx,xcoord.typecode())
+    if ycoord != None:
+      new_ycoord = Numeric.zeros(new_ny,ycoord.typecode())
+  elif (HAS_NUM == 2):
+    new_data     = Numeric.zeros((new_ny,new_nx),data.dtype.char)
+    if xcoord != None:
+      new_xcoord = Numeric.zeros(new_nx,xcoord.dtype.char)
+    if ycoord != None:
+      new_ycoord = Numeric.zeros(new_ny,ycoord.dtype.char)
+# 
+# Fill the new data array with the original values, and missing
+# values everywhere else.
+#
+# If fillvalue is a Numeric array, we have to subscript it.
+#
+  if is_numeric_array(fillvalue):
+    new_data[:,:] = fillvalue[0]
+  else:
+    new_data[:,:] = fillvalue
+  new_data[iy_start:iy_end,ix_start:ix_end] = data[:,:]
+
+#
+# Fill in the new coordinate arrays.
+#
+  if xcoord != None:
+    new_xcoord[ix_start:ix_end] = xcoord
+    if xmin != None:
+       new_xcoord[0] = xmin
+    if xmax != None:
+      new_xcoord[ix_end] = xmax
+
+  if ycoord != None:
+    new_ycoord[iy_start:iy_end] = ycoord
+    if ymin != None:
+       new_ycoord[0] = ymin
+    if ymax != None:
+      new_ycoord[iy_end] = ymax
+
+  if xcoord != None and ycoord != None:
+    return new_data, new_xcoord, new_ycoord
+  elif xcoord != None:
+    return new_data, new_xcoord
+  else:
+    return new_data, new_ycoord
 
 def add_polygon(wks,plot,x,y,rlistc=None):
   """
@@ -2568,7 +2734,12 @@ cmap2 -- A second n x 3 array of RGB triplets, or a predefined colormap name.
 #
 # Merge two colormaps into one.
 #
-  new_cmap = Numeric.zeros((ncmap1+ncmap2,3),rgb_cmap1.typecode())
+
+  if (HAS_NUM == 1):
+    new_cmap = Numeric.zeros((ncmap1+ncmap2,3),rgb_cmap1.typecode())
+  elif (HAS_NUM == 2):
+    new_cmap = Numeric.zeros((ncmap1+ncmap2,3),rgb_cmap1.dtype.char)
+
   new_cmap[:ncmap1,:] = rgb_cmap1
   new_cmap[ncmap1:,:] = rgb_cmap2
   
