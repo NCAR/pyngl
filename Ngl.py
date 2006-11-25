@@ -1110,22 +1110,22 @@ longitude -- An optional one-dimensional array, representing
     return newdata
 
 #
-# In order to change the axes limits for the case where sfXArray and/or
+# In order to add new axes limits for the case where sfXArray and/or
 # sfYArray are being set to arrays, you need to create a new data array
-# that has one extra element on the axis side you want to change the
-# limit for.
+# that has one extra element on the axis side you want to add the new
+# limit value(s) for.
 #
 # This function checks which axes limits are to be changed, and creates
 # new data and coord arrays with the extra element(s) added. The data
 # array must have a missing value associated with it.
 
-def change_coord_limits(data,fillvalue,xcoord=None,ycoord=None, \
-                        xmin=None,xmax=None,ymin=None,ymax=None):
+def add_new_coord_limits(data,fillvalue,xcoord=None,ycoord=None, \
+                         xmin=None,xmax=None,ymin=None,ymax=None):
   """
 Changes the minimum and/or maximum limits of X and/or Y coordinate arrays
 and creates a new data array and new coordinate array(s).
 
-new_data,new_xcoord,new_ycoord = Ngl.change_coord_limits(data,fillvalue,
+new_data,new_xcoord,new_ycoord = Ngl.add_new_coord_limits(data,fillvalue,
                                       xcoord=None,ycoord=None, 
                                       xmin=None,xmax=None,ymin=None,ymax=None)
 
@@ -1147,7 +1147,7 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
   """
 
   if (len(data.shape) != 2):
-    print "change_coord_limits - array must be 2D"
+    print "add_new_coord_limits - array must be 2D"
     sys.exit()
 
 #
@@ -1155,7 +1155,7 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
 # be added.
 #
   if xcoord == None and ycoord == None:
-    print "change_coord_limits: At least one of xcoord and/or ycoord must be set to an array"
+    print "add_new_coord_limits: At least one of xcoord and/or ycoord must be set to an array"
     sys.exit()
 
   nx       = data.shape[1]
@@ -1170,14 +1170,14 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
 
   if xcoord != None:
     if (len(xcoord.shape) != 1):
-      print "change_coord_limits - X coord array must be 1D"
+      print "add_new_coord_limits - X coord array must be 1D"
       sys.exit()
 
     if xmin == None and xmax == None:
-      print "change_coord_limits: If xcoord is specified, then one of xmin, xmax must be specified"
+      print "add_new_coord_limits: If xcoord is specified, then one of xmin, xmax must be specified"
       sys.exit()
     if xcoord.shape[0] != nx:
-      print "change_coord_limits: xcoord must be the same length as the second dimension of data"
+      print "add_new_coord_limits: xcoord must be the same length as the second dimension of data"
       sys.exit()
 #
 # Test if one or two elements are to be added.
@@ -1192,15 +1192,15 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
 
   if ycoord != None:
     if (len(ycoord.shape) != 1):
-      print "change_coord_limits - Y coord array must be 1D"
+      print "add_new_coord_limits - Y coord array must be 1D"
       sys.exit()
 
     if ymin == None and ymax == None:
-      print "change_coord_limits: If ycoord is specified, then one of ymin, ymax must be specified"
+      print "add_new_coord_limits: If ycoord is specified, then one of ymin, ymax must be specified"
       sys.exit()
 
     if ycoord.shape[0] != ny:
-      print "change_coord_limits: ycoord must be the same length as the first dimension of data"
+      print "add_new_coord_limits: ycoord must be the same length as the first dimension of data"
       sys.exit()
 #
 # Test if one or two elements are to be added.

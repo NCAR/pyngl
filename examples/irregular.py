@@ -30,7 +30,8 @@
 #    o Using the resource "trYReverse" to show how to reverse 
 #      an axis.
 #    o Setting missing values.
-#    o Using Ngl.change_coord_limits to change limits of an irregular axis.
+#    o Using Ngl.add_new_coord_limits to add new limits to coordinate
+#      arrays of an irregular axis.
 # 
 #  Output:
 #    Seven contour visualizations showing:
@@ -127,7 +128,7 @@ plot = Ngl.contour(wks,T,resources)
 # Set new max limit for Y axis so we can get some white space at
 # the top of the plot.
 #
-Tnew,z_t_new = Ngl.change_coord_limits(T,Tmsg,ycoord=z_t,ymax=5000)
+Tnew,z_t_new = Ngl.add_new_coord_limits(T,Tmsg,ycoord=z_t,ymax=5000)
 resources.sfYArray     = z_t_new
 resources.tiMainString = "New max limit for Y axis"
 
@@ -138,10 +139,10 @@ plot = Ngl.contour(wks,Tnew,resources)
 # space at the top, right, and left of the plot.
 #
 
-Tnew,lat_t_new,z_t_new = Ngl.change_coord_limits(T,Tmsg,xcoord=lat_t,
-                                                 ycoord=z_t,
-                                                 ymin=0,ymax=5000,
-                                                 xmin=-40,xmax=40)
+Tnew,lat_t_new,z_t_new = Ngl.add_new_coord_limits(T,Tmsg,xcoord=lat_t,
+                                                  ycoord=z_t,
+                                                  ymin=0,ymax=5000,
+                                                  xmin=-40,xmax=40)
 resources.sfYArray     = z_t_new
 resources.sfXArray     = lat_t_new
 resources.tiMainString = "New min/max limits for X and Y axes"
