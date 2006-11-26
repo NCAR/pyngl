@@ -44,6 +44,8 @@
 #      7.) Y axis displayed on a log scale
 #
 #  Notes:
+#    This example was updated December 2006 to include frames 4 and 5.
+#    It will only work with PyNGL version 1.2.0 or greater.
 #
 
 #
