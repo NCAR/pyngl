@@ -5,7 +5,7 @@ Python package for producing publication-quality 2D visualizations.
 PyNIO is a Python module that allows read and/or write access to a
 variety of data formats (netCDF, GRIB1, HDF4, HDF-EOS2, CCM History
 tape) using an interface modelled on netCDF.  This module is part of
-PyNGL version 1.1.0.
+PyNGL version 1.2.0.
 
 PyNGL and PyNIO are available with Numeric or NumPy support, and are
 distributed as separate packages.  You can install both versions on
