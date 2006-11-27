@@ -64,17 +64,6 @@ import Nio
 import Ngl
 
 #
-# In order to change the axes limits for the case where sfXArray and/or
-# sfYArray are being set to arrays, you need to create a new data array
-# that has one extra element on the axis side you want to change the
-# limit for.
-#
-# This function checks which axes limits are to be changed, and creates
-# new data and coord arrays with the extra element(s) added. The data
-# array must have a missing value associated with it.
-
-
-#
 #  Open a netCDF file and get some data..
 #
 data_dir = Ngl.pynglpath("data")
