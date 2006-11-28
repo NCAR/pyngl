@@ -43,10 +43,6 @@
 #  Import Numeric and the Masked Array module.
 #
 import Numeric
-#
-#  Import the Masked array module.
-#
-import MA
 
 #
 # Import Ngl and Nio for file I/O and graphics.
@@ -70,9 +66,9 @@ Lon  = a.variables["Lon"][:]
 icem = a.variables["Icemask"][:,:]
 
 # Keep topo where icem.eq.1
-topo = MA.where(icem == 1, topo,1e20)
-# Convert to Numeric array
-topo = MA.filled(topo)
+topo = Numeric.where(icem == 1, topo,1e20)
+
+# Add longitude cyclic point
 topo,Lon = Ngl.add_cyclic(topo,Lon)
 
 sst       = b.variables["SST"][:,:]
