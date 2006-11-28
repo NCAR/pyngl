@@ -27,9 +27,6 @@ def modify_pynglex_files(files_to_modify):
     elif (os.path.basename(fileinput.filename()) == "meteogram.py" and  \
       re.search("(ind_above_zero)",line) != None):
       print line.replace("(ind_above_zero)","(ind_above_zero[0])"),
-    elif (os.path.basename(fileinput.filename()) == "multi_plot.py" and     \
-        re.search("import MA",line) != None):
-      print line.replace("import MA","import numpy.core.ma as MA")
     elif (os.path.basename(fileinput.filename()) == "ngl09p.py" and     \
         re.search("import MA",line) != None):
       print line.replace("import MA","import numpy.core.ma as MA"),
