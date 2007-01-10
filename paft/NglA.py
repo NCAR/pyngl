@@ -1,3 +1,9 @@
+import paf_version
+__version__              = paf_version.version
+__array_module__         = paf_version.array_module
+__array_module_version__ = paf_version.array_module_version
+HAS_NUM                  = paf_version.HAS_NUM
+
 import fplib
 
 #

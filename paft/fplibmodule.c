@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <Numeric/arrayobject.h>
-#include "Error.h"
+#include <ncarg/hlu/Error.h>
 
 extern void NGCALLF(dlinmsg,DLINMSG)(double *,int *,double *,int *, int *);
 extern void NGCALLF(chisub,CHISUB)(double *, double *, double *);
