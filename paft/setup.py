@@ -188,6 +188,19 @@ for array_module in array_modules:
   paf_dir       = os.path.join(pkgs_pth, paf_pkg_name)
 
 #
+# This seems kludgy to me, but I need to make sure that if both 
+# numpy and Numeric versions of PAF are being built, we clean
+# the *.o files beforehand. This is because "setup" puts the *.o files
+# in the same location (build/temp.xxxx/.) every time, regardless of which
+# package we're building. Maybe there's a way to tell setup to put the
+# *.o files in a different directory, but I haven't found it yet.
+#
+  if len(array_modules) > 1:
+    print "====> Removing build's *.o and *.so files..."
+    os.system("find build -name '*.o' -exec /bin/rm {} \;")
+    os.system("find build -name '*.so' -exec /bin/rm {} \;")
+
+#
 # Get version number.
 #
   if os.path.exists(paf_vfile):
