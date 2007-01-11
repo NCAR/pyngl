@@ -1,7 +1,13 @@
 #include "Python.h"
 #include <stdio.h>
 #include <string.h>
+
+#ifdef USE_NUMPY
+#include <numpy/arrayobject.h>
+#else
 #include <Numeric/arrayobject.h>
+#endif
+
 #include <ncarg/hlu/Error.h>
 
 extern void NGCALLF(dlinmsg,DLINMSG)(double *,int *,double *,int *, int *);
