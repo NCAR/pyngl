@@ -61,10 +61,10 @@ def get_ma_fill_value(arr):
 def chiinv(x,y):
   return fplib.chiinv(x,y)
 
-def linmsg(x, opt=0, fill_value=1.e20):
+def linmsg(x, end_pts=0, max_msg="MAX", fill_value=1.e20):
   type, fv = get_ma_fill_value(x)
   if (fv != None):
-    aret = fplib.linmsg(x.filled(fv),opt,fv)
+    aret = fplib.linmsg(x.filled(fv), end_pts, max_msg, fv)
     if (type == "MA"):
       import MA
       return MA.array(aret, fill_value=fv)
@@ -72,5 +72,5 @@ def linmsg(x, opt=0, fill_value=1.e20):
       import numpy.core.ma
       return numpy.core.ma.array(aret, fill_value=fv)
   else:
-    return fplib.linmsg(x,opt,fill_value)
+    return fplib.linmsg(x,end_pts,max_msg,fill_value)
 

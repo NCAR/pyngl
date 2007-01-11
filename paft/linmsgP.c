@@ -1,7 +1,7 @@
 PyObject *fplib_linmsg(PyObject *self, PyObject *args)
 {
   PyObject *xar = NULL;
-  PyObject *opt = NULL;
+  PyObject *max_msg = NULL;
   double fill_value;
 
 /*
@@ -20,7 +20,8 @@ PyObject *fplib_linmsg(PyObject *self, PyObject *args)
 /*
  *  Retrieve arguments.
  */
-  if (!PyArg_ParseTuple(args, "OOd:linmsg", &xar, &opt, &fill_value)) {
+  if (!PyArg_ParseTuple(args, "OiOd:linmsg", &xar, &nflag, 
+                          &max_msg, &fill_value)) {
     printf("linmsg: argument parsing failed\n");
     Py_INCREF(Py_None);
     return Py_None;
@@ -40,22 +41,21 @@ PyObject *fplib_linmsg(PyObject *self, PyObject *args)
   npts = dsizes_x[ndims_x-1];
 
 /*
- *  Determine if the "opt" argument is a list or scalar and
- *  set flags accordingly.
+ *  Check on max_msg.  If it is any string, then set mflag to npts,
+ *  otherwise max_msg must be an integer in which case set
+ *  mflag to that.
  */
-  if (PyList_Check(opt)) {
-    nflag = (int) (PyInt_AsLong(PyList_GetItem(opt,0)));
-    mflag = (int) (PyInt_AsLong(PyList_GetItem(opt,1)));
+  if (PyString_Check(max_msg)) {
+    mflag = npts;     
   }
-  else if (PyInt_Check(opt)) {
-    nflag = (int) (PyInt_AsLong(opt));
-    mflag = npts;
+  else if (PyInt_Check(max_msg)) {
+    mflag = (int) (PyInt_AsLong(max_msg));
   }
   else {
-    printf("linmsg: opt argument must be an integer or a list.\n");
+    printf("linmsg: max_msg must be default or an integer\n");
     Py_INCREF(Py_None);
     return Py_None;
-  } 
+  }
 
 /*
  *  Compute total size of output array and allocate space
