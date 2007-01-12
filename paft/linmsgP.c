@@ -1,7 +1,6 @@
 PyObject *fplib_linmsg(PyObject *self, PyObject *args)
 {
   PyObject *xar = NULL;
-  PyObject *max_msg = NULL;
   double fill_value;
 
 /*
@@ -12,7 +11,7 @@ PyObject *fplib_linmsg(PyObject *self, PyObject *args)
  *  Other variables
  */
   int i, index_x, npts, total_size_x, total_size_x1;
-  int ndims_x, *dsizes_x, mflag, nflag;
+  int ndims_x, *dsizes_x, mflag, nflag, max_msg;
   double *x;
 
   PyArrayObject *arr;
@@ -20,7 +19,7 @@ PyObject *fplib_linmsg(PyObject *self, PyObject *args)
 /*
  *  Retrieve arguments.
  */
-  if (!PyArg_ParseTuple(args, "OiOd:linmsg", &xar, &nflag, 
+  if (!PyArg_ParseTuple(args, "Oiid:linmsg", &xar, &nflag, 
                           &max_msg, &fill_value)) {
     printf("linmsg: argument parsing failed\n");
     Py_INCREF(Py_None);
@@ -41,20 +40,14 @@ PyObject *fplib_linmsg(PyObject *self, PyObject *args)
   npts = dsizes_x[ndims_x-1];
 
 /*
- *  Check on max_msg.  If it is any string, then set mflag to npts,
- *  otherwise max_msg must be an integer in which case set
- *  mflag to that.
+ *  Check on max_msg.  If it is zero, then set mflag to the
+ *  maximum.
  */
-  if (PyString_Check(max_msg)) {
+  if (max_msg == 0) {
     mflag = npts;     
   }
-  else if (PyInt_Check(max_msg)) {
-    mflag = (int) (PyInt_AsLong(max_msg));
-  }
   else {
-    printf("linmsg: max_msg must be default or an integer\n");
-    Py_INCREF(Py_None);
-    return Py_None;
+    mflag = max_msg;
   }
 
 /*

@@ -149,10 +149,31 @@ def get_ma_fill_value(arr):
 def chiinv(x,y):
   return fplib.chiinv(x,y)
 
-def linmsg(x, end_pts=0, max_msg="MAX", fill_value=1.e20):
+def linmsg(x, end_pts_msg=0, max_msg=None, fill_value=1.e20):
+#
+#  If max_msg is the default, then set it to "0" which will
+#  be interpreted in the extension module to be the maximum.
+#
+  if (max_msg == None):
+    max_msg = 0
+#
+#  If end_pts_msg is 0, then end points that are missing values 
+#  are returned as missing; if 1, then nearest non-missing value
+#  is used.  If end_pts_msg is set to 1 here, the value passed
+#  to the extension module is -1, since that is what the Fortran
+#  function wants.
+#
+  if (end_pts_msg == 1):
+    end_pts_msg = -1
+
+#
+#  If input array is a Numeric masked array then return a Numeric
+#  masked array; if numpy masked array, return a numpy masked array.
+#  Otherwise missing values are dealt with using the fill_value.
+#
   type, fv = get_ma_fill_value(x)
   if (fv != None):
-    aret = fplib.linmsg(x.filled(fv), end_pts, max_msg, fv)
+    aret = fplib.linmsg(x.filled(fv), end_pts_msg, max_msg, fv)
     if (type == "MA"):
       import MA
       return MA.array(aret, fill_value=fv)
@@ -160,5 +181,5 @@ def linmsg(x, end_pts=0, max_msg="MAX", fill_value=1.e20):
       import numpy.core.ma
       return numpy.core.ma.array(aret, fill_value=fv)
   else:
-    return fplib.linmsg(x,end_pts,max_msg,fill_value)
+    return fplib.linmsg(x,end_pts_msg,max_msg,fill_value)
 
