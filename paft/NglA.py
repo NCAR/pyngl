@@ -123,3 +123,26 @@ def linmsg(x, end_pts_msg=0, max_msg=None, fill_value=1.e20):
   else:
     return fplib.linmsg(x,end_pts_msg,max_msg,fill_value)
 
+def regline(x, y, fill_value_x=1.e20, fill_value_y=1.e20, 
+                    return_attributes=True):
+  type_x, fv_x = get_ma_fill_value(x)
+  type_y, fv_y = get_ma_fill_value(y)
+  if (fv_x != None or fv_y != None):
+    aret = fplib.regline(x.filled(fv_x), y.filled(fv_y), fv_x, fv_y)
+    if (type_x == "MA"):
+      import MA
+      if (return_attributes == True):
+       return MA.array(aret, fill_value=fv_y)
+      else:
+       return aret[0]
+    elif (type_x == "num"):
+      import numpy.core.ma
+      if (return_attributes == True):
+        return numpy.core.ma.array(aret, fill_value=fv_y)
+      else:
+        return aret[0]
+  else:
+    if (return_attributes == True): 
+      return fplib.regline(x,y,fill_value_x,fill_value_y)
+    else:
+      return aret[0]
