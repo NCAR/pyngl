@@ -14,11 +14,30 @@ import NglA, MA
 #
 print "chiinv (float input)"
 print "--------------------"
-print NglA.chiinv(0.99,2.0)
+chi = NglA.chiinv(0.99,2.0)
+print chi,type(chi)
 
 print "\nchiinv (int input)"
 print "------------------"
-print NglA.chiinv(0.99,2)
+chi = NglA.chiinv(0.99,2)
+print chi,type(chi)
+
+#
+# Note, the following won't work:
+#
+# chi = NglA.chiinv(0.99,[2])
+#
+# because the two input arguments are not considered the same size.
+#
+print "\nchiinv (list input)"
+print "--------------------"
+chi = NglA.chiinv([0.99],[2])
+print chi,type(chi)
+
+print "\nchiinv (tuple input)"
+print "---------------------"
+chi = NglA.chiinv((0.99),(2))
+print chi,type(chi)
 
 #
 #  linmsg

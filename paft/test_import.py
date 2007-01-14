@@ -29,3 +29,8 @@ test_modules("import numpy,import MA")
 
 sys.modules.pop("numpy")
 test_modules("import MA only")
+
+sys.modules.pop("MA")
+sys.modules.pop("Numeric")
+import MA as ma
+test_modules("import MA as ma")
