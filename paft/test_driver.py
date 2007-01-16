@@ -96,7 +96,19 @@ x = MA.array([1190., 1455., 1550., 1730., 1745., 1770., \
 y = MA.array([1115., 1425., 1515., 1795., 1715., 1710., \
               1830., 1920., 1970., 2300., 2280., 2520., \
               2630., 2740., 2390., 2800., 2630., 2970.])
-print "\nregline (array input)"
-print "---------------------"
+print "\nregline (array input with attributes returned)"
+print "----------------------------------------------"
 rval = NglA.regline(x,y)
-print rval
+print "rval =",rval
+
+print "\nregline (array input, attributes returned in own variable)"
+print "----------------------------------------------------------"
+rval,att = NglA.regline(x,y)
+print "rval =",rval
+print "att =",att
+
+print "\nregline (array input, attributes NOT returned)"
+print "----------------------------------------------"
+rval = NglA.regline(x,y,return_attributes=False)
+print "rval =",rval
+
