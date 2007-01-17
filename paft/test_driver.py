@@ -103,12 +103,12 @@ print "rval =",rval
 
 print "\nregline (array input, attributes returned in own variable)"
 print "----------------------------------------------------------"
-rval,att = NglA.regline(x,y)
+rval,fill_value,att = NglA.regline(x,y)
 print "rval =",rval
+print "fill_value =",fill_value
 print "att =",att
 
 print "\nregline (array input, attributes NOT returned)"
 print "----------------------------------------------"
 rval = NglA.regline(x,y,return_attributes=False)
 print "rval =",rval
-

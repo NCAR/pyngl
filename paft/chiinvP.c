@@ -75,4 +75,3 @@ PyObject *fplib_chiinv(PyObject *self, PyObject *args)
   PyArray_Return(aret);
    
 }
-

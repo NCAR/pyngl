@@ -7,15 +7,11 @@ PyObject *fplib_regline(PyObject *self, PyObject *args)
   double fill_value_x, fill_value_y;
 
 /*
- * Output array variables
+ * Output variables
  */
   double rcoef, tval, rstd, xave, yave, yint;
   int nptxy, ier = 0;
-  PyObject *pdict, *rc;
-
-/*
- *  Output variable.
- */
+  PyObject *pdict, *rc, *fill_value, *result;
   int npts, dsizes_x[1], dsizes_y[1];
 
 /*
@@ -81,8 +77,11 @@ PyObject *fplib_regline(PyObject *self, PyObject *args)
 /*
  *  Create return tuple.
  */
+  rc = PyFloat_FromDouble(rcoef);
+
+  fill_value = PyFloat_FromDouble(fill_value_y);
+  
   pdict = PyDict_New();
-  PyDict_SetItem(pdict, PyString_FromString("fill_value"), PyFloat_FromDouble(fill_value_y));
   PyDict_SetItem(pdict, PyString_FromString("tval"), PyFloat_FromDouble(tval));
   PyDict_SetItem(pdict, PyString_FromString("xave"), PyFloat_FromDouble(xave));
   PyDict_SetItem(pdict, PyString_FromString("yave"), PyFloat_FromDouble(yave));
@@ -91,8 +90,7 @@ PyObject *fplib_regline(PyObject *self, PyObject *args)
   PyDict_SetItem(pdict, PyString_FromString("yintercept"), PyFloat_FromDouble(yint));
 
 /*
- *  pdict = Py_BuildValue("{s:f, s:f, s:f, s:f, s:f, s:i, s:f}",  
- *                 "fill_value",fill_value_y, 
+ *  pdict = Py_BuildValue("{s:f, s:f, s:f, s:f, s:i, s:f}",  
  *                 "tval",tval, 
  *                 "xave",xave, 
  *                 "yave",yave, 
@@ -100,7 +98,10 @@ PyObject *fplib_regline(PyObject *self, PyObject *args)
  *                 "nptxy",nptxy, 
  *                 "yintercept",yint);
  */
-
-  rc = PyFloat_FromDouble(rcoef);
-  return t_output_helper(rc,pdict);
+  result = Py_None;
+  result = t_output_helper(result,rc);
+  result = t_output_helper(result,fill_value);
+  result = t_output_helper(result,pdict);
+  if (result == Py_None) Py_INCREF(Py_None);
+  return result;
 }
