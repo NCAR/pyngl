@@ -4,14 +4,14 @@ PyObject *fplib_chiinv(PyObject *self, PyObject *args)
   PyObject *obj2 = NULL ;
 
   int i, tsize, ndims_p, ndims_df, *len_dims_p, *len_dims_df;
-  double *p, *df, *rval, *tmp_chi, fill=-999.;
+  double *p, *df, *rval, *tmp_chi;
  
   PyArrayObject *arr, *aret;
 
 /*
  *  Retrieve arguments.
  */
-  if (!PyArg_ParseTuple(args,(char *)"OO|d:chiinv",&obj1,&obj2,&fill)) {
+  if (!PyArg_ParseTuple(args,(char *)"OO:chiinv",&obj1,&obj2)) {
     printf("chiinv: argument parsing failed\n");
     return Py_None;
   }
