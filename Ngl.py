@@ -2223,12 +2223,8 @@ highs_at -- an optional argument that is a list of coordinate
 #
   nx = int(dims[1])
   ny = int(dims[0])
-  if (HAS_NUM == 1):
-    out_array = Numeric.zeros([nx,ny],Numeric.Float64)
-    tmp_array = Numeric.zeros([3,51],Numeric.Float64)
-  else:
-    out_array = Numeric.zeros([nx,ny],Numeric.float64)
-    tmp_array = Numeric.zeros([3,51],Numeric.float64)
+  out_array = Numeric.zeros([nx,ny],'f')
+  tmp_array = Numeric.zeros([3,51],'f')
   fovm = 9./float(nx)
   fovn = 9./float(ny)
   nlow = max(1,min(25,num_low))
