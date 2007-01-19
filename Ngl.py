@@ -37,7 +37,7 @@ if HAS_NUM == 2:
   except ImportError:
     print 'Cannot find numpy, cannot proceed.'
     print 'Perhaps you need to install the Numeric version of PyNGL instead.'
-    exit
+    sys.exit()
 else:
   try:
     import Numeric
@@ -53,7 +53,7 @@ else:
   except ImportError:
     print 'Cannot find Numeric, cannot proceed'
     print 'Perhaps you need to install the numpy version of PyNGL instead.'
-    exit
+    sys.exit()
 
 from hlu import *
 import hlu

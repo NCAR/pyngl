@@ -1,3 +1,4 @@
+import sys
 import paf_version
 __version__              = paf_version.version
 __array_module__         = paf_version.array_module
@@ -33,7 +34,7 @@ if HAS_NUM == 2:
       recommend_numeric = True
     except ImportError:
       print 'Cannot find Numeric either, cannot proceed.'
-      exit
+      sys.exit()
 else:
   try:
     import Numeric
@@ -46,7 +47,7 @@ else:
       import numpy
     except ImportError:
       print 'Cannot find numpy either, cannot proceed.'
-      exit
+      sys.exit()
 
 #
 #  get_ma_fill_value(arr)

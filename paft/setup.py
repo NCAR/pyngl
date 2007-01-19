@@ -86,7 +86,7 @@ elif HAS_NUM == 1:
   array_modules = ['Numeric']
 else:
   print "Cannot find Numeric or numpy; good-bye!"
-  exit
+  sys.exit()
 
 #
 # Initialize some variables.
