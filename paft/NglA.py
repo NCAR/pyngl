@@ -247,7 +247,7 @@ def linmsg(x, end_pts_msg=0, max_msg=None, fill_value=1.e20):
       import numpy.core.ma
       return numpy.core.ma.array(aret, fill_value=fv)
   else:
-    return fplib.linmsg(x,end_pts_msg,max_msg,fill_value)
+    return fplib.linmsg(promote_scalar(x),end_pts_msg,max_msg,fill_value)
 
 def regline(x, y, fill_value_x=1.e20, fill_value_y=1.e20, 
                     return_info=True):
