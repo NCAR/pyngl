@@ -253,22 +253,39 @@ def regline(x, y, fill_value_x=1.e20, fill_value_y=1.e20,
                     return_info=True):
   type_x, fv_x = get_ma_fill_value(x)
   type_y, fv_y = get_ma_fill_value(y)
-  if (fv_x != None or fv_y != None):
-    aret = fplib.regline(x.filled(fv_x), y.filled(fv_y), fv_x, fv_y)
-    if (type_x == "MA"):
-      import MA
-      if (return_info == True):
-       return MA.array(aret, fill_value=fv_y)
-      else:
-       return aret[0]
-    elif (type_x == "num"):
-      import numpy.core.ma
-      if (return_info == True):
-        return numpy.core.ma.array(aret, fill_value=fv_y)
-      else:
-        return aret[0]
-  else:
+#
+#  x and y both masked arrays.
+#
+  if (fv_x != None and fv_y != None):
+    result = fplib.regline(x.filled(fv_x), y.filled(fv_y), fv_x, fv_y)
     if (return_info == True): 
-      return fplib.regline(x,y,fill_value_x,fill_value_y)
+      return result
     else:
-      return aret[0]
+      return result[0]
+#
+#  x is a masked array, y is not.
+#
+  elif (fv_x != None and fv_y == None):
+    result = fplib.regline(x.filled(fv_x), y, fv_x, fill_value_y)
+    if (return_info == True): 
+      return result
+    else:
+      return result[0]
+#
+#  x is not a masked array, y is.
+#
+  elif (fv_x == None and fv_y != None):
+    result = fplib.regline(x, y.filled(fv_y), fill_value_x, fv_y)
+    if (return_info == True): 
+      return result
+    else:
+      return result[0]
+#
+#  Neither x nor y is a masked array.
+#
+  else:
+    result = fplib.regline(x,y,fill_value_x,fill_value_y)
+    if (return_info == True): 
+      return result
+    else:
+      return result[0]
