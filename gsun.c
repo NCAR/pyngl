@@ -1688,6 +1688,8 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
   else if(!strcmp(type,"ps")   || !strcmp(type,"PS") || 
           !strcmp(type,"eps")  || !strcmp(type,"EPS") || 
           !strcmp(type,"epsi") || !strcmp(type,"EPSI")) {
+
+    NhlRLSetString(wk_rlist,"wkPSFormat",type);
 /*
  * Flag for whether we need to check for wkOrientation later.
  */
