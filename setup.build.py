@@ -187,55 +187,8 @@ if sys.platform == "linux2" and os.uname()[-1] == "x86_64":
 # These files include data files, fonts, map databases, colormaps,
 # and other databases.
 #
-#----------------------------------------------------------------------
-#
-# "os.listdir" doesn't include the relative directory path.
-#
-# We need a way to recursively list all files in the "ncarg"
-# directory, rather than having to list each directory 
-# individually. I think "os.walk" might be something to look into
-# here.
-#
-asc_files      = os.listdir(os.path.join(ncl_data_dir,'asc'))
-dbin_files     = os.listdir(os.path.join(ncl_data_dir,'bin'))
-cdf_files      = os.listdir(os.path.join(ncl_data_dir,'cdf'))
-grb_files      = os.listdir(os.path.join(ncl_data_dir,'grb'))
-colormap_files = os.listdir(os.path.join(ncl_ncarg_dir,'colormaps'))
-fontcap_files  = os.listdir(os.path.join(ncl_ncarg_dir,'fontcaps'))
-graphcap_files = os.listdir(os.path.join(ncl_ncarg_dir,'graphcaps'))
-database_files = os.listdir(os.path.join(ncl_ncarg_dir,'database'))
-if os.path.exists(os.path.join(ncl_ncarg_dir,'database','rangs')):
-  database_files.remove("rangs")
-
-#
-# os.listdir doesn't include the relative directory path, so add it
-# back here. There's gotta be a better way to do this.
-#
-for i in xrange(len(asc_files)):
-  asc_files[i] = os.path.join(ncl_data_dir,'asc',asc_files[i])
-
-for i in xrange(len(dbin_files)):
-  dbin_files[i] = os.path.join(ncl_data_dir,'bin',dbin_files[i])
-
-for i in xrange(len(cdf_files)):
-  cdf_files[i] = os.path.join(ncl_data_dir,'cdf',cdf_files[i])
-
-for i in xrange(len(grb_files)):
-  grb_files[i] = os.path.join(ncl_data_dir,'grb',grb_files[i])
-
-for i in xrange(len(colormap_files)):
-  colormap_files[i] = os.path.join(ncl_ncarg_dir,'colormaps',colormap_files[i])
-
-for i in xrange(len(database_files)):
-  database_files[i] = os.path.join(ncl_ncarg_dir,'database',database_files[i])
-
-for i in xrange(len(fontcap_files)):
-  fontcap_files[i] = os.path.join(ncl_ncarg_dir,'fontcaps',fontcap_files[i])
-
-for i in xrange(len(graphcap_files)):
-  graphcap_files[i] = os.path.join(ncl_ncarg_dir,'graphcaps',graphcap_files[i])
-
-res_file = ['sysresfile']
+ncarg_dirs  = ["colormaps","data","database","fontcaps","graphcaps", \
+               "grib2_codetables"]
 
 #
 # Gather up the *.py module files.
@@ -373,6 +326,19 @@ for array_module in array_modules:
   pyngl_data_dir  = os.path.join(pyngl_ncarg_dir, 'data')
 
 #
+# "Walk" through the "ncarg" directories that we want to be a part of
+# the distribution, and keep a list of them for later.
+#
+  pyngl_ncarg_files = [(pyngl_ncarg_dir, ['sysresfile'])]
+  cwd = os.getcwd()
+  os.chdir(ncl_ncarg_dir)
+  for ncarg_dir in ncarg_dirs:
+    for root, dirs, files in os.walk(ncarg_dir):
+      for name in files:
+        pyngl_ncarg_files.append((os.path.join(pyngl_ncarg_dir,root), \
+                                  [os.path.join(ncl_ncarg_dir,root,name)]))
+  os.chdir(cwd)
+#
 # If INCLUDE_PYNIO is set, then make sure we include the PyNIO files
 # in the list of files to be packaged up with PyNGL.
 #
@@ -480,20 +446,12 @@ for array_module in array_modules:
 # package.
 # 
 #----------------------------------------------------------------------
-  DATA_FILES = [(os.path.join(pyngl_ncarg_dir,'pynglex'),pynglex_files),
-                (pkgs_pth, pyngl_pth_file),
-                (python_bin_dir,bin_files),
-                (pyngl_dir,py_files),
-                (pyngl_dir,pynio_files),
-                (os.path.join(pyngl_data_dir,'asc'), asc_files),
-                (os.path.join(pyngl_data_dir,'bin'), dbin_files),
-                (os.path.join(pyngl_data_dir,'cdf'), cdf_files),
-                (os.path.join(pyngl_data_dir,'grb'), grb_files),
-                (os.path.join(pyngl_ncarg_dir,'colormaps'),colormap_files),
-                (os.path.join(pyngl_ncarg_dir,'database'), database_files),
-                (os.path.join(pyngl_ncarg_dir,'fontcaps'), fontcap_files),
-                (os.path.join(pyngl_ncarg_dir,'graphcaps'),graphcap_files),
-                (pyngl_ncarg_dir, res_file)]
+  DATA_FILES = pyngl_ncarg_files
+  DATA_FILES.append((os.path.join(pyngl_ncarg_dir,'pynglex'),pynglex_files))
+  DATA_FILES.append((pkgs_pth, pyngl_pth_file))
+  DATA_FILES.append((python_bin_dir,bin_files))
+  DATA_FILES.append((pyngl_dir,py_files))
+  DATA_FILES.append((pyngl_dir,pynio_files))
 #
 # Here's the setup function that will build and install everything.
 #
