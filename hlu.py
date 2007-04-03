@@ -1,36 +1,24 @@
-# This file was created automatically by SWIG 1.3.29.
+# This file was created automatically by SWIG.
 # Don't modify this file, modify the SWIG interface instead.
 # This file is compatible with both classic and new-style classes.
 
 import _hlu
-import new
-new_instancemethod = new.instancemethod
-def _swig_setattr_nondynamic(self,class_type,name,value,static=1):
-    if (name == "thisown"): return self.this.own(value)
+
+def _swig_setattr(self,class_type,name,value):
     if (name == "this"):
-        if type(value).__name__ == 'PySwigObject':
-            self.__dict__[name] = value
+        if isinstance(value, class_type):
+            self.__dict__[name] = value.this
+            if hasattr(value,"thisown"): self.__dict__["thisown"] = value.thisown
+            del value.thisown
             return
     method = class_type.__swig_setmethods__.get(name,None)
     if method: return method(self,value)
-    if (not static) or hasattr(self,name):
-        self.__dict__[name] = value
-    else:
-        raise AttributeError("You cannot add attributes to %s" % self)
-
-def _swig_setattr(self,class_type,name,value):
-    return _swig_setattr_nondynamic(self,class_type,name,value,0)
+    self.__dict__[name] = value
 
 def _swig_getattr(self,class_type,name):
-    if (name == "thisown"): return self.this.own()
     method = class_type.__swig_getmethods__.get(name,None)
     if method: return method(self)
     raise AttributeError,name
-
-def _swig_repr(self):
-    try: strthis = "proxy of " + self.this.__repr__()
-    except: strthis = ""
-    return "<%s.%s; %s >" % (self.__class__.__module__, self.__class__.__name__, strthis,)
 
 import types
 try:
@@ -1364,14 +1352,23 @@ NhlHOLLOWFILL = _hlu.NhlHOLLOWFILL
 NhlNULLFILL = _hlu.NhlNULLFILL
 NhlSOLIDFILL = _hlu.NhlSOLIDFILL
 NhlWK_INITIAL_FILL_BUFSIZE = _hlu.NhlWK_INITIAL_FILL_BUFSIZE
+
 new_intp = _hlu.new_intp
+
 copy_intp = _hlu.copy_intp
+
 delete_intp = _hlu.delete_intp
+
 intp_assign = _hlu.intp_assign
+
 intp_value = _hlu.intp_value
+
 new_floatArray = _hlu.new_floatArray
+
 delete_floatArray = _hlu.delete_floatArray
+
 floatArray_getitem = _hlu.floatArray_getitem
+
 floatArray_setitem = _hlu.floatArray_setitem
 NhlSETRL = _hlu.NhlSETRL
 NhlGETRL = _hlu.NhlGETRL
@@ -1402,183 +1399,360 @@ NhlENODATA = _hlu.NhlENODATA
 NhlECONSTFIELD = _hlu.NhlECONSTFIELD
 NhlEZEROFIELD = _hlu.NhlEZEROFIELD
 NhlEZEROSPAN = _hlu.NhlEZEROSPAN
-_NGGetNCARGEnv = _hlu._NGGetNCARGEnv
-NhlInitialize = _hlu.NhlInitialize
-NhlClose = _hlu.NhlClose
-NhlRLClear = _hlu.NhlRLClear
-NhlSetValues = _hlu.NhlSetValues
-NhlRLSetString = _hlu.NhlRLSetString
-NhlRLSetFloat = _hlu.NhlRLSetFloat
-NhlRLSetDouble = _hlu.NhlRLSetDouble
-NhlRLSetInteger = _hlu.NhlRLSetInteger
-NhlNDCPolyline = _hlu.NhlNDCPolyline
-NhlNDCPolymarker = _hlu.NhlNDCPolymarker
-NhlNDCPolygon = _hlu.NhlNDCPolygon
-NhlDataPolyline = _hlu.NhlDataPolyline
-NhlDataPolymarker = _hlu.NhlDataPolymarker
-NhlDataPolygon = _hlu.NhlDataPolygon
-NhlDraw = _hlu.NhlDraw
-NhlFreeColor = _hlu.NhlFreeColor
-NhlGetGksCi = _hlu.NhlGetGksCi
-NhlGetWorkspaceObjectId = _hlu.NhlGetWorkspaceObjectId
-NhlIsAllocatedColor = _hlu.NhlIsAllocatedColor
-NhlIsApp = _hlu.NhlIsApp
-NhlIsDataComm = _hlu.NhlIsDataComm
-NhlIsDataItem = _hlu.NhlIsDataItem
-NhlIsDataSpec = _hlu.NhlIsDataSpec
-NhlRLIsSet = _hlu.NhlRLIsSet
-NhlRLUnSet = _hlu.NhlRLUnSet
-NhlIsTransform = _hlu.NhlIsTransform
-NhlIsView = _hlu.NhlIsView
-NhlIsWorkstation = _hlu.NhlIsWorkstation
-NhlName = _hlu.NhlName
-NhlNewColor = _hlu.NhlNewColor
-NhlNewDashPattern = _hlu.NhlNewDashPattern
-NhlNewMarker = _hlu.NhlNewMarker
-NhlSetColor = _hlu.NhlSetColor
-NhlUpdateData = _hlu.NhlUpdateData
-NhlUpdateWorkstation = _hlu.NhlUpdateWorkstation
-NhlOpen = _hlu.NhlOpen
-NhlCreate = _hlu.NhlCreate
-NhlRLCreate = _hlu.NhlRLCreate
-NhlFrame = _hlu.NhlFrame
-NhlDestroy = _hlu.NhlDestroy
-NhlRLSetMDIntegerArray = _hlu.NhlRLSetMDIntegerArray
-NhlRLSetMDDoubleArray = _hlu.NhlRLSetMDDoubleArray
-NhlRLSetMDFloatArray = _hlu.NhlRLSetMDFloatArray
-NhlRLSetFloatArray = _hlu.NhlRLSetFloatArray
-NhlRLSetIntegerArray = _hlu.NhlRLSetIntegerArray
-NhlRLSetStringArray = _hlu.NhlRLSetStringArray
-NhlGetValues = _hlu.NhlGetValues
-NhlGetFloat = _hlu.NhlGetFloat
-NhlGetFloatArray = _hlu.NhlGetFloatArray
-NhlGetInteger = _hlu.NhlGetInteger
-NhlGetIntegerArray = _hlu.NhlGetIntegerArray
-NhlGetDouble = _hlu.NhlGetDouble
-NhlGetDoubleArray = _hlu.NhlGetDoubleArray
-NhlAddOverlay = _hlu.NhlAddOverlay
-NhlClearWorkstation = _hlu.NhlClearWorkstation
-NhlRemoveAnnotation = _hlu.NhlRemoveAnnotation
-NhlAddAnnotation = _hlu.NhlAddAnnotation
-NhlAppGetDefaultParentId = _hlu.NhlAppGetDefaultParentId
-NhlGetParentWorkstation = _hlu.NhlGetParentWorkstation
-NhlClassName = _hlu.NhlClassName
-NhlGetString = _hlu.NhlGetString
-NhlAddData = _hlu.NhlAddData
-NhlRemoveData = _hlu.NhlRemoveData
-NhlRemoveOverlay = _hlu.NhlRemoveOverlay
-NhlGetStringArray = _hlu.NhlGetStringArray
-NhlRLDestroy = _hlu.NhlRLDestroy
-NhlGetNamedColorIndex = _hlu.NhlGetNamedColorIndex
-NhlGetBB = _hlu.NhlGetBB
-NhlChangeWorkstation = _hlu.NhlChangeWorkstation
-NhlPGetBB = _hlu.NhlPGetBB
-NhlPNDCToData = _hlu.NhlPNDCToData
-NhlPDataToNDC = _hlu.NhlPDataToNDC
-NhlGetMDFloatArray = _hlu.NhlGetMDFloatArray
-NhlGetMDDoubleArray = _hlu.NhlGetMDDoubleArray
-NhlGetMDIntegerArray = _hlu.NhlGetMDIntegerArray
-NhlPAppClass = _hlu.NhlPAppClass
-NhlPNcgmWorkstationClass = _hlu.NhlPNcgmWorkstationClass
-NhlPXWorkstationClass = _hlu.NhlPXWorkstationClass
-NhlPPSWorkstationClass = _hlu.NhlPPSWorkstationClass
-NhlPPDFWorkstationClass = _hlu.NhlPPDFWorkstationClass
-NhlPLogLinPlotClass = _hlu.NhlPLogLinPlotClass
-NhlPGraphicStyleClass = _hlu.NhlPGraphicStyleClass
-NhlPScalarFieldClass = _hlu.NhlPScalarFieldClass
-NhlPContourPlotClass = _hlu.NhlPContourPlotClass
-NhlPtextItemClass = _hlu.NhlPtextItemClass
-NhlPscalarFieldClass = _hlu.NhlPscalarFieldClass
-NhlPmapPlotClass = _hlu.NhlPmapPlotClass
-NhlPcoordArraysClass = _hlu.NhlPcoordArraysClass
-NhlPxyPlotClass = _hlu.NhlPxyPlotClass
-NhlPtickMarkClass = _hlu.NhlPtickMarkClass
-NhlPtitleClass = _hlu.NhlPtitleClass
-NhlPlabelBarClass = _hlu.NhlPlabelBarClass
-NhlPlegendClass = _hlu.NhlPlegendClass
-NhlPvectorFieldClass = _hlu.NhlPvectorFieldClass
-NhlPvectorPlotClass = _hlu.NhlPvectorPlotClass
-NhlPstreamlinePlotClass = _hlu.NhlPstreamlinePlotClass
-NGGetNCARGEnv = _hlu.NGGetNCARGEnv
-set_PCMP04 = _hlu.set_PCMP04
-gendat = _hlu.gendat
-gactivate_ws = _hlu.gactivate_ws
-gdeactivate_ws = _hlu.gdeactivate_ws
-bndary = _hlu.bndary
-c_plotif = _hlu.c_plotif
-c_cpseti = _hlu.c_cpseti
-c_cpsetr = _hlu.c_cpsetr
-c_pcseti = _hlu.c_pcseti
-c_pcsetr = _hlu.c_pcsetr
-c_set = _hlu.c_set
-c_cprect = _hlu.c_cprect
-c_cpcldr = _hlu.c_cpcldr
-c_plchhq = _hlu.c_plchhq
-open_wks_wrap = _hlu.open_wks_wrap
-labelbar_ndc_wrap = _hlu.labelbar_ndc_wrap
-legend_ndc_wrap = _hlu.legend_ndc_wrap
-contour_wrap = _hlu.contour_wrap
-map_wrap = _hlu.map_wrap
-contour_map_wrap = _hlu.contour_map_wrap
-xy_wrap = _hlu.xy_wrap
-y_wrap = _hlu.y_wrap
-vector_wrap = _hlu.vector_wrap
-vector_map_wrap = _hlu.vector_map_wrap
-vector_scalar_wrap = _hlu.vector_scalar_wrap
-vector_scalar_map_wrap = _hlu.vector_scalar_map_wrap
-streamline_wrap = _hlu.streamline_wrap
-streamline_map_wrap = _hlu.streamline_map_wrap
-text_ndc_wrap = _hlu.text_ndc_wrap
-text_wrap = _hlu.text_wrap
-add_text_wrap = _hlu.add_text_wrap
-maximize_plots = _hlu.maximize_plots
-poly_wrap = _hlu.poly_wrap
-add_poly_wrap = _hlu.add_poly_wrap
-panel_wrap = _hlu.panel_wrap
-mapgci = _hlu.mapgci
-dcapethermo = _hlu.dcapethermo
-draw_colormap_wrap = _hlu.draw_colormap_wrap
-natgridc = _hlu.natgridc
-ftcurvc = _hlu.ftcurvc
-ftcurvpc = _hlu.ftcurvpc
-ftcurvpic = _hlu.ftcurvpic
-c_rgbhls = _hlu.c_rgbhls
-c_hlsrgb = _hlu.c_hlsrgb
-c_rgbhsv = _hlu.c_rgbhsv
-c_hsvrgb = _hlu.c_hsvrgb
-c_rgbyiq = _hlu.c_rgbyiq
-c_yiqrgb = _hlu.c_yiqrgb
-c_wmbarbp = _hlu.c_wmbarbp
-c_wmsetip = _hlu.c_wmsetip
-c_wmsetrp = _hlu.c_wmsetrp
-c_wmsetcp = _hlu.c_wmsetcp
-c_wmgetip = _hlu.c_wmgetip
-c_wmgetrp = _hlu.c_wmgetrp
-c_wmgetcp = _hlu.c_wmgetcp
-c_nnseti = _hlu.c_nnseti
-c_nnsetrd = _hlu.c_nnsetrd
-c_nnsetc = _hlu.c_nnsetc
-c_nngeti = _hlu.c_nngeti
-c_nngetrd = _hlu.c_nngetrd
-c_nngetcp = _hlu.c_nngetcp
-c_dgcdist = _hlu.c_dgcdist
-c_dcapethermo = _hlu.c_dcapethermo
-c_dptlclskewt = _hlu.c_dptlclskewt
-c_dtmrskewt = _hlu.c_dtmrskewt
-c_dtdaskewt = _hlu.c_dtdaskewt
-c_dsatlftskewt = _hlu.c_dsatlftskewt
-c_dshowalskewt = _hlu.c_dshowalskewt
-c_dpwskewt = _hlu.c_dpwskewt
-pvoid = _hlu.pvoid
-set_nglRes_i = _hlu.set_nglRes_i
-get_nglRes_i = _hlu.get_nglRes_i
-set_nglRes_f = _hlu.set_nglRes_f
-get_nglRes_f = _hlu.get_nglRes_f
-set_nglRes_c = _hlu.set_nglRes_c
-get_nglRes_c = _hlu.get_nglRes_c
-set_nglRes_s = _hlu.set_nglRes_s
-get_nglRes_s = _hlu.get_nglRes_s
-NglGaus_p = _hlu.NglGaus_p
-NglVinth2p = _hlu.NglVinth2p
 
+_NGGetNCARGEnv = _hlu._NGGetNCARGEnv
+
+NhlInitialize = _hlu.NhlInitialize
+
+NhlClose = _hlu.NhlClose
+
+NhlRLClear = _hlu.NhlRLClear
+
+NhlSetValues = _hlu.NhlSetValues
+
+NhlRLSetString = _hlu.NhlRLSetString
+
+NhlRLSetFloat = _hlu.NhlRLSetFloat
+
+NhlRLSetDouble = _hlu.NhlRLSetDouble
+
+NhlRLSetInteger = _hlu.NhlRLSetInteger
+
+NhlNDCPolyline = _hlu.NhlNDCPolyline
+
+NhlNDCPolymarker = _hlu.NhlNDCPolymarker
+
+NhlNDCPolygon = _hlu.NhlNDCPolygon
+
+NhlDataPolyline = _hlu.NhlDataPolyline
+
+NhlDataPolymarker = _hlu.NhlDataPolymarker
+
+NhlDataPolygon = _hlu.NhlDataPolygon
+
+NhlDraw = _hlu.NhlDraw
+
+NhlFreeColor = _hlu.NhlFreeColor
+
+NhlGetGksCi = _hlu.NhlGetGksCi
+
+NhlGetWorkspaceObjectId = _hlu.NhlGetWorkspaceObjectId
+
+NhlIsAllocatedColor = _hlu.NhlIsAllocatedColor
+
+NhlIsApp = _hlu.NhlIsApp
+
+NhlIsDataComm = _hlu.NhlIsDataComm
+
+NhlIsDataItem = _hlu.NhlIsDataItem
+
+NhlIsDataSpec = _hlu.NhlIsDataSpec
+
+NhlRLIsSet = _hlu.NhlRLIsSet
+
+NhlRLUnSet = _hlu.NhlRLUnSet
+
+NhlIsTransform = _hlu.NhlIsTransform
+
+NhlIsView = _hlu.NhlIsView
+
+NhlIsWorkstation = _hlu.NhlIsWorkstation
+
+NhlName = _hlu.NhlName
+
+NhlNewColor = _hlu.NhlNewColor
+
+NhlNewDashPattern = _hlu.NhlNewDashPattern
+
+NhlNewMarker = _hlu.NhlNewMarker
+
+NhlSetColor = _hlu.NhlSetColor
+
+NhlUpdateData = _hlu.NhlUpdateData
+
+NhlUpdateWorkstation = _hlu.NhlUpdateWorkstation
+
+NhlOpen = _hlu.NhlOpen
+
+NhlCreate = _hlu.NhlCreate
+
+NhlRLCreate = _hlu.NhlRLCreate
+
+NhlFrame = _hlu.NhlFrame
+
+NhlDestroy = _hlu.NhlDestroy
+
+NhlRLSetMDIntegerArray = _hlu.NhlRLSetMDIntegerArray
+
+NhlRLSetMDDoubleArray = _hlu.NhlRLSetMDDoubleArray
+
+NhlRLSetMDFloatArray = _hlu.NhlRLSetMDFloatArray
+
+NhlRLSetFloatArray = _hlu.NhlRLSetFloatArray
+
+NhlRLSetIntegerArray = _hlu.NhlRLSetIntegerArray
+
+NhlRLSetStringArray = _hlu.NhlRLSetStringArray
+
+NhlGetValues = _hlu.NhlGetValues
+
+NhlGetFloat = _hlu.NhlGetFloat
+
+NhlGetFloatArray = _hlu.NhlGetFloatArray
+
+NhlGetInteger = _hlu.NhlGetInteger
+
+NhlGetIntegerArray = _hlu.NhlGetIntegerArray
+
+NhlGetDouble = _hlu.NhlGetDouble
+
+NhlGetDoubleArray = _hlu.NhlGetDoubleArray
+
+NhlAddOverlay = _hlu.NhlAddOverlay
+
+NhlClearWorkstation = _hlu.NhlClearWorkstation
+
+NhlRemoveAnnotation = _hlu.NhlRemoveAnnotation
+
+NhlAddAnnotation = _hlu.NhlAddAnnotation
+
+NhlAppGetDefaultParentId = _hlu.NhlAppGetDefaultParentId
+
+NhlGetParentWorkstation = _hlu.NhlGetParentWorkstation
+
+NhlClassName = _hlu.NhlClassName
+
+NhlGetString = _hlu.NhlGetString
+
+NhlAddData = _hlu.NhlAddData
+
+NhlRemoveData = _hlu.NhlRemoveData
+
+NhlRemoveOverlay = _hlu.NhlRemoveOverlay
+
+NhlGetStringArray = _hlu.NhlGetStringArray
+
+NhlRLDestroy = _hlu.NhlRLDestroy
+
+NhlGetNamedColorIndex = _hlu.NhlGetNamedColorIndex
+
+NhlGetBB = _hlu.NhlGetBB
+
+NhlChangeWorkstation = _hlu.NhlChangeWorkstation
+
+NhlPGetBB = _hlu.NhlPGetBB
+
+NhlPNDCToData = _hlu.NhlPNDCToData
+
+NhlPDataToNDC = _hlu.NhlPDataToNDC
+
+NhlGetMDFloatArray = _hlu.NhlGetMDFloatArray
+
+NhlGetMDDoubleArray = _hlu.NhlGetMDDoubleArray
+
+NhlGetMDIntegerArray = _hlu.NhlGetMDIntegerArray
+
+NhlPAppClass = _hlu.NhlPAppClass
+
+NhlPNcgmWorkstationClass = _hlu.NhlPNcgmWorkstationClass
+
+NhlPXWorkstationClass = _hlu.NhlPXWorkstationClass
+
+NhlPPSWorkstationClass = _hlu.NhlPPSWorkstationClass
+
+NhlPPDFWorkstationClass = _hlu.NhlPPDFWorkstationClass
+
+NhlPLogLinPlotClass = _hlu.NhlPLogLinPlotClass
+
+NhlPGraphicStyleClass = _hlu.NhlPGraphicStyleClass
+
+NhlPScalarFieldClass = _hlu.NhlPScalarFieldClass
+
+NhlPContourPlotClass = _hlu.NhlPContourPlotClass
+
+NhlPtextItemClass = _hlu.NhlPtextItemClass
+
+NhlPscalarFieldClass = _hlu.NhlPscalarFieldClass
+
+NhlPmapPlotClass = _hlu.NhlPmapPlotClass
+
+NhlPcoordArraysClass = _hlu.NhlPcoordArraysClass
+
+NhlPxyPlotClass = _hlu.NhlPxyPlotClass
+
+NhlPtickMarkClass = _hlu.NhlPtickMarkClass
+
+NhlPtitleClass = _hlu.NhlPtitleClass
+
+NhlPlabelBarClass = _hlu.NhlPlabelBarClass
+
+NhlPlegendClass = _hlu.NhlPlegendClass
+
+NhlPvectorFieldClass = _hlu.NhlPvectorFieldClass
+
+NhlPvectorPlotClass = _hlu.NhlPvectorPlotClass
+
+NhlPstreamlinePlotClass = _hlu.NhlPstreamlinePlotClass
+
+NGGetNCARGEnv = _hlu.NGGetNCARGEnv
+
+set_PCMP04 = _hlu.set_PCMP04
+
+gendat = _hlu.gendat
+
+gactivate_ws = _hlu.gactivate_ws
+
+gdeactivate_ws = _hlu.gdeactivate_ws
+
+bndary = _hlu.bndary
+
+c_plotif = _hlu.c_plotif
+
+c_cpseti = _hlu.c_cpseti
+
+c_cpsetr = _hlu.c_cpsetr
+
+c_pcseti = _hlu.c_pcseti
+
+c_pcsetr = _hlu.c_pcsetr
+
+c_set = _hlu.c_set
+
+c_cprect = _hlu.c_cprect
+
+c_cpcldr = _hlu.c_cpcldr
+
+c_plchhq = _hlu.c_plchhq
+
+open_wks_wrap = _hlu.open_wks_wrap
+
+labelbar_ndc_wrap = _hlu.labelbar_ndc_wrap
+
+legend_ndc_wrap = _hlu.legend_ndc_wrap
+
+contour_wrap = _hlu.contour_wrap
+
+map_wrap = _hlu.map_wrap
+
+contour_map_wrap = _hlu.contour_map_wrap
+
+xy_wrap = _hlu.xy_wrap
+
+y_wrap = _hlu.y_wrap
+
+vector_wrap = _hlu.vector_wrap
+
+vector_map_wrap = _hlu.vector_map_wrap
+
+vector_scalar_wrap = _hlu.vector_scalar_wrap
+
+vector_scalar_map_wrap = _hlu.vector_scalar_map_wrap
+
+streamline_wrap = _hlu.streamline_wrap
+
+streamline_map_wrap = _hlu.streamline_map_wrap
+
+text_ndc_wrap = _hlu.text_ndc_wrap
+
+text_wrap = _hlu.text_wrap
+
+add_text_wrap = _hlu.add_text_wrap
+
+maximize_plots = _hlu.maximize_plots
+
+poly_wrap = _hlu.poly_wrap
+
+add_poly_wrap = _hlu.add_poly_wrap
+
+panel_wrap = _hlu.panel_wrap
+
+mapgci = _hlu.mapgci
+
+dcapethermo = _hlu.dcapethermo
+
+draw_colormap_wrap = _hlu.draw_colormap_wrap
+
+natgridc = _hlu.natgridc
+
+ftcurvc = _hlu.ftcurvc
+
+ftcurvpc = _hlu.ftcurvpc
+
+ftcurvpic = _hlu.ftcurvpic
+
+c_rgbhls = _hlu.c_rgbhls
+
+c_hlsrgb = _hlu.c_hlsrgb
+
+c_rgbhsv = _hlu.c_rgbhsv
+
+c_hsvrgb = _hlu.c_hsvrgb
+
+c_rgbyiq = _hlu.c_rgbyiq
+
+c_yiqrgb = _hlu.c_yiqrgb
+
+c_wmbarbp = _hlu.c_wmbarbp
+
+c_wmsetip = _hlu.c_wmsetip
+
+c_wmsetrp = _hlu.c_wmsetrp
+
+c_wmsetcp = _hlu.c_wmsetcp
+
+c_wmgetip = _hlu.c_wmgetip
+
+c_wmgetrp = _hlu.c_wmgetrp
+
+c_wmgetcp = _hlu.c_wmgetcp
+
+c_nnseti = _hlu.c_nnseti
+
+c_nnsetrd = _hlu.c_nnsetrd
+
+c_nnsetc = _hlu.c_nnsetc
+
+c_nngeti = _hlu.c_nngeti
+
+c_nngetrd = _hlu.c_nngetrd
+
+c_nngetcp = _hlu.c_nngetcp
+
+c_dgcdist = _hlu.c_dgcdist
+
+c_dcapethermo = _hlu.c_dcapethermo
+
+c_dptlclskewt = _hlu.c_dptlclskewt
+
+c_dtmrskewt = _hlu.c_dtmrskewt
+
+c_dtdaskewt = _hlu.c_dtdaskewt
+
+c_dsatlftskewt = _hlu.c_dsatlftskewt
+
+c_dshowalskewt = _hlu.c_dshowalskewt
+
+c_dpwskewt = _hlu.c_dpwskewt
+
+pvoid = _hlu.pvoid
+
+set_nglRes_i = _hlu.set_nglRes_i
+
+get_nglRes_i = _hlu.get_nglRes_i
+
+set_nglRes_f = _hlu.set_nglRes_f
+
+get_nglRes_f = _hlu.get_nglRes_f
+
+set_nglRes_c = _hlu.set_nglRes_c
+
+get_nglRes_c = _hlu.get_nglRes_c
+
+set_nglRes_s = _hlu.set_nglRes_s
+
+get_nglRes_s = _hlu.get_nglRes_s
+
+NglGaus_p = _hlu.NglGaus_p
+
+NglVinth2p = _hlu.NglVinth2p
 

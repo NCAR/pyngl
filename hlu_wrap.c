@@ -747,6 +747,18 @@ static swig_type_info *swig_types[13];
 #include <Numeric/arrayobject.h>
 #endif
 
+/*
+ * For Python 2.5 and later, the "pos" argument to PyDict_Next needs to
+ * be of type "Py_ssize_t", otherwise it won't work on a 64-bit Linux
+ * system. It is of type "int" in Python 2.4 and earlier.
+ * Numpy 1.0.1 already does this definition, so only include if it you are
+ * using Numeric and not numpy.
+ */
+#if (PY_VERSION_HEX < 0x02050000) && !defined(USE_NUMPY)
+typedef int Py_ssize_t;
+#endif
+
+
 #define min(x,y) ((x) < (y) ? (x) : (y) )
 #define pow2(x)  ((x)*(x))
 
@@ -2153,7 +2165,8 @@ static PyObject *_wrap_NhlSetValues(PyObject *self, PyObject *args) {
     
     if(!PyArg_ParseTuple(args,(char *)"iO:NhlSetValues",&arg1,&obj1)) goto fail;
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -3443,7 +3456,8 @@ static PyObject *_wrap_NhlGetValues(PyObject *self, PyObject *args) {
     
     if(!PyArg_ParseTuple(args,(char *)"iO:NhlGetValues",&arg1,&obj1)) goto fail;
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -5054,7 +5068,8 @@ static PyObject *_wrap_open_wks_wrap(PyObject *self, PyObject *args) {
     
     if(!PyArg_ParseTuple(args,(char *)"ssOOO:open_wks_wrap",&arg1,&arg2,&obj2,&obj3,&obj4)) goto fail;
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -5401,7 +5416,8 @@ static PyObject *_wrap_open_wks_wrap(PyObject *self, PyObject *args) {
         arg3 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -5818,7 +5834,8 @@ static PyObject *_wrap_labelbar_ndc_wrap(PyObject *self, PyObject *args) {
         arg6 = (void *) arr->data;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -6389,7 +6406,8 @@ static PyObject *_wrap_legend_ndc_wrap(PyObject *self, PyObject *args) {
         arg6 = (void *) arr->data;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -6941,7 +6959,8 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
     if ((SWIG_ConvertPtr(obj9,(void **) &arg10, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     if ((SWIG_ConvertPtr(obj12,(void **) &arg13, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -7288,7 +7307,8 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
         arg14 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -7635,7 +7655,8 @@ static PyObject *_wrap_contour_wrap(PyObject *self, PyObject *args) {
         arg15 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -8158,7 +8179,8 @@ static PyObject *_wrap_map_wrap(PyObject *self, PyObject *args) {
     
     if(!PyArg_ParseTuple(args,(char *)"iOO:map_wrap",&arg1,&obj1,&obj2)) goto fail;
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -8710,7 +8732,8 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
     if ((SWIG_ConvertPtr(obj9,(void **) &arg10, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     if ((SWIG_ConvertPtr(obj12,(void **) &arg13, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -9057,7 +9080,8 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
         arg14 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -9404,7 +9428,8 @@ static PyObject *_wrap_contour_map_wrap(PyObject *self, PyObject *args) {
         arg15 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -9975,7 +10000,8 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
     if ((SWIG_ConvertPtr(obj11,(void **) &arg12, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     if ((SWIG_ConvertPtr(obj12,(void **) &arg13, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -10322,7 +10348,8 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
         arg14 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -10669,7 +10696,8 @@ static PyObject *_wrap_xy_wrap(PyObject *self, PyObject *args) {
         arg15 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -11218,7 +11246,8 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
     }
     if ((SWIG_ConvertPtr(obj6,(void **) &arg7, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -11565,7 +11594,8 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
         arg8 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -11912,7 +11942,8 @@ static PyObject *_wrap_y_wrap(PyObject *self, PyObject *args) {
         arg9 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -12477,7 +12508,8 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
     if ((SWIG_ConvertPtr(obj15,(void **) &arg16, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     if ((SWIG_ConvertPtr(obj16,(void **) &arg17, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -12824,7 +12856,8 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
         arg18 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -13171,7 +13204,8 @@ static PyObject *_wrap_vector_wrap(PyObject *self, PyObject *args) {
         arg19 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -13736,7 +13770,8 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
     if ((SWIG_ConvertPtr(obj15,(void **) &arg16, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     if ((SWIG_ConvertPtr(obj16,(void **) &arg17, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -14083,7 +14118,8 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
         arg18 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -14430,7 +14466,8 @@ static PyObject *_wrap_vector_map_wrap(PyObject *self, PyObject *args) {
         arg19 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -15010,7 +15047,8 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
     if ((SWIG_ConvertPtr(obj19,(void **) &arg20, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     if ((SWIG_ConvertPtr(obj20,(void **) &arg21, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -15357,7 +15395,8 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
         arg22 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -15704,7 +15743,8 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
         arg23 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -16051,7 +16091,8 @@ static PyObject *_wrap_vector_scalar_wrap(PyObject *self, PyObject *args) {
         arg24 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -16631,7 +16672,8 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
     if ((SWIG_ConvertPtr(obj19,(void **) &arg20, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     if ((SWIG_ConvertPtr(obj20,(void **) &arg21, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -16978,7 +17020,8 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
         arg22 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -17325,7 +17368,8 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
         arg23 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -17672,7 +17716,8 @@ static PyObject *_wrap_vector_scalar_map_wrap(PyObject *self, PyObject *args) {
         arg24 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -18237,7 +18282,8 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
     if ((SWIG_ConvertPtr(obj15,(void **) &arg16, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     if ((SWIG_ConvertPtr(obj16,(void **) &arg17, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -18584,7 +18630,8 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
         arg18 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -18931,7 +18978,8 @@ static PyObject *_wrap_streamline_wrap(PyObject *self, PyObject *args) {
         arg19 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -19496,7 +19544,8 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
     if ((SWIG_ConvertPtr(obj15,(void **) &arg16, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     if ((SWIG_ConvertPtr(obj16,(void **) &arg17, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -19843,7 +19892,8 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
         arg18 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -20190,7 +20240,8 @@ static PyObject *_wrap_streamline_map_wrap(PyObject *self, PyObject *args) {
         arg19 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -20732,7 +20783,8 @@ static PyObject *_wrap_text_ndc_wrap(PyObject *self, PyObject *args) {
         arg4 = (void *) arr->data;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -21521,7 +21573,8 @@ static PyObject *_wrap_text_wrap(PyObject *self, PyObject *args) {
         arg5 = (void *) arr->data;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -22312,7 +22365,8 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
         arg5 = (void *) arr->data;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -22659,7 +22713,8 @@ static PyObject *_wrap_add_text_wrap(PyObject *self, PyObject *args) {
         arg8 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -23724,7 +23779,8 @@ static PyObject *_wrap_poly_wrap(PyObject *self, PyObject *args) {
     if ((SWIG_ConvertPtr(obj9,(void **) &arg10, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     if ((SWIG_ConvertPtr(obj10,(void **) &arg11, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -24368,7 +24424,8 @@ static PyObject *_wrap_add_poly_wrap(PyObject *self, PyObject *args) {
     if ((SWIG_ConvertPtr(obj9,(void **) &arg10, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     if ((SWIG_ConvertPtr(obj10,(void **) &arg11, 0, SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -25157,7 +25214,8 @@ static PyObject *_wrap_panel_wrap(PyObject *self, PyObject *args) {
         arg4 = (int *) arr->data;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;
@@ -25504,7 +25562,8 @@ static PyObject *_wrap_panel_wrap(PyObject *self, PyObject *args) {
         arg6 = (ResInfo *) &trname;
     }
     {
-        int i,pos=0,list_type,list_len,count;
+        int i,list_type,list_len,count;
+        Py_ssize_t pos=0;
         PyObject *key,*value;
         PyArrayObject *arr;
         char **strings;

@@ -41,6 +41,18 @@
 #include <Numeric/arrayobject.h>
 #endif
 
+/*
+ * For Python 2.5 and later, the "pos" argument to PyDict_Next needs to
+ * be of type "Py_ssize_t", otherwise it won't work on a 64-bit Linux
+ * system. It is of type "int" in Python 2.4 and earlier.
+ * Numpy 1.0.1 already does this definition, so only include if it you are
+ * using Numeric and not numpy.
+ */
+#if (PY_VERSION_HEX < 0x02050000) && !defined(USE_NUMPY)
+typedef int Py_ssize_t;
+#endif
+
+
 #define min(x,y) ((x) < (y) ? (x) : (y) )
 #define pow2(x)  ((x)*(x))
 
@@ -3251,7 +3263,8 @@ import_array();
 
 %typemap (in) res_names *rcs_names {
   PyObject *key,*value;
-  int pos=0,rnumber,count;
+  int rnumber,count;
+  Py_ssize_t pos=0;
   res_names trname;
   char **trnames;
   
@@ -3284,7 +3297,8 @@ import_array();
 %}
 
 %typemap(in) ResInfo *rlist {
-  int i,pos=0,list_type,list_len,count;
+  int i,list_type,list_len,count;
+  Py_ssize_t pos=0;
   PyObject *key,*value;
   PyArrayObject *arr;
   char **strings;
@@ -3633,7 +3647,8 @@ import_array();
 }
 
 %typemap(in) int res_id {
-  int i,pos=0,list_type,list_len,count;
+  int i,list_type,list_len,count;
+  Py_ssize_t pos=0;
   PyObject *key,*value;
   PyArrayObject *arr;
   char **strings;
