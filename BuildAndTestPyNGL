@@ -10,10 +10,18 @@
 #
 set echo verbose timestamp
 
+set python_version = "2.4"
+
 while ($#argv > 0)
   switch ($1)
   case "-t":
     set TestOnly
+    shift
+    breaksw
+
+  case "-v":
+    shift
+    set python_version = "$1"
     shift
     breaksw
 
@@ -33,15 +41,15 @@ if ("$name" == "jupiter.scd.ucar.edu") then
   rehash
 endif
 
-set python_bin = `which python`
+set python     = "python$python_version"
+set python_bin = `which $python`
 set bin_dir    = $python_bin:h
 set python_dir = $bin_dir:h
 
 echo "The name of the machine is '$name'."
-echo "python lives in $python_bin."
+echo "$python lives in $python_bin."
 
 set version          = `head -1 ./version`
-set python_version   = "2.4"
 
 set pyngl_dir        = "$NCARG/pyngl/src"
 set pynio_dir        = "$NCARG/pynio"
@@ -235,8 +243,8 @@ set gen_numer_tar_file = "$dist_dir/PyNGL-$version.tar"
 set gen_numer_gz_file  = "$dist_dir/PyNGL-$version.tar.gz"
 set gen_numpy_tar_file = "$dist_dir/PyNGL_numpy-$version.tar"
 set gen_numpy_gz_file  = "$dist_dir/PyNGL_numpy-$version.tar.gz"
-set numeric_tar_file = "$dist_dir/PyNGL-$version.$platform.tar"
-set numpy_tar_file   = "$dist_dir/PyNGL_numpy-$version.$platform.tar"
+set numeric_tar_file = "$dist_dir/PyNGL-$version.$platform-$python_version.tar"
+set numpy_tar_file   = "$dist_dir/PyNGL_numpy-$version.$platform-$python_version.tar"
 set numeric_gz_file  = "$numeric_tar_file.gz"
 set numpy_gz_file    = "$numpy_tar_file.gz"
 
@@ -270,14 +278,14 @@ endif
 if ("$name" == "meeker") then
   cd $pynio_dir
   ./BuildOnMeeker
-  python setup.py install
+  $python setup.py install
 
   cd $pyngl_dir
   ./BuildOnMeeker
-  python setup.build.py install
+  $python setup.build.py install
 else if ("$name" == "tempest") then
   cd $pynio_dir
-  python setup.py install
+  $python setup.py install
 
 #
 # We can't use setup.build.py to generate _hlu.so on tempest, because
@@ -287,17 +295,17 @@ else if ("$name" == "tempest") then
 # it, it gets put at the end of the line which doesn't work. <sigh>
 #
   cd $pyngl_dir
-  python setup.build.py build_ext
+  $python setup.build.py build_ext
   ./BuildOnTempest
-  python setup.build.py install
+  $python setup.build.py install
 else
   cd $pynio_dir
   /bin/rm -rf build
-  python setup.py install
+  $python setup.py install
 
   cd $pyngl_dir
   /bin/rm -rf build
-  python setup.build.py install
+  $python setup.build.py install
 endif
 
 #
@@ -324,11 +332,11 @@ if ("$name" == "meeker") then
 
   cd $pynio_dir
   ./BuildOnMeekerNumpy
-  python setup.py install
+  $python setup.py install
 
   cd $pyngl_dir
   ./BuildOnMeekerNumpy
-  python setup.build.py install
+  $python setup.build.py install
 
   if (-e $dist_dir) then
     cd $dist_dir
@@ -368,7 +376,7 @@ gunzip $numeric_gz_file
 /bin/rm -rf $dist_dir/PyNGL-$version
 tar -xf $numeric_tar_file
 cd PyNGL-$version
-python setup.py install
+$python setup.py install
 ../../CheckPyNGLFiles
 cd ..
 /bin/rm -rf $dist_dir/PyNGL-$version
@@ -408,7 +416,7 @@ gunzip $numpy_gz_file
 /bin/rm -rf $dist_dir/PyNGL_numpy-$version
 tar -xf $numpy_tar_file
 cd PyNGL_numpy-$version
-python setup.py install
+$python setup.py install
 ../../CheckPyNGLFiles -n
 cd ..
 /bin/rm -rf $dist_dir/PyNGL_numpy-$version

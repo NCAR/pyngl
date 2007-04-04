@@ -390,6 +390,7 @@ for array_module in array_modules:
     vfile.write("HAS_NUM = 2\n")
 
   vfile.write("array_module_version = '%s'\n" % array_module_version)
+  vfile.write("python_version = '%s'\n" % sys.version[:3])
   vfile.close()
 
 #----------------------------------------------------------------------
