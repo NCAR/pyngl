@@ -41,18 +41,6 @@
 #include <Numeric/arrayobject.h>
 #endif
 
-/*
- * For Python 2.5 and later, the "pos" argument to PyDict_Next needs to
- * be of type "Py_ssize_t", otherwise it won't work on a 64-bit Linux
- * system. It is of type "int" in Python 2.4 and earlier.
- * Numpy 1.0.1 already does this definition, so only include if it you are
- * using Numeric and not numpy.
- */
-#if (PY_VERSION_HEX < 0x02050000) && !defined(USE_NUMPY)
-typedef int Py_ssize_t;
-#endif
-
-
 #define min(x,y) ((x) < (y) ? (x) : (y) )
 #define pow2(x)  ((x)*(x))
 
