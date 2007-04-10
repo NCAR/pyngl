@@ -28,11 +28,14 @@ def modify_pynglex_files(files_to_modify):
       re.search("(ind_above_zero)",line) != None):
       print line.replace("(ind_above_zero)","(ind_above_zero[0])"),
     elif (os.path.basename(fileinput.filename()) == "ngl09p.py" and     \
-        re.search("import MA",line) != None):
+      re.search("import MA",line) != None):
       print line.replace("import MA","import numpy.core.ma as MA"),
     elif (os.path.basename(fileinput.filename()) == "ngl09p.py" and     \
-        re.search("MA.Float0",line) != None):
+      re.search("MA.Float0",line) != None):
       print line.replace("MA.Float0","dtype=float"),
+    elif (os.path.basename(fileinput.filename()) == "panel2.py" and     \
+      re.search("m.*l.*[0]",line) != None):
+      print line.replace("[0]",""),
     else:
       print line,
   for file in files_to_modify:
