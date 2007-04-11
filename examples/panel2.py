@@ -58,7 +58,7 @@ lon = file.variables["lon"][:]
 #
 # Start graphics.
 #
-wks_type         = "ps"
+wks_type = "ps"
 rlist            = Ngl.Resources()
 rlist.wkColorMap = "BlGrYeOrReVi200"
 wks = Ngl.open_wks(wks_type,"panel2",rlist)
