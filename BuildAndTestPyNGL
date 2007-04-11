@@ -78,6 +78,7 @@ if ("$name" == "willow.local") then
   unsetenv USE_CVS
   setenv USE_NUMERPY
   unsetenv USE_NUMPY
+  unsetenv USE_NUMERIC
   unsetenv DISPLAY
 else if ("$name" == "clock.scd.ucar.edu") then
   set test_dir = "/Users/haley/tmp"
@@ -93,6 +94,7 @@ else if ("$name" == "clock.scd.ucar.edu") then
   unsetenv USE_CVS
   setenv USE_NUMERPY
   unsetenv USE_NUMPY
+  unsetenv USE_NUMERIC
   unsetenv DISPLAY
 else if ("$name" == "reader.scd.ucar.edu") then
   set test_dir = "/Users/haley/tmp/reader"
@@ -109,6 +111,7 @@ else if ("$name" == "reader.scd.ucar.edu") then
   setenv USE_CVS
   setenv USE_NUMERPY
   unsetenv USE_NUMPY
+  unsetenv USE_NUMERIC
   unsetenv DISPLAY
 else if ("$name" == "longs" || "$name" == "jupiter.scd.ucar.edu") then
   if ("$name" == "longs") then
@@ -127,6 +130,7 @@ else if ("$name" == "longs" || "$name" == "jupiter.scd.ucar.edu") then
   setenv USE_CVS
   setenv USE_NUMERPY
   unsetenv USE_NUMPY
+  unsetenv USE_NUMERIC
   unsetenv DISPLAY
 else if ("$name" == "windom") then
   set test_dir = "/fs/scd/home1/haley/tmp/pyngl/windom"
@@ -140,6 +144,7 @@ else if ("$name" == "windom") then
   setenv USE_CVS
   setenv USE_NUMERPY
   unsetenv USE_NUMPY
+  unsetenv USE_NUMERIC
   unsetenv DISPLAY
 else if ("$name" == "ln0126en" || "$name" == "ln0127en") then
   set test_dir = "/ptmp/haley/pyngl"
@@ -153,6 +158,7 @@ else if ("$name" == "ln0126en" || "$name" == "ln0127en") then
   setenv USE_CVS
   setenv USE_NUMERPY
   unsetenv USE_NUMPY
+  unsetenv USE_NUMERIC
   unsetenv DISPLAY
 else if ("$name" == "meeker") then
   set test_dir = "/fs/scd/home1/haley/tmp/pyngl/$name"
@@ -178,13 +184,13 @@ else if ("$name" == "meeker") then
   mkdir $pyngl_dir/build
   mkdir $build_pyngl_lib_dir
   mkdir $build_pyngl_lib_dir/PyNGL
-  mkdir $build_pyngl_lib_dir/PyNGL_numpy
+  mkdir $build_pyngl_lib_dir/PyNGL_numeric
   mkdir $build_pyngl_temp_dir
 
   mkdir $pynio_dir/build
   mkdir $build_pynio_lib_dir
   mkdir $build_pynio_lib_dir/PyNIO
-  mkdir $build_pynio_lib_dir/PyNIO_numpy
+  mkdir $build_pynio_lib_dir/PyNIO_numeric
   mkdir $build_pynio_temp_dir
 
 #
@@ -193,6 +199,7 @@ else if ("$name" == "meeker") then
 #
   unsetenv USE_NUMERPY
   unsetenv USE_NUMPY
+  unsetenv USE_NUMERIC
 else if ("$name" == "tempest") then
   set test_dir = "/ptmp/haley/pyngl"
   set platform = "irix64-6.5"
@@ -209,6 +216,7 @@ else if ("$name" == "tempest") then
 #
   unsetenv USE_NUMERPY
   unsetenv USE_NUMPY
+  unsetenv USE_NUMERIC
 else if ("$name" == "jewell") then
   set test_dir = "/home/haley/tmp"
   set platform = "cygwin"
@@ -225,11 +233,13 @@ else if ("$name" == "jewell") then
 # Numeric version.
 #
   unsetenv USE_NUMERPY
-  setenv USE_NUMPY
+  unsetenv USE_NUMPY
+  setenv USE_NUMERIC
 else
   setenv USE_NUMERPY
   unsetenv USE_NUMPY
   unsetenv DISPLAY
+  unsetenv USE_NUMERIC
 endif
 
 #
@@ -241,10 +251,10 @@ set numpy_test_dir   = "$test_dir/numpy"
 set python_pkg_dir   = "$python_dir/lib/python$python_version/site-packages"
 set gen_numer_tar_file = "$dist_dir/PyNGL-$version.tar"
 set gen_numer_gz_file  = "$dist_dir/PyNGL-$version.tar.gz"
-set gen_numpy_tar_file = "$dist_dir/PyNGL_numpy-$version.tar"
-set gen_numpy_gz_file  = "$dist_dir/PyNGL_numpy-$version.tar.gz"
+set gen_numpy_tar_file = "$dist_dir/PyNGL_numeric-$version.tar"
+set gen_numpy_gz_file  = "$dist_dir/PyNGL_numeric-$version.tar.gz"
 set numeric_tar_file = "$dist_dir/PyNGL-$version.$platform-$python_version.tar"
-set numpy_tar_file   = "$dist_dir/PyNGL_numpy-$version.$platform-$python_version.tar"
+set numpy_tar_file   = "$dist_dir/PyNGL_numeric-$version.$platform-$python_version.tar"
 set numeric_gz_file  = "$numeric_tar_file.gz"
 set numpy_gz_file    = "$numpy_tar_file.gz"
 
@@ -413,13 +423,13 @@ gunzip $numpy_gz_file
 #
 # Test that all the files are here.
 #
-/bin/rm -rf $dist_dir/PyNGL_numpy-$version
+/bin/rm -rf $dist_dir/PyNGL_numeric-$version
 tar -xf $numpy_tar_file
-cd PyNGL_numpy-$version
+cd PyNGL_numeric-$version
 $python setup.py install
 ../../CheckPyNGLFiles -n
 cd ..
-/bin/rm -rf $dist_dir/PyNGL_numpy-$version
+/bin/rm -rf $dist_dir/PyNGL_numeric-$version
 
 #
 # Test the numpy distribution.

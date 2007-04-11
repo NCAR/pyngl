@@ -18,15 +18,16 @@
 #   python setup.build.py bdist_dumb --relative
 #
 # If no environment variables are set, this script will create
-# a Numeric version of PyNGL.
+# a NumPy version of PyNGL.
 #
 # There are four environment variables that if set, will change
 # the behavior of this script:
 #
-#    USE_NUMPY     - Create a numpy version of PyNGL only.
+#    USE_NUMERIC   - Create a Numeric version of PyNGL only.
 #
-#    USE_NUMERPY   - Create a Numeric *and* numpy version of PyNGL. This
-#                    will create two packages: PyNGL and PyNGL_numpy.
+#    USE_NUMERPY   - Create a Numeric *and* NumPy version of PyNGL. This
+#                    will create two packages: PyNGL and PyNGL_numeric.
+#
 #    USE_CVS         Use CVS to get the latest version of the pynglex files.
 #
 #    INCLUDE_PYNIO - Copy over PyNIO files from PyNIO installed location.
@@ -38,39 +39,39 @@ import shutil
 from distutils.core import setup, Extension
 
 #
-# Determine whether we want to build a Numeric and/or Numpy version
-# of PyNGL.  If the environment variable USE_NUMPY is set, it will
-# try to build a numpy version. USE_NUMPY doesn't need to be set to
+# Determine whether we want to build a Numeric and/or NumPy version
+# of PyNGL.  If the environment variable USE_NUMERIC is set, it will
+# try to build a NumPy version. USE_NUMERIC doesn't need to be set to
 # any value; it just has to be set.  If USE_NUMERPY is set, then
-# both versions of PyNGL will be built, and the Numeric version will
-# be put in package PyNGL, and the numpy version in package PyNGL_numpy.
+# both versions of PyNGL will be built, and the NumPy version will
+# be put in package PyNGL, and the Numeric version in package PyNGL_numeric.
 #
-# HAS_NUM will be set by this script depending on USE_NUMPY and USE_NUMERPY.
+# HAS_NUM will be set by this script depending on USE_NUMERIC and USE_NUMERPY.
 #
-# HAS_NUM = 3 --> install both numpy and Numeric versions of PyNGL
-# HAS_NUM = 2 --> install numpy version of PyNGL
+# HAS_NUM = 3 --> install both NumPy and Numeric versions of PyNGL
+# HAS_NUM = 2 --> install NumPy version of PyNGL
 # HAS_NUM = 1 --> install Numeric version of PyNGL
-# HAS_NUM = 0 --> You're hosed as numpy or Numeric don't exist.
+# HAS_NUM = 0 --> You're hosed as NumPy or Numeric don't exist.
 #
 try:
   path = os.environ["USE_NUMERPY"]
   HAS_NUM = 3
 except:
   try:
-    path = os.environ["USE_NUMPY"]
-    HAS_NUM = 2
-  except:
+    path = os.environ["USE_NUMERIC"]
     HAS_NUM = 1
+  except:
+    HAS_NUM = 2
 
 #
-# Test to make sure we actually the Numeric and/or numpy modules
+# Test to make sure we actually the Numeric and/or NumPy modules
 # that we have requested.
 #
 if HAS_NUM > 1:
   try:
     import numpy
   except ImportError:
-    print "Cannot find numpy; we'll try Numeric."
+    print "Cannot find NumPy; we'll try Numeric."
     HAS_NUM = 1
 
 if HAS_NUM == 1 or HAS_NUM == 3:
@@ -87,7 +88,7 @@ elif HAS_NUM == 2:
 elif HAS_NUM == 1:
   array_modules = ['Numeric']
 else:
-  print "Cannot find Numeric or numpy; good-bye!"
+  print "Cannot find Numeric or NumPy; good-bye!"
   sys.exit()
 
 #
@@ -97,8 +98,8 @@ else:
 # python setup.py install
 #
 # in the pynio source directory. This script expects to find PyNIO
-# installed in the PyNIO package if you are doing a Numeric build,
-# and in the PyNIO_numpy package if you are doing a numpy build.
+# installed in the PyNIO package if you are doing a NumPy build,
+# and in the PyNIO_numeric package if you are doing a Numeric build.
 #
 # This script does not yet check if PyNIO is installed on your system,
 # so it will complain if it can't find the files.
@@ -269,7 +270,7 @@ if sys.platform == "sunos5":
 for array_module in array_modules:
 #----------------------------------------------------------------------
 #
-# Initialize variables for whether we are doing a Numeric or numpy build.
+# Initialize variables for whether we are doing a Numeric or NumPy build.
 # Some of these variables will be used as build (compilation) parameters.
 #
 #----------------------------------------------------------------------
@@ -278,21 +279,23 @@ for array_module in array_modules:
   if array_module == 'Numeric':
     from Numeric import  __version__ as array_module_version
 
-    pyngl_pkg_name = 'PyNGL'
-    pynio_pkg_name = 'PyNIO'
-    pyngl_pth_file = [pyngl_pkg_name + '.pth']
+    pyngl_pkg_name = 'PyNGL_numeric'
+    pynio_pkg_name = 'PyNIO_numeric'
+    pyngl_pth_file = []     # No *.pth file for Numeric package, b/c we
+                            # have to explicitly import it with 
+                            # "import PyNGL_numeric.Ngl as Ngl" anyway.
 
     DMACROS =  [('NeedFuncProto',None)]
 
   else:
     from numpy import __version__ as array_module_version
 
-    pyngl_pkg_name = 'PyNGL_numpy'
-    pynio_pkg_name = 'PyNIO_numpy'
-    pyngl_pth_file = []             # No *.pth file for numpy package!
+    pyngl_pkg_name = 'PyNGL'
+    pynio_pkg_name = 'PyNIO'
+    pyngl_pth_file = [pyngl_pkg_name + '.pth']
 
 #
-# For a numpy build, we need to point to the correct array "arrayobject.h"
+# For a NumPy build, we need to point to the correct array "arrayobject.h"
 # and set the USE_NUMPY macro for compiling the *.c files.
 #
     INCLUDE_PATHS.insert(0,os.path.join(pkgs_pth,"numpy/core/include"))
@@ -303,7 +306,7 @@ for array_module in array_modules:
 # Here are the instructions for compiling the "_hlu.so" file.
 #
 #----------------------------------------------------------------------
-  print '====> Installing the',array_module,'version of PyNGL to the',pyngl_pkg_name,'package directory.'
+  print '====> Installing the',array_module,'version of PyNGL to the "'+pyngl_pkg_name+'" site packages directory.'
 
   EXT_MODULES = [Extension('_hlu', 
                  ['Helper.c','hlu_wrap.c','gsun.c'],
@@ -355,7 +358,7 @@ for array_module in array_modules:
 
 #
 # This seems kludgy to me, but I need to make sure that if both 
-# numpy and Numeric versions of PyNGL are being built, we clean
+# NumPy and Numeric versions of PyNGL are being built, we clean
 # the *.o files beforehand. This is because "setup" puts the *.o files
 # in the same location (build/temp.xxxx/.) every time, regardless of which
 # package we're building. Maybe there's a way to tell setup to put the
@@ -382,7 +385,7 @@ for array_module in array_modules:
 
 #
 # The Ngl.py and Nio.py files use HAS_NUM to tell whether to use
-# Numeric or numpy specific operations.
+# Numeric or NumPy specific operations.
 #
   if array_module == 'Numeric':
     vfile.write("HAS_NUM = 1\n")
@@ -429,15 +432,14 @@ for array_module in array_modules:
 #
 # Prepend the full directory path leading to files.
 #
-  pynglex_numpy_files = []
   for i in xrange(len(pynglex_files)):
     pynglex_files[i] = os.path.join(pynglex_dir,pynglex_files[i])
 
 #
-# If we are doing a numpy build, then we need to modify some of the
+# If we are doing a Numeric build, then we need to modify some of the
 # pynglex example scripts.
 #
-  if array_module == 'numpy':
+  if array_module == 'Numeric':
     from mod_pynglex_files import *
     modify_pynglex_files(pynglex_files)
 

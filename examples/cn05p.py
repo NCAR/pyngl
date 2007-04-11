@@ -41,9 +41,9 @@
 #  Notes: 
 
 #
-#  Import Numeric, Ngl, and Nio support functions.
+#  Import numpy, Ngl, and Nio support functions.
 #
-import Numeric 
+import numpy 
 import Ngl 
 import Nio
 
@@ -59,7 +59,7 @@ lon  = nf.variables["lon"][:]
 #
 # Set up a color map using RGB triplets.
 #
-cmap =  Numeric.array(\
+cmap =  numpy.array(\
         [ [.000,.000,.000], [1.00,1.00,1.00], [.700,.700,.700], \
           [.650,.650,.700], [.610,.600,.700], [.550,.550,.700], \
           [.560,.500,.700], [.450,.450,.700], [.420,.400,.700], \

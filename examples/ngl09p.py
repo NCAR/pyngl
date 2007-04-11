@@ -33,11 +33,11 @@
 #    This example requires the resource file ngl09p.res.
 #     
 
-import Numeric
+import numpy
 #
-#  Import the Masked array module.
+#  Import the masked array module.
 #
-import MA
+import numpy.core.ma as MA
 
 #
 #  Import Ngl support functions.
@@ -91,7 +91,7 @@ nhlon    = fice.shape[2]
 nmo    = 0
 month  = nmo+1
 
-icemon = MA.zeros((nhlat,nhlon),MA.Float0)
+icemon = MA.zeros((nhlat,nhlon),dtype=float)
 for i in xrange(fice_masked.shape[0]):
   for j in xrange(fice_masked.shape[1]):
     icemon[i,j] = MA.average(fice_masked[i,j,0:ntime:12])
@@ -107,7 +107,7 @@ icemon = MA.filled(icemon,value=fill_value)
 
 nsub = 16 # Subscript location of northernmost hlat to be plotted.
 
-cmap = Numeric.array([                                         \
+cmap = numpy.array([                                         \
          [1.00,1.00,1.00], [0.00,0.00,0.00], [1.00,1.00,0.50], \
          [0.00,0.00,0.50], [0.50,1.00,1.00], [0.50,0.00,0.00], \
          [1.00,0.00,1.00], [0.00,1.00,1.00], [1.00,1.00,0.00], \
@@ -117,7 +117,7 @@ cmap = Numeric.array([                                         \
          [1.00,0.50,1.00], [0.00,0.50,0.00], [0.50,0.50,1.00], \
          [1.00,0.00,0.50], [0.50,0.50,0.00], [0.00,0.50,0.50], \
          [1.00,0.50,0.50], [0.00,1.00,0.50], [0.50,0.50,0.50], \
-         [0.625,0.625,0.625] ],MA.Float0)
+         [0.625,0.625,0.625] ],dtype=float)
 
 rlist = Ngl.Resources()
 rlist.wkColorMap = cmap

@@ -3,39 +3,42 @@ import fileinput
 import tempfile
 
 #
-# Modify the example sources appropriately if numpy support is
+# Modify the example sources appropriately if Numeric support is
 # requested.  For all examples except for a few such as "meteogram.py,"
 # "scatter1.py," and "ngl09p.py" this is just a matter of replacing
-# "import Numeric" with "import numpy as Numeric".  The cases of
+# "import numpy" with "import Numeric as numpy".  The cases of
 # "meteogram.py" and "ngl09p.py" are handled as special cases in the if
 # block below; "scatter1.py" is then handled separately.
 #
 def modify_pynglex_files(files_to_modify):
 
-  print '====> Modifying some of the pynglex examples to work with numpy.'
+  print '====> Modifying some of the pynglex examples to work with NumPy.'
 
   for line in fileinput.input(files_to_modify,inplace=1):
-    if (re.search("import Numeric",line) != None):
-      print "import numpy as Numeric"
+    if (re.search("import numpy",line) != None):
+      print "import Numeric as numpy"
     elif(re.search("^import Ngl",line) != None):
-      print "import PyNGL_numpy.Ngl as Ngl"
+      print "import PyNGL_numeric.Ngl as Ngl"
     elif(re.search("^import Nio",line) != None):
-      print "import PyNGL_numpy.Nio as Nio"
+      print "import PyNGL_numeric.Nio as Nio"
     elif (os.path.basename(fileinput.filename()) == "meteogram.py" and  \
-      re.search("typecode()",line) != None):
-      print line.replace("typecode()","dtype.char"),
+      re.search("dtype.char",line) != None):
+      print line.replace("dtype.char","typecode()"),
     elif (os.path.basename(fileinput.filename()) == "meteogram.py" and  \
-      re.search("(ind_above_zero)",line) != None):
-      print line.replace("(ind_above_zero)","(ind_above_zero[0])"),
+      re.search("zero\[0\]",line) != None):
+      print line.replace("zero[0]","zero"),
     elif (os.path.basename(fileinput.filename()) == "ngl09p.py" and     \
-      re.search("import MA",line) != None):
-      print line.replace("import MA","import numpy.core.ma as MA"),
+      re.search("import numpy.core.ma as MA",line) != None):
+      print line.replace("import numpy.core.ma as MA","import MA"),
     elif (os.path.basename(fileinput.filename()) == "ngl09p.py" and     \
-      re.search("MA.Float0",line) != None):
-      print line.replace("MA.Float0","dtype=float"),
-    elif (os.path.basename(fileinput.filename()) == "panel2.py" and     \
-      re.search("m.*l.*[0]",line) != None):
-      print line.replace("[0]",""),
+      re.search("dtype=float",line) != None):
+      print line.replace("dtype=float","MA.Float0"),
+    elif (os.path.basename(fileinput.filename()) == "panel2.py" and  \
+      re.search("min\(",line) != None):
+      print line.replace(")",")[0]"),
+    elif (os.path.basename(fileinput.filename()) == "panel2.py" and  \
+      re.search("max\(",line) != None):
+      print line.replace(")",")[0]"),
     else:
       print line,
   for file in files_to_modify:
@@ -51,38 +54,45 @@ def modify_pynglex_files(files_to_modify):
           while (re.search("^from",line) == None):
             line = scatter_src.readline()
           line = scatter_src.readline()
-        elif (re.search("Put the data",line) != None):
+        elif (re.search("Do a quadratic",line) != None):
           while (re.search("^plot =",line) == None):
             line = scatter_src.readline()
           line = scatter_src.readline()
           scatter_new.write("""#
-#  Do a quadratic least squares fit.
+#  From Scientific import the the polynomial least squares function.
 #
-npoints = len(x)
-a = Numeric.zeros([npoints,3],'f')
-for m in xrange(npoints):
-  a[m,0] = 1.
-  for j in xrange(1,3):
-    a[m,j] = x[m]*a[m,j-1]
-c = (Numeric.linalg.lstsq(a,y,rcond=1.e-15))[0]
+# You can download ScientificPython from:
+#
+#  http://starship.python.net/~hinsen/ScientificPython/
+#
+from Scientific.Functions.LeastSquares import polynomialLeastSquaresFit
+
+#
+#  Put the data in the correct format for the least squares 
+#  function and do the fit.
+#
+data = []
+for j in xrange(len(x)):
+  data.append((x[j],y[j]))
+params = [0.,0.,1.e-7]
+a = polynomialLeastSquaresFit(params, data)
 
 #
 #  Draw the least squares quadratic curve.
 #
 num  = 301
 delx = 1000./num
-xp    = Numeric.zeros(num,'f')
-yp    = Numeric.zeros(num,'f')
+u    = numpy.zeros(num,'f')
+v    = numpy.zeros(num,'f')
 for i in xrange(num):
-  xp[i] = float(i)*delx
-  yp[i] = c[0]+c[1]*xp[i]+c[2]*xp[i]*xp[i]
-plot = Ngl.xy(wks,xp,yp,resources) # Draw least squares quadratic.
-
+  u[i] = float(i)*delx
+  v[i] = a[0][0]+a[0][1]*u[i]+a[0][2]*u[i]*u[i]
+plot = Ngl.xy(wks,u,v,resources) # Draw least squares quadratic.
 """)
         scatter_new.write(line)
 
 #
-#  Write the new NumPy source back over the Numeric source.
+#  Write the new Numeric source back over the NumPy source.
 #
       scatter_src.close()
       scatter_src = open(file,"w+")

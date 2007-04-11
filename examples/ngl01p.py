@@ -43,9 +43,9 @@
 #     
 
 #
-#  Import Numeric.
+#  Import numpy.
 #
-import Numeric
+import numpy
 
 #
 #  Import Ngl support functions.
@@ -65,12 +65,12 @@ plot = Ngl.xy(wks,x,y)   # Draw an XY plot.
   
 #
 #  Define three curves for an XY plot.  Any arrays in PyNGL codes
-#  that are not 1-dimensional must be Numeric arrays.  A 1-dimensional
-#  array can be a Python list, a Python tuple, or a Numeric array.
+#  that are not 1-dimensional must be numpy.arrays.  A 1-dimensional
+#  array can be a Python list, a Python tuple, or a numpy.array.
 #
 #----------- Begin second plot -----------------------------------------
   
-y2 = Numeric.array([[0., 0.7, 1., 0.7, 0., -0.7, -1., -0.7, 0.],  \
+y2 = numpy.array([[0., 0.7, 1., 0.7, 0., -0.7, -1., -0.7, 0.],  \
                     [2., 2.7, 3., 2.7, 2.,  1.3,  1.,  1.3, 2.],  \
                     [4., 4.7, 5., 4.7, 4.,  3.3,  3.,  3.3, 4.]], \
                     'f')
@@ -118,7 +118,7 @@ data     = Ngl.asciiread(filename,(129,4),"float")
 #  Define a two-dimensional array of data values based on
 #  columns two and three of the input data.
 #
-uv = Numeric.zeros((2,129),'f')
+uv = numpy.zeros((2,129),'f')
 uv[0,:] = data[:,1]
 uv[1,:] = data[:,2]
   

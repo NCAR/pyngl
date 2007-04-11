@@ -46,9 +46,9 @@
 #     
 
 #
-#  Import Numeric.
+#  Import numpy.
 #
-import Numeric
+import numpy
 
 #
 #  Import Ngl support functions.

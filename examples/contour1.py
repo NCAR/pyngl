@@ -32,22 +32,22 @@
 #     
 
 import Ngl
-import Numeric
+import numpy
 
 #
 # Create some dummy data for the contour plot.
 #
 N=25
  
-T = Numeric.zeros((N,N),'f')
+T = numpy.zeros((N,N),'f')
  
-jspn = Numeric.power(Numeric.arange(-12,13),2)
-ispn = Numeric.power(Numeric.arange(-12,13),2)
+jspn = numpy.power(numpy.arange(-12,13),2)
+ispn = numpy.power(numpy.arange(-12,13),2)
 
 for i in range(0,len(ispn)):
   T[i,:] = (jspn + ispn[i]).astype('f')
 
-T = 100.0 - Numeric.sqrt(64 * T)
+T = 100.0 - numpy.sqrt(64 * T)
 
 #
 # Force the orientation to be portrait for both frames.

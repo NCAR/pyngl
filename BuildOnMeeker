@@ -4,4 +4,4 @@ cc -o build/temp.solaris-2.9-sun4u-2.4/hlu_wrap.o -DNeedFuncProto -O -I../.././i
 
 cc -o build/temp.solaris-2.9-sun4u-2.4/gsun.o -DNeedFuncProto -O -I../.././include -I/usr/openwin/include -c gsun.c
 
-cc -G build/temp.solaris-2.9-sun4u-2.4/Helper.o build/temp.solaris-2.9-sun4u-2.4/hlu_wrap.o build/temp.solaris-2.9-sun4u-2.4/gsun.o -L/fs/scd/home1/ncargd/test/Solaris_sun4_9/cgd/lib -L/usr/X11R6/lib -lnfpfort -lhlu -lncarg -lncarg_gks -lncarg_c -lngmath -lX11 -lg2c -o build/lib.solaris-2.9-sun4u-2.4/PyNGL/_hlu.so -lf77compat -lfsu -lsunmath
+cc -G build/temp.solaris-2.9-sun4u-2.4/Helper.o build/temp.solaris-2.9-sun4u-2.4/hlu_wrap.o build/temp.solaris-2.9-sun4u-2.4/gsun.o -L/fs/scd/home1/ncargd/test/Solaris_sun4_9/cgd/lib -L/usr/X11R6/lib -lnfpfort -lhlu -lncarg -lncarg_gks -lncarg_c -lngmath -lX11 -lg2c -o build/lib.solaris-2.9-sun4u-2.4/PyNGL_numeric/_hlu.so -lf77compat -lfsu -lsunmath

@@ -37,9 +37,9 @@
 #     This example requires the resource file cn12p.res.
 
 #
-#  Import Numeric and sys.
+#  Import numpy and sys.
 #
-import Numeric
+import numpy
 import sys
 
 #

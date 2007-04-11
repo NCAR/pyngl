@@ -37,9 +37,9 @@
 #     
 
 #
-#  Import Numeric.
+#  Import numpy.
 #
-import Numeric
+import numpy
 
 #
 #  Import Nio read functions (for netCDF files).
@@ -134,15 +134,15 @@ tempa = temp[0,:,:]
 #
 if hasattr(temp,"_FillValue"):
   tempa = ((tempa-273.15)*9.0/5.0+32.0) *  \
-          Numeric.not_equal(tempa,temp._FillValue) + \
-          temp._FillValue*Numeric.equal(tempa,temp._FillValue)
+          numpy.not_equal(tempa,temp._FillValue) + \
+          temp._FillValue*numpy.equal(tempa,temp._FillValue)
   resources.sfMissingValueV = temp._FillValue
 else:
   tempa = (tempa-273.15)*9.0/5.0+32.0
 
 temp_units = "(deg F)"
 
-cmap = Numeric.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
+cmap = numpy.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
                       [.560, .500, .700], [.300, .300, .700], \
                       [.100, .100, .700], [.000, .100, .700], \
                       [.000, .300, .700], [.000, .500, .500], \

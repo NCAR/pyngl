@@ -37,7 +37,7 @@
 #
 #  Notes:
 #     
-import Numeric
+import numpy
 import Ngl
 
 #  
@@ -49,9 +49,9 @@ seismic = Ngl.asciiread(dirc + "/asc/seismic.asc" ,[52,3],"float")
 #
 #  Extract coordinate triples from the data file.
 #
-x = Numeric.array(seismic[:,0],'f')
-y = Numeric.array(seismic[:,1],'f')
-z = Numeric.array(seismic[:,2],'f')-785.
+x = numpy.array(seismic[:,0],'f')
+y = numpy.array(seismic[:,1],'f')
+z = numpy.array(seismic[:,2],'f')-785.
 
 #
 #  Define output grid for the calls to "natgrid".
@@ -60,15 +60,15 @@ numxout, numyout = 20, 20
 xmin, xmax, ymin, ymax   = min(x), max(x), min(y), max(y)
 xc      = (xmax-xmin)/(numxout-1)
 yc      = (ymax-ymin)/(numyout-1)
-xo = xmin + xc*Numeric.arange(0,numxout)
-yo = ymin + yc*Numeric.arange(0,numxout)
+xo = xmin + xc*numpy.arange(0,numxout)
+yo = ymin + yc*numpy.arange(0,numxout)
 
 zo = Ngl.natgrid(x, y, z, xo, yo)   # Interpolate, allow negative values.
 
 #
 #  Define a color map and open four different types of workstations.
 #
-cmap = Numeric.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
+cmap = numpy.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
                       [1.00, 0.00, 0.00], [1.00, 0.00, 0.40], \
                       [1.00, 0.00, 0.80], [1.00, 0.20, 1.00], \
                       [1.00, 0.60, 1.00], [0.60, 0.80, 1.00], \
@@ -117,7 +117,7 @@ resources.vpYF = 0.9                 # Change Y location of plot.
 #
 #  Contour
 #
-zt = Numeric.transpose(zo)
+zt = numpy.transpose(zo)
 contour = Ngl.contour(wks,zt,resources) 
 
 #
@@ -126,7 +126,7 @@ contour = Ngl.contour(wks,zt,resources)
 Ngl.nnsetp("non",1)
 resources.tiMainString          = "Negative interpolants not allowed"
 zo = Ngl.natgrid(x, y, z, xo, yo)
-zt = Numeric.transpose(zo)
+zt = numpy.transpose(zo)
 contour = Ngl.contour(wks,zt,resources) 
 
 #

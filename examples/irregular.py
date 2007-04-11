@@ -49,9 +49,9 @@
 #
 
 #
-#  Import Numeric.
+#  Import numpy.
 #
-import Numeric
+import numpy
 
 #
 #  Import Nio for reading netCDF files.

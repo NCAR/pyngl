@@ -44,7 +44,7 @@ wks = Ngl.open_wks(wks_type, "wmbarb")
 #
 #  Draw wind barbs.
 #
-x = [0.25, 0.75, 0.75, 0.25]  # x,y,u,v can also be Numeric arrays.
+x = [0.25, 0.75, 0.75, 0.25]  # x,y,u,v can also be numpy arrays.
 y = [0.25, 0.25, 0.75, 0.75]
 u = [50., -50., -50.,  50.0]
 v = [50.,  50., -50., -50.0]

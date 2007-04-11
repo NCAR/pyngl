@@ -41,9 +41,9 @@
 #     
 
 #
-#  Import Numeric.
+#  Import numpy.
 #
-import Numeric
+import numpy
 
 #
 #  Import Ngl support functions.
@@ -59,14 +59,14 @@ npts   = 201
 xl     =  -1.0
 xr     =   5.0
 inc    = (xr-xl)/(npts-1)
-xo     = Numeric.arange(xl,xr+0.0001,inc) # Create output X coordinate array.
+xo     = numpy.arange(xl,xr+0.0001,inc) # Create output X coordinate array.
                                           # Add a small amount to xr to make
                                           # sure xr is the final value in the
                                           # range.
 period = 3.0
 yo = Ngl.ftcurvp(xi, yi, period, xo)  # Interpolate.
 
-yint = Numeric.zeros(npts,'f')
+yint = numpy.zeros(npts,'f')
 for i in xrange(npts):
   yint[i] = Ngl.ftcurvpi(0., xo[i], period, xi, yi)
 

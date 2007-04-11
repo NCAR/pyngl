@@ -29,7 +29,7 @@
 #  Notes:
 #     
 
-import Numeric 
+import numpy 
 import Nio
 import Ngl
 

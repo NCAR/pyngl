@@ -47,9 +47,9 @@
 #     
 
 #
-#  Import Numeric.
+#  Import numpy.
 #
-import Numeric
+import numpy
 
 #
 #  Import Ngl support functions.
@@ -70,16 +70,16 @@ dirc  = Ngl.pynglpath("data")
 cfile = Nio.open_file(dirc + "/cdf/seam.nc")
 
 #
-#  Read the lat/lon/ps arrays to Numeric arrays, and convert
+#  Read the lat/lon/ps arrays to numpy arrays, and convert
 #  to 1D.  If the intput array to Ngl.contour (or any similar Ngl
 #  function) is given as a 1D array and the resources sfXArray
 #  and sfYArray are set to 1D arrays of the same size, then 
 #  Ngl.contour will automatically perform a triangular mesh
 #  conversion of the input array.
 #
-lon = Numeric.ravel(cfile.variables["lon2d"][:,:])
-lat = Numeric.ravel(cfile.variables["lat2d"][:,:])
-ps  = Numeric.ravel(cfile.variables["ps"][0,:,:])/100.
+lon = numpy.ravel(cfile.variables["lon2d"][:,:])
+lat = numpy.ravel(cfile.variables["lat2d"][:,:])
+ps  = numpy.ravel(cfile.variables["ps"][0,:,:])/100.
 
 #
 #  Select a colormap and open a workstation.

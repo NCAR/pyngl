@@ -14,7 +14,7 @@ from distutils.core import setup
 # data files (fontcaps, graphcaps, map databases, example
 # scripts, etc.) will live.
 #
-pyngl_pkg_name  = "PyNGL"
+pyngl_pkg_name  = "PyNGL_numeric"
 
 pkgs_pth        = join(sys.prefix,'lib','python'+sys.version[:3],\
                        'site-packages')

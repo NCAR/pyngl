@@ -34,9 +34,9 @@
 #     
 
 #
-#  Import Numeric.
+#  Import numpy.
 #
-import Numeric
+import numpy
 
 #
 #  Import Nio for a NetCDF reader.
@@ -78,10 +78,10 @@ ta = t[0,:,:]
 # Scale the temperature and pressure data.
 #
 ta = ((ta-273.15)*9.0/5.0+32.0) *  \
-      Numeric.not_equal(ta,t._FillValue) + \
-      t._FillValue*Numeric.equal(ta,t._FillValue)
-pa = 0.01*(pa*Numeric.not_equal(pa,p._FillValue)) +   \
-        p._FillValue*Numeric.equal(pa,p._FillValue)
+      numpy.not_equal(ta,t._FillValue) + \
+      t._FillValue*numpy.equal(ta,t._FillValue)
+pa = 0.01*(pa*numpy.not_equal(pa,p._FillValue)) +   \
+        p._FillValue*numpy.equal(pa,p._FillValue)
 
 #
 # Open a PostScript workstation and change the color map.

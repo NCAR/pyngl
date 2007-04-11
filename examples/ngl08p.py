@@ -40,9 +40,9 @@
 #     
 
 #
-#  Import Numeric.
+#  Import numpy.
 #
-import Numeric
+import numpy
 
 #
 #  Import Ngl support functions.
@@ -55,9 +55,9 @@ import Ngl
 dirc    = Ngl.pynglpath("data")
 seismic = Ngl.asciiread(dirc + "/asc/seismic.asc" ,[52,3],"float")
 
-x = Numeric.array(seismic[:,0],'f')
-y = Numeric.array(seismic[:,1],'f')
-z = Numeric.array(seismic[:,2],'f')
+x = numpy.array(seismic[:,0],'f')
+y = numpy.array(seismic[:,1],'f')
+z = numpy.array(seismic[:,2],'f')
 
 numxout = 20     # Define output grid for call to "natgrid".
 numyout = 20
@@ -69,14 +69,14 @@ ymax    = max(y)
 xc      = (xmax-xmin)/(numxout-1)
 yc      = (ymax-ymin)/(numyout-1)
 
-xo = xmin + xc*Numeric.arange(0,numxout)
-yo = ymin + yc*Numeric.arange(0,numxout)
+xo = xmin + xc*numpy.arange(0,numxout)
+yo = ymin + yc*numpy.arange(0,numxout)
 zo = Ngl.natgrid(x, y, z, xo, yo)   # Interpolate.
 
 #
 #  Define a color map and open four different types of workstations.
 #
-cmap = Numeric.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
+cmap = numpy.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
                       [1.00, 0.00, 0.00], [1.00, 0.00, 0.40], \
                       [1.00, 0.00, 0.80], [1.00, 0.20, 1.00], \
                       [1.00, 0.60, 1.00], [0.60, 0.80, 1.00], \
@@ -112,7 +112,7 @@ resources.lbOrientation         = "Horizontal" # Draw it horizontally.
 resources.nglSpreadColors = False    # Do not interpolate color space.
 resources.vpYF = 0.9   # Change Y location of plot.
 
-zt = Numeric.transpose(zo)
+zt = numpy.transpose(zo)
 contour = Ngl.contour(xwks,zt,resources) 
 
 #----------- Begin second plot -----------------------------------------

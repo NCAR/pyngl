@@ -29,9 +29,9 @@
 #     
 
 #
-#  Import Numeric.
+#  Import numpy.
 #
-import Numeric
+import numpy
 
 #
 #  Import PyNGL support functions.
@@ -44,34 +44,34 @@ import Ngl
 #  1953 and 1973 inclusive, or greater than 1973.
 #  
 def wigley(time):
-  y = Numeric.zeros(time.shape).astype(type(time))
-  Numeric.putmask(y,Numeric.less(time,1953.),         \
+  y = numpy.zeros(time.shape).astype(type(time))
+  numpy.putmask(y,numpy.less(time,1953.),         \
                 ((time-1860.)/(1953.-1860.)) * 35.0)
-  Numeric.putmask(y,Numeric.logical_and(Numeric.greater_equal(time,1953.),  \
-                                        Numeric.less_equal(time,1973.)),    \
+  numpy.putmask(y,numpy.logical_and(numpy.greater_equal(time,1953.),  \
+                                    numpy.less_equal(time,1973.)),    \
                 ((time-1953.)/(1973.-1953.)) * (68. - 35.) + 35.)
-  Numeric.putmask(y,Numeric.logical_and(Numeric.greater(time,1973.),        \
-                                        Numeric.less_equal(time,1990.)),    \
+  numpy.putmask(y,numpy.logical_and(numpy.greater(time,1973.),        \
+                                    numpy.less_equal(time,1990.)),    \
                 ((time-1973.)/(1990.-1973.)) * (75. - 68.) + 68.)
   return y
 
 #
 #  Main program.
 #
-time1 = Numeric.array([1990,  1985,  1980,  1970,  1960,  1950,  1940,  1930, \
-                       1920,  1910,  1900,  1890,  1880,  1870,  1860],
+time1 = numpy.array([1990,  1985,  1980,  1970,  1960,  1950,  1940,  1930, \
+                     1920,  1910,  1900,  1890,  1880,  1870,  1860],
                        'i')
-y1    = Numeric.array([68.065, 65.00, 70.67, 63.06, 43.42, 28.28, 23.00,  \
-                       20.250, 17.77, 15.36, 10.01,  6.40,  3.98,  2.18,  \
-                        1.540], 'f')
+y1    = numpy.array([68.065, 65.00, 70.67, 63.06, 43.42, 28.28, 23.00,  \
+                     20.250, 17.77, 15.36, 10.01,  6.40,  3.98,  2.18,  \
+                      1.540], 'f')
 
-time2 = Numeric.arange(min(time1),max(time1)+1,1)
+time2 = numpy.arange(min(time1),max(time1)+1,1)
 
 y2 = wigley(time2)      # Calculate proposed values as a function of time.
 
 maxdim = max(y1.shape[0],y2.shape[0])
-y    = -999.*Numeric.ones((2,maxdim),'f')  # Create 2D arrays to
-time = -999.*Numeric.ones((2,maxdim),'f')  # hold 1D arrays above.
+y    = -999.*numpy.ones((2,maxdim),'f')  # Create 2D arrays to
+time = -999.*numpy.ones((2,maxdim),'f')  # hold 1D arrays above.
 
 y[0,0:y1.shape[0]] = y1
 y[1,0:y2.shape[0]] = y2
@@ -82,7 +82,7 @@ time[1,0:time2.shape[0]] = time2.astype('f')
 #
 #  Define a color map and open a workstation.
 #
-cmap = Numeric.zeros((2,3),'f')
+cmap = numpy.zeros((2,3),'f')
 cmap[0] = [1.,1.,1.]
 cmap[1] = [0.,0.,0.]
 rlist = Ngl.Resources()

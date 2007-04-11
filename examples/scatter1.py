@@ -40,9 +40,9 @@
 #     
 
 #
-#  Import Numeric.
+#  Import numpy.
 #
-import Numeric
+import numpy
 
 #
 # Import Nio for reading netCDF files.
@@ -50,16 +50,7 @@ import Numeric
 import Nio
 
 #
-#  From Scientific import the the polynomial least squares function.
-#
-# You can download ScientificPython from:
-#
-#  http://starship.python.net/~hinsen/ScientificPython/
-#
-from Scientific.Functions.LeastSquares import polynomialLeastSquaresFit
-
-#
-#  Import PyNGL.
+#  Import Ngl.
 #
 import Ngl
 
@@ -80,8 +71,8 @@ color_index = colors.astype('i')
 #
 #  Specify a color map and open an output workstation.
 #
-cmap = Numeric.array([[1., 1., 1.], [0., 0., 0.], [1., 0., 0.], \
-                      [0., 0., 1.], [0., 1., 0.]], 'f')
+cmap = numpy.array([[1., 1., 1.], [0., 0., 0.], [1., 0., 0.], \
+                    [0., 0., 1.], [0., 1., 0.]], 'f')
 rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
 wks_type = "ps"
@@ -163,26 +154,28 @@ Ngl.text_ndc(wks,"20 min",xpos+delx,ypos-3*dely,txres)
 resources.nglFrame = False
 
 #
-#  Put the data in the correct format for the least squares 
-#  function and do the fit.
+#  Do a quadratic least squares fit.
 #
-data = []
-for j in xrange(len(x)):
-  data.append((x[j],y[j]))
-params = [0.,0.,1.e-7]
-a = polynomialLeastSquaresFit(params, data)
+npoints = len(x)
+a = numpy.zeros([npoints,3],'f')
+for m in xrange(npoints):
+  a[m,0] = 1.
+  for j in xrange(1,3):
+    a[m,j] = x[m]*a[m,j-1]
+c = (numpy.linalg.lstsq(a,y,rcond=1.e-15))[0]
 
 #
 #  Draw the least squares quadratic curve.
 #
 num  = 301
 delx = 1000./num
-u    = Numeric.zeros(num,'f')
-v    = Numeric.zeros(num,'f')
+xp    = numpy.zeros(num,'f')
+yp    = numpy.zeros(num,'f')
 for i in xrange(num):
-  u[i] = float(i)*delx
-  v[i] = a[0][0]+a[0][1]*u[i]+a[0][2]*u[i]*u[i]
-plot = Ngl.xy(wks,u,v,resources) # Draw least squares quadratic.
+  xp[i] = float(i)*delx
+  yp[i] = c[0]+c[1]*xp[i]+c[2]*xp[i]*xp[i]
+plot = Ngl.xy(wks,xp,yp,resources) # Draw least squares quadratic.
+
 
 #
 #  Draw a marker at each data point using the specified color index.

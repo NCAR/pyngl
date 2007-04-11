@@ -32,9 +32,9 @@
 #     
 
 #
-#  Import Numeric and types.
+#  Import numpy and types.
 #
-import Numeric 
+import numpy 
 import types
 
 #

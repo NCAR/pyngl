@@ -32,7 +32,7 @@
 
 import Ngl
 import math
-import Numeric
+import numpy
 
 #
 # Create dummy data for XY plot.
@@ -40,8 +40,8 @@ import Numeric
 
 npts  = 501
 xspan = Ngl.fspan(0,npts-1,npts)
-x     = Numeric.zeros([npts],'f')
-y     = Numeric.zeros([npts],'f')
+x     = numpy.zeros([npts],'f')
+y     = numpy.zeros([npts],'f')
 
 for i in range(0,npts):
   x[i] = 500.+.9*xspan[i]*math.cos(0.031415926535898*xspan[i])

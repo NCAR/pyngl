@@ -32,9 +32,9 @@
 #     
 
 #
-#  Import Numeric and random.
+#  Import numpy and random.
 #
-import Numeric 
+import numpy 
 import random
 
 #
@@ -47,7 +47,7 @@ random.seed(10)   # set a seed for the random number generator
 #
 # Generate some dummy data.
 #
-y = Numeric.zeros([3,100],'f')
+y = numpy.zeros([3,100],'f')
 for i in range(100):
   y[0,i] = 90.*random.random()+105.
   y[1,i] = 90.*random.random()+105.
@@ -74,7 +74,7 @@ i3 = Ngl.new_color(wks,0,0,1)      # Blue
 #
 # Set up parameters for creating some new markers.
 #
-mrk_indices = Numeric.zeros(3,'i')
+mrk_indices = numpy.zeros(3,'i')
 
 mstrings = ["u","z","y"]     # triangle, star, sqaure
 fontnums = [34,35,35]

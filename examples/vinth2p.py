@@ -30,7 +30,7 @@
 #     
 
 import Ngl
-import Numeric
+import numpy
 import Nio
 
 #

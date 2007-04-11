@@ -277,8 +277,8 @@ def pynglpath_ncarg():
 #  in site-packages/PyNGL/ncarg. Otherwise, check the PYNGL_NCARG
 #  environment variable.
 #
-  if sys.modules.has_key("PyNGL_numpy.Ngl"):
-    pyngl1_dir  = pkgs_pth + "/PyNGL_numpy/ncarg"
+  if sys.modules.has_key("PyNGL_numeric.Ngl"):
+    pyngl1_dir  = pkgs_pth + "/PyNGL_numeric/ncarg"
   else:
     pyngl1_dir  = pkgs_pth + "/PyNGL/ncarg"
   pyngl2_dir  = os.environ.get("PYNGL_NCARG")
@@ -3351,8 +3351,8 @@ name -- A string representing abbreviated name for which you want a
 # so figure out which one we have and create the path to the pynglex
 # examples accordingly.
 #
-    if sys.modules.has_key("PyNGL_numpy.Ngl"):
-      examples_dir_dflt = os.path.join(pkgs_pth,"PyNGL_numpy","ncarg",
+    if sys.modules.has_key("PyNGL_numeric.Ngl"):
+      examples_dir_dflt = os.path.join(pkgs_pth,"PyNGL_numeric","ncarg",
                                        "pynglex")
     else:
       examples_dir_dflt = os.path.join(pynglpath_ncarg(),"pynglex")

@@ -45,7 +45,7 @@
 #
 #  Import NumPy.
 #
-import Numeric
+import numpy
 
 #
 #  Import Nio for a NetCDF reader.
@@ -144,7 +144,7 @@ resources.cnLineThicknessF     = 2.0   # Double the line thickness.
 resources.cnFillOn           = True  # Turn on contour level fill.
 resources.cnMonoFillColor    = True  # Use one fill color.
 resources.cnMonoFillPattern  = False # Use multiple fill patterns.
-FillPatterns = Numeric.zeros([ncn+1],'i')-1
+FillPatterns = numpy.zeros([ncn+1],'i')-1
 FillPatterns[ncn-1:ncn+1] =  17
 resources.cnFillPatterns     = FillPatterns
 resources.cnLineDrawOrder      = "Predraw" # Draw lines and filled
@@ -212,8 +212,8 @@ resources.nglFrame = False # Don't advance frame.
 #
 pfa = pf[0,:,:]
 if hasattr(pf,"_FillValue"):
-  pfa = 0.01*(pfa*Numeric.not_equal(pfa,pf._FillValue)) +   \
-        pf._FillValue*Numeric.equal(pfa,pf._FillValue)
+  pfa = 0.01*(pfa*numpy.not_equal(pfa,pf._FillValue)) +   \
+        pf._FillValue*numpy.equal(pfa,pf._FillValue)
 else:
   pfa = 0.01*pfa
 #
@@ -233,7 +233,7 @@ del resources.tiXAxisString  # Delete some resources you don't
 del resources.tiYAxisString  # need anymore.
 del resources.nglFrame
 
-cmap = Numeric.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
+cmap = numpy.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
                       [.560, .500, .700], [.300, .300, .700], \
                       [.100, .100, .700], [.000, .100, .700], \
                       [.000, .300, .700], [.000, .500, .500], \
@@ -258,7 +258,7 @@ resources.mpGridMaskMode        = "MaskLand"      # Mask grid over land.
 resources.cnFillDrawOrder       = "Predraw"       # Draw contours first.
 
 resources.cnLevelSelectionMode = "ExplicitLevels" # Define own levels.
-resources.cnLevels             = Numeric.arange(985.,1046.,5.)
+resources.cnLevels             = numpy.arange(985.,1046.,5.)
 
 resources.lbTitleString  = "~F25~pressure (mb)" # Title for label bar.
 resources.cnLinesOn      = False         # Turn off contour lines.
@@ -270,8 +270,8 @@ resources.lbOrientation  = "Horizontal"  # Label bar orientation.
 #
 pfa = pf[1,:,:]
 if hasattr(pf,"_FillValue"):
-  pfa = 0.01*(pfa*Numeric.not_equal(pfa,pf._FillValue)) +   \
-        pf._FillValue*Numeric.equal(pfa,pf._FillValue)
+  pfa = 0.01*(pfa*numpy.not_equal(pfa,pf._FillValue)) +   \
+        pf._FillValue*numpy.equal(pfa,pf._FillValue)
 else:
   pfa = 0.01*pfa
 

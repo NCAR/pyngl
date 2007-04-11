@@ -30,7 +30,7 @@
 #  Notes:
 #     
 
-import Numeric 
+import numpy 
 import Nio 
 import time, os
 

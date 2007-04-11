@@ -40,7 +40,7 @@
 #    value of 1.e+10 outside the contoured area.
 #     
 
-import Numeric
+import numpy
 import os
 import Ngl
 import Nio
@@ -78,7 +78,7 @@ res.cnLinesOn              = False         # Turn off contour lines
 res.cnFillDrawOrder        = "PostDraw"    # Draw contours last
 
 res.cnLevelSelectionMode   = "ExplicitLevels"   # Set explicit contour levels
-res.cnLevels               = Numeric.arange(0,75,4)      # 0,5,10,...,70
+res.cnLevels               = numpy.arange(0,75,4)      # 0,5,10,...,70
 res.cnLineLabelsOn         = False
 
 res.nglSpreadColors        = True             # Use full color map
@@ -87,10 +87,10 @@ res.lbLabelBarOn           = False            # Turn off labelbar.
 
 res.mpProjection           = "Mercator"       # Projection
 res.mpLimitMode            = "Corners"        # Method to zoom
-res.mpLeftCornerLatF       = min(lat)[0]
-res.mpLeftCornerLonF       = min(lon)[0]
-res.mpRightCornerLatF      = max(lat)[0]    
-res.mpRightCornerLonF      = max(lon)[0]    
+res.mpLeftCornerLatF       = min(lat)
+res.mpLeftCornerLonF       = min(lon)
+res.mpRightCornerLatF      = max(lat)
+res.mpRightCornerLonF      = max(lon)
 
 res.mpFillOn               = True
 res.mpFillColors           = [0,0,igray,igray]

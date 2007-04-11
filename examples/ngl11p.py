@@ -35,9 +35,9 @@
 #     
 
 #
-#  Import Numeric and sys.
+#  Import numpy and sys.
 #
-import Numeric
+import numpy
 import sys
 
 #
@@ -48,7 +48,7 @@ import Ngl
 #
 #  Define a color table and open a workstation.
 #
-cmap = Numeric.zeros((2,3),'f')
+cmap = numpy.zeros((2,3),'f')
 cmap[0] = [1.,1.,1.]
 cmap[1] = [0.,0.,0.]
 rlist = Ngl.Resources()
@@ -123,7 +123,7 @@ contour = Ngl.contour(wks, unew, resources)  # Create a contour plot.
 
 levels = Ngl.get_float_array(contour,"cnLevels")
 
-patterns = Numeric.zeros((len(levels)+1),'i')
+patterns = numpy.zeros((len(levels)+1),'i')
 patterns[:] = -1
 
 for i in xrange(len(levels)):

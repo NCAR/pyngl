@@ -35,11 +35,10 @@
 #  Notes:
 #     
 
-
 #
-#  Import Numeric.
+#  Import NumPy.
 #
-import Numeric
+import numpy
 
 #
 #  Import Ngl support functions.
@@ -47,13 +46,13 @@ import Numeric
 import Ngl
 
 PI = 3.14159
-x = Numeric.arange(1,65,1)       # X points for both XY plots
-y = Numeric.sin(PI*x/32.)        # Y points for first XY plot
+x = numpy.arange(1,65,1)       # X points for both XY plots
+y = numpy.sin(PI*x/32.)        # Y points for first XY plot
 
 #
 # Set up arrays for polygons, polymarkers, and polylines.
 #
-xx = Numeric.array([1.,32.,64.],'f')
+xx = numpy.array([1.,32.,64.],'f')
 ytopline = [ 0.5, 0.5, 0.5]     # Top line
 ymidline = [ 0.0, 0.0, 0.0]     # Middle line
 ybotline = [-0.5,-0.5,-0.5]     # Bottom line
@@ -126,7 +125,7 @@ prim6 = Ngl.add_polymarker(wks,xy1,xdots,ydots,gsres)
 #
 # New Y points for second XY plot.
 #
-y = Numeric.cos(3.14159*x/32.)
+y = numpy.cos(3.14159*x/32.)
 
 # Create second XY plot, but don't draw it yet.
 

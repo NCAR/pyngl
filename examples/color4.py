@@ -30,7 +30,7 @@
 
 import Ngl
 import math
-import Numeric
+import numpy
 
 #
 #  Define the colors and labels to be used.
@@ -76,8 +76,8 @@ labels = colors_and_labels[1:len(colors_and_labels):2]
 #  Set up arrays and resource lists for drawing the boxes.
 #  Select "Helvetica-Bold" for all text.
 #
-x = Numeric.zeros(5,'f')
-y = Numeric.zeros(5,'f')
+x = numpy.zeros(5,'f')
+y = numpy.zeros(5,'f')
 poly_res = Ngl.Resources()
 text_res = Ngl.Resources()
 text_res.txFont = "Helvetica-Bold"

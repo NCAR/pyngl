@@ -19,10 +19,12 @@ def print_usage():
         The -w option requires a type be specified.
       -n
         Copy over the source files, but do not execute.
-      --numpy
-        Execute the numpy version of the examples. You must have
-        the numpy version of the PyNGL package installed in order
+      --numeric
+        Execute the numeric version of the examples. You must have
+        the numeric version of the PyNGL package installed in order
         for this to work.
+      --numpy
+        Deprecated.
       -l
         List out the available example names.
       -h
@@ -66,7 +68,7 @@ if (argc < 2):
 #  will be example name requests.
 #
 try:
-  opts,pargs = getopt.getopt(sys.argv[1:],"w:anlh",["numpy","type="])
+  opts,pargs = getopt.getopt(sys.argv[1:],"w:anlh",["numeric","type="])
 except getopt.GetoptError,e:
   print "pynglex - command line parsing error: ", e
   sys.exit()
@@ -84,30 +86,30 @@ if (odict.has_key("-h")):
   sys.exit()
 
 #
-# Try to generate numpy version of examples if "--numpy" is specified or
-# if the Numeric version can't be imported, and vice versa.
+# Try to generate Numeric version of examples if "--numeric" is specified or
+# if the NumPy version can't be imported, and vice versa.
 #
-if (odict.has_key("--numpy")):
+if (odict.has_key("--numeric")):
   try:
-    import PyNGL_numpy.Ngl as Ngl
+    import PyNGL_numeric.Ngl as Ngl
   except:
-    print "\nWarning: You don't appear to have the numpy version of PyNGL"
-    print "         installed. I will try the numeric version instead.\n"
+    print "\nWarning: You don't appear to have the Numeric version of PyNGL"
+    print "         installed. I will try the NumPy version instead.\n"
     try:
       import Ngl
     except:
-      print "Error: You don't appear to have the numeric version of PyNGL either.\n"
+      print "Error: You don't appear to have the NumPy version of PyNGL either.\n"
       sys.exit()
 else:
   try:
     import Ngl
   except:
-    print "\nWarning: You don't appear to have the numeric version of PyNGL"
-    print "         installed. I will try the numpy version instead.\n"
+    print "\nWarning: You don't appear to have the NumPy version of PyNGL"
+    print "         installed. I will try the Numeric version instead.\n"
     try:
-      import PyNGL_numpy.Ngl as Ngl
+      import PyNGL_numeric.Ngl as Ngl
     except:
-      print "Error: You don't appear to have the numpy version of PyNGL either.\n"
+      print "Error: You don't appear to have the Numeric version of PyNGL either.\n"
       sys.exit()
 
 #

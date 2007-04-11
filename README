@@ -11,20 +11,20 @@ PyNGL and PyNIO are available with Numeric or NumPy support, and are
 distributed as separate packages.  You can install both versions on
 the same system, as there will be no clashes.
 
-If you install the Numeric version of PyNGL/PyNIO, then you can
+If you install the NumPy version of PyNGL/PyNIO, then you can
 import them with:
 
 import Ngl
 import Nio
 
-If you install the NumPy version of PyNGL/PyNIO, then you can
+If you install the Numeric version of PyNGL/PyNIO, then you can
 import them with:
 
-import PyNGL_numpy.Ngl as Ngl
-import PyNGL_numpy.Nio as Nio
+import PyNGL_numeric.Ngl as Ngl
+import PyNGL_numeric.Nio as Nio
 
-These binaries were built with Python 2.4.3, Numeric 24.2, and NumPy
-1.0. This package has not been tested with other versions of these
+These binaries were built with Python 2.4.4, Numeric 24.2, and NumPy
+1.0.2. This package has not been tested with other versions of these
 modules.
 
 The 2D visualizations can be drawn on an X11 window or saved as as

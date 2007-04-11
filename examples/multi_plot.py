@@ -40,9 +40,9 @@
 #     
 
 #
-#  Import Numeric and the Masked Array module.
+#  Import numpy and the Masked Array module.
 #
-import Numeric
+import numpy
 
 #
 # Import Ngl and Nio for file I/O and graphics.
@@ -66,7 +66,7 @@ Lon  = a.variables["Lon"][:]
 icem = a.variables["Icemask"][:,:]
 
 # Keep topo where icem.eq.1
-topo = Numeric.where(icem == 1, topo,1e20)
+topo = numpy.where(icem == 1, topo,1e20)
 
 # Add longitude cyclic point
 topo,Lon = Ngl.add_cyclic(topo,Lon)
@@ -285,8 +285,8 @@ map2 = Ngl.contour_map(wks,topo,mpres)      # Draw the second contours/map.
 #========================================================================== 
 print "Beginning new XY plot section"
 
-yarr = Numeric.array([[0.,16.],[15.,19.], [22.5,30.5], [15.,15.], [22.5,22.5]])
-xarr = Numeric.array([[0.,7.5],[0.,8.],   [0.,8.],     [0.,8.],   [0.,8.]])
+yarr = numpy.array([[0.,16.],[15.,19.], [22.5,30.5], [15.,15.], [22.5,22.5]])
+xarr = numpy.array([[0.,7.5],[0.,8.],   [0.,8.],     [0.,8.],   [0.,8.]])
 
 sres              = Ngl.Resources()
 sres.nglDraw      = False

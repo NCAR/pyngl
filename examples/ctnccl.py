@@ -50,9 +50,9 @@
 #
 
 #
-#  Import Numeric.
+#  Import numpy.
 #
-import Numeric
+import numpy
 
 #
 #  Import Ngl support functions.
@@ -71,7 +71,7 @@ dirc  = Ngl.pynglpath("data")
 cfile = Nio.open_file(dirc + "/cdf/ctnccl.nc","r")
 
 #
-#  Read the lat/lon/ele/depth arrays to Numeric arrays.
+#  Read the lat/lon/ele/depth arrays to numpy.arrays.
 #
 lat   = cfile.variables["lat"][:]
 lon   = cfile.variables["lon"][:]
@@ -81,7 +81,7 @@ depth = cfile.variables["dat"][:]
 #
 # Create colormap
 #
-cmap = Numeric.zeros((104,3),'f')
+cmap = numpy.zeros((104,3),'f')
 cmap[0] = [1.,1.,1.]
 cmap[1] = [0.,0.,0.]
 cmap[2] = [.5,.5,.5]

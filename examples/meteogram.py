@@ -38,7 +38,7 @@
 #
 #  Notes:
 #    This code is based on an NCL code of John Ertl at the
-#    Fleet Numerical Meteorology and Oceanography Center
+#    Fleet numpy.l Meteorology and Oceanography Center
 #     
 
 import copy
@@ -48,9 +48,9 @@ import copy
 import Nio
 
 #
-#  Import Numeric and sys.
+#  Import numpy and sys.
 #
-import Numeric
+import numpy
 import sys
 
 #
@@ -63,7 +63,7 @@ import Ngl
 #
 def smth9(x,p,q):
 #
-#  Run a 9-point smoother on the 2D Numeric array x using weights
+#  Run a 9-point smoother on the 2D numpy.array x using weights
 #  p and q.  Return the smoothed array.
 #
 
@@ -82,7 +82,7 @@ def smth9(x,p,q):
   po4 = p/4.
   qo4 = q/4.
 
-  output = Numeric.zeros([ni,nj],'f')
+  output = numpy.zeros([ni,nj],'f')
   for j in xrange(1,nj-1):
     for i in xrange(1,ni-1):
       jm1 = j-1
@@ -132,7 +132,7 @@ smothrh   = smth9(        rh, 0.50, -0.25)
 #
 #  Set up a color map and open an output workstation.
 #
-colors = Numeric.array([                                               \
+colors = numpy.array([                                               \
                          [255,255,255], [  0,  0,  0], [255,255,255],  \
                          [255,255,255], [255,255,255], [240,255,240],  \
                          [220,255,220], [190,255,190], [120,255,120],  \
@@ -307,7 +307,7 @@ rainhist  = Ngl.xy(wks,taus,rain03,rain_res)
 #
 # Make dummy data equal to min Y axis value.
 #
-dummy = rain_res.trYMinF * Numeric.ones([len(rain03)],rain03.typecode())
+dummy = rain_res.trYMinF * numpy.ones([len(rain03)],rain03.dtype.char)
 
 #
 # Make sure there's enough room for a bar at the first and last
@@ -326,18 +326,18 @@ rainhist  = Ngl.xy(wks,taus,dummy,rain_res)
 # Get indices where rain data is above zero. Draw filled bars for each
 # of these points.
 #
-above_zero     = Numeric.greater(rain03,0.0)
-ind_above_zero = Numeric.nonzero(above_zero)  # We know that the values are 
+above_zero     = numpy.greater(rain03,0.0)
+ind_above_zero = numpy.nonzero(above_zero)  # We know that the values are 
                                               # above zero.
-num_above = len(ind_above_zero)
+num_above = len(ind_above_zero[0])
 
 #
 # Create arrays to hold polygon points. Since we are drawing a rectangle,
 # we just need 5 points for the filled rectangle, and we can use the
 # first four points of each for the outline.
 #
-px = Numeric.zeros(5*num_above,taus.typecode())
-py = Numeric.zeros(5*num_above,rain03.typecode())
+px = numpy.zeros(5*num_above,taus.dtype.char)
+py = numpy.zeros(5*num_above,rain03.dtype.char)
 
 #
 # Create resource list for polygons.
@@ -345,15 +345,15 @@ py = Numeric.zeros(5*num_above,rain03.typecode())
 pgres             = Ngl.Resources()
 pgres.gsFillColor = "green"
 
-taus_above_zero = Numeric.take(taus,ind_above_zero)
-px[0::5] = (taus_above_zero - dx/2.).astype(taus.typecode())
-px[1::5] = (taus_above_zero - dx/2.).astype(taus.typecode())
-px[2::5] = (taus_above_zero + dx/2.).astype(taus.typecode())
-px[3::5] = (taus_above_zero + dx/2.).astype(taus.typecode())
-px[4::5] = (taus_above_zero - dx/2.).astype(taus.typecode())
+taus_above_zero = numpy.take(taus,ind_above_zero)
+px[0::5] = (taus_above_zero - dx/2.).astype(taus.dtype.char)
+px[1::5] = (taus_above_zero - dx/2.).astype(taus.dtype.char)
+px[2::5] = (taus_above_zero + dx/2.).astype(taus.dtype.char)
+px[3::5] = (taus_above_zero + dx/2.).astype(taus.dtype.char)
+px[4::5] = (taus_above_zero - dx/2.).astype(taus.dtype.char)
 py[0::5] = rain_res.trYMinF
-py[1::5] = Numeric.take(rain03,ind_above_zero)
-py[2::5] = Numeric.take(rain03,ind_above_zero)
+py[1::5] = numpy.take(rain03,ind_above_zero)
+py[2::5] = numpy.take(rain03,ind_above_zero)
 py[3::5] = rain_res.trYMinF
 py[4::5] = rain_res.trYMinF
 polyg    = Ngl.add_polygon(wks,rainhist,px,py,pgres)

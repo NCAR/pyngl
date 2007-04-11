@@ -34,9 +34,9 @@
 #
 
 #
-#  Import Numeric and random.
+#  Import numpy.and random.
 #
-import Numeric
+import numpy
 import random
 
 #
@@ -77,7 +77,7 @@ npoly = len(ncds)
 #
 #  Define a color map and open a workstation.
 #
-cmap = Numeric.array([[1.00,1.00,1.00],[0.00,0.00,0.00],[1.00,0.00,0.00],\
+cmap = numpy.array([[1.00,1.00,1.00],[0.00,0.00,0.00],[1.00,0.00,0.00],\
                       [0.00,1.00,0.00],[0.00,0.00,1.00],[1.00,1.00,0.00],\
                       [0.00,1.00,1.00],[1.00,0.00,1.00],[0.70,0.30,0.30],\
                       [0.50,1.00,1.00],[0.80,0.80,0.20],[1.00,1.00,0.50],\

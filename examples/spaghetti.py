@@ -35,7 +35,7 @@
 #  Notes:
 #     
 
-import Numeric
+import numpy
 import Ngl
 import Nio
 

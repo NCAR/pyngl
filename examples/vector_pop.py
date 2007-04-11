@@ -51,7 +51,7 @@
 #
 import Ngl
 import Nio
-import Numeric
+import numpy
 
 #
 #  Open the netCDF file.

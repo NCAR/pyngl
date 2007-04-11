@@ -45,7 +45,7 @@
 #
 #  Import Python modules to be used.
 #
-import Numeric
+import numpy
 import sys,os
 
 #
@@ -88,7 +88,7 @@ wks = Ngl.open_wks(wks_type,"ngl02p",wkres)
 
 resources = Ngl.Resources()
 #
-#  Define a Numeric data array containing the temperature for the
+#  Define a numpy.data array containing the temperature for the
 #  first time step and first level. This array does not have the
 #  attributes that are associated with the variable temp.
 #
@@ -100,8 +100,8 @@ tempa = temp[0,0,:,:]
 #  would want to change the temp units to "(C)".
 #
 if hasattr(temp,"_FillValue"):
-  tempa = ((tempa-273.15)*Numeric.not_equal(tempa,temp._FillValue)) +   \
-        temp._FillValue*Numeric.equal(tempa,temp._FillValue)
+  tempa = ((tempa-273.15)*numpy.not_equal(tempa,temp._FillValue)) +   \
+        temp._FillValue*numpy.equal(tempa,temp._FillValue)
 else:
   tempa = tempa - 273.15
 
@@ -172,7 +172,7 @@ plot = Ngl.contour(wks,Z[0,0,:,:],resources)    # Draw a contour plot.
 
 #---------- Begin fifth plot ------------------------------------------
 
-cmap = Numeric.array([[0.00, 0.00, 0.00], [1.00, 1.00, 1.00], \
+cmap = numpy.array([[0.00, 0.00, 0.00], [1.00, 1.00, 1.00], \
                       [0.10, 0.10, 0.10], [0.15, 0.15, 0.15], \
                       [0.20, 0.20, 0.20], [0.25, 0.25, 0.25], \
                       [0.30, 0.30, 0.30], [0.35, 0.35, 0.35], \
@@ -196,8 +196,8 @@ if hasattr(pres,"long_name"):
 #
 presa = pres[0,:,:]
 if hasattr(pres,"_FillValue"):
-  presa = (0.01*presa*Numeric.not_equal(presa,pres._FillValue)) +   \
-        pres._FillValue*Numeric.equal(presa,pres._FillValue)
+  presa = (0.01*presa*numpy.not_equal(presa,pres._FillValue)) +   \
+        pres._FillValue*numpy.equal(presa,pres._FillValue)
 else:
   presa = 0.01*presa
 
