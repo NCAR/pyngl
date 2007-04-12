@@ -62,6 +62,7 @@ for i in xrange(len(so_files)):
 
 DATA_FILES = pyngl_ncarg_files
 DATA_FILES.append(('bin',                   bin_files))
+DATA_FILES.append((pkgs_pth,                ['PyNGL.pth']))
 DATA_FILES.append((pyngl_dir,               so_files))
 DATA_FILES.append((pyngl_dir,               py_files))
 DATA_FILES.append((join(pyngl_ncarg_dir,'pynglex'),  pynglex_files))

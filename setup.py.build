@@ -520,7 +520,7 @@ for array_module in array_modules:
       os.system("/bin/rm -rf MANIFEST")
 
     mfile = open(man_file,'w')
-    if array_module == 'Numeric':
+    if array_module == 'numpy':
       mfile.write("include PyNGL.pth\n")
 
     mfile.write("include setup.py\n")

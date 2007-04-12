@@ -46,6 +46,11 @@ set python_bin = `which $python`
 set bin_dir    = $python_bin:h
 set python_dir = $bin_dir:h
 
+set pyngl_numpy_site_str = "PyNGL"
+set pyngl_numer_site_str = "PyNGL_numeric"
+set pynio_numpy_site_str = "PyNIO"
+set pynio_numer_site_str = "PyNIO_numeric"
+
 echo "The name of the machine is '$name'."
 echo "$python lives in $python_bin."
 
@@ -64,7 +69,7 @@ setenv COPY_FILES
 unsetenv PYNIO2PYNGL
 setenv CREATE_DISTRIBUTION
 
-if ("$name" == "willow.local") then
+if ("$name" == "willow.local" || "$name" == "client49-n229.wireless.ucar.edu") then
   set test_dir = "/Users/haley/tmp/willow"
   set plat_version = `uname -r`
   set platform = "darwin-$plat_version-Power_Macintosh"
@@ -183,14 +188,14 @@ else if ("$name" == "meeker") then
 
   mkdir $pyngl_dir/build
   mkdir $build_pyngl_lib_dir
-  mkdir $build_pyngl_lib_dir/PyNGL
-  mkdir $build_pyngl_lib_dir/PyNGL_numeric
+  mkdir $build_pyngl_lib_dir/$pyngl_numpy_site_str
+  mkdir $build_pyngl_lib_dir/$pyngl_numer_site_str
   mkdir $build_pyngl_temp_dir
 
   mkdir $pynio_dir/build
   mkdir $build_pynio_lib_dir
-  mkdir $build_pynio_lib_dir/PyNIO
-  mkdir $build_pynio_lib_dir/PyNIO_numeric
+  mkdir $build_pynio_lib_dir/$pynio_numpy_site_str
+  mkdir $build_pynio_lib_dir/$pynio_numer_site_str
   mkdir $build_pynio_temp_dir
 
 #
@@ -249,12 +254,12 @@ endif
 set numeric_test_dir = "$test_dir/numeric"
 set numpy_test_dir   = "$test_dir/numpy"
 set python_pkg_dir   = "$python_dir/lib/python$python_version/site-packages"
-set gen_numer_tar_file = "$dist_dir/PyNGL-$version.tar"
-set gen_numer_gz_file  = "$dist_dir/PyNGL-$version.tar.gz"
-set gen_numpy_tar_file = "$dist_dir/PyNGL_numeric-$version.tar"
-set gen_numpy_gz_file  = "$dist_dir/PyNGL_numeric-$version.tar.gz"
-set numeric_tar_file = "$dist_dir/PyNGL-$version.$platform-$python_version.tar"
-set numpy_tar_file   = "$dist_dir/PyNGL_numeric-$version.$platform-$python_version.tar"
+set gen_numer_tar_file = "$dist_dir/$pyngl_numer_site_str-$version.tar"
+set gen_numer_gz_file  = "$dist_dir/$pyngl_numer_site_str-$version.tar.gz"
+set gen_numpy_tar_file = "$dist_dir/$pyngl_numpy_site_str-$version.tar"
+set gen_numpy_gz_file  = "$dist_dir/$pyngl_numpy_site_str-$version.tar.gz"
+set numeric_tar_file = "$dist_dir/$pyngl_numer_site_str-$version.$platform-$python_version.tar"
+set numpy_tar_file   = "$dist_dir/$pyngl_numpy_site_str-$version.$platform-$python_version.tar"
 set numeric_gz_file  = "$numeric_tar_file.gz"
 set numpy_gz_file    = "$numpy_tar_file.gz"
 
@@ -383,20 +388,20 @@ gunzip $numeric_gz_file
 #
 # Test that all the files are there.
 #
-/bin/rm -rf $dist_dir/PyNGL-$version
+/bin/rm -rf $dist_dir/$pyngl_numer_site_str-$version
 tar -xf $numeric_tar_file
-cd PyNGL-$version
+cd $pyngl_numer_site_str-$version
 $python setup.py install
 ../../CheckPyNGLFiles
 cd ..
-/bin/rm -rf $dist_dir/PyNGL-$version
+/bin/rm -rf $dist_dir/$pyngl_numer_site_str-$version
 
 #
 # Test the Numeric distribution.
 #
 cd $numeric_test_dir
 /bin/rm -rf *
-pynglex -a >&! pynglex.numeric.$platform.out
+pynglex --numeric -a >&! pynglex.numeric.$platform.out
 $pyngl_dir/CheckPynglexFiles
 
 #
@@ -423,20 +428,20 @@ gunzip $numpy_gz_file
 #
 # Test that all the files are here.
 #
-/bin/rm -rf $dist_dir/PyNGL_numeric-$version
+/bin/rm -rf $dist_dir/$pyngl_numpy_site_str-$version
 tar -xf $numpy_tar_file
-cd PyNGL_numeric-$version
+cd $pyngl_numpy_site_str-$version
 $python setup.py install
 ../../CheckPyNGLFiles -n
 cd ..
-/bin/rm -rf $dist_dir/PyNGL_numeric-$version
+/bin/rm -rf $dist_dir/$pyngl_numpy_site_str-$version
 
 #
 # Test the numpy distribution.
 #
 cd $numpy_test_dir
 /bin/rm -rf *
-pynglex --numpy -a >&! pynglex.numpy.$platform.out
+pynglex -a >&! pynglex.numpy.$platform.out
 $pyngl_dir/CheckPynglexFiles
 
 #
