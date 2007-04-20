@@ -8,7 +8,7 @@
 # I will use this file especially to build PyNGL on some of the
 # problem systems, like meeker and tempest. 
 #
-set echo verbose timestamp
+# set echo verbose timestamp
 
 set python_version = "2.4"
 
@@ -29,6 +29,10 @@ while ($#argv > 0)
     set BuildOnly
     shift
     breaksw
+
+    default:
+      echo "option not recognized"
+      exit 1
   endsw
 end
 
