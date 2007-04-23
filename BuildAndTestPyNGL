@@ -46,6 +46,7 @@ if ("$name" == "jupiter.scd.ucar.edu") then
 endif
 
 set python     = "python$python_version"
+set pynglex    = "pynglex$python_version"
 set python_bin = `which $python`
 set bin_dir    = $python_bin:h
 set python_dir = $bin_dir:h
@@ -255,8 +256,8 @@ endif
 # Set up directories for running pynglex and set up names
 # of tar files.
 #
-set numeric_test_dir = "$test_dir/numeric"
-set numpy_test_dir   = "$test_dir/numpy"
+set numeric_test_dir = "$test_dir/numeric-$python_version"
+set numpy_test_dir   = "$test_dir/numpy-$python_version"
 set python_pkg_dir   = "$python_dir/lib/python$python_version/site-packages"
 set gen_numer_tar_file = "$dist_dir/$pyngl_numer_site_str-$version.tar"
 set gen_numer_gz_file  = "$dist_dir/$pyngl_numer_site_str-$version.tar.gz"
@@ -403,9 +404,12 @@ cd ..
 #
 # Test the Numeric distribution.
 #
+if (! -e $numeric_test_dir) then
+  mkdir  $numeric_test_dir
+endif
 cd $numeric_test_dir
 /bin/rm -rf *
-pynglex --numeric -a >&! pynglex.numeric.$platform.out
+$pynglex --numeric -a >&! pynglex.numeric.$platform.out
 $pyngl_dir/CheckPynglexFiles
 
 #
@@ -443,9 +447,12 @@ cd ..
 #
 # Test the numpy distribution.
 #
+if (! -e $numpy_test_dir) then
+  mkdir  $numpy_test_dir
+endif
 cd $numpy_test_dir
 /bin/rm -rf *
-pynglex -a >&! pynglex.numpy.$platform.out
+$pynglex -a >&! pynglex.numpy.$platform.out
 $pyngl_dir/CheckPynglexFiles
 
 #

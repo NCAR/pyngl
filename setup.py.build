@@ -33,7 +33,7 @@
 #    INCLUDE_PYNIO - Copy over PyNIO files from PyNIO installed location.
 #                    and include as part of PyNGL package.
 #
-import sys,os,re
+import sys,os,re,platform
 import fileinput
 import shutil
 from distutils.core import setup, Extension
@@ -157,6 +157,7 @@ bin_files = ["ctrans","med","psplit"]
 for i in xrange(len(bin_files)):
   bin_files[i] = os.path.join(ncl_bin,bin_files[i])
 bin_files.append(os.path.join(pynglex_dir,'pynglex'))
+bin_files.append(os.path.join(pynglex_dir,'pynglex'+sys.version[:3]))
 
 #
 # Location of system and NCARG include files and libraries.
@@ -239,6 +240,13 @@ if sys.platform == "irix6-64":
     LIBRARIES.append('ftn')
     LIBRARIES.append('m')
     EXTRA_LINK_ARGS = ['-notall']
+
+
+if sys.platform == "linux2" and os.uname()[-1] == "x86_64" and \
+    platform.python_compiler() == "GCC 4.1.1":
+    print("Using gcc4 compiler, thus removing g2c...")
+    LIBRARIES.remove('g2c')
+    LIBRARIES.append('gfortran')
 
 if sys.platform == "aix5":
     LIBRARIES.remove('g2c')
@@ -428,7 +436,19 @@ for array_module in array_modules:
       if (file[-3:] == ".py" or file[-4:] == ".res"):
         pynglex_files.append(file)
         os.system("cp ../examples/" + file + " " + pynglex_dir)
-    os.system("cp ../examples/pynglex " + pynglex_dir)
+
+  os.system("cp ../examples/pynglex " + pynglex_dir)
+  os.system("cp ../examples/pynglex " + os.path.join(pynglex_dir,"pynglex"+sys.version[:3]))
+#
+# Modify the pynglex script to have the correct python invocation.
+#
+  for line in fileinput.input(os.path.join(pynglex_dir,"pynglex"+sys.version[:3]),inplace=1):
+    if (re.search("/usr/bin/env python",line) != None):
+      print line.replace("python","python"+sys.version[:3]),
+    elif(re.search("^py_cmd = 'python'",line) != None):
+      print line.replace("python","python"+sys.version[:3]),
+    else:
+      print line,
 #
 # Prepend the full directory path leading to files.
 #
