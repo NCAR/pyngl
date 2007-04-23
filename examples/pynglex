@@ -2,6 +2,8 @@
 
 import sys,getopt,os,re,site,commands,string,fileinput
 
+py_cmd = 'python'
+
 #
 #  pynglex usage statement
 #
@@ -210,7 +212,7 @@ for i in xrange(len(pargs)):
           print line,
 
 #
-    cmd = "python " + pargs[i] + ".py"
+    cmd = py_cmd + " " + pargs[i] + ".py"
     print 'Executing "' + cmd + '"'
 #
 #  Execute python.
