@@ -173,7 +173,7 @@ bin_files.append(os.path.join(pynglex_dir,'pynglex'+sys.version[:3]))
 ncl_and_sys_lib_paths = [ncl_lib, "/usr/X11R6/lib"]
 
 if sys.platform == "darwin":
-    dirs = ['/sw/lib','/Users/haley/lib/gcc-lib/i386-apple-darwin8.6.1/4.0.3']
+    dirs = ['/sw/lib','/Users/haley/lib/gcc-lib/i386-apple-darwin8.9.1/4.0.3']
     for dir in dirs:
       if(os.path.exists(dir)):
         ncl_and_sys_lib_paths.append(dir)
@@ -254,13 +254,16 @@ if sys.platform == "aix5":
 
 #
 # Special test for Intel Mac platform, which is using the g95 compiler
-# and needs f95 loaded.
+# and needs f95 loaded, and g2c NOT laoded.
 #
-if sys.platform == "darwin":
-    dir = '/Users/haley/lib/gcc-lib/i386-apple-darwin8.6.1/4.0.3'
-    if dir in ncl_and_sys_lib_paths:
-      LIBRARIES.remove('g2c')
-      LIBRARIES.append('f95')
+# You may need to add the library path to libf95.a in the 
+# ncl_and_sys_lib_paths setting above. Later I found that
+# you may actually not need this library at all, so I've
+# commented it out below.
+#
+if sys.platform == "darwin" and "i386" in os.uname():
+    LIBRARIES.remove('g2c')
+    LIBRARIES.append('f95')
 
 if sys.platform == "sunos5":
     os.environ["CC"]="/opt/SUNWspro/bin/cc"

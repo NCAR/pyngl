@@ -40,6 +40,7 @@ end
 # Get the machine name and the location of python.
 #
 set name       = `uname -n`
+set mach       = `uname -m`
 if ("$name" == "jupiter.scd.ucar.edu") then
   set path=("/fs/scd/home1/ncargd/dev/opt/Linux_i686_gcc4/bin" $path)
   rehash
@@ -74,7 +75,7 @@ setenv COPY_FILES
 unsetenv PYNIO2PYNGL
 setenv CREATE_DISTRIBUTION
 
-if ("$name" == "willow.local" || "$name" == "client49-n229.wireless.ucar.edu") then
+if ("$name" == "willow.local") then
   set test_dir = "/Users/haley/tmp/willow"
   set plat_version = `uname -r`
   set platform = "darwin-$plat_version-Power_Macintosh"
@@ -90,7 +91,12 @@ if ("$name" == "willow.local" || "$name" == "client49-n229.wireless.ucar.edu") t
   unsetenv USE_NUMPY
   unsetenv USE_NUMERIC
   unsetenv DISPLAY
-else if ("$name" == "clock.scd.ucar.edu") then
+else if ("$name" == "clock.scd.ucar.edu" || "$mach" == "i386") then
+#
+# Unfortunately, "uname -n" gives me something different every time
+# if I'm on "clock" but am running wireless/VPN. So, I'm just checking
+# on "uname -m" instead ($mach).
+#
   set test_dir = "/Users/haley/tmp"
   set plat_version = `uname -r`
   set platform = "darwin-$plat_version-i386"
