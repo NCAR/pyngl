@@ -2556,7 +2556,6 @@ static PyObject* t_output_helper(PyObject* target, PyObject* o) {
     if (!target) {                   
         target = o;
     } else if (target == Py_None) {  
-        Py_DECREF(Py_None);
         target = o;
     } else {                         
         if (!PyTuple_Check(target)) {
@@ -2574,8 +2573,6 @@ static PyObject* t_output_helper(PyObject* target, PyObject* o) {
     }
     return target;
 }
-
-static PyObject* t_output_helper(PyObject *, PyObject *);
 
 struct common1 {
   float pang, plat, plon;
@@ -4147,16 +4144,12 @@ fail:
 SWIGINTERN PyObject *_wrap_NhlRLClear(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:NhlRLClear",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlRLClear" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   NhlRLClear(arg1);
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -4170,17 +4163,13 @@ SWIGINTERN PyObject *_wrap_NhlSetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
   int arg1 ;
   int arg2 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlSetValues",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlSetValues" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     int i,list_type,list_len,count;
     Py_ssize_t pos=0;
@@ -4471,8 +4460,6 @@ SWIGINTERN PyObject *_wrap_NhlRLSetString(PyObject *SWIGUNUSEDPARM(self), PyObje
   NhlString arg2 = (NhlString) 0 ;
   NhlString arg3 = (NhlString) 0 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
@@ -4484,11 +4471,9 @@ SWIGINTERN PyObject *_wrap_NhlRLSetString(PyObject *SWIGUNUSEDPARM(self), PyObje
   PyObject * obj2 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOO:NhlRLSetString",&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlRLSetString" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlRLSetString" "', argument " "2"" of type '" "NhlString""'");
@@ -4519,33 +4504,25 @@ SWIGINTERN PyObject *_wrap_NhlRLSetFloat(PyObject *SWIGUNUSEDPARM(self), PyObjec
   NhlString arg2 = (NhlString) 0 ;
   float arg3 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
-  float val3 ;
-  int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOO:NhlRLSetFloat",&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlRLSetFloat" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlRLSetFloat" "', argument " "2"" of type '" "NhlString""'");
   }
   arg2 = (NhlString)(buf2);
-  ecode3 = SWIG_AsVal_float(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "NhlRLSetFloat" "', argument " "3"" of type '" "float""'");
-  } 
-  arg3 = (float)(val3);
+  {
+    arg3 = (float) PyFloat_AsDouble (obj2);
+  }
   result = (NhlErrorTypes)NhlRLSetFloat(arg1,arg2,arg3);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -4564,33 +4541,25 @@ SWIGINTERN PyObject *_wrap_NhlRLSetDouble(PyObject *SWIGUNUSEDPARM(self), PyObje
   NhlString arg2 = (NhlString) 0 ;
   double arg3 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
-  double val3 ;
-  int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOO:NhlRLSetDouble",&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlRLSetDouble" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlRLSetDouble" "', argument " "2"" of type '" "NhlString""'");
   }
   arg2 = (NhlString)(buf2);
-  ecode3 = SWIG_AsVal_double(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "NhlRLSetDouble" "', argument " "3"" of type '" "double""'");
-  } 
-  arg3 = (double)(val3);
+  {
+    arg3 = PyFloat_AsDouble (obj2);
+  }
   result = (NhlErrorTypes)NhlRLSetDouble(arg1,arg2,arg3);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -4609,33 +4578,25 @@ SWIGINTERN PyObject *_wrap_NhlRLSetInteger(PyObject *SWIGUNUSEDPARM(self), PyObj
   NhlString arg2 = (NhlString) 0 ;
   int arg3 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOO:NhlRLSetInteger",&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlRLSetInteger" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlRLSetInteger" "', argument " "2"" of type '" "NhlString""'");
   }
   arg2 = (NhlString)(buf2);
-  ecode3 = SWIG_AsVal_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "NhlRLSetInteger" "', argument " "3"" of type '" "int""'");
-  } 
-  arg3 = (int)(val3);
+  {
+    arg3 = (int) PyInt_AsLong (obj2);
+  }
   result = (NhlErrorTypes)NhlRLSetInteger(arg1,arg2,arg3);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -4656,12 +4617,6 @@ SWIGINTERN PyObject *_wrap_NhlNDCPolyline(PyObject *SWIGUNUSEDPARM(self), PyObje
   float *arg4 = (float *) 0 ;
   int arg5 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  int val5 ;
-  int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -4669,16 +4624,12 @@ SWIGINTERN PyObject *_wrap_NhlNDCPolyline(PyObject *SWIGUNUSEDPARM(self), PyObje
   PyObject * obj4 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOO:NhlNDCPolyline",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlNDCPolyline" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "NhlNDCPolyline" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
   {
     int i,ndims,tdims=1;
     PyArrayObject *arr;
@@ -4701,11 +4652,9 @@ SWIGINTERN PyObject *_wrap_NhlNDCPolyline(PyObject *SWIGUNUSEDPARM(self), PyObje
     }
     arg4 = (float *) d2f(tdims, (double *) arr->data);
   }
-  ecode5 = SWIG_AsVal_int(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "NhlNDCPolyline" "', argument " "5"" of type '" "int""'");
-  } 
-  arg5 = (int)(val5);
+  {
+    arg5 = (int) PyInt_AsLong (obj4);
+  }
   result = (NhlErrorTypes)NhlNDCPolyline(arg1,arg2,arg3,arg4,arg5);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -4724,12 +4673,6 @@ SWIGINTERN PyObject *_wrap_NhlNDCPolymarker(PyObject *SWIGUNUSEDPARM(self), PyOb
   float *arg4 = (float *) 0 ;
   int arg5 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  int val5 ;
-  int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -4737,16 +4680,12 @@ SWIGINTERN PyObject *_wrap_NhlNDCPolymarker(PyObject *SWIGUNUSEDPARM(self), PyOb
   PyObject * obj4 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOO:NhlNDCPolymarker",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlNDCPolymarker" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "NhlNDCPolymarker" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
   {
     int i,ndims,tdims=1;
     PyArrayObject *arr;
@@ -4769,11 +4708,9 @@ SWIGINTERN PyObject *_wrap_NhlNDCPolymarker(PyObject *SWIGUNUSEDPARM(self), PyOb
     }
     arg4 = (float *) d2f(tdims, (double *) arr->data);
   }
-  ecode5 = SWIG_AsVal_int(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "NhlNDCPolymarker" "', argument " "5"" of type '" "int""'");
-  } 
-  arg5 = (int)(val5);
+  {
+    arg5 = (int) PyInt_AsLong (obj4);
+  }
   result = (NhlErrorTypes)NhlNDCPolymarker(arg1,arg2,arg3,arg4,arg5);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -4792,12 +4729,6 @@ SWIGINTERN PyObject *_wrap_NhlNDCPolygon(PyObject *SWIGUNUSEDPARM(self), PyObjec
   float *arg4 = (float *) 0 ;
   int arg5 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  int val5 ;
-  int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -4805,16 +4736,12 @@ SWIGINTERN PyObject *_wrap_NhlNDCPolygon(PyObject *SWIGUNUSEDPARM(self), PyObjec
   PyObject * obj4 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOO:NhlNDCPolygon",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlNDCPolygon" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "NhlNDCPolygon" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
   {
     int i,ndims,tdims=1;
     PyArrayObject *arr;
@@ -4837,11 +4764,9 @@ SWIGINTERN PyObject *_wrap_NhlNDCPolygon(PyObject *SWIGUNUSEDPARM(self), PyObjec
     }
     arg4 = (float *) d2f(tdims, (double *) arr->data);
   }
-  ecode5 = SWIG_AsVal_int(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "NhlNDCPolygon" "', argument " "5"" of type '" "int""'");
-  } 
-  arg5 = (int)(val5);
+  {
+    arg5 = (int) PyInt_AsLong (obj4);
+  }
   result = (NhlErrorTypes)NhlNDCPolygon(arg1,arg2,arg3,arg4,arg5);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -4860,12 +4785,6 @@ SWIGINTERN PyObject *_wrap_NhlDataPolyline(PyObject *SWIGUNUSEDPARM(self), PyObj
   float *arg4 = (float *) 0 ;
   int arg5 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  int val5 ;
-  int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -4873,16 +4792,12 @@ SWIGINTERN PyObject *_wrap_NhlDataPolyline(PyObject *SWIGUNUSEDPARM(self), PyObj
   PyObject * obj4 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOO:NhlDataPolyline",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlDataPolyline" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "NhlDataPolyline" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
   {
     int i,ndims,tdims=1;
     PyArrayObject *arr;
@@ -4905,11 +4820,9 @@ SWIGINTERN PyObject *_wrap_NhlDataPolyline(PyObject *SWIGUNUSEDPARM(self), PyObj
     }
     arg4 = (float *) d2f(tdims, (double *) arr->data);
   }
-  ecode5 = SWIG_AsVal_int(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "NhlDataPolyline" "', argument " "5"" of type '" "int""'");
-  } 
-  arg5 = (int)(val5);
+  {
+    arg5 = (int) PyInt_AsLong (obj4);
+  }
   result = (NhlErrorTypes)NhlDataPolyline(arg1,arg2,arg3,arg4,arg5);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -4928,12 +4841,6 @@ SWIGINTERN PyObject *_wrap_NhlDataPolymarker(PyObject *SWIGUNUSEDPARM(self), PyO
   float *arg4 = (float *) 0 ;
   int arg5 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  int val5 ;
-  int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -4941,16 +4848,12 @@ SWIGINTERN PyObject *_wrap_NhlDataPolymarker(PyObject *SWIGUNUSEDPARM(self), PyO
   PyObject * obj4 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOO:NhlDataPolymarker",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlDataPolymarker" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "NhlDataPolymarker" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
   {
     int i,ndims,tdims=1;
     PyArrayObject *arr;
@@ -4973,11 +4876,9 @@ SWIGINTERN PyObject *_wrap_NhlDataPolymarker(PyObject *SWIGUNUSEDPARM(self), PyO
     }
     arg4 = (float *) d2f(tdims, (double *) arr->data);
   }
-  ecode5 = SWIG_AsVal_int(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "NhlDataPolymarker" "', argument " "5"" of type '" "int""'");
-  } 
-  arg5 = (int)(val5);
+  {
+    arg5 = (int) PyInt_AsLong (obj4);
+  }
   result = (NhlErrorTypes)NhlDataPolymarker(arg1,arg2,arg3,arg4,arg5);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -4996,12 +4897,6 @@ SWIGINTERN PyObject *_wrap_NhlDataPolygon(PyObject *SWIGUNUSEDPARM(self), PyObje
   float *arg4 = (float *) 0 ;
   int arg5 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  int val5 ;
-  int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -5009,16 +4904,12 @@ SWIGINTERN PyObject *_wrap_NhlDataPolygon(PyObject *SWIGUNUSEDPARM(self), PyObje
   PyObject * obj4 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOO:NhlDataPolygon",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlDataPolygon" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "NhlDataPolygon" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
   {
     int i,ndims,tdims=1;
     PyArrayObject *arr;
@@ -5041,11 +4932,9 @@ SWIGINTERN PyObject *_wrap_NhlDataPolygon(PyObject *SWIGUNUSEDPARM(self), PyObje
     }
     arg4 = (float *) d2f(tdims, (double *) arr->data);
   }
-  ecode5 = SWIG_AsVal_int(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "NhlDataPolygon" "', argument " "5"" of type '" "int""'");
-  } 
-  arg5 = (int)(val5);
+  {
+    arg5 = (int) PyInt_AsLong (obj4);
+  }
   result = (NhlErrorTypes)NhlDataPolygon(arg1,arg2,arg3,arg4,arg5);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -5060,16 +4949,12 @@ SWIGINTERN PyObject *_wrap_NhlDraw(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
   PyObject *resultobj = 0;
   int arg1 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:NhlDraw",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlDraw" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   result = (NhlErrorTypes)NhlDraw(arg1);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -5085,24 +4970,16 @@ SWIGINTERN PyObject *_wrap_NhlFreeColor(PyObject *SWIGUNUSEDPARM(self), PyObject
   int arg1 ;
   int arg2 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlFreeColor",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlFreeColor" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "NhlFreeColor" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
   result = (NhlErrorTypes)NhlFreeColor(arg1,arg2);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -5118,24 +4995,16 @@ SWIGINTERN PyObject *_wrap_NhlGetGksCi(PyObject *SWIGUNUSEDPARM(self), PyObject 
   int arg1 ;
   int arg2 ;
   int result;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlGetGksCi",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlGetGksCi" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "NhlGetGksCi" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
   result = (int)NhlGetGksCi(arg1,arg2);
   resultobj = SWIG_From_int((int)(result));
   return resultobj;
@@ -5162,24 +5031,16 @@ SWIGINTERN PyObject *_wrap_NhlIsAllocatedColor(PyObject *SWIGUNUSEDPARM(self), P
   int arg1 ;
   int arg2 ;
   NhlBoolean result;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlIsAllocatedColor",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlIsAllocatedColor" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "NhlIsAllocatedColor" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
   result = (NhlBoolean)NhlIsAllocatedColor(arg1,arg2);
   resultobj = SWIG_From_int((int)(result));
   return resultobj;
@@ -5192,16 +5053,12 @@ SWIGINTERN PyObject *_wrap_NhlIsApp(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   PyObject *resultobj = 0;
   int arg1 ;
   NhlBoolean result;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:NhlIsApp",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlIsApp" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   result = (NhlBoolean)NhlIsApp(arg1);
   resultobj = SWIG_From_int((int)(result));
   return resultobj;
@@ -5214,16 +5071,12 @@ SWIGINTERN PyObject *_wrap_NhlIsDataComm(PyObject *SWIGUNUSEDPARM(self), PyObjec
   PyObject *resultobj = 0;
   int arg1 ;
   NhlBoolean result;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:NhlIsDataComm",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlIsDataComm" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   result = (NhlBoolean)NhlIsDataComm(arg1);
   resultobj = SWIG_From_int((int)(result));
   return resultobj;
@@ -5236,16 +5089,12 @@ SWIGINTERN PyObject *_wrap_NhlIsDataItem(PyObject *SWIGUNUSEDPARM(self), PyObjec
   PyObject *resultobj = 0;
   int arg1 ;
   NhlBoolean result;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:NhlIsDataItem",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlIsDataItem" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   result = (NhlBoolean)NhlIsDataItem(arg1);
   resultobj = SWIG_From_int((int)(result));
   return resultobj;
@@ -5258,16 +5107,12 @@ SWIGINTERN PyObject *_wrap_NhlIsDataSpec(PyObject *SWIGUNUSEDPARM(self), PyObjec
   PyObject *resultobj = 0;
   int arg1 ;
   NhlBoolean result;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:NhlIsDataSpec",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlIsDataSpec" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   result = (NhlBoolean)NhlIsDataSpec(arg1);
   resultobj = SWIG_From_int((int)(result));
   return resultobj;
@@ -5281,8 +5126,6 @@ SWIGINTERN PyObject *_wrap_NhlRLIsSet(PyObject *SWIGUNUSEDPARM(self), PyObject *
   int arg1 ;
   NhlString arg2 = (NhlString) 0 ;
   NhlBoolean result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
@@ -5290,11 +5133,9 @@ SWIGINTERN PyObject *_wrap_NhlRLIsSet(PyObject *SWIGUNUSEDPARM(self), PyObject *
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlRLIsSet",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlRLIsSet" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlRLIsSet" "', argument " "2"" of type '" "NhlString""'");
@@ -5314,8 +5155,6 @@ SWIGINTERN PyObject *_wrap_NhlRLUnSet(PyObject *SWIGUNUSEDPARM(self), PyObject *
   PyObject *resultobj = 0;
   int arg1 ;
   NhlString arg2 = (NhlString) 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
@@ -5323,11 +5162,9 @@ SWIGINTERN PyObject *_wrap_NhlRLUnSet(PyObject *SWIGUNUSEDPARM(self), PyObject *
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlRLUnSet",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlRLUnSet" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlRLUnSet" "', argument " "2"" of type '" "NhlString""'");
@@ -5347,16 +5184,12 @@ SWIGINTERN PyObject *_wrap_NhlIsTransform(PyObject *SWIGUNUSEDPARM(self), PyObje
   PyObject *resultobj = 0;
   int arg1 ;
   NhlBoolean result;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:NhlIsTransform",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlIsTransform" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   result = (NhlBoolean)NhlIsTransform(arg1);
   resultobj = SWIG_From_int((int)(result));
   return resultobj;
@@ -5369,16 +5202,12 @@ SWIGINTERN PyObject *_wrap_NhlIsView(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   PyObject *resultobj = 0;
   int arg1 ;
   NhlBoolean result;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:NhlIsView",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlIsView" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   result = (NhlBoolean)NhlIsView(arg1);
   resultobj = SWIG_From_int((int)(result));
   return resultobj;
@@ -5391,16 +5220,12 @@ SWIGINTERN PyObject *_wrap_NhlIsWorkstation(PyObject *SWIGUNUSEDPARM(self), PyOb
   PyObject *resultobj = 0;
   int arg1 ;
   NhlBoolean result;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:NhlIsWorkstation",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlIsWorkstation" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   result = (NhlBoolean)NhlIsWorkstation(arg1);
   resultobj = SWIG_From_int((int)(result));
   return resultobj;
@@ -5413,16 +5238,12 @@ SWIGINTERN PyObject *_wrap_NhlName(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
   PyObject *resultobj = 0;
   int arg1 ;
   char *result = 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:NhlName",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlName" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   result = (char *)NhlName(arg1);
   resultobj = SWIG_FromCharPtr((const char *)result);
   return resultobj;
@@ -5438,40 +5259,24 @@ SWIGINTERN PyObject *_wrap_NhlNewColor(PyObject *SWIGUNUSEDPARM(self), PyObject 
   float arg3 ;
   float arg4 ;
   int result;
-  int val1 ;
-  int ecode1 = 0 ;
-  float val2 ;
-  int ecode2 = 0 ;
-  float val3 ;
-  int ecode3 = 0 ;
-  float val4 ;
-  int ecode4 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOO:NhlNewColor",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlNewColor" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_float(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "NhlNewColor" "', argument " "2"" of type '" "float""'");
-  } 
-  arg2 = (float)(val2);
-  ecode3 = SWIG_AsVal_float(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "NhlNewColor" "', argument " "3"" of type '" "float""'");
-  } 
-  arg3 = (float)(val3);
-  ecode4 = SWIG_AsVal_float(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "NhlNewColor" "', argument " "4"" of type '" "float""'");
-  } 
-  arg4 = (float)(val4);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (float) PyFloat_AsDouble (obj1);
+  }
+  {
+    arg3 = (float) PyFloat_AsDouble (obj2);
+  }
+  {
+    arg4 = (float) PyFloat_AsDouble (obj3);
+  }
   result = (int)NhlNewColor(arg1,arg2,arg3,arg4);
   resultobj = SWIG_From_int((int)(result));
   return resultobj;
@@ -5485,8 +5290,6 @@ SWIGINTERN PyObject *_wrap_NhlNewDashPattern(PyObject *SWIGUNUSEDPARM(self), PyO
   int arg1 ;
   NhlString arg2 = (NhlString) 0 ;
   int result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
@@ -5494,11 +5297,9 @@ SWIGINTERN PyObject *_wrap_NhlNewDashPattern(PyObject *SWIGUNUSEDPARM(self), PyO
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlNewDashPattern",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlNewDashPattern" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlNewDashPattern" "', argument " "2"" of type '" "NhlString""'");
@@ -5525,23 +5326,9 @@ SWIGINTERN PyObject *_wrap_NhlNewMarker(PyObject *SWIGUNUSEDPARM(self), PyObject
   float arg7 ;
   float arg8 ;
   int result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
-  float val4 ;
-  int ecode4 = 0 ;
-  float val5 ;
-  int ecode5 = 0 ;
-  float val6 ;
-  int ecode6 = 0 ;
-  float val7 ;
-  int ecode7 = 0 ;
-  float val8 ;
-  int ecode8 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -5552,46 +5339,32 @@ SWIGINTERN PyObject *_wrap_NhlNewMarker(PyObject *SWIGUNUSEDPARM(self), PyObject
   PyObject * obj7 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:NhlNewMarker",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlNewMarker" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlNewMarker" "', argument " "2"" of type '" "NhlString""'");
   }
   arg2 = (NhlString)(buf2);
-  ecode3 = SWIG_AsVal_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "NhlNewMarker" "', argument " "3"" of type '" "int""'");
-  } 
-  arg3 = (int)(val3);
-  ecode4 = SWIG_AsVal_float(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "NhlNewMarker" "', argument " "4"" of type '" "float""'");
-  } 
-  arg4 = (float)(val4);
-  ecode5 = SWIG_AsVal_float(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "NhlNewMarker" "', argument " "5"" of type '" "float""'");
-  } 
-  arg5 = (float)(val5);
-  ecode6 = SWIG_AsVal_float(obj5, &val6);
-  if (!SWIG_IsOK(ecode6)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "NhlNewMarker" "', argument " "6"" of type '" "float""'");
-  } 
-  arg6 = (float)(val6);
-  ecode7 = SWIG_AsVal_float(obj6, &val7);
-  if (!SWIG_IsOK(ecode7)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "NhlNewMarker" "', argument " "7"" of type '" "float""'");
-  } 
-  arg7 = (float)(val7);
-  ecode8 = SWIG_AsVal_float(obj7, &val8);
-  if (!SWIG_IsOK(ecode8)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "NhlNewMarker" "', argument " "8"" of type '" "float""'");
-  } 
-  arg8 = (float)(val8);
+  {
+    arg3 = (int) PyInt_AsLong (obj2);
+  }
+  {
+    arg4 = (float) PyFloat_AsDouble (obj3);
+  }
+  {
+    arg5 = (float) PyFloat_AsDouble (obj4);
+  }
+  {
+    arg6 = (float) PyFloat_AsDouble (obj5);
+  }
+  {
+    arg7 = (float) PyFloat_AsDouble (obj6);
+  }
+  {
+    arg8 = (float) PyFloat_AsDouble (obj7);
+  }
   result = (int)NhlNewMarker(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);
   resultobj = SWIG_From_int((int)(result));
   if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
@@ -5610,16 +5383,6 @@ SWIGINTERN PyObject *_wrap_NhlSetColor(PyObject *SWIGUNUSEDPARM(self), PyObject 
   float arg4 ;
   float arg5 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  float val3 ;
-  int ecode3 = 0 ;
-  float val4 ;
-  int ecode4 = 0 ;
-  float val5 ;
-  int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -5627,31 +5390,21 @@ SWIGINTERN PyObject *_wrap_NhlSetColor(PyObject *SWIGUNUSEDPARM(self), PyObject 
   PyObject * obj4 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOO:NhlSetColor",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlSetColor" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "NhlSetColor" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
-  ecode3 = SWIG_AsVal_float(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "NhlSetColor" "', argument " "3"" of type '" "float""'");
-  } 
-  arg3 = (float)(val3);
-  ecode4 = SWIG_AsVal_float(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "NhlSetColor" "', argument " "4"" of type '" "float""'");
-  } 
-  arg4 = (float)(val4);
-  ecode5 = SWIG_AsVal_float(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "NhlSetColor" "', argument " "5"" of type '" "float""'");
-  } 
-  arg5 = (float)(val5);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
+  {
+    arg3 = (float) PyFloat_AsDouble (obj2);
+  }
+  {
+    arg4 = (float) PyFloat_AsDouble (obj3);
+  }
+  {
+    arg5 = (float) PyFloat_AsDouble (obj4);
+  }
   result = (NhlErrorTypes)NhlSetColor(arg1,arg2,arg3,arg4,arg5);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -5666,16 +5419,12 @@ SWIGINTERN PyObject *_wrap_NhlUpdateData(PyObject *SWIGUNUSEDPARM(self), PyObjec
   PyObject *resultobj = 0;
   int arg1 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:NhlUpdateData",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlUpdateData" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   result = (NhlErrorTypes)NhlUpdateData(arg1);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -5690,16 +5439,12 @@ SWIGINTERN PyObject *_wrap_NhlUpdateWorkstation(PyObject *SWIGUNUSEDPARM(self), 
   PyObject *resultobj = 0;
   int arg1 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:NhlUpdateWorkstation",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlUpdateWorkstation" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   result = (NhlErrorTypes)NhlUpdateWorkstation(arg1);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -5737,10 +5482,6 @@ SWIGINTERN PyObject *_wrap_NhlCreate(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   int alloc2 = 0 ;
   void *argp3 ;
   int res3 = 0 ;
-  int val4 ;
-  int ecode4 = 0 ;
-  int val5 ;
-  int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -5764,16 +5505,12 @@ SWIGINTERN PyObject *_wrap_NhlCreate(PyObject *SWIGUNUSEDPARM(self), PyObject *a
       arg3 = *((NhlClass *)(argp3));
     }
   }
-  ecode4 = SWIG_AsVal_int(obj2, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "NhlCreate" "', argument " "4"" of type '" "int""'");
-  } 
-  arg4 = (int)(val4);
-  ecode5 = SWIG_AsVal_int(obj3, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "NhlCreate" "', argument " "5"" of type '" "int""'");
-  } 
-  arg5 = (int)(val5);
+  {
+    arg4 = (int) PyInt_AsLong (obj2);
+  }
+  {
+    arg5 = (int) PyInt_AsLong (obj3);
+  }
   result = (NhlErrorTypes)NhlCreate(arg1,(char const *)arg2,arg3,arg4,arg5);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -5818,16 +5555,12 @@ SWIGINTERN PyObject *_wrap_NhlFrame(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   PyObject *resultobj = 0;
   int arg1 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:NhlFrame",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlFrame" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   result = (NhlErrorTypes)NhlFrame(arg1);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -5842,16 +5575,12 @@ SWIGINTERN PyObject *_wrap_NhlDestroy(PyObject *SWIGUNUSEDPARM(self), PyObject *
   PyObject *resultobj = 0;
   int arg1 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:NhlDestroy",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlDestroy" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   result = (NhlErrorTypes)NhlDestroy(arg1);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -5870,13 +5599,9 @@ SWIGINTERN PyObject *_wrap_NhlRLSetMDIntegerArray(PyObject *SWIGUNUSEDPARM(self)
   int arg4 ;
   int *arg5 = (int *) 0 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
-  int val4 ;
-  int ecode4 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -5884,11 +5609,9 @@ SWIGINTERN PyObject *_wrap_NhlRLSetMDIntegerArray(PyObject *SWIGUNUSEDPARM(self)
   PyObject * obj4 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOO:NhlRLSetMDIntegerArray",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlRLSetMDIntegerArray" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlRLSetMDIntegerArray" "', argument " "2"" of type '" "char *""'");
@@ -5900,11 +5623,9 @@ SWIGINTERN PyObject *_wrap_NhlRLSetMDIntegerArray(PyObject *SWIGUNUSEDPARM(self)
     (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_INT,0,0);
     arg3 = (int *) arr->data;
   }
-  ecode4 = SWIG_AsVal_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "NhlRLSetMDIntegerArray" "', argument " "4"" of type '" "int""'");
-  } 
-  arg4 = (int)(val4);
+  {
+    arg4 = (int) PyInt_AsLong (obj3);
+  }
   {
     PyArrayObject *arr;
     arr =
@@ -5931,13 +5652,9 @@ SWIGINTERN PyObject *_wrap_NhlRLSetMDDoubleArray(PyObject *SWIGUNUSEDPARM(self),
   int arg4 ;
   int *arg5 = (int *) 0 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
-  int val4 ;
-  int ecode4 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -5945,11 +5662,9 @@ SWIGINTERN PyObject *_wrap_NhlRLSetMDDoubleArray(PyObject *SWIGUNUSEDPARM(self),
   PyObject * obj4 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOO:NhlRLSetMDDoubleArray",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlRLSetMDDoubleArray" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlRLSetMDDoubleArray" "', argument " "2"" of type '" "char *""'");
@@ -5961,11 +5676,9 @@ SWIGINTERN PyObject *_wrap_NhlRLSetMDDoubleArray(PyObject *SWIGUNUSEDPARM(self),
     (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
     arg3 = (double *) arr->data;
   }
-  ecode4 = SWIG_AsVal_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "NhlRLSetMDDoubleArray" "', argument " "4"" of type '" "int""'");
-  } 
-  arg4 = (int)(val4);
+  {
+    arg4 = (int) PyInt_AsLong (obj3);
+  }
   {
     PyArrayObject *arr;
     arr =
@@ -5992,13 +5705,9 @@ SWIGINTERN PyObject *_wrap_NhlRLSetMDFloatArray(PyObject *SWIGUNUSEDPARM(self), 
   int arg4 ;
   int *arg5 = (int *) 0 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
-  int val4 ;
-  int ecode4 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -6006,11 +5715,9 @@ SWIGINTERN PyObject *_wrap_NhlRLSetMDFloatArray(PyObject *SWIGUNUSEDPARM(self), 
   PyObject * obj4 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOO:NhlRLSetMDFloatArray",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlRLSetMDFloatArray" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlRLSetMDFloatArray" "', argument " "2"" of type '" "char *""'");
@@ -6027,11 +5734,9 @@ SWIGINTERN PyObject *_wrap_NhlRLSetMDFloatArray(PyObject *SWIGUNUSEDPARM(self), 
     }
     arg3 = (float *) d2f(tdims, (double *) arr->data);
   }
-  ecode4 = SWIG_AsVal_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "NhlRLSetMDFloatArray" "', argument " "4"" of type '" "int""'");
-  } 
-  arg4 = (int)(val4);
+  {
+    arg4 = (int) PyInt_AsLong (obj3);
+  }
   {
     PyArrayObject *arr;
     arr =
@@ -6057,24 +5762,18 @@ SWIGINTERN PyObject *_wrap_NhlRLSetFloatArray(PyObject *SWIGUNUSEDPARM(self), Py
   float *arg3 = (float *) 0 ;
   int arg4 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
-  int val4 ;
-  int ecode4 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOO:NhlRLSetFloatArray",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlRLSetFloatArray" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlRLSetFloatArray" "', argument " "2"" of type '" "char *""'");
@@ -6091,11 +5790,9 @@ SWIGINTERN PyObject *_wrap_NhlRLSetFloatArray(PyObject *SWIGUNUSEDPARM(self), Py
     }
     arg3 = (float *) d2f(tdims, (double *) arr->data);
   }
-  ecode4 = SWIG_AsVal_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "NhlRLSetFloatArray" "', argument " "4"" of type '" "int""'");
-  } 
-  arg4 = (int)(val4);
+  {
+    arg4 = (int) PyInt_AsLong (obj3);
+  }
   result = (NhlErrorTypes)NhlRLSetFloatArray(arg1,arg2,arg3,arg4);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -6115,24 +5812,18 @@ SWIGINTERN PyObject *_wrap_NhlRLSetIntegerArray(PyObject *SWIGUNUSEDPARM(self), 
   int *arg3 = (int *) 0 ;
   int arg4 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
-  int val4 ;
-  int ecode4 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOO:NhlRLSetIntegerArray",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlRLSetIntegerArray" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlRLSetIntegerArray" "', argument " "2"" of type '" "char *""'");
@@ -6144,11 +5835,9 @@ SWIGINTERN PyObject *_wrap_NhlRLSetIntegerArray(PyObject *SWIGUNUSEDPARM(self), 
     (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_INT,0,0);
     arg3 = (int *) arr->data;
   }
-  ecode4 = SWIG_AsVal_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "NhlRLSetIntegerArray" "', argument " "4"" of type '" "int""'");
-  } 
-  arg4 = (int)(val4);
+  {
+    arg4 = (int) PyInt_AsLong (obj3);
+  }
   result = (NhlErrorTypes)NhlRLSetIntegerArray(arg1,arg2,arg3,arg4);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -6168,24 +5857,18 @@ SWIGINTERN PyObject *_wrap_NhlRLSetStringArray(PyObject *SWIGUNUSEDPARM(self), P
   NhlString *arg3 = (NhlString *) 0 ;
   int arg4 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
-  int val4 ;
-  int ecode4 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOO:NhlRLSetStringArray",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlRLSetStringArray" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlRLSetStringArray" "', argument " "2"" of type '" "NhlString""'");
@@ -6217,11 +5900,9 @@ SWIGINTERN PyObject *_wrap_NhlRLSetStringArray(PyObject *SWIGUNUSEDPARM(self), P
       return NULL;
     }
   }
-  ecode4 = SWIG_AsVal_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "NhlRLSetStringArray" "', argument " "4"" of type '" "int""'");
-  } 
-  arg4 = (int)(val4);
+  {
+    arg4 = (int) PyInt_AsLong (obj3);
+  }
   result = (NhlErrorTypes)NhlRLSetStringArray(arg1,arg2,arg3,arg4);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -6239,17 +5920,13 @@ SWIGINTERN PyObject *_wrap_NhlGetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
   int arg1 ;
   int arg2 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlGetValues",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlGetValues" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     int i,list_type,list_len,count;
     Py_ssize_t pos=0;
@@ -6539,8 +6216,6 @@ SWIGINTERN PyObject *_wrap_NhlGetFloat(PyObject *SWIGUNUSEDPARM(self), PyObject 
   int arg1 ;
   char *arg2 = (char *) 0 ;
   float result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
@@ -6548,11 +6223,9 @@ SWIGINTERN PyObject *_wrap_NhlGetFloat(PyObject *SWIGUNUSEDPARM(self), PyObject 
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlGetFloat",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlGetFloat" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlGetFloat" "', argument " "2"" of type '" "char *""'");
@@ -6574,8 +6247,6 @@ SWIGINTERN PyObject *_wrap_NhlGetFloatArray(PyObject *SWIGUNUSEDPARM(self), PyOb
   char *arg2 = (char *) 0 ;
   int *arg3 = (int *) 0 ;
   float *result = 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
@@ -6587,11 +6258,9 @@ SWIGINTERN PyObject *_wrap_NhlGetFloatArray(PyObject *SWIGUNUSEDPARM(self), PyOb
     arg3 = &tempx3;
   }
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlGetFloatArray",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlGetFloatArray" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlGetFloatArray" "', argument " "2"" of type '" "char *""'");
@@ -6617,8 +6286,6 @@ SWIGINTERN PyObject *_wrap_NhlGetInteger(PyObject *SWIGUNUSEDPARM(self), PyObjec
   int arg1 ;
   char *arg2 = (char *) 0 ;
   int result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
@@ -6626,11 +6293,9 @@ SWIGINTERN PyObject *_wrap_NhlGetInteger(PyObject *SWIGUNUSEDPARM(self), PyObjec
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlGetInteger",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlGetInteger" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlGetInteger" "', argument " "2"" of type '" "char *""'");
@@ -6652,8 +6317,6 @@ SWIGINTERN PyObject *_wrap_NhlGetIntegerArray(PyObject *SWIGUNUSEDPARM(self), Py
   char *arg2 = (char *) 0 ;
   int *arg3 = (int *) 0 ;
   int *result = 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
@@ -6665,11 +6328,9 @@ SWIGINTERN PyObject *_wrap_NhlGetIntegerArray(PyObject *SWIGUNUSEDPARM(self), Py
     arg3 = &tempx3;
   }
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlGetIntegerArray",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlGetIntegerArray" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlGetIntegerArray" "', argument " "2"" of type '" "char *""'");
@@ -6695,8 +6356,6 @@ SWIGINTERN PyObject *_wrap_NhlGetDouble(PyObject *SWIGUNUSEDPARM(self), PyObject
   int arg1 ;
   char *arg2 = (char *) 0 ;
   float result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
@@ -6704,11 +6363,9 @@ SWIGINTERN PyObject *_wrap_NhlGetDouble(PyObject *SWIGUNUSEDPARM(self), PyObject
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlGetDouble",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlGetDouble" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlGetDouble" "', argument " "2"" of type '" "char *""'");
@@ -6730,8 +6387,6 @@ SWIGINTERN PyObject *_wrap_NhlGetDoubleArray(PyObject *SWIGUNUSEDPARM(self), PyO
   char *arg2 = (char *) 0 ;
   int *arg3 = (int *) 0 ;
   double *result = 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
@@ -6743,11 +6398,9 @@ SWIGINTERN PyObject *_wrap_NhlGetDoubleArray(PyObject *SWIGUNUSEDPARM(self), PyO
     arg3 = &tempx3;
   }
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlGetDoubleArray",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlGetDoubleArray" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlGetDoubleArray" "', argument " "2"" of type '" "char *""'");
@@ -6774,32 +6427,20 @@ SWIGINTERN PyObject *_wrap_NhlAddOverlay(PyObject *SWIGUNUSEDPARM(self), PyObjec
   int arg2 ;
   int arg3 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOO:NhlAddOverlay",&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlAddOverlay" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "NhlAddOverlay" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
-  ecode3 = SWIG_AsVal_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "NhlAddOverlay" "', argument " "3"" of type '" "int""'");
-  } 
-  arg3 = (int)(val3);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
+  {
+    arg3 = (int) PyInt_AsLong (obj2);
+  }
   result = (NhlErrorTypes)NhlAddOverlay(arg1,arg2,arg3);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -6814,16 +6455,12 @@ SWIGINTERN PyObject *_wrap_NhlClearWorkstation(PyObject *SWIGUNUSEDPARM(self), P
   PyObject *resultobj = 0;
   int arg1 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:NhlClearWorkstation",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlClearWorkstation" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   result = (NhlErrorTypes)NhlClearWorkstation(arg1);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -6839,24 +6476,16 @@ SWIGINTERN PyObject *_wrap_NhlRemoveAnnotation(PyObject *SWIGUNUSEDPARM(self), P
   int arg1 ;
   int arg2 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlRemoveAnnotation",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlRemoveAnnotation" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "NhlRemoveAnnotation" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
   result = (NhlErrorTypes)NhlRemoveAnnotation(arg1,arg2);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -6872,24 +6501,16 @@ SWIGINTERN PyObject *_wrap_NhlAddAnnotation(PyObject *SWIGUNUSEDPARM(self), PyOb
   int arg1 ;
   int arg2 ;
   int result;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlAddAnnotation",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlAddAnnotation" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "NhlAddAnnotation" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
   result = (int)NhlAddAnnotation(arg1,arg2);
   resultobj = SWIG_From_int((int)(result));
   return resultobj;
@@ -6915,16 +6536,12 @@ SWIGINTERN PyObject *_wrap_NhlGetParentWorkstation(PyObject *SWIGUNUSEDPARM(self
   PyObject *resultobj = 0;
   int arg1 ;
   int result;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:NhlGetParentWorkstation",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlGetParentWorkstation" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   result = (int)NhlGetParentWorkstation(arg1);
   resultobj = SWIG_From_int((int)(result));
   return resultobj;
@@ -6937,16 +6554,12 @@ SWIGINTERN PyObject *_wrap_NhlClassName(PyObject *SWIGUNUSEDPARM(self), PyObject
   PyObject *resultobj = 0;
   int arg1 ;
   char *result = 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:NhlClassName",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlClassName" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   result = (char *)NhlClassName(arg1);
   resultobj = SWIG_FromCharPtr((const char *)result);
   return resultobj;
@@ -6960,8 +6573,6 @@ SWIGINTERN PyObject *_wrap_NhlGetString(PyObject *SWIGUNUSEDPARM(self), PyObject
   int arg1 ;
   NhlString arg2 = (NhlString) 0 ;
   NhlString result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
@@ -6969,11 +6580,9 @@ SWIGINTERN PyObject *_wrap_NhlGetString(PyObject *SWIGUNUSEDPARM(self), PyObject
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlGetString",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlGetString" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlGetString" "', argument " "2"" of type '" "NhlString""'");
@@ -6995,33 +6604,25 @@ SWIGINTERN PyObject *_wrap_NhlAddData(PyObject *SWIGUNUSEDPARM(self), PyObject *
   NhlString arg2 = (NhlString) 0 ;
   int arg3 ;
   int result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOO:NhlAddData",&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlAddData" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlAddData" "', argument " "2"" of type '" "NhlString""'");
   }
   arg2 = (NhlString)(buf2);
-  ecode3 = SWIG_AsVal_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "NhlAddData" "', argument " "3"" of type '" "int""'");
-  } 
-  arg3 = (int)(val3);
+  {
+    arg3 = (int) PyInt_AsLong (obj2);
+  }
   result = (int)NhlAddData(arg1,arg2,arg3);
   resultobj = SWIG_From_int((int)(result));
   if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
@@ -7038,33 +6639,25 @@ SWIGINTERN PyObject *_wrap_NhlRemoveData(PyObject *SWIGUNUSEDPARM(self), PyObjec
   NhlString arg2 = (NhlString) 0 ;
   int arg3 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOO:NhlRemoveData",&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlRemoveData" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlRemoveData" "', argument " "2"" of type '" "NhlString""'");
   }
   arg2 = (NhlString)(buf2);
-  ecode3 = SWIG_AsVal_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "NhlRemoveData" "', argument " "3"" of type '" "int""'");
-  } 
-  arg3 = (int)(val3);
+  {
+    arg3 = (int) PyInt_AsLong (obj2);
+  }
   result = (NhlErrorTypes)NhlRemoveData(arg1,arg2,arg3);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -7083,32 +6676,20 @@ SWIGINTERN PyObject *_wrap_NhlRemoveOverlay(PyObject *SWIGUNUSEDPARM(self), PyOb
   int arg2 ;
   NhlBoolean arg3 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOO:NhlRemoveOverlay",&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlRemoveOverlay" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "NhlRemoveOverlay" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
-  ecode3 = SWIG_AsVal_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "NhlRemoveOverlay" "', argument " "3"" of type '" "NhlBoolean""'");
-  } 
-  arg3 = (NhlBoolean)(val3);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
+  {
+    arg3 = (int) PyInt_AsLong (obj2);
+  }
   result = (NhlErrorTypes)NhlRemoveOverlay(arg1,arg2,arg3);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -7125,8 +6706,6 @@ SWIGINTERN PyObject *_wrap_NhlGetStringArray(PyObject *SWIGUNUSEDPARM(self), PyO
   char *arg2 = (char *) 0 ;
   int *arg3 = (int *) 0 ;
   NhlString *result = 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
@@ -7138,11 +6717,9 @@ SWIGINTERN PyObject *_wrap_NhlGetStringArray(PyObject *SWIGUNUSEDPARM(self), PyO
   arg3 = &tempx3;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlGetStringArray",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlGetStringArray" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlGetStringArray" "', argument " "2"" of type '" "char *""'");
@@ -7169,16 +6746,12 @@ fail:
 SWIGINTERN PyObject *_wrap_NhlRLDestroy(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:NhlRLDestroy",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlRLDestroy" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   NhlRLDestroy(arg1);
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -7192,8 +6765,6 @@ SWIGINTERN PyObject *_wrap_NhlGetNamedColorIndex(PyObject *SWIGUNUSEDPARM(self),
   int arg1 ;
   char *arg2 = (char *) 0 ;
   int result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
@@ -7201,11 +6772,9 @@ SWIGINTERN PyObject *_wrap_NhlGetNamedColorIndex(PyObject *SWIGUNUSEDPARM(self),
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlGetNamedColorIndex",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlGetNamedColorIndex" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlGetNamedColorIndex" "', argument " "2"" of type '" "char const *""'");
@@ -7226,19 +6795,15 @@ SWIGINTERN PyObject *_wrap_NhlGetBB(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   int arg1 ;
   NhlBoundingBox *arg2 = (NhlBoundingBox *) 0 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlGetBB",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlGetBB" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_NhlBoundingBox, 0 |  0 );
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlGetBB" "', argument " "2"" of type '" "NhlBoundingBox *""'"); 
@@ -7259,24 +6824,16 @@ SWIGINTERN PyObject *_wrap_NhlChangeWorkstation(PyObject *SWIGUNUSEDPARM(self), 
   int arg1 ;
   int arg2 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlChangeWorkstation",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlChangeWorkstation" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "NhlChangeWorkstation" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
   result = (NhlErrorTypes)NhlChangeWorkstation(arg1,arg2);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -7295,8 +6852,6 @@ SWIGINTERN PyObject *_wrap_NhlPGetBB(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   float *arg4 = (float *) 0 ;
   float *arg5 = (float *) 0 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
   float temp2 ;
   int res2 = SWIG_TMPOBJ ;
   float temp3 ;
@@ -7312,11 +6867,9 @@ SWIGINTERN PyObject *_wrap_NhlPGetBB(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   arg4 = &temp4;
   arg5 = &temp5;
   if (!PyArg_ParseTuple(args,(char *)"O:NhlPGetBB",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlPGetBB" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   result = (NhlErrorTypes)NhlPGetBB(arg1,arg2,arg3,arg4,arg5);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -7362,18 +6915,6 @@ SWIGINTERN PyObject *_wrap_NhlPNDCToData(PyObject *SWIGUNUSEDPARM(self), PyObjec
   int arg7 ;
   int arg8 ;
   PyObject *result = 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val4 ;
-  int ecode4 = 0 ;
-  float val5 ;
-  int ecode5 = 0 ;
-  float val6 ;
-  int ecode6 = 0 ;
-  int val7 ;
-  int ecode7 = 0 ;
-  int val8 ;
-  int ecode8 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -7384,11 +6925,9 @@ SWIGINTERN PyObject *_wrap_NhlPNDCToData(PyObject *SWIGUNUSEDPARM(self), PyObjec
   PyObject * obj7 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:NhlPNDCToData",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlPNDCToData" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     int i,ndims,tdims=1;
     PyArrayObject *arr;
@@ -7411,31 +6950,21 @@ SWIGINTERN PyObject *_wrap_NhlPNDCToData(PyObject *SWIGUNUSEDPARM(self), PyObjec
     }
     arg3 = (float *) d2f(tdims, (double *) arr->data);
   }
-  ecode4 = SWIG_AsVal_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "NhlPNDCToData" "', argument " "4"" of type '" "int""'");
-  } 
-  arg4 = (int)(val4);
-  ecode5 = SWIG_AsVal_float(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "NhlPNDCToData" "', argument " "5"" of type '" "float""'");
-  } 
-  arg5 = (float)(val5);
-  ecode6 = SWIG_AsVal_float(obj5, &val6);
-  if (!SWIG_IsOK(ecode6)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "NhlPNDCToData" "', argument " "6"" of type '" "float""'");
-  } 
-  arg6 = (float)(val6);
-  ecode7 = SWIG_AsVal_int(obj6, &val7);
-  if (!SWIG_IsOK(ecode7)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "NhlPNDCToData" "', argument " "7"" of type '" "int""'");
-  } 
-  arg7 = (int)(val7);
-  ecode8 = SWIG_AsVal_int(obj7, &val8);
-  if (!SWIG_IsOK(ecode8)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "NhlPNDCToData" "', argument " "8"" of type '" "int""'");
-  } 
-  arg8 = (int)(val8);
+  {
+    arg4 = (int) PyInt_AsLong (obj3);
+  }
+  {
+    arg5 = (float) PyFloat_AsDouble (obj4);
+  }
+  {
+    arg6 = (float) PyFloat_AsDouble (obj5);
+  }
+  {
+    arg7 = (int) PyInt_AsLong (obj6);
+  }
+  {
+    arg8 = (int) PyInt_AsLong (obj7);
+  }
   result = (PyObject *)NhlPNDCToData(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);
   resultobj = result;
   return resultobj;
@@ -7455,18 +6984,6 @@ SWIGINTERN PyObject *_wrap_NhlPDataToNDC(PyObject *SWIGUNUSEDPARM(self), PyObjec
   int arg7 ;
   int arg8 ;
   PyObject *result = 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val4 ;
-  int ecode4 = 0 ;
-  float val5 ;
-  int ecode5 = 0 ;
-  float val6 ;
-  int ecode6 = 0 ;
-  int val7 ;
-  int ecode7 = 0 ;
-  int val8 ;
-  int ecode8 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -7477,11 +6994,9 @@ SWIGINTERN PyObject *_wrap_NhlPDataToNDC(PyObject *SWIGUNUSEDPARM(self), PyObjec
   PyObject * obj7 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:NhlPDataToNDC",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlPDataToNDC" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     int i,ndims,tdims=1;
     PyArrayObject *arr;
@@ -7504,31 +7019,21 @@ SWIGINTERN PyObject *_wrap_NhlPDataToNDC(PyObject *SWIGUNUSEDPARM(self), PyObjec
     }
     arg3 = (float *) d2f(tdims, (double *) arr->data);
   }
-  ecode4 = SWIG_AsVal_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "NhlPDataToNDC" "', argument " "4"" of type '" "int""'");
-  } 
-  arg4 = (int)(val4);
-  ecode5 = SWIG_AsVal_float(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "NhlPDataToNDC" "', argument " "5"" of type '" "float""'");
-  } 
-  arg5 = (float)(val5);
-  ecode6 = SWIG_AsVal_float(obj5, &val6);
-  if (!SWIG_IsOK(ecode6)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "NhlPDataToNDC" "', argument " "6"" of type '" "float""'");
-  } 
-  arg6 = (float)(val6);
-  ecode7 = SWIG_AsVal_int(obj6, &val7);
-  if (!SWIG_IsOK(ecode7)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "NhlPDataToNDC" "', argument " "7"" of type '" "int""'");
-  } 
-  arg7 = (int)(val7);
-  ecode8 = SWIG_AsVal_int(obj7, &val8);
-  if (!SWIG_IsOK(ecode8)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "NhlPDataToNDC" "', argument " "8"" of type '" "int""'");
-  } 
-  arg8 = (int)(val8);
+  {
+    arg4 = (int) PyInt_AsLong (obj3);
+  }
+  {
+    arg5 = (float) PyFloat_AsDouble (obj4);
+  }
+  {
+    arg6 = (float) PyFloat_AsDouble (obj5);
+  }
+  {
+    arg7 = (int) PyInt_AsLong (obj6);
+  }
+  {
+    arg8 = (int) PyInt_AsLong (obj7);
+  }
   result = (PyObject *)NhlPDataToNDC(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);
   resultobj = result;
   return resultobj;
@@ -7542,8 +7047,6 @@ SWIGINTERN PyObject *_wrap_NhlGetMDFloatArray(PyObject *SWIGUNUSEDPARM(self), Py
   int arg1 ;
   char *arg2 = (char *) 0 ;
   PyObject *result = 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
@@ -7551,11 +7054,9 @@ SWIGINTERN PyObject *_wrap_NhlGetMDFloatArray(PyObject *SWIGUNUSEDPARM(self), Py
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlGetMDFloatArray",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlGetMDFloatArray" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlGetMDFloatArray" "', argument " "2"" of type '" "char *""'");
@@ -7576,8 +7077,6 @@ SWIGINTERN PyObject *_wrap_NhlGetMDDoubleArray(PyObject *SWIGUNUSEDPARM(self), P
   int arg1 ;
   char *arg2 = (char *) 0 ;
   PyObject *result = 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
@@ -7585,11 +7084,9 @@ SWIGINTERN PyObject *_wrap_NhlGetMDDoubleArray(PyObject *SWIGUNUSEDPARM(self), P
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlGetMDDoubleArray",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlGetMDDoubleArray" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlGetMDDoubleArray" "', argument " "2"" of type '" "char *""'");
@@ -7610,8 +7107,6 @@ SWIGINTERN PyObject *_wrap_NhlGetMDIntegerArray(PyObject *SWIGUNUSEDPARM(self), 
   int arg1 ;
   char *arg2 = (char *) 0 ;
   PyObject *result = 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
@@ -7619,11 +7114,9 @@ SWIGINTERN PyObject *_wrap_NhlGetMDIntegerArray(PyObject *SWIGUNUSEDPARM(self), 
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:NhlGetMDIntegerArray",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NhlGetMDIntegerArray" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlGetMDIntegerArray" "', argument " "2"" of type '" "char *""'");
@@ -7941,24 +7434,16 @@ SWIGINTERN PyObject *_wrap_set_PCMP04(PyObject *SWIGUNUSEDPARM(self), PyObject *
   PyObject *resultobj = 0;
   int arg1 ;
   float arg2 ;
-  int val1 ;
-  int ecode1 = 0 ;
-  float val2 ;
-  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:set_PCMP04",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_PCMP04" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_float(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "set_PCMP04" "', argument " "2"" of type '" "float""'");
-  } 
-  arg2 = (float)(val2);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (float) PyFloat_AsDouble (obj1);
+  }
   set_PCMP04(arg1,arg2);
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -7977,18 +7462,6 @@ SWIGINTERN PyObject *_wrap_gendat(PyObject *SWIGUNUSEDPARM(self), PyObject *args
   float arg6 ;
   float arg7 ;
   float *arg8 = (float *) 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
-  int val4 ;
-  int ecode4 = 0 ;
-  int val5 ;
-  int ecode5 = 0 ;
-  float val6 ;
-  int ecode6 = 0 ;
-  float val7 ;
-  int ecode7 = 0 ;
   float tempx8 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -8006,36 +7479,24 @@ SWIGINTERN PyObject *_wrap_gendat(PyObject *SWIGUNUSEDPARM(self), PyObject *args
   arg1 = (int) PyInt_AsLong(obj0);
   arg8 = (float *) malloc(arg1*sizeof(float));
   
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "gendat" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
-  ecode3 = SWIG_AsVal_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "gendat" "', argument " "3"" of type '" "int""'");
-  } 
-  arg3 = (int)(val3);
-  ecode4 = SWIG_AsVal_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "gendat" "', argument " "4"" of type '" "int""'");
-  } 
-  arg4 = (int)(val4);
-  ecode5 = SWIG_AsVal_int(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "gendat" "', argument " "5"" of type '" "int""'");
-  } 
-  arg5 = (int)(val5);
-  ecode6 = SWIG_AsVal_float(obj5, &val6);
-  if (!SWIG_IsOK(ecode6)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "gendat" "', argument " "6"" of type '" "float""'");
-  } 
-  arg6 = (float)(val6);
-  ecode7 = SWIG_AsVal_float(obj6, &val7);
-  if (!SWIG_IsOK(ecode7)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "gendat" "', argument " "7"" of type '" "float""'");
-  } 
-  arg7 = (float)(val7);
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
+  {
+    arg3 = (int) PyInt_AsLong (obj2);
+  }
+  {
+    arg4 = (int) PyInt_AsLong (obj3);
+  }
+  {
+    arg5 = (int) PyInt_AsLong (obj4);
+  }
+  {
+    arg6 = (float) PyFloat_AsDouble (obj5);
+  }
+  {
+    arg7 = (float) PyFloat_AsDouble (obj6);
+  }
   gendat(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);
   resultobj = SWIG_Py_Void();
   {
@@ -8052,16 +7513,12 @@ fail:
 SWIGINTERN PyObject *_wrap_gactivate_ws(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:gactivate_ws",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "gactivate_ws" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   gactivate_ws(arg1);
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -8073,16 +7530,12 @@ fail:
 SWIGINTERN PyObject *_wrap_gdeactivate_ws(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:gdeactivate_ws",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "gdeactivate_ws" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   gdeactivate_ws(arg1);
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -8108,32 +7561,20 @@ SWIGINTERN PyObject *_wrap_c_plotif(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   float arg1 ;
   float arg2 ;
   int arg3 ;
-  float val1 ;
-  int ecode1 = 0 ;
-  float val2 ;
-  int ecode2 = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOO:c_plotif",&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_float(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "c_plotif" "', argument " "1"" of type '" "float""'");
-  } 
-  arg1 = (float)(val1);
-  ecode2 = SWIG_AsVal_float(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_plotif" "', argument " "2"" of type '" "float""'");
-  } 
-  arg2 = (float)(val2);
-  ecode3 = SWIG_AsVal_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "c_plotif" "', argument " "3"" of type '" "int""'");
-  } 
-  arg3 = (int)(val3);
+  {
+    arg1 = (float) PyFloat_AsDouble (obj0);
+  }
+  {
+    arg2 = (float) PyFloat_AsDouble (obj1);
+  }
+  {
+    arg3 = (int) PyInt_AsLong (obj2);
+  }
   c_plotif(arg1,arg2,arg3);
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -8149,8 +7590,6 @@ SWIGINTERN PyObject *_wrap_c_cpseti(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   int res1 ;
   char *buf1 = 0 ;
   int alloc1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
@@ -8160,11 +7599,9 @@ SWIGINTERN PyObject *_wrap_c_cpseti(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "c_cpseti" "', argument " "1"" of type '" "NhlString""'");
   }
   arg1 = (NhlString)(buf1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_cpseti" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
   c_cpseti(arg1,arg2);
   resultobj = SWIG_Py_Void();
   if (alloc1 == SWIG_NEWOBJ) free((char*)buf1);
@@ -8182,8 +7619,6 @@ SWIGINTERN PyObject *_wrap_c_cpsetr(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   int res1 ;
   char *buf1 = 0 ;
   int alloc1 = 0 ;
-  float val2 ;
-  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
@@ -8193,11 +7628,9 @@ SWIGINTERN PyObject *_wrap_c_cpsetr(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "c_cpsetr" "', argument " "1"" of type '" "NhlString""'");
   }
   arg1 = (NhlString)(buf1);
-  ecode2 = SWIG_AsVal_float(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_cpsetr" "', argument " "2"" of type '" "float""'");
-  } 
-  arg2 = (float)(val2);
+  {
+    arg2 = (float) PyFloat_AsDouble (obj1);
+  }
   c_cpsetr(arg1,arg2);
   resultobj = SWIG_Py_Void();
   if (alloc1 == SWIG_NEWOBJ) free((char*)buf1);
@@ -8215,8 +7648,6 @@ SWIGINTERN PyObject *_wrap_c_pcseti(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   int res1 ;
   char *buf1 = 0 ;
   int alloc1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
@@ -8226,11 +7657,9 @@ SWIGINTERN PyObject *_wrap_c_pcseti(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "c_pcseti" "', argument " "1"" of type '" "NhlString""'");
   }
   arg1 = (NhlString)(buf1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_pcseti" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
   c_pcseti(arg1,arg2);
   resultobj = SWIG_Py_Void();
   if (alloc1 == SWIG_NEWOBJ) free((char*)buf1);
@@ -8248,8 +7677,6 @@ SWIGINTERN PyObject *_wrap_c_pcsetr(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   int res1 ;
   char *buf1 = 0 ;
   int alloc1 = 0 ;
-  float val2 ;
-  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
@@ -8259,11 +7686,9 @@ SWIGINTERN PyObject *_wrap_c_pcsetr(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "c_pcsetr" "', argument " "1"" of type '" "NhlString""'");
   }
   arg1 = (NhlString)(buf1);
-  ecode2 = SWIG_AsVal_float(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_pcsetr" "', argument " "2"" of type '" "float""'");
-  } 
-  arg2 = (float)(val2);
+  {
+    arg2 = (float) PyFloat_AsDouble (obj1);
+  }
   c_pcsetr(arg1,arg2);
   resultobj = SWIG_Py_Void();
   if (alloc1 == SWIG_NEWOBJ) free((char*)buf1);
@@ -8285,24 +7710,6 @@ SWIGINTERN PyObject *_wrap_c_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args)
   float arg7 ;
   float arg8 ;
   int arg9 ;
-  float val1 ;
-  int ecode1 = 0 ;
-  float val2 ;
-  int ecode2 = 0 ;
-  float val3 ;
-  int ecode3 = 0 ;
-  float val4 ;
-  int ecode4 = 0 ;
-  float val5 ;
-  int ecode5 = 0 ;
-  float val6 ;
-  int ecode6 = 0 ;
-  float val7 ;
-  int ecode7 = 0 ;
-  float val8 ;
-  int ecode8 = 0 ;
-  int val9 ;
-  int ecode9 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -8314,51 +7721,33 @@ SWIGINTERN PyObject *_wrap_c_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args)
   PyObject * obj8 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOO:c_set",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8)) SWIG_fail;
-  ecode1 = SWIG_AsVal_float(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "c_set" "', argument " "1"" of type '" "float""'");
-  } 
-  arg1 = (float)(val1);
-  ecode2 = SWIG_AsVal_float(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_set" "', argument " "2"" of type '" "float""'");
-  } 
-  arg2 = (float)(val2);
-  ecode3 = SWIG_AsVal_float(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "c_set" "', argument " "3"" of type '" "float""'");
-  } 
-  arg3 = (float)(val3);
-  ecode4 = SWIG_AsVal_float(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "c_set" "', argument " "4"" of type '" "float""'");
-  } 
-  arg4 = (float)(val4);
-  ecode5 = SWIG_AsVal_float(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "c_set" "', argument " "5"" of type '" "float""'");
-  } 
-  arg5 = (float)(val5);
-  ecode6 = SWIG_AsVal_float(obj5, &val6);
-  if (!SWIG_IsOK(ecode6)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "c_set" "', argument " "6"" of type '" "float""'");
-  } 
-  arg6 = (float)(val6);
-  ecode7 = SWIG_AsVal_float(obj6, &val7);
-  if (!SWIG_IsOK(ecode7)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "c_set" "', argument " "7"" of type '" "float""'");
-  } 
-  arg7 = (float)(val7);
-  ecode8 = SWIG_AsVal_float(obj7, &val8);
-  if (!SWIG_IsOK(ecode8)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "c_set" "', argument " "8"" of type '" "float""'");
-  } 
-  arg8 = (float)(val8);
-  ecode9 = SWIG_AsVal_int(obj8, &val9);
-  if (!SWIG_IsOK(ecode9)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode9), "in method '" "c_set" "', argument " "9"" of type '" "int""'");
-  } 
-  arg9 = (int)(val9);
+  {
+    arg1 = (float) PyFloat_AsDouble (obj0);
+  }
+  {
+    arg2 = (float) PyFloat_AsDouble (obj1);
+  }
+  {
+    arg3 = (float) PyFloat_AsDouble (obj2);
+  }
+  {
+    arg4 = (float) PyFloat_AsDouble (obj3);
+  }
+  {
+    arg5 = (float) PyFloat_AsDouble (obj4);
+  }
+  {
+    arg6 = (float) PyFloat_AsDouble (obj5);
+  }
+  {
+    arg7 = (float) PyFloat_AsDouble (obj6);
+  }
+  {
+    arg8 = (float) PyFloat_AsDouble (obj7);
+  }
+  {
+    arg9 = (int) PyInt_AsLong (obj8);
+  }
   c_set(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -8377,16 +7766,6 @@ SWIGINTERN PyObject *_wrap_c_cprect(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   int arg6 ;
   int *arg7 = (int *) 0 ;
   int arg8 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
-  int val4 ;
-  int ecode4 = 0 ;
-  int val6 ;
-  int ecode6 = 0 ;
-  int val8 ;
-  int ecode8 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -8408,21 +7787,15 @@ SWIGINTERN PyObject *_wrap_c_cprect(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     }
     arg1 = (float *) d2f(tdims, (double *) arr->data);
   }
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_cprect" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
-  ecode3 = SWIG_AsVal_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "c_cprect" "', argument " "3"" of type '" "int""'");
-  } 
-  arg3 = (int)(val3);
-  ecode4 = SWIG_AsVal_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "c_cprect" "', argument " "4"" of type '" "int""'");
-  } 
-  arg4 = (int)(val4);
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
+  {
+    arg3 = (int) PyInt_AsLong (obj2);
+  }
+  {
+    arg4 = (int) PyInt_AsLong (obj3);
+  }
   {
     int i,ndims,tdims=1;
     PyArrayObject *arr;
@@ -8434,22 +7807,18 @@ SWIGINTERN PyObject *_wrap_c_cprect(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     }
     arg5 = (float *) d2f(tdims, (double *) arr->data);
   }
-  ecode6 = SWIG_AsVal_int(obj5, &val6);
-  if (!SWIG_IsOK(ecode6)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "c_cprect" "', argument " "6"" of type '" "int""'");
-  } 
-  arg6 = (int)(val6);
+  {
+    arg6 = (int) PyInt_AsLong (obj5);
+  }
   {
     PyArrayObject *arr;
     arr =
     (PyArrayObject *) PyArray_ContiguousFromObject(obj6,PyArray_INT,0,0);
     arg7 = (int *) arr->data;
   }
-  ecode8 = SWIG_AsVal_int(obj7, &val8);
-  if (!SWIG_IsOK(ecode8)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "c_cprect" "', argument " "8"" of type '" "int""'");
-  } 
-  arg8 = (int)(val8);
+  {
+    arg8 = (int) PyInt_AsLong (obj7);
+  }
   c_cprect(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -8512,19 +7881,9 @@ SWIGINTERN PyObject *_wrap_c_plchhq(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   float arg4 ;
   float arg5 ;
   float arg6 ;
-  float val1 ;
-  int ecode1 = 0 ;
-  float val2 ;
-  int ecode2 = 0 ;
   int res3 ;
   char *buf3 = 0 ;
   int alloc3 = 0 ;
-  float val4 ;
-  int ecode4 = 0 ;
-  float val5 ;
-  int ecode5 = 0 ;
-  float val6 ;
-  int ecode6 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -8533,36 +7892,26 @@ SWIGINTERN PyObject *_wrap_c_plchhq(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   PyObject * obj5 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOO:c_plchhq",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
-  ecode1 = SWIG_AsVal_float(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "c_plchhq" "', argument " "1"" of type '" "float""'");
-  } 
-  arg1 = (float)(val1);
-  ecode2 = SWIG_AsVal_float(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_plchhq" "', argument " "2"" of type '" "float""'");
-  } 
-  arg2 = (float)(val2);
+  {
+    arg1 = (float) PyFloat_AsDouble (obj0);
+  }
+  {
+    arg2 = (float) PyFloat_AsDouble (obj1);
+  }
   res3 = SWIG_AsCharPtrAndSize(obj2, &buf3, NULL, &alloc3);
   if (!SWIG_IsOK(res3)) {
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "c_plchhq" "', argument " "3"" of type '" "NhlString""'");
   }
   arg3 = (NhlString)(buf3);
-  ecode4 = SWIG_AsVal_float(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "c_plchhq" "', argument " "4"" of type '" "float""'");
-  } 
-  arg4 = (float)(val4);
-  ecode5 = SWIG_AsVal_float(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "c_plchhq" "', argument " "5"" of type '" "float""'");
-  } 
-  arg5 = (float)(val5);
-  ecode6 = SWIG_AsVal_float(obj5, &val6);
-  if (!SWIG_IsOK(ecode6)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "c_plchhq" "', argument " "6"" of type '" "float""'");
-  } 
-  arg6 = (float)(val6);
+  {
+    arg4 = (float) PyFloat_AsDouble (obj3);
+  }
+  {
+    arg5 = (float) PyFloat_AsDouble (obj4);
+  }
+  {
+    arg6 = (float) PyFloat_AsDouble (obj5);
+  }
   c_plchhq(arg1,arg2,arg3,arg4,arg5,arg6);
   resultobj = SWIG_Py_Void();
   if (alloc3 == SWIG_NEWOBJ) free((char*)buf3);
@@ -9328,12 +8677,6 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
   ResInfo *arg9 = (ResInfo *) 0 ;
   nglRes *arg10 = (nglRes *) 0 ;
   nglPlotId result;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  int val4 ;
-  int ecode4 = 0 ;
   int res7 ;
   char *buf7 = 0 ;
   int alloc7 = 0 ;
@@ -9352,16 +8695,12 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
   PyObject * obj9 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOO:labelbar_ndc_wrap",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "labelbar_ndc_wrap" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "labelbar_ndc_wrap" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
   {
     if (PyList_Check(obj2)) {
       int size = PyList_Size(obj2);
@@ -9388,11 +8727,9 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
       return NULL;
     }
   }
-  ecode4 = SWIG_AsVal_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "labelbar_ndc_wrap" "', argument " "4"" of type '" "int""'");
-  } 
-  arg4 = (int)(val4);
+  {
+    arg4 = (int) PyInt_AsLong (obj3);
+  }
   {
     PyArrayObject *arr;
     arr =
@@ -9945,12 +9282,6 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
   ResInfo *arg9 = (ResInfo *) 0 ;
   nglRes *arg10 = (nglRes *) 0 ;
   nglPlotId result;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  int val4 ;
-  int ecode4 = 0 ;
   int res7 ;
   char *buf7 = 0 ;
   int alloc7 = 0 ;
@@ -9969,16 +9300,12 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
   PyObject * obj9 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOO:legend_ndc_wrap",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "legend_ndc_wrap" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "legend_ndc_wrap" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
   {
     if (PyList_Check(obj2)) {
       int size = PyList_Size(obj2);
@@ -10005,11 +9332,9 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
       return NULL;
     }
   }
-  ecode4 = SWIG_AsVal_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "legend_ndc_wrap" "', argument " "4"" of type '" "int""'");
-  } 
-  arg4 = (int)(val4);
+  {
+    arg4 = (int) PyInt_AsLong (obj3);
+  }
   {
     PyArrayObject *arr;
     arr =
@@ -10569,29 +9894,17 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
   ResInfo *arg16 = (ResInfo *) 0 ;
   nglRes *arg17 = (nglRes *) 0 ;
   nglPlotId result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res3 ;
   char *buf3 = 0 ;
   int alloc3 = 0 ;
-  int val4 ;
-  int ecode4 = 0 ;
-  int val5 ;
-  int ecode5 = 0 ;
-  int val6 ;
-  int ecode6 = 0 ;
   int res7 ;
   int res8 ;
   char *buf8 = 0 ;
   int alloc8 = 0 ;
-  int val9 ;
-  int ecode9 = 0 ;
   int res10 ;
   int res11 ;
   char *buf11 = 0 ;
   int alloc11 = 0 ;
-  int val12 ;
-  int ecode12 = 0 ;
   int res13 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -10612,11 +9925,9 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
   PyObject * obj16 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOOOOOOOOO:contour_wrap",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9,&obj10,&obj11,&obj12,&obj13,&obj14,&obj15,&obj16)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "contour_wrap" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     PyArrayObject *arr;
     arr =
@@ -10628,21 +9939,15 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "contour_wrap" "', argument " "3"" of type '" "char const *""'");
   }
   arg3 = (char *)(buf3);
-  ecode4 = SWIG_AsVal_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "contour_wrap" "', argument " "4"" of type '" "int""'");
-  } 
-  arg4 = (int)(val4);
-  ecode5 = SWIG_AsVal_int(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "contour_wrap" "', argument " "5"" of type '" "int""'");
-  } 
-  arg5 = (int)(val5);
-  ecode6 = SWIG_AsVal_int(obj5, &val6);
-  if (!SWIG_IsOK(ecode6)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "contour_wrap" "', argument " "6"" of type '" "int""'");
-  } 
-  arg6 = (int)(val6);
+  {
+    arg4 = (int) PyInt_AsLong (obj3);
+  }
+  {
+    arg5 = (int) PyInt_AsLong (obj4);
+  }
+  {
+    arg6 = (int) PyInt_AsLong (obj5);
+  }
   res7 = SWIG_ConvertPtr(obj6,SWIG_as_voidptrptr(&arg7), 0, 0);
   if (!SWIG_IsOK(res7)) {
     SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "contour_wrap" "', argument " "7"" of type '" "void *""'"); 
@@ -10652,11 +9957,9 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
     SWIG_exception_fail(SWIG_ArgError(res8), "in method '" "contour_wrap" "', argument " "8"" of type '" "char const *""'");
   }
   arg8 = (char *)(buf8);
-  ecode9 = SWIG_AsVal_int(obj8, &val9);
-  if (!SWIG_IsOK(ecode9)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode9), "in method '" "contour_wrap" "', argument " "9"" of type '" "int""'");
-  } 
-  arg9 = (int)(val9);
+  {
+    arg9 = (int) PyInt_AsLong (obj8);
+  }
   res10 = SWIG_ConvertPtr(obj9,SWIG_as_voidptrptr(&arg10), 0, 0);
   if (!SWIG_IsOK(res10)) {
     SWIG_exception_fail(SWIG_ArgError(res10), "in method '" "contour_wrap" "', argument " "10"" of type '" "void *""'"); 
@@ -10666,11 +9969,9 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
     SWIG_exception_fail(SWIG_ArgError(res11), "in method '" "contour_wrap" "', argument " "11"" of type '" "char const *""'");
   }
   arg11 = (char *)(buf11);
-  ecode12 = SWIG_AsVal_int(obj11, &val12);
-  if (!SWIG_IsOK(ecode12)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode12), "in method '" "contour_wrap" "', argument " "12"" of type '" "int""'");
-  } 
-  arg12 = (int)(val12);
+  {
+    arg12 = (int) PyInt_AsLong (obj11);
+  }
   res13 = SWIG_ConvertPtr(obj12,SWIG_as_voidptrptr(&arg13), 0, 0);
   if (!SWIG_IsOK(res13)) {
     SWIG_exception_fail(SWIG_ArgError(res13), "in method '" "contour_wrap" "', argument " "13"" of type '" "void *""'"); 
@@ -11896,18 +11197,14 @@ SWIGINTERN PyObject *_wrap_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   ResInfo *arg2 = (ResInfo *) 0 ;
   nglRes *arg3 = (nglRes *) 0 ;
   nglPlotId result;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOO:map_wrap",&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "map_wrap" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     int i,list_type,list_len,count;
     Py_ssize_t pos=0;
@@ -12441,29 +11738,17 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
   ResInfo *arg16 = (ResInfo *) 0 ;
   nglRes *arg17 = (nglRes *) 0 ;
   nglPlotId result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res3 ;
   char *buf3 = 0 ;
   int alloc3 = 0 ;
-  int val4 ;
-  int ecode4 = 0 ;
-  int val5 ;
-  int ecode5 = 0 ;
-  int val6 ;
-  int ecode6 = 0 ;
   int res7 ;
   int res8 ;
   char *buf8 = 0 ;
   int alloc8 = 0 ;
-  int val9 ;
-  int ecode9 = 0 ;
   int res10 ;
   int res11 ;
   char *buf11 = 0 ;
   int alloc11 = 0 ;
-  int val12 ;
-  int ecode12 = 0 ;
   int res13 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -12484,11 +11769,9 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
   PyObject * obj16 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOOOOOOOOO:contour_map_wrap",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9,&obj10,&obj11,&obj12,&obj13,&obj14,&obj15,&obj16)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "contour_map_wrap" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     PyArrayObject *arr;
     arr =
@@ -12500,21 +11783,15 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "contour_map_wrap" "', argument " "3"" of type '" "char const *""'");
   }
   arg3 = (char *)(buf3);
-  ecode4 = SWIG_AsVal_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "contour_map_wrap" "', argument " "4"" of type '" "int""'");
-  } 
-  arg4 = (int)(val4);
-  ecode5 = SWIG_AsVal_int(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "contour_map_wrap" "', argument " "5"" of type '" "int""'");
-  } 
-  arg5 = (int)(val5);
-  ecode6 = SWIG_AsVal_int(obj5, &val6);
-  if (!SWIG_IsOK(ecode6)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "contour_map_wrap" "', argument " "6"" of type '" "int""'");
-  } 
-  arg6 = (int)(val6);
+  {
+    arg4 = (int) PyInt_AsLong (obj3);
+  }
+  {
+    arg5 = (int) PyInt_AsLong (obj4);
+  }
+  {
+    arg6 = (int) PyInt_AsLong (obj5);
+  }
   res7 = SWIG_ConvertPtr(obj6,SWIG_as_voidptrptr(&arg7), 0, 0);
   if (!SWIG_IsOK(res7)) {
     SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "contour_map_wrap" "', argument " "7"" of type '" "void *""'"); 
@@ -12524,11 +11801,9 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
     SWIG_exception_fail(SWIG_ArgError(res8), "in method '" "contour_map_wrap" "', argument " "8"" of type '" "char const *""'");
   }
   arg8 = (char *)(buf8);
-  ecode9 = SWIG_AsVal_int(obj8, &val9);
-  if (!SWIG_IsOK(ecode9)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode9), "in method '" "contour_map_wrap" "', argument " "9"" of type '" "int""'");
-  } 
-  arg9 = (int)(val9);
+  {
+    arg9 = (int) PyInt_AsLong (obj8);
+  }
   res10 = SWIG_ConvertPtr(obj9,SWIG_as_voidptrptr(&arg10), 0, 0);
   if (!SWIG_IsOK(res10)) {
     SWIG_exception_fail(SWIG_ArgError(res10), "in method '" "contour_map_wrap" "', argument " "10"" of type '" "void *""'"); 
@@ -12538,11 +11813,9 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
     SWIG_exception_fail(SWIG_ArgError(res11), "in method '" "contour_map_wrap" "', argument " "11"" of type '" "char const *""'");
   }
   arg11 = (char *)(buf11);
-  ecode12 = SWIG_AsVal_int(obj11, &val12);
-  if (!SWIG_IsOK(ecode12)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode12), "in method '" "contour_map_wrap" "', argument " "12"" of type '" "int""'");
-  } 
-  arg12 = (int)(val12);
+  {
+    arg12 = (int) PyInt_AsLong (obj11);
+  }
   res13 = SWIG_ConvertPtr(obj12,SWIG_as_voidptrptr(&arg13), 0, 0);
   if (!SWIG_IsOK(res13)) {
     SWIG_exception_fail(SWIG_ArgError(res13), "in method '" "contour_map_wrap" "', argument " "13"" of type '" "void *""'"); 
@@ -13782,22 +13055,12 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
   ResInfo *arg16 = (ResInfo *) 0 ;
   nglRes *arg17 = (nglRes *) 0 ;
   nglPlotId result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res4 ;
   char *buf4 = 0 ;
   int alloc4 = 0 ;
   int res5 ;
   char *buf5 = 0 ;
   int alloc5 = 0 ;
-  int val6 ;
-  int ecode6 = 0 ;
-  int val8 ;
-  int ecode8 = 0 ;
-  int val10 ;
-  int ecode10 = 0 ;
-  int val11 ;
-  int ecode11 = 0 ;
   int res12 ;
   int res13 ;
   PyObject * obj0 = 0 ;
@@ -13819,11 +13082,9 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
   PyObject * obj16 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOOOOOOOOO:xy_wrap",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9,&obj10,&obj11,&obj12,&obj13,&obj14,&obj15,&obj16)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "xy_wrap" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     PyArrayObject *arr;
     arr =
@@ -13846,38 +13107,30 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
     SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "xy_wrap" "', argument " "5"" of type '" "char const *""'");
   }
   arg5 = (char *)(buf5);
-  ecode6 = SWIG_AsVal_int(obj5, &val6);
-  if (!SWIG_IsOK(ecode6)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "xy_wrap" "', argument " "6"" of type '" "int""'");
-  } 
-  arg6 = (int)(val6);
+  {
+    arg6 = (int) PyInt_AsLong (obj5);
+  }
   {
     PyArrayObject *arr;
     arr =
     (PyArrayObject *) PyArray_ContiguousFromObject(obj6,PyArray_INT,0,0);
     arg7 = (int *) arr->data;
   }
-  ecode8 = SWIG_AsVal_int(obj7, &val8);
-  if (!SWIG_IsOK(ecode8)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "xy_wrap" "', argument " "8"" of type '" "int""'");
-  } 
-  arg8 = (int)(val8);
+  {
+    arg8 = (int) PyInt_AsLong (obj7);
+  }
   {
     PyArrayObject *arr;
     arr =
     (PyArrayObject *) PyArray_ContiguousFromObject(obj8,PyArray_INT,0,0);
     arg9 = (int *) arr->data;
   }
-  ecode10 = SWIG_AsVal_int(obj9, &val10);
-  if (!SWIG_IsOK(ecode10)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode10), "in method '" "xy_wrap" "', argument " "10"" of type '" "int""'");
-  } 
-  arg10 = (int)(val10);
-  ecode11 = SWIG_AsVal_int(obj10, &val11);
-  if (!SWIG_IsOK(ecode11)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode11), "in method '" "xy_wrap" "', argument " "11"" of type '" "int""'");
-  } 
-  arg11 = (int)(val11);
+  {
+    arg10 = (int) PyInt_AsLong (obj9);
+  }
+  {
+    arg11 = (int) PyInt_AsLong (obj10);
+  }
   res12 = SWIG_ConvertPtr(obj11,SWIG_as_voidptrptr(&arg12), 0, 0);
   if (!SWIG_IsOK(res12)) {
     SWIG_exception_fail(SWIG_ArgError(res12), "in method '" "xy_wrap" "', argument " "12"" of type '" "void *""'"); 
@@ -15113,15 +14366,9 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
   ResInfo *arg10 = (ResInfo *) 0 ;
   nglRes *arg11 = (nglRes *) 0 ;
   nglPlotId result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res3 ;
   char *buf3 = 0 ;
   int alloc3 = 0 ;
-  int val4 ;
-  int ecode4 = 0 ;
-  int val6 ;
-  int ecode6 = 0 ;
   int res7 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -15136,11 +14383,9 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
   PyObject * obj10 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOOO:y_wrap",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9,&obj10)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "y_wrap" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     PyArrayObject *arr;
     arr =
@@ -15152,22 +14397,18 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "y_wrap" "', argument " "3"" of type '" "char const *""'");
   }
   arg3 = (char *)(buf3);
-  ecode4 = SWIG_AsVal_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "y_wrap" "', argument " "4"" of type '" "int""'");
-  } 
-  arg4 = (int)(val4);
+  {
+    arg4 = (int) PyInt_AsLong (obj3);
+  }
   {
     PyArrayObject *arr;
     arr =
     (PyArrayObject *) PyArray_ContiguousFromObject(obj4,PyArray_INT,0,0);
     arg5 = (int *) arr->data;
   }
-  ecode6 = SWIG_AsVal_int(obj5, &val6);
-  if (!SWIG_IsOK(ecode6)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "y_wrap" "', argument " "6"" of type '" "int""'");
-  } 
-  arg6 = (int)(val6);
+  {
+    arg6 = (int) PyInt_AsLong (obj5);
+  }
   res7 = SWIG_ConvertPtr(obj6,SWIG_as_voidptrptr(&arg7), 0, 0);
   if (!SWIG_IsOK(res7)) {
     SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "y_wrap" "', argument " "7"" of type '" "void *""'"); 
@@ -16407,34 +15648,20 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
   ResInfo *arg20 = (ResInfo *) 0 ;
   nglRes *arg21 = (nglRes *) 0 ;
   nglPlotId result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res4 ;
   char *buf4 = 0 ;
   int alloc4 = 0 ;
   int res5 ;
   char *buf5 = 0 ;
   int alloc5 = 0 ;
-  int val6 ;
-  int ecode6 = 0 ;
-  int val7 ;
-  int ecode7 = 0 ;
-  int val8 ;
-  int ecode8 = 0 ;
   int res9 ;
   int res10 ;
   char *buf10 = 0 ;
   int alloc10 = 0 ;
-  int val11 ;
-  int ecode11 = 0 ;
   int res12 ;
   int res13 ;
   char *buf13 = 0 ;
   int alloc13 = 0 ;
-  int val14 ;
-  int ecode14 = 0 ;
-  int val15 ;
-  int ecode15 = 0 ;
   int res16 ;
   int res17 ;
   PyObject * obj0 = 0 ;
@@ -16460,11 +15687,9 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
   PyObject * obj20 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOOOOOOOOOOOOO:vector_wrap",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9,&obj10,&obj11,&obj12,&obj13,&obj14,&obj15,&obj16,&obj17,&obj18,&obj19,&obj20)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "vector_wrap" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     PyArrayObject *arr;
     arr =
@@ -16487,21 +15712,15 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
     SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "vector_wrap" "', argument " "5"" of type '" "char const *""'");
   }
   arg5 = (char *)(buf5);
-  ecode6 = SWIG_AsVal_int(obj5, &val6);
-  if (!SWIG_IsOK(ecode6)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "vector_wrap" "', argument " "6"" of type '" "int""'");
-  } 
-  arg6 = (int)(val6);
-  ecode7 = SWIG_AsVal_int(obj6, &val7);
-  if (!SWIG_IsOK(ecode7)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "vector_wrap" "', argument " "7"" of type '" "int""'");
-  } 
-  arg7 = (int)(val7);
-  ecode8 = SWIG_AsVal_int(obj7, &val8);
-  if (!SWIG_IsOK(ecode8)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "vector_wrap" "', argument " "8"" of type '" "int""'");
-  } 
-  arg8 = (int)(val8);
+  {
+    arg6 = (int) PyInt_AsLong (obj5);
+  }
+  {
+    arg7 = (int) PyInt_AsLong (obj6);
+  }
+  {
+    arg8 = (int) PyInt_AsLong (obj7);
+  }
   res9 = SWIG_ConvertPtr(obj8,SWIG_as_voidptrptr(&arg9), 0, 0);
   if (!SWIG_IsOK(res9)) {
     SWIG_exception_fail(SWIG_ArgError(res9), "in method '" "vector_wrap" "', argument " "9"" of type '" "void *""'"); 
@@ -16511,11 +15730,9 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
     SWIG_exception_fail(SWIG_ArgError(res10), "in method '" "vector_wrap" "', argument " "10"" of type '" "char const *""'");
   }
   arg10 = (char *)(buf10);
-  ecode11 = SWIG_AsVal_int(obj10, &val11);
-  if (!SWIG_IsOK(ecode11)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode11), "in method '" "vector_wrap" "', argument " "11"" of type '" "int""'");
-  } 
-  arg11 = (int)(val11);
+  {
+    arg11 = (int) PyInt_AsLong (obj10);
+  }
   res12 = SWIG_ConvertPtr(obj11,SWIG_as_voidptrptr(&arg12), 0, 0);
   if (!SWIG_IsOK(res12)) {
     SWIG_exception_fail(SWIG_ArgError(res12), "in method '" "vector_wrap" "', argument " "12"" of type '" "void *""'"); 
@@ -16525,16 +15742,12 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
     SWIG_exception_fail(SWIG_ArgError(res13), "in method '" "vector_wrap" "', argument " "13"" of type '" "char const *""'");
   }
   arg13 = (char *)(buf13);
-  ecode14 = SWIG_AsVal_int(obj13, &val14);
-  if (!SWIG_IsOK(ecode14)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode14), "in method '" "vector_wrap" "', argument " "14"" of type '" "int""'");
-  } 
-  arg14 = (int)(val14);
-  ecode15 = SWIG_AsVal_int(obj14, &val15);
-  if (!SWIG_IsOK(ecode15)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode15), "in method '" "vector_wrap" "', argument " "15"" of type '" "int""'");
-  } 
-  arg15 = (int)(val15);
+  {
+    arg14 = (int) PyInt_AsLong (obj13);
+  }
+  {
+    arg15 = (int) PyInt_AsLong (obj14);
+  }
   res16 = SWIG_ConvertPtr(obj15,SWIG_as_voidptrptr(&arg16), 0, 0);
   if (!SWIG_IsOK(res16)) {
     SWIG_exception_fail(SWIG_ArgError(res16), "in method '" "vector_wrap" "', argument " "16"" of type '" "void *""'"); 
@@ -17784,34 +16997,20 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
   ResInfo *arg20 = (ResInfo *) 0 ;
   nglRes *arg21 = (nglRes *) 0 ;
   nglPlotId result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res4 ;
   char *buf4 = 0 ;
   int alloc4 = 0 ;
   int res5 ;
   char *buf5 = 0 ;
   int alloc5 = 0 ;
-  int val6 ;
-  int ecode6 = 0 ;
-  int val7 ;
-  int ecode7 = 0 ;
-  int val8 ;
-  int ecode8 = 0 ;
   int res9 ;
   int res10 ;
   char *buf10 = 0 ;
   int alloc10 = 0 ;
-  int val11 ;
-  int ecode11 = 0 ;
   int res12 ;
   int res13 ;
   char *buf13 = 0 ;
   int alloc13 = 0 ;
-  int val14 ;
-  int ecode14 = 0 ;
-  int val15 ;
-  int ecode15 = 0 ;
   int res16 ;
   int res17 ;
   PyObject * obj0 = 0 ;
@@ -17837,11 +17036,9 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
   PyObject * obj20 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOOOOOOOOOOOOO:vector_map_wrap",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9,&obj10,&obj11,&obj12,&obj13,&obj14,&obj15,&obj16,&obj17,&obj18,&obj19,&obj20)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "vector_map_wrap" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     PyArrayObject *arr;
     arr =
@@ -17864,21 +17061,15 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
     SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "vector_map_wrap" "', argument " "5"" of type '" "char const *""'");
   }
   arg5 = (char *)(buf5);
-  ecode6 = SWIG_AsVal_int(obj5, &val6);
-  if (!SWIG_IsOK(ecode6)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "vector_map_wrap" "', argument " "6"" of type '" "int""'");
-  } 
-  arg6 = (int)(val6);
-  ecode7 = SWIG_AsVal_int(obj6, &val7);
-  if (!SWIG_IsOK(ecode7)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "vector_map_wrap" "', argument " "7"" of type '" "int""'");
-  } 
-  arg7 = (int)(val7);
-  ecode8 = SWIG_AsVal_int(obj7, &val8);
-  if (!SWIG_IsOK(ecode8)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "vector_map_wrap" "', argument " "8"" of type '" "int""'");
-  } 
-  arg8 = (int)(val8);
+  {
+    arg6 = (int) PyInt_AsLong (obj5);
+  }
+  {
+    arg7 = (int) PyInt_AsLong (obj6);
+  }
+  {
+    arg8 = (int) PyInt_AsLong (obj7);
+  }
   res9 = SWIG_ConvertPtr(obj8,SWIG_as_voidptrptr(&arg9), 0, 0);
   if (!SWIG_IsOK(res9)) {
     SWIG_exception_fail(SWIG_ArgError(res9), "in method '" "vector_map_wrap" "', argument " "9"" of type '" "void *""'"); 
@@ -17888,11 +17079,9 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
     SWIG_exception_fail(SWIG_ArgError(res10), "in method '" "vector_map_wrap" "', argument " "10"" of type '" "char const *""'");
   }
   arg10 = (char *)(buf10);
-  ecode11 = SWIG_AsVal_int(obj10, &val11);
-  if (!SWIG_IsOK(ecode11)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode11), "in method '" "vector_map_wrap" "', argument " "11"" of type '" "int""'");
-  } 
-  arg11 = (int)(val11);
+  {
+    arg11 = (int) PyInt_AsLong (obj10);
+  }
   res12 = SWIG_ConvertPtr(obj11,SWIG_as_voidptrptr(&arg12), 0, 0);
   if (!SWIG_IsOK(res12)) {
     SWIG_exception_fail(SWIG_ArgError(res12), "in method '" "vector_map_wrap" "', argument " "12"" of type '" "void *""'"); 
@@ -17902,16 +17091,12 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
     SWIG_exception_fail(SWIG_ArgError(res13), "in method '" "vector_map_wrap" "', argument " "13"" of type '" "char const *""'");
   }
   arg13 = (char *)(buf13);
-  ecode14 = SWIG_AsVal_int(obj13, &val14);
-  if (!SWIG_IsOK(ecode14)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode14), "in method '" "vector_map_wrap" "', argument " "14"" of type '" "int""'");
-  } 
-  arg14 = (int)(val14);
-  ecode15 = SWIG_AsVal_int(obj14, &val15);
-  if (!SWIG_IsOK(ecode15)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode15), "in method '" "vector_map_wrap" "', argument " "15"" of type '" "int""'");
-  } 
-  arg15 = (int)(val15);
+  {
+    arg14 = (int) PyInt_AsLong (obj13);
+  }
+  {
+    arg15 = (int) PyInt_AsLong (obj14);
+  }
   res16 = SWIG_ConvertPtr(obj15,SWIG_as_voidptrptr(&arg16), 0, 0);
   if (!SWIG_IsOK(res16)) {
     SWIG_exception_fail(SWIG_ArgError(res16), "in method '" "vector_map_wrap" "', argument " "16"" of type '" "void *""'"); 
@@ -19166,8 +18351,6 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
   ResInfo *arg25 = (ResInfo *) 0 ;
   nglRes *arg26 = (nglRes *) 0 ;
   nglPlotId result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res5 ;
   char *buf5 = 0 ;
   int alloc5 = 0 ;
@@ -19177,28 +18360,14 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
   int res7 ;
   char *buf7 = 0 ;
   int alloc7 = 0 ;
-  int val8 ;
-  int ecode8 = 0 ;
-  int val9 ;
-  int ecode9 = 0 ;
-  int val10 ;
-  int ecode10 = 0 ;
   int res11 ;
   int res12 ;
   char *buf12 = 0 ;
   int alloc12 = 0 ;
-  int val13 ;
-  int ecode13 = 0 ;
   int res14 ;
   int res15 ;
   char *buf15 = 0 ;
   int alloc15 = 0 ;
-  int val16 ;
-  int ecode16 = 0 ;
-  int val17 ;
-  int ecode17 = 0 ;
-  int val18 ;
-  int ecode18 = 0 ;
   int res19 ;
   int res20 ;
   int res21 ;
@@ -19230,11 +18399,9 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
   PyObject * obj25 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOOOOOOOOOOOOOOOOOO:vector_scalar_wrap",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9,&obj10,&obj11,&obj12,&obj13,&obj14,&obj15,&obj16,&obj17,&obj18,&obj19,&obj20,&obj21,&obj22,&obj23,&obj24,&obj25)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "vector_scalar_wrap" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     PyArrayObject *arr;
     arr =
@@ -19268,21 +18435,15 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
     SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "vector_scalar_wrap" "', argument " "7"" of type '" "char const *""'");
   }
   arg7 = (char *)(buf7);
-  ecode8 = SWIG_AsVal_int(obj7, &val8);
-  if (!SWIG_IsOK(ecode8)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "vector_scalar_wrap" "', argument " "8"" of type '" "int""'");
-  } 
-  arg8 = (int)(val8);
-  ecode9 = SWIG_AsVal_int(obj8, &val9);
-  if (!SWIG_IsOK(ecode9)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode9), "in method '" "vector_scalar_wrap" "', argument " "9"" of type '" "int""'");
-  } 
-  arg9 = (int)(val9);
-  ecode10 = SWIG_AsVal_int(obj9, &val10);
-  if (!SWIG_IsOK(ecode10)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode10), "in method '" "vector_scalar_wrap" "', argument " "10"" of type '" "int""'");
-  } 
-  arg10 = (int)(val10);
+  {
+    arg8 = (int) PyInt_AsLong (obj7);
+  }
+  {
+    arg9 = (int) PyInt_AsLong (obj8);
+  }
+  {
+    arg10 = (int) PyInt_AsLong (obj9);
+  }
   res11 = SWIG_ConvertPtr(obj10,SWIG_as_voidptrptr(&arg11), 0, 0);
   if (!SWIG_IsOK(res11)) {
     SWIG_exception_fail(SWIG_ArgError(res11), "in method '" "vector_scalar_wrap" "', argument " "11"" of type '" "void *""'"); 
@@ -19292,11 +18453,9 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
     SWIG_exception_fail(SWIG_ArgError(res12), "in method '" "vector_scalar_wrap" "', argument " "12"" of type '" "char const *""'");
   }
   arg12 = (char *)(buf12);
-  ecode13 = SWIG_AsVal_int(obj12, &val13);
-  if (!SWIG_IsOK(ecode13)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode13), "in method '" "vector_scalar_wrap" "', argument " "13"" of type '" "int""'");
-  } 
-  arg13 = (int)(val13);
+  {
+    arg13 = (int) PyInt_AsLong (obj12);
+  }
   res14 = SWIG_ConvertPtr(obj13,SWIG_as_voidptrptr(&arg14), 0, 0);
   if (!SWIG_IsOK(res14)) {
     SWIG_exception_fail(SWIG_ArgError(res14), "in method '" "vector_scalar_wrap" "', argument " "14"" of type '" "void *""'"); 
@@ -19306,21 +18465,15 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
     SWIG_exception_fail(SWIG_ArgError(res15), "in method '" "vector_scalar_wrap" "', argument " "15"" of type '" "char const *""'");
   }
   arg15 = (char *)(buf15);
-  ecode16 = SWIG_AsVal_int(obj15, &val16);
-  if (!SWIG_IsOK(ecode16)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode16), "in method '" "vector_scalar_wrap" "', argument " "16"" of type '" "int""'");
-  } 
-  arg16 = (int)(val16);
-  ecode17 = SWIG_AsVal_int(obj16, &val17);
-  if (!SWIG_IsOK(ecode17)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode17), "in method '" "vector_scalar_wrap" "', argument " "17"" of type '" "int""'");
-  } 
-  arg17 = (int)(val17);
-  ecode18 = SWIG_AsVal_int(obj17, &val18);
-  if (!SWIG_IsOK(ecode18)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode18), "in method '" "vector_scalar_wrap" "', argument " "18"" of type '" "int""'");
-  } 
-  arg18 = (int)(val18);
+  {
+    arg16 = (int) PyInt_AsLong (obj15);
+  }
+  {
+    arg17 = (int) PyInt_AsLong (obj16);
+  }
+  {
+    arg18 = (int) PyInt_AsLong (obj17);
+  }
   res19 = SWIG_ConvertPtr(obj18,SWIG_as_voidptrptr(&arg19), 0, 0);
   if (!SWIG_IsOK(res19)) {
     SWIG_exception_fail(SWIG_ArgError(res19), "in method '" "vector_scalar_wrap" "', argument " "19"" of type '" "void *""'"); 
@@ -20929,8 +20082,6 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
   ResInfo *arg25 = (ResInfo *) 0 ;
   nglRes *arg26 = (nglRes *) 0 ;
   nglPlotId result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res5 ;
   char *buf5 = 0 ;
   int alloc5 = 0 ;
@@ -20940,28 +20091,14 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
   int res7 ;
   char *buf7 = 0 ;
   int alloc7 = 0 ;
-  int val8 ;
-  int ecode8 = 0 ;
-  int val9 ;
-  int ecode9 = 0 ;
-  int val10 ;
-  int ecode10 = 0 ;
   int res11 ;
   int res12 ;
   char *buf12 = 0 ;
   int alloc12 = 0 ;
-  int val13 ;
-  int ecode13 = 0 ;
   int res14 ;
   int res15 ;
   char *buf15 = 0 ;
   int alloc15 = 0 ;
-  int val16 ;
-  int ecode16 = 0 ;
-  int val17 ;
-  int ecode17 = 0 ;
-  int val18 ;
-  int ecode18 = 0 ;
   int res19 ;
   int res20 ;
   int res21 ;
@@ -20993,11 +20130,9 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
   PyObject * obj25 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOOOOOOOOOOOOOOOOOO:vector_scalar_map_wrap",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9,&obj10,&obj11,&obj12,&obj13,&obj14,&obj15,&obj16,&obj17,&obj18,&obj19,&obj20,&obj21,&obj22,&obj23,&obj24,&obj25)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "vector_scalar_map_wrap" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     PyArrayObject *arr;
     arr =
@@ -21031,21 +20166,15 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
     SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "vector_scalar_map_wrap" "', argument " "7"" of type '" "char const *""'");
   }
   arg7 = (char *)(buf7);
-  ecode8 = SWIG_AsVal_int(obj7, &val8);
-  if (!SWIG_IsOK(ecode8)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "vector_scalar_map_wrap" "', argument " "8"" of type '" "int""'");
-  } 
-  arg8 = (int)(val8);
-  ecode9 = SWIG_AsVal_int(obj8, &val9);
-  if (!SWIG_IsOK(ecode9)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode9), "in method '" "vector_scalar_map_wrap" "', argument " "9"" of type '" "int""'");
-  } 
-  arg9 = (int)(val9);
-  ecode10 = SWIG_AsVal_int(obj9, &val10);
-  if (!SWIG_IsOK(ecode10)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode10), "in method '" "vector_scalar_map_wrap" "', argument " "10"" of type '" "int""'");
-  } 
-  arg10 = (int)(val10);
+  {
+    arg8 = (int) PyInt_AsLong (obj7);
+  }
+  {
+    arg9 = (int) PyInt_AsLong (obj8);
+  }
+  {
+    arg10 = (int) PyInt_AsLong (obj9);
+  }
   res11 = SWIG_ConvertPtr(obj10,SWIG_as_voidptrptr(&arg11), 0, 0);
   if (!SWIG_IsOK(res11)) {
     SWIG_exception_fail(SWIG_ArgError(res11), "in method '" "vector_scalar_map_wrap" "', argument " "11"" of type '" "void *""'"); 
@@ -21055,11 +20184,9 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
     SWIG_exception_fail(SWIG_ArgError(res12), "in method '" "vector_scalar_map_wrap" "', argument " "12"" of type '" "char const *""'");
   }
   arg12 = (char *)(buf12);
-  ecode13 = SWIG_AsVal_int(obj12, &val13);
-  if (!SWIG_IsOK(ecode13)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode13), "in method '" "vector_scalar_map_wrap" "', argument " "13"" of type '" "int""'");
-  } 
-  arg13 = (int)(val13);
+  {
+    arg13 = (int) PyInt_AsLong (obj12);
+  }
   res14 = SWIG_ConvertPtr(obj13,SWIG_as_voidptrptr(&arg14), 0, 0);
   if (!SWIG_IsOK(res14)) {
     SWIG_exception_fail(SWIG_ArgError(res14), "in method '" "vector_scalar_map_wrap" "', argument " "14"" of type '" "void *""'"); 
@@ -21069,21 +20196,15 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
     SWIG_exception_fail(SWIG_ArgError(res15), "in method '" "vector_scalar_map_wrap" "', argument " "15"" of type '" "char const *""'");
   }
   arg15 = (char *)(buf15);
-  ecode16 = SWIG_AsVal_int(obj15, &val16);
-  if (!SWIG_IsOK(ecode16)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode16), "in method '" "vector_scalar_map_wrap" "', argument " "16"" of type '" "int""'");
-  } 
-  arg16 = (int)(val16);
-  ecode17 = SWIG_AsVal_int(obj16, &val17);
-  if (!SWIG_IsOK(ecode17)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode17), "in method '" "vector_scalar_map_wrap" "', argument " "17"" of type '" "int""'");
-  } 
-  arg17 = (int)(val17);
-  ecode18 = SWIG_AsVal_int(obj17, &val18);
-  if (!SWIG_IsOK(ecode18)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode18), "in method '" "vector_scalar_map_wrap" "', argument " "18"" of type '" "int""'");
-  } 
-  arg18 = (int)(val18);
+  {
+    arg16 = (int) PyInt_AsLong (obj15);
+  }
+  {
+    arg17 = (int) PyInt_AsLong (obj16);
+  }
+  {
+    arg18 = (int) PyInt_AsLong (obj17);
+  }
   res19 = SWIG_ConvertPtr(obj18,SWIG_as_voidptrptr(&arg19), 0, 0);
   if (!SWIG_IsOK(res19)) {
     SWIG_exception_fail(SWIG_ArgError(res19), "in method '" "vector_scalar_map_wrap" "', argument " "19"" of type '" "void *""'"); 
@@ -22687,34 +21808,20 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
   ResInfo *arg20 = (ResInfo *) 0 ;
   nglRes *arg21 = (nglRes *) 0 ;
   nglPlotId result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res4 ;
   char *buf4 = 0 ;
   int alloc4 = 0 ;
   int res5 ;
   char *buf5 = 0 ;
   int alloc5 = 0 ;
-  int val6 ;
-  int ecode6 = 0 ;
-  int val7 ;
-  int ecode7 = 0 ;
-  int val8 ;
-  int ecode8 = 0 ;
   int res9 ;
   int res10 ;
   char *buf10 = 0 ;
   int alloc10 = 0 ;
-  int val11 ;
-  int ecode11 = 0 ;
   int res12 ;
   int res13 ;
   char *buf13 = 0 ;
   int alloc13 = 0 ;
-  int val14 ;
-  int ecode14 = 0 ;
-  int val15 ;
-  int ecode15 = 0 ;
   int res16 ;
   int res17 ;
   PyObject * obj0 = 0 ;
@@ -22740,11 +21847,9 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
   PyObject * obj20 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOOOOOOOOOOOOO:streamline_wrap",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9,&obj10,&obj11,&obj12,&obj13,&obj14,&obj15,&obj16,&obj17,&obj18,&obj19,&obj20)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "streamline_wrap" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     PyArrayObject *arr;
     arr =
@@ -22767,21 +21872,15 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
     SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "streamline_wrap" "', argument " "5"" of type '" "char const *""'");
   }
   arg5 = (char *)(buf5);
-  ecode6 = SWIG_AsVal_int(obj5, &val6);
-  if (!SWIG_IsOK(ecode6)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "streamline_wrap" "', argument " "6"" of type '" "int""'");
-  } 
-  arg6 = (int)(val6);
-  ecode7 = SWIG_AsVal_int(obj6, &val7);
-  if (!SWIG_IsOK(ecode7)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "streamline_wrap" "', argument " "7"" of type '" "int""'");
-  } 
-  arg7 = (int)(val7);
-  ecode8 = SWIG_AsVal_int(obj7, &val8);
-  if (!SWIG_IsOK(ecode8)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "streamline_wrap" "', argument " "8"" of type '" "int""'");
-  } 
-  arg8 = (int)(val8);
+  {
+    arg6 = (int) PyInt_AsLong (obj5);
+  }
+  {
+    arg7 = (int) PyInt_AsLong (obj6);
+  }
+  {
+    arg8 = (int) PyInt_AsLong (obj7);
+  }
   res9 = SWIG_ConvertPtr(obj8,SWIG_as_voidptrptr(&arg9), 0, 0);
   if (!SWIG_IsOK(res9)) {
     SWIG_exception_fail(SWIG_ArgError(res9), "in method '" "streamline_wrap" "', argument " "9"" of type '" "void *""'"); 
@@ -22791,11 +21890,9 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
     SWIG_exception_fail(SWIG_ArgError(res10), "in method '" "streamline_wrap" "', argument " "10"" of type '" "char const *""'");
   }
   arg10 = (char *)(buf10);
-  ecode11 = SWIG_AsVal_int(obj10, &val11);
-  if (!SWIG_IsOK(ecode11)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode11), "in method '" "streamline_wrap" "', argument " "11"" of type '" "int""'");
-  } 
-  arg11 = (int)(val11);
+  {
+    arg11 = (int) PyInt_AsLong (obj10);
+  }
   res12 = SWIG_ConvertPtr(obj11,SWIG_as_voidptrptr(&arg12), 0, 0);
   if (!SWIG_IsOK(res12)) {
     SWIG_exception_fail(SWIG_ArgError(res12), "in method '" "streamline_wrap" "', argument " "12"" of type '" "void *""'"); 
@@ -22805,16 +21902,12 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
     SWIG_exception_fail(SWIG_ArgError(res13), "in method '" "streamline_wrap" "', argument " "13"" of type '" "char const *""'");
   }
   arg13 = (char *)(buf13);
-  ecode14 = SWIG_AsVal_int(obj13, &val14);
-  if (!SWIG_IsOK(ecode14)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode14), "in method '" "streamline_wrap" "', argument " "14"" of type '" "int""'");
-  } 
-  arg14 = (int)(val14);
-  ecode15 = SWIG_AsVal_int(obj14, &val15);
-  if (!SWIG_IsOK(ecode15)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode15), "in method '" "streamline_wrap" "', argument " "15"" of type '" "int""'");
-  } 
-  arg15 = (int)(val15);
+  {
+    arg14 = (int) PyInt_AsLong (obj13);
+  }
+  {
+    arg15 = (int) PyInt_AsLong (obj14);
+  }
   res16 = SWIG_ConvertPtr(obj15,SWIG_as_voidptrptr(&arg16), 0, 0);
   if (!SWIG_IsOK(res16)) {
     SWIG_exception_fail(SWIG_ArgError(res16), "in method '" "streamline_wrap" "', argument " "16"" of type '" "void *""'"); 
@@ -24064,34 +23157,20 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
   ResInfo *arg20 = (ResInfo *) 0 ;
   nglRes *arg21 = (nglRes *) 0 ;
   nglPlotId result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res4 ;
   char *buf4 = 0 ;
   int alloc4 = 0 ;
   int res5 ;
   char *buf5 = 0 ;
   int alloc5 = 0 ;
-  int val6 ;
-  int ecode6 = 0 ;
-  int val7 ;
-  int ecode7 = 0 ;
-  int val8 ;
-  int ecode8 = 0 ;
   int res9 ;
   int res10 ;
   char *buf10 = 0 ;
   int alloc10 = 0 ;
-  int val11 ;
-  int ecode11 = 0 ;
   int res12 ;
   int res13 ;
   char *buf13 = 0 ;
   int alloc13 = 0 ;
-  int val14 ;
-  int ecode14 = 0 ;
-  int val15 ;
-  int ecode15 = 0 ;
   int res16 ;
   int res17 ;
   PyObject * obj0 = 0 ;
@@ -24117,11 +23196,9 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
   PyObject * obj20 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOOOOOOOOOOOOO:streamline_map_wrap",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9,&obj10,&obj11,&obj12,&obj13,&obj14,&obj15,&obj16,&obj17,&obj18,&obj19,&obj20)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "streamline_map_wrap" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     PyArrayObject *arr;
     arr =
@@ -24144,21 +23221,15 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "streamline_map_wrap" "', argument " "5"" of type '" "char const *""'");
   }
   arg5 = (char *)(buf5);
-  ecode6 = SWIG_AsVal_int(obj5, &val6);
-  if (!SWIG_IsOK(ecode6)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "streamline_map_wrap" "', argument " "6"" of type '" "int""'");
-  } 
-  arg6 = (int)(val6);
-  ecode7 = SWIG_AsVal_int(obj6, &val7);
-  if (!SWIG_IsOK(ecode7)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "streamline_map_wrap" "', argument " "7"" of type '" "int""'");
-  } 
-  arg7 = (int)(val7);
-  ecode8 = SWIG_AsVal_int(obj7, &val8);
-  if (!SWIG_IsOK(ecode8)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "streamline_map_wrap" "', argument " "8"" of type '" "int""'");
-  } 
-  arg8 = (int)(val8);
+  {
+    arg6 = (int) PyInt_AsLong (obj5);
+  }
+  {
+    arg7 = (int) PyInt_AsLong (obj6);
+  }
+  {
+    arg8 = (int) PyInt_AsLong (obj7);
+  }
   res9 = SWIG_ConvertPtr(obj8,SWIG_as_voidptrptr(&arg9), 0, 0);
   if (!SWIG_IsOK(res9)) {
     SWIG_exception_fail(SWIG_ArgError(res9), "in method '" "streamline_map_wrap" "', argument " "9"" of type '" "void *""'"); 
@@ -24168,11 +23239,9 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res10), "in method '" "streamline_map_wrap" "', argument " "10"" of type '" "char const *""'");
   }
   arg10 = (char *)(buf10);
-  ecode11 = SWIG_AsVal_int(obj10, &val11);
-  if (!SWIG_IsOK(ecode11)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode11), "in method '" "streamline_map_wrap" "', argument " "11"" of type '" "int""'");
-  } 
-  arg11 = (int)(val11);
+  {
+    arg11 = (int) PyInt_AsLong (obj10);
+  }
   res12 = SWIG_ConvertPtr(obj11,SWIG_as_voidptrptr(&arg12), 0, 0);
   if (!SWIG_IsOK(res12)) {
     SWIG_exception_fail(SWIG_ArgError(res12), "in method '" "streamline_map_wrap" "', argument " "12"" of type '" "void *""'"); 
@@ -24182,16 +23251,12 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res13), "in method '" "streamline_map_wrap" "', argument " "13"" of type '" "char const *""'");
   }
   arg13 = (char *)(buf13);
-  ecode14 = SWIG_AsVal_int(obj13, &val14);
-  if (!SWIG_IsOK(ecode14)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode14), "in method '" "streamline_map_wrap" "', argument " "14"" of type '" "int""'");
-  } 
-  arg14 = (int)(val14);
-  ecode15 = SWIG_AsVal_int(obj14, &val15);
-  if (!SWIG_IsOK(ecode15)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode15), "in method '" "streamline_map_wrap" "', argument " "15"" of type '" "int""'");
-  } 
-  arg15 = (int)(val15);
+  {
+    arg14 = (int) PyInt_AsLong (obj13);
+  }
+  {
+    arg15 = (int) PyInt_AsLong (obj14);
+  }
   res16 = SWIG_ConvertPtr(obj15,SWIG_as_voidptrptr(&arg16), 0, 0);
   if (!SWIG_IsOK(res16)) {
     SWIG_exception_fail(SWIG_ArgError(res16), "in method '" "streamline_map_wrap" "', argument " "16"" of type '" "void *""'"); 
@@ -25428,8 +24493,6 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
   ResInfo *arg7 = (ResInfo *) 0 ;
   nglRes *arg8 = (nglRes *) 0 ;
   nglPlotId result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
@@ -25449,11 +24512,9 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
   PyObject * obj7 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:text_ndc_wrap",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "text_ndc_wrap" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "text_ndc_wrap" "', argument " "2"" of type '" "NhlString""'");
@@ -26012,8 +25073,6 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   ResInfo *arg8 = (ResInfo *) 0 ;
   nglRes *arg9 = (nglRes *) 0 ;
   nglPlotId result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res3 ;
   char *buf3 = 0 ;
   int alloc3 = 0 ;
@@ -26034,11 +25093,9 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   PyObject * obj8 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOO:text_wrap",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "text_wrap" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     int i;
     nglPlotId inlist;
@@ -26843,8 +25900,6 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
   ResInfo *arg9 = (ResInfo *) 0 ;
   nglRes *arg10 = (nglRes *) 0 ;
   nglPlotId result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res3 ;
   char *buf3 = 0 ;
   int alloc3 = 0 ;
@@ -26866,11 +25921,9 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
   PyObject * obj9 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOO:add_text_wrap",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "add_text_wrap" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     int i;
     nglPlotId inlist;
@@ -28017,12 +27070,6 @@ SWIGINTERN PyObject *_wrap_maximize_plots(PyObject *SWIGUNUSEDPARM(self), PyObje
   int arg3 ;
   int arg4 ;
   nglRes *arg5 = (nglRes *) 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
-  int val4 ;
-  int ecode4 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -28030,11 +27077,9 @@ SWIGINTERN PyObject *_wrap_maximize_plots(PyObject *SWIGUNUSEDPARM(self), PyObje
   PyObject * obj4 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOO:maximize_plots",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "maximize_plots" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     int i;
     nglPlotId inlist;
@@ -28280,16 +27325,12 @@ SWIGINTERN PyObject *_wrap_maximize_plots(PyObject *SWIGUNUSEDPARM(self), PyObje
     
     arg2 = &inlist;
   }
-  ecode3 = SWIG_AsVal_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "maximize_plots" "', argument " "3"" of type '" "int""'");
-  } 
-  arg3 = (int)(val3);
-  ecode4 = SWIG_AsVal_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "maximize_plots" "', argument " "4"" of type '" "int""'");
-  } 
-  arg4 = (int)(val4);
+  {
+    arg3 = (int) PyInt_AsLong (obj2);
+  }
+  {
+    arg4 = (int) PyInt_AsLong (obj3);
+  }
   {
     arg5 = (void *) &nglRlist;
   }
@@ -28317,20 +27358,12 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   NhlPolyType arg12 ;
   ResInfo *arg13 = (ResInfo *) 0 ;
   nglRes *arg14 = (nglRes *) 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
   int res5 ;
   char *buf5 = 0 ;
   int alloc5 = 0 ;
   int res6 ;
   char *buf6 = 0 ;
   int alloc6 = 0 ;
-  int val7 ;
-  int ecode7 = 0 ;
-  int val8 ;
-  int ecode8 = 0 ;
-  int val9 ;
-  int ecode9 = 0 ;
   int res10 ;
   int res11 ;
   int val12 ;
@@ -28351,11 +27384,9 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   PyObject * obj13 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOOOOOO:poly_wrap",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9,&obj10,&obj11,&obj12,&obj13)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "poly_wrap" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     int i;
     nglPlotId inlist;
@@ -28623,21 +27654,15 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
     SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "poly_wrap" "', argument " "6"" of type '" "char const *""'");
   }
   arg6 = (char *)(buf6);
-  ecode7 = SWIG_AsVal_int(obj6, &val7);
-  if (!SWIG_IsOK(ecode7)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "poly_wrap" "', argument " "7"" of type '" "int""'");
-  } 
-  arg7 = (int)(val7);
-  ecode8 = SWIG_AsVal_int(obj7, &val8);
-  if (!SWIG_IsOK(ecode8)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "poly_wrap" "', argument " "8"" of type '" "int""'");
-  } 
-  arg8 = (int)(val8);
-  ecode9 = SWIG_AsVal_int(obj8, &val9);
-  if (!SWIG_IsOK(ecode9)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode9), "in method '" "poly_wrap" "', argument " "9"" of type '" "int""'");
-  } 
-  arg9 = (int)(val9);
+  {
+    arg7 = (int) PyInt_AsLong (obj6);
+  }
+  {
+    arg8 = (int) PyInt_AsLong (obj7);
+  }
+  {
+    arg9 = (int) PyInt_AsLong (obj8);
+  }
   res10 = SWIG_ConvertPtr(obj9,SWIG_as_voidptrptr(&arg10), 0, 0);
   if (!SWIG_IsOK(res10)) {
     SWIG_exception_fail(SWIG_ArgError(res10), "in method '" "poly_wrap" "', argument " "10"" of type '" "void *""'"); 
@@ -29031,20 +28056,12 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
   ResInfo *arg13 = (ResInfo *) 0 ;
   nglRes *arg14 = (nglRes *) 0 ;
   nglPlotId result;
-  int val1 ;
-  int ecode1 = 0 ;
   int res5 ;
   char *buf5 = 0 ;
   int alloc5 = 0 ;
   int res6 ;
   char *buf6 = 0 ;
   int alloc6 = 0 ;
-  int val7 ;
-  int ecode7 = 0 ;
-  int val8 ;
-  int ecode8 = 0 ;
-  int val9 ;
-  int ecode9 = 0 ;
   int res10 ;
   int res11 ;
   int val12 ;
@@ -29065,11 +28082,9 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
   PyObject * obj13 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOOOOOO:add_poly_wrap",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9,&obj10,&obj11,&obj12,&obj13)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "add_poly_wrap" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     int i;
     nglPlotId inlist;
@@ -29337,21 +28352,15 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
     SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "add_poly_wrap" "', argument " "6"" of type '" "char const *""'");
   }
   arg6 = (char *)(buf6);
-  ecode7 = SWIG_AsVal_int(obj6, &val7);
-  if (!SWIG_IsOK(ecode7)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "add_poly_wrap" "', argument " "7"" of type '" "int""'");
-  } 
-  arg7 = (int)(val7);
-  ecode8 = SWIG_AsVal_int(obj7, &val8);
-  if (!SWIG_IsOK(ecode8)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "add_poly_wrap" "', argument " "8"" of type '" "int""'");
-  } 
-  arg8 = (int)(val8);
-  ecode9 = SWIG_AsVal_int(obj8, &val9);
-  if (!SWIG_IsOK(ecode9)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode9), "in method '" "add_poly_wrap" "', argument " "9"" of type '" "int""'");
-  } 
-  arg9 = (int)(val9);
+  {
+    arg7 = (int) PyInt_AsLong (obj6);
+  }
+  {
+    arg8 = (int) PyInt_AsLong (obj7);
+  }
+  {
+    arg9 = (int) PyInt_AsLong (obj8);
+  }
   res10 = SWIG_ConvertPtr(obj9,SWIG_as_voidptrptr(&arg10), 0, 0);
   if (!SWIG_IsOK(res10)) {
     SWIG_exception_fail(SWIG_ArgError(res10), "in method '" "add_poly_wrap" "', argument " "10"" of type '" "void *""'"); 
@@ -29892,12 +28901,6 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
   ResInfo *arg6 = (ResInfo *) 0 ;
   ResInfo *arg7 = (ResInfo *) 0 ;
   nglRes *arg8 = (nglRes *) 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
-  int val5 ;
-  int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -29908,11 +28911,9 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
   PyObject * obj7 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:panel_wrap",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "panel_wrap" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     nglPlotId *inlist;
     PyObject *ptmp;
@@ -30166,22 +29167,18 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
     
     arg2 = inlist;
   }
-  ecode3 = SWIG_AsVal_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "panel_wrap" "', argument " "3"" of type '" "int""'");
-  } 
-  arg3 = (int)(val3);
+  {
+    arg3 = (int) PyInt_AsLong (obj2);
+  }
   {
     PyArrayObject *arr;
     arr =
     (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_INT,0,0);
     arg4 = (int *) arr->data;
   }
-  ecode5 = SWIG_AsVal_int(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "panel_wrap" "', argument " "5"" of type '" "int""'");
-  } 
-  arg5 = (int)(val5);
+  {
+    arg5 = (int) PyInt_AsLong (obj4);
+  }
   {
     int i,list_type,list_len,count;
     Py_ssize_t pos=0;
@@ -30897,16 +29894,6 @@ SWIGINTERN PyObject *_wrap_mapgci(PyObject *SWIGUNUSEDPARM(self), PyObject *args
   float arg4 ;
   int arg5 ;
   PyObject *result = 0 ;
-  float val1 ;
-  int ecode1 = 0 ;
-  float val2 ;
-  int ecode2 = 0 ;
-  float val3 ;
-  int ecode3 = 0 ;
-  float val4 ;
-  int ecode4 = 0 ;
-  int val5 ;
-  int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -30914,31 +29901,21 @@ SWIGINTERN PyObject *_wrap_mapgci(PyObject *SWIGUNUSEDPARM(self), PyObject *args
   PyObject * obj4 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOO:mapgci",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  ecode1 = SWIG_AsVal_float(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "mapgci" "', argument " "1"" of type '" "float""'");
-  } 
-  arg1 = (float)(val1);
-  ecode2 = SWIG_AsVal_float(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "mapgci" "', argument " "2"" of type '" "float""'");
-  } 
-  arg2 = (float)(val2);
-  ecode3 = SWIG_AsVal_float(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "mapgci" "', argument " "3"" of type '" "float""'");
-  } 
-  arg3 = (float)(val3);
-  ecode4 = SWIG_AsVal_float(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "mapgci" "', argument " "4"" of type '" "float""'");
-  } 
-  arg4 = (float)(val4);
-  ecode5 = SWIG_AsVal_int(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "mapgci" "', argument " "5"" of type '" "int""'");
-  } 
-  arg5 = (int)(val5);
+  {
+    arg1 = (float) PyFloat_AsDouble (obj0);
+  }
+  {
+    arg2 = (float) PyFloat_AsDouble (obj1);
+  }
+  {
+    arg3 = (float) PyFloat_AsDouble (obj2);
+  }
+  {
+    arg4 = (float) PyFloat_AsDouble (obj3);
+  }
+  {
+    arg5 = (int) PyInt_AsLong (obj4);
+  }
   result = (PyObject *)mapgci(arg1,arg2,arg3,arg4,arg5);
   resultobj = result;
   return resultobj;
@@ -30956,14 +29933,6 @@ SWIGINTERN PyObject *_wrap_dcapethermo(PyObject *SWIGUNUSEDPARM(self), PyObject 
   int arg5 ;
   double arg6 ;
   PyObject *result = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
-  double val4 ;
-  int ecode4 = 0 ;
-  int val5 ;
-  int ecode5 = 0 ;
-  double val6 ;
-  int ecode6 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -30984,26 +29953,18 @@ SWIGINTERN PyObject *_wrap_dcapethermo(PyObject *SWIGUNUSEDPARM(self), PyObject 
     (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
     arg2 = (double *) arr->data;
   }
-  ecode3 = SWIG_AsVal_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "dcapethermo" "', argument " "3"" of type '" "int""'");
-  } 
-  arg3 = (int)(val3);
-  ecode4 = SWIG_AsVal_double(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "dcapethermo" "', argument " "4"" of type '" "double""'");
-  } 
-  arg4 = (double)(val4);
-  ecode5 = SWIG_AsVal_int(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "dcapethermo" "', argument " "5"" of type '" "int""'");
-  } 
-  arg5 = (int)(val5);
-  ecode6 = SWIG_AsVal_double(obj5, &val6);
-  if (!SWIG_IsOK(ecode6)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "dcapethermo" "', argument " "6"" of type '" "double""'");
-  } 
-  arg6 = (double)(val6);
+  {
+    arg3 = (int) PyInt_AsLong (obj2);
+  }
+  {
+    arg4 = PyFloat_AsDouble (obj3);
+  }
+  {
+    arg5 = (int) PyInt_AsLong (obj4);
+  }
+  {
+    arg6 = PyFloat_AsDouble (obj5);
+  }
   result = (PyObject *)dcapethermo(arg1,arg2,arg3,arg4,arg5,arg6);
   resultobj = result;
   return resultobj;
@@ -31015,16 +29976,12 @@ fail:
 SWIGINTERN PyObject *_wrap_draw_colormap_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:draw_colormap_wrap",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "draw_colormap_wrap" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   draw_colormap_wrap(arg1);
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -31047,18 +30004,8 @@ SWIGINTERN PyObject *_wrap_natgridc(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   int arg10 ;
   int arg11 ;
   float **arg12 ;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val5 ;
-  int ecode5 = 0 ;
-  int val6 ;
-  int ecode6 = 0 ;
   int temp9 ;
   int res9 = SWIG_TMPOBJ ;
-  int val10 ;
-  int ecode10 = 0 ;
-  int val11 ;
-  int ecode11 = 0 ;
   float *tempx12 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -31076,11 +30023,9 @@ SWIGINTERN PyObject *_wrap_natgridc(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     arg12 = &tempx12;
   }
   if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOO:natgridc",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "natgridc" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     int i,ndims,tdims=1;
     PyArrayObject *arr;
@@ -31114,16 +30059,12 @@ SWIGINTERN PyObject *_wrap_natgridc(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     }
     arg4 = (float *) d2f(tdims, (double *) arr->data);
   }
-  ecode5 = SWIG_AsVal_int(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "natgridc" "', argument " "5"" of type '" "int""'");
-  } 
-  arg5 = (int)(val5);
-  ecode6 = SWIG_AsVal_int(obj5, &val6);
-  if (!SWIG_IsOK(ecode6)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "natgridc" "', argument " "6"" of type '" "int""'");
-  } 
-  arg6 = (int)(val6);
+  {
+    arg5 = (int) PyInt_AsLong (obj4);
+  }
+  {
+    arg6 = (int) PyInt_AsLong (obj5);
+  }
   {
     int i,ndims,tdims=1;
     PyArrayObject *arr;
@@ -31146,16 +30087,12 @@ SWIGINTERN PyObject *_wrap_natgridc(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     }
     arg8 = (float *) d2f(tdims, (double *) arr->data);
   }
-  ecode10 = SWIG_AsVal_int(obj8, &val10);
-  if (!SWIG_IsOK(ecode10)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode10), "in method '" "natgridc" "', argument " "10"" of type '" "int""'");
-  } 
-  arg10 = (int)(val10);
-  ecode11 = SWIG_AsVal_int(obj9, &val11);
-  if (!SWIG_IsOK(ecode11)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode11), "in method '" "natgridc" "', argument " "11"" of type '" "int""'");
-  } 
-  arg11 = (int)(val11);
+  {
+    arg10 = (int) PyInt_AsLong (obj8);
+  }
+  {
+    arg11 = (int) PyInt_AsLong (obj9);
+  }
   natgridc(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12);
   resultobj = SWIG_Py_Void();
   if (SWIG_IsTmpObj(res9)) {
@@ -31187,10 +30124,6 @@ SWIGINTERN PyObject *_wrap_ftcurvc(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
   int arg4 ;
   float *arg5 = (float *) 0 ;
   PyObject *result = 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val4 ;
-  int ecode4 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -31198,11 +30131,9 @@ SWIGINTERN PyObject *_wrap_ftcurvc(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
   PyObject * obj4 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOO:ftcurvc",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "ftcurvc" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     int i,ndims,tdims=1;
     PyArrayObject *arr;
@@ -31225,11 +30156,9 @@ SWIGINTERN PyObject *_wrap_ftcurvc(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
     }
     arg3 = (float *) d2f(tdims, (double *) arr->data);
   }
-  ecode4 = SWIG_AsVal_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "ftcurvc" "', argument " "4"" of type '" "int""'");
-  } 
-  arg4 = (int)(val4);
+  {
+    arg4 = (int) PyInt_AsLong (obj3);
+  }
   {
     int i,ndims,tdims=1;
     PyArrayObject *arr;
@@ -31258,12 +30187,6 @@ SWIGINTERN PyObject *_wrap_ftcurvpc(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   int arg5 ;
   float *arg6 = (float *) 0 ;
   PyObject *result = 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
-  float val4 ;
-  int ecode4 = 0 ;
-  int val5 ;
-  int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -31272,11 +30195,9 @@ SWIGINTERN PyObject *_wrap_ftcurvpc(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   PyObject * obj5 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOO:ftcurvpc",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "ftcurvpc" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     int i,ndims,tdims=1;
     PyArrayObject *arr;
@@ -31299,16 +30220,12 @@ SWIGINTERN PyObject *_wrap_ftcurvpc(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     }
     arg3 = (float *) d2f(tdims, (double *) arr->data);
   }
-  ecode4 = SWIG_AsVal_float(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "ftcurvpc" "', argument " "4"" of type '" "float""'");
-  } 
-  arg4 = (float)(val4);
-  ecode5 = SWIG_AsVal_int(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "ftcurvpc" "', argument " "5"" of type '" "int""'");
-  } 
-  arg5 = (int)(val5);
+  {
+    arg4 = (float) PyFloat_AsDouble (obj3);
+  }
+  {
+    arg5 = (int) PyInt_AsLong (obj4);
+  }
   {
     int i,ndims,tdims=1;
     PyArrayObject *arr;
@@ -31337,14 +30254,6 @@ SWIGINTERN PyObject *_wrap_ftcurvpic(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   float *arg5 = (float *) 0 ;
   float *arg6 = (float *) 0 ;
   PyObject *result = 0 ;
-  float val1 ;
-  int ecode1 = 0 ;
-  float val2 ;
-  int ecode2 = 0 ;
-  float val3 ;
-  int ecode3 = 0 ;
-  int val4 ;
-  int ecode4 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -31353,26 +30262,18 @@ SWIGINTERN PyObject *_wrap_ftcurvpic(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   PyObject * obj5 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOOO:ftcurvpic",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
-  ecode1 = SWIG_AsVal_float(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "ftcurvpic" "', argument " "1"" of type '" "float""'");
-  } 
-  arg1 = (float)(val1);
-  ecode2 = SWIG_AsVal_float(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "ftcurvpic" "', argument " "2"" of type '" "float""'");
-  } 
-  arg2 = (float)(val2);
-  ecode3 = SWIG_AsVal_float(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "ftcurvpic" "', argument " "3"" of type '" "float""'");
-  } 
-  arg3 = (float)(val3);
-  ecode4 = SWIG_AsVal_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "ftcurvpic" "', argument " "4"" of type '" "int""'");
-  } 
-  arg4 = (int)(val4);
+  {
+    arg1 = (float) PyFloat_AsDouble (obj0);
+  }
+  {
+    arg2 = (float) PyFloat_AsDouble (obj1);
+  }
+  {
+    arg3 = (float) PyFloat_AsDouble (obj2);
+  }
+  {
+    arg4 = (int) PyInt_AsLong (obj3);
+  }
   {
     int i,ndims,tdims=1;
     PyArrayObject *arr;
@@ -31411,12 +30312,6 @@ SWIGINTERN PyObject *_wrap_c_rgbhls(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   float *arg4 = (float *) 0 ;
   float *arg5 = (float *) 0 ;
   float *arg6 = (float *) 0 ;
-  float val1 ;
-  int ecode1 = 0 ;
-  float val2 ;
-  int ecode2 = 0 ;
-  float val3 ;
-  int ecode3 = 0 ;
   float temp4 ;
   int res4 = SWIG_TMPOBJ ;
   float temp5 ;
@@ -31431,21 +30326,15 @@ SWIGINTERN PyObject *_wrap_c_rgbhls(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   arg5 = &temp5;
   arg6 = &temp6;
   if (!PyArg_ParseTuple(args,(char *)"OOO:c_rgbhls",&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_float(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "c_rgbhls" "', argument " "1"" of type '" "float""'");
-  } 
-  arg1 = (float)(val1);
-  ecode2 = SWIG_AsVal_float(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_rgbhls" "', argument " "2"" of type '" "float""'");
-  } 
-  arg2 = (float)(val2);
-  ecode3 = SWIG_AsVal_float(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "c_rgbhls" "', argument " "3"" of type '" "float""'");
-  } 
-  arg3 = (float)(val3);
+  {
+    arg1 = (float) PyFloat_AsDouble (obj0);
+  }
+  {
+    arg2 = (float) PyFloat_AsDouble (obj1);
+  }
+  {
+    arg3 = (float) PyFloat_AsDouble (obj2);
+  }
   c_rgbhls(arg1,arg2,arg3,arg4,arg5,arg6);
   resultobj = SWIG_Py_Void();
   if (SWIG_IsTmpObj(res4)) {
@@ -31480,12 +30369,6 @@ SWIGINTERN PyObject *_wrap_c_hlsrgb(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   float *arg4 = (float *) 0 ;
   float *arg5 = (float *) 0 ;
   float *arg6 = (float *) 0 ;
-  float val1 ;
-  int ecode1 = 0 ;
-  float val2 ;
-  int ecode2 = 0 ;
-  float val3 ;
-  int ecode3 = 0 ;
   float temp4 ;
   int res4 = SWIG_TMPOBJ ;
   float temp5 ;
@@ -31500,21 +30383,15 @@ SWIGINTERN PyObject *_wrap_c_hlsrgb(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   arg5 = &temp5;
   arg6 = &temp6;
   if (!PyArg_ParseTuple(args,(char *)"OOO:c_hlsrgb",&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_float(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "c_hlsrgb" "', argument " "1"" of type '" "float""'");
-  } 
-  arg1 = (float)(val1);
-  ecode2 = SWIG_AsVal_float(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_hlsrgb" "', argument " "2"" of type '" "float""'");
-  } 
-  arg2 = (float)(val2);
-  ecode3 = SWIG_AsVal_float(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "c_hlsrgb" "', argument " "3"" of type '" "float""'");
-  } 
-  arg3 = (float)(val3);
+  {
+    arg1 = (float) PyFloat_AsDouble (obj0);
+  }
+  {
+    arg2 = (float) PyFloat_AsDouble (obj1);
+  }
+  {
+    arg3 = (float) PyFloat_AsDouble (obj2);
+  }
   c_hlsrgb(arg1,arg2,arg3,arg4,arg5,arg6);
   resultobj = SWIG_Py_Void();
   if (SWIG_IsTmpObj(res4)) {
@@ -31549,12 +30426,6 @@ SWIGINTERN PyObject *_wrap_c_rgbhsv(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   float *arg4 = (float *) 0 ;
   float *arg5 = (float *) 0 ;
   float *arg6 = (float *) 0 ;
-  float val1 ;
-  int ecode1 = 0 ;
-  float val2 ;
-  int ecode2 = 0 ;
-  float val3 ;
-  int ecode3 = 0 ;
   float temp4 ;
   int res4 = SWIG_TMPOBJ ;
   float temp5 ;
@@ -31569,21 +30440,15 @@ SWIGINTERN PyObject *_wrap_c_rgbhsv(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   arg5 = &temp5;
   arg6 = &temp6;
   if (!PyArg_ParseTuple(args,(char *)"OOO:c_rgbhsv",&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_float(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "c_rgbhsv" "', argument " "1"" of type '" "float""'");
-  } 
-  arg1 = (float)(val1);
-  ecode2 = SWIG_AsVal_float(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_rgbhsv" "', argument " "2"" of type '" "float""'");
-  } 
-  arg2 = (float)(val2);
-  ecode3 = SWIG_AsVal_float(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "c_rgbhsv" "', argument " "3"" of type '" "float""'");
-  } 
-  arg3 = (float)(val3);
+  {
+    arg1 = (float) PyFloat_AsDouble (obj0);
+  }
+  {
+    arg2 = (float) PyFloat_AsDouble (obj1);
+  }
+  {
+    arg3 = (float) PyFloat_AsDouble (obj2);
+  }
   c_rgbhsv(arg1,arg2,arg3,arg4,arg5,arg6);
   resultobj = SWIG_Py_Void();
   if (SWIG_IsTmpObj(res4)) {
@@ -31618,12 +30483,6 @@ SWIGINTERN PyObject *_wrap_c_hsvrgb(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   float *arg4 = (float *) 0 ;
   float *arg5 = (float *) 0 ;
   float *arg6 = (float *) 0 ;
-  float val1 ;
-  int ecode1 = 0 ;
-  float val2 ;
-  int ecode2 = 0 ;
-  float val3 ;
-  int ecode3 = 0 ;
   float temp4 ;
   int res4 = SWIG_TMPOBJ ;
   float temp5 ;
@@ -31638,21 +30497,15 @@ SWIGINTERN PyObject *_wrap_c_hsvrgb(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   arg5 = &temp5;
   arg6 = &temp6;
   if (!PyArg_ParseTuple(args,(char *)"OOO:c_hsvrgb",&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_float(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "c_hsvrgb" "', argument " "1"" of type '" "float""'");
-  } 
-  arg1 = (float)(val1);
-  ecode2 = SWIG_AsVal_float(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_hsvrgb" "', argument " "2"" of type '" "float""'");
-  } 
-  arg2 = (float)(val2);
-  ecode3 = SWIG_AsVal_float(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "c_hsvrgb" "', argument " "3"" of type '" "float""'");
-  } 
-  arg3 = (float)(val3);
+  {
+    arg1 = (float) PyFloat_AsDouble (obj0);
+  }
+  {
+    arg2 = (float) PyFloat_AsDouble (obj1);
+  }
+  {
+    arg3 = (float) PyFloat_AsDouble (obj2);
+  }
   c_hsvrgb(arg1,arg2,arg3,arg4,arg5,arg6);
   resultobj = SWIG_Py_Void();
   if (SWIG_IsTmpObj(res4)) {
@@ -31687,12 +30540,6 @@ SWIGINTERN PyObject *_wrap_c_rgbyiq(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   float *arg4 = (float *) 0 ;
   float *arg5 = (float *) 0 ;
   float *arg6 = (float *) 0 ;
-  float val1 ;
-  int ecode1 = 0 ;
-  float val2 ;
-  int ecode2 = 0 ;
-  float val3 ;
-  int ecode3 = 0 ;
   float temp4 ;
   int res4 = SWIG_TMPOBJ ;
   float temp5 ;
@@ -31707,21 +30554,15 @@ SWIGINTERN PyObject *_wrap_c_rgbyiq(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   arg5 = &temp5;
   arg6 = &temp6;
   if (!PyArg_ParseTuple(args,(char *)"OOO:c_rgbyiq",&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_float(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "c_rgbyiq" "', argument " "1"" of type '" "float""'");
-  } 
-  arg1 = (float)(val1);
-  ecode2 = SWIG_AsVal_float(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_rgbyiq" "', argument " "2"" of type '" "float""'");
-  } 
-  arg2 = (float)(val2);
-  ecode3 = SWIG_AsVal_float(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "c_rgbyiq" "', argument " "3"" of type '" "float""'");
-  } 
-  arg3 = (float)(val3);
+  {
+    arg1 = (float) PyFloat_AsDouble (obj0);
+  }
+  {
+    arg2 = (float) PyFloat_AsDouble (obj1);
+  }
+  {
+    arg3 = (float) PyFloat_AsDouble (obj2);
+  }
   c_rgbyiq(arg1,arg2,arg3,arg4,arg5,arg6);
   resultobj = SWIG_Py_Void();
   if (SWIG_IsTmpObj(res4)) {
@@ -31756,12 +30597,6 @@ SWIGINTERN PyObject *_wrap_c_yiqrgb(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   float *arg4 = (float *) 0 ;
   float *arg5 = (float *) 0 ;
   float *arg6 = (float *) 0 ;
-  float val1 ;
-  int ecode1 = 0 ;
-  float val2 ;
-  int ecode2 = 0 ;
-  float val3 ;
-  int ecode3 = 0 ;
   float temp4 ;
   int res4 = SWIG_TMPOBJ ;
   float temp5 ;
@@ -31776,21 +30611,15 @@ SWIGINTERN PyObject *_wrap_c_yiqrgb(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   arg5 = &temp5;
   arg6 = &temp6;
   if (!PyArg_ParseTuple(args,(char *)"OOO:c_yiqrgb",&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_float(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "c_yiqrgb" "', argument " "1"" of type '" "float""'");
-  } 
-  arg1 = (float)(val1);
-  ecode2 = SWIG_AsVal_float(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_yiqrgb" "', argument " "2"" of type '" "float""'");
-  } 
-  arg2 = (float)(val2);
-  ecode3 = SWIG_AsVal_float(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "c_yiqrgb" "', argument " "3"" of type '" "float""'");
-  } 
-  arg3 = (float)(val3);
+  {
+    arg1 = (float) PyFloat_AsDouble (obj0);
+  }
+  {
+    arg2 = (float) PyFloat_AsDouble (obj1);
+  }
+  {
+    arg3 = (float) PyFloat_AsDouble (obj2);
+  }
   c_yiqrgb(arg1,arg2,arg3,arg4,arg5,arg6);
   resultobj = SWIG_Py_Void();
   if (SWIG_IsTmpObj(res4)) {
@@ -31824,16 +30653,6 @@ SWIGINTERN PyObject *_wrap_c_wmbarbp(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   float arg3 ;
   float arg4 ;
   float arg5 ;
-  int val1 ;
-  int ecode1 = 0 ;
-  float val2 ;
-  int ecode2 = 0 ;
-  float val3 ;
-  int ecode3 = 0 ;
-  float val4 ;
-  int ecode4 = 0 ;
-  float val5 ;
-  int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -31841,31 +30660,21 @@ SWIGINTERN PyObject *_wrap_c_wmbarbp(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   PyObject * obj4 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOO:c_wmbarbp",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "c_wmbarbp" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_float(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_wmbarbp" "', argument " "2"" of type '" "float""'");
-  } 
-  arg2 = (float)(val2);
-  ecode3 = SWIG_AsVal_float(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "c_wmbarbp" "', argument " "3"" of type '" "float""'");
-  } 
-  arg3 = (float)(val3);
-  ecode4 = SWIG_AsVal_float(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "c_wmbarbp" "', argument " "4"" of type '" "float""'");
-  } 
-  arg4 = (float)(val4);
-  ecode5 = SWIG_AsVal_float(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "c_wmbarbp" "', argument " "5"" of type '" "float""'");
-  } 
-  arg5 = (float)(val5);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (float) PyFloat_AsDouble (obj1);
+  }
+  {
+    arg3 = (float) PyFloat_AsDouble (obj2);
+  }
+  {
+    arg4 = (float) PyFloat_AsDouble (obj3);
+  }
+  {
+    arg5 = (float) PyFloat_AsDouble (obj4);
+  }
   c_wmbarbp(arg1,arg2,arg3,arg4,arg5);
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -31881,8 +30690,6 @@ SWIGINTERN PyObject *_wrap_c_wmsetip(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   int res1 ;
   char *buf1 = 0 ;
   int alloc1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
@@ -31892,11 +30699,9 @@ SWIGINTERN PyObject *_wrap_c_wmsetip(PyObject *SWIGUNUSEDPARM(self), PyObject *a
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "c_wmsetip" "', argument " "1"" of type '" "NhlString""'");
   }
   arg1 = (NhlString)(buf1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_wmsetip" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
   c_wmsetip(arg1,arg2);
   resultobj = SWIG_Py_Void();
   if (alloc1 == SWIG_NEWOBJ) free((char*)buf1);
@@ -31914,8 +30719,6 @@ SWIGINTERN PyObject *_wrap_c_wmsetrp(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   int res1 ;
   char *buf1 = 0 ;
   int alloc1 = 0 ;
-  float val2 ;
-  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
@@ -31925,11 +30728,9 @@ SWIGINTERN PyObject *_wrap_c_wmsetrp(PyObject *SWIGUNUSEDPARM(self), PyObject *a
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "c_wmsetrp" "', argument " "1"" of type '" "NhlString""'");
   }
   arg1 = (NhlString)(buf1);
-  ecode2 = SWIG_AsVal_float(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_wmsetrp" "', argument " "2"" of type '" "float""'");
-  } 
-  arg2 = (float)(val2);
+  {
+    arg2 = (float) PyFloat_AsDouble (obj1);
+  }
   c_wmsetrp(arg1,arg2);
   resultobj = SWIG_Py_Void();
   if (alloc1 == SWIG_NEWOBJ) free((char*)buf1);
@@ -32058,8 +30859,6 @@ SWIGINTERN PyObject *_wrap_c_nnseti(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   int res1 ;
   char *buf1 = 0 ;
   int alloc1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
@@ -32069,11 +30868,9 @@ SWIGINTERN PyObject *_wrap_c_nnseti(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "c_nnseti" "', argument " "1"" of type '" "NhlString""'");
   }
   arg1 = (NhlString)(buf1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_nnseti" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
   c_nnseti(arg1,arg2);
   resultobj = SWIG_Py_Void();
   if (alloc1 == SWIG_NEWOBJ) free((char*)buf1);
@@ -32091,8 +30888,6 @@ SWIGINTERN PyObject *_wrap_c_nnsetrd(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   int res1 ;
   char *buf1 = 0 ;
   int alloc1 = 0 ;
-  double val2 ;
-  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
@@ -32102,11 +30897,9 @@ SWIGINTERN PyObject *_wrap_c_nnsetrd(PyObject *SWIGUNUSEDPARM(self), PyObject *a
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "c_nnsetrd" "', argument " "1"" of type '" "NhlString""'");
   }
   arg1 = (NhlString)(buf1);
-  ecode2 = SWIG_AsVal_double(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_nnsetrd" "', argument " "2"" of type '" "double""'");
-  } 
-  arg2 = (double)(val2);
+  {
+    arg2 = PyFloat_AsDouble (obj1);
+  }
   c_nnsetrd(arg1,arg2);
   resultobj = SWIG_Py_Void();
   if (alloc1 == SWIG_NEWOBJ) free((char*)buf1);
@@ -32254,16 +31047,6 @@ SWIGINTERN PyObject *_wrap_c_dgcdist(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   double arg4 ;
   int arg5 ;
   double result;
-  double val1 ;
-  int ecode1 = 0 ;
-  double val2 ;
-  int ecode2 = 0 ;
-  double val3 ;
-  int ecode3 = 0 ;
-  double val4 ;
-  int ecode4 = 0 ;
-  int val5 ;
-  int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -32271,31 +31054,21 @@ SWIGINTERN PyObject *_wrap_c_dgcdist(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   PyObject * obj4 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOOOO:c_dgcdist",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  ecode1 = SWIG_AsVal_double(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "c_dgcdist" "', argument " "1"" of type '" "double""'");
-  } 
-  arg1 = (double)(val1);
-  ecode2 = SWIG_AsVal_double(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_dgcdist" "', argument " "2"" of type '" "double""'");
-  } 
-  arg2 = (double)(val2);
-  ecode3 = SWIG_AsVal_double(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "c_dgcdist" "', argument " "3"" of type '" "double""'");
-  } 
-  arg3 = (double)(val3);
-  ecode4 = SWIG_AsVal_double(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "c_dgcdist" "', argument " "4"" of type '" "double""'");
-  } 
-  arg4 = (double)(val4);
-  ecode5 = SWIG_AsVal_int(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "c_dgcdist" "', argument " "5"" of type '" "int""'");
-  } 
-  arg5 = (int)(val5);
+  {
+    arg1 = PyFloat_AsDouble (obj0);
+  }
+  {
+    arg2 = PyFloat_AsDouble (obj1);
+  }
+  {
+    arg3 = PyFloat_AsDouble (obj2);
+  }
+  {
+    arg4 = PyFloat_AsDouble (obj3);
+  }
+  {
+    arg5 = (int) PyInt_AsLong (obj4);
+  }
   result = (double)c_dgcdist(arg1,arg2,arg3,arg4,arg5);
   resultobj = SWIG_From_double((double)(result));
   return resultobj;
@@ -32321,16 +31094,8 @@ SWIGINTERN PyObject *_wrap_c_dcapethermo(PyObject *SWIGUNUSEDPARM(self), PyObjec
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
-  double val4 ;
-  int ecode4 = 0 ;
-  int val5 ;
-  int ecode5 = 0 ;
   void *argp6 = 0 ;
   int res6 = 0 ;
-  double val7 ;
-  int ecode7 = 0 ;
   void *argp8 = 0 ;
   int res8 = 0 ;
   void *argp9 = 0 ;
@@ -32359,31 +31124,23 @@ SWIGINTERN PyObject *_wrap_c_dcapethermo(PyObject *SWIGUNUSEDPARM(self), PyObjec
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "c_dcapethermo" "', argument " "2"" of type '" "double *""'"); 
   }
   arg2 = (double *)(argp2);
-  ecode3 = SWIG_AsVal_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "c_dcapethermo" "', argument " "3"" of type '" "int""'");
-  } 
-  arg3 = (int)(val3);
-  ecode4 = SWIG_AsVal_double(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "c_dcapethermo" "', argument " "4"" of type '" "double""'");
-  } 
-  arg4 = (double)(val4);
-  ecode5 = SWIG_AsVal_int(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "c_dcapethermo" "', argument " "5"" of type '" "int""'");
-  } 
-  arg5 = (int)(val5);
+  {
+    arg3 = (int) PyInt_AsLong (obj2);
+  }
+  {
+    arg4 = PyFloat_AsDouble (obj3);
+  }
+  {
+    arg5 = (int) PyInt_AsLong (obj4);
+  }
   res6 = SWIG_ConvertPtr(obj5, &argp6,SWIGTYPE_p_p_double, 0 |  0 );
   if (!SWIG_IsOK(res6)) {
     SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "c_dcapethermo" "', argument " "6"" of type '" "double **""'"); 
   }
   arg6 = (double **)(argp6);
-  ecode7 = SWIG_AsVal_double(obj6, &val7);
-  if (!SWIG_IsOK(ecode7)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "c_dcapethermo" "', argument " "7"" of type '" "double""'");
-  } 
-  arg7 = (double)(val7);
+  {
+    arg7 = PyFloat_AsDouble (obj6);
+  }
   res8 = SWIG_ConvertPtr(obj7, &argp8,SWIGTYPE_p_int, 0 |  0 );
   if (!SWIG_IsOK(res8)) {
     SWIG_exception_fail(SWIG_ArgError(res8), "in method '" "c_dcapethermo" "', argument " "8"" of type '" "int *""'"); 
@@ -32414,12 +31171,6 @@ SWIGINTERN PyObject *_wrap_c_dptlclskewt(PyObject *SWIGUNUSEDPARM(self), PyObjec
   double arg3 ;
   double *arg4 = (double *) 0 ;
   double *arg5 = (double *) 0 ;
-  double val1 ;
-  int ecode1 = 0 ;
-  double val2 ;
-  int ecode2 = 0 ;
-  double val3 ;
-  int ecode3 = 0 ;
   double temp4 ;
   int res4 = SWIG_TMPOBJ ;
   double temp5 ;
@@ -32431,21 +31182,15 @@ SWIGINTERN PyObject *_wrap_c_dptlclskewt(PyObject *SWIGUNUSEDPARM(self), PyObjec
   arg4 = &temp4;
   arg5 = &temp5;
   if (!PyArg_ParseTuple(args,(char *)"OOO:c_dptlclskewt",&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_double(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "c_dptlclskewt" "', argument " "1"" of type '" "double""'");
-  } 
-  arg1 = (double)(val1);
-  ecode2 = SWIG_AsVal_double(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_dptlclskewt" "', argument " "2"" of type '" "double""'");
-  } 
-  arg2 = (double)(val2);
-  ecode3 = SWIG_AsVal_double(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "c_dptlclskewt" "', argument " "3"" of type '" "double""'");
-  } 
-  arg3 = (double)(val3);
+  {
+    arg1 = PyFloat_AsDouble (obj0);
+  }
+  {
+    arg2 = PyFloat_AsDouble (obj1);
+  }
+  {
+    arg3 = PyFloat_AsDouble (obj2);
+  }
   c_dptlclskewt(arg1,arg2,arg3,arg4,arg5);
   resultobj = SWIG_Py_Void();
   if (SWIG_IsTmpObj(res4)) {
@@ -32471,24 +31216,16 @@ SWIGINTERN PyObject *_wrap_c_dtmrskewt(PyObject *SWIGUNUSEDPARM(self), PyObject 
   double arg1 ;
   double arg2 ;
   double result;
-  double val1 ;
-  int ecode1 = 0 ;
-  double val2 ;
-  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:c_dtmrskewt",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_double(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "c_dtmrskewt" "', argument " "1"" of type '" "double""'");
-  } 
-  arg1 = (double)(val1);
-  ecode2 = SWIG_AsVal_double(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_dtmrskewt" "', argument " "2"" of type '" "double""'");
-  } 
-  arg2 = (double)(val2);
+  {
+    arg1 = PyFloat_AsDouble (obj0);
+  }
+  {
+    arg2 = PyFloat_AsDouble (obj1);
+  }
   result = (double)c_dtmrskewt(arg1,arg2);
   resultobj = SWIG_From_double((double)(result));
   return resultobj;
@@ -32502,24 +31239,16 @@ SWIGINTERN PyObject *_wrap_c_dtdaskewt(PyObject *SWIGUNUSEDPARM(self), PyObject 
   double arg1 ;
   double arg2 ;
   double result;
-  double val1 ;
-  int ecode1 = 0 ;
-  double val2 ;
-  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:c_dtdaskewt",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_double(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "c_dtdaskewt" "', argument " "1"" of type '" "double""'");
-  } 
-  arg1 = (double)(val1);
-  ecode2 = SWIG_AsVal_double(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_dtdaskewt" "', argument " "2"" of type '" "double""'");
-  } 
-  arg2 = (double)(val2);
+  {
+    arg1 = PyFloat_AsDouble (obj0);
+  }
+  {
+    arg2 = PyFloat_AsDouble (obj1);
+  }
   result = (double)c_dtdaskewt(arg1,arg2);
   resultobj = SWIG_From_double((double)(result));
   return resultobj;
@@ -32533,24 +31262,16 @@ SWIGINTERN PyObject *_wrap_c_dsatlftskewt(PyObject *SWIGUNUSEDPARM(self), PyObje
   double arg1 ;
   double arg2 ;
   double result;
-  double val1 ;
-  int ecode1 = 0 ;
-  double val2 ;
-  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:c_dsatlftskewt",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_double(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "c_dsatlftskewt" "', argument " "1"" of type '" "double""'");
-  } 
-  arg1 = (double)(val1);
-  ecode2 = SWIG_AsVal_double(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "c_dsatlftskewt" "', argument " "2"" of type '" "double""'");
-  } 
-  arg2 = (double)(val2);
+  {
+    arg1 = PyFloat_AsDouble (obj0);
+  }
+  {
+    arg2 = PyFloat_AsDouble (obj1);
+  }
   result = (double)c_dsatlftskewt(arg1,arg2);
   resultobj = SWIG_From_double((double)(result));
   return resultobj;
@@ -32566,8 +31287,6 @@ SWIGINTERN PyObject *_wrap_c_dshowalskewt(PyObject *SWIGUNUSEDPARM(self), PyObje
   double *arg3 = (double *) 0 ;
   int arg4 ;
   double result;
-  int val4 ;
-  int ecode4 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -32592,11 +31311,9 @@ SWIGINTERN PyObject *_wrap_c_dshowalskewt(PyObject *SWIGUNUSEDPARM(self), PyObje
     (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
     arg3 = (double *) arr->data;
   }
-  ecode4 = SWIG_AsVal_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "c_dshowalskewt" "', argument " "4"" of type '" "int""'");
-  } 
-  arg4 = (int)(val4);
+  {
+    arg4 = (int) PyInt_AsLong (obj3);
+  }
   result = (double)c_dshowalskewt(arg1,arg2,arg3,arg4);
   resultobj = SWIG_From_double((double)(result));
   return resultobj;
@@ -32611,8 +31328,6 @@ SWIGINTERN PyObject *_wrap_c_dpwskewt(PyObject *SWIGUNUSEDPARM(self), PyObject *
   double *arg2 = (double *) 0 ;
   int arg3 ;
   double result;
-  int val3 ;
-  int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -32630,11 +31345,9 @@ SWIGINTERN PyObject *_wrap_c_dpwskewt(PyObject *SWIGUNUSEDPARM(self), PyObject *
     (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
     arg2 = (double *) arr->data;
   }
-  ecode3 = SWIG_AsVal_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "c_dpwskewt" "', argument " "3"" of type '" "int""'");
-  } 
-  arg3 = (int)(val3);
+  {
+    arg3 = (int) PyInt_AsLong (obj2);
+  }
   result = (double)c_dpwskewt(arg1,arg2,arg3);
   resultobj = SWIG_From_double((double)(result));
   return resultobj;
@@ -32660,24 +31373,16 @@ SWIGINTERN PyObject *_wrap_set_nglRes_i(PyObject *SWIGUNUSEDPARM(self), PyObject
   PyObject *resultobj = 0;
   int arg1 ;
   int arg2 ;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:set_nglRes_i",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_nglRes_i" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "set_nglRes_i" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
   set_nglRes_i(arg1,arg2);
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -32690,16 +31395,12 @@ SWIGINTERN PyObject *_wrap_get_nglRes_i(PyObject *SWIGUNUSEDPARM(self), PyObject
   PyObject *resultobj = 0;
   int arg1 ;
   int result;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:get_nglRes_i",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "get_nglRes_i" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   result = (int)get_nglRes_i(arg1);
   resultobj = SWIG_From_int((int)(result));
   return resultobj;
@@ -32712,24 +31413,16 @@ SWIGINTERN PyObject *_wrap_set_nglRes_f(PyObject *SWIGUNUSEDPARM(self), PyObject
   PyObject *resultobj = 0;
   int arg1 ;
   float arg2 ;
-  int val1 ;
-  int ecode1 = 0 ;
-  float val2 ;
-  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:set_nglRes_f",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_nglRes_f" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_float(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "set_nglRes_f" "', argument " "2"" of type '" "float""'");
-  } 
-  arg2 = (float)(val2);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (float) PyFloat_AsDouble (obj1);
+  }
   set_nglRes_f(arg1,arg2);
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -32742,16 +31435,12 @@ SWIGINTERN PyObject *_wrap_get_nglRes_f(PyObject *SWIGUNUSEDPARM(self), PyObject
   PyObject *resultobj = 0;
   int arg1 ;
   float result;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:get_nglRes_f",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "get_nglRes_f" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   result = (float)get_nglRes_f(arg1);
   resultobj = SWIG_From_float((float)(result));
   return resultobj;
@@ -32764,17 +31453,13 @@ SWIGINTERN PyObject *_wrap_set_nglRes_c(PyObject *SWIGUNUSEDPARM(self), PyObject
   PyObject *resultobj = 0;
   int arg1 ;
   NhlString *arg2 = (NhlString *) 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:set_nglRes_c",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_nglRes_c" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   {
     if (PyList_Check(obj1)) {
       int size = PyList_Size(obj1);
@@ -32813,16 +31498,12 @@ SWIGINTERN PyObject *_wrap_get_nglRes_c(PyObject *SWIGUNUSEDPARM(self), PyObject
   PyObject *resultobj = 0;
   int arg1 ;
   NhlString *result = 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:get_nglRes_c",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "get_nglRes_c" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   result = (NhlString *)get_nglRes_c(arg1);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_p_char, 0 |  0 );
   return resultobj;
@@ -32835,8 +31516,6 @@ SWIGINTERN PyObject *_wrap_set_nglRes_s(PyObject *SWIGUNUSEDPARM(self), PyObject
   PyObject *resultobj = 0;
   int arg1 ;
   NhlString arg2 = (NhlString) 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
@@ -32844,11 +31523,9 @@ SWIGINTERN PyObject *_wrap_set_nglRes_s(PyObject *SWIGUNUSEDPARM(self), PyObject
   PyObject * obj1 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:set_nglRes_s",&obj0,&obj1)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "set_nglRes_s" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "set_nglRes_s" "', argument " "2"" of type '" "NhlString""'");
@@ -32868,16 +31545,12 @@ SWIGINTERN PyObject *_wrap_get_nglRes_s(PyObject *SWIGUNUSEDPARM(self), PyObject
   PyObject *resultobj = 0;
   int arg1 ;
   NhlString result;
-  int val1 ;
-  int ecode1 = 0 ;
   PyObject * obj0 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:get_nglRes_s",&obj0)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "get_nglRes_s" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
   result = (NhlString)get_nglRes_s(arg1);
   resultobj = SWIG_FromCharPtr((const char *)result);
   return resultobj;
@@ -32893,12 +31566,6 @@ SWIGINTERN PyObject *_wrap_NglGaus_p(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   int arg3 ;
   double **arg4 ;
   NhlErrorTypes result;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
   double *tempx4 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -32908,21 +31575,15 @@ SWIGINTERN PyObject *_wrap_NglGaus_p(PyObject *SWIGUNUSEDPARM(self), PyObject *a
     arg4 = &tempx4;
   }
   if (!PyArg_ParseTuple(args,(char *)"OOO:NglGaus_p",&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "NglGaus_p" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "NglGaus_p" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
-  ecode3 = SWIG_AsVal_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "NglGaus_p" "', argument " "3"" of type '" "int""'");
-  } 
-  arg3 = (int)(val3);
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
+  {
+    arg3 = (int) PyInt_AsLong (obj2);
+  }
   result = (NhlErrorTypes)NglGaus_p(arg1,arg2,arg3,arg4);
   {
     resultobj = PyInt_FromLong ((long) result);
@@ -32961,27 +31622,7 @@ SWIGINTERN PyObject *_wrap_NglVinth2p(PyObject *SWIGUNUSEDPARM(self), PyObject *
   int arg15 ;
   int arg16 ;
   int arg17 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
-  int val4 ;
-  int ecode4 = 0 ;
   double *tempx5 ;
-  double val8 ;
-  int ecode8 = 0 ;
-  int val11 ;
-  int ecode11 = 0 ;
-  int val12 ;
-  int ecode12 = 0 ;
-  double val14 ;
-  int ecode14 = 0 ;
-  int val15 ;
-  int ecode15 = 0 ;
-  int val16 ;
-  int ecode16 = 0 ;
-  int val17 ;
-  int ecode17 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -33009,21 +31650,15 @@ SWIGINTERN PyObject *_wrap_NglVinth2p(PyObject *SWIGUNUSEDPARM(self), PyObject *
     (PyArrayObject *) PyArray_ContiguousFromObject(obj0,PyArray_DOUBLE,0,0);
     arg1 = (double *) arr->data;
   }
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "NglVinth2p" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
-  ecode3 = SWIG_AsVal_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "NglVinth2p" "', argument " "3"" of type '" "int""'");
-  } 
-  arg3 = (int)(val3);
-  ecode4 = SWIG_AsVal_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "NglVinth2p" "', argument " "4"" of type '" "int""'");
-  } 
-  arg4 = (int)(val4);
+  {
+    arg2 = (int) PyInt_AsLong (obj1);
+  }
+  {
+    arg3 = (int) PyInt_AsLong (obj2);
+  }
+  {
+    arg4 = (int) PyInt_AsLong (obj3);
+  }
   {
     PyArrayObject *arr;
     arr =
@@ -33036,11 +31671,9 @@ SWIGINTERN PyObject *_wrap_NglVinth2p(PyObject *SWIGUNUSEDPARM(self), PyObject *
     (PyArrayObject *) PyArray_ContiguousFromObject(obj5,PyArray_DOUBLE,0,0);
     arg7 = (double *) arr->data;
   }
-  ecode8 = SWIG_AsVal_double(obj6, &val8);
-  if (!SWIG_IsOK(ecode8)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "NglVinth2p" "', argument " "8"" of type '" "double""'");
-  } 
-  arg8 = (double)(val8);
+  {
+    arg8 = PyFloat_AsDouble (obj6);
+  }
   {
     PyArrayObject *arr;
     arr =
@@ -33053,42 +31686,30 @@ SWIGINTERN PyObject *_wrap_NglVinth2p(PyObject *SWIGUNUSEDPARM(self), PyObject *
     (PyArrayObject *) PyArray_ContiguousFromObject(obj8,PyArray_DOUBLE,0,0);
     arg10 = (double *) arr->data;
   }
-  ecode11 = SWIG_AsVal_int(obj9, &val11);
-  if (!SWIG_IsOK(ecode11)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode11), "in method '" "NglVinth2p" "', argument " "11"" of type '" "int""'");
-  } 
-  arg11 = (int)(val11);
-  ecode12 = SWIG_AsVal_int(obj10, &val12);
-  if (!SWIG_IsOK(ecode12)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode12), "in method '" "NglVinth2p" "', argument " "12"" of type '" "int""'");
-  } 
-  arg12 = (int)(val12);
+  {
+    arg11 = (int) PyInt_AsLong (obj9);
+  }
+  {
+    arg12 = (int) PyInt_AsLong (obj10);
+  }
   {
     PyArrayObject *arr;
     arr =
     (PyArrayObject *) PyArray_ContiguousFromObject(obj11,PyArray_DOUBLE,0,0);
     arg13 = (double *) arr->data;
   }
-  ecode14 = SWIG_AsVal_double(obj12, &val14);
-  if (!SWIG_IsOK(ecode14)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode14), "in method '" "NglVinth2p" "', argument " "14"" of type '" "double""'");
-  } 
-  arg14 = (double)(val14);
-  ecode15 = SWIG_AsVal_int(obj13, &val15);
-  if (!SWIG_IsOK(ecode15)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode15), "in method '" "NglVinth2p" "', argument " "15"" of type '" "int""'");
-  } 
-  arg15 = (int)(val15);
-  ecode16 = SWIG_AsVal_int(obj14, &val16);
-  if (!SWIG_IsOK(ecode16)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode16), "in method '" "NglVinth2p" "', argument " "16"" of type '" "int""'");
-  } 
-  arg16 = (int)(val16);
-  ecode17 = SWIG_AsVal_int(obj15, &val17);
-  if (!SWIG_IsOK(ecode17)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode17), "in method '" "NglVinth2p" "', argument " "17"" of type '" "int""'");
-  } 
-  arg17 = (int)(val17);
+  {
+    arg14 = PyFloat_AsDouble (obj12);
+  }
+  {
+    arg15 = (int) PyInt_AsLong (obj13);
+  }
+  {
+    arg16 = (int) PyInt_AsLong (obj14);
+  }
+  {
+    arg17 = (int) PyInt_AsLong (obj15);
+  }
   NglVinth2p(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13,arg14,arg15,arg16,arg17);
   resultobj = SWIG_Py_Void();
   {

@@ -68,7 +68,6 @@ static PyObject* t_output_helper(PyObject* target, PyObject* o) {
     if (!target) {                   
         target = o;
     } else if (target == Py_None) {  
-        Py_DECREF(Py_None);
         target = o;
     } else {                         
         if (!PyTuple_Check(target)) {
@@ -86,8 +85,6 @@ static PyObject* t_output_helper(PyObject* target, PyObject* o) {
     }
     return target;
 }
-
-static PyObject* t_output_helper(PyObject *, PyObject *);
 
 struct common1 {
   float pang, plat, plon;
@@ -2371,6 +2368,22 @@ import_array();
 %}
 
 %include "typemaps.i"
+
+//
+// The first three typemaps are here since the recent update of
+// SWIG parses all input arguments as objects and does not recognize
+// numpy scalars as the appropriate numbers.
+//
+%typemap (in) float {
+  $1 = (float) PyFloat_AsDouble ($input);
+}
+%typemap (in) double {
+  $1 = PyFloat_AsDouble ($input);
+}
+%typemap (in) int {
+  $1 = (int) PyInt_AsLong ($input);
+}
+
 
 
 //
