@@ -410,9 +410,17 @@ cd ..
 #
 # Test the Numeric distribution.
 #
+<<<<<<< BuildAndTestPyNGL
+if (! -e $numeric_test_dir) then
+  mkdir  $numeric_test_dir
+else
+  /bin/rm -rf $numeric_test_dir/*
+endif
+=======
 if (! -e $numeric_test_dir) then
   mkdir  $numeric_test_dir
 endif
+>>>>>>> 1.22
 cd $numeric_test_dir
 /bin/rm -rf *
 $pynglex --numeric -a >&! pynglex.numeric.$platform.out
@@ -453,9 +461,17 @@ cd ..
 #
 # Test the numpy distribution.
 #
+<<<<<<< BuildAndTestPyNGL
+if (! -e $numpy_test_dir) then
+  mkdir  $numpy_test_dir
+else
+  /bin/rm -rf $numpy_test_dir/*
+endif
+=======
 if (! -e $numpy_test_dir) then
   mkdir  $numpy_test_dir
 endif
+>>>>>>> 1.22
 cd $numpy_test_dir
 /bin/rm -rf *
 $pynglex -a >&! pynglex.numpy.$platform.out
