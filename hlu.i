@@ -61,6 +61,54 @@ extern void c_nnseti(NhlString,int);
 extern void c_nnsetrd(NhlString,double);
 extern void c_nnsetc(NhlString,NhlString);
 
+extern NhlClass NhlPAppClass ();
+extern NhlClass NhlPNcgmWorkstationClass ();
+extern NhlClass NhlPXWorkstationClass ();
+extern NhlClass NhlPPSWorkstationClass ();
+extern NhlClass NhlPPDFWorkstationClass ();
+extern NhlClass NhlPLogLinPlotClass ();
+extern NhlClass NhlPGraphicStyleClass ();
+extern NhlClass NhlPScalarFieldClass ();
+extern NhlClass NhlPContourPlotClass();
+extern NhlClass NhlPtextItemClass();
+extern NhlClass NhlPscalarFieldClass();
+extern NhlClass NhlPmapPlotClass();
+extern NhlClass NhlPcoordArraysClass();
+extern NhlClass NhlPxyPlotClass();
+extern NhlClass NhlPtickMarkClass();
+extern NhlClass NhlPtitleClass();
+extern NhlClass NhlPlabelBarClass();
+extern NhlClass NhlPlegendClass();
+extern NhlClass NhlPvectorFieldClass();
+extern NhlClass NhlPvectorPlotClass();
+extern NhlClass NhlPstreamlinePlotClass();
+extern const char *NGGetNCARGEnv(const char *name);
+
+extern void c_wmbarbp(int, float, float, float, float);
+extern void c_wmsetip(NhlString,int);
+extern void c_wmsetrp(NhlString,float);
+extern void c_wmsetcp(NhlString,NhlString);
+extern int  c_wmgetip(NhlString);
+extern float c_wmgetrp(NhlString);
+extern NhlString c_wmgetcp(NhlString);
+
+extern void c_nnseti(NhlString, int);
+extern void c_nnsetrd(NhlString, double);
+extern void c_nnsetc(NhlString, NhlString);
+extern void c_nngeti(NhlString, int *OUTPUT);
+extern void c_nngetrd(NhlString, double *OUTPUT);
+extern NhlString c_nngetcp(NhlString);
+
+extern void *pvoid();
+
+extern double c_dgcdist(double, double, double, double, int);
+extern double c_dshowalskewt(double *, double *, double *, int);
+extern double c_dpwskewt(double *, double *, int);
+extern double c_dsatlftskewt(double, double);
+extern double c_dtmrskewt(double, double);
+extern double c_dtdaskewt(double, double);
+extern void c_dptlclskewt(double, double, double, double *, double *);
+
 static PyObject* t_output_helper(PyObject* target, PyObject* o) {
     PyObject*   o2;
     PyObject*   o3;
