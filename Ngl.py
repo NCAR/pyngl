@@ -2082,12 +2082,21 @@ Any area returned is that bounded by the arcs of great circles
 connecting the vertices.
 
   """
-  lat1t = Numeric.array(lat1)
-  lon1t = Numeric.array(lon1)
-  lat2t = Numeric.array(lat2)
-  lon2t = Numeric.array(lon2)
-  lat3t = Numeric.array(lat3)
-  lon3t = Numeric.array(lon3)
+  if (HAS_NUM == 2):
+    lat1t = Numeric.atleast_1d(Numeric.array(lat1)).astype(float)
+    lon1t = Numeric.atleast_1d(Numeric.array(lon1)).astype(float)
+    lat2t = Numeric.atleast_1d(Numeric.array(lat2)).astype(float)
+    lon2t = Numeric.atleast_1d(Numeric.array(lon2)).astype(float)
+    lat3t = Numeric.atleast_1d(Numeric.array(lat3)).astype(float)
+    lon3t = Numeric.atleast_1d(Numeric.array(lon3)).astype(float)
+  else:
+    lat1t = Numeric.array(lat1)
+    lon1t = Numeric.array(lon1)
+    lat2t = Numeric.array(lat2)
+    lon2t = Numeric.array(lon2)
+    lat3t = Numeric.array(lat3)
+    lon3t = Numeric.array(lon3)
+  
   rtn = numerpy_float_zeros(len(lat1t))
   pi  = 4.*math.atan(1.)
   d2r = pi/180.
