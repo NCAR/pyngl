@@ -125,8 +125,10 @@ except:
 #
 try:
   path = os.environ["CREATE_DISTRIBUTION"]
+  print "Creating a user distribution"
   create_distribution = True
 except:
+  print "Not creating a user distribution"
   create_distribution = False
    
 #
@@ -317,7 +319,7 @@ for array_module in array_modules:
 # Here are the instructions for compiling the "_hlu.so" file.
 #
 #----------------------------------------------------------------------
-  print '====> Installing the',array_module,'version of PyNGL to the "'+pyngl_pkg_name+'" site packages directory.'
+  print '\n====> Installing the',array_module,'version of PyNGL to the "'+pyngl_pkg_name+'" site packages directory.'
 
   EXT_MODULES = [Extension('_hlu', 
                  ['Helper.c','hlu_wrap.c','gsun.c'],
@@ -357,7 +359,7 @@ for array_module in array_modules:
 # in the list of files to be packaged up with PyNGL.
 #
   if include_pynio:
-    print '====> Will be including the PyNIO files in the',pyngl_pkg_name,'package directory.'
+    print '====> Will be installing the PyNIO files in the',pyngl_pkg_name,'package directory.'
     if sys.platform == "cygwin":
       pynio_files = ['Nio.py', 'pynio_version.py', 'nio.dll']
     else:
@@ -376,9 +378,10 @@ for array_module in array_modules:
 # *.o files in a different directory, but I haven't found it yet.
 #
   if len(array_modules) > 1:
-    print "====> Removing build's *.o and *.so files..."
-    os.system("find build -name '*.o' -exec /bin/rm {} \;")
-    os.system("find build -name '*.so' -exec /bin/rm {} \;")
+    if os.path.exists("build"):
+      print "====> Removing the build directory's *.o and *.so files..."
+      os.system("find build -name '*.o' -exec /bin/rm {} \;")
+      os.system("find build -name '*.so' -exec /bin/rm {} \;")
 
 #----------------------------------------------------------------------
 #
@@ -386,7 +389,7 @@ for array_module in array_modules:
 #
 #----------------------------------------------------------------------
   if os.path.exists(pyngl_vfile):
-    os.system("/bin/rm -rf " + pyngl_vfile)
+    os.remove(pyngl_vfile)
 
   pyngl_version = open('version','r').readlines()[0].strip('\n')
 
@@ -415,7 +418,8 @@ for array_module in array_modules:
 # any extraneous files.
 #
 #----------------------------------------------------------------------
-  os.system("/bin/rm -rf " + pynglex_dir)
+  if os.path.exists(pynglex_dir):
+    shutil.rmtree(pynglex_dir)
 
   if use_cvs:
     os.system("cvs co pynglex")
@@ -433,7 +437,7 @@ for array_module in array_modules:
 # The executable ../examples/pynglex must also be copied.
 #
     all_pynglex_files = os.listdir("../examples")
-    os.system("mkdir " + pynglex_dir)
+    os.mkdir(pynglex_dir)
     pynglex_files = []
     for file in all_pynglex_files:
       if (file[-3:] == ".py" or file[-4:] == ".res"):
@@ -507,9 +511,11 @@ for array_module in array_modules:
 #
 # First, remove some directories that we want to create from scratch.
 #
-    os.system('/bin/rm -rf ' + pyngl_pkg_name)
-    os.system('/bin/rm -rf bin')
-    os.system('/bin/rm -rf ' + pyngl_pkg_name + '-' + pyngl_version)
+    dirs = [pyngl_pkg_name,'bin',pyngl_pkg_name + '-' + pyngl_version]
+    for dir in dirs:
+      if os.path.exists(dir):
+        shutil.rmtree(dir)
+
     os.mkdir(pyngl_pkg_name)
     os.mkdir('bin')
 
@@ -538,9 +544,9 @@ for array_module in array_modules:
 #
     man_file = 'MANIFEST.in'
     if os.path.exists(man_file):
-      os.system("/bin/rm -rf " + man_file)
+      os.remove(man_file)
     if os.path.exists('MANIFEST'):
-      os.system("/bin/rm -rf MANIFEST")
+      os.remove("MANIFEST")
 
     mfile = open(man_file,'w')
     if array_module == 'numpy':
@@ -563,10 +569,10 @@ for array_module in array_modules:
 # If create_distribution was True, then remove files created by this process.
 #
 
-os.system("/bin/rm -rf " + pynglex_dir)
+shutil.rmtree(pynglex_dir)
 
 if os.path.exists(pyngl_vfile):
-  os.system("/bin/rm -rf " + pyngl_vfile)
+  os.remove(pyngl_vfile)
 
 
 if create_distribution:
@@ -574,6 +580,8 @@ if create_distribution:
   print 'removing ' + pyngl_pkg_name
   print 'removing bin'
   print 'removing setup.py MANIFEST MANIFEST.in'
-  os.system('/bin/rm -rf ' + pyngl_pkg_name)
-  os.system('/bin/rm -rf bin')
-  os.system('/bin/rm -rf setup.py MANIFEST MANIFEST.in')
+  shutil.rmtree(pyngl_pkg_name)
+  shutil.rmtree('bin')
+  os.remove('setup.py')
+  os.remove('MANIFEST')
+  os.remove('MANIFEST.in')
