@@ -274,6 +274,10 @@ if sys.platform == "sunos5":
     LIBRARIES.append('fsu')
     LIBRARIES.append('sunmath')
 
+if os.uname()[-1] == "x86_64" or \
+  (os.uname()[-1] == "Power Macintosh" and os.uname()[2] == "7.9.0"):
+  os.environ["CFLAGS"] = "-O2"
+
 #----------------------------------------------------------------------
 #
 # Loop through the modules for which we want to create versions of PyNGL.
