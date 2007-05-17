@@ -1,6 +1,6 @@
 #
 #  File:
-#    topt1.py
+#    topo1.py
 #
 #  Synopsis:
 #    Draws a topographic map of southern Colorado.
@@ -109,7 +109,7 @@ res.sfXArray             = lon
 res.sfYArray             = lat
 res.cnFillOn             = True
 res.cnLinesOn            = False
-res.cnRasterModeOn       = True
+res.cnFillMode           = "RasterFill"
 res.cnLevelSelectionMode = "ExplicitLevels"
 res.cnLevels             = [ 5000., 6000., 7000., 8000., 8500., 9000., \
                              9500.,10000.,10500.,11000.,11500.,12000., \
