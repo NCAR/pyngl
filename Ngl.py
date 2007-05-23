@@ -282,7 +282,6 @@ def pynglpath_ncarg():
   else:
     pyngl1_dir  = pkgs_pth + "/PyNGL/ncarg"
   pyngl2_dir  = os.environ.get("PYNGL_NCARG")
-  ncarg_ncarg = None
 
   if (pyngl2_dir != None and os.path.exists(pyngl2_dir)):
     pyngl_ncarg = pyngl2_dir
@@ -435,9 +434,9 @@ def set_spc_res(resource_name,value):
 #  values unchaged.
 #
   lval = value
-  if (value == True):
+  if (value):
     lval = 1
-  elif (value == False):
+  else:
     lval = 0
 
 #
@@ -1398,13 +1397,13 @@ type -- An optional argument specifying the type of the data you are
       for str in toks:
         if (type == "integer"):
           try:
-            string.atoi(str)
+            int(str)
             nnum = nnum+1
           except:
             pass
         elif ((type == "float") or (type == "double")):
           try:
-            string.atof(str)
+            float(str)
             nnum = nnum+1
           except:
             pass
@@ -1437,13 +1436,13 @@ type -- An optional argument specifying the type of the data you are
     for str in toks:
       if (type == "integer"):
         try:
-          ar[count] = string.atoi(str)
+          ar[count] = int(str)
           count = count+1
         except:
           pass
       elif ((type == "float") or (type == "double")):
         try:
-          ar[count] = string.atof(str)
+          ar[count] = float(str)
           count = count+1
         except:
           pass
@@ -3085,7 +3084,6 @@ res -- An optional instance of the Resources class having Workstation
       ck_for_rangs(rangs_dir_envn)
       os.environ["NCARG_RANGS"] = rangs_dir_envn
     else:
-      dflt_rangs_path = pynglpath_ncarg() + "/rangs"
       os.environ["NCARG_RANGS"] = pynglpath_ncarg() + "/rangs"
 
     ures_dir_envn = os.environ.get("PYNGL_USRRESFILE")
