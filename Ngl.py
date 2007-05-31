@@ -434,9 +434,9 @@ def set_spc_res(resource_name,value):
 #  values unchaged.
 #
   lval = value
-  if (value):
+  if (value == True):
     lval = 1
-  else:
+  elif (value == False):
     lval = 0
 
 #
