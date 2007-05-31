@@ -35,10 +35,9 @@
 #     
 
 #
-#  Import numpy and sys.
+#  Import numpy.
 #
 import numpy
-import sys
 
 #
 #  Import NGL support functions.

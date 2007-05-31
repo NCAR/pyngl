@@ -29,7 +29,6 @@
 #
 
 import Ngl
-import math
 import numpy
 
 #

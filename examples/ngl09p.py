@@ -37,7 +37,7 @@ import numpy
 #
 #  Import the masked array module.
 #
-import numpy.core.ma as MA
+from numpy import ma as MA
 
 #
 #  Import Ngl support functions.

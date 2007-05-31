@@ -31,7 +31,6 @@
 
 import Ngl
 import numpy
-import os
 
 #
 # Create an array of named colors for use as a color map. These

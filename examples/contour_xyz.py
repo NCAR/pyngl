@@ -54,8 +54,6 @@
 #
 import numpy
 
-import sys
-
 #
 #  Import Ngl support functions.
 #
