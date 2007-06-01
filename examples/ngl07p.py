@@ -60,9 +60,9 @@ xl     =  -1.0
 xr     =   5.0
 inc    = (xr-xl)/(npts-1)
 xo     = numpy.arange(xl,xr+0.0001,inc) # Create output X coordinate array.
-                                          # Add a small amount to xr to make
-                                          # sure xr is the final value in the
-                                          # range.
+                                        # Add a small amount to xr to make
+                                        # sure xr is the final value in the
+                                        # range.
 period = 3.0
 yo = Ngl.ftcurvp(xi, yi, period, xo)  # Interpolate.
 

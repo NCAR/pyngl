@@ -88,7 +88,7 @@ wks = Ngl.open_wks(wks_type,"ngl02p",wkres)
 
 resources = Ngl.Resources()
 #
-#  Define a numpy.data array containing the temperature for the
+#  Define a NumPy data array containing the temperature for the
 #  first time step and first level. This array does not have the
 #  attributes that are associated with the variable temp.
 #
@@ -173,14 +173,14 @@ plot = Ngl.contour(wks,Z[0,0,:,:],resources)    # Draw a contour plot.
 #---------- Begin fifth plot ------------------------------------------
 
 cmap = numpy.array([[0.00, 0.00, 0.00], [1.00, 1.00, 1.00], \
-                      [0.10, 0.10, 0.10], [0.15, 0.15, 0.15], \
-                      [0.20, 0.20, 0.20], [0.25, 0.25, 0.25], \
-                      [0.30, 0.30, 0.30], [0.35, 0.35, 0.35], \
-                      [0.40, 0.40, 0.40], [0.45, 0.45, 0.45], \
-                      [0.50, 0.50, 0.50], [0.55, 0.55, 0.55], \
-                      [0.60, 0.60, 0.60], [0.65, 0.65, 0.65], \
-                      [0.70, 0.70, 0.70], [0.75, 0.75, 0.75], \
-                      [0.80, 0.80, 0.80], [0.85, 0.85, 0.85]],'f')
+                    [0.10, 0.10, 0.10], [0.15, 0.15, 0.15], \
+                    [0.20, 0.20, 0.20], [0.25, 0.25, 0.25], \
+                    [0.30, 0.30, 0.30], [0.35, 0.35, 0.35], \
+                    [0.40, 0.40, 0.40], [0.45, 0.45, 0.45], \
+                    [0.50, 0.50, 0.50], [0.55, 0.55, 0.55], \
+                    [0.60, 0.60, 0.60], [0.65, 0.65, 0.65], \
+                    [0.70, 0.70, 0.70], [0.75, 0.75, 0.75], \
+                    [0.80, 0.80, 0.80], [0.85, 0.85, 0.85]],'f')
 
 rlist.wkColorMap = cmap       #  Specify a new color map.
 Ngl.set_values(wks,rlist)
