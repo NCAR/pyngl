@@ -15,21 +15,20 @@ def modify_pynglex_files(files_to_modify):
   print '====> Modifying some of the pynglex examples to work with NumPy.'
 
   for line in fileinput.input(files_to_modify,inplace=1):
-    if (re.search("import numpy",line) != None):
+    if (re.search("^import numpy",line) != None):
       print "import Numeric as numpy"
     elif(re.search("^import Ngl",line) != None):
       print "import PyNGL_numeric.Ngl as Ngl"
     elif(re.search("^import Nio",line) != None):
       print "import PyNGL_numeric.Nio as Nio"
+    elif(re.search("from numpy import ma as MA",line) != None):
+      print "import MA"
     elif (os.path.basename(fileinput.filename()) == "meteogram.py" and  \
       re.search("dtype.char",line) != None):
       print line.replace("dtype.char","typecode()"),
     elif (os.path.basename(fileinput.filename()) == "meteogram.py" and  \
       re.search("zero\[0\]",line) != None):
       print line.replace("zero[0]","zero"),
-    elif (os.path.basename(fileinput.filename()) == "ngl09p.py" and     \
-      re.search("from numpy import ma as MA",line) != None):
-      print line.replace("from numpy import ma as MA","import MA"),
     elif (os.path.basename(fileinput.filename()) == "ngl09p.py" and     \
       re.search("dtype=float",line) != None):
       print line.replace("dtype=float","MA.Float0"),
