@@ -28,8 +28,8 @@ def modify_pynglex_files(files_to_modify):
       re.search("zero\[0\]",line) != None):
       print line.replace("zero[0]","zero"),
     elif (os.path.basename(fileinput.filename()) == "ngl09p.py" and     \
-      re.search("import numpy.core.ma as MA",line) != None):
-      print line.replace("import numpy.core.ma as MA","import MA"),
+      re.search("from numpy import ma as MA",line) != None):
+      print line.replace("from numpy import ma as MA","import MA"),
     elif (os.path.basename(fileinput.filename()) == "ngl09p.py" and     \
       re.search("dtype=float",line) != None):
       print line.replace("dtype=float","MA.Float0"),
