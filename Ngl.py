@@ -735,6 +735,8 @@ def set_map_res(reslist,reslist1):
 #
   if ( not (reslist.has_key("pmTickMarkDisplayMode"))):
     reslist1["pmTickMarkDisplayMode"] = "Always"
+  if ( not (reslist.has_key("pmTitleDisplayMode"))):
+    reslist1["pmTitleDisplayMode"] = "Conditional"
   if(reslist.has_key("mpFillPatterns")):
     if (not (reslist.has_key("mpMonoFillPattern"))):
       reslist1["mpMonoFillPattern"] = False
@@ -742,7 +744,6 @@ def set_map_res(reslist,reslist1):
     if (not (reslist.has_key("mpMonoFillScale"))):
       reslist1["mpMonoFillScale"] = False
   
-
 def set_labelbar_res(reslist,reslist1,part_of_plot):
 #
 # Set some labelbar resources of which we don't like the NCL
@@ -846,7 +847,7 @@ def set_spc_defaults(type):
   set_nglRes_i(22, 0)       # nglPanelSave
   set_nglRes_i(23, 1)       # nglSpreadColors
   set_nglRes_i(24, 2)       # nglSpreadColorStart
-  set_nglRes_i(25, -1)      # NglSpreadColorEnd
+  set_nglRes_i(25, -1)      # nglSpreadColorEnd
   set_nglRes_i(26, 0)       # nglPanelLabelBarOrientation
   set_nglRes_i(27, 0)       # nglPanelLabelBar
   set_nglRes_f(28, -999.)   # nglPanelLabelBarXF
@@ -877,7 +878,6 @@ def set_spc_defaults(type):
   set_nglRes_f(53, 1.)      # nglYRefLineThicknessF
   set_nglRes_i(54, 1)       # nglXRefLineColor
   set_nglRes_i(55, 1)       # nglYRefLineColor
-
 
 def poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
   set_spc_defaults(0)
@@ -1583,7 +1583,8 @@ res -- An optional instance of the Resources class having PyNGL
     if (key[0:2] == "sf"):
       rlist1[key] = rlist[key]
     elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
-          (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:2] == "tm") ):
+          (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:2] == "tm") or \
+          (key[0:2] == "ti") ):
       rlist2[key] = rlist[key]
     elif(key[0:3] == "ngl"):
       set_spc_res(key[3:],rlist[key])      
@@ -5027,7 +5028,8 @@ res -- An optional instance of the Resources class having PyNGL
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
-          (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:2] == "tm")):
+          (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:2] == "tm") or \
+          (key[0:2] == "ti") ):
       rlist3[key] = rlist[key]
     elif(key[0:3] == "ngl"):
       set_spc_res(key[3:],rlist[key])      
@@ -5208,7 +5210,8 @@ res -- An optional instance of the Resources class having PyNGL
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
-          (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:2] == "tm") ):
+          (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:2] == "tm") or \
+          (key[0:2] == "ti") ):
       rlist3[key] = rlist[key]
     elif(key[0:3] == "ngl"):
       set_spc_res(key[3:],rlist[key])      
@@ -5332,7 +5335,8 @@ res -- An optional instance of the Resources class having PyNGL
     elif(key[0:2] == "sf"):
       rlist2[key] = rlist[key]
     elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
-          (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:2] == "tm") ):
+          (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:2] == "tm") or \
+          (key[0:2] == "ti") ):
       rlist4[key] = rlist[key]
     elif(key[0:3] == "ngl"):
       set_spc_res(key[3:],rlist[key])      

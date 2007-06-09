@@ -731,7 +731,7 @@ void overlay_on_irregular(int wks, nglPlotId *plot, ResInfo *plot_res,
  * We need to scale the plot again, because the old scales don't
  * apply after you do an overlay.
  */ 
-  if(special_res->nglScale) scale_plot(*(plot->base),plot_res);
+  if(special_res->nglScale) scale_plot(*(plot->base),plot_res,0);
 
 /*
  * Point tickmarks outward if requested specifically by user.
@@ -858,7 +858,7 @@ void spread_colors(int wks, int plot, int min_index, int max_index,
  * so they are the same size/length.
  */
 
-void scale_plot(int plot, ResInfo *res)
+void scale_plot(int plot, ResInfo *res, int flag)
 {
   int srlist, grlist, mode;
   float xfont, yfont;
@@ -897,9 +897,9 @@ void scale_plot(int plot, ResInfo *res)
 /*
  * This next resource takes care of making the tickmark lengths
  * and tickmark labels the same size.  Only set it if the tickmark
- * display mode is NhlCONDITIONAL or NhlALWAYS.
+ * display mode is NhlCONDITIONAL or NhlALWAYS and flag is not 1.
  */
-  if((mode == NhlCONDITIONAL || mode == NhlALWAYS) &&
+  if( flag != 1 && (mode == NhlCONDITIONAL || mode == NhlALWAYS) &&
      !is_res_set(res,"tmEqualizeXYSizes")) {
     NhlRLSetInteger(srlist, "tmEqualizeXYSizes", 1);
   }
@@ -1839,7 +1839,7 @@ nglPlotId contour_wrap(int wks, void *data, const char *type, int ylen,
 /*
  * Make tickmarks and axis labels the same size.
  */
-  if(special_res->nglScale) scale_plot(contour,cn_res);
+  if(special_res->nglScale) scale_plot(contour,cn_res,0);
 
 /*
  * Point tickmarks outward if requested specifically by user.
@@ -1946,7 +1946,7 @@ nglPlotId xy_wrap(int wks, void *x, void *y, const char *type_x,
 /*
  * Make tickmarks and axis labels the same size.
  */
-  if(special_res->nglScale) scale_plot(xy,xy_res);
+  if(special_res->nglScale) scale_plot(xy,xy_res,0);
 
 /*
  * Add an X and/or Y reference line if requested.
@@ -2075,7 +2075,7 @@ nglPlotId vector_wrap(int wks, void *u, void *v, const char *type_u,
 /*
  * Make tickmarks and axis labels the same size.
  */
-  if(special_res->nglScale) scale_plot(vector,vc_res);
+  if(special_res->nglScale) scale_plot(vector,vc_res,0);
 
 /*
  * Point tickmarks outward if requested specifically by user.
@@ -2170,7 +2170,7 @@ nglPlotId streamline_wrap(int wks, void *u, void *v, const char *type_u,
 /*
  * Make tickmarks and axis labels the same size.
  */
-  if(special_res->nglScale) scale_plot(streamline,st_res);
+  if(special_res->nglScale) scale_plot(streamline,st_res,0);
 
 /*
  * Point tickmarks outward if requested specifically by user.
@@ -2237,6 +2237,12 @@ nglPlotId map_wrap(int wks, ResInfo *mp_res, nglRes *special_res)
   NhlCreate(&map,"map",NhlmapPlotClass,wks,mp_rlist);
 
 /*
+ * Scale the map only to get the axes titles the same size. The
+ * tickmarks should already be okay.
+ */ 
+  if(special_res->nglScale) scale_plot(map,mp_res,1);
+
+/*
  * Set up plot id structure to return.
  */
   initialize_ids(&plot);
@@ -2276,21 +2282,22 @@ nglPlotId contour_map_wrap(int wks, void *data, const char *type,
 {
   nglRes special_res2;
   nglPlotId contour, map, plot;
-
+  int old_scale;
 /*
  * Create contour plot. Be sure to copy over special resources, and
  * change some of them if necessary.
  *
- * Note that nglScale is turned off because the underlying code
- * for generating map tickmarks automatically makes them all
- * the same size.
+ * Note that nglScale is set to 0 here, because we'll scale the
+ * tickmarks, their labels, and the axis labels when we create 
+ * the map.
  *
  * Also, XAxisType and YAxisType are set to 0 (IrregularAxis) to
  * ensure that one doesn't try to linearize or logize an axis
  * system that's about to be overlaid on a map.
  */
- 
   special_res2              = *special_res;
+  old_scale                 = special_res2.nglScale;  /* Save this value */
+ 
   special_res2.nglDraw      = 0;
   special_res2.nglFrame     = 0;
   special_res2.nglMaximize  = 0;
@@ -2307,6 +2314,8 @@ nglPlotId contour_map_wrap(int wks, void *data, const char *type,
 /*
  * Create map plot.
  */
+  special_res2.nglScale = old_scale;
+
   map = map_wrap(wks, mp_res, &special_res2);
 
 /*
@@ -2365,20 +2374,22 @@ nglPlotId vector_map_wrap(int wks, void *u, void *v, const char *type_u,
 {
   nglRes special_res2;
   nglPlotId vector, map, plot;
+  int old_scale;
 
 /*
  * Create vector plot. Be sure to copy over special resources.
  *
- * Note that nglScale is turned off because the underlying code
- * for generating map tickmarks automatically makes them all
- * the same size.
+ * Note that nglScale is set to 0 here, because we'll scale the
+ * tickmarks, their labels, and the axis labels when we create 
+ * the map.
  *
  * Also, XAxisType and YAxisType are set to 0 (IrregularAxis) to
  * ensure that one doesn't try to linearize or logize an axis
  * system that's about to be overlaid on a map.
  */
-
   special_res2              = *special_res;
+  old_scale                 = special_res2.nglScale;  /* Save this value */
+
   special_res2.nglDraw      = 0;
   special_res2.nglFrame     = 0;
   special_res2.nglMaximize  = 0;
@@ -2395,6 +2406,8 @@ nglPlotId vector_map_wrap(int wks, void *u, void *v, const char *type_u,
 /*
  * Create map plot.
  */
+  special_res2.nglScale = old_scale;
+
   map = map_wrap(wks, mp_res, &special_res2);
 
 /*
@@ -2454,16 +2467,18 @@ nglPlotId streamline_map_wrap(int wks, void *u, void *v,
 {
   nglRes special_res2;
   nglPlotId streamline, map, plot;
+  int old_scale;
 
 /*
  * Create streamline plot.
  *
- * Note that nglScale is turned off because the underlying code
- * for generating map tickmarks automatically makes them all
- * the same size.
+ * Note that nglScale is set to 0 here, because we'll scale the
+ * tickmarks, their labels, and the axis labels when we create 
+ * the map.
  */
-
   special_res2              = *special_res;
+  old_scale                 = special_res2.nglScale;  /* Save this value */
+
   special_res2.nglDraw      = 0;
   special_res2.nglFrame     = 0;
   special_res2.nglMaximize  = 0;
@@ -2481,6 +2496,8 @@ nglPlotId streamline_map_wrap(int wks, void *u, void *v,
 /*
  * Create map plot.
  */
+  special_res2.nglScale = old_scale;
+
   map = map_wrap(wks, mp_res, &special_res2);
 
 /*
@@ -2650,13 +2667,14 @@ nglPlotId vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
 {
   nglRes special_res2;
   nglPlotId plot, vector, map;
+  int old_scale;
 
 /*
  * Create vector plot.
  *
- * Note that nglScale is turned off because the underlying code
- * for generating map tickmarks automatically makes them all
- * the same size.
+ * Note that nglScale is set to 0 here, because we'll scale the
+ * tickmarks, their labels, and the axis labels when we create 
+ * the map.
  *
  * Also, XAxisType and YAxisType are set to 0 (IrregularAxis) to
  * ensure that one doesn't try to linearize or logize an axis
@@ -2668,6 +2686,8 @@ nglPlotId vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
  */
 
   special_res2              = *special_res;
+  old_scale                 = special_res2.nglScale;  /* Save this value */
+
   special_res2.nglDraw      = 0;
   special_res2.nglFrame     = 0;
   special_res2.nglMaximize  = 0;
@@ -2686,6 +2706,8 @@ nglPlotId vector_scalar_map_wrap(int wks, void *u, void *v, void *t,
 /*
  * Create map plot.
  */
+  special_res2.nglScale = old_scale;
+
   map = map_wrap(wks, mp_res, &special_res2);
 
 /*
