@@ -2651,7 +2651,7 @@ res -- An optional instance of the Resources class having Labelbar
   del rlist1
   return (lst2pobj(ilb))
 
-def map(wks,rlistc=None):
+def map(wks,rlistc=None,res=None):
   """
 Creates and draws a map, and returns a PlotId of the map plot created.
 
@@ -2662,6 +2662,8 @@ wks -- The identifier returned from calling Ngl.open_wks.
 res -- An optional instance of the Resources class having Map
        resources as attributes.
   """
+  if (res != None):
+    rlistc = res
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
   rlist1 = {}
