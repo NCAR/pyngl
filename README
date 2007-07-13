@@ -3,9 +3,9 @@ PyNGL ("pingle") stands for "Python NCL Graphics Library" and is a
 Python package for producing publication-quality 2D visualizations.
 
 PyNIO is a Python module that allows read and/or write access to a
-variety of data formats (netCDF, GRIB1, HDF4, HDF-EOS2, CCM History
-tape) using an interface modelled on netCDF.  This module is part of
-PyNGL version 1.2.0.
+variety of data formats (netCDF, GRIB1, GRIB2, HDF4, HDF-EOS2, CCM
+History tape) using an interface modelled on netCDF.  This module is
+part of PyNGL version 1.2.0.
 
 PyNGL and PyNIO are available with Numeric or NumPy support, and are
 distributed as separate packages.  You can install both versions on
@@ -23,9 +23,9 @@ import them with:
 import PyNGL_numeric.Ngl as Ngl
 import PyNGL_numeric.Nio as Nio
 
-These binaries were built with Python 2.4.4, Numeric 24.2, and NumPy
-1.0.2. This package has not been tested with other versions of these
-modules.
+These binaries were built with either Python2.5 or Python 2.4.4, and
+with either Numeric 24.2 or NumPy 1.0.3. This package has not been
+tested with other versions of these modules.
 
 The 2D visualizations can be drawn on an X11 window or saved as as
 PostScript, PDF, or NCGM file.
@@ -74,13 +74,13 @@ To run a PyNGL example, type:
 
    pynglex ngl01p
 
-By default, this will try to generate the Numeric version of the
-example, and if this fails, the NumPy version.
+By default, this will try to generate the NumPy version of the
+example, and if this fails, the Numeric version.
 
-If you've downloaded the NumPy version of PyNGL/PyNIO, then
-you can run the NumPy version of this example with:
+If you've downloaded the Numeric version of PyNGL/PyNIO, then
+you can run the Numeric version of this example with:
 
-   pynglex --numpy ngl01p
+   pynglex --numeric ngl01p
 
 Either command will generate a PostScript file called "ngl01p.ps"
 containing XY plots.
