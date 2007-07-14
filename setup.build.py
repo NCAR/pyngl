@@ -537,7 +537,7 @@ for array_module in array_modules:
     for line in fileinput.input('setup.py',inplace=1):
       if (re.search("version=XXXX,",line) != None):
         print "version = '" + pyngl_version + "',"
-      elif (re.search("pyngl_pkg_name=XXXX,",line) != None):
+      elif (re.search("pyngl_pkg_name=XXXX",line) != None):
         print "pyngl_pkg_name  = '" + pyngl_pkg_name + "'"
       else:
         print line,
