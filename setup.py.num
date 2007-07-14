@@ -14,11 +14,8 @@ from distutils.core import setup
 # data files (fontcaps, graphcaps, map databases, example
 # scripts, etc.) will live.
 #
-pyngl_pkg_name  = "PyNGL"
-
-pkgs_pth        = join(sys.prefix,'lib','python'+sys.version[:3],\
-                       'site-packages')
-pyngl_dir       = join(pkgs_pth,pyngl_pkg_name)
+pyngl_pkg_name=XXXX
+pyngl_dir       = pyngl_pkg_name
 pyngl_ncarg_dir = join(pyngl_dir,'ncarg')
 pyngl_ndata_dir = join(pyngl_dir,'ncarg','data')
 python_bin_dir  = join(sys.prefix,'bin')
@@ -34,8 +31,7 @@ os.chdir(pyngl_pkg_name)
 pyngl_ncarg_files = []
 for root, dirs, files in os.walk('ncarg'):
   for name in files:
-    pyngl_ncarg_files.append((os.path.join(pyngl_dir,root), \
-                             [os.path.join(pyngl_pkg_name,root,name)]))
+    pyngl_ncarg_files.append(os.path.join(root,name))
 os.chdir(cwd)
 
 pynglex_files  = os.listdir(join(pyngl_pkg_name,'ncarg','pynglex'))
@@ -57,16 +53,6 @@ if sys.platform == "cygwin":
 else:
   so_files = ['_hlu.so','nio.so']
 
-for i in xrange(len(so_files)):
-  so_files[i] = join(pyngl_pkg_name,so_files[i])
-
-DATA_FILES = pyngl_ncarg_files
-DATA_FILES.append(('bin',                   bin_files))
-DATA_FILES.append((pkgs_pth,                ['PyNGL.pth']))
-DATA_FILES.append((pyngl_dir,               so_files))
-DATA_FILES.append((pyngl_dir,               py_files))
-DATA_FILES.append((join(pyngl_ncarg_dir,'pynglex'),  pynglex_files))
-
 setup (name = pyngl_pkg_name,
        version=XXXX,
        author='Dave Brown, Fred Clare, Mary Haley',
@@ -76,5 +62,9 @@ setup (name = pyngl_pkg_name,
        description = '2D visualization library',
        long_description = "PyNGL is a Python language module designed for publication-quality visualization of data. PyNGL stands for 'Python Interface to the NCL Graphics Libraries,' and it is pronounced 'pingle.' It now contains the 'Nio' module, which enables NetCDF-like access for NetCDF (rw), HDF (rw), GRIB (r), and CCM (r) data files",
        url = 'http://www.pyngl.ucar.edu/',
-       data_files = DATA_FILES
+       extra_path = pyngl_pkg_name,
+       data_files = [('bin', bin_files)],
+       packages = [''],
+       package_dir = {'':pyngl_pkg_name},
+       package_data = {'': so_files + pyngl_ncarg_files + pynglex_files}
       )

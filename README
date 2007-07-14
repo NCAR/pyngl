@@ -64,7 +64,7 @@ Installation is simple:
 
     python setup.py install
 
-(the second command requires root privileges on many installations).
+This command may require root privileges on some systems.
 
 
 Examples:
@@ -89,6 +89,10 @@ To have the example generate an X11 window instead of a PostScript
 file, type:
 
    pynglex -w x11 ngl01p
+
+For a PDF file:
+
+   pynglex -w pdf ngl01p
 
 For a complete list of PyNGL examples, type:
 

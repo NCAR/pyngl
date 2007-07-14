@@ -530,13 +530,15 @@ for array_module in array_modules:
 #
 # Copy over the appropriate "setup.py" file.
 #
-    os.system('/bin/cp setup.' + array_module + '.py setup.py')
+    os.system('/bin/cp setup.num.py setup.py')
 #
 # Modify it and update the version number in the file.
 #
     for line in fileinput.input('setup.py',inplace=1):
       if (re.search("version=XXXX,",line) != None):
         print "version = '" + pyngl_version + "',"
+      elif (re.search("pyngl_pkg_name=XXXX,",line) != None):
+        print "pyngl_pkg_name  = '" + pyngl_pkg_name + "'"
       else:
         print line,
 
