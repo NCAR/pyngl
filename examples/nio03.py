@@ -1,6 +1,6 @@
 #
 #  File:
-#    nio02.py
+#    nio03.py
 #
 #  Synopsis:
 #    Demonstrates PyNIO reading GRIB/ writing NetCDF
@@ -58,6 +58,10 @@ os.system("rm -f " + fname + ".nc")
 opt = Nio.options()
 opt.PreFill = False
 
+# Options for writing NetCDF4 "classic" file.
+#opt.Format = "netcdf4classic"
+#opt.CompressionLevel = 5
+
 #
 # Set the history attribute
 #
@@ -66,7 +70,6 @@ hatt = "Converted from GRIB: " + time.ctime(time.time())
 #
 # Create the output file
 #
-opt = None
 fout = Nio.open_file(fname + ".nc","c",opt,hatt)
 
 #
