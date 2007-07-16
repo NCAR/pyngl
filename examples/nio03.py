@@ -45,7 +45,7 @@ f = Nio.open_file(dirc + "/grb/" + fname + ".grb")
 #
 # Print the input file contents
 #
-print f
+# print f
 
 #
 # If the output file already exists, remove it
@@ -53,14 +53,19 @@ print f
 os.system("rm -f " + fname + ".nc")
 
 #
-# Set the PreFill option False to improve writing performance
+# Set the PreFill option to False to improve writing performance
 #
 opt = Nio.options()
 opt.PreFill = False
 
+#
 # Options for writing NetCDF4 "classic" file.
-#opt.Format = "netcdf4classic"
-#opt.CompressionLevel = 5
+#
+# If Nio wasn't built with netcdf 4 support, you will get a
+# warning here, and the code will use netcdf 3 instead.
+#
+opt.Format           = "netcdf4classic"
+opt.CompressionLevel = 5                  # Can go up to 9
 
 #
 # Set the history attribute
@@ -125,6 +130,10 @@ for var in vars:
 #
 # print the output file contents
 #
-print fout    
+# print fout    
 
 f.close()
+
+# Print file size.
+print "File size of",fname+ ".nc:"
+os.system("wc -c " + fname + ".nc")
