@@ -175,7 +175,7 @@ bin_files.append(os.path.join(pynglex_dir,'pynglex'+sys.version[:3]))
 ncl_and_sys_lib_paths = [ncl_lib, "/usr/X11R6/lib"]
 
 if sys.platform == "darwin":
-    dirs = ['/sw/lib','/Users/haley/lib/gcc-lib/i386-apple-darwin8.9.1/4.0.3']
+    dirs = ['/Users/haley/lib/gcc-lib/i386-apple-darwin8.9.1/4.0.3']
     for dir in dirs:
       if(os.path.exists(dir)):
         ncl_and_sys_lib_paths.append(dir)
