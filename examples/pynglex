@@ -95,23 +95,29 @@ if (odict.has_key("--numeric")):
   try:
     import PyNGL_numeric.Ngl as Ngl
   except:
-    print "\nWarning: You don't appear to have the Numeric version of PyNGL"
-    print "         installed. I will try the NumPy version instead.\n"
+    print "\nWarning: I am unable to import the Numeric version of Ngl via"
+    print "         'import PyNGL_numeric.Ngl as Ngl'. I will try the"
+    print "         NumPy version via 'import Ngl'.\n"
     try:
       import Ngl
     except:
-      print "Error: You don't appear to have the NumPy version of PyNGL either.\n"
+      print "Error: I am also unable to import the NumPy version of Ngl."
+      print "       Please report this problem to pyngl-talk@ucar.edu"
+      print "       if you feel this is in error.\n"
       sys.exit()
 else:
   try:
     import Ngl
   except:
-    print "\nWarning: You don't appear to have the NumPy version of PyNGL"
-    print "         installed. I will try the Numeric version instead.\n"
+    print "\nWarning: I am unable to import the NumPy version of Ngl via"
+    print "         'import Ngl'. I will try the Numeric version via"
+    print "         'import PyNGL_numeric.Ngl as Ngl'\n"
     try:
       import PyNGL_numeric.Ngl as Ngl
     except:
-      print "Error: You don't appear to have the Numeric version of PyNGL either.\n"
+      print "Error: I am also unable to import the Numeric version of Ngl."
+      print "       Please report this problem to pyngl-talk@ucar.edu"
+      print "       if you feel this is in error.\n"
       sys.exit()
 
 #
