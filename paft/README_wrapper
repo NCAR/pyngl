@@ -1,0 +1,13 @@
+
+To test how well the wrapper does on the chiinv function,
+run:
+
+  python wrapper.py  < chiinv.txt
+
+and compare the resultant "chiinvP.c" file with the one checked into
+CVS:
+
+   cvs diff chiinvP.c
+
+This helps see what areas need cleaning up.
+

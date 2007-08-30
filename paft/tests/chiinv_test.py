@@ -1,11 +1,18 @@
-# Numeric module. Be sure to uncomment these two lines together.
-#import NglA, MA
-#default_type = "numeric"
+# To test with the Numeric module, be sure to uncomment these three
+# lines, and comment the NumPy lines after this.
+#
+# import PAF_numeric.NglA as NglA
+# import MA
+# default_type = "numeric"
 
-# Numpy module. Be sure to uncomment these two lines together.
-import PAF_numpy.NglA as NglA
+# To test with the NumPy module, be sure to uncomment these two lines,
+# and comment the three Numeric lines above.
+import NglA
 default_type = "numpy"
 
+#
+# Leave these both alone, regardless of what module you are testing.
+#
 import numpy
 import Numeric
 
