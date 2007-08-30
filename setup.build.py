@@ -320,7 +320,8 @@ for array_module in array_modules:
 
 #----------------------------------------------------------------------
 #
-# Here are the instructions for compiling the "_hlu.so" file.
+# Here are the instructions for compiling the "_hlu.so" and
+# "fplib.so" files.
 #
 #----------------------------------------------------------------------
   print '\n====> Installing the',array_module,'version of PyNGL to the "'+pyngl_pkg_name+'" site packages directory.'
@@ -329,6 +330,12 @@ for array_module in array_modules:
                  ['Helper.c','hlu_wrap.c','gsun.c'],
                   define_macros   = DMACROS,
                   extra_link_args = EXTRA_LINK_ARGS,
+                  include_dirs    = INCLUDE_PATHS,
+                  library_dirs    = ncl_and_sys_lib_paths,
+                  libraries       = LIBRARIES),
+                 Extension('fplib', 
+                 ['fplibmodule.c'],
+                  define_macros   = DMACROS,
                   include_dirs    = INCLUDE_PATHS,
                   library_dirs    = ncl_and_sys_lib_paths,
                   libraries       = LIBRARIES)]

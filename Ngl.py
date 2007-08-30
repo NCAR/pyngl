@@ -21,6 +21,7 @@ HAS_NUM                  = pyngl_version.HAS_NUM
 # Test to make sure we can actually load numpy or Numeric, and
 # that we are dealing with a reasonable version.
 #
+recommend_numeric = False
 if HAS_NUM == 2:
   try:
     import numpy as Numeric
@@ -41,6 +42,7 @@ if HAS_NUM == 2:
 else:
   try:
     import Numeric
+    recommend_numeric = True
 #
 # I decided to comment this section out, because a Numeric 24 version
 # of PyNGL seems to work okay with Numeric 23.x (23.8 anyway).
@@ -124,31 +126,81 @@ def is_numerpy_array(arg):
     return True
   return False
 
+#
+# This function returns True if it encounters a Python scalar.
+#
+def is_python_scalar(arg):
+  import types
+  if (type(arg)==types.IntType or type(arg)==types.LongType or \
+      type(arg)==types.FloatType):
+    return True
+  else:
+    return False
+
+# 
+# This function returns True if we have a Numeric array.
+#
+def is_numeric(arg):
+  try:
+    import Numeric
+    if (type(arg) == type(Numeric.array([0]))):
+      return True
+    else:
+      return False
+  except:
+    return False
+
+# 
+# This function returns True if we have a numpy scalar or array.
+#
+def is_numpy(arg):
+  try:
+    import numpy
+    if (type(arg) == type(numpy.array([0])) or isinstance(arg,numpy.generic)):
+      return True
+    else:
+      return False
+  except:
+    return False
+
+#
+# This function returns True if it encounters a numeric scalar.
+# A numeric scalar is a numeric array with 0 dimensions.
+#
+def is_numeric_scalar(arg):
+  if (is_numeric(arg) and (len(arg.shape) == 0)):
+    return True
+  else:
+    return False
+
+#
+# This function returns True if it encounters a numpy scalar.
+# A numpy scalar can either be a numpy array with 0 dimensions,
+# or a numpy scalar, which is a new thing that didn't exist in
+# numeric.
+#
+def is_numpy_scalar(arg):
+  try:
+    import numpy
+    if (type(arg) == type(numpy.array([0]))) and (len(arg.shape) == 0):
+      return True
+#
+# Test for numpy scalar.
+#
+    elif isinstance(arg,numpy.generic):
+      return True
+    else:
+      return False
+  except:
+    return False
+
+#
+# This function returns True if it's a Python scalar, a
+# numpy scalar, or a numeric scalar.
+#
 def is_scalar(arg):
-  if (HAS_NUM == 1):
-    if (type(arg)==types.IntType or type(arg)==types.LongType or \
-        type(arg)==types.FloatType):
-      return True
-    elif (type(arg) == type(Numeric.array([0]))):
-      if (len(arg.shape) == 0):
-        return True
-      else:
-        return False
-    else:
-      return False
-  elif (HAS_NUM == 2):
-    if (isinstance(arg,Numeric.generic)):
-      return True
-    elif (type(arg)==types.IntType or type(arg)==types.LongType or \
-        type(arg)==types.FloatType):
-      return True
-    elif (type(arg) == type(Numeric.array([0]))):
-      if (len(arg.shape) == 0):
-        return True
-      else:
-        return False
-    else:
-      return False
+  return is_numeric_scalar(arg) or is_numpy_scalar(arg) or \
+         is_python_scalar(arg)
 
 def is_array(arg):
   if (type(arg) == type(Numeric.array([0]))):
@@ -5810,3 +5862,100 @@ r, g, b -- The red, green, and blue intensity values in the range
     return rr,gr,br
   else:
     print "yiqrgb: arguments must be scalars, arrays, lists or tuples."
+
+######################################################################
+#     This is the PAF section (PyNGL analysis functions)             #
+######################################################################
+
+import fplib
+
+#
+#  get_ma_fill_value(arr)
+#     input: 
+#       arr - any Python object
+#     output:
+#       Two values: type, fill_value
+#         if arr is a Numeric masked array:
+#            type = "MA" and fill_value is the fill value
+#         if arr is a numpy masked array:
+#            type = "num" and fill_value is the fill value
+#         if arr is not a masked array
+#            type and fill_value are returned as None.
+#
+def get_ma_fill_value(arr):
+  try:
+    import MA
+    fv = None
+#
+#  If arr is a Numeric masked array, return its fill value
+#
+    if (type(arr) == type(MA.array([0]))):
+      fv = arr.fill_value()
+#
+#  For Numeric 2.4 or later, the fill value is returned as
+#  a single-element array.  For Numeric releases prior to
+#  2.4, the fill value is returned as a numeric value, so
+#  return it.
+#
+      try:
+        len(fv)
+        return "MA",fv[0]
+      except:
+        return "MA",fv
+  except:
+    pass
+#
+#  If not a Numeric masked array, try for NumPy masked array.
+#
+  try:
+    "Try numpy"
+    import numpy.core.ma
+    if (type(arr) == type(numpy.core.ma.array([0]))):
+      return "num",arr.fill_value()
+  except:
+     pass
+#
+#  Neither a Numeric nor a NumPy masked array.
+#
+  return None, None
+
+#
+# Special function to deal with values that may come in as
+# a scalar (as defined by the "is_scalar" function above)
+# that need to be converted to something that won't
+# register as having 0 dimensions.  We do this by 
+# promoting it to a Numeric array.  Note that "Numeric"
+# may actually be "numpy", depending on whether the
+# Numeric or numpy module was imported. 
+#
+def promote_scalar(x):
+  if is_scalar(x):
+    if recommend_numeric:
+      import Numeric
+      return Numeric.array([x])
+    else:
+      import numpy
+      return numpy.array([x])
+  else:
+    return x
+
+def chiinv(x,y):
+#
+# Promote x and y to Numeric (or numpy) arrays that have at least
+# a dimension of 1.
+#
+  x2 = promote_scalar(x)
+  y2 = promote_scalar(y)
+#
+# Determine what kind of array to return. This is dependent on the
+# types of the arguments passed to chiinv, and not which fplib
+# module was loaded. Note that numpy is favored over Numeric.
+#
+  if is_numpy(x) or is_numpy(y):
+    import numpy
+    return numpy.array(fplib.chiinv(x2,y2))
+  elif is_numeric(x) or is_numeric(y):
+    import Numeric
+    return Numeric.array(fplib.chiinv(x2,y2))
+  else:
+    return fplib.chiinv(x2,y2)
