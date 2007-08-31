@@ -67,8 +67,24 @@ import sys
 import os
 import math
 
-pkgs_pth    = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
-                           'site-packages')
+#
+# Try to guess the package path for PyNGL. If it can't
+# be found, then you can "help" it by setting the 
+# environment variable PYNGL_NCARG to the "ncarg"
+# directory that's under the package directory.
+#
+
+pkgs_pth = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
+                        'site-packages')
+# Try a different one.
+if not (os.path.exists(pkgs_pth)):
+  pkgs_pth = os.path.join(sys.prefix, 'lib64', 'python'+sys.version[:3],
+                        'site-packages')
+
+if (not (os.path.exists(pkgs_pth)) and os.environ.get("PYNGL_NCARG") == None):
+  print 'Cannot find the Python packages directory and PYNGL_NCARG is not set.'
+  print 'There may be some difficulty finding needed PyNGL system files'
+  print 'unless you set the PYNGL_NCARG environment variable.'
 
 first_call_to_open_wks = 0
 
@@ -330,9 +346,10 @@ def pynglpath_ncarg():
 #  environment variable.
 #
   if sys.modules.has_key("PyNGL_numeric.Ngl"):
-    pyngl1_dir  = pkgs_pth + "/PyNGL_numeric/ncarg"
+    pyngl1_dir  = os.path.join(pkgs_pth,"PyNGL_numeric","ncarg")
   else:
-    pyngl1_dir  = pkgs_pth + "/PyNGL/ncarg"
+    pyngl1_dir  = os.path.join(pkgs_pth,"PyNGL","ncarg")
+
   pyngl2_dir  = os.environ.get("PYNGL_NCARG")
 
   if (pyngl2_dir != None and os.path.exists(pyngl2_dir)):
@@ -3428,7 +3445,7 @@ name -- A string representing abbreviated name for which you want a
       return None
   elif (name == "data"):
     data_dir_envn = os.environ.get("PYNGL_DATA")
-    data_dir_dflt = pynglpath_ncarg() + "/data"
+    data_dir_dflt = os.path.join(pynglpath_ncarg(),"data")
     if (data_dir_envn != None and os.path.exists(data_dir_envn)):
       return data_dir_envn
     elif (os.path.exists(data_dir_dflt)):
@@ -3438,7 +3455,7 @@ name -- A string representing abbreviated name for which you want a
       return None
   elif (name == "colormaps"):
     color_dir_envn = os.environ.get("PYNGL_COLORMAPS")
-    color_dir_dflt = pynglpath_ncarg() + "/colormaps"
+    color_dir_dflt = os.path.join(pynglpath_ncarg(),"colormaps")
     if (color_dir_envn != None and os.path.exists(color_dir_envn)):
       return color_dir_envn
     elif (os.path.exists(color_dir_dflt)):
@@ -3448,7 +3465,7 @@ name -- A string representing abbreviated name for which you want a
       return None
   elif (name == "rangs"):
     rangs_dir_envn = os.environ.get("PYNGL_RANGS")
-    rangs_dir_dflt = pynglpath_ncarg() + "/rangs"
+    rangs_dir_dflt = os.path.join(pynglpath_ncarg(),"rangs")
     if (rangs_dir_envn != None and os.path.exists(rangs_dir_envn)):
       return rangs_dir_envn
     else: 
@@ -3465,7 +3482,7 @@ name -- A string representing abbreviated name for which you want a
       return None
   elif (name == "sysresfile"):
     sres_dir_envn = os.environ.get("PYNGL_SYSRESFILE")
-    sres_dir_dflt = pynglpath_ncarg() + "/sysresfile"
+    sres_dir_dflt = os.path.join(pynglpath_ncarg(),"sysresfile")
     if (sres_dir_envn != None and os.path.exists(sres_dir_envn)):
       return sres_dir_envn
     elif (os.path.exists(sres_dir_dflt)):
@@ -3475,7 +3492,7 @@ name -- A string representing abbreviated name for which you want a
       return None
   elif (name == "sysappres"):
     ares_dir_envn = os.environ.get("PYNGL_SYSAPPRES")
-    ares_dir_dflt = pynglpath_ncarg() + "/sysappres"
+    ares_dir_dflt = os.path.join(pynglpath_ncarg(),"sysappres")
     if (ares_dir_envn != None and os.path.exists(ares_dir_envn)):
       return ares_dir_envn
     elif (os.path.exists(ares_dir_dflt)):
