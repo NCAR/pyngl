@@ -20,6 +20,7 @@
 #
 #  Effects illustrated:
 #    o  Selecting a color map by name.
+#    o  Adding a color to the color map.
 #    o  Overlaying multiple plots on a single plot.
 #    o  Copying one resource list to another.
 #    o  Drawing colored streamlines.
@@ -84,12 +85,12 @@ data = get_data()
 wks_type = "ps"
 
 rlist = Ngl.Resources()
-rlist.wkColorMap = "StepSeq25"
+rlist.wkColorMap = "so4_23"
 if(wks_type == "ps" or wks_type == "pdf"):
   rlist.wkOrientation = "Portrait"      # For PS or PDF output only.
 
 wks = Ngl.open_wks(wks_type,"stream_scalar",rlist)
-azure = Ngl.new_color(wks,0.77,0.80,0.80)
+gray  = Ngl.new_color(wks,0.88,0.88,0.88)      # add gray to colormap
 
 stres = Ngl.Resources()
 cnres = Ngl.Resources()
@@ -112,9 +113,10 @@ stres.vfXCEndV               =  180.
 stres.vfYCStartV             =  -90.
 stres.vfYCEndV               =   90.
 
-stres.stLineColor            = 22
-cnres.cnLineColor            = 2
-cnres.cnLineThicknessF       = 1.2
+stres.stLineColor            = 8      # green
+cnres.cnLineColor            = 6      # blue
+stres.stLineThicknessF       = 1.5
+cnres.cnLineThicknessF       = 1.7
 cnres.cnLineDashPattern      = 7
 cnres.cnLineLabelsOn         = False
 
@@ -126,9 +128,9 @@ mpres.mpCenterRotF           = 45.0
 mpres.mpFillOn               = True
 mpres.mpGridAndLimbDrawOrder = "Draw"
 mpres.mpGridLineDashPattern  = 5
-mpres.mpInlandWaterFillColor = 21
-mpres.mpOceanFillColor       = 21
-mpres.mpLandFillColor        = azure
+mpres.mpInlandWaterFillColor = -1
+mpres.mpOceanFillColor       = -1
+mpres.mpLandFillColor        = gray
 mpres.mpLabelsOn             = False
 mpres.mpLeftCornerLatF       = 10.
 mpres.mpLeftCornerLonF       = -180.
@@ -175,9 +177,12 @@ list  = Ngl.crt_dict(stres)
 for key in list.keys():
   setattr(resources,key,list[key])
 
-resources.stMonoLineColor  = False
-resources.stLineThicknessF = 1.7
-resources.tiMainString     = "Streamlines colored by scalar field"
+#resources.pmLabelBarDisplayMode = "Always"
+resources.nglSpreadColorStart   = 3
+resources.nglSpreadColorEnd     = -4
+resources.stMonoLineColor       = False
+resources.stLineThicknessF      = 1.7
+resources.tiMainString          = "Streamlines colored by scalar field"
 
 stream = Ngl.streamline_scalar_map(wks,data[0,:,:],data[1,:,:],data[2,:,:], \
                                    resources)
