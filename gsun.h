@@ -298,6 +298,23 @@ extern nglPlotId streamline_map_wrap(int, void *, void *, const char *,
                                      void *, ResInfo *, ResInfo *,
                                      ResInfo *, nglRes *);
 
+extern nglPlotId streamline_scalar_wrap(int, void *, void *, void *, 
+                                        const char *, const char *, 
+                                        const char *, int, int, int, 
+                                        void *, const char *, int, void *, 
+                                        const char *, int, int, int, void *, 
+                                        void *, void *, ResInfo *, ResInfo *,
+                                        ResInfo *, ResInfo *, nglRes *);
+
+extern nglPlotId streamline_scalar_map_wrap(int, void *, void *, void *, 
+                                           const char *, const char *, 
+                                           const char *, int, int, int,
+                                           void *, const char *, int, 
+                                           void *, const char *, int, int, 
+                                           int, void *, void *, void *, 
+                                           ResInfo *, ResInfo *,
+                                           ResInfo *, ResInfo *, nglRes *);
+
 extern nglPlotId vector_scalar_wrap(int, void *, void *, void *, 
                                     const char *, const char *, 
                                     const char *, int, int, int, 

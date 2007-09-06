@@ -5123,6 +5123,133 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist3
   return(lst2pobj(strm))
 
+def streamline_scalar(wks,uarray,varray,tarray,rlistc=None):
+  """
+Creates and draws streamlines colored according to a scalar field, and
+returns a PlotId of the plot created.
+
+plot = Ngl.streamline_scalar(wks, u, v, data, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks
+
+u,v -- The streamline data.
+
+data - The scalar data.
+
+res -- An optional instance of the Resources class having PyNGL
+       resources as attributes.
+  """
+
+  set_spc_defaults(1)
+  rlist = crt_dict(rlistc)  
+ 
+#  Separate the resource dictionary into those resources
+#  that apply to VectorField, ScalarField, and StreamlinePlot.
+#
+  rlist1 = {}
+  rlist2 = {}
+  rlist3 = {}
+  rlist4 = {}
+  for key in rlist.keys():
+    if (key[0:2] == "vf"):
+      rlist1[key] = rlist[key]
+    elif(key[0:2] == "sf"):
+      rlist2[key] = rlist[key]
+    elif(key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist3[key] = rlist[key]
+#
+# In addition, if this plot is potentially going to be overlaid
+# on an Irregular Plot Class (in order to lineariize or logize it)
+# then we need to keep track of all the tickmark resources, because
+# we'll have to reapply them to the IrregularPlot class.
+#
+      if(key[0:2] == "vp" or key[0:2] == "tm" or key[0:6] == "pmTick"):
+        rlist4[key] = rlist[key]
+    
+  set_streamline_res(rlist,rlist3)    # Set some addtl vector resources
+  set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
+  set_tickmark_res(rlist,rlist4)      # Set some addtl tickmark resources
+
+#
+#  Call the wrapped function and return.
+#
+  ivct = streamline_scalar_wrap(wks,uarray,varray,tarray,  \
+                     "double","double","double",         \
+                     uarray.shape[0],uarray.shape[1],0,               \
+                     pvoid(),"",0,pvoid(),"", 0, 0, 0, pvoid(), pvoid(), \
+                     pvoid(),rlist1,rlist2,rlist3,rlist4,pvoid())
+
+  del rlist
+  del rlist1
+  del rlist2
+  del rlist3
+  del rlist4
+  return lst2pobj(ivct)
+
+def streamline_scalar_map(wks,uarray,varray,tarray,rlistc=None):
+  """
+Creates and draws streamlines over a map colored according to a scalar
+field, and returns a PlotId of the plot created.
+
+plot = Ngl.streamline_scalar_map(wks, u, v, data, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks
+
+u,v -- The streamline data.
+
+data - The scalar data.
+
+res -- An optional instance of the Resources class having PyNGL
+       resources as attributes.
+  """
+
+  set_spc_defaults(1)
+  rlist = crt_dict(rlistc)  
+ 
+#  Separate the resource dictionary into those resources
+#  that apply to VectorField, ScalarField, MapPlot, and 
+#  StreamlinePlot.
+#
+  rlist1 = {}
+  rlist2 = {}
+  rlist3 = {}
+  rlist4 = {}
+  for key in rlist.keys():
+    if (key[0:2] == "vf"):
+      rlist1[key] = rlist[key]
+    elif(key[0:2] == "sf"):
+      rlist2[key] = rlist[key]
+    elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
+          (key[0:3] == "pmO") or (key[0:3] == "pmT") or (key[0:2] == "tm") or \
+          (key[0:2] == "ti") ):
+      rlist4[key] = rlist[key]
+    elif(key[0:3] == "ngl"):
+      set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist3[key] = rlist[key]
+    
+  set_map_res(rlist,rlist4)           # Set some addtl map resources
+  set_streamline_res(rlist,rlist3)    # Set some addtl streamline resources
+  set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
+
+#
+#  Call the wrapped function and return.
+#
+  ivct = streamline_scalar_map_wrap(wks,uarray,varray,tarray,  \
+                     "double","double","double",         \
+                     uarray.shape[0],uarray.shape[1],0,               \
+                     pvoid(),"",0,pvoid(),"", 0, 0, 0, pvoid(), pvoid(), \
+                     pvoid(),rlist1,rlist2,rlist3,rlist4,pvoid())
+
+  del rlist
+  del rlist1
+  del rlist2
+  del rlist3
+  del rlist4
+  return lst2pobj(ivct)
+
 def text(wks, plot, text, x, y, rlistc=None):
   """
 Draws text strings on an existing plot.

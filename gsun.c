@@ -2541,6 +2541,217 @@ nglPlotId streamline_map_wrap(int wks, void *u, void *v,
   return(plot);
 }
 
+/*
+ * This function uses the HLUs to create a streamline plot colored by
+ * a scalar field.
+ */
+
+nglPlotId streamline_scalar_wrap(int wks, void *u, void *v, void *t, 
+                             const char *type_u, const char *type_v, 
+                             const char *type_t, int ylen, int xlen, 
+                             int is_ycoord, void *ycoord, 
+                             const char *type_ycoord, int is_xcoord, 
+                             void *xcoord, const char *type_xcoord, 
+                             int is_missing_u, int is_missing_v, 
+                             int is_missing_t, void *FillValue_u, 
+                             void *FillValue_v, void *FillValue_t,
+                             ResInfo *vf_res, ResInfo *sf_res,
+                             ResInfo *st_res, ResInfo *tm_res, 
+                             nglRes *special_res)
+{
+  int vffield, sffield, streamline;
+  nglPlotId plot;
+  int vf_rlist, sf_rlist, st_rlist; 
+
+/*
+ * Set resource ids.
+ */
+  vf_rlist  = vf_res->id;
+  sf_rlist  = sf_res->id;
+  st_rlist  = st_res->id;
+
+/*
+ * Create vector and scalar field objects that will be used as the
+ * datasets for the streamline object.
+ */
+
+  vffield = vector_field(u, v, type_u, type_v, ylen, xlen, 
+                         is_ycoord, ycoord, type_ycoord, 
+                         is_xcoord, xcoord, type_xcoord, 
+                         is_missing_u, is_missing_v, 
+                         FillValue_u, FillValue_v, vf_rlist);
+  
+  sffield = scalar_field(t, type_t, ylen, xlen, is_ycoord, ycoord, 
+                         type_ycoord, is_xcoord, xcoord, type_xcoord, 
+                         is_missing_t, FillValue_t, sf_rlist);
+
+/*
+ * Assign the data objects and create streamline object.
+ */
+  NhlRLSetInteger(st_rlist, "stVectorFieldData",    vffield);
+  NhlRLSetInteger(st_rlist, "stScalarFieldData",    sffield);
+  if(!is_res_set(st_res," stUseScalarArray")) {
+    NhlRLSetString (st_rlist, "stUseScalarArray",     "True");
+  }
+
+  NhlCreate(&streamline,"streamline",NhlstreamlinePlotClass,wks,st_rlist);
+
+/*
+ * If the streamlines are being colored, span the full colormap for the colors.
+ */
+  if(special_res->nglSpreadColors)  {
+    spread_colors(wks, streamline, special_res->nglSpreadColorStart,
+                  special_res->nglSpreadColorEnd, "stLevelCount", 
+                  "stLevelColors",special_res->nglDebug);
+  }
+
+/*
+ * Set up plot id structure to return.
+ */
+  initialize_ids(&plot);
+  plot.vffield       = (int *)malloc(sizeof(int));
+  plot.sffield       = (int *)malloc(sizeof(int));
+  plot.streamline    = (int *)malloc(sizeof(int));
+  plot.base          = (int *)malloc(sizeof(int));
+  *(plot.vffield)    = vffield;
+  *(plot.sffield)    = sffield;
+  *(plot.streamline) = streamline;
+  *(plot.base)       = streamline;
+  plot.nvffield      = 1;
+  plot.nsffield      = 1;
+  plot.nstreamline   = 1;
+  plot.nbase         = plot.nstreamline;
+
+/*
+ * Overlay on an irregular plot object if it is desired to log
+ * or linearize either of the axes.
+ */
+
+  if(special_res->nglXAxisType > 0 || special_res->nglYAxisType > 0) {
+    overlay_on_irregular(wks,&plot,st_res,tm_res,special_res);
+  }
+
+/*
+ * Draw plots and advance frame.
+ */
+
+  draw_and_frame(wks, &plot, 1, 0, special_res);
+
+/*
+ * Return.
+ */
+  return(plot);
+}
+
+/*
+ * This function uses the HLUs to create a streamline plot colored by
+ * a scalar field overlaid on a map.
+ */
+
+nglPlotId streamline_scalar_map_wrap(int wks, void *u, void *v, void *t, 
+                                 const char *type_u, const char *type_v, 
+                                 const char *type_t, int ylen, int xlen, 
+                                 int is_ycoord, void *ycoord, 
+                                 const char *type_ycoord, int is_xcoord, 
+                                 void *xcoord, const char *type_xcoord, 
+                                 int is_missing_u, int is_missing_v, 
+                                 int is_missing_t, void *FillValue_u, 
+                                 void *FillValue_v, void *FillValue_t,
+                                 ResInfo *vf_res, ResInfo *sf_res,
+                                 ResInfo *st_res, ResInfo *mp_res,
+                                 nglRes *special_res)
+{
+  nglRes special_res2;
+  nglPlotId plot, streamline, map;
+  int old_scale;
+
+/*
+ * Create streamline plot.
+ *
+ * Note that nglScale is set to 0 here, because we'll scale the
+ * tickmarks, their labels, and the axis labels when we create 
+ * the map.
+ *
+ * Also, XAxisType and YAxisType are set to 0 (IrregularAxis) to
+ * ensure that one doesn't try to linearize or logize an axis
+ * system that's about to be overlaid on a map.
+ *
+ * Also, XAxisType and YAxisType are set to 0 (IrregularAxis) to
+ * ensure that one doesn't try to linearize or logize an axis
+ * system that's about to be overlaid on a map.
+ */
+
+  special_res2              = *special_res;
+  old_scale                 = special_res2.nglScale;  /* Save this value */
+
+  special_res2.nglDraw      = 0;
+  special_res2.nglFrame     = 0;
+  special_res2.nglMaximize  = 0;
+  special_res2.nglScale     = 0;
+  special_res2.nglXAxisType = 0;
+  special_res2.nglYAxisType = 0;
+
+  streamline = streamline_scalar_wrap(wks, u, v, t, type_u, type_v, type_t,
+                                      ylen, xlen, is_ycoord, ycoord, 
+                                      type_ycoord, is_xcoord, xcoord, 
+                                      type_xcoord, is_missing_u, is_missing_v, 
+                                      is_missing_t, FillValue_u, FillValue_v, 
+                                      FillValue_t, vf_res, sf_res, st_res, 
+                                      NULL, &special_res2);
+
+/*
+ * Create map plot.
+ */
+  special_res2.nglScale = old_scale;
+
+  map = map_wrap(wks, mp_res, &special_res2);
+
+/*
+ * Overlay streamline plot on map plot.
+ */
+  NhlAddOverlay(*(map.base),*(streamline.base),-1);
+
+/*
+ * Set up plot id structure to return.
+ */
+  initialize_ids(&plot);
+  plot.vffield       = (int *)malloc(sizeof(int));
+  plot.sffield       = (int *)malloc(sizeof(int));
+  plot.streamline    = (int *)malloc(sizeof(int));
+  plot.map           = (int *)malloc(sizeof(int));
+  plot.base          = (int *)malloc(sizeof(int));
+  *(plot.vffield)    = *(streamline.vffield);
+  *(plot.sffield)    = *(streamline.sffield);
+  *(plot.streamline) = *(streamline.base);
+  *(plot.map)        = *(map.base);
+  *(plot.base)       = *(map.base);
+
+  plot.nvffield    = 1;
+  plot.nsffield    = 1;
+  plot.nstreamline = 1;
+  plot.nmap        = 1;
+  plot.nbase       = plot.nmap;
+
+/*
+ * Draw plots and advance frame.
+ */
+
+  draw_and_frame(wks, &plot, 1, 0, special_res);
+
+/*
+ * Free up memory we don't need.
+ */
+  free(streamline.streamline);
+  free(map.map);
+
+/*
+ * Return.
+ */
+  return(plot);
+}
+
+
+
 
 /*
  * This function uses the HLUs to create a vector plot colored by
