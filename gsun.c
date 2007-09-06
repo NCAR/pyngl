@@ -2606,6 +2606,13 @@ nglPlotId streamline_scalar_wrap(int wks, void *u, void *v, void *t,
   }
 
 /*
+ * Point tickmarks outward if requested specifically by user.
+ */
+  if(special_res->nglPointTickmarksOutward) {
+    point_tickmarks_out(streamline,st_res);
+  }
+
+/*
  * Set up plot id structure to return.
  */
   initialize_ids(&plot);
@@ -2818,6 +2825,13 @@ nglPlotId vector_scalar_wrap(int wks, void *u, void *v, void *t,
     spread_colors(wks, vector, special_res->nglSpreadColorStart,
                   special_res->nglSpreadColorEnd, "vcLevelCount", 
                   "vcLevelColors",special_res->nglDebug);
+  }
+
+/*
+ * Point tickmarks outward if requested specifically by user.
+ */
+  if(special_res->nglPointTickmarksOutward) {
+    point_tickmarks_out(vector,vc_res);
   }
 
 /*

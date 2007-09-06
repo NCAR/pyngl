@@ -793,6 +793,15 @@ def set_streamline_res(reslist,reslist1):
   if(reslist.has_key("stLevelColors")):
     if (not (reslist.has_key("stMonoLineColor"))):
       reslist1["stMonoLineColor"] = False
+
+  if( reslist.has_key("stMonoLineColor") and
+      (reslist["stMonoLineColor"]  or reslist["stMonoLineColor"] == 0)):
+    if ( not (reslist.has_key("pmLabelBarDisplayMode")) and 
+         (not (reslist.has_key("lbLabelBarOn")) or 
+               reslist.has_key("lbLabelbarOn") and 
+                        reslist["lbLabelBarOn"] > 0)):
+      reslist1["pmLabelBarDisplayMode"] = "Always"
+
 #
 # Set some tickmark resources.
 #
