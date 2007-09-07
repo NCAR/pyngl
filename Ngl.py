@@ -66,6 +66,7 @@ import commands
 import sys
 import os
 import math
+import re
 
 #
 # Try to guess the package path for PyNGL. If it can't
@@ -1467,12 +1468,13 @@ type -- An optional argument specifying the type of the data you are
 #
   if (dims == -1):
     nnum = 0
-    while (1):
-      line = file.readline()[0:-1]
+    while(1):
+      line = file.readline()
       if len(line) == 0:
         break
       toks = string.split(line)
-      for str in toks:
+      for tstr in toks:
+        str = re.sub(",","",tstr)   # Remove commas if there are any.
         if (type == "integer"):
           try:
             int(str)
@@ -1507,11 +1509,12 @@ type -- An optional argument specifying the type of the data you are
   count = 0
   file.seek(0,0)
   while (1):
-    line = file.readline()[0:-1]
+    line = file.readline()
     if len(line) == 0:
       break
     toks = string.split(line)
-    for str in toks:
+    for tstr in toks:
+      str = re.sub(",","",tstr)
       if (type == "integer"):
         try:
           ar[count] = int(str)
