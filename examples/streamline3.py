@@ -35,32 +35,6 @@
 #     
 
 #
-# Function to read ascii data file.
-#
-def get_data():
-  dims = [3,73,73]
-  filename = os.path.join(Ngl.pynglpath("data"),"asc","fcover.dat")
-  nnum = 1
-  for m in xrange(len(dims)):
-    nnum = nnum*dims[m]
-
-  ar = Ngl.numerpy_float0_zeros(nnum)
-
-  file = open(filename)
-  count = 0
-  for line in file.readlines():
-    toks = string.split(line,',')
-    for str in toks:
-      try:
-        ar[count] = float(str)
-        count = count+1
-      except:
-        pass
-
-  file.close()
-  return numpy.reshape(ar,dims)
-
-#
 #  Import numpy.
 #
 import numpy
@@ -76,10 +50,10 @@ import Nio
 import Ngl
 import os,string,types
 
-#
 # Read data off file.
 
-data = get_data()
+filename = os.path.join(Ngl.pynglpath("data"),"asc","fcover.dat")
+data     = Ngl.asciiread(filename,[3,73,73],"float")
 
 # Open workstation and change color map.
 wks_type = "ps"
