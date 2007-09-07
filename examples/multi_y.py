@@ -176,10 +176,7 @@ res2.tmYLMinorOn  = False
 res2.tmYRLabelsOn = True
 res2.tmYROn       = True
 res2.tmYUseLeft   = False  
-res2.tmYUseLeft   = False
-res2.tmYRMode     = "Explicit"
-res2.tmYRValues   = [ 0., 10., 20., 30., 40., 50., 60.]
-res2.tmYRLabels   = ["0","10","20","30","40","50","60"]
+res2.tmYRFormat   = "f"      # Gets rid of unnecessary trailing zeros
 
 #
 # Move the Y axis string to the right.
