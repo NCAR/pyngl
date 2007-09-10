@@ -1443,7 +1443,7 @@ res -- An optional instance of the Resources class having TextItem
   del am_rlist
   return(lst2pobj(atx))
 
-def asciiread(filename,dims,type="float"):
+def asciiread(filename,dims,type="float",sep=","):
   """
 Reads data from an ASCII file and returns a Numeric array.
 
@@ -1458,6 +1458,15 @@ type -- An optional argument specifying the type of the data you are
         reading. The legal values are: 'integer', 'float', or
         'double'.
   """
+#
+#  Regular expression special characters that must be escaped if
+#  "sep" is set to one of them.
+#
+  print "Got to ascii read"
+  schar = [".", "^", "$", "*", "+", "?"]
+  if (schar.count(sep) > 0):
+    sep = "\\" + sep
+
   file = open(filename)
 #
 #  If dims = -1, determine the number of valid tokens in
@@ -1469,12 +1478,13 @@ type -- An optional argument specifying the type of the data you are
   if (dims == -1):
     nnum = 0
     while(1):
-      line = file.readline()
-      if len(line) == 0:
+      rline = file.readline()
+      if len(rline) == 0:
         break
+      
+      line = re.sub(sep," ",rline)  # replace separator with blanks
       toks = string.split(line)
-      for tstr in toks:
-        str = re.sub(",","",tstr)   # Remove commas if there are any.
+      for str in toks:
         if (type == "integer"):
           try:
             int(str)
@@ -1509,9 +1519,10 @@ type -- An optional argument specifying the type of the data you are
   count = 0
   file.seek(0,0)
   while (1):
-    line = file.readline()
-    if len(line) == 0:
+    rline = file.readline()
+    if len(rline) == 0:
       break
+    line = re.sub(sep," ",rline)  # replace separator with blanks
     toks = string.split(line)
     for tstr in toks:
       str = re.sub(",","",tstr)
