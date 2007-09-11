@@ -5,6 +5,7 @@ NCL Graphics Libraries," and it is pronounced "pingle."
 
       http://www.pyngl.ucar.edu/
 """
+import sys
 #
 #  Get version number and flag for numpy compatibility.
 #
@@ -1707,6 +1708,12 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist3
   return(lst2pobj(icm))
 
+def datatondc(obj,x,y):
+  error,xout,yout,status,range = \
+     NhlPDataToNDC(int_id(obj),x,y,len(x),1.e30,1.e30,1,1)
+  del error,status,range
+  return xout,yout
+
 def define_colormap(wks,cmap):
   """
 Defines a new color map for the given workstation.
@@ -2921,6 +2928,12 @@ red, green, blue -- Floating point values between 0.0 and 1.0
                     inclusive.
   """
   return NhlNewColor(int_id(wks_id),r,g,b)
+
+def ndctodata(obj,x,y):
+  error,xout,yout,status,range = \
+     NhlPNDCToData(int_id(obj),x,y,len(x),1.e30,1.e30,1,1)
+  del error,status,range
+  return xout,yout
 
 def new_dash_pattern(wks_id,patterns):
   """
@@ -6050,11 +6063,22 @@ import fplib
 #            type and fill_value are returned as None.
 #
 def get_ma_fill_value(arr):
+#
+#  If arr is a numpy masked array, return its fill value.
+#
+  try:
+    "Try numpy"
+    import numpy.core.ma
+    if (type(arr) == type(numpy.core.ma.array([0]))):
+      return "num",arr.fill_value()
+  except:
+     pass
+
   try:
     import MA
     fv = None
 #
-#  If arr is a Numeric masked array, return its fill value
+#  If arr is not a numpy masked array, try for Numeric.
 #
     if (type(arr) == type(MA.array([0]))):
       fv = arr.fill_value()
@@ -6071,16 +6095,7 @@ def get_ma_fill_value(arr):
         return "MA",fv
   except:
     pass
-#
-#  If not a Numeric masked array, try for NumPy masked array.
-#
-  try:
-    "Try numpy"
-    import numpy.core.ma
-    if (type(arr) == type(numpy.core.ma.array([0]))):
-      return "num",arr.fill_value()
-  except:
-     pass
+
 #
 #  Neither a Numeric nor a NumPy masked array.
 #
