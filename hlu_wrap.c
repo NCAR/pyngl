@@ -2537,6 +2537,7 @@ extern float *c_natgrids(int, float [], float [], float [],
 int c_ftcurv (int, float [], float [], int, float [], float []);
 int c_ftcurvp (int, float [], float [], float, int, float [], float []);
 int c_ftcurvpi (float, float, float, int, float [], float [], float *);
+
 double c_dcapethermo(double *, double *, int, double, int, 
                      double **, double, int *, int *, int *);
 extern void NGCALLF(dptlclskewt,DPTLCLSKEWT)(double *, double *, double *,
@@ -2576,6 +2577,7 @@ extern void c_wmbarbp(int, float, float, float, float);
 extern void c_wmsetip(NhlString,int);
 extern void c_wmsetrp(NhlString,float);
 extern void c_wmsetcp(NhlString,NhlString);
+extern void c_wmstnmp(int, float, float, NhlString);
 extern int  c_wmgetip(NhlString);
 extern float c_wmgetrp(NhlString);
 extern NhlString c_wmgetcp(NhlString);
@@ -4138,6 +4140,108 @@ fail:
 }
 
 
+
+
+SWIGINTERN PyObject *_wrap_c_cssgrid(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  float *arg2 = (float *) 0 ;
+  float *arg3 = (float *) 0 ;
+  float *arg4 = (float *) 0 ;
+  int arg5 ;
+  int arg6 ;
+  float *arg7 = (float *) 0 ;
+  float *arg8 = (float *) 0 ;
+  int *arg9 = (int *) 0 ;
+  float *result = 0 ;
+  void *argp9 = 0 ;
+  int res9 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
+  PyObject * obj8 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOO:c_cssgrid",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8)) SWIG_fail;
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    int i,ndims,tdims=1;
+    PyArrayObject *arr;
+    arr =
+    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    ndims = arr->nd;
+    for (i = 0; i < ndims; i++) {
+      tdims *= (int) arr->dimensions[i];
+    }
+    arg2 = (float *) d2f(tdims, (double *) arr->data);
+  }
+  {
+    int i,ndims,tdims=1;
+    PyArrayObject *arr;
+    arr =
+    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    ndims = arr->nd;
+    for (i = 0; i < ndims; i++) {
+      tdims *= (int) arr->dimensions[i];
+    }
+    arg3 = (float *) d2f(tdims, (double *) arr->data);
+  }
+  {
+    int i,ndims,tdims=1;
+    PyArrayObject *arr;
+    arr =
+    (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
+    ndims = arr->nd;
+    for (i = 0; i < ndims; i++) {
+      tdims *= (int) arr->dimensions[i];
+    }
+    arg4 = (float *) d2f(tdims, (double *) arr->data);
+  }
+  {
+    arg5 = (int) PyInt_AsLong (obj4);
+  }
+  {
+    arg6 = (int) PyInt_AsLong (obj5);
+  }
+  {
+    int i,ndims,tdims=1;
+    PyArrayObject *arr;
+    arr =
+    (PyArrayObject *) PyArray_ContiguousFromObject(obj6,PyArray_DOUBLE,0,0);
+    ndims = arr->nd;
+    for (i = 0; i < ndims; i++) {
+      tdims *= (int) arr->dimensions[i];
+    }
+    arg7 = (float *) d2f(tdims, (double *) arr->data);
+  }
+  {
+    int i,ndims,tdims=1;
+    PyArrayObject *arr;
+    arr =
+    (PyArrayObject *) PyArray_ContiguousFromObject(obj7,PyArray_DOUBLE,0,0);
+    ndims = arr->nd;
+    for (i = 0; i < ndims; i++) {
+      tdims *= (int) arr->dimensions[i];
+    }
+    arg8 = (float *) d2f(tdims, (double *) arr->data);
+  }
+  res9 = SWIG_ConvertPtr(obj8, &argp9,SWIGTYPE_p_int, 0 |  0 );
+  if (!SWIG_IsOK(res9)) {
+    SWIG_exception_fail(SWIG_ArgError(res9), "in method '" "c_cssgrid" "', argument " "9"" of type '" "int *""'"); 
+  }
+  arg9 = (int *)(argp9);
+  result = (float *)c_cssgrid(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_float, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
 
 
 SWIGINTERN PyObject *_wrap__NGGetNCARGEnv(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
@@ -34287,6 +34391,45 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_c_wmstnmp(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  float arg2 ;
+  float arg3 ;
+  NhlString arg4 = (NhlString) 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  int alloc4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:c_wmstnmp",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  {
+    arg2 = (float) PyFloat_AsDouble (obj1);
+  }
+  {
+    arg3 = (float) PyFloat_AsDouble (obj2);
+  }
+  res4 = SWIG_AsCharPtrAndSize(obj3, &buf4, NULL, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "c_wmstnmp" "', argument " "4"" of type '" "NhlString""'");
+  }
+  arg4 = (NhlString)(buf4);
+  c_wmstnmp(arg1,arg2,arg3,arg4);
+  resultobj = SWIG_Py_Void();
+  if (alloc4 == SWIG_NEWOBJ) free((char*)buf4);
+  return resultobj;
+fail:
+  if (alloc4 == SWIG_NEWOBJ) free((char*)buf4);
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_c_wmgetip(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   NhlString arg1 = (NhlString) 0 ;
@@ -35248,6 +35391,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"delete_floatArray", _wrap_delete_floatArray, METH_VARARGS, NULL},
 	 { (char *)"floatArray_getitem", _wrap_floatArray_getitem, METH_VARARGS, NULL},
 	 { (char *)"floatArray_setitem", _wrap_floatArray_setitem, METH_VARARGS, NULL},
+	 { (char *)"c_cssgrid", _wrap_c_cssgrid, METH_VARARGS, NULL},
 	 { (char *)"_NGGetNCARGEnv", _wrap__NGGetNCARGEnv, METH_VARARGS, NULL},
 	 { (char *)"NhlInitialize", _wrap_NhlInitialize, METH_VARARGS, NULL},
 	 { (char *)"NhlClose", _wrap_NhlClose, METH_VARARGS, NULL},
@@ -35400,6 +35544,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"c_wmsetip", _wrap_c_wmsetip, METH_VARARGS, NULL},
 	 { (char *)"c_wmsetrp", _wrap_c_wmsetrp, METH_VARARGS, NULL},
 	 { (char *)"c_wmsetcp", _wrap_c_wmsetcp, METH_VARARGS, NULL},
+	 { (char *)"c_wmstnmp", _wrap_c_wmstnmp, METH_VARARGS, NULL},
 	 { (char *)"c_wmgetip", _wrap_c_wmgetip, METH_VARARGS, NULL},
 	 { (char *)"c_wmgetrp", _wrap_c_wmgetrp, METH_VARARGS, NULL},
 	 { (char *)"c_wmgetcp", _wrap_c_wmgetcp, METH_VARARGS, NULL},

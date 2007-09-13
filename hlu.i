@@ -49,6 +49,7 @@ extern float *c_natgrids(int, float [], float [], float [],
 int c_ftcurv (int, float [], float [], int, float [], float []);
 int c_ftcurvp (int, float [], float [], float, int, float [], float []);
 int c_ftcurvpi (float, float, float, int, float [], float [], float *);
+
 double c_dcapethermo(double *, double *, int, double, int, 
                      double **, double, int *, int *, int *);
 extern void NGCALLF(dptlclskewt,DPTLCLSKEWT)(double *, double *, double *,
@@ -88,6 +89,7 @@ extern void c_wmbarbp(int, float, float, float, float);
 extern void c_wmsetip(NhlString,int);
 extern void c_wmsetrp(NhlString,float);
 extern void c_wmsetcp(NhlString,NhlString);
+extern void c_wmstnmp(int, float, float, NhlString);
 extern int  c_wmgetip(NhlString);
 extern float c_wmgetrp(NhlString);
 extern NhlString c_wmgetcp(NhlString);
@@ -4026,6 +4028,8 @@ enum NhlPolyType {NhlPOLYLINE, NhlPOLYMARKER, NhlPOLYGON};
 %constant NhlEZEROFIELD  = 1103;
 %constant NhlEZEROSPAN   = 1104;
 
+extern float *c_cssgrid(int, float *sequence_as_float, float *sequence_as_float, float *sequence_as_float, int, int, float *sequence_as_float, float *sequence_as_float, int *);
+
 extern const char *_NGGetNCARGEnv(const char *);
 extern void NhlInitialize();
 extern void NhlClose();
@@ -4282,6 +4286,7 @@ extern PyObject *ftcurvpc(int, float *sequence_as_float,
 extern PyObject *ftcurvpic(float, float, float, int, 
                            float *sequence_as_float, 
                            float *sequence_as_float);
+
 extern void c_rgbhls(float, float, float, float *OUTPUT, float *OUTPUT, float *OUTPUT);
 extern void c_hlsrgb(float, float, float, float *OUTPUT, float *OUTPUT, float *OUTPUT);
 extern void c_rgbhsv(float, float, float, float *OUTPUT, float *OUTPUT, float *OUTPUT);
@@ -4293,6 +4298,7 @@ extern void c_wmbarbp(int, float, float, float, float);
 extern void c_wmsetip(NhlString,int);
 extern void c_wmsetrp(NhlString,float);
 extern void c_wmsetcp(NhlString,NhlString);
+extern void c_wmstnmp(int, float, float, NhlString);
 extern int  c_wmgetip(NhlString);
 extern float c_wmgetrp(NhlString);
 extern NhlString c_wmgetcp(NhlString);

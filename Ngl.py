@@ -5852,6 +5852,40 @@ pvalue -- Value of the parameter you want to set.
       "wmsetp: specified value for " + pname + " is not of a recognized type." 
   return None
 
+def wmstnm(wks,x,y,imdat):
+  """
+Draws station model data at specified locations.
+
+Ngl.wmstnm(wks, x, y, imdat)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+x, y -- Scalars, one-dimensional Numeric arrays or Python lists
+        specifying X and Y coordinate values.
+
+imdat -- A string of 50 characters encoded as per the WMO/NOAA guidelines. 
+         See the online documentation for details.
+  """
+#
+#  Get the GKS workstaton ID.
+#
+  gksid = get_integer(wks,"wkGksWorkId")
+
+#
+#  Process depending on whether we have scalar coordinates,
+#  Numeric arrays, or Python lists or tuples.
+# 
+  xa = arg_with_scalar(Numeric.array(x))
+  ya = arg_with_scalar(Numeric.array(y))
+  if (type(imdat) == type('a')):
+    imdata = Numeric.array([imdat])
+  else:
+    imdata = Numeric.array(imdat)
+  for i in xrange(len(xa)):
+      c_wmstnmp(gksid,xa[i],ya[i],imdata[i])
+  del xa,ya,imdata
+  return None
+
 def xy(wks,xar,yar,rlistc=None):
   """
 Creates and draws an XY plot, and returns a PlotId representing the XY

@@ -2,7 +2,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <math.h>
 #include "gsun.h"
+
+#define NINT(x) ( (ceil((x))-(x)) > ( (x)-floor((x)))) ? floor((x)) : ceil((x))
 
 /*
  * Define some global strings.
@@ -5115,6 +5118,38 @@ void c_wmbarbp(int wksid, float x, float y, float u, float v) {
 
   gdeactivate_ws (wksid);
 }
+
+void c_wmstnmp(int wksid, float x, float y, char *imdat) {
+
+  int ezf,i,iang;
+  float xt,yt,xtt,ytt,fang;
+  char tang[3];
+  
+  gactivate_ws (wksid);
+  c_wmgeti("ezf",&ezf);
+  if (ezf != -1) {
+    c_maptrn(x,y,&xt,&yt);
+    if (xt != 1.e12) {
+      tang[0] = imdat[6];
+      tang[1] = imdat[7];
+      tang[2] = 0;
+      fang = 10.*0.0174532925199*atof(tang);
+      c_maptrn(x+0.1*cos(fang),
+           y+0.1/cos(0.0174532925199*x)*sin(fang), &xtt, &ytt);
+      fang = fmod(57.2957795130823*atan2(xtt-xt, ytt-yt)+360., 360.);
+      iang = (int) max(0,min(35,NINT(fang/10.)));
+      sprintf(tang,"%2d",iang);
+      imdat[6] = tang[0];
+      imdat[7] = tang[1];
+      c_wmstnm(xt, yt, imdat);
+    }
+  }
+  else {
+    c_wmstnm(x, y, imdat);
+  }
+  gdeactivate_ws (wksid);
+}
+
 void c_wmsetip(char* string, int v) {
   c_wmseti(string, v);
 }
