@@ -1463,7 +1463,6 @@ type -- An optional argument specifying the type of the data you are
 #  Regular expression special characters that must be escaped if
 #  "sep" is set to one of them.
 #
-  print "Got to ascii read"
   schar = [".", "^", "$", "*", "+", "?"]
   if (schar.count(sep) > 0):
     sep = "\\" + sep
