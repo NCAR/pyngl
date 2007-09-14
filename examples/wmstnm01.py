@@ -45,4 +45,4 @@ Ngl.wmsetp("wbs",0.25)    #  Scale
 Ngl.wmstnm(wks,0.5,0.5,imdat)
 
 Ngl.frame(wks)
-Ngl.end
+Ngl.end()
