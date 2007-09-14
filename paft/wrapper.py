@@ -1013,10 +1013,13 @@ w1file.write("""
 
 #
 # Loop across input arguments and generate code that will
-# retrieve them from the PyNGL script.
+# retrieve them from the PyNGL script. You need to have an 'O' for
+# every required argument in the list.
 #
-w1file.write('  if (!PyArg_ParseTuple(args,(char *)"OO:' + pyngl_name + \
-             '",')
+w1file.write('  if (!PyArg_ParseTuple(args,(char *)"')
+for i in range(len(args)):
+  w1file.write('O')
+w1file.write(':' + pyngl_name + '",')
 
 for i in range(len(args)):
   w1file.write('&' + args[i].arr_name)

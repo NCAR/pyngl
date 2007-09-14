@@ -69,7 +69,7 @@ def get_ma_fill_value(arr):
 #
 #  If arr is a Numeric masked array, return its fill value
 #
-    if (type(arr) == type(MA.array([0]))):
+    if MA.isMaskedArray(arr):
       fv = arr.fill_value()
 #
 #  For Numeric 2.4 or later, the fill value is returned as
@@ -90,7 +90,7 @@ def get_ma_fill_value(arr):
   try:
     "Try numpy"
     import numpy.core.ma
-    if (type(arr) == type(numpy.core.ma.array([0]))):
+    if ma.isMaskedArray(arr):
       return "num",arr.fill_value()
   except:
     pass
