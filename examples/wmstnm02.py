@@ -84,7 +84,8 @@ def tricolour(wks,xll,yll,height):
 #  Show how to put four plots, illustrating wind barb procedures,
 #  on a single frame.
 #
-wks = Ngl.open_wks("x11","weather_sym")
+wks_type = "ps"
+wks = Ngl.open_wks(wks_type,"wmstnm02")
 cmap = numpy.array([[1.,1.,1.],[0.,0.,0.],[1.,0.,0.]])  # color map
 
 Ngl.define_colormap(wks,cmap)

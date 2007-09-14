@@ -102,8 +102,8 @@ imdat =  ["11000000751126021360300004955054054600007757087712",  \
 cmap = numpy.array([[1., 1., 1.], [0., 0., 0.]], 'f')
 rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
-wks_type = "x11"
-wks = Ngl.open_wks("x11","weather_sym",rlist)
+wks_type = "ps"
+wks = Ngl.open_wks(wks_type,"wmstnm03",rlist)
 
 #
 #  Draw a world map.
