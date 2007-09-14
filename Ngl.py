@@ -25,34 +25,34 @@ HAS_NUM                  = pyngl_version.HAS_NUM
 recommend_numeric = False
 if HAS_NUM == 2:
   try:
-    import numpy as Numeric
+    import numpy
 # 
 # If we are dealing with a numpy version that is less than 1.0.0, then
 # check the version that PyNGL was built with against this version.
 #
-    if Numeric.__version__[0] == '0' and \
-       Numeric.__version__ < __array_module_version__:
+    if numpy.__version__[0] == '0' and \
+       numpy.__version__ < __array_module_version__:
       print 'Warning: your version of numpy may be older than what PyNGL'
       print 'was built with. You could have compatibility problems.'
       print 'PyNGL was built with numpy version',__array_module_version__,'and you are'
-      print 'importing version',Numeric.__version__
+      print 'importing version',numpy.__version__
   except ImportError:
     print 'Cannot find numpy, cannot proceed.'
     print 'Perhaps you need to install the Numeric version of PyNGL instead.'
     sys.exit()
 else:
   try:
-    import Numeric
+    import Numeric as numpy
     recommend_numeric = True
 #
 # I decided to comment this section out, because a Numeric 24 version
 # of PyNGL seems to work okay with Numeric 23.x (23.8 anyway).
 #
-#    if Numeric.__version__[0] != __array_module_version__[0]:
+#    if numpy.__version__[0] != __array_module_version__[0]:
 #      print 'Warning: your version of Numeric is different from what PyNGL'
 #      print 'was built with. You may have compatibility problems.'
 #      print 'PyNGL was built with Numeric version',__array_module_version__
-#      print 'and you are importing version',Numeric.__version__
+#      print 'and you are importing version',numpy.__version__
   except ImportError:
     print 'Cannot find Numeric, cannot proceed'
     print 'Perhaps you need to install the numpy version of PyNGL instead.'
@@ -123,17 +123,17 @@ def is_list_or_tuple(arg):
     return False
   
 def is_numeric_array(arg):
-  if (HAS_NUM == 1 and type(arg) == type(Numeric.array([0],Numeric.Int0))):
+  if (HAS_NUM == 1 and type(arg) == type(numpy.array([0],numpy.Int0))):
     return True
   return False
 
 def is_numpy_array(arg):
   if (HAS_NUM == 2):
     try:
-      if (type(arg) == type(Numeric.array([0],Numeric.Int0))):
+      if (type(arg) == type(numpy.array([0],numpy.Int0))):
         return True
     except:
-      if (type(arg) == type(Numeric.array([0],Numeric.int))):
+      if (type(arg) == type(numpy.array([0],numpy.int))):
         return True
   return False
 
@@ -221,7 +221,7 @@ def is_scalar(arg):
          is_python_scalar(arg)
 
 def is_array(arg):
-  if (type(arg) == type(Numeric.array([0]))):
+  if (type(arg) == type(numpy.array([0]))):
     return True
   else:
     return False
@@ -241,7 +241,7 @@ def is_tuple(arg):
 def arg_with_scalar(arg):
 #
 #  This function is to accommodate scalar arguments for 
-#  some functions that take lists, tuples, or Numeric arrays.
+#  some functions that take lists, tuples, or NumPy arrays.
 #  The input argument is checked to see if it is a number and,
 #  if so, it is converted to a single-element list.  Otherwise
 #  the original argument is returned.
@@ -253,37 +253,37 @@ def arg_with_scalar(arg):
 
 def numerpy_int_zeros(num):
 #
-# This function creates a Numeric.zeros int array.
+# This function creates a numpy.zeros int array.
 #
   try:
-    return Numeric.zeros(num,Numeric.Int) 
+    return numpy.zeros(num,numpy.Int) 
   except:
-    return Numeric.zeros(num,'i')
+    return numpy.zeros(num,'i')
 
 def numerpy_float0_zeros(num):
 #
-# This function creates a Numeric.zeros float0 array.
+# This function creates a numpy.zeros float0 array.
 #
   try:
-    return Numeric.zeros(num,Numeric.Float0) 
+    return numpy.zeros(num,numpy.Float0) 
   except:
-    return Numeric.zeros(num,'f')
+    return numpy.zeros(num,'f')
 
 def numerpy_float_zeros(num):
 #
-# This function creates a Numeric.zeros float array.
+# This function creates a numpy.zeros float array.
 #
 # This doesn't work under Numeric 24.2:
 #
-#  return Numeric.zeros(num,'f')
+#  return numpy.zeros(num,'f')
 # 
-# because the type of a single element of a Numeric.zeros 'f' 
+# because the type of a single element of a numpy.zeros 'f' 
 # array is still an array!
 #
   try:
-    return Numeric.zeros(num,Numeric.Float) 
+    return numpy.zeros(num,numpy.Float) 
   except:
-    return Numeric.zeros(num,'f')
+    return numpy.zeros(num,'f')
 
 def ck_for_rangs(dir):
 #
@@ -316,7 +316,7 @@ def ismissing(arg,mval):
 #  missing values.
 #
     if (HAS_NUM == 1):
-      if (type(arg) == type(Numeric.array([0],Numeric.Int))):
+      if (type(arg) == type(numpy.array([0],numpy.Int))):
         pass
       elif (type(arg)==types.IntType or type(arg)==types.LongType or \
             type(arg)==types.FloatType):
@@ -325,14 +325,14 @@ def ismissing(arg,mval):
         print "ismissing: first argument must be a Numeric array or scalar."
         return None
     elif (HAS_NUM == 2):
-      if (isinstance(arg,Numeric.generic)):
+      if (isinstance(arg,numpy.generic)):
         pass
-      elif (type(arg) == type(Numeric.array([0]))):
+      elif (type(arg) == type(numpy.array([0]))):
         pass
       else:
         print "ismissing: first argument must be a numpy array or scalar."
         return None
-    return(Numeric.equal(arg,mval))
+    return(numpy.equal(arg,mval))
 
 def get_values(obj,rlistc):
   rlist = crt_dict(rlistc)
@@ -1000,9 +1000,9 @@ wid = Ngl.get_workspace_id()
 
 def skewty(pres):    # y-coord given pressure (mb)
   if (HAS_NUM == 1):
-    return(132.182-44.061*Numeric.log10(pres))
+    return(132.182-44.061*numpy.log10(pres))
   else:
-    return(132.182-44.061*Numeric.lib.scimath.log10(pres))
+    return(132.182-44.061*numpy.lib.scimath.log10(pres))
 
 def skewtx(temp,y):  # x-coord given temperature (c)
   return (0.54*temp+0.90692*y)
@@ -1118,7 +1118,7 @@ res -- An optional instance of the Resources class having annotation
 #
 def add_cyclic(data,lon_coord=None):
   """
-Adds cyclic points to an array and returns a Numeric array of the
+Adds cyclic points to an array and returns a NumPy array of the
 same type as data with one more element in the rightmost dimension.
 
 datap = Ngl.add_cyclic(data, longitude=None)
@@ -1167,9 +1167,9 @@ longitude -- An optional one-dimensional array, representing
 # Create the new data array with one extra value in the X direction.
 #
   if (HAS_NUM == 1):
-    newdata         = Numeric.zeros((ny,nx1),data.typecode())
+    newdata         = numpy.zeros((ny,nx1),data.typecode())
   elif (HAS_NUM == 2):
-    newdata         = Numeric.zeros((ny,nx1),data.dtype.char)
+    newdata         = numpy.zeros((ny,nx1),data.dtype.char)
   newdata[:,0:nx] = data
   newdata[:,nx]   = data[:,0]
 
@@ -1178,9 +1178,9 @@ longitude -- An optional one-dimensional array, representing
 #
   if(lon_coord != None):
     if (HAS_NUM == 1):
-      newloncoord       = Numeric.zeros(nx1,lon_coord.typecode())
+      newloncoord       = numpy.zeros(nx1,lon_coord.typecode())
     elif (HAS_NUM == 2):
-      newloncoord       = Numeric.zeros(nx1,lon_coord.dtype.char)
+      newloncoord       = numpy.zeros(nx1,lon_coord.dtype.char)
     newloncoord[0:nx] = lon_coord
     newloncoord[nx]   = lon_coord[0] + 360
 
@@ -1297,17 +1297,17 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
 # Create new arrays.
 #
   if (HAS_NUM == 1):
-    new_data = Numeric.zeros((new_ny,new_nx),data.typecode())
+    new_data = numpy.zeros((new_ny,new_nx),data.typecode())
     if xcoord != None:
-      new_xcoord = Numeric.zeros(new_nx,xcoord.typecode())
+      new_xcoord = numpy.zeros(new_nx,xcoord.typecode())
     if ycoord != None:
-      new_ycoord = Numeric.zeros(new_ny,ycoord.typecode())
+      new_ycoord = numpy.zeros(new_ny,ycoord.typecode())
   elif (HAS_NUM == 2):
-    new_data     = Numeric.zeros((new_ny,new_nx),data.dtype.char)
+    new_data     = numpy.zeros((new_ny,new_nx),data.dtype.char)
     if xcoord != None:
-      new_xcoord = Numeric.zeros(new_nx,xcoord.dtype.char)
+      new_xcoord = numpy.zeros(new_nx,xcoord.dtype.char)
     if ycoord != None:
-      new_ycoord = Numeric.zeros(new_ny,ycoord.dtype.char)
+      new_ycoord = numpy.zeros(new_ny,ycoord.dtype.char)
 # 
 # Fill the new data array with the original values, and missing
 # values everywhere else.
@@ -1446,7 +1446,7 @@ res -- An optional instance of the Resources class having TextItem
 
 def asciiread(filename,dims,type="float",sep=","):
   """
-Reads data from an ASCII file and returns a Numeric array.
+Reads data from an ASCII file and returns a NumPy array.
 
 array = Ngl.asciiread(filename, dims, type='float')
 
@@ -1472,7 +1472,7 @@ type -- An optional argument specifying the type of the data you are
 #  If dims = -1, determine the number of valid tokens in
 #  the input file, otherwise calculate the number from
 #  the dims value.  If dims = -1 the return value will be
-#  a Numeric array containing of all the legal values,
+#  a NumPy array containing of all the legal values,
 #  all other values are ignored.
 #
   if (dims == -1):
@@ -1546,7 +1546,7 @@ type -- An optional argument specifying the type of the data you are
   if (dims == -1):
     return ar
   else:
-    return Numeric.reshape(ar,dims)
+    return numpy.reshape(ar,dims)
 
 def change_workstation(obj,wks):
   """
@@ -1860,7 +1860,7 @@ num -- Number of equally-spaced points desired between start and end.
   for i in range(num-1):
     a.append(min + float(i)*delta)
   a.append(max)
-  return Numeric.array(a,'f')
+  return numpy.array(a,'f')
 
 def ftcurv(x,y,xo):
   """
@@ -1887,7 +1887,7 @@ xo -- A 1D array of length nxo containing the abscissae for the
     dsizes_x = x.shape[0]
   else:
     print \
-     "ftcurv: type of argument 1 must be one of: list, tuple, or Numeric array"
+     "ftcurv: type of argument 1 must be one of: list, tuple, or NumPy array"
     return None
   if is_list_or_tuple(y):
     dsizes_y = len(y)
@@ -1895,7 +1895,7 @@ xo -- A 1D array of length nxo containing the abscissae for the
     dsizes_y = y.shape[0]
   else:
     print \
-     "ftcurv: type of argument 2 must be one of: list, tuple, or Numeric array"
+     "ftcurv: type of argument 2 must be one of: list, tuple, or NumPy array"
     return None
   if (dsizes_x != dsizes_y):
     print "ftcurv: first and second arguments must be the same length."
@@ -1945,7 +1945,7 @@ xo -- A 1D array of length nxo containing the abscissae for the
     dsizes_x = x.shape[0]
   else:
     print \
-     "ftcurvp: type of argument 1 must be one of: list, tuple, or Numeric array"
+     "ftcurvp: type of argument 1 must be one of: list, tuple, or NumPy array"
     return None
   if is_list_or_tuple(y):
     dsizes_y = len(y)
@@ -1953,7 +1953,7 @@ xo -- A 1D array of length nxo containing the abscissae for the
     dsizes_y = y.shape[0]
   else:
     print \
-     "ftcurvp: type of argument 2 must be one of: list, tuple, or Numeric array"
+     "ftcurvp: type of argument 2 must be one of: list, tuple, or NumPy array"
     return None
   if (dsizes_x != dsizes_y):
     print "ftcurvp: first and second arguments must be the same length."
@@ -2004,7 +2004,7 @@ yi -- An array of any dimensionality, whose rightmost dimension is
     dsizes_x = x.shape[0]
   else:
     print \
-     "ftcurvpi: type of argument 4 must be one of: list, tuple, or Numeric array"
+     "ftcurvpi: type of argument 4 must be one of: list, tuple, or NumPy array"
     return None
   if is_list_or_tuple(y):
     dsizes_y = len(y)
@@ -2012,7 +2012,7 @@ yi -- An array of any dimensionality, whose rightmost dimension is
     dsizes_y = y.shape[0]
   else:
     print \
-     "ftcurvpi: type of argument 5 must be one of: list, tuple, or Numeric array"
+     "ftcurvpi: type of argument 5 must be one of: list, tuple, or NumPy array"
     return None
   if (dsizes_x != dsizes_y):
     print "ftcurvpi: fourth and fifth arguments must be the same length."
@@ -2022,7 +2022,7 @@ yi -- An array of any dimensionality, whose rightmost dimension is
 
 def gaus(n):
   """
-Computes gaussian latitudes and weights and returns a Numeric array
+Computes gaussian latitudes and weights and returns a NumPy array
 dimensioned 2*nlat-by-2.
 
 ginfo = Ngl.gaus(nlat)
@@ -2035,11 +2035,11 @@ nlat -- A scalar integer equal to the number of latitude points per
 def gc_convert(angle,ctype):
   """
 Converts degrees along a great circle to radians, meters, feet, or
-kilometers and returns a Numeric array of the same shape as angle.
+kilometers and returns a NumPy array of the same shape as angle.
 
 conv_vals = Ngl.gc_convert(angle, type)
 
-angle -- A one-dimensional Numeric array (or scalar value) of angles
+angle -- A one-dimensional NumPy array (or scalar value) of angles
          (in degrees).
 
 type -- A string (or integer) indicating the units you want to convert
@@ -2102,7 +2102,7 @@ def gc_interp(rlat1,rlon1,rlat2,rlon2,numi):
   """
 Interpolates points along a great circle between two specified points
 on the globe. The returned latitudes and longitudes are returned as
-Numeric arrays in degrees in the interval [0.,360) if npts is positive
+NumPy arrays in degrees in the interval [0.,360) if npts is positive
 and in the interval [-180.,180.) if npts is negative.
 
 lat,lon = Ngl.gc_interp(lat1, lon1, lat2, lon2, npts)
@@ -2119,8 +2119,8 @@ npts -- The number of equally-spaced points you want to interpolate to.
   if (abs(num) < 2):
     print "gc_interp: the number of points must be at least two."
   elif (num == 2):
-    lat = Numeric.array([rlat1,rlat2],'f')
-    lon = Numeric.array([rlon1,rlon2],'f')
+    lat = numpy.array([rlat1,rlat2],'f')
+    lon = numpy.array([rlon1,rlon2],'f')
     return [lat,lon]
   else:
     lat_tmp = numerpy_float0_zeros(num)
@@ -2164,36 +2164,36 @@ are given in degrees as lat/lon pairs.
 area = Ngl.gc_tarea(lat1, lon1, lat2, lon2, lat3, lon3, radius=1.)
 
 lat1, lon1 -- Latitude and longitude, in degrees, of the first vertex.
-              These can be scalars, lists, or Numeric arrays.
+              These can be scalars, lists, or NumPy arrays.
 
 lat2, lon2 -- Latitude and longitude, in degrees, of the second vertex.
-              These can be scalars, lists, or Numeric arrays.
+              These can be scalars, lists, or NumPy arrays.
 
 lat3, lon3 -- Latitude and longitude, in degrees, of the third vertex.
-              These can be scalars, lists, or Numeric arrays.
+              These can be scalars, lists, or NumPy arrays.
 
 radius     -- An optional argument specifying the radius of the sphere.
 
 The returned object is a scalar if the arguments are scalars,
-or a Numeric array of the same size as the input arrays otherwise.
+or a NumPy array of the same size as the input arrays otherwise.
 Any area returned is that bounded by the arcs of great circles
 connecting the vertices.
 
   """
   if (HAS_NUM == 2):
-    lat1t = Numeric.atleast_1d(Numeric.array(lat1)).astype(float)
-    lon1t = Numeric.atleast_1d(Numeric.array(lon1)).astype(float)
-    lat2t = Numeric.atleast_1d(Numeric.array(lat2)).astype(float)
-    lon2t = Numeric.atleast_1d(Numeric.array(lon2)).astype(float)
-    lat3t = Numeric.atleast_1d(Numeric.array(lat3)).astype(float)
-    lon3t = Numeric.atleast_1d(Numeric.array(lon3)).astype(float)
+    lat1t = numpy.atleast_1d(numpy.array(lat1)).astype(float)
+    lon1t = numpy.atleast_1d(numpy.array(lon1)).astype(float)
+    lat2t = numpy.atleast_1d(numpy.array(lat2)).astype(float)
+    lon2t = numpy.atleast_1d(numpy.array(lon2)).astype(float)
+    lat3t = numpy.atleast_1d(numpy.array(lat3)).astype(float)
+    lon3t = numpy.atleast_1d(numpy.array(lon3)).astype(float)
   else:
-    lat1t = Numeric.array(lat1)
-    lon1t = Numeric.array(lon1)
-    lat2t = Numeric.array(lat2)
-    lon2t = Numeric.array(lon2)
-    lat3t = Numeric.array(lat3)
-    lon3t = Numeric.array(lon3)
+    lat1t = numpy.array(lat1)
+    lon1t = numpy.array(lon1)
+    lat2t = numpy.array(lat2)
+    lon2t = numpy.array(lon2)
+    lat3t = numpy.array(lat3)
+    lon3t = numpy.array(lon3)
   
   rtn = numerpy_float_zeros(len(lat1t))
   pi  = 4.*math.atan(1.)
@@ -2227,21 +2227,21 @@ are given in degrees as lat/lon pairs.
 area = Ngl.gc_qarea(lat1, lon1, lat2, lon2, lat3, lon3, radius=1.)
 
 lat1, lon1 -- Latitude and longitude, in degrees, of the first vertex.
-              These can be scalars, lists, or Numeric arrays.
+              These can be scalars, lists, or NumPy arrays.
 
 lat2, lon2 -- Latitude and longitude, in degrees, of the second vertex.
-              These can be scalars, lists, or Numeric arrays.
+              These can be scalars, lists, or NumPy arrays.
 
 lat3, lon3 -- Latitude and longitude, in degrees, of the third vertex.
-              These can be scalars, lists, or Numeric arrays.
+              These can be scalars, lists, or NumPy arrays.
 
 lat4, lon4 -- Latitude and longitude, in degrees, of the fourth vertex.
-              These can be scalars, lists, or Numeric arrays.
+              These can be scalars, lists, or NumPy arrays.
 
 radius     -- An optional argument specifying the radius of the sphere.
 
 The returned spherical area is a scalar if the arguments are scalars
-or a Numeric array of the same size as the input arrays otherwise.
+or a NumPy array of the same size as the input arrays otherwise.
 The vertices must be entered in either clockwise or counter-clockwise order.
 A returned area is that bounded by arcs of great circles connecting
 the vertices.
@@ -2330,8 +2330,8 @@ highs_at -- an optional argument that is a list of coordinate
 #
   nx = int(dims[1])
   ny = int(dims[0])
-  out_array = Numeric.zeros([nx,ny],'f')
-  tmp_array = Numeric.zeros([3,51],'f')
+  out_array = numpy.zeros([nx,ny],'f')
+  tmp_array = numpy.zeros([3,51],'f')
   fovm = 9./float(nx)
   fovn = 9./float(ny)
   nlow = max(1,min(25,num_low))
@@ -2378,7 +2378,7 @@ highs_at -- an optional argument that is a list of coordinate
 
   del tmp_array
 
-  return Numeric.transpose(out_array,[1,0])
+  return numpy.transpose(out_array,[1,0])
 
 
 def get_double(obj,name):
@@ -2578,9 +2578,9 @@ s -- Saturation values in the range [0.,100.]. Saturation is a measure
     return rr,gr,br
   elif ( ( is_list(h) and  is_list(l) and  is_list(s)) or    \
          (is_tuple(h) and is_tuple(l) and is_tuple(s)) ):
-    hi = Numeric.array(h,'f')
-    li = Numeric.array(l,'f')
-    si = Numeric.array(s,'f')
+    hi = numpy.array(h,'f')
+    li = numpy.array(l,'f')
+    si = numpy.array(s,'f')
     ishape = hi.shape
     if (HAS_NUM == 1):
       dimc = len(hi.flat)
@@ -2638,9 +2638,9 @@ v -- Values for the value component in the range [0.,1.].
     return rr,gr,br
   elif ( ( is_list(h) and  is_list(s) and  is_list(v)) or    \
          (is_tuple(h) and is_tuple(s) and is_tuple(v)) ):
-    hi = Numeric.array(h,'f')
-    si = Numeric.array(s,'f')
-    vi = Numeric.array(v,'f')
+    hi = numpy.array(h,'f')
+    si = numpy.array(s,'f')
+    vi = numpy.array(v,'f')
     ishape = hi.shape
     if (HAS_NUM == 1):
       dimc = len(hi.flat)
@@ -2669,7 +2669,7 @@ Returns the integer indices of a Python list where the list values are true.
 
 tindex = Ngl.ind(plist)
 
-plist -- A Python list, tuple, or one-dimensional Numeric array.
+plist -- A Python list, tuple, or one-dimensional NumPy array.
   """
   inds = []
   for i in xrange(len(seq)):
@@ -2845,9 +2845,9 @@ cmap2 -- A second n x 3 array of RGB triplets, or a predefined colormap name.
 #
 
   if (HAS_NUM == 1):
-    new_cmap = Numeric.zeros((ncmap1+ncmap2,3),rgb_cmap1.typecode())
+    new_cmap = numpy.zeros((ncmap1+ncmap2,3),rgb_cmap1.typecode())
   elif (HAS_NUM == 2):
-    new_cmap = Numeric.zeros((ncmap1+ncmap2,3),rgb_cmap1.dtype.char)
+    new_cmap = numpy.zeros((ncmap1+ncmap2,3),rgb_cmap1.dtype.char)
 
   new_cmap[:ncmap1,:] = rgb_cmap1
   new_cmap[ncmap1:,:] = rgb_cmap2
@@ -2866,10 +2866,10 @@ x, y -- One-dimensional arrays of the X and Y coordinate points of the
         input data.
 
 z -- The one-dimensional input data to be interpolated, of the same
-     length as x and y. Can be a Numeric float array or a Python list
+     length as x and y. Can be a NumPy float array or a Python list
      or tuple.
 
-xo, yo -- One-dimensional Numeric float arrays or Python lists (of
+xo, yo -- One-dimensional NumPy float arrays or Python lists (of
           length numxout and numyout) containing the coordinate points
           of the output data grid.
   """
@@ -2879,7 +2879,7 @@ xo, yo -- One-dimensional Numeric float arrays or Python lists (of
     dsizes_x = x.shape[0]
   else:
     print \
-     "natgrid: type of argument 1 must be one of: list, tuple, or Numeric array"
+     "natgrid: type of argument 1 must be one of: list, tuple, or NumPy array"
     return None
 
   if is_list_or_tuple(xo):
@@ -2888,7 +2888,7 @@ xo, yo -- One-dimensional Numeric float arrays or Python lists (of
     dsizes_xo = xo.shape[0]
   else:
     print \
-     "natgrid: type of argument 4 must be one of: list, tuple, or Numeric array"
+     "natgrid: type of argument 4 must be one of: list, tuple, or NumPy array"
     return None
 
   if is_list_or_tuple(yo):
@@ -2897,7 +2897,7 @@ xo, yo -- One-dimensional Numeric float arrays or Python lists (of
     dsizes_yo = yo.shape[0]
   else:
     print \
-     "natgrid: type of argument 5 must be one of: list, tuple, or Numeric array"
+     "natgrid: type of argument 5 must be one of: list, tuple, or NumPy array"
     return None
 
   ier,zo = \
@@ -3219,7 +3219,7 @@ res -- An optional instance of the Resources class having Workstation
 #  Type of the elements of the color map must be array and not list.
 #
     if type(rlist["wkColorMap"][0]) == type([0]):
-      print "opn_wks: lists of triplets for color tables must be Numeric arrays"
+      print "opn_wks: lists of triplets for color tables must be NumPy arrays"
       return None
 
 #
@@ -3345,7 +3345,7 @@ wks -- The identifier returned from calling Ngl.open_wks.
 
 plot -- The id of the plot on which you want to draw the polygon
 
-x, y -- One-dimensional Numeric arrays or Python lists containing the
+x, y -- One-dimensional NumPy arrays or Python lists containing the
         x, y coordinates of the polygon, which must be in the same 
         coordinate space as the plot.
 
@@ -3362,7 +3362,7 @@ Ngl.polygon_ndc(wks, x, y, res=None)
 
 wks -- The identifier returned from calling Ngl.open_wks.
 
-x, y -- One-dimensional Numeric arrays or Python lists containing the
+x, y -- One-dimensional NumPy arrays or Python lists containing the
         x, y NDC coordinates (values from 0 to 1) of the polygon.
 
 res -- An optional instance of the Resources class having
@@ -3380,7 +3380,7 @@ wks -- The identifier returned from calling Ngl.open_wks.
 
 plot -- The id of the plot on which you want to draw the polylines.
 
-x, y -- One-dimensional Numeric arrays or Python lists containing the
+x, y -- One-dimensional NumPy arrays or Python lists containing the
         x, y coordinates of the polylines, which must be in the same 
         coordinate space as the plot.
 
@@ -3397,7 +3397,7 @@ Ngl.polyline_ndc(wks, x, y, res=None)
 
 wks -- The identifier returned from calling Ngl.open_wks.
 
-x, y -- One-dimensional Numeric arrays or Python lists containing the
+x, y -- One-dimensional NumPy arrays or Python lists containing the
         x, y NDC coordinates (values from 0 to 1) of the polylines.
 
 res -- An optional instance of the Resources class having
@@ -3415,7 +3415,7 @@ wks -- The identifier returned from calling Ngl.open_wks.
 
 plot -- The id of the plot on which you want to draw the polymarkers.
 
-x, y -- One-dimensional Numeric arrays or Python lists containing the
+x, y -- One-dimensional NumPy arrays or Python lists containing the
         x, y coordinates of the polymarkers, which must be in the same 
         coordinate space as the plot.
 
@@ -3432,7 +3432,7 @@ Ngl.polymarker_ndc(wks, x, y, res=None)
 
 wks -- The identifier returned from calling Ngl.open_wks.
 
-x, y -- One-dimensional Numeric arrays or Python lists containing the
+x, y -- One-dimensional NumPy arrays or Python lists containing the
         x, y NDC coordinates (values from 0 to 1) of the polymarkers.
 
 res -- An optional instance of the Resources class having
@@ -3575,7 +3575,7 @@ restore -- An optional logical value. If True and the member plot
 def retrieve_colormap(wks):
   """
 Retrieves the current color map associated with the given workstation
-and returns a 2-dimensional Numeric array of RGB values.
+and returns a 2-dimensional NumPy array of RGB values.
 
 cmap = Ngl.retrieve_colormap(wks)
 
@@ -3632,9 +3632,9 @@ s -- The saturation value of the input point in HLS color space in the
     return hr,lr,sr
   elif ( ( is_list(r) and  is_list(g) and  is_list(b)) or    \
          (is_tuple(r) and is_tuple(g) and is_tuple(b)) ):
-    ri = Numeric.array(r,'f')
-    gi = Numeric.array(g,'f')
-    bi = Numeric.array(b,'f')
+    ri = numpy.array(r,'f')
+    gi = numpy.array(g,'f')
+    bi = numpy.array(b,'f')
     ishape = ri.shape
     if (HAS_NUM == 1):
       dimc = len(ri.flat)
@@ -3702,9 +3702,9 @@ v -- The value in HSV space, in the range [0.,1.].
     return hr,sr,vr
   elif ( ( is_list(r) and  is_list(g) and  is_list(b)) or    \
          (is_tuple(r) and is_tuple(g) and is_tuple(b)) ):
-    ri = Numeric.array(r,'f')
-    gi = Numeric.array(g,'f')
-    bi = Numeric.array(b,'f')
+    ri = numpy.array(r,'f')
+    gi = numpy.array(g,'f')
+    bi = numpy.array(b,'f')
     ishape = ri.shape
     if (HAS_NUM == 1):
       dimc = len(ri.flat)
@@ -3743,7 +3743,7 @@ q -- Q component (chrominance purple-green) values in the range
      [-0.52, 0.52].
   """
 #
-#  Check if input is a Numeric array, scalar, list, or tuple.
+#  Check if input is a NumPy array, scalar, list, or tuple.
 #
   if (is_scalar(r) and is_scalar(g) and is_scalar(b)):
     return(c_rgbyiq(r,g,b))
@@ -3766,9 +3766,9 @@ q -- Q component (chrominance purple-green) values in the range
     return yr,ir,qr
   elif ( ( is_list(r) and  is_list(g) and  is_list(b)) or    \
          (is_tuple(r) and is_tuple(g) and is_tuple(b)) ):
-    ri = Numeric.array(r,'f')
-    gi = Numeric.array(g,'f')
-    bi = Numeric.array(b,'f')
+    ri = numpy.array(r,'f')
+    gi = numpy.array(g,'f')
+    bi = numpy.array(b,'f')
     ishape = ri.shape
     if (HAS_NUM == 1):
       dimc = len(ri.flat)
@@ -3947,20 +3947,20 @@ res -- A required instance of the Resources class having special
 #  Declare isotherm values (Celcius) and pressures (hPa) where 
 #  isotherms intersect the edge of the skew-t diagram.
 #
-  temp = Numeric.array(                                         \
-          [                                                     \
-           -100.,-90.,-80.,-70.,-60.,-50.,-40.,-30.,            \
-            -20.,-10.,  0., 10., 20., 30., 40., 50.             \
+  temp = numpy.array(                                         \
+        [                                                     \
+           -100.,-90.,-80.,-70.,-60.,-50.,-40.,-30.,          \
+            -20.,-10.,  0., 10., 20., 30., 40., 50.           \
           ],'f')
-  lendt = Numeric.array(                                        \
-          [                                                     \
-            132., 181., 247., 337., 459., 625., 855.,1050.,     \
-           1050.,1050.,1050.,1050.,1050.,1050.,1050.,1050.      \
+  lendt = numpy.array(                                        \
+          [                                                   \
+            132., 181., 247., 337., 459., 625., 855.,1050.,   \
+           1050.,1050.,1050.,1050.,1050.,1050.,1050.,1050.    \
           ],'f')
-  rendt = Numeric.array(                                        \
-          [                                                     \
-            100., 100., 100., 100., 100., 100., 100., 135.,     \
-            185., 251., 342., 430., 500., 580., 730., 993.      \
+  rendt = numpy.array(                                        \
+          [                                                   \
+            100., 100., 100., 100., 100., 100., 100., 135.,   \
+            185., 251., 342., 430., 500., 580., 730., 993.    \
           ],'f')
           
   ntemp = len(temp)
@@ -3973,17 +3973,17 @@ res -- A required instance of the Resources class having special
 #  in the transform functions listed at the beginning of this program.
 #  Refer to a skew-t diagram for reference if necessary.
 #
-  pres = Numeric.array(                              \
+  pres = numpy.array(                                \
          [                                           \
           1050., 1000.,  850.,  700.,  500.,  400.,  \
            300.,  250.,  200.,  150.,  100.          \
          ],'f')
-  xpl  = Numeric.array(                              \
+  xpl  = numpy.array(                                \
          [                                           \
           -19.0, -19.0, -19.0, -19.0, -19.0, -19.0,  \
           -19.0, -19.0, -19.0, -19.0, -19.0          \
          ],'f')
-  xpr  = Numeric.array(                              \
+  xpr  = numpy.array(                                \
          [                                           \
            27.10, 27.10, 27.10, 27.10, 22.83, 18.60, \
            18.60, 18.60, 18.60, 18.60, 18.60         \
@@ -3997,19 +3997,19 @@ res -- A required instance of the Resources class having special
 #  intersect the edge of the skew-t diagram.  Refer to a 
 #  skew-t diagram if necessary.
 #
-  theta  = Numeric.array(                              \
+  theta  = numpy.array(                                \
            [                                           \
             -30., -20., -10.,   0.,  10.,  20.,  30.,  \
              40.,  50.,  60.,  70.,  80.,  90., 100.,  \
             110., 120., 130., 140., 150., 160., 170.   \
            ],'f')
-  lendth = Numeric.array(                              \
+  lendth = numpy.array(                                \
            [                                           \
             880., 670., 512., 388., 292., 220., 163.,  \
             119., 100., 100., 100., 100., 100., 100.,  \
             100., 100., 100., 100., 100., 100., 100.   \
            ],'f')
-  rendth = Numeric.array(                                    \
+  rendth = numpy.array(                                      \
            [                                                 \
             1050., 1050., 1050., 1050., 1050., 1050., 1050., \
             1050., 1003.,  852.,  728.,  618.,  395.,  334., \
@@ -4023,11 +4023,11 @@ res -- A required instance of the Resources class having special
 #  Declare moist adiabat values and pressures of the tops of the
 #  moist adiabats.  All moist adiabats to be plotted begin at 1050 mb.
 #
-  pseudo = Numeric.array(                               \
+  pseudo = numpy.array(                                 \
            [                                            \
               32., 28., 24., 20., 16., 12.,  8.         \
            ],'f')
-  lendps = Numeric.array(                               \
+  lendps = numpy.array(                                 \
            [                                            \
               250., 250., 250., 250., 250., 250., 250.  \
            ],'f')
@@ -4037,7 +4037,7 @@ res -- A required instance of the Resources class having special
 #  Declare mixing ratio lines.  All mixing ratio lines will begin
 #  at 1050 mb and end at 400 mb.
 #
-  mixrat = Numeric.array(                      \
+  mixrat = numpy.array(                        \
            [                                   \
               20., 12., 8., 5., 3., 2., 1.     \
            ],'f')
@@ -4068,11 +4068,11 @@ res -- A required instance of the Resources class having special
 #
 #  Specify arrays to hold corners of the diagram in x,y space.
 #
-  xc = Numeric.array(                               \
+  xc = numpy.array(                                 \
        [                                            \
           xmin, xmin, xmax, xmax, 18.60, 18.6, xmin \
        ],'f')
-  yc = Numeric.array(                               \
+  yc = numpy.array(                                 \
        [                                            \
           ymin, ymax, ymax,  9.0, 17.53, ymin, ymin \
        ],'f')
@@ -4087,14 +4087,14 @@ res -- A required instance of the Resources class having special
 #
 #  U.S. Standard ATmosphere (km), source: Hess/Riegel.
 #
-    zsa = Numeric.array(range(0,17),'f')
-    psa = Numeric.array(                                     \
+    zsa = numpy.array(range(0,17),'f')
+    psa = numpy.array(                                       \
           [                                                  \
            1013.25, 898.71, 794.90, 700.99, 616.29, 540.07,  \
             471.65, 410.46, 355.82, 307.24, 264.19, 226.31,  \
             193.93, 165.33, 141.35, 120.86, 103.30
           ],'f')
-    tsa = Numeric.array(                                     \
+    tsa = numpy.array(                                       \
           [                                                  \
               15.0,   8.5,    2.0,   -4.5,  -11.0,  -17.5,   \
              -24.0, -30.5,  -37.0,  -43.5,  -50.0,  -56.5,   \
@@ -4125,10 +4125,10 @@ res -- A required instance of the Resources class having special
 #
 
   if (localOpts.sktDrawFahrenheit):
-    tf = Numeric.array(range(-20,110,20),'i')           # deg F
+    tf = numpy.array(range(-20,110,20),'i')             # deg F
     tc = 0.55555 * (tf - 32.)                           # deg C
   else:
-    tc = Numeric.array(range(-30,50,10),'f')
+    tc = numpy.array(range(-30,50,10),'f')
 
 #
 #  Don't draw the plot or advance the frame in the call to xy.
@@ -4243,9 +4243,9 @@ res -- A required instance of the Resources class having special
     xyOpts.tmYRMinorOn             = False       # No minor tick marks.
     xyOpts.tmYRMode                = "Explicit"  # Define tick mark labels.
 
-    zkm = Numeric.array(range(0,17),'f')
+    zkm = numpy.array(range(0,17),'f')
     pkm = ftcurv(zsa, psa, zkm)
-    zft = Numeric.array(                                  \
+    zft = numpy.array(                                    \
           [                                               \
              0.,  2.,  4.,  6.,  8., 10., 12., 14., 16.,  \
             18., 20., 25., 30., 35., 40., 45., 50.        \
@@ -4319,31 +4319,31 @@ res -- A required instance of the Resources class having special
 #
       if (temp[i] == -40.):
         nx = 5
-        sy[0:nx+1] = Numeric.array(                               \
+        sy[0:nx+1] = numpy.array(                                 \
                      [                                            \
                        2.9966, ymax, ymax, 38.317, ymin, ymin     \
                      ],'f')
-        sx[0:nx+1] = Numeric.array(                               \
+        sx[0:nx+1] = numpy.array(                                 \
                      [                                            \
                        xmin, xmin, -17.0476, 18.60, 18.60, 18.359 \
                      ],'f')
       if (temp[i] ==   0.):
         nx = 4
-        sy[0:nx+1] = Numeric.array(                               \
+        sy[0:nx+1] = numpy.array(                                 \
                      [                                            \
                         ymax, ymax, 16.148, 17.53, 20.53          \
                      ],'f')
-        sx[0:nx+1] = Numeric.array(                               \
+        sx[0:nx+1] = numpy.array(                                 \
                      [                                            \
                        -0.8476, 4.5523, 20.045, 18.60, 18.60      \
                      ],'f')
       if (temp[i] == 30.):
         nx = 4
-        sy[0:nx+1] = Numeric.array(                               \
+        sy[0:nx+1] = numpy.array(                                 \
                      [                                            \
                        ymax, ymax, 6.021, 9.0, 10.422             \
                      ],'f')
-        sx[0:nx+1] = Numeric.array(                               \
+        sx[0:nx+1] = numpy.array(                                 \
                      [                                            \
                        15.3523 , 20.7523 , 27.0974, 27.0974, 25.6525  \
                      ],'f')
@@ -4352,11 +4352,11 @@ res -- A required instance of the Resources class having special
 #  Upper left triangle.
 #
     gsOpts.gsFillColor = color2
-    sy[0:3] = Numeric.array(              \
+    sy[0:3] = numpy.array(                \
                  [                        \
                    ymin, ymin, 38.747     \
                  ],'f')
-    sx[0:3] = Numeric.array(              \
+    sx[0:3] = numpy.array(                \
                  [                        \
                    -14.04, -18.955, -18.955 \
                  ],'f')
@@ -4365,11 +4365,11 @@ res -- A required instance of the Resources class having special
 #  Lower right triangle.
 #
     gsOpts.gsFillColor = color2
-    sy[0:3] = Numeric.array(              \
+    sy[0:3] = numpy.array(                \
                  [                        \
                    ymax, 0.1334, ymax     \
                  ],'f')
-    sx[0:3] = Numeric.array(              \
+    sx[0:3] = numpy.array(                \
                  [                        \
                    xmax, xmax, 26.1523    \
                  ],'f')
@@ -4585,13 +4585,13 @@ res -- A required instance of the Resources class having special
       xWind         = skewtx (45. , skewty(presWind[0])) 
       sx[0:npres] = xWind            # "x" location of wind plot
       try:
-        sy[0:npres] = skewty(presWind).astype(Numeric.Float0)
+        sy[0:npres] = skewty(presWind).astype(numpy.Float0)
       except:
-        sy[0:npres] = skewty(presWind).astype(Numeric.float)
+        sy[0:npres] = skewty(presWind).astype(numpy.float)
       polyline   (wks, xyplot, sx[0:npres], sy[0:npres], gsOpts)
       polymarker (wks, xyplot, sx[1:npres], sy[1:npres], gsOpts)
                                      # zwind => Pibal reports
-      zftWind = Numeric.array(                                    \
+      zftWind = numpy.array(                                      \
                               [0.,  1.,  2.,  3.,  4.,  5.,  6.,  \
                                7.,  8.,  9., 10., 12., 14., 16.,  \
                               18., 20., 25., 30., 35., 40., 45.,  \
@@ -4602,9 +4602,9 @@ res -- A required instance of the Resources class having special
 
       sx[0:nzkmW]  = xWind              # "x" location of wind plot
       try:
-        sy[0:nzkmW]  = skewty(pkmWind).astype(Numeric.Float0)
+        sy[0:nzkmW]  = skewty(pkmWind).astype(numpy.Float0)
       except:
-        sy[0:nzkmW]  = skewty(pkmWind).astype(Numeric.float)
+        sy[0:nzkmW]  = skewty(pkmWind).astype(numpy.float)
 
       gsOpts.gsMarkerIndex      = 16     # "circle_filled" -> Pibal
       gsOpts.gsMarkerSizeF      = 0.0035 # 0.007 is default
@@ -4702,15 +4702,15 @@ dataOpts -- An optional instance of the Resources class having
   else:
     Hmissing = -999.
 
-  mv0 = Numeric.logical_and(Numeric.logical_not(ismissing( P,Pmissing)),   \
-                            Numeric.logical_not(ismissing(TC,TCmissing)))
-  mv1 = Numeric.logical_and(mv0,Numeric.logical_not(ismissing(TDC,TDCmissing)))
-  mv2 = Numeric.logical_and(mv1,Numeric.greater_equal(P,100.))
+  mv0 = numpy.logical_and(numpy.logical_not(ismissing( P,Pmissing)),   \
+                          numpy.logical_not(ismissing(TC,TCmissing)))
+  mv1 = numpy.logical_and(mv0,numpy.logical_not(ismissing(TDC,TDCmissing)))
+  mv2 = numpy.logical_and(mv1,numpy.greater_equal(P,100.))
   idx = ind(mv2)
   del mv0,mv1,mv2
-  p   = Numeric.take(  P,idx)
-  tc  = Numeric.take( TC,idx)
-  tdc = Numeric.take(TDC,idx)
+  p   = numpy.take(  P,idx)
+  tc  = numpy.take( TC,idx)
+  tdc = numpy.take(TDC,idx)
 
 #
 #  Local options describing data and ploting.
@@ -4903,7 +4903,7 @@ dataOpts -- An optional instance of the Resources class having
 #
 #  Levels at which Z is printed.
 #
-    Pprint = Numeric.array(                                 \
+    Pprint = numpy.array(                                   \
                            [1000., 850., 700., 500., 400.,  \
                              300., 250., 200., 150., 100.   \
                            ],'f')
@@ -4912,9 +4912,9 @@ dataOpts -- An optional instance of the Resources class having
     xz = skewtx(-30., yz)        # constant "x"
     for nl in range(len(P)):
 
-     if ( Numeric.logical_not(ismissing(P[nl],Pmissing)) and   \
-          Numeric.logical_not(ismissing(Z[nl],Zmissing)) and   \
-          Numeric.sometrue(Numeric.equal(Pprint,P[nl])) ):
+     if ( numpy.logical_not(ismissing(P[nl],Pmissing)) and   \
+          numpy.logical_not(ismissing(Z[nl],Zmissing)) and   \
+          numpy.sometrue(numpy.equal(Pprint,P[nl])) ):
        yz  = skewty(P[nl])
        text(wks, skewt_bkgd, str(int(Z[nl])), xz, yz, txOpts)
     del txOpts
@@ -4927,15 +4927,15 @@ dataOpts -- An optional instance of the Resources class having
 #  Check if WSPD has a missing value attribute specified and
 #  that not all WSPD values are missing values.
 #
-    if (Numeric.logical_not(Numeric.alltrue(ismissing(WSPD,WSPDmissing)))):
+    if (numpy.logical_not(numpy.alltrue(ismissing(WSPD,WSPDmissing)))):
 #
 #  IDW - indices where P/WSPD/WDIR are all not missing.
 #
-      mv0 = Numeric.logical_and(Numeric.logical_not(ismissing(P,Pmissing)), \
-                     Numeric.logical_not(ismissing(WSPD,WSPDmissing)))
-      mv1 = Numeric.logical_and(mv0,  \
-                     Numeric.logical_not(ismissing(WDIR,WDIRmissing)))
-      mv2 = Numeric.logical_and(mv1,Numeric.greater_equal(P,100.))
+      mv0 = numpy.logical_and(numpy.logical_not(ismissing(P,Pmissing)), \
+            numpy.logical_not(ismissing(WSPD,WSPDmissing)))
+      mv1 = numpy.logical_and(mv0,  \
+            numpy.logical_not(ismissing(WDIR,WDIRmissing)))
+      mv2 = numpy.logical_and(mv1,numpy.greater_equal(P,100.))
       IDW = ind(mv2)
       if (hasattr(localOpts,"sktWthin") and localOpts.sktWthin > 1):
         nThin = localOpts.sktWthin
@@ -4943,7 +4943,7 @@ dataOpts -- An optional instance of the Resources class having
       else:
         idw   = IDW
 
-      pw  = Numeric.take(P,idw)
+      pw  = numpy.take(P,idw)
 
       wmsetp("wdf", 1)         # meteorological dir (Sep 2001)
 
@@ -4951,18 +4951,18 @@ dataOpts -- An optional instance of the Resources class having
 #  Wind speed and direction.
 #
       if (localOpts.sktWspdWdir):
-        dirw = 0.017453 * Numeric.take(WDIR,idw)
+        dirw = 0.017453 * numpy.take(WDIR,idw)
 
-        up   = -Numeric.take(WSPD,idw) * Numeric.sin(dirw)
-        vp   = -Numeric.take(WSPD,idw) * Numeric.cos(dirw)
+        up   = -numpy.take(WSPD,idw) * numpy.sin(dirw)
+        vp   = -numpy.take(WSPD,idw) * numpy.cos(dirw)
       else:
-        up   = Numeric.take(WSPD,idw)      # must be u,v components
-        vp   = Numeric.take(WDIR,idw)
+        up   = numpy.take(WSPD,idw)      # must be u,v components
+        vp   = numpy.take(WDIR,idw)
 
       wbcol = wmgetp("col")                # get current wbarb color
       wmsetp("col",get_named_color_index(wks,sktcolWindP)) # set new color
       ypWind = skewty(pw)
-      xpWind = Numeric.ones(len(pw),'f')
+      xpWind = numpy.ones(len(pw),'f')
 #
 #  Location of wind barb.
 #
@@ -4970,19 +4970,19 @@ dataOpts -- An optional instance of the Resources class having
       wmbarb(wks, xpWind, ypWind, up, vp)
       wmsetp("col",wbcol)               # restore initial color.
 
-      mv0 = Numeric.logical_and(Numeric.logical_not(ismissing( Z,Zmissing)), \
-                      Numeric.logical_not(ismissing(WSPD,WSPDmissing)))
-      mv1 = Numeric.logical_and(mv0, \
-                      Numeric.logical_not(ismissing(WDIR,WDIRmissing)))
-      mv2 = Numeric.logical_and(mv1,ismissing(P,Pmissing))
+      mv0 = numpy.logical_and(numpy.logical_not(ismissing( Z,Zmissing)), \
+            numpy.logical_not(ismissing(WSPD,WSPDmissing)))
+      mv1 = numpy.logical_and(mv0, \
+            numpy.logical_not(ismissing(WDIR,WDIRmissing)))
+      mv2 = numpy.logical_and(mv1,ismissing(P,Pmissing))
       idz = ind(mv2)
 
       if (len(idz) > 0):
-        zw  = Numeric.take(Z,idz)
+        zw  = numpy.take(Z,idz)
         if (localOpts.sktWspdWdir):          # wind spd,dir (?)
-          dirz = 0.017453 * Numeric.take(WDIR,idz)
-          uz   = -Numeric.take(WSPD,idz) * Numeric.sin(dirz)
-          vz   = -Numeric.take(WSPD,idz) * Numeric.cos(dirz)
+          dirz = 0.017453 * numpy.take(WDIR,idz)
+          uz   = -numpy.take(WSPD,idz) * numpy.sin(dirz)
+          vz   = -numpy.take(WSPD,idz) * numpy.cos(dirz)
         else:
           uz   = WSPD(idz)              # must be u,v components
           vz   = WDIR(idz)
@@ -4990,18 +4990,18 @@ dataOpts -- An optional instance of the Resources class having
 #
 #  idzp flags where Z and P have non-missing values.
 #
-        mv0  = Numeric.logical_not(ismissing(P,Pmissing))
-        mv1  = Numeric.logical_not(ismissing(Z,Zmissing))
-        mv2  = Numeric.logical_and(mv0,mv1)
+        mv0  = numpy.logical_not(ismissing(P,Pmissing))
+        mv1  = numpy.logical_not(ismissing(Z,Zmissing))
+        mv2  = numpy.logical_and(mv0,mv1)
         idzp = ind(mv2)
-        Zv   = Numeric.take(Z,idzp)
-        Pv   = Numeric.take(P,idzp)
+        Zv   = numpy.take(Z,idzp)
+        Pv   = numpy.take(P,idzp)
         pz   = ftcurv(Zv,Pv,zw)               # map zw to p levels.
 
         wbcol = wmgetp("col")
         wmsetp("col",get_named_color_index(wks,sktcolWindZ)) 
         yzWind = skewty(pz)
-        xzWind = Numeric.ones(len(pz),'f')
+        xzWind = numpy.ones(len(pz),'f')
         xzWind = skewtx(45., skewty(1013.)) * xzWind
  
         wmbarb(wks, xzWind, yzWind, uz, vz )
@@ -5017,30 +5017,30 @@ dataOpts -- An optional instance of the Resources class having
       dimHspd   = len(localOpts.sktHspd  )
       dimHdir   = len(localOpts.sktHdir  )
       if (dimHeight == dimHspd and dimHeight == dimHdir and \
-          Numeric.logical_not(Numeric.alltrue(ismissing(localOpts.sktHeight,Hmissing)))):
+          numpy.logical_not(numpy.alltrue(ismissing(localOpts.sktHeight,Hmissing)))):
         if (localOpts.sktHspdHdir):
           dirh = 0.017453 * localOpts.sktHdir
-          uh   = -localOpts.sktHspd * Numeric.sin(dirh)
-          vh   = -localOpts.sktHspd * Numeric.cos(dirh)
+          uh   = -localOpts.sktHspd * numpy.sin(dirh)
+          vh   = -localOpts.sktHspd * numpy.cos(dirh)
         else:
           uh   = localOpts.sktHspd
           vh   = localOpts.sktHdir
 
-        mv0  = Numeric.logical_not(ismissing(P,Pmissing))
-        mv1  = Numeric.logical_not(ismissing(Z,Zmissing))
-        mv2  = Numeric.logical_and(mv0,mv1)
+        mv0  = numpy.logical_not(ismissing(P,Pmissing))
+        mv1  = numpy.logical_not(ismissing(Z,Zmissing))
+        mv2  = numpy.logical_and(mv0,mv1)
         idzp = ind(mv2)
-        Zv   = Numeric.take(Z,idzp)
+        Zv   = numpy.take(Z,idzp)
         if (len(Zv) == 0):
           print "Warning - skewt_plt: attempt to plot wind barbs at specified heights when there are no coordinates where pressure and geopotential are both defined."
         else:
-          Pv   = Numeric.take(P,idzp)
+          Pv   = numpy.take(P,idzp)
           ph   = ftcurv(Zv,Pv,localOpts.sktHeight)
           wbcol = wmgetp("col")             # get current color index
           wmsetp("col",get_named_color_index(wks,sktcolWindH)) # set new color
   
           yhWind = skewty(ph)
-          xhWind = Numeric.ones(len(ph),'f')
+          xhWind = numpy.ones(len(ph),'f')
           xhWind = skewtx(45., skewty(1013.)) * xhWind
           if (yhWind != None and xhWind != None):
             wmbarb(wks, xhWind, yhWind, uh, vh )
@@ -5327,7 +5327,7 @@ wks -- The identifier returned from calling Ngl.open_wks.
 
 text -- An array of text strings.
 
-x, y -- Scalars, one-dimensional Numeric arrays, or Python lists
+x, y -- Scalars, one-dimensional NumPy arrays, or Python lists
         containing the x, y NDC coordinates (values from 0 to 1) of
         the text strings.
 
@@ -5599,33 +5599,33 @@ res -- An optional instance of the Resources class having PyNGL
 def vinth2p (dati, hbcofa, hbcofb, plevo, psfc, intyp, p0, ii, kxtrp):     
   """
 Interpolates CCSM hybrid coordinates to pressure coordinates.  A
-multi-dimensional Numeric array of the same shape as datai is
+multi-dimensional NumPy array of the same shape as datai is
 returned, except that the input level coordinate is replaced by
 plevo.
 
 array = Ngl.vinth2p(datai, hbcofa, hbcofb, plevo, psfc, intyp, p0, ii,
                     kxtrp)
 
-datai -- A Numeric array of 3 or 4 dimensions. This array needs to
+datai -- A NumPy array of 3 or 4 dimensions. This array needs to
          contain a level dimension in hybrid coordinates. The order of
          the dimensions is specific. The three rightmost dimensions
          must be level x lat x lon [e.g. TS(time,lev,lat,lon)]. The
          order of the level dimension must be top-to-bottom.
 
-hbcofa -- A one-dimensional Numeric array or Python list containing
+hbcofa -- A one-dimensional NumPy array or Python list containing
           the hybrid A coefficients. Must have the same dimension as
           the level dimension of datai. The order must be
           top-to-bottom.
 
-hbcofb -- A one-dimensional Numeric array or Python list containing
+hbcofb -- A one-dimensional NumPy array or Python list containing
           the hybrid B coefficients. Must have the same dimension as
           the level dimension of datai. The order must be
           top-to-bottom.
 
-plevo -- A one-dimensional Numeric array of output pressure levels in
+plevo -- A one-dimensional NumPy array of output pressure levels in
          mb.
 
-psfc -- A multi-dimensional Numeric array of surface pressures in
+psfc -- A multi-dimensional NumPy array of surface pressures in
         Pa. Must have the same dimension sizes as the corresponding
         dimensions of datai.
 
@@ -5664,11 +5664,11 @@ kxtrp -- A logical value. If False, then no extrapolation is done when
     if (                                                                    \
          (                                                                  \
            (HAS_NUM == 1) and                                               \
-           (type(dati[0,0,0,0]) == type(Numeric.array([0.],Numeric.Float))) \
+           (type(dati[0,0,0,0]) == type(numpy.array([0.],numpy.Float)))     \
          ) or                                                               \
          (                                                                  \
            (HAS_NUM == 2) and                                               \
-           (type(dati) == type(Numeric.array([0.],Numeric.float)))          \
+           (type(dati) == type(numpy.array([0.],numpy.float)))              \
          )                                                                  \
        ):
 
@@ -5684,7 +5684,7 @@ kxtrp -- A logical value. If False, then no extrapolation is done when
                               dati.shape[3]])
       plevi  = numerpy_float_zeros(dati.shape[1]+1)
     else:
-      print "vinth2p: input data must be a Numeric array"
+      print "vinth2p: input data must be a NumPy array"
       return None
     for i in xrange(dati.shape[0]):
       ar_out[i,:,:,:] = NglVinth2p (dati[i,:,:,:], len(plevo),              \
@@ -5704,10 +5704,10 @@ Ngl.wmbarb(wks, x, y, dx, dy)
 
 wks -- The identifier returned from calling Ngl.open_wks.
 
-x, y -- Scalars, one-dimensional Numeric arrays or Python lists
+x, y -- Scalars, one-dimensional NumPy arrays or Python lists
         specifying X and Y coordinate values.
 
-dx, dy -- Scalars, one-dimensional Numeric arrays or Python lists
+dx, dy -- Scalars, one-dimensional NumPy arrays or Python lists
           specifying X and Y components of wind vectors at the
           associated (x,y) coordinates.
   """
@@ -5718,17 +5718,17 @@ dx, dy -- Scalars, one-dimensional Numeric arrays or Python lists
 
 #
 #  Process depending on whether we have scalar coordinates,
-#  Numeric arrays, or Python lists or tuples.
+#  NumPy arrays, or Python lists or tuples.
 #
-  t = type(Numeric.array([0],'i'))
+  t = type(numpy.array([0],'i'))
   if (type(x) == t):
     if ( (type(y) != t) or (type(u) != t) or (type(v) != t)):
-      print "wmbarb: If any argument is a Numeric array, they must all be."
+      print "wmbarb: If any argument is a NumPy array, they must all be."
       return 1
-    rx = Numeric.ravel(x)
-    ry = Numeric.ravel(y)
-    ru = Numeric.ravel(u)
-    rv = Numeric.ravel(v)
+    rx = numpy.ravel(x)
+    ry = numpy.ravel(y)
+    ru = numpy.ravel(u)
+    rv = numpy.ravel(v)
     for i in range(len(rx)):
       c_wmbarbp(gksid,rx[i],ry[i],ru[i],rv[i])
   elif(type(x) == types.ListType):
@@ -5758,11 +5758,11 @@ Ngl.wmbarbmap(wks, lat, lon, u, v)
 
 wks -- The identifier returned from calling Ngl.open_wks.
 
-lat, lon -- Scalars, one-dimensional Numeric arrays or Python lists
+lat, lon -- Scalars, one-dimensional NumPy arrays or Python lists
             specifying latitude and longitude coordinate values (in
             degrees).
 
-u, v -- Scalars, one-dimensional Numeric arrays or Python lists
+u, v -- Scalars, one-dimensional NumPy arrays or Python lists
         specifying the zonal and meridional "x" and "y" wind
         components at the associated lat,lon coordinates.
   """
@@ -5859,7 +5859,7 @@ Ngl.wmstnm(wks, x, y, imdat)
 
 wks -- The identifier returned from calling Ngl.open_wks.
 
-x, y -- Scalars, one-dimensional Numeric arrays or Python lists
+x, y -- Scalars, one-dimensional NumPy arrays or Python lists
         specifying X and Y coordinate values.
 
 imdat -- A string of 50 characters encoded as per the WMO/NOAA guidelines. 
@@ -5872,14 +5872,14 @@ imdat -- A string of 50 characters encoded as per the WMO/NOAA guidelines.
 
 #
 #  Process depending on whether we have scalar coordinates,
-#  Numeric arrays, or Python lists or tuples.
+#  NumPy arrays, or Python lists or tuples.
 # 
-  xa = arg_with_scalar(Numeric.array(x))
-  ya = arg_with_scalar(Numeric.array(y))
+  xa = arg_with_scalar(numpy.array(x))
+  ya = arg_with_scalar(numpy.array(y))
   if (type(imdat) == type('a')):
-    imdata = Numeric.array([imdat])
+    imdata = numpy.array([imdat])
   else:
-    imdata = Numeric.array(imdat)
+    imdata = numpy.array(imdat)
   for i in xrange(len(xa)):
       c_wmstnmp(gksid,xa[i],ya[i],imdata[i])
   del xa,ya,imdata
@@ -5895,8 +5895,8 @@ xyplot = Ngl.xy(wks, x, y, res=None)
 wks -- The identifier returned from calling Ngl.open_wks.
 
 x, y -- The X and Y coordinates of the curve(s). These values can be
-        one-dimensional Numeric arrays, Python lists or
-        two-dimensional Numeric arrays. If x and/or y are
+        one-dimensional NumPy arrays, Python lists or
+        two-dimensional NumPy arrays. If x and/or y are
         two-dimensional, then the leftmost dimension determines the
         number of curves.
 
@@ -5915,7 +5915,7 @@ res -- An (optional) instance of the Resources class having PyNGL
     dsizes_x = xar.shape
   else:
     print \
-      "xy: type of argument 2 must be one of: list, tuple, or Numeric array"
+      "xy: type of argument 2 must be one of: list, tuple, or NumPy array"
     return None
 
   if is_list_or_tuple(yar):
@@ -5926,7 +5926,7 @@ res -- An (optional) instance of the Resources class having PyNGL
     dsizes_y = yar.shape
   else:
     print \
-      "xy: type of argument 3 must be one of: list, tuple, or Numeric array"
+      "xy: type of argument 3 must be one of: list, tuple, or NumPy array"
     return None
 
   rlist = crt_dict(rlistc)  
@@ -5980,7 +5980,7 @@ yplot = Ngl.y(wks, y, res=None)
 wks -- The identifier returned from calling Ngl.open_wks.
 
 y -- The Y coordinates of the curve(s). y can be a one-dimensional
-     Numeric array, a Python list, or a two-dimensional Numeric
+     NumPy array, a Python list, or a two-dimensional NumPy
      array. If y is two-dimensional, then the leftmost dimension
      determines the number of curves and the rightmost dimension
      defines the number of points (npts).
@@ -6000,7 +6000,7 @@ res -- An (optional) instance of the Resources class having PyNGL
     dsizes_y = yar.shape
   else:
     print \
-      "xy: type of argument 3 must be one of: list, tuple, or Numeric array"
+      "xy: type of argument 3 must be one of: list, tuple, or NumPy array"
     return None
 
   if (len(dsizes_y) == 1):
@@ -6054,9 +6054,9 @@ r, g, b -- The red, green, and blue intensity values in the range
     return rr,gr,br
   elif ( ( is_list(y) and  is_list(i) and  is_list(q)) or    \
          (is_tuple(y) and is_tuple(i) and is_tuple(q)) ):
-    yi = Numeric.array(y,'f')
-    ii = Numeric.array(i,'f')
-    qi = Numeric.array(q,'f')
+    yi = numpy.array(y,'f')
+    ii = numpy.array(i,'f')
+    qi = numpy.array(q,'f')
     ishape = yi.shape
     if (HAS_NUM == 1):
       dimc = len(yi.flat)
@@ -6111,7 +6111,7 @@ def get_ma_fill_value(arr):
     import MA
     fv = None
 #
-#  If arr is not a numpy masked array, try for Numeric.
+#  If arr is not a numpy masked array, try for numpy.
 #
     if MA.isMaskedArray(arr):
       fv = arr.fill_value()
@@ -6147,7 +6147,7 @@ def promote_scalar(x):
   if is_scalar(x):
     if recommend_numeric:
       import Numeric
-      return Numeric.array([x])
+      return numpy.array([x])
     else:
       import numpy
       return numpy.array([x])
@@ -6164,7 +6164,7 @@ def chiinv(x,y):
 #
 # Determine what kind of array to return. This is dependent on the
 # types of the arguments passed to chiinv, and not which fplib
-# module was loaded. Note that numpy is favored over Numeric.
+# module was loaded. Note that numpy is favored over numpy.
 #
   if is_numpy(x) or is_numpy(y):
     import numpy
