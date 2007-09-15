@@ -5907,23 +5907,26 @@ res -- An (optional) instance of the Resources class having PyNGL
 #
 #  Get input array dimension information.
 #
-  if is_list_or_tuple(xar):
+  xar2,xar_fill_value = get_arr_and_fill_value(xar)
+  yar2,yar_fill_value = get_arr_and_fill_value(yar)
+
+  if is_list_or_tuple(xar2):
     ndims_x = 1
-    dsizes_x = (len(xar),)
-  elif is_numerpy_array(xar):
-    ndims_x = (len(xar.shape))
-    dsizes_x = xar.shape
+    dsizes_x = (len(xar2),)
+  elif is_numerpy_array(xar2):
+    ndims_x = (len(xar2.shape))
+    dsizes_x = xar2.shape
   else:
     print \
       "xy: type of argument 2 must be one of: list, tuple, or NumPy array"
     return None
 
-  if is_list_or_tuple(yar):
+  if is_list_or_tuple(yar2):
     ndims_y = 1
-    dsizes_y = (len(yar),)
-  elif is_numerpy_array(yar):
-    ndims_y = (len(yar.shape))
-    dsizes_y = yar.shape
+    dsizes_y = (len(yar2),)
+  elif is_numerpy_array(yar2):
+    ndims_y = (len(yar2.shape))
+    dsizes_y = yar2.shape
   else:
     print \
       "xy: type of argument 3 must be one of: list, tuple, or NumPy array"
@@ -5938,6 +5941,11 @@ res -- An (optional) instance of the Resources class having PyNGL
   ca_rlist  = {}
   xy_rlist  = {}
   xyd_rlist = {}
+
+  if(xar_fill_value != None and (not (rlist.has_key("caXMissingV")))):
+    rlist["caXMissingV"] = xar_fill_value
+  if(yar_fill_value != None and (not (rlist.has_key("caYMissingV")))):
+    rlist["caYMissingV"] = yar_fill_value
   for key in rlist.keys():
     if (key[0:2] == "ca"):
       ca_rlist[key] = rlist[key]
@@ -5960,7 +5968,7 @@ res -- An (optional) instance of the Resources class having PyNGL
 #
 #  Call the wrapped function and return.
 #
-  ixy = xy_wrap(wks,xar,yar,"double","double",ndims_x,dsizes_x,ndims_y, \
+  ixy = xy_wrap(wks,xar2,yar2,"double","double",ndims_x,dsizes_x,ndims_y, \
                     dsizes_y,0,0,pvoid(),pvoid(),ca_rlist,xy_rlist,xyd_rlist,
                     pvoid())
 
@@ -6081,6 +6089,24 @@ r, g, b -- The red, green, and blue intensity values in the range
 ######################################################################
 
 import fplib
+
+#
+# If an array is a masked array, then return a NumPy/Numeric array and
+# the fill value. If not, then just return the array and 'None'
+# for the fill value.
+#
+def get_arr_and_fill_value(arr):
+  if (HAS_NUM == 2):
+    if numpy.core.ma.isMaskedArray(arr):
+      return arr.filled(),arr.fill_value()
+  elif (HAS_NUM == 1):
+    try:
+      import MA
+      if MA.isMaskedArray(arr):
+        return arr.filled(),arr.fill_value()
+    except:
+      pass
+  return arr,None
 
 #
 #  get_ma_fill_value(arr)
