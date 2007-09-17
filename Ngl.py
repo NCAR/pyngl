@@ -26,6 +26,12 @@ recommend_numeric = False
 if HAS_NUM == 2:
   try:
     import numpy
+# Now try to import numpy.core.ma module for masked arrays.
+    try:
+      import numpy.core.ma as ma
+      HAS_MA = True
+    except:
+      HAS_MA = False
 # 
 # If we are dealing with a numpy version that is less than 1.0.0, then
 # check the version that PyNGL was built with against this version.
@@ -43,6 +49,13 @@ if HAS_NUM == 2:
 else:
   try:
     import Numeric as numpy
+# Now try to import MA module for masked arrays.
+    try:
+      import MA as ma
+      HAS_MA = True
+    except:
+      HAS_MA = False
+
     recommend_numeric = True
 #
 # I decided to comment this section out, because a Numeric 24 version
@@ -250,6 +263,38 @@ def arg_with_scalar(arg):
       return [arg]
     else:
       return arg
+
+#
+# This function returns a NumPy/Numeric array and the fill value 
+# if arr is a masked array; otherwise it just returns arr and 
+# 'None' for the fill value.
+#
+# Later, I'd like to add recognition of NioVariables, and then
+# I can look for the "_FillValue" attribute and use this.
+#
+def get_arr_and_fill_value(arr):
+  if HAS_MA and ma.isMaskedArray(arr):
+    return arr.filled(),arr.fill_value()
+  else:
+    return arr,None
+
+#
+# This function checks if a fill value exists, and if it does,
+# sets the appropriate missing value PyNGL resource.
+#
+def set_msg_val_res(rlist,fv,plot_type):
+  type_res_pairs = { "xy_x"     : "caXMissingV", 
+                     "xy_y"     : "caYMissingV", 
+                     "scalar"   : "sfMissingValueV", 
+                     "vector_u" : "vfMissingUValueV",
+                     "vector_v" : "vfMissingVValueV"}
+
+  if not plot_type in type_res_pairs.keys():
+    return None
+
+  res_to_set = type_res_pairs[plot_type]
+  if(fv != None and (not rlist.has_key(res_to_set))):
+    rlist[res_to_set] = fv
 
 def numerpy_int_zeros(num):
 #
@@ -1167,9 +1212,17 @@ longitude -- An optional one-dimensional array, representing
 # Create the new data array with one extra value in the X direction.
 #
   if (HAS_NUM == 1):
-    newdata         = numpy.zeros((ny,nx1),data.typecode())
+    if(HAS_MA and ma.isMaskedArray(data)):
+      newdata         = ma.zeros((ny,nx1),data.typecode())
+      newdata.set_fill_value(data.fill_value())
+    else:
+      newdata         = numpy.zeros((ny,nx1),data.typecode())
   elif (HAS_NUM == 2):
-    newdata         = numpy.zeros((ny,nx1),data.dtype.char)
+    if(HAS_MA and ma.isMaskedArray(data)):
+      newdata         = ma.zeros((ny,nx1),data.dtype.char)
+      newdata.set_fill_value(data.fill_value())
+    else:
+      newdata         = numpy.zeros((ny,nx1),data.dtype.char)
   newdata[:,0:nx] = data
   newdata[:,nx]   = data[:,0]
 
@@ -1561,6 +1614,36 @@ wks -- The identifier returned from calling Ngl.open_wks.
   """
   NhlChangeWorkstation(int_id(obj),wks)
 
+def chiinv(x,y):
+  """
+Evaluates the inverse chi-squared distribution function.
+
+x = Ngl.chiinv_workstation(p,df)
+
+p -- Integral of the chi-square distribution ([0 < p <1)
+
+df -- degrees of freedom of the chi-square distribution (0, +infinity).
+  """
+#
+# Promote x and y to Numeric (or numpy) arrays that have at least
+# a dimension of 1.
+#
+  x2 = promote_scalar(x)
+  y2 = promote_scalar(y)
+#
+# Determine what kind of array to return. This is dependent on the
+# types of the arguments passed to chiinv, and not which fplib
+# module was loaded. Note that numpy is favored over numpy.
+#
+  if is_numpy(x) or is_numpy(y):
+    import numpy
+    return numpy.array(fplib.chiinv(x2,y2))
+  elif is_numeric(x) or is_numeric(y):
+    import Numeric
+    return Numeric.array(fplib.chiinv(x2,y2))
+  else:
+    return fplib.chiinv(x2,y2)
+
 def clear_workstation(obj):
   """
 Clears a specified workstation.
@@ -1593,6 +1676,9 @@ res -- An optional instance of the Resources class having PyNGL
     print "contour - array must be 1D or 2D"
     return None
 
+# Get NumPy/Numeric array from masked array, if necessary.
+  arr2,fill_value = get_arr_and_fill_value(array)
+  
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
  
@@ -1619,18 +1705,21 @@ res -- An optional instance of the Resources class having PyNGL
       if(key[0:2] == "vp" or key[0:2] == "tm" or key[0:6] == "pmTick"):
         rlist3[key] = rlist[key]
 
+# Set missing value resource, if necessary
+  set_msg_val_res(rlist1,fill_value,"scalar")
+
   set_contour_res(rlist,rlist2)       # Set some addtl contour resources
   set_labelbar_res(rlist,rlist2,True) # Set some addtl labelbar resources
   set_tickmark_res(rlist,rlist3)      # Set some addtl tickmark resources
 #
 #  Call the wrapped function and return.
 #
-  if (len(array.shape) == 2):
-    icn = contour_wrap(wks,array,"double",array.shape[0],array.shape[1], \
+  if (len(arr2.shape) == 2):
+    icn = contour_wrap(wks,arr2,"double",arr2.shape[0],arr2.shape[1], \
                            0, pvoid(),"",0,pvoid(),"", 0, pvoid(), rlist1, \
                           rlist2,rlist3,pvoid())
   else:
-    icn = contour_wrap(wks,array,"double",array.shape[0],-1, \
+    icn = contour_wrap(wks,arr2,"double",arr2.shape[0],-1, \
                            0, pvoid(),"",0,pvoid(),"", 0, pvoid(), rlist1, \
                           rlist2,rlist3,pvoid())
 
@@ -1662,6 +1751,9 @@ res -- An optional instance of the Resources class having PyNGL
     print "contour_map - array must be 1D or 2D"
     return None
 
+# Get NumPy/Numeric array from masked array, if necessary.
+  arr2,fill_value = get_arr_and_fill_value(array)
+  
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
  
@@ -1683,6 +1775,9 @@ res -- An optional instance of the Resources class having PyNGL
     else:
       rlist3[key] = rlist[key]
 
+# Set missing value resource, if necessary
+  set_msg_val_res(rlist1,fill_value,"scalar")
+
   set_map_res(rlist,rlist2)           # Set some addtl map resources
   set_contour_res(rlist,rlist3)       # Set some addtl contour resources
   set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
@@ -1690,14 +1785,14 @@ res -- An optional instance of the Resources class having PyNGL
 #
 #  Call the wrapped function and return.
 #
-  if (len(array.shape) == 2):
-        icm = contour_map_wrap(wks,array,"double", \
-                                array.shape[0],array.shape[1],0, \
+  if (len(arr2.shape) == 2):
+        icm = contour_map_wrap(wks,arr2,"double", \
+                                arr2.shape[0],arr2.shape[1],0, \
                                 pvoid(),"",0,pvoid(),"", 0, pvoid(), \
                                 rlist1,rlist3,rlist2,pvoid())
   else:
-        icm = contour_map_wrap(wks,array,"double", \
-                                array.shape[0],-1,0, \
+        icm = contour_map_wrap(wks,arr2,"double", \
+                                arr2.shape[0],-1,0, \
                                 pvoid(),"",0,pvoid(),"", 0, pvoid(), \
                                 rlist1,rlist3,rlist2,pvoid())
 
@@ -5064,6 +5159,10 @@ res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
 
+# Get NumPy/Numeric array from masked arrays, if necessary.
+  uar2,uar_fill_value = get_arr_and_fill_value(uarray)
+  var2,var_fill_value = get_arr_and_fill_value(varray)
+
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
  
@@ -5081,6 +5180,7 @@ res -- An optional instance of the Resources class having PyNGL
       set_spc_res(key[3:],rlist[key])      
     else:
       rlist2[key] = rlist[key]
+
 #
 # In addition, if this plot is potentially going to be overlaid
 # on an Irregular Plot Class (in order to lineariize or logize it)
@@ -5090,14 +5190,18 @@ res -- An optional instance of the Resources class having PyNGL
       if(key[0:2] == "vp" or key[0:2] == "tm" or key[0:6] == "pmTick"):
         rlist3[key] = rlist[key]
     
+# Set missing value resources, if necessary
+  set_msg_val_res(rlist1,uar_fill_value,"vector_u")
+  set_msg_val_res(rlist1,var_fill_value,"vector_v")
+
   set_streamline_res(rlist,rlist2)    # Set some addtl streamline resources
   set_tickmark_res(rlist,rlist3)      # Set some addtl tickmark resources
 
 #
 #  Call the wrapped function and return.
 #
-  strm = streamline_wrap(wks,uarray,varray,"double","double",            \
-                         uarray.shape[0],uarray.shape[1],0,              \
+  strm = streamline_wrap(wks,uar2,var2,"double","double",            \
+                         uar2.shape[0],uar2.shape[1],0,              \
                          pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(),\
                          rlist1,rlist2,rlist3,pvoid())
   del rlist
@@ -5121,6 +5225,10 @@ res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
 
+# Get NumPy/Numeric array from masked arrays, if necessary.
+  uar2,uar_fill_value = get_arr_and_fill_value(uarray)
+  var2,var_fill_value = get_arr_and_fill_value(varray)
+
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
  
@@ -5142,14 +5250,18 @@ res -- An optional instance of the Resources class having PyNGL
     else:
       rlist2[key] = rlist[key]
 
+# Set missing value resources, if necessary
+  set_msg_val_res(rlist1,uar_fill_value,"vector_u")
+  set_msg_val_res(rlist1,var_fill_value,"vector_v")
+
   set_map_res(rlist,rlist3)           # Set some addtl map resources
   set_streamline_res(rlist,rlist2)    # Set some addtl streamline resources
     
 #
 #  Call the wrapped function and return.
 #
-  strm = streamline_map_wrap(wks,uarray,varray,"double","double",         \
-                         uarray.shape[0],uarray.shape[1],0,               \
+  strm = streamline_map_wrap(wks,uar2,var2,"double","double",         \
+                         uar2.shape[0],uar2.shape[1],0,               \
                          pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(), \
                          rlist1,rlist2,rlist3,pvoid())
   del rlist
@@ -5372,6 +5484,10 @@ res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
 
+# Get NumPy/Numeric array from masked arrays, if necessary.
+  uar2,uar_fill_value = get_arr_and_fill_value(uarray)
+  var2,var_fill_value = get_arr_and_fill_value(varray)
+
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
  
@@ -5398,6 +5514,10 @@ res -- An optional instance of the Resources class having PyNGL
       if(key[0:2] == "vp" or key[0:2] == "tm" or key[0:6] == "pmTick"):
         rlist3[key] = rlist[key]
     
+# Set missing value resources, if necessary
+  set_msg_val_res(rlist1,uar_fill_value,"vector_u")
+  set_msg_val_res(rlist1,var_fill_value,"vector_v")
+
   set_vector_res(rlist,rlist2)        # Set some addtl vector resources
   set_labelbar_res(rlist,rlist2,True) # Set some addtl labelbar resources
   set_tickmark_res(rlist,rlist3)      # Set some addtl tickmark resources
@@ -5405,8 +5525,8 @@ res -- An optional instance of the Resources class having PyNGL
 #
 #  Call the wrapped function and return.
 #
-  ivct = vector_wrap(wks,uarray,varray,"double","double",             \
-                     uarray.shape[0],uarray.shape[1],0,               \
+  ivct = vector_wrap(wks,uar2,var2,"double","double",             \
+                     uar2.shape[0],uar2.shape[1],0,               \
                      pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(), \
                      rlist1,rlist2,rlist3,pvoid())
   del rlist
@@ -5430,6 +5550,10 @@ res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
 
+# Get NumPy/Numeric array from masked arrays, if necessary.
+  uar2,uar_fill_value = get_arr_and_fill_value(uarray)
+  var2,var_fill_value = get_arr_and_fill_value(varray)
+
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
  
@@ -5451,6 +5575,10 @@ res -- An optional instance of the Resources class having PyNGL
     else:
       rlist2[key] = rlist[key]
 
+# Set missing value resources, if necessary
+  set_msg_val_res(rlist1,uar_fill_value,"vector_u")
+  set_msg_val_res(rlist1,var_fill_value,"vector_v")
+
   set_map_res(rlist,rlist3)           # Set some addtl map resources
   set_vector_res(rlist,rlist2)        # Set some addtl vector resources
   set_labelbar_res(rlist,rlist2,True) # Set some addtl labelbar resources
@@ -5458,8 +5586,8 @@ res -- An optional instance of the Resources class having PyNGL
 #
 #  Call the wrapped function and return.
 #
-  ivct = vector_map_wrap(wks,uarray,varray,"double","double",         \
-                     uarray.shape[0],uarray.shape[1],0,               \
+  ivct = vector_map_wrap(wks,uar2,var2,"double","double",         \
+                     uar2.shape[0],uar2.shape[1],0,               \
                      pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(), \
                      rlist1,rlist2,rlist3,pvoid())
 
@@ -5895,8 +6023,8 @@ xyplot = Ngl.xy(wks, x, y, res=None)
 wks -- The identifier returned from calling Ngl.open_wks.
 
 x, y -- The X and Y coordinates of the curve(s). These values can be
-        one-dimensional NumPy arrays, Python lists or
-        two-dimensional NumPy arrays. If x and/or y are
+        one-dimensional NumPy (masked) arrays, Python lists or
+        two-dimensional NumPy (masked) arrays. If x and/or y are
         two-dimensional, then the leftmost dimension determines the
         number of curves.
 
@@ -5904,12 +6032,14 @@ res -- An (optional) instance of the Resources class having PyNGL
        resources as attributes.
   """
   set_spc_defaults(1)
-#
-#  Get input array dimension information.
-#
+
+# Get NumPy/Numeric array from masked arrays, if necessary.
   xar2,xar_fill_value = get_arr_and_fill_value(xar)
   yar2,yar_fill_value = get_arr_and_fill_value(yar)
 
+#
+#  Get input array dimension information.
+#
   if is_list_or_tuple(xar2):
     ndims_x = 1
     dsizes_x = (len(xar2),)
@@ -5942,10 +6072,14 @@ res -- An (optional) instance of the Resources class having PyNGL
   xy_rlist  = {}
   xyd_rlist = {}
 
-  if(xar_fill_value != None and (not (rlist.has_key("caXMissingV")))):
-    rlist["caXMissingV"] = xar_fill_value
-  if(yar_fill_value != None and (not (rlist.has_key("caYMissingV")))):
-    rlist["caYMissingV"] = yar_fill_value
+# Set missing value resources, if necessary
+  set_msg_val_res(rlist,xar_fill_value,"xy_x")
+  set_msg_val_res(rlist,yar_fill_value,"xy_y")
+
+#  if(xar_fill_value != None and (not (rlist.has_key("caXMissingV")))):
+#    rlist["caXMissingV"] = xar_fill_value
+#  if(yar_fill_value != None and (not (rlist.has_key("caYMissingV")))):
+#    rlist["caYMissingV"] = yar_fill_value
   for key in rlist.keys():
     if (key[0:2] == "ca"):
       ca_rlist[key] = rlist[key]
@@ -5988,8 +6122,8 @@ yplot = Ngl.y(wks, y, res=None)
 wks -- The identifier returned from calling Ngl.open_wks.
 
 y -- The Y coordinates of the curve(s). y can be a one-dimensional
-     NumPy array, a Python list, or a two-dimensional NumPy
-     array. If y is two-dimensional, then the leftmost dimension
+     NumPy (masked) array, a Python list, or a two-dimensional NumPy
+     (masked) array. If y is two-dimensional, then the leftmost dimension
      determines the number of curves and the rightmost dimension
      defines the number of points (npts).
 
@@ -5997,15 +6131,20 @@ res -- An (optional) instance of the Resources class having PyNGL
        resources as attributes.
   """
   
+# Get NumPy/Numeric array from masked array, if necessary.
+  yar2,fill_value = get_arr_and_fill_value(yar)
+
 #
-#  Get input array dimension information.
+#  Get input array dimension information. We have to go through all
+#  of this just to get the number of points, which we need for the
+# "range" call below.
 #
-  if is_list_or_tuple(yar):
+  if is_list_or_tuple(yar2):
     ndims_y = 1
-    dsizes_y = (len(yar),)
-  elif is_numerpy_array(yar):
-    ndims_y = (len(yar.shape))
-    dsizes_y = yar.shape
+    dsizes_y = (len(yar2),)
+  elif is_numerpy_array(yar2):
+    ndims_y = (len(yar2.shape))
+    dsizes_y = yar2.shape
   else:
     print \
       "xy: type of argument 3 must be one of: list, tuple, or NumPy array"
@@ -6020,6 +6159,8 @@ res -- An (optional) instance of the Resources class having PyNGL
       "y: array can have at most two dimensions"
     return None
     
+# Just pass yar and let the xy function deal with setting msg val
+# resources, if any.
   return xy(wks,range(0,npts),yar,rlistc)
 
 def yiqrgb(y,i,q):
@@ -6091,24 +6232,6 @@ r, g, b -- The red, green, and blue intensity values in the range
 import fplib
 
 #
-# If an array is a masked array, then return a NumPy/Numeric array and
-# the fill value. If not, then just return the array and 'None'
-# for the fill value.
-#
-def get_arr_and_fill_value(arr):
-  if (HAS_NUM == 2):
-    if numpy.core.ma.isMaskedArray(arr):
-      return arr.filled(),arr.fill_value()
-  elif (HAS_NUM == 1):
-    try:
-      import MA
-      if MA.isMaskedArray(arr):
-        return arr.filled(),arr.fill_value()
-    except:
-      pass
-  return arr,None
-
-#
 #  get_ma_fill_value(arr)
 #     input: 
 #       arr - any Python object
@@ -6126,7 +6249,6 @@ def get_ma_fill_value(arr):
 #  If arr is a numpy masked array, return its fill value.
 #
   try:
-    "Try numpy"
     import numpy.core.ma
     if numpy.core.ma.isMaskedArray(arr):
       return "num",arr.fill_value()
@@ -6180,23 +6302,3 @@ def promote_scalar(x):
   else:
     return x
 
-def chiinv(x,y):
-#
-# Promote x and y to Numeric (or numpy) arrays that have at least
-# a dimension of 1.
-#
-  x2 = promote_scalar(x)
-  y2 = promote_scalar(y)
-#
-# Determine what kind of array to return. This is dependent on the
-# types of the arguments passed to chiinv, and not which fplib
-# module was loaded. Note that numpy is favored over numpy.
-#
-  if is_numpy(x) or is_numpy(y):
-    import numpy
-    return numpy.array(fplib.chiinv(x2,y2))
-  elif is_numeric(x) or is_numeric(y):
-    import Numeric
-    return Numeric.array(fplib.chiinv(x2,y2))
-  else:
-    return fplib.chiinv(x2,y2)
