@@ -3273,6 +3273,10 @@ res -- An optional instance of the Resources class having Workstation
     if (color_dir_envn != None and os.path.exists(color_dir_envn)):
       os.environ["NCARG_COLORMAPS"] = color_dir_envn
 
+    grib2_dir_envn = os.environ.get("NIO_GRIB2_CODETABLES")
+    if (grib2_dir_envn != None and os.path.exists(grib2_dir_envn)):
+      os.environ["NIO_GRIB2_CODETABLES"] = grib2_dir_envn
+
 #
 #  If "PYNGL_RANGS" is set, use it.  Otherwise set 
 #  the default RANGS directory.
@@ -3600,6 +3604,14 @@ name -- A string representing abbreviated name for which you want a
       return rangs_dir_envn
     else: 
       return rangs_dir_dflt
+  elif (name == "grib2_codetables"):
+    print "name",name
+    grib2_dir_envn = os.environ.get("NIO_GRIB2_CODETABLES")
+    grib2_dir_dflt = os.path.join(pynglpath_ncarg(),"grib2_codetables")
+    if (grib2_dir_envn != None and os.path.exists(grib2_dir_envn)):
+      return grib2_dir_envn
+    else: 
+      return grib2_dir_dflt
   elif (name == "usrresfile"):
     ures_dir_envn = os.environ.get("PYNGL_USRRESFILE")
     ures_dir_dflt = commands.getoutput("ls ~/.hluresfile")
