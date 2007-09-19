@@ -15,7 +15,9 @@ def modify_pynglex_files(files_to_modify):
   print '====> Modifying some of the pynglex examples to work with NumPy.'
 
   for line in fileinput.input(files_to_modify,inplace=1):
-    if (re.search("^import numpy",line) != None):
+    if (re.search("^import numpy.core.ma as ma",line) != None):
+      print "import MA as ma"
+    elif (re.search("^import numpy",line) != None):
       print "import Numeric as numpy"
     elif(re.search("^import Ngl",line) != None):
       print "import PyNGL_numeric.Ngl as Ngl"
