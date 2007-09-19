@@ -1804,7 +1804,7 @@ res -- An optional instance of the Resources class having PyNGL
 
 def datatondc(obj,x,y):
   error,xout,yout,status,range = \
-     NhlPDataToNDC(int_id(obj),x,y,len(x),1.e30,1.e30,1,1)
+     NhlPDataToNDC(int_id(obj),x,y,len(promote_scalar(x)),1.e30,1.e30,1,1)
   del error,status,range
   return xout,yout
 
@@ -3025,7 +3025,7 @@ red, green, blue -- Floating point values between 0.0 and 1.0
 
 def ndctodata(obj,x,y):
   error,xout,yout,status,range = \
-     NhlPNDCToData(int_id(obj),x,y,len(x),1.e30,1.e30,1,1)
+     NhlPNDCToData(int_id(obj),x,y,len(promote_scalar(x)),1.e30,1.e30,1,1)
   del error,status,range
   return xout,yout
 
