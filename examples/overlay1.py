@@ -23,6 +23,7 @@
 #    o  Overlaying plots
 #    o  Removing overlaid plots.
 #    o  Maximizing a plot in the frame.
+#    o  Using masked arrays to handle missing values.
 # 
 #  Output:
 #    This example produces three visualizations:
@@ -37,6 +38,11 @@
 #  Import numpy.
 #
 import numpy
+
+#
+# Import masked arrays.
+#
+import numpy.core.ma as ma
 
 #
 #  Import Nio for a NetCDF reader.
@@ -69,19 +75,16 @@ t = tfile.variables["t"]
 p = pfile.variables["p"]
 lat = ufile.variables["lat"]
 lon = ufile.variables["lon"]
-ua = u[0,:,:]
-va = v[0,:,:]
-pa = p[0,:,:]
-ta = t[0,:,:]
+ua = ma.masked_values(u[0,:,:],u._FillValue)
+va = ma.masked_values(v[0,:,:],v._FillValue)
+pa = ma.masked_values(p[0,:,:],p._FillValue)
+ta = ma.masked_values(t[0,:,:],t._FillValue)
 
 #
 # Scale the temperature and pressure data.
 #
-ta = ((ta-273.15)*9.0/5.0+32.0) *  \
-      numpy.not_equal(ta,t._FillValue) + \
-      t._FillValue*numpy.equal(ta,t._FillValue)
-pa = 0.01*(pa*numpy.not_equal(pa,p._FillValue)) +   \
-        p._FillValue*numpy.equal(pa,p._FillValue)
+ta = (ta-273.15)*9.0/5.0+32.0
+pa = 0.01*pa
 
 #
 # Open a PostScript workstation and change the color map.
@@ -110,15 +113,6 @@ clres.nglDraw  = False
 clres.nglFrame = False
 cfres.nglDraw  = False
 cfres.nglFrame = False
-
-#
-# Set some missing values.
-#
-
-vcres.vfMissingUValueV = u._FillValue
-vcres.vfMissingVValueV = v._FillValue
-cfres.sfMissingValueV  = t._FillValue
-clres.sfMissingValueV  = p._FillValue
 
 #
 # Set up coordinates of X and Y axes for all plots. This
