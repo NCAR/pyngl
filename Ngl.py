@@ -1618,7 +1618,7 @@ def chiinv(x,y):
   """
 Evaluates the inverse chi-squared distribution function.
 
-x = Ngl.chiinv_workstation(p,df)
+x = Ngl.chiinv(p,df)
 
 p -- Integral of the chi-square distribution ([0 < p <1)
 
