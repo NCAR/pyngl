@@ -5299,6 +5299,11 @@ res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
 
+# Get NumPy/Numeric array from masked arrays, if necessary.
+  uar2,uar_fill_value = get_arr_and_fill_value(uarray)
+  var2,var_fill_value = get_arr_and_fill_value(varray)
+  tar2,tar_fill_value = get_arr_and_fill_value(tarray)
+
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
  
@@ -5327,6 +5332,11 @@ res -- An optional instance of the Resources class having PyNGL
       if(key[0:2] == "vp" or key[0:2] == "tm" or key[0:6] == "pmTick"):
         rlist4[key] = rlist[key]
     
+# Set missing value resources, if necessary
+  set_msg_val_res(rlist1,uar_fill_value,"vector_u")
+  set_msg_val_res(rlist1,var_fill_value,"vector_v")
+  set_msg_val_res(rlist2,tar_fill_value,"scalar")
+
   set_streamline_res(rlist,rlist3)    # Set some addtl vector resources
   set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
   set_tickmark_res(rlist,rlist4)      # Set some addtl tickmark resources
@@ -5334,9 +5344,9 @@ res -- An optional instance of the Resources class having PyNGL
 #
 #  Call the wrapped function and return.
 #
-  ivct = streamline_scalar_wrap(wks,uarray,varray,tarray,  \
+  ivct = streamline_scalar_wrap(wks,uar2,var2,tar2,  \
                      "double","double","double",         \
-                     uarray.shape[0],uarray.shape[1],0,               \
+                     uar2.shape[0],uar2.shape[1],0,               \
                      pvoid(),"",0,pvoid(),"", 0, 0, 0, pvoid(), pvoid(), \
                      pvoid(),rlist1,rlist2,rlist3,rlist4,pvoid())
 
@@ -5364,6 +5374,11 @@ res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
 
+# Get NumPy/Numeric array from masked arrays, if necessary.
+  uar2,uar_fill_value = get_arr_and_fill_value(uarray)
+  var2,var_fill_value = get_arr_and_fill_value(varray)
+  tar2,tar_fill_value = get_arr_and_fill_value(tarray)
+
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
  
@@ -5389,6 +5404,11 @@ res -- An optional instance of the Resources class having PyNGL
     else:
       rlist3[key] = rlist[key]
     
+# Set missing value resources, if necessary
+  set_msg_val_res(rlist1,uar_fill_value,"vector_u")
+  set_msg_val_res(rlist1,var_fill_value,"vector_v")
+  set_msg_val_res(rlist2,tar_fill_value,"scalar")
+
   set_map_res(rlist,rlist4)           # Set some addtl map resources
   set_streamline_res(rlist,rlist3)    # Set some addtl streamline resources
   set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
@@ -5396,9 +5416,9 @@ res -- An optional instance of the Resources class having PyNGL
 #
 #  Call the wrapped function and return.
 #
-  ivct = streamline_scalar_map_wrap(wks,uarray,varray,tarray,  \
+  ivct = streamline_scalar_map_wrap(wks,uar2,var2,tar2,  \
                      "double","double","double",         \
-                     uarray.shape[0],uarray.shape[1],0,               \
+                     uar2.shape[0],uar2.shape[1],0,               \
                      pvoid(),"",0,pvoid(),"", 0, 0, 0, pvoid(), pvoid(), \
                      pvoid(),rlist1,rlist2,rlist3,rlist4,pvoid())
 
@@ -5626,6 +5646,11 @@ res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
 
+# Get NumPy/Numeric array from masked arrays, if necessary.
+  uar2,uar_fill_value = get_arr_and_fill_value(uarray)
+  var2,var_fill_value = get_arr_and_fill_value(varray)
+  tar2,tar_fill_value = get_arr_and_fill_value(tarray)
+
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
  
@@ -5654,6 +5679,11 @@ res -- An optional instance of the Resources class having PyNGL
       if(key[0:2] == "vp" or key[0:2] == "tm" or key[0:6] == "pmTick"):
         rlist4[key] = rlist[key]
     
+# Set missing value resources, if necessary
+  set_msg_val_res(rlist1,uar_fill_value,"vector_u")
+  set_msg_val_res(rlist1,var_fill_value,"vector_v")
+  set_msg_val_res(rlist2,tar_fill_value,"scalar")
+
   set_vector_res(rlist,rlist3)        # Set some addtl vector resources
   set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
   set_tickmark_res(rlist,rlist4)      # Set some addtl tickmark resources
@@ -5661,9 +5691,9 @@ res -- An optional instance of the Resources class having PyNGL
 #
 #  Call the wrapped function and return.
 #
-  ivct = vector_scalar_wrap(wks,uarray,varray,tarray,  \
+  ivct = vector_scalar_wrap(wks,uar2,var2,tar2,  \
                      "double","double","double",         \
-                     uarray.shape[0],uarray.shape[1],0,               \
+                     uar2.shape[0],uar2.shape[1],0,               \
                      pvoid(),"",0,pvoid(),"", 0, 0, 0, pvoid(), pvoid(), \
                      pvoid(),rlist1,rlist2,rlist3,rlist4,pvoid())
 
@@ -5691,6 +5721,11 @@ res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
 
+# Get NumPy/Numeric array from masked arrays, if necessary.
+  uar2,uar_fill_value = get_arr_and_fill_value(uarray)
+  var2,var_fill_value = get_arr_and_fill_value(varray)
+  tar2,tar_fill_value = get_arr_and_fill_value(tarray)
+
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
  
@@ -5716,6 +5751,11 @@ res -- An optional instance of the Resources class having PyNGL
     else:
       rlist3[key] = rlist[key]
     
+# Set missing value resources, if necessary
+  set_msg_val_res(rlist1,uar_fill_value,"vector_u")
+  set_msg_val_res(rlist1,var_fill_value,"vector_v")
+  set_msg_val_res(rlist2,tar_fill_value,"scalar")
+
   set_map_res(rlist,rlist4)           # Set some addtl map resources
   set_vector_res(rlist,rlist3)        # Set some addtl vector resources
   set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
@@ -5723,9 +5763,9 @@ res -- An optional instance of the Resources class having PyNGL
 #
 #  Call the wrapped function and return.
 #
-  ivct = vector_scalar_map_wrap(wks,uarray,varray,tarray,  \
+  ivct = vector_scalar_map_wrap(wks,uar2,var2,tar2,  \
                      "double","double","double",         \
-                     uarray.shape[0],uarray.shape[1],0,               \
+                     uar2.shape[0],uar2.shape[1],0,               \
                      pvoid(),"",0,pvoid(),"", 0, 0, 0, pvoid(), pvoid(), \
                      pvoid(),rlist1,rlist2,rlist3,rlist4,pvoid())
 
