@@ -29,7 +29,7 @@
 #      an X or Y axis should be displayed on a linear or log scale.
 #    o Using the resource "trYReverse" to show how to reverse 
 #      an axis.
-#    o Setting missing values.
+#    o Setting missing values using masked arrays.
 #    o Using Ngl.add_new_coord_limits to add new limits to coordinate
 #      arrays of an irregular axis.
 # 
@@ -54,6 +54,11 @@
 import numpy
 
 #
+#  Import masked array
+#
+import numpy.core.ma as ma
+
+#
 #  Import Nio for reading netCDF files.
 #
 import Nio
@@ -68,8 +73,7 @@ import Ngl
 #
 data_dir = Ngl.pynglpath("data")
 cdf_file = Nio.open_file(data_dir + "/cdf/ocean.nc","r")
-T        = cdf_file.variables["T"][:,:]
-Tmsg     = cdf_file.variables["T"]._FillValue
+T        = ma.masked_values(cdf_file.variables["T"][:,:],cdf_file.variables["T"]._FillValue)
 lat_t    = cdf_file.variables["lat_t"][:]
 z_t      = cdf_file.variables["z_t"][:] / 100.         # convert cm to m
 
@@ -89,7 +93,6 @@ resources = Ngl.Resources()
 
 resources.sfXArray        = lat_t
 resources.sfYArray        = z_t
-resources.sfMissingValueV = Tmsg
 
 resources.cnFillOn        = True
 resources.cnLineLabelsOn  = False
@@ -117,9 +120,10 @@ plot = Ngl.contour(wks,T,resources)
 
 #
 # Set new max limit for Y axis so we can get some white space at
-# the top of the plot.
+# the top of the plot. Note that because T is a masked array, the
+# fill_value of T will be used to fill in the new data array.
 #
-Tnew,z_t_new = Ngl.add_new_coord_limits(T,Tmsg,ycoord=z_t,ymax=5000)
+Tnew,z_t_new = Ngl.add_new_coord_limits(T,ycoord=z_t,ymax=5000)
 resources.sfYArray     = z_t_new
 resources.tiMainString = "New max limit for Y axis"
 
@@ -130,7 +134,7 @@ plot = Ngl.contour(wks,Tnew,resources)
 # space at the top, right, and left of the plot.
 #
 
-Tnew,lat_t_new,z_t_new = Ngl.add_new_coord_limits(T,Tmsg,xcoord=lat_t,
+Tnew,lat_t_new,z_t_new = Ngl.add_new_coord_limits(T,xcoord=lat_t,
                                                   ycoord=z_t,
                                                   ymin=0,ymax=5000,
                                                   xmin=-40,xmax=40)

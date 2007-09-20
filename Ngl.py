@@ -1251,7 +1251,7 @@ longitude -- An optional one-dimensional array, representing
 # new data and coord arrays with the extra element(s) added. The data
 # array must have a missing value associated with it.
 
-def add_new_coord_limits(data,fillvalue,xcoord=None,ycoord=None, \
+def add_new_coord_limits(data,fillvalue=None,xcoord=None,ycoord=None, \
                          xmin=None,xmax=None,ymin=None,ymax=None):
   """
 Changes the minimum and/or maximum limits of X and/or Y coordinate arrays
@@ -1282,6 +1282,17 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
     print "add_new_coord_limits - array must be 2D"
     sys.exit()
 
+  data_is_masked = False
+  if fillvalue == None:
+    if HAS_MA and ma.isMaskedArray(data):
+      data2,fillvalue = get_arr_and_fill_value(data)
+      data_is_masked = True
+    else:
+      print "add_new_coord_limits - fillvalue must be set if you don't have a masked array"
+      sys.exit()
+  else:
+    data2 = data
+
 #
 # Check for whether one or both elements of X and/or Y arrays are to
 # be added.
@@ -1290,8 +1301,8 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
     print "add_new_coord_limits: At least one of xcoord and/or ycoord must be set to an array"
     sys.exit()
 
-  nx       = data.shape[1]
-  ny       = data.shape[0]
+  nx       = data2.shape[1]
+  ny       = data2.shape[0]
   ix_start = 0
   iy_start = 0
   ix_end   = nx
@@ -1350,13 +1361,21 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
 # Create new arrays.
 #
   if (HAS_NUM == 1):
-    new_data = numpy.zeros((new_ny,new_nx),data.typecode())
+    if data_is_masked:
+      new_data = ma.zeros((new_ny,new_nx),data2.typecode())
+      new_data.set_fill_value(data.fill_value())
+    else:
+      new_data = numpy.zeros((new_ny,new_nx),data2.typecode())
     if xcoord != None:
       new_xcoord = numpy.zeros(new_nx,xcoord.typecode())
     if ycoord != None:
       new_ycoord = numpy.zeros(new_ny,ycoord.typecode())
   elif (HAS_NUM == 2):
-    new_data     = numpy.zeros((new_ny,new_nx),data.dtype.char)
+    if data_is_masked:
+      new_data     = ma.zeros((new_ny,new_nx),data2.dtype.char)
+      new_data.set_fill_value(data.fill_value())
+    else:
+      new_data     = numpy.zeros((new_ny,new_nx),data2.dtype.char)
     if xcoord != None:
       new_xcoord = numpy.zeros(new_nx,xcoord.dtype.char)
     if ycoord != None:
@@ -1371,7 +1390,7 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
     new_data[:,:] = fillvalue[0]
   else:
     new_data[:,:] = fillvalue
-  new_data[iy_start:iy_end,ix_start:ix_end] = data[:,:]
+  new_data[iy_start:iy_end,ix_start:ix_end] = data2[:,:]
 
 #
 # Fill in the new coordinate arrays.
