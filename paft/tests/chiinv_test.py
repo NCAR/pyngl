@@ -1,13 +1,13 @@
 # To test with the Numeric module, be sure to uncomment these three
 # lines, and comment the NumPy lines after this.
 #
-# import PAF_numeric.NglA as NglA
+# import PAF_numeric.Ngl as Ngl
 # import MA
 # default_type = "numeric"
 
 # To test with the NumPy module, be sure to uncomment these two lines,
 # and comment the three Numeric lines above.
-import NglA
+import Ngl
 default_type = "numpy"
 
 #
@@ -41,49 +41,49 @@ numpy_u2  = numpy.uint32(scalar2)
 
 print "chiinv (float,int input)"
 print "-----------------------"
-chi = NglA.chiinv(scalar1,scalar2)
+chi = Ngl.chiinv(scalar1,scalar2)
 print chi,type(chi)
 test_value("chiinv",chi,value)
 check_type(chi,default_type)
 
 print "\nchiinv (list,scalar input)"
 print "---------------------------"
-chi = NglA.chiinv([scalar1],scalar2)
+chi = Ngl.chiinv([scalar1],scalar2)
 print chi,type(chi)
 test_value("chiinv",chi,value)
 check_type(chi,default_type)
 
 print "\nchiinv (scalar,list input)"
 print "---------------------------"
-chi = NglA.chiinv(scalar1,[scalar2])
+chi = Ngl.chiinv(scalar1,[scalar2])
 print chi,type(chi)
 test_value("chiinv",chi,value)
 check_type(chi,default_type)
 
 print "\nchiinv (numeric array,scalar input)"
 print "------------------------------------"
-chi = NglA.chiinv(numer_s1,scalar2)
+chi = Ngl.chiinv(numer_s1,scalar2)
 print chi,type(chi)
 test_value("chiinv",chi,value)
 check_type(chi,"numeric")
 
 print "\nchiinv (numpy array,scalar input)"
 print "----------------------------------"
-chi = NglA.chiinv(numpy_s1,scalar2)
+chi = Ngl.chiinv(numpy_s1,scalar2)
 print chi,type(chi)
 test_value("chiinv",chi,value)
 check_type(chi,"numpy")
 
 print "\nchiinv (scalar,numpy uint32 input)"
 print "-----------------------------------"
-chi = NglA.chiinv(scalar1,numpy_u2)
+chi = Ngl.chiinv(scalar1,numpy_u2)
 print chi,type(chi)
 test_value("chiinv",chi,value)
 check_type(chi,"numpy")
 
 print "\nchiinv (numpy array,numeric array)"
 print "-----------------------------------"
-chi = NglA.chiinv(numpy_s1,numer_s2)
+chi = Ngl.chiinv(numpy_s1,numer_s2)
 print chi,type(chi)
 test_value("chiinv",chi,value)
 check_type(chi,"numpy")

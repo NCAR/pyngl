@@ -1,7 +1,6 @@
 #include "Python.h"
 #include <stdio.h>
 #include <string.h>
-#include <ncarg/hlu/Transform.h>
 
 #ifdef USE_NUMPY
 #include <numpy/arrayobject.h>
@@ -62,13 +61,11 @@ static PyObject* t_output_helper(PyObject* target, PyObject* o) {
 #include "chiinvP.c"
 #include "linmsgP.c"
 #include "reglineP.c"
-#include "datatondcP.c"
 
 static PyMethodDef fplib_methods[] = {     
     {"chiinv",  (PyCFunction)fplib_chiinv,  METH_VARARGS},
     {"linmsg",  (PyCFunction)fplib_linmsg,  METH_VARARGS},
     {"regline", (PyCFunction)fplib_regline, METH_VARARGS},
-    {"datatondc", (PyCFunction)fplib_datatondc, METH_VARARGS},
     {NULL,      NULL}        /* Sentinel */
 };
 

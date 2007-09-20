@@ -2844,6 +2844,40 @@ res -- An optional instance of the Resources class having Labelbar
   del rlist1
   return (lst2pobj(ilb))
 
+def linmsg(x, end_pts_msg=0, max_msg=None, fill_value=1.e20):
+#
+#  If max_msg is the default, then set it to "0" which will
+#  be interpreted in the extension module to be the maximum.
+#
+  if (max_msg == None):
+    max_msg = 0
+#
+#  If end_pts_msg is 0, then end points that are missing values 
+#  are returned as missing; if 1, then nearest non-missing value
+#  is used.  If end_pts_msg is set to 1 here, the value passed
+#  to the extension module is -1, since that is what the Fortran
+#  function wants.
+#
+  if (end_pts_msg == 1):
+    end_pts_msg = -1
+
+#
+#  If input array is a Numeric masked array then return a Numeric
+#  masked array; if numpy masked array, return a numpy masked array.
+#  Otherwise missing values are dealt with using the fill_value.
+#
+  type, fv = get_ma_fill_value(x)
+  if (fv != None):
+    aret = fplib.linmsg(x.filled(fv), end_pts_msg, max_msg, fv)
+    if (type == "MA"):
+      import MA
+      return MA.array(aret, fill_value=fv)
+    elif (type == "num"):
+      import numpy.core.ma
+      return numpy.core.ma.array(aret, fill_value=fv)
+  else:
+    return fplib.linmsg(promote_scalar(x),end_pts_msg,max_msg,fill_value)
+
 def map(wks,rlistc=None,res=None):
   """
 Creates and draws a map, and returns a PlotId of the map plot created.
@@ -3646,6 +3680,47 @@ name -- A string representing abbreviated name for which you want a
     return pynglpath_ncarg()
   else:
     print 'pynglpath: input name "%s" not recognized' % (name)
+
+def regline(x, y, fill_value_x=1.e20, fill_value_y=1.e20, 
+                    return_info=True):
+  type_x, fv_x = get_ma_fill_value(x)
+  type_y, fv_y = get_ma_fill_value(y)
+#
+#  x and y both masked arrays.
+#
+  if (fv_x != None and fv_y != None):
+    result = fplib.regline(x.filled(fv_x), y.filled(fv_y), fv_x, fv_y)
+    if (return_info == True): 
+      return result
+    else:
+      return result[0]
+#
+#  x is a masked array, y is not.
+#
+  elif (fv_x != None and fv_y == None):
+    result = fplib.regline(x.filled(fv_x), y, fv_x, fill_value_y)
+    if (return_info == True): 
+      return result
+    else:
+      return result[0]
+#
+#  x is not a masked array, y is.
+#
+  elif (fv_x == None and fv_y != None):
+    result = fplib.regline(x, y.filled(fv_y), fill_value_x, fv_y)
+    if (return_info == True): 
+      return result
+    else:
+      return result[0]
+#
+#  Neither x nor y is a masked array.
+#
+  else:
+    result = fplib.regline(x,y,fill_value_x,fill_value_y)
+    if (return_info == True): 
+      return result
+    else:
+      return result[0]
 
 def remove_annotation(plot_id1,plot_id2):
   """

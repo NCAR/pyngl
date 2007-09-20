@@ -26,13 +26,22 @@ def check_type(value,type_expected):
         print "Type test unsuccessful."
   
 #
-# Compare two values for equality.
+# Compare two single values for equality.
 #
 def test_value(title,value1,value2,delta=None):
   if delta == None:
     delta = 1e-8
   diff = abs(value1 - value2)
   if diff[0] < delta:
+    print title + " test successful."
+  else:
+    print title + " test unsuccessful."
+
+#
+# Compare two numpy values for equality.
+#
+def test_values(title,values1,values2,delta=None):
+  if numpy.all(values1 == values2):
     print title + " test successful."
   else:
     print title + " test unsuccessful."

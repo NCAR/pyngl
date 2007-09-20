@@ -334,7 +334,7 @@ for array_module in array_modules:
                   library_dirs    = ncl_and_sys_lib_paths,
                   libraries       = LIBRARIES),
                  Extension('fplib', 
-                 ['fplibmodule.c'],
+                 [os.path.join('paft','fplibmodule.c')],
                   define_macros   = DMACROS,
                   include_dirs    = INCLUDE_PATHS,
                   library_dirs    = ncl_and_sys_lib_paths,
