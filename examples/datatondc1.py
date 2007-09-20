@@ -40,7 +40,7 @@ x = Ngl.fspan(100.,npts-1,npts)
 y = 500.+ x * numpy.sin(0.031415926535898*x)
 
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"datatondc01")
+wks = Ngl.open_wks(wks_type,"datatondc1")
 
 res = Ngl.Resources()
 res.nglMaximize = False 
