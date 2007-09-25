@@ -146,7 +146,7 @@ def is_numpy_array(arg):
       if (type(arg) == type(numpy.array([0],numpy.Int0))):
         return True
     except:
-      if (type(arg) == type(numpy.array([0],numpy.int))):
+      if (isinstance(arg,numpy.ndarray)):
         return True
   return False
 
@@ -187,7 +187,7 @@ def is_numeric(arg):
 def is_numpy(arg):
   try:
     import numpy
-    if (type(arg) == type(numpy.array([0])) or isinstance(arg,numpy.generic)):
+    if isinstance(arg,numpy.ndarray) or isinstance(arg,numpy.generic):
       return True
     else:
       return False
@@ -213,7 +213,7 @@ def is_numeric_scalar(arg):
 def is_numpy_scalar(arg):
   try:
     import numpy
-    if (type(arg) == type(numpy.array([0]))) and (len(arg.shape) == 0):
+    if (isinstance(arg,numpy.ndarray)) and (len(arg.shape) == 0):
       return True
 #
 # Test for numpy scalar.
@@ -372,7 +372,7 @@ def ismissing(arg,mval):
     elif (HAS_NUM == 2):
       if (isinstance(arg,numpy.generic)):
         pass
-      elif (type(arg) == type(numpy.array([0]))):
+      if (isinstance(arg,numpy.ndarray)):
         pass
       else:
         print "ismissing: first argument must be a numpy array or scalar."
