@@ -6441,7 +6441,7 @@ def promote_scalar(x):
   if is_scalar(x):
     if recommend_numeric:
       import Numeric
-      return numpy.array([x])
+      return Numeric.array([x])
     else:
       import numpy
       return numpy.array([x])

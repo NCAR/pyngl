@@ -49,9 +49,9 @@ for i in xrange(len(py_files)):
   py_files[i] = join(pyngl_pkg_name,py_files[i])
 
 if sys.platform == "cygwin":
-  so_files = ['_hlu.dll','nio.dll']
+  so_files = ['_hlu.dll','nio.dll','fplib.dll']
 else:
-  so_files = ['_hlu.so','nio.so']
+  so_files = ['_hlu.so','nio.so','fplib.so']
 
 setup (name = pyngl_pkg_name,
        version=XXXX,
