@@ -34,7 +34,8 @@
 #  Notes:
 #     
 
-import numpy, Ngl
+import numpy
+import Ngl
 
 #
 #  The procedure tricolour produces a French flag using the

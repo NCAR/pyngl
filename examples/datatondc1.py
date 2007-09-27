@@ -30,7 +30,8 @@
 #
 #  Notes:
 #
-import Ngl,numpy
+import Ngl
+import numpy
 
 #
 #  Create some data for xy plots.

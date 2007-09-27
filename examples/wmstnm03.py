@@ -28,7 +28,9 @@
 #
 #  Notes:
 #     
-import Ngl,numpy,sys
+import Ngl
+import numpy
+import sys
 
 #
 #  Plot station model data over a map.

@@ -27,7 +27,9 @@
 #  Notes:
 #     
 
-import Ngl,numpy
+import Ngl
+import numpy
+
 #
 #  Define a color map and open a workstation.
 #
