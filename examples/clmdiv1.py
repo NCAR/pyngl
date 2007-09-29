@@ -1,6 +1,6 @@
 #
 #  File:
-#    clmdiv.py
+#    clmdiv1.py
 #
 #  Synopsis:
 #    Draws U.S. geographic climate divisions as polygonal areas.
@@ -34,7 +34,7 @@
 #
 
 #
-#  Import numpy.and random.
+#  Import numpy and random.
 #
 import numpy
 import random
@@ -92,7 +92,7 @@ cmap = numpy.array([[1.00,1.00,1.00],[0.00,0.00,0.00],[1.00,0.00,0.00],\
 rlist = Ngl.Resources()
 rlist.wkColorMap = cmap
 wks_type = "ps"
-wks = Ngl.open_wks (wks_type,"clmdiv",rlist)
+wks = Ngl.open_wks (wks_type,"clmdiv1",rlist)
 
 #
 #  Create the plot.
