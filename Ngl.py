@@ -6150,12 +6150,26 @@ imdat -- A string of 50 characters encoded as per the WMO/NOAA guidelines.
 # 
   xa = arg_with_scalar(numpy.array(x))
   ya = arg_with_scalar(numpy.array(y))
-  if (type(imdat) == type('a')):
-    imdata = numpy.array([imdat])
+  if recommend_numeric:
+    import Numeric
+    if (type(imdat) == type('a')):
+      imdata = imdat
+      c_wmstnmp(gksid,xa[0],ya[0],imdata)
+    else:
+      imdata = Numeric.array(imdat)
+      str_arg = ""
+      for i in xrange(len(xa)):
+        for j in xrange(len(imdata[i])):
+          str_arg = str_arg+imdata[i][j][0]
+        c_wmstnmp(gksid,xa[i],ya[i],str_arg)
   else:
-    imdata = numpy.array(imdat)
-  for i in xrange(len(xa)):
+    if (type(imdat) == type('a')):
+      imdata = numpy.array([imdat])
+    else:
+      imdata = numpy.array(imdat)
+    for i in xrange(len(xa)):
       c_wmstnmp(gksid,xa[i],ya[i],imdata[i])
+
   del xa,ya,imdata
   return None
 
