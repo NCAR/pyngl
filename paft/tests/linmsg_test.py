@@ -103,3 +103,34 @@ test_values("linmsg (multi-d, missing values)",xnew,y)
 test_values("linmsg (multi-d, msg)",[xnew[0][0][0],xnew[0][0][2], \
                                      xnew[1][0][2],xnew[1][1][1], \
                                      xnew[1][1][2]],[fv,fv,fv,fv,fv])
+
+del x
+x = [ 1190.,1455.,1550.,-999.,1745.,1770., \
+      1900.,-999.,-999.,-999.,2335.,2490., \
+      2720.,2710.,2530.,2900.,2760.,-999. ]
+
+xout = [ 1190.,1455.  ,1550. ,1647.5 ,1745.,1770., \
+         1900.,2008.75,2117.5,2226.25,2335.,2490., \
+         2720.,2710.  ,2530. ,2900.  ,2760.,-999.]
+
+x = Ngl.linmsg(x,0,fill_value=-999)   # missing end point(s) unaltered
+test_values("linmsg (same array used for output)",x,xout)
+
+
+fv = 1.e10
+y = [ 1115.,fv ,1515.,1794.,fv ,1710., \
+      1830.,1920.,1970.,2300.,2280.,2520., \
+      2630.,fv ,fv ,2800.,fv ,fv]
+
+
+# endPoint= -1 missing end point(s) set to nearest non-missing value
+ynew = Ngl.linmsg(y,-1,fill_value=fv)
+
+yout = [1115.,1315.,1515.,1794.,1752.,1710., \
+        1830.,1920.,1970.,2300.,2280.,2520., \
+        2630.,2686.66666667, 2743.33333333,2800.,2800.,2800.]
+
+test_values("linmsg (yet another test)",ynew,yout,delta=1e-1)
+
+
+

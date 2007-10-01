@@ -41,21 +41,28 @@ def test_value(title,value1,value2,delta=None):
 # Compare two numpy values for equality.
 #
 def test_values(title,values1,values2,delta=None):
+  if delta == None:
+    delta = 1e-8
+
   if numpy.all(values1 == values2):
     print title + " test successful."
   else:
-    print title + " test unsuccessful."
-    if isinstance(values1,numpy.ndarray):
-      print "min/max values1 =" + str(numpy.min(values1)) + "/" + \
-                                  str(numpy.max(values1))
-    else:
-      print "min/max values1 =" + str(numpy.min(numpy.array(values1))) + \
-                            "/" + str(numpy.max(numpy.array(values1)))
+    diff = numpy.max(numpy.abs(values1 - values2))
 
-    if isinstance(values2,numpy.ndarray):
-      print "min/max values2 =" + str(numpy.min(values2)) + "/" + \
-                                  str(numpy.max(values2))
+    if diff < delta:
+      print title + " test successful."
     else:
-      print "min/max values2 =" + str(numpy.min(numpy.array(values2))) + \
-                            "/" + str(numpy.max(numpy.array(values2)))
-  
+      print title + " test unsuccessful."
+      if isinstance(values1,numpy.ndarray):
+        print "min/max values1 =" + str(numpy.min(values1)) + "/" + \
+                                    str(numpy.max(values1))
+      else:
+        print "min/max values1 =" + str(numpy.min(numpy.array(values1))) + \
+                              "/" + str(numpy.max(numpy.array(values1)))
+
+      if isinstance(values2,numpy.ndarray):
+        print "min/max values2 =" + str(numpy.min(values2)) + "/" + \
+                                    str(numpy.max(values2))
+      else:
+        print "min/max values2 =" + str(numpy.min(numpy.array(values2))) + \
+                              "/" + str(numpy.max(numpy.array(values2)))
