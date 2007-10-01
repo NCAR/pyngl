@@ -372,7 +372,7 @@ def ismissing(arg,mval):
     elif (HAS_NUM == 2):
       if (isinstance(arg,numpy.generic)):
         pass
-      if (isinstance(arg,numpy.ndarray)):
+      elif (isinstance(arg,numpy.ndarray)):
         pass
       else:
         print "ismissing: first argument must be a numpy array or scalar."
