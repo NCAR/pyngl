@@ -2863,23 +2863,37 @@ res -- An optional instance of the Resources class having Labelbar
   del rlist1
   return (lst2pobj(ilb))
 
-def linmsg(x, end_pts_msg=0, max_msg=None, fill_value=1.e20):
-#
-#  If max_msg is the default, then set it to "0" which will
-#  be interpreted in the extension module to be the maximum.
-#
-  if (max_msg == None):
-    max_msg = 0
-#
-#  If end_pts_msg is 0, then end points that are missing values 
-#  are returned as missing; if 1, then nearest non-missing value
-#  is used.  If end_pts_msg is set to 1 here, the value passed
-#  to the extension module is -1, since that is what the Fortran
-#  function wants.
-#
-  if (end_pts_msg == 1):
-    end_pts_msg = -1
+def linmsg(x, end_pts_msg=None, max_msg=None, fill_value=1.e20):
+  """
+Linearly interpolates to fill in missing values.
 
+x = Ngl.linmsg(x,end_pts_msg=None,max_msg=None,fill_value=None)
+
+x -- An array of any dimensionality.
+
+end_pts_msg -- how missing beginning and end points will be
+               returned. If this value is greater than or equal to 0,
+               then the beginning and end points will be returned as
+               missing (default option). If this value is less
+               than 0, then they will be set to the nearest
+               non-missing value.
+
+max_msg -- the maximum number of consecutive missing values to be
+           interpolated. If not set, then this function will try 
+           to interpolate as many values as it can.
+  """
+#
+#  Set defaults for input parameters not specified by user.
+#
+  if end_pts_msg == None:
+    end_pts_msg = 0
+
+#
+# Setting max_msg to 0 will cause the C wrapper to set this to
+# npts before going into the Fortran routine.
+#
+  if max_msg == None:
+    max_msg = 0
 #
 #  If input array is a Numeric masked array then return a Numeric
 #  masked array; if numpy masked array, return a numpy masked array.
