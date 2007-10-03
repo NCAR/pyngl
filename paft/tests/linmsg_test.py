@@ -1,9 +1,6 @@
 # To test with the Numeric module, be sure to uncomment these three
 # lines, and comment the NumPy lines after this.
 #
-# import PAF_numeric.Ngl as Ngl
-# import MA
-# default_type = "numeric"
 
 import sys
 
@@ -16,7 +13,7 @@ default_type = "numpy"
 # Leave these both alone, regardless of what module you are testing.
 #
 import numpy
-import Numeric
+import numpy.core.ma as ma
 from utils import *
 
 #
@@ -54,8 +51,15 @@ x[50] = fill_value
 x[80] = fill_value
 x[99] = fill_value
 
+xma = ma.masked_array(x,fill_value=fill_value)
+
 xnew = Ngl.linmsg(x,0,fill_value=fill_value)
+xnewma = Ngl.linmsg(xma,0)
 test_values("linmsg (some fill_values)",xnew,xorig)
+test_values("linmsg (some fill_values)",xnewma,xorig)
+
+sys.exit()
+
 check_type(xnew,default_type)
 del xnew
 

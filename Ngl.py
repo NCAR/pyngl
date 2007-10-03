@@ -1432,7 +1432,7 @@ x, y -- One-dimensional arrays containing the x, y coordinates of the
 
 res -- An optional instance of the Resources class having GraphicStyle
        resources as attributes.
-"""
+  """
   return(add_poly(wks,plot,x,y,NhlPOLYGON,rlistc))
 
 def add_polyline(wks,plot,x,y,rlistc=None):
@@ -2867,9 +2867,9 @@ def linmsg(x, end_pts_msg=None, max_msg=None, fill_value=1.e20):
   """
 Linearly interpolates to fill in missing values.
 
-x = Ngl.linmsg(x,end_pts_msg=None,max_msg=None,fill_value=None)
+x = Ngl.linmsg(x,end_pts_msg=None,max_msg=None,fill_value=1.e20)
 
-x -- An array of any dimensionality.
+x -- An array of any dimensionality that contains some missing values.
 
 end_pts_msg -- how missing beginning and end points will be
                returned. If this value is greater than or equal to 0,
@@ -2881,6 +2881,8 @@ end_pts_msg -- how missing beginning and end points will be
 max_msg -- the maximum number of consecutive missing values to be
            interpolated. If not set, then this function will try 
            to interpolate as many values as it can.
+
+fill_value -- The missing value for x. Defaults to 1.e20 if not set.
   """
 #
 #  Set defaults for input parameters not specified by user.
@@ -3714,46 +3716,61 @@ name -- A string representing abbreviated name for which you want a
   else:
     print 'pynglpath: input name "%s" not recognized' % (name)
 
-def regline(x, y, fill_value_x=1.e20, fill_value_y=1.e20, 
-                    return_info=True):
-  type_x, fv_x = get_ma_fill_value(x)
-  type_y, fv_y = get_ma_fill_value(y)
+def regline(x, y, return_info=True):
+  """
+Calculates the linear regression coefficient between two series,
+and returns a masked array with the same fill_value as y.
+
+rc = Ngl.regline (x,y)
+
+x,y -- One-dimensional masked arrays of the same length.
+
+return_info -- An optional logical that indicates whether additional
+               calculations should be returned (True by default):
+
+               xave -- average of x
+               yave -- average of y
+               tval -- t-statistic (assuming null-hypothesis)
+               rstd  -- standard error of the regression coefficient
+               yintercept  -- y-intercept at x=0
+               nptxy  -- number of points used
+  """
+  type_x, fill_value_x = get_ma_fill_value(x)
+  type_y, fill_value_y = get_ma_fill_value(y)
 #
-#  x and y both masked arrays.
+#  x and y are both masked arrays.
 #
-  if (fv_x != None and fv_y != None):
-    result = fplib.regline(x.filled(fv_x), y.filled(fv_y), fv_x, fv_y)
-    if (return_info == True): 
-      return result
-    else:
-      return result[0]
+  if (fill_value_x != None and fill_value_y != None):
+    result = fplib.regline(x.filled(fill_value_x), y.filled(fill_value_y), \
+                           fill_value_x, fill_value_y)
 #
 #  x is a masked array, y is not.
 #
-  elif (fv_x != None and fv_y == None):
-    result = fplib.regline(x.filled(fv_x), y, fv_x, fill_value_y)
-    if (return_info == True): 
-      return result
-    else:
-      return result[0]
+  elif (fill_value_x != None and fill_value_y == None):
+    fill_value_y = 1.e20
+    result = fplib.regline(x.filled(fill_value_x), y, fill_value_x, \
+                                                      fill_value_y)
 #
 #  x is not a masked array, y is.
 #
-  elif (fv_x == None and fv_y != None):
-    result = fplib.regline(x, y.filled(fv_y), fill_value_x, fv_y)
-    if (return_info == True): 
-      return result
-    else:
-      return result[0]
+  elif (fill_value_x == None and fill_value_y != None):
+    fill_value_x = 1.e20
+    result = fplib.regline(x, y.filled(fill_value_y), fill_value_x, \
+                                                      fill_value_y)
 #
 #  Neither x nor y is a masked array.
 #
   else:
+    fill_value_x = fill_value_y = 1.e20
     result = fplib.regline(x,y,fill_value_x,fill_value_y)
-    if (return_info == True): 
-      return result
-    else:
-      return result[0]
+# 
+#  Return a masked array with y's fill value as the fill_value.
+# 
+  if (return_info == True): 
+    result[0] = numpy.ma.masked_array(result[0],fill_value=fill_value_y)
+    return result
+  else:
+    return numpy.ma.masked_array(result[0],fill_value=fill_value_y)
 
 def remove_annotation(plot_id1,plot_id2):
   """
