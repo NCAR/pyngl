@@ -7,26 +7,15 @@ import Numeric
 # Check type of value.
 #
 def check_type(value,type_expected):
-  value_type = type(value)
   if type_expected == "numpy":
     try:
       import numpy
-      if value_type == type(numpy.array([0])):
+      if isinstance(value,numpy.ndarray):
         print "Type test successful."
       else:
         print "Type test unsuccessful."
     except:
         print "Type test unsuccessful."
-  elif type_expected == "numeric":
-    try:
-      import Numeric
-      if value_type == type(Numeric.array([0])):
-        print "Type test successful."
-      else:
-        print "Type test unsuccessful."
-    except:
-        print "Type test unsuccessful."
-  
 #
 # Compare two single values for equality.
 #

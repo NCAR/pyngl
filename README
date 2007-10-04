@@ -7,25 +7,15 @@ variety of data formats (netCDF, GRIB1, GRIB2, HDF4, HDF-EOS2, CCM
 History tape) using an interface modelled on netCDF.  This module is
 part of PyNGL version 1.2.0.
 
-PyNGL and PyNIO are available with Numeric or NumPy support, and are
-distributed as separate packages.  You can install both versions on
-the same system, as there will be no clashes.
-
-If you install the NumPy version of PyNGL/PyNIO, then you can
-import them with:
+PyNGL and PyNIO are available with NumPy support only (Numeric support
+was dropped October 2007).  You can import these packages with:
 
 import Ngl
 import Nio
 
-If you install the Numeric version of PyNGL/PyNIO, then you can
-import them with:
-
-import PyNGL_numeric.Ngl as Ngl
-import PyNGL_numeric.Nio as Nio
-
 These binaries were built with either Python2.5 or Python 2.4.4, and
-with either Numeric 24.2 or NumPy 1.0.3. This package has not been
-tested with other versions of these modules.
+with NumPy 1.0.3. This package has not been tested with other versions
+of these modules.
 
 The 2D visualizations can be drawn on an X11 window or saved as as
 PostScript, PDF, or NCGM file.
@@ -55,10 +45,9 @@ E-Mail: dbrown@ucar.edu, fred@ucar.edu, haley@ucar.edu
 Installation:
 -------------
 
-Required: Python 2.4 or higher and Numeric 24.2 or higher for the
-Numeric version of PyNGL. For the NumPy version, you need NumPy
-version 1.0.  Earlier or later versions of these packages may work,
-but we haven't tested all of them.
+Required: Python 2.4 or higher and NumPy version 1.0 or higher.
+Earlier or later versions of these packages may work, but we haven't
+tested all of them.
 
 Installation is simple:
 
@@ -74,15 +63,7 @@ To run a PyNGL example, type:
 
    pynglex ngl01p
 
-By default, this will try to generate the NumPy version of the
-example, and if this fails, the Numeric version.
-
-If you've downloaded the Numeric version of PyNGL/PyNIO, then
-you can run the Numeric version of this example with:
-
-   pynglex --numeric ngl01p
-
-Either command will generate a PostScript file called "ngl01p.ps"
+This command will generate a PostScript file called "ngl01p.ps"
 containing XY plots.
 
 To have the example generate an X11 window instead of a PostScript

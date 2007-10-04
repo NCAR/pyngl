@@ -10,66 +10,38 @@ import sys
 #  Get version number and flag for numpy compatibility.
 #
 #  Also, get the __array_module__  and __array_module_version__
-#  attributes.
+#  attributes. Note that PyNGL no longer supports Numeric, so 
+#  __array_module__ should always be "numpy".
 #
 import pyngl_version
 __version__              = pyngl_version.version
 __array_module__         = pyngl_version.array_module
 __array_module_version__ = pyngl_version.array_module_version
-HAS_NUM                  = pyngl_version.HAS_NUM
 
 #
-# Test to make sure we can actually load numpy or Numeric, and
-# that we are dealing with a reasonable version.
+# Test to make sure we can actually load numpy.
 #
-recommend_numeric = False
-if HAS_NUM == 2:
-  try:
-    import numpy
+try:
+  import numpy
 # Now try to import numpy.core.ma module for masked arrays.
-    try:
-      import numpy.core.ma as ma
-      HAS_MA = True
-    except:
-      HAS_MA = False
+  try:
+    import numpy.core.ma as ma
+    HAS_MA = True
+  except:
+    HAS_MA = False
 # 
 # If we are dealing with a numpy version that is less than 1.0.0, then
 # check the version that PyNGL was built with against this version.
 #
-    if numpy.__version__[0] == '0' and \
-       numpy.__version__ < __array_module_version__:
-      print 'Warning: your version of numpy may be older than what PyNGL'
-      print 'was built with. You could have compatibility problems.'
-      print 'PyNGL was built with numpy version',__array_module_version__,'and you are'
-      print 'importing version',numpy.__version__
-  except ImportError:
-    print 'Cannot find numpy, cannot proceed.'
-    print 'Perhaps you need to install the Numeric version of PyNGL instead.'
-    sys.exit()
-else:
-  try:
-    import Numeric as numpy
-# Now try to import MA module for masked arrays.
-    try:
-      import MA as ma
-      HAS_MA = True
-    except:
-      HAS_MA = False
-
-    recommend_numeric = True
-#
-# I decided to comment this section out, because a Numeric 24 version
-# of PyNGL seems to work okay with Numeric 23.x (23.8 anyway).
-#
-#    if numpy.__version__[0] != __array_module_version__[0]:
-#      print 'Warning: your version of Numeric is different from what PyNGL'
-#      print 'was built with. You may have compatibility problems.'
-#      print 'PyNGL was built with Numeric version',__array_module_version__
-#      print 'and you are importing version',numpy.__version__
-  except ImportError:
-    print 'Cannot find Numeric, cannot proceed'
-    print 'Perhaps you need to install the numpy version of PyNGL instead.'
-    sys.exit()
+  if numpy.__version__[0] == '0' and \
+     numpy.__version__ < __array_module_version__:
+    print 'Warning: your version of numpy may be older than what PyNGL'
+    print 'was built with. You could have compatibility problems.'
+    print 'PyNGL was built with numpy version',__array_module_version__,'and you are'
+    print 'importing version',numpy.__version__
+except ImportError:
+  print 'Cannot find numpy, cannot proceed.'
+  sys.exit()
 
 from hlu import *
 import hlu
@@ -135,27 +107,11 @@ def is_list_or_tuple(arg):
   else:
     return False
   
-def is_numeric_array(arg):
-  if (HAS_NUM == 1 and type(arg) == type(numpy.array([0],numpy.Int0))):
-    return True
-  return False
-
 def is_numpy_array(arg):
-  if (HAS_NUM == 2):
-    try:
-      if (type(arg) == type(numpy.array([0],numpy.Int0))):
-        return True
-    except:
-      if (isinstance(arg,numpy.ndarray)):
-        return True
-  return False
-
-def is_numerpy_array(arg):
-  if is_numeric_array(arg):
+  if isinstance(arg,numpy.ndarray):
     return True
-  if is_numpy_array(arg):
-    return True
-  return False
+  else:
+    return False
 
 #
 # This function returns True if it encounters a Python scalar.
@@ -169,19 +125,6 @@ def is_python_scalar(arg):
     return False
 
 # 
-# This function returns True if we have a Numeric array.
-#
-def is_numeric(arg):
-  try:
-    import Numeric
-    if (type(arg) == type(Numeric.array([0]))):
-      return True
-    else:
-      return False
-  except:
-    return False
-
-# 
 # This function returns True if we have a numpy scalar or array.
 #
 def is_numpy(arg):
@@ -192,16 +135,6 @@ def is_numpy(arg):
     else:
       return False
   except:
-    return False
-
-#
-# This function returns True if it encounters a numeric scalar.
-# A numeric scalar is a numeric array with 0 dimensions.
-#
-def is_numeric_scalar(arg):
-  if (is_numeric(arg) and (len(arg.shape) == 0)):
-    return True
-  else:
     return False
 
 #
@@ -226,18 +159,11 @@ def is_numpy_scalar(arg):
     return False
 
 #
-# This function returns True if it's a Python scalar, a
-# numpy scalar, or a numeric scalar.
+# This function returns True if it's a Python scalar or a 
+# numpy scalar.
 #
 def is_scalar(arg):
-  return is_numeric_scalar(arg) or is_numpy_scalar(arg) or \
-         is_python_scalar(arg)
-
-def is_array(arg):
-  if (type(arg) == type(numpy.array([0]))):
-    return True
-  else:
-    return False
+  return is_numpy_scalar(arg) or is_python_scalar(arg)
 
 def is_list(arg):
   if (type(arg) == types.ListType):
@@ -265,7 +191,7 @@ def arg_with_scalar(arg):
       return arg
 
 #
-# This function returns a NumPy/Numeric array and the fill value 
+# This function returns a NumPy array and the fill value 
 # if arr is a masked array; otherwise it just returns arr and 
 # 'None' for the fill value.
 #
@@ -295,40 +221,6 @@ def set_msg_val_res(rlist,fv,plot_type):
   res_to_set = type_res_pairs[plot_type]
   if(fv != None and (not rlist.has_key(res_to_set))):
     rlist[res_to_set] = fv
-
-def numerpy_int_zeros(num):
-#
-# This function creates a numpy.zeros int array.
-#
-  try:
-    return numpy.zeros(num,numpy.Int) 
-  except:
-    return numpy.zeros(num,'i')
-
-def numerpy_float0_zeros(num):
-#
-# This function creates a numpy.zeros float0 array.
-#
-  try:
-    return numpy.zeros(num,numpy.Float0) 
-  except:
-    return numpy.zeros(num,'f')
-
-def numerpy_float_zeros(num):
-#
-# This function creates a numpy.zeros float array.
-#
-# This doesn't work under Numeric 24.2:
-#
-#  return numpy.zeros(num,'f')
-# 
-# because the type of a single element of a numpy.zeros 'f' 
-# array is still an array!
-#
-  try:
-    return numpy.zeros(num,numpy.Float) 
-  except:
-    return numpy.zeros(num,'f')
 
 def ck_for_rangs(dir):
 #
@@ -360,23 +252,13 @@ def ismissing(arg,mval):
 #  has True values in all places where "arg" has 
 #  missing values.
 #
-    if (HAS_NUM == 1):
-      if (type(arg) == type(numpy.array([0],numpy.Int))):
-        pass
-      elif (type(arg)==types.IntType or type(arg)==types.LongType or \
-            type(arg)==types.FloatType):
-        pass
-      else:
-        print "ismissing: first argument must be a Numeric array or scalar."
-        return None
-    elif (HAS_NUM == 2):
-      if (isinstance(arg,numpy.generic)):
-        pass
-      elif (isinstance(arg,numpy.ndarray)):
-        pass
-      else:
-        print "ismissing: first argument must be a numpy array or scalar."
-        return None
+    if (isinstance(arg,numpy.generic)):
+      pass
+    elif (isinstance(arg,numpy.ndarray)):
+      pass
+    else:
+      print "ismissing: first argument must be a numpy array or scalar."
+      return None
     return(numpy.equal(arg,mval))
 
 def get_values(obj,rlistc):
@@ -392,11 +274,7 @@ def pynglpath_ncarg():
 #  in site-packages/PyNGL/ncarg. Otherwise, check the PYNGL_NCARG
 #  environment variable.
 #
-  if sys.modules.has_key("PyNGL_numeric.Ngl"):
-    pyngl1_dir  = os.path.join(pkgs_pth,"PyNGL_numeric","ncarg")
-  else:
-    pyngl1_dir  = os.path.join(pkgs_pth,"PyNGL","ncarg")
-
+  pyngl1_dir  = os.path.join(pkgs_pth,"PyNGL","ncarg")
   pyngl2_dir  = os.environ.get("PYNGL_NCARG")
 
   if (pyngl2_dir != None and os.path.exists(pyngl2_dir)):
@@ -1044,10 +922,7 @@ wid = Ngl.get_workspace_id()
   return NhlGetWorkspaceObjectId()
 
 def skewty(pres):    # y-coord given pressure (mb)
-  if (HAS_NUM == 1):
-    return(132.182-44.061*numpy.log10(pres))
-  else:
-    return(132.182-44.061*numpy.lib.scimath.log10(pres))
+  return(132.182-44.061*numpy.lib.scimath.log10(pres))
 
 def skewtx(temp,y):  # x-coord given temperature (c)
   return (0.54*temp+0.90692*y)
@@ -1211,18 +1086,11 @@ longitude -- An optional one-dimensional array, representing
 #
 # Create the new data array with one extra value in the X direction.
 #
-  if (HAS_NUM == 1):
-    if(HAS_MA and ma.isMaskedArray(data)):
-      newdata         = ma.zeros((ny,nx1),data.typecode())
-      newdata.set_fill_value(data.fill_value())
-    else:
-      newdata         = numpy.zeros((ny,nx1),data.typecode())
-  elif (HAS_NUM == 2):
-    if(HAS_MA and ma.isMaskedArray(data)):
-      newdata         = ma.zeros((ny,nx1),data.dtype.char)
-      newdata.set_fill_value(data.fill_value())
-    else:
-      newdata         = numpy.zeros((ny,nx1),data.dtype.char)
+  if(HAS_MA and ma.isMaskedArray(data)):
+    newdata         = ma.zeros((ny,nx1),data.dtype.char)
+    newdata.set_fill_value(data.fill_value())
+  else:
+    newdata         = numpy.zeros((ny,nx1),data.dtype.char)
   newdata[:,0:nx] = data
   newdata[:,nx]   = data[:,0]
 
@@ -1230,10 +1098,7 @@ longitude -- An optional one-dimensional array, representing
 # Add 360 to the longitude value in order to make it cyclic.
 #
   if(lon_coord != None):
-    if (HAS_NUM == 1):
-      newloncoord       = numpy.zeros(nx1,lon_coord.typecode())
-    elif (HAS_NUM == 2):
-      newloncoord       = numpy.zeros(nx1,lon_coord.dtype.char)
+    newloncoord       = numpy.zeros(nx1,lon_coord.dtype.char)
     newloncoord[0:nx] = lon_coord
     newloncoord[nx]   = lon_coord[0] + 360
 
@@ -1360,36 +1225,20 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
 #
 # Create new arrays.
 #
-  if (HAS_NUM == 1):
-    if data_is_masked:
-      new_data = ma.zeros((new_ny,new_nx),data2.typecode())
-      new_data.set_fill_value(data.fill_value())
-    else:
-      new_data = numpy.zeros((new_ny,new_nx),data2.typecode())
-    if xcoord != None:
-      new_xcoord = numpy.zeros(new_nx,xcoord.typecode())
-    if ycoord != None:
-      new_ycoord = numpy.zeros(new_ny,ycoord.typecode())
-  elif (HAS_NUM == 2):
-    if data_is_masked:
-      new_data     = ma.zeros((new_ny,new_nx),data2.dtype.char)
-      new_data.set_fill_value(data.fill_value())
-    else:
-      new_data     = numpy.zeros((new_ny,new_nx),data2.dtype.char)
-    if xcoord != None:
-      new_xcoord = numpy.zeros(new_nx,xcoord.dtype.char)
-    if ycoord != None:
-      new_ycoord = numpy.zeros(new_ny,ycoord.dtype.char)
+  if data_is_masked:
+    new_data     = ma.zeros((new_ny,new_nx),data2.dtype.char)
+    new_data.set_fill_value(data.fill_value())
+  else:
+    new_data     = numpy.zeros((new_ny,new_nx),data2.dtype.char)
+  if xcoord != None:
+    new_xcoord = numpy.zeros(new_nx,xcoord.dtype.char)
+  if ycoord != None:
+    new_ycoord = numpy.zeros(new_ny,ycoord.dtype.char)
 # 
 # Fill the new data array with the original values, and missing
 # values everywhere else.
 #
-# If fillvalue is a Numeric array, we have to subscript it.
-#
-  if is_numeric_array(fillvalue):
-    new_data[:,:] = fillvalue[0]
-  else:
-    new_data[:,:] = fillvalue
+  new_data[:,:] = fillvalue
   new_data[iy_start:iy_end,ix_start:ix_end] = data2[:,:]
 
 #
@@ -1579,11 +1428,11 @@ type -- An optional argument specifying the type of the data you are
       nnum = nnum*dims[m]
  
   if (type == "integer"):
-    ar = numerpy_int_zeros(nnum)
+    ar = numpy.zeros(nnum,'i')
   elif (type == "float"):
-    ar = numerpy_float0_zeros(nnum)
+    ar = numpy.zeros(nnum,'float32')
   elif (type == "double"):
-    ar = numerpy_float_zeros(nnum)
+    ar = numpy.zeros(nnum,'float64')
   else:
     print 'asciiread: type must be one of: "integer", "float", or "double".'
     sys.exit()
@@ -1644,8 +1493,7 @@ p -- Integral of the chi-square distribution ([0 < p <1)
 df -- degrees of freedom of the chi-square distribution (0, +infinity).
   """
 #
-# Promote x and y to Numeric (or numpy) arrays that have at least
-# a dimension of 1.
+# Promote x and y to numpy arrays that have at least a dimension of 1.
 #
   x2 = promote_scalar(x)
   y2 = promote_scalar(y)
@@ -1657,9 +1505,6 @@ df -- degrees of freedom of the chi-square distribution (0, +infinity).
   if is_numpy(x) or is_numpy(y):
     import numpy
     return numpy.array(fplib.chiinv(x2,y2))
-  elif is_numeric(x) or is_numeric(y):
-    import Numeric
-    return Numeric.array(fplib.chiinv(x2,y2))
   else:
     return fplib.chiinv(x2,y2)
 
@@ -1695,7 +1540,7 @@ res -- An optional instance of the Resources class having PyNGL
     print "contour - array must be 1D or 2D"
     return None
 
-# Get NumPy/Numeric array from masked array, if necessary.
+# Get NumPy array from masked array, if necessary.
   arr2,fill_value = get_arr_and_fill_value(array)
   
   set_spc_defaults(1)
@@ -1770,7 +1615,7 @@ res -- An optional instance of the Resources class having PyNGL
     print "contour_map - array must be 1D or 2D"
     return None
 
-# Get NumPy/Numeric array from masked array, if necessary.
+# Get NumPy array from masked array, if necessary.
   arr2,fill_value = get_arr_and_fill_value(array)
   
   set_spc_defaults(1)
@@ -1997,7 +1842,7 @@ xo -- A 1D array of length nxo containing the abscissae for the
   """
   if is_list_or_tuple(x):
     dsizes_x = len(x)
-  elif is_numerpy_array(x):
+  elif is_numpy_array(x):
     dsizes_x = x.shape[0]
   else:
     print \
@@ -2005,7 +1850,7 @@ xo -- A 1D array of length nxo containing the abscissae for the
     return None
   if is_list_or_tuple(y):
     dsizes_y = len(y)
-  elif is_numerpy_array(y):
+  elif is_numpy_array(y):
     dsizes_y = y.shape[0]
   else:
     print \
@@ -2017,7 +1862,7 @@ xo -- A 1D array of length nxo containing the abscissae for the
 
   if is_list_or_tuple(xo):
     dsizes_xo = len(xo)
-  elif is_numerpy_array(xo):
+  elif is_numpy_array(xo):
     dsizes_xo = xo.shape[0]
 
   status,yo = ftcurvc(dsizes_x,x,y,dsizes_xo,xo)
@@ -2055,7 +1900,7 @@ xo -- A 1D array of length nxo containing the abscissae for the
   """
   if is_list_or_tuple(x):
     dsizes_x = len(x)
-  elif is_numerpy_array(x):
+  elif is_numpy_array(x):
     dsizes_x = x.shape[0]
   else:
     print \
@@ -2063,7 +1908,7 @@ xo -- A 1D array of length nxo containing the abscissae for the
     return None
   if is_list_or_tuple(y):
     dsizes_y = len(y)
-  elif is_numerpy_array(y):
+  elif is_numpy_array(y):
     dsizes_y = y.shape[0]
   else:
     print \
@@ -2075,7 +1920,7 @@ xo -- A 1D array of length nxo containing the abscissae for the
 
   if is_list_or_tuple(xo):
     dsizes_xo = len(xo)
-  elif is_numerpy_array(xo):
+  elif is_numpy_array(xo):
     dsizes_xo = xo.shape[0]
 
   status,yo = ftcurvpc(dsizes_x,x,y,p,dsizes_xo,xo)
@@ -2114,7 +1959,7 @@ yi -- An array of any dimensionality, whose rightmost dimension is
   """
   if is_list_or_tuple(x):
     dsizes_x = len(x)
-  elif is_numerpy_array(x):
+  elif is_numpy_array(x):
     dsizes_x = x.shape[0]
   else:
     print \
@@ -2122,7 +1967,7 @@ yi -- An array of any dimensionality, whose rightmost dimension is
     return None
   if is_list_or_tuple(y):
     dsizes_y = len(y)
-  elif is_numerpy_array(y):
+  elif is_numpy_array(y):
     dsizes_y = y.shape[0]
   else:
     print \
@@ -2237,8 +2082,8 @@ npts -- The number of equally-spaced points you want to interpolate to.
     lon = numpy.array([rlon1,rlon2],'f')
     return [lat,lon]
   else:
-    lat_tmp = numerpy_float0_zeros(num)
-    lon_tmp = numerpy_float0_zeros(num)
+    lat_tmp = numpy.zeros(num,'f')
+    lon_tmp = numpy.zeros(num,'f')
     lat,lon = mapgci(rlat1,rlon1,rlat2,rlon2,num-2)
     lon0_tmp = rlon1
     lon1_tmp = rlon2
@@ -2294,22 +2139,14 @@ Any area returned is that bounded by the arcs of great circles
 connecting the vertices.
 
   """
-  if (HAS_NUM == 2):
-    lat1t = numpy.atleast_1d(numpy.array(lat1)).astype(float)
-    lon1t = numpy.atleast_1d(numpy.array(lon1)).astype(float)
-    lat2t = numpy.atleast_1d(numpy.array(lat2)).astype(float)
-    lon2t = numpy.atleast_1d(numpy.array(lon2)).astype(float)
-    lat3t = numpy.atleast_1d(numpy.array(lat3)).astype(float)
-    lon3t = numpy.atleast_1d(numpy.array(lon3)).astype(float)
-  else:
-    lat1t = numpy.array(lat1)
-    lon1t = numpy.array(lon1)
-    lat2t = numpy.array(lat2)
-    lon2t = numpy.array(lon2)
-    lat3t = numpy.array(lat3)
-    lon3t = numpy.array(lon3)
+  lat1t = numpy.atleast_1d(numpy.array(lat1)).astype(float)
+  lon1t = numpy.atleast_1d(numpy.array(lon1)).astype(float)
+  lat2t = numpy.atleast_1d(numpy.array(lat2)).astype(float)
+  lon2t = numpy.atleast_1d(numpy.array(lon2)).astype(float)
+  lat3t = numpy.atleast_1d(numpy.array(lat3)).astype(float)
+  lon3t = numpy.atleast_1d(numpy.array(lon3)).astype(float)
   
-  rtn = numerpy_float_zeros(len(lat1t))
+  rtn = numpy.zeros(len(lat1t),'f')
   pi  = 4.*math.atan(1.)
   d2r = pi/180.
   tol = 1.e-7
@@ -2673,20 +2510,14 @@ s -- Saturation values in the range [0.,100.]. Saturation is a measure
   """
   if (is_scalar(h) and is_scalar(l) and is_scalar(s)):
     return(c_hlsrgb(h,l,s))
-  elif (is_array(h) and is_array(l) and is_array(s)):
+  elif (is_numpy_array(h) and is_numpy_array(l) and is_numpy_array(s)):
     ishape = h.shape
-    if (HAS_NUM == 1):
-      dimc = len(h.flat)
-    elif (HAS_NUM == 2):
-      dimc = len(h.ravel())
-    rr = numerpy_float0_zeros(dimc)
-    gr = numerpy_float0_zeros(dimc)
-    br = numerpy_float0_zeros(dimc)
+    dimc = len(h.ravel())
+    rr = numpy.zeros(dimc,'f')
+    gr = numpy.zeros(dimc,'f')
+    br = numpy.zeros(dimc,'f')
     for i in xrange(dimc):
-      if (HAS_NUM == 1):
-        rr[i],gr[i],br[i] = c_hlsrgb(h.flat[i],l.flat[i],s.flat[i])
-      elif (HAS_NUM == 2):
-        rr[i],gr[i],br[i] = c_hlsrgb(h.ravel()[i],l.ravel()[i],s.ravel()[i])
+      rr[i],gr[i],br[i] = c_hlsrgb(h.ravel()[i],l.ravel()[i],s.ravel()[i])
     rr.shape = gr.shape = br.shape = ishape
     del ishape,dimc
     return rr,gr,br
@@ -2696,18 +2527,12 @@ s -- Saturation values in the range [0.,100.]. Saturation is a measure
     li = numpy.array(l,'f')
     si = numpy.array(s,'f')
     ishape = hi.shape
-    if (HAS_NUM == 1):
-      dimc = len(hi.flat)
-    elif (HAS_NUM == 2):
-      dimc = len(hi.ravel())
-    rr = numerpy_float0_zeros(dimc)
-    gr = numerpy_float0_zeros(dimc)
-    br = numerpy_float0_zeros(dimc)
+    dimc = len(hi.ravel())
+    rr = numpy.zeros(dimc,'f')
+    gr = numpy.zeros(dimc,'f')
+    br = numpy.zeros(dimc,'f')
     for i in xrange(dimc):
-      if (HAS_NUM == 1):
-        rr[i], gr[i], br[i] = c_hlsrgb(hi.flat[i],li.flat[i],si.flat[i])
-      if (HAS_NUM == 1):
-        rr[i], gr[i], br[i] = c_hlsrgb(hi.ravel()[i],li.ravel()[i],si.ravel()[i])
+      rr[i], gr[i], br[i] = c_hlsrgb(hi.ravel()[i],li.ravel()[i],si.ravel()[i])
     rr.shape = gr.shape = br.shape = ishape
     del hi,li,si,ishape,dimc
     return rr,gr,br
@@ -2734,20 +2559,14 @@ v -- Values for the value component in the range [0.,1.].
   """
   if (is_scalar(h) and is_scalar(s) and is_scalar(v)):
     return(c_hsvrgb(h,s,v))
-  elif (is_array(h) and is_array(s) and is_array(v)):
+  elif (is_numpy_array(h) and is_numpy_array(s) and is_numpy_array(v)):
     ishape = h.shape
-    if (HAS_NUM == 1):
-      dimc = len(h.flat)
-    elif (HAS_NUM == 2):
-      dimc = len(h.ravel())
-    rr = numerpy_float0_zeros(dimc)
-    gr = numerpy_float0_zeros(dimc)
-    br = numerpy_float0_zeros(dimc)
+    dimc = len(h.ravel())
+    rr = numpy.zeros(dimc,'f')
+    gr = numpy.zeros(dimc,'f')
+    br = numpy.zeros(dimc,'f')
     for i in xrange(dimc):
-      if (HAS_NUM == 1):
-        rr[i],gr[i],br[i] = c_hsvrgb(h.flat[i],s.flat[i],v.flat[i])
-      elif (HAS_NUM == 2):
-        rr[i],gr[i],br[i] = c_hsvrgb(h.ravel()[i],s.ravel()[i],v.ravel()[i])
+      rr[i],gr[i],br[i] = c_hsvrgb(h.ravel()[i],s.ravel()[i],v.ravel()[i])
     rr.shape = gr.shape = br.shape = ishape
     return rr,gr,br
   elif ( ( is_list(h) and  is_list(s) and  is_list(v)) or    \
@@ -2756,18 +2575,12 @@ v -- Values for the value component in the range [0.,1.].
     si = numpy.array(s,'f')
     vi = numpy.array(v,'f')
     ishape = hi.shape
-    if (HAS_NUM == 1):
-      dimc = len(hi.flat)
-    if (HAS_NUM == 2):
-      dimc = len(hi.ravel())
-    rr = numerpy_float0_zeros(dimc)
-    gr = numerpy_float0_zeros(dimc)
-    br = numerpy_float0_zeros(dimc)
+    dimc = len(hi.ravel())
+    rr = numpy.zeros(dimc,'f')
+    gr = numpy.zeros(dimc,'f')
+    br = numpy.zeros(dimc,'f')
     for j in xrange(dimc):
-      if (HAS_NUM == 1):
-        rr[j],gr[j],br[j] = c_hsvrgb(hi.flat[j],si.flat[j],vi.flat[j])
-      elif (HAS_NUM == 2):
-        rr[j],gr[j],br[j] = c_hsvrgb(hi.ravel()[j],si.ravel()[j],vi.ravel()[j])
+      rr[j],gr[j],br[j] = c_hsvrgb(hi.ravel()[j],si.ravel()[j],vi.ravel()[j])
     rr.shape = gr.shape = br.shape = ishape
     del hi,si,vi,dimc,ishape
     return rr,gr,br
@@ -2897,8 +2710,7 @@ fill_value -- The missing value for x. Defaults to 1.e20 if not set.
   if max_msg == None:
     max_msg = 0
 #
-#  If input array is a Numeric masked array then return a Numeric
-#  masked array; if numpy masked array, return a numpy masked array.
+#  If input array is a numpy masked array, return a numpy masked array.
 #  Otherwise missing values are dealt with using the fill_value.
 #
   type, fv = get_ma_fill_value(x)
@@ -3008,11 +2820,7 @@ cmap2 -- A second n x 3 array of RGB triplets, or a predefined colormap name.
 # Merge two colormaps into one.
 #
 
-  if (HAS_NUM == 1):
-    new_cmap = numpy.zeros((ncmap1+ncmap2,3),rgb_cmap1.typecode())
-  elif (HAS_NUM == 2):
-    new_cmap = numpy.zeros((ncmap1+ncmap2,3),rgb_cmap1.dtype.char)
-
+  new_cmap = numpy.zeros((ncmap1+ncmap2,3),rgb_cmap1.dtype.char)
   new_cmap[:ncmap1,:] = rgb_cmap1
   new_cmap[ncmap1:,:] = rgb_cmap2
   
@@ -3039,7 +2847,7 @@ xo, yo -- One-dimensional NumPy float arrays or Python lists (of
   """
   if is_list_or_tuple(x):
     dsizes_x = len(x)
-  elif is_numerpy_array(x):
+  elif is_numpy_array(x):
     dsizes_x = x.shape[0]
   else:
     print \
@@ -3048,7 +2856,7 @@ xo, yo -- One-dimensional NumPy float arrays or Python lists (of
 
   if is_list_or_tuple(xo):
     dsizes_xo = len(xo)
-  elif is_numerpy_array(xo):
+  elif is_numpy_array(xo):
     dsizes_xo = xo.shape[0]
   else:
     print \
@@ -3057,7 +2865,7 @@ xo, yo -- One-dimensional NumPy float arrays or Python lists (of
 
   if is_list_or_tuple(yo):
     dsizes_yo = len(yo)
-  elif is_numerpy_array(yo):
+  elif is_numpy_array(yo):
     dsizes_yo = yo.shape[0]
   else:
     print \
@@ -3380,7 +3188,7 @@ res -- An optional instance of the Resources class having Workstation
     first_call_to_open_wks = first_call_to_open_wks + 1
 
 #
-#  Lists of triplets for color tables must be numeric arrays.
+#  Lists of triplets for color tables must be numpy arrays.
 #
   if (rlist.has_key("wkColorMap")):
 #
@@ -3629,15 +3437,9 @@ name -- A string representing abbreviated name for which you want a
   elif (name == "examples"):
     examples_dir_envn = os.environ.get("PYNGL_EXAMPLES")
 #
-# The pynglex directory is unique for the Numeric and numpy modules,
-# so figure out which one we have and create the path to the pynglex
-# examples accordingly.
+# Create the path to the pynglex examples.
 #
-    if sys.modules.has_key("PyNGL_numeric.Ngl"):
-      examples_dir_dflt = os.path.join(pkgs_pth,"PyNGL_numeric","ncarg",
-                                       "pynglex")
-    else:
-      examples_dir_dflt = os.path.join(pynglpath_ncarg(),"pynglex")
+    examples_dir_dflt = os.path.join(pynglpath_ncarg(),"pynglex")
 
     if (examples_dir_envn != None and os.path.exists(examples_dir_envn)):
       return examples_dir_envn
@@ -3845,20 +3647,14 @@ s -- The saturation value of the input point in HLS color space in the
   """
   if (is_scalar(r) and is_scalar(g) and is_scalar(b)):
     return(c_rgbhls(r,g,b))
-  elif (is_array(r) and is_array(g) and is_array(b)):
+  elif (is_numpy_array(r) and is_numpy_array(g) and is_numpy_array(b)):
     ishape = r.shape
-    if (HAS_NUM == 1):
-      dimc = len(r.flat)
-    elif (HAS_NUM == 2):
-      dimc = len(r.ravel())
-    hr = numerpy_float0_zeros(dimc)
-    lr = numerpy_float0_zeros(dimc)
-    sr = numerpy_float0_zeros(dimc)
+    dimc = len(r.ravel())
+    hr = numpy.zeros(dimc,'f')
+    lr = numpy.zeros(dimc,'f')
+    sr = numpy.zeros(dimc,'f')
     for i in xrange(dimc):
-      if (HAS_NUM == 1):
-        hr[i],lr[i],sr[i] = c_rgbhls(r.flat[i],g.flat[i],b.flat[i])
-      elif (HAS_NUM == 2):
-        hr[i],lr[i],sr[i] = c_rgbhls(r.ravel()[i],g.ravel()[i],b.ravel()[i])
+      hr[i],lr[i],sr[i] = c_rgbhls(r.ravel()[i],g.ravel()[i],b.ravel()[i])
     hr.shape = lr.shape = sr.shape = ishape
     del dimc,ishape
     return hr,lr,sr
@@ -3868,18 +3664,12 @@ s -- The saturation value of the input point in HLS color space in the
     gi = numpy.array(g,'f')
     bi = numpy.array(b,'f')
     ishape = ri.shape
-    if (HAS_NUM == 1):
-      dimc = len(ri.flat)
-    if (HAS_NUM == 2):
-      dimc = len(ri.ravel())
-    hr = numerpy_float0_zeros(dimc)
-    lr = numerpy_float0_zeros(dimc)
-    sr = numerpy_float0_zeros(dimc)
+    dimc = len(ri.ravel())
+    hr = numpy.zeros(dimc,'f')
+    lr = numpy.zeros(dimc,'f')
+    sr = numpy.zeros(dimc,'f')
     for i in xrange(dimc):
-      if (HAS_NUM == 1):
-        hr[i], lr[i], sr[i] = c_rgbhls(ri.flat[i],gi.flat[i],bi.flat[i])
-      if (HAS_NUM == 2):
-        hr[i], lr[i], sr[i] = c_rgbhls(ri.ravel()[i],gi.ravel()[i],bi.ravel()[i])
+      hr[i], lr[i], sr[i] = c_rgbhls(ri.ravel()[i],gi.ravel()[i],bi.ravel()[i])
     hr.shape = lr.shape = sr.shape = ishape
     del ri,gi,bi,dimc,ishape
     return hr,lr,sr
@@ -3915,20 +3705,14 @@ v -- The value in HSV space, in the range [0.,1.].
   """
   if (is_scalar(r) and is_scalar(g) and is_scalar(b)):
     return(c_rgbhsv(r,g,b))
-  if (is_array(r) and is_array(g) and is_array(b)):
+  if (is_numpy_array(r) and is_numpy_array(g) and is_numpy_array(b)):
     ishape = r.shape
-    if (HAS_NUM == 1):
-      dimc = len(r.flat)
-    elif (HAS_NUM == 2):
-      dimc = len(r.ravel())
-    hr = numerpy_float0_zeros(dimc)
-    sr = numerpy_float0_zeros(dimc)
-    vr = numerpy_float0_zeros(dimc)
+    dimc = len(r.ravel())
+    hr = numpy.zeros(dimc,'f')
+    sr = numpy.zeros(dimc,'f')
+    vr = numpy.zeros(dimc,'f')
     for i in xrange(dimc):
-      if (HAS_NUM == 1):
-        hr[i],sr[i],vr[i] = c_rgbhsv(r.flat[i],g.flat[i],b.flat[i])
-      elif (HAS_NUM == 2):
-        hr[i],sr[i],vr[i] = c_rgbhsv(r.ravel()[i],g.ravel()[i],b.ravel()[i])
+      hr[i],sr[i],vr[i] = c_rgbhsv(r.ravel()[i],g.ravel()[i],b.ravel()[i])
     hr.shape = sr.shape = vr.shape = ishape
     del ishape,dimc
     return hr,sr,vr
@@ -3938,18 +3722,12 @@ v -- The value in HSV space, in the range [0.,1.].
     gi = numpy.array(g,'f')
     bi = numpy.array(b,'f')
     ishape = ri.shape
-    if (HAS_NUM == 1):
-      dimc = len(ri.flat)
-    elif (HAS_NUM == 2):
-      dimc = len(ri.ravel())
-    hr = numerpy_float0_zeros(dimc)
-    sr = numerpy_float0_zeros(dimc)
-    vr = numerpy_float0_zeros(dimc)
+    dimc = len(ri.ravel())
+    hr = numpy.zeros(dimc,'f')
+    sr = numpy.zeros(dimc,'f')
+    vr = numpy.zeros(dimc,'f')
     for j in xrange(dimc):
-      if (HAS_NUM == 1):
-        hr[j], sr[j], vr[j] = c_rgbhsv(ri.flat[j],gi.flat[j],bi.flat[j])
-      if (HAS_NUM == 2):
-        hr[j], sr[j], vr[j] = c_rgbhsv(ri.ravel()[j],gi.ravel()[j],bi.ravel()[j])
+      hr[j], sr[j], vr[j] = c_rgbhsv(ri.ravel()[j],gi.ravel()[j],bi.ravel()[j])
     hr.shape = sr.shape = vr.shape = ishape
     del ri,gi,bi,ishape,dimc
     return hr,sr,vr
@@ -3979,20 +3757,14 @@ q -- Q component (chrominance purple-green) values in the range
 #
   if (is_scalar(r) and is_scalar(g) and is_scalar(b)):
     return(c_rgbyiq(r,g,b))
-  elif (is_array(r) and is_array(g) and is_array(b)):
+  elif (is_numpy_array(r) and is_numpy_array(g) and is_numpy_array(b)):
     ishape = r.shape
-    if (HAS_NUM == 1):
-      dimc = len(r.flat)
-    elif (HAS_NUM == 2):
-      dimc = len(r.ravel())
-    yr = numerpy_float0_zeros(dimc)
-    ir = numerpy_float0_zeros(dimc)
-    qr = numerpy_float0_zeros(dimc)
+    dimc = len(r.ravel())
+    yr = numpy.zeros(dimc,'f')
+    ir = numpy.zeros(dimc,'f')
+    qr = numpy.zeros(dimc,'f')
     for i in xrange(dimc):
-      if (HAS_NUM == 1):
-        yr[i],ir[i],qr[i] = c_rgbyiq(r.flat[i],g.flat[i],b.flat[i])
-      if (HAS_NUM == 2):
-        yr[i],ir[i],qr[i] = c_rgbyiq(r.ravel()[i],g.ravel()[i],b.ravel()[i])
+      yr[i],ir[i],qr[i] = c_rgbyiq(r.ravel()[i],g.ravel()[i],b.ravel()[i])
     yr.shape = ir.shape = qr.shape = ishape
     del ishape,dimc
     return yr,ir,qr
@@ -4002,18 +3774,12 @@ q -- Q component (chrominance purple-green) values in the range
     gi = numpy.array(g,'f')
     bi = numpy.array(b,'f')
     ishape = ri.shape
-    if (HAS_NUM == 1):
-      dimc = len(ri.flat)
-    elif (HAS_NUM == 2):
-      dimc = len(ri.ravel())
-    yr = numerpy_float0_zeros(dimc)
-    ir = numerpy_float0_zeros(dimc)
-    qr = numerpy_float0_zeros(dimc)
+    dimc = len(ri.ravel())
+    yr = numpy.zeros(dimc,'f')
+    ir = numpy.zeros(dimc,'f')
+    qr = numpy.zeros(dimc,'f')
     for i in xrange(dimc):
-      if (HAS_NUM == 1):
-        yr[i], ir[i], qr[i] = c_rgbyiq(ri.flat[i],gi.flat[i],bi.flat[i])
-      elif (HAS_NUM == 2):
-        yr[i], ir[i], qr[i] = c_rgbyiq(ri.ravel[i],gi.ravel[i],bi.ravel[i])
+      yr[i], ir[i], qr[i] = c_rgbyiq(ri.ravel[i],gi.ravel[i],bi.ravel[i])
     yr.shape = ir.shape = qr.shape = ishape
     del ri,gi,bi,ishape,dimc
     return yr,ir,qr
@@ -4279,10 +4045,10 @@ res -- A required instance of the Resources class having special
 #  Declare local stuff: arrays/variables for storing x,y positions
 #  during iterations to draw curved line, etc.
 #
-  sx    = numerpy_float0_zeros(200)
-  sy    = numerpy_float0_zeros(200)
-  xx    = numerpy_float0_zeros(  2)
-  yy    = numerpy_float0_zeros(  2)
+  sx    = numpy.zeros(200,'f')
+  sy    = numpy.zeros(200,'f')
+  xx    = numpy.zeros(  2,'f')
+  yy    = numpy.zeros(  2,'f')
   m2f   =    3.2808            # meter-to-feet
   f2m   = 1./3.2808            # feet-to-meter
 
@@ -5296,7 +5062,7 @@ res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
 
-# Get NumPy/Numeric array from masked arrays, if necessary.
+# Get NumPy array from masked arrays, if necessary.
   uar2,uar_fill_value = get_arr_and_fill_value(uarray)
   var2,var_fill_value = get_arr_and_fill_value(varray)
 
@@ -5362,7 +5128,7 @@ res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
 
-# Get NumPy/Numeric array from masked arrays, if necessary.
+# Get NumPy array from masked arrays, if necessary.
   uar2,uar_fill_value = get_arr_and_fill_value(uarray)
   var2,var_fill_value = get_arr_and_fill_value(varray)
 
@@ -5424,7 +5190,7 @@ res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
 
-# Get NumPy/Numeric array from masked arrays, if necessary.
+# Get NumPy array from masked arrays, if necessary.
   uar2,uar_fill_value = get_arr_and_fill_value(uarray)
   var2,var_fill_value = get_arr_and_fill_value(varray)
   tar2,tar_fill_value = get_arr_and_fill_value(tarray)
@@ -5499,7 +5265,7 @@ res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
 
-# Get NumPy/Numeric array from masked arrays, if necessary.
+# Get NumPy array from masked arrays, if necessary.
   uar2,uar_fill_value = get_arr_and_fill_value(uarray)
   var2,var_fill_value = get_arr_and_fill_value(varray)
   tar2,tar_fill_value = get_arr_and_fill_value(tarray)
@@ -5641,7 +5407,7 @@ res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
 
-# Get NumPy/Numeric array from masked arrays, if necessary.
+# Get NumPy array from masked arrays, if necessary.
   uar2,uar_fill_value = get_arr_and_fill_value(uarray)
   var2,var_fill_value = get_arr_and_fill_value(varray)
 
@@ -5707,7 +5473,7 @@ res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
 
-# Get NumPy/Numeric array from masked arrays, if necessary.
+# Get NumPy array from masked arrays, if necessary.
   uar2,uar_fill_value = get_arr_and_fill_value(uarray)
   var2,var_fill_value = get_arr_and_fill_value(varray)
 
@@ -5771,7 +5537,7 @@ res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
 
-# Get NumPy/Numeric array from masked arrays, if necessary.
+# Get NumPy array from masked arrays, if necessary.
   uar2,uar_fill_value = get_arr_and_fill_value(uarray)
   var2,var_fill_value = get_arr_and_fill_value(varray)
   tar2,tar_fill_value = get_arr_and_fill_value(tarray)
@@ -5846,7 +5612,7 @@ res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
 
-# Get NumPy/Numeric array from masked arrays, if necessary.
+# Get NumPy array from masked arrays, if necessary.
   uar2,uar_fill_value = get_arr_and_fill_value(uarray)
   var2,var_fill_value = get_arr_and_fill_value(varray)
   tar2,tar_fill_value = get_arr_and_fill_value(tarray)
@@ -5957,7 +5723,7 @@ kxtrp -- A logical value. If False, then no extrapolation is done when
           "          an array with " + str(len(dati.shape)) + " dimensions was entered.\n"
     return None
   if (len(dati.shape) == 3):
-    plevi = numerpy_float_zeros(dati.shape[0]+1)
+    plevi = numpy.zeros(dati.shape[0]+1,'f')
     return NglVinth2p (dati, len(plevo), dati.shape[1], dati.shape[2],    \
                        hbcofa, hbcofb, p0, plevi, plevo, intyp,           \
                        1, psfc, 1.e30, kxtrp, dati.shape[0]+1, dati.shape[0])
@@ -5968,11 +5734,6 @@ kxtrp -- A logical value. If False, then no extrapolation is done when
   elif (len(dati.shape) == 4):
     if (                                                                    \
          (                                                                  \
-           (HAS_NUM == 1) and                                               \
-           (type(dati[0,0,0,0]) == type(numpy.array([0.],numpy.Float)))     \
-         ) or                                                               \
-         (                                                                  \
-           (HAS_NUM == 2) and                                               \
            (type(dati) == type(numpy.array([0.],numpy.float)))              \
          )                                                                  \
        ):
@@ -5985,9 +5746,9 @@ kxtrp -- A logical value. If False, then no extrapolation is done when
         del ar_out
       except:
         pass
-      ar_out = numerpy_float_zeros([dati.shape[0],len(plevo),dati.shape[2],  \
-                              dati.shape[3]])
-      plevi  = numerpy_float_zeros(dati.shape[1]+1)
+      ar_out = numpy.zeros([dati.shape[0],len(plevo),dati.shape[2],  \
+                            dati.shape[3]],'f')
+      plevi  = numpy.zeros(dati.shape[1]+1,'f')
     else:
       print "vinth2p: input data must be a NumPy array"
       return None
@@ -6181,25 +5942,12 @@ imdat -- A string of 50 characters encoded as per the WMO/NOAA guidelines.
 # 
   xa = arg_with_scalar(numpy.array(x))
   ya = arg_with_scalar(numpy.array(y))
-  if recommend_numeric:
-    import Numeric
-    if (type(imdat) == type('a')):
-      imdata = imdat
-      c_wmstnmp(gksid,xa[0],ya[0],imdata)
-    else:
-      imdata = Numeric.array(imdat)
-      str_arg = ""
-      for i in xrange(len(xa)):
-        for j in xrange(len(imdata[i])):
-          str_arg = str_arg+imdata[i][j][0]
-        c_wmstnmp(gksid,xa[i],ya[i],str_arg)
+  if (type(imdat) == type('a')):
+    imdata = numpy.array([imdat])
   else:
-    if (type(imdat) == type('a')):
-      imdata = numpy.array([imdat])
-    else:
-      imdata = numpy.array(imdat)
-    for i in xrange(len(xa)):
-      c_wmstnmp(gksid,xa[i],ya[i],imdata[i])
+    imdata = numpy.array(imdat)
+  for i in xrange(len(xa)):
+    c_wmstnmp(gksid,xa[i],ya[i],imdata[i])
 
   del xa,ya,imdata
   return None
@@ -6224,7 +5972,7 @@ res -- An (optional) instance of the Resources class having PyNGL
   """
   set_spc_defaults(1)
 
-# Get NumPy/Numeric array from masked arrays, if necessary.
+# Get NumPy array from masked arrays, if necessary.
   xar2,xar_fill_value = get_arr_and_fill_value(xar)
   yar2,yar_fill_value = get_arr_and_fill_value(yar)
 
@@ -6234,7 +5982,7 @@ res -- An (optional) instance of the Resources class having PyNGL
   if is_list_or_tuple(xar2):
     ndims_x = 1
     dsizes_x = (len(xar2),)
-  elif is_numerpy_array(xar2):
+  elif is_numpy_array(xar2):
     ndims_x = (len(xar2.shape))
     dsizes_x = xar2.shape
   else:
@@ -6245,7 +5993,7 @@ res -- An (optional) instance of the Resources class having PyNGL
   if is_list_or_tuple(yar2):
     ndims_y = 1
     dsizes_y = (len(yar2),)
-  elif is_numerpy_array(yar2):
+  elif is_numpy_array(yar2):
     ndims_y = (len(yar2.shape))
     dsizes_y = yar2.shape
   else:
@@ -6322,7 +6070,7 @@ res -- An (optional) instance of the Resources class having PyNGL
        resources as attributes.
   """
   
-# Get NumPy/Numeric array from masked array, if necessary.
+# Get NumPy array from masked array, if necessary.
   yar2,fill_value = get_arr_and_fill_value(yar)
 
 #
@@ -6333,7 +6081,7 @@ res -- An (optional) instance of the Resources class having PyNGL
   if is_list_or_tuple(yar2):
     ndims_y = 1
     dsizes_y = (len(yar2),)
-  elif is_numerpy_array(yar2):
+  elif is_numpy_array(yar2):
     ndims_y = (len(yar2.shape))
     dsizes_y = yar2.shape
   else:
@@ -6375,20 +6123,14 @@ r, g, b -- The red, green, and blue intensity values in the range
   """
   if (is_scalar(y) and is_scalar(i) and is_scalar(q)):
     return(c_yiqrgb(y,i,q))
-  if (is_array(y) and is_array(i) and is_array(q)):
+  if (is_numpy_array(y) and is_numpy_array(i) and is_numpy_array(q)):
     ishape = y.shape
-    if (HAS_NUM == 1):
-      dimc = len(y.flat)
-    elif (HAS_NUM == 2):
-      dimc = len(y.ravel())
-    rr = numerpy_float0_zeros(dimc)
-    gr = numerpy_float0_zeros(dimc)
-    br = numerpy_float0_zeros(dimc)
+    dimc = len(y.ravel())
+    rr = numpy.zeros(dimc,'f')
+    gr = numpy.zeros(dimc,'f')
+    br = numpy.zeros(dimc,'f')
     for j in xrange(dimc):
-      if (HAS_NUM == 1):
-        rr[j],gr[j],br[j] = c_yiqrgb(y.flat[j],i.flat[j],q.flat[j])
-      elif (HAS_NUM == 2):
-        rr[j],gr[j],br[j] = c_yiqrgb(y.ravel()[j],i.ravel()[j],q.ravel()[j])
+      rr[j],gr[j],br[j] = c_yiqrgb(y.ravel()[j],i.ravel()[j],q.ravel()[j])
     rr.shape = gr.shape = br.shape = ishape
     del dimc,ishape
     return rr,gr,br
@@ -6398,18 +6140,12 @@ r, g, b -- The red, green, and blue intensity values in the range
     ii = numpy.array(i,'f')
     qi = numpy.array(q,'f')
     ishape = yi.shape
-    if (HAS_NUM == 1):
-      dimc = len(yi.flat)
-    elif (HAS_NUM == 2):
-      dimc = len(yi.ravel())
-    rr = numerpy_float0_zeros(dimc)
-    gr = numerpy_float0_zeros(dimc)
-    br = numerpy_float0_zeros(dimc)
+    dimc = len(yi.ravel())
+    rr = numpy.zeros(dimc,'f')
+    gr = numpy.zeros(dimc,'f')
+    br = numpy.zeros(dimc,'f')
     for j in xrange(dimc):
-      if (HAS_NUM == 1):
-        rr[j],gr[j],br[j] = c_yiqrgb(yi.flat[j],ii.flat[j],qi.flat[j])
-      elif (HAS_NUM == 2):
-        rr[j],gr[j],br[j] = c_yiqrgb(yi.ravel()[j],ii.ravel()[j],qi.ravel()[j])
+      rr[j],gr[j],br[j] = c_yiqrgb(yi.ravel()[j],ii.ravel()[j],qi.ravel()[j])
     rr.shape = gr.shape = br.shape = ishape
     del yi,ii,qi,ishape,dimc
     return rr,gr,br
@@ -6428,8 +6164,6 @@ import fplib
 #       arr - any Python object
 #     output:
 #       Two values: type, fill_value
-#         if arr is a Numeric masked array:
-#            type = "MA" and fill_value is the fill value
 #         if arr is a numpy masked array:
 #            type = "num" and fill_value is the fill value
 #         if arr is not a masked array
@@ -6454,22 +6188,12 @@ def get_ma_fill_value(arr):
 #
     if MA.isMaskedArray(arr):
       fv = arr.fill_value()
-#
-#  For Numeric 2.4 or later, the fill value is returned as
-#  a single-element array.  For Numeric releases prior to
-#  2.4, the fill value is returned as a numeric value, so
-#  return it.
-#
-      try:
-        len(fv)
-        return "MA",fv[0]
-      except:
-        return "MA",fv
+      return "MA",fv
   except:
     pass
 
 #
-#  Neither a Numeric nor a NumPy masked array.
+#  Not a NumPy masked array.
 #
   return None, None
 
@@ -6478,18 +6202,12 @@ def get_ma_fill_value(arr):
 # a scalar (as defined by the "is_scalar" function above)
 # that need to be converted to something that won't
 # register as having 0 dimensions.  We do this by 
-# promoting it to a Numeric array.  Note that "Numeric"
-# may actually be "numpy", depending on whether the
-# Numeric or numpy module was imported. 
+# promoting it to a numpy array.
 #
 def promote_scalar(x):
   if is_scalar(x):
-    if recommend_numeric:
-      import Numeric
-      return Numeric.array([x])
-    else:
-      import numpy
-      return numpy.array([x])
+    import numpy
+    return numpy.array([x])
   else:
     return x
 

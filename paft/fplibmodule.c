@@ -2,12 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef USE_NUMPY
 #include <numpy/arrayobject.h>
-#else
-#include <Numeric/arrayobject.h>
-#endif
-
 #include <ncarg/hlu/Error.h>
 
 static PyObject *t_output_helper(PyObject *, PyObject *);

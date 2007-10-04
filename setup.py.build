@@ -17,16 +17,8 @@
 #
 #   python setup.build.py bdist_dumb --relative
 #
-# If no environment variables are set, this script will create
-# a NumPy version of PyNGL.
-#
-# There are four environment variables that if set, will change
+# There are two environment variables that if set, will change
 # the behavior of this script:
-#
-#    USE_NUMERIC   - Create a Numeric version of PyNGL only.
-#
-#    USE_NUMERPY   - Create a Numeric *and* NumPy version of PyNGL. This
-#                    will create two packages: PyNGL and PyNGL_numeric.
 #
 #    USE_CVS         Use CVS to get the latest version of the pynglex files.
 #
@@ -39,56 +31,16 @@ import shutil
 from distutils.core import setup, Extension
 
 #
-# Determine whether we want to build a Numeric and/or NumPy version
-# of PyNGL.  If the environment variable USE_NUMERIC is set, it will
-# try to build a NumPy version. USE_NUMERIC doesn't need to be set to
-# any value; it just has to be set.  If USE_NUMERPY is set, then
-# both versions of PyNGL will be built, and the NumPy version will
-# be put in package PyNGL, and the Numeric version in package PyNGL_numeric.
+# It used to be that we built both a Numeric and NumPy version of PyNGL.
+# We decided to drop support for Numeric, so now this script will
+# not even recognize Numeric.
 #
-# HAS_NUM will be set by this script depending on USE_NUMERIC and USE_NUMERPY.
-#
-# HAS_NUM = 3 --> install both NumPy and Numeric versions of PyNGL
-# HAS_NUM = 2 --> install NumPy version of PyNGL
-# HAS_NUM = 1 --> install Numeric version of PyNGL
-# HAS_NUM = 0 --> You're hosed as NumPy or Numeric don't exist.
+# Test to make sure we have NumPy.
 #
 try:
-  path = os.environ["USE_NUMERPY"]
-  HAS_NUM = 3
-except:
-  try:
-    path = os.environ["USE_NUMERIC"]
-    HAS_NUM = 1
-  except:
-    HAS_NUM = 2
-
-#
-# Test to make sure we actually the Numeric and/or NumPy modules
-# that we have requested.
-#
-if HAS_NUM > 1:
-  try:
-    import numpy
-  except ImportError:
-    print "Cannot find NumPy; we'll try Numeric."
-    HAS_NUM = 1
-
-if HAS_NUM == 1 or HAS_NUM == 3:
-  try:
-    import Numeric
-  except ImportError:
-    print "Cannot find Numeric."
-    HAS_NUM = HAS_NUM-1
-
-if HAS_NUM == 3:
-  array_modules = ['Numeric','numpy']
-elif HAS_NUM == 2:
-  array_modules = ['numpy']
-elif HAS_NUM == 1:
-  array_modules = ['Numeric']
-else:
-  print "Cannot find Numeric or NumPy; good-bye!"
+  import numpy
+except ImportError:
+  print "Cannot find NumPy; good-bye!"
   sys.exit()
 
 #
@@ -98,11 +50,9 @@ else:
 # python setup.py install
 #
 # in the pynio source directory. This script expects to find PyNIO
-# installed in the PyNIO package if you are doing a NumPy build,
-# and in the PyNIO_numeric package if you are doing a Numeric build.
+# installed in the PyNIO package directory.
 #
-# This script does not yet check if PyNIO is installed on your system,
-# so it will complain if it can't find the files.
+# This script does not yet check if PyNIO is installed on your system.
 #
 try:
   path = os.environ["INCLUDE_PYNIO"]
@@ -280,43 +230,24 @@ if os.uname()[-1] == "x86_64" or \
 
 #----------------------------------------------------------------------
 #
-# Loop through the modules for which we want to create versions of PyNGL.
+# Initialize some variables for the NumPy build. Some of these
+# variables will be used as build (compilation) parameters.
 #
 #----------------------------------------------------------------------
+INCLUDE_PATHS = [ncl_inc]
 
-for array_module in array_modules:
-#----------------------------------------------------------------------
-#
-# Initialize variables for whether we are doing a Numeric or NumPy build.
-# Some of these variables will be used as build (compilation) parameters.
-#
-#----------------------------------------------------------------------
-  INCLUDE_PATHS = [ncl_inc]
+from numpy import __version__ as array_module_version
 
-  if array_module == 'Numeric':
-    from Numeric import  __version__ as array_module_version
-
-    pyngl_pkg_name = 'PyNGL_numeric'
-    pynio_pkg_name = 'PyNIO_numeric'
-    pyngl_pth_file = []     # No *.pth file for Numeric package, b/c we
-                            # have to explicitly import it with 
-                            # "import PyNGL_numeric.Ngl as Ngl" anyway.
-
-    DMACROS =  [('NeedFuncProto',None)]
-
-  else:
-    from numpy import __version__ as array_module_version
-
-    pyngl_pkg_name = 'PyNGL'
-    pynio_pkg_name = 'PyNIO'
-    pyngl_pth_file = [pyngl_pkg_name + '.pth']
+pyngl_pkg_name = 'PyNGL'
+pynio_pkg_name = 'PyNIO'
+pyngl_pth_file = [pyngl_pkg_name + '.pth']
 
 #
-# For a NumPy build, we need to point to the correct array "arrayobject.h"
-# and set the USE_NUMPY macro for compiling the *.c files.
+# For a NumPy build, we need to point to the correct 
+# array "arrayobject.h".
 #
-    INCLUDE_PATHS.insert(0,os.path.join(pkgs_pth,"numpy/core/include"))
-    DMACROS =  [('NeedFuncProto', None),('USE_NUMPY',None)]
+INCLUDE_PATHS.insert(0,os.path.join(pkgs_pth,"numpy/core/include"))
+DMACROS =  [('NeedFuncProto', None)]
 
 #----------------------------------------------------------------------
 #
@@ -324,21 +255,21 @@ for array_module in array_modules:
 # "fplib.so" files.
 #
 #----------------------------------------------------------------------
-  print '\n====> Installing the',array_module,'version of PyNGL to the "'+pyngl_pkg_name+'" site packages directory.'
+print '\n====> Installing PyNGL to the "'+pyngl_pkg_name+'" site packages directory.'
 
-  EXT_MODULES = [Extension('_hlu', 
-                 ['Helper.c','hlu_wrap.c','gsun.c'],
-                  define_macros   = DMACROS,
-                  extra_link_args = EXTRA_LINK_ARGS,
-                  include_dirs    = INCLUDE_PATHS,
-                  library_dirs    = ncl_and_sys_lib_paths,
-                  libraries       = LIBRARIES),
-                 Extension('fplib', 
-                 [os.path.join('paft','fplibmodule.c')],
-                  define_macros   = DMACROS,
-                  include_dirs    = INCLUDE_PATHS,
-                  library_dirs    = ncl_and_sys_lib_paths,
-                  libraries       = LIBRARIES)]
+EXT_MODULES = [Extension('_hlu', 
+              ['Helper.c','hlu_wrap.c','gsun.c'],
+                define_macros   = DMACROS,
+                extra_link_args = EXTRA_LINK_ARGS,
+                include_dirs    = INCLUDE_PATHS,
+                library_dirs    = ncl_and_sys_lib_paths,
+                libraries       = LIBRARIES),
+               Extension('fplib', 
+               [os.path.join('paft','fplibmodule.c')],
+                define_macros   = DMACROS,
+                include_dirs    = INCLUDE_PATHS,
+                library_dirs    = ncl_and_sys_lib_paths,
+                libraries       = LIBRARIES)]
 
 #----------------------------------------------------------------------
 #
@@ -346,80 +277,56 @@ for array_module in array_modules:
 # graphcaps, map databases, example scripts, etc) will be installed.
 #
 #----------------------------------------------------------------------
-  pyngl_dir       = os.path.join(pkgs_pth, pyngl_pkg_name)
-  pynio_dir       = os.path.join(pkgs_pth, pynio_pkg_name)
+pyngl_dir       = os.path.join(pkgs_pth, pyngl_pkg_name)
+pynio_dir       = os.path.join(pkgs_pth, pynio_pkg_name)
 
-  pyngl_ncarg_dir = os.path.join(pyngl_dir, 'ncarg')
-  pyngl_data_dir  = os.path.join(pyngl_ncarg_dir, 'data')
+pyngl_ncarg_dir = os.path.join(pyngl_dir, 'ncarg')
+pyngl_data_dir  = os.path.join(pyngl_ncarg_dir, 'data')
 
 #
 # "Walk" through the "ncarg" directories that we want to be a part of
 # the distribution, and keep a list of them for later.
 #
-  pyngl_ncarg_files = [(pyngl_ncarg_dir, ['sysresfile'])]
-  cwd = os.getcwd()
-  os.chdir(ncl_ncarg_dir)
-  for ncarg_dir in ncarg_dirs:
-    for root, dirs, files in os.walk(ncarg_dir):
-      for name in files:
-        pyngl_ncarg_files.append((os.path.join(pyngl_ncarg_dir,root), \
-                                  [os.path.join(ncl_ncarg_dir,root,name)]))
-  os.chdir(cwd)
+pyngl_ncarg_files = [(pyngl_ncarg_dir, ['sysresfile'])]
+cwd = os.getcwd()
+os.chdir(ncl_ncarg_dir)
+for ncarg_dir in ncarg_dirs:
+  for root, dirs, files in os.walk(ncarg_dir):
+    for name in files:
+      pyngl_ncarg_files.append((os.path.join(pyngl_ncarg_dir,root), \
+                               [os.path.join(ncl_ncarg_dir,root,name)]))
+os.chdir(cwd)
 #
 # If INCLUDE_PYNIO is set, then make sure we include the PyNIO files
 # in the list of files to be packaged up with PyNGL.
 #
-  if include_pynio:
-    print '====> Will be installing the PyNIO files in the',pyngl_pkg_name,'package directory.'
-    if sys.platform == "cygwin":
-      pynio_files = ['Nio.py', 'pynio_version.py', 'nio.dll']
-    else:
-      pynio_files = ['Nio.py', 'pynio_version.py', 'nio.so']
-    for i in xrange(len(pynio_files)):
-      pynio_files[i] = os.path.join(pynio_dir,pynio_files[i])
+if include_pynio:
+  print '====> Will be installing the PyNIO files in the',pyngl_pkg_name,'package directory.'
+  if sys.platform == "cygwin":
+    pynio_files = ['Nio.py', 'pynio_version.py', 'nio.dll']
   else:
-    pynio_files = []
-
-#
-# This seems kludgy to me, but I need to make sure that if both 
-# NumPy and Numeric versions of PyNGL are being built, we clean
-# the *.o files beforehand. This is because "setup" puts the *.o files
-# in the same location (build/temp.xxxx/.) every time, regardless of which
-# package we're building. Maybe there's a way to tell setup to put the
-# *.o files in a different directory, but I haven't found it yet.
-#
-  if len(array_modules) > 1:
-    if os.path.exists("build"):
-      print "====> Removing the build directory's *.o and *.so files..."
-      os.system("find build -name '*.o' -exec /bin/rm {} \;")
-      os.system("find build -name '*.so' -exec /bin/rm {} \;")
+    pynio_files = ['Nio.py', 'pynio_version.py', 'nio.so']
+  for i in xrange(len(pynio_files)):
+    pynio_files[i] = os.path.join(pynio_dir,pynio_files[i])
+else:
+  pynio_files = []
 
 #----------------------------------------------------------------------
 #
 # Create version file that contains version and array module info.
 #
 #----------------------------------------------------------------------
-  if os.path.exists(pyngl_vfile):
-    os.remove(pyngl_vfile)
+if os.path.exists(pyngl_vfile):
+  os.remove(pyngl_vfile)
 
-  pyngl_version = open('version','r').readlines()[0].strip('\n')
+pyngl_version = open('version','r').readlines()[0].strip('\n')
 
-  vfile = open(pyngl_vfile,'w')
-  vfile.write("version = '%s'\n" % pyngl_version)
-  vfile.write("array_module = '%s'\n" % array_module)
-
-#
-# The Ngl.py and Nio.py files use HAS_NUM to tell whether to use
-# Numeric or NumPy specific operations.
-#
-  if array_module == 'Numeric':
-    vfile.write("HAS_NUM = 1\n")
-  else:
-    vfile.write("HAS_NUM = 2\n")
-
-  vfile.write("array_module_version = '%s'\n" % array_module_version)
-  vfile.write("python_version = '%s'\n" % sys.version[:3])
-  vfile.close()
+vfile = open(pyngl_vfile,'w')
+vfile.write("version = '%s'\n" % pyngl_version)
+vfile.write("array_module = 'numpy'\n")
+vfile.write("array_module_version = '%s'\n" % array_module_version)
+vfile.write("python_version = '%s'\n" % sys.version[:3])
+vfile.close()
 
 #----------------------------------------------------------------------
 #
@@ -429,57 +336,49 @@ for array_module in array_modules:
 # any extraneous files.
 #
 #----------------------------------------------------------------------
-  if os.path.exists(pynglex_dir):
-    shutil.rmtree(pynglex_dir)
+if os.path.exists(pynglex_dir):
+  shutil.rmtree(pynglex_dir)
 
-  if use_cvs:
-    os.system("cvs co pynglex")
-    pynglex_files = os.listdir(pynglex_dir)
+if use_cvs:
+  os.system("cvs co pynglex")
+  pynglex_files = os.listdir(pynglex_dir)
 #
 # Remove everything but *.py and *.res files from the list of files.
 #
-    pynglex_files.remove("yMakefile")
-    pynglex_files.remove("CVS")
-    pynglex_files.remove("pynglex")
-  else:
+  pynglex_files.remove("yMakefile")
+  pynglex_files.remove("CVS")
+  pynglex_files.remove("pynglex")
+else:
 #
 # Create a Scripts directory and copy the .py and .res files
 # from the ../examples directory into the Scripts directory.
 # The executable ../examples/pynglex must also be copied.
 #
-    all_pynglex_files = os.listdir("../examples")
-    os.mkdir(pynglex_dir)
-    pynglex_files = []
-    for file in all_pynglex_files:
-      if (file[-3:] == ".py" or file[-4:] == ".res"):
-        pynglex_files.append(file)
-        os.system("cp ../examples/" + file + " " + pynglex_dir)
+  all_pynglex_files = os.listdir("../examples")
+  os.mkdir(pynglex_dir)
+  pynglex_files = []
+  for file in all_pynglex_files:
+    if (file[-3:] == ".py" or file[-4:] == ".res"):
+      pynglex_files.append(file)
+      os.system("cp ../examples/" + file + " " + pynglex_dir)
 
-  os.system("cp ../examples/pynglex " + pynglex_dir)
-  os.system("cp ../examples/pynglex " + os.path.join(pynglex_dir,"pynglex"+sys.version[:3]))
+os.system("cp ../examples/pynglex " + pynglex_dir)
+os.system("cp ../examples/pynglex " + os.path.join(pynglex_dir,"pynglex"+sys.version[:3]))
 #
 # Modify the pynglex script to have the correct python invocation.
 #
-  for line in fileinput.input(os.path.join(pynglex_dir,"pynglex"+sys.version[:3]),inplace=1):
-    if (re.search("/usr/bin/env python",line) != None):
-      print line.replace("python","python"+sys.version[:3]),
-    elif(re.search("^py_cmd = 'python'",line) != None):
-      print line.replace("python","python"+sys.version[:3]),
-    else:
-      print line,
+for line in fileinput.input(os.path.join(pynglex_dir,"pynglex"+sys.version[:3]),inplace=1):
+  if (re.search("/usr/bin/env python",line) != None):
+    print line.replace("python","python"+sys.version[:3]),
+  elif(re.search("^py_cmd = 'python'",line) != None):
+    print line.replace("python","python"+sys.version[:3]),
+  else:
+    print line,
 #
 # Prepend the full directory path leading to files.
 #
-  for i in xrange(len(pynglex_files)):
-    pynglex_files[i] = os.path.join(pynglex_dir,pynglex_files[i])
-
-#
-# If we are doing a Numeric build, then we need to modify some of the
-# pynglex example scripts.
-#
-  if array_module == 'Numeric':
-    from mod_pynglex_files import *
-    modify_pynglex_files(pynglex_files)
+for i in xrange(len(pynglex_files)):
+  pynglex_files[i] = os.path.join(pynglex_dir,pynglex_files[i])
 
 #----------------------------------------------------------------------
 #
@@ -487,95 +386,93 @@ for array_module in array_modules:
 # package.
 # 
 #----------------------------------------------------------------------
-  DATA_FILES = pyngl_ncarg_files
-  DATA_FILES.append((os.path.join(pyngl_ncarg_dir,'pynglex'),pynglex_files))
-  DATA_FILES.append((pkgs_pth, pyngl_pth_file))
-  DATA_FILES.append((python_bin_dir,bin_files))
-  DATA_FILES.append((pyngl_dir,py_files))
-  DATA_FILES.append((pyngl_dir,pynio_files))
+DATA_FILES = pyngl_ncarg_files
+DATA_FILES.append((os.path.join(pyngl_ncarg_dir,'pynglex'),pynglex_files))
+DATA_FILES.append((pkgs_pth, pyngl_pth_file))
+DATA_FILES.append((python_bin_dir,bin_files))
+DATA_FILES.append((pyngl_dir,py_files))
+DATA_FILES.append((pyngl_dir,pynio_files))
 #
 # Here's the setup function that will build and install everything.
 #
-  setup (name = pyngl_pkg_name,
-         version = pyngl_version,
-         author = "Dave Brown, Fred Clare, and Mary Haley",
-         maintainer = "Mary Haley",
-         maintainer_email = "haley@ucar.edu",
-         description = "2D visualization library",
+setup (name = pyngl_pkg_name,
+       version = pyngl_version,
+       author = "Dave Brown, Fred Clare, and Mary Haley",
+       maintainer = "Mary Haley",
+       maintainer_email = "haley@ucar.edu",
+       description = "2D visualization library",
        long_description = "PyNGL is a Python language module designed for publication-quality visualization of data. PyNGL stands for 'Python Interface to the NCL Graphics Libraries,' and it is pronounced 'pingle.' It now contains the 'Nio' module, which enables NetCDF-like access for NetCDF (rw), HDF (rw), GRIB (r), and CCM (r) data files",
-         url = "http://www.pyngl.ucar.edu/",
-         package_dir = { pyngl_pkg_name : ''},
-         data_files  = DATA_FILES,
-         ext_package = pyngl_pkg_name,
-         ext_modules = EXT_MODULES
-      )
+       url = "http://www.pyngl.ucar.edu/",
+       package_dir = { pyngl_pkg_name : ''},
+       data_files  = DATA_FILES,
+       ext_package = pyngl_pkg_name,
+       ext_modules = EXT_MODULES
+    )
 
 # 
 # This section is for gathering up all the files we need to make 
 # a complete PyNGL/PyNIO distribution that can be installed by
 # an outside user with "python setup.py install".
 #
-  if create_distribution:
+if create_distribution:
 #
 # Copy installed package files back to our current directory so we can
 # "sdist" them into a distribution.
 #
 # First, remove some directories that we want to create from scratch.
 #
-    dirs = [pyngl_pkg_name,'bin',pyngl_pkg_name + '-' + pyngl_version]
-    for dir in dirs:
-      if os.path.exists(dir):
-        shutil.rmtree(dir)
+  dirs = [pyngl_pkg_name,'bin',pyngl_pkg_name + '-' + pyngl_version]
+  for dir in dirs:
+    if os.path.exists(dir):
+      shutil.rmtree(dir)
 
-    os.mkdir(pyngl_pkg_name)
-    os.mkdir('bin')
+  os.mkdir(pyngl_pkg_name)
+  os.mkdir('bin')
 
-    os.system('/bin/cp -r ' + pyngl_dir + '/* ' + pyngl_pkg_name + '/.')
+  os.system('/bin/cp -r ' + pyngl_dir + '/* ' + pyngl_pkg_name + '/.')
   
-    for i in xrange(len(bin_files)):
-      os.system('/bin/cp ' + bin_files[i] + ' bin/.')
+  for i in xrange(len(bin_files)):
+    os.system('/bin/cp ' + bin_files[i] + ' bin/.')
 #
 # Copy over the appropriate "setup.py" file.
 #
-    os.system('/bin/cp setup.num.py setup.py')
+  os.system('/bin/cp setup.num.py setup.py')
 #
 # Modify it and update the version number in the file.
 #
-    for line in fileinput.input('setup.py',inplace=1):
-      if (re.search("version=XXXX,",line) != None):
-        print "version = '" + pyngl_version + "',"
-      elif (re.search("pyngl_pkg_name=XXXX",line) != None):
-        print "pyngl_pkg_name  = '" + pyngl_pkg_name + "'"
-      else:
-        print line,
-
+  for line in fileinput.input('setup.py',inplace=1):
+    if (re.search("version=XXXX,",line) != None):
+      print "version = '" + pyngl_version + "',"
+    elif (re.search("pyngl_pkg_name=XXXX",line) != None):
+      print "pyngl_pkg_name  = '" + pyngl_pkg_name + "'"
+    else:
+      print line,
 #
 # Generate a MANIFEST.in file. This is the file that setup.py sdist
 # uses to determine which files to tar up for the "source" distribution.
 # In our case, because we don't release source code, the "source" 
 # distribution is really a binary distribution.
 #
-    man_file = 'MANIFEST.in'
-    if os.path.exists(man_file):
-      os.remove(man_file)
-    if os.path.exists('MANIFEST'):
-      os.remove("MANIFEST")
+  man_file = 'MANIFEST.in'
+  if os.path.exists(man_file):
+    os.remove(man_file)
+  if os.path.exists('MANIFEST'):
+    os.remove("MANIFEST")
 
-    mfile = open(man_file,'w')
-    if array_module == 'numpy':
-      mfile.write("include PyNGL.pth\n")
+  mfile = open(man_file,'w')
+  mfile.write("include PyNGL.pth\n")
 
-    mfile.write("include setup.py\n")
-    mfile.write("include README\n")
-    mfile.write("recursive-include " + pyngl_pkg_name + " *\n")
-    mfile.write("recursive-include bin *\n")
-    mfile.close()
+  mfile.write("include setup.py\n")
+  mfile.write("include README\n")
+  mfile.write("recursive-include " + pyngl_pkg_name + " *\n")
+  mfile.write("recursive-include bin *\n")
+  mfile.close()
 
 #
 # Run the command to create the "source" distribution. This file
 # name will not have a system name as part of the name.
 #
-    os.system("python setup.py sdist")
+  os.system("python setup.py sdist")
 
 #
 # Cleanup: remove the Scripts directory and pyngl_version.py file.

@@ -2523,11 +2523,7 @@ static swig_module_info swig_module = {swig_types, 13, 0, 0, 0, 0};
 
 #include <ncarg/gks.h>
 
-#ifdef USE_NUMPY
 #include <numpy/arrayobject.h>
-#else
-#include <Numeric/arrayobject.h>
-#endif
 
 #define min(x,y) ((x) < (y) ? (x) : (y) )
 #define pow2(x)  ((x)*(x))
@@ -3855,11 +3851,7 @@ SWIG_AsVal_float (PyObject * obj, float *val)
 }
 
 
-#ifdef USE_NUMPY
 #include <numpy/arrayobject.h>
-#else
-#include <Numeric/arrayobject.h>
-#endif
 
 
 SWIGINTERN int
@@ -4452,7 +4444,7 @@ SWIGINTERN PyObject *_wrap_NhlSetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -4579,7 +4571,7 @@ SWIGINTERN PyObject *_wrap_NhlSetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
           }
           else {
             printf(
-              "Numeric arrays must be of type int, int32, float, float0, float32, or float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -6209,7 +6201,7 @@ SWIGINTERN PyObject *_wrap_NhlGetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -6336,7 +6328,7 @@ SWIGINTERN PyObject *_wrap_NhlGetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
           }
           else {
             printf(
-              "Numeric arrays must be of type int, int32, float, float0, float32, or float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -8235,7 +8227,7 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -8306,7 +8298,6 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -8378,32 +8369,6 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -8436,7 +8401,7 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -8583,7 +8548,7 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -8654,7 +8619,6 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -8726,32 +8690,6 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -8784,7 +8722,7 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -9034,7 +8972,7 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -9105,7 +9043,6 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -9177,32 +9114,6 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -9235,7 +9146,7 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -9639,7 +9550,7 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -9710,7 +9621,6 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -9782,32 +9692,6 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -9840,7 +9724,7 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -10258,7 +10142,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -10329,7 +10213,6 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -10401,32 +10284,6 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -10459,7 +10316,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -10606,7 +10463,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -10677,7 +10534,6 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -10749,32 +10605,6 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -10807,7 +10637,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -10954,7 +10784,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -11025,7 +10855,6 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -11097,32 +10926,6 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -11155,7 +10958,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -11487,7 +11290,7 @@ SWIGINTERN PyObject *_wrap_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -11558,7 +11361,6 @@ SWIGINTERN PyObject *_wrap_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -11630,32 +11432,6 @@ SWIGINTERN PyObject *_wrap_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -11688,7 +11464,7 @@ SWIGINTERN PyObject *_wrap_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -12102,7 +11878,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -12173,7 +11949,6 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -12245,32 +12020,6 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -12303,7 +12052,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -12450,7 +12199,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -12521,7 +12270,6 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -12593,32 +12341,6 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -12651,7 +12373,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -12798,7 +12520,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -12869,7 +12591,6 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -12941,32 +12662,6 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -12999,7 +12694,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -13421,7 +13116,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -13492,7 +13187,6 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -13564,32 +13258,6 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -13622,7 +13290,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -13769,7 +13437,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -13840,7 +13508,6 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -13912,32 +13579,6 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -13970,7 +13611,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -14117,7 +13758,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -14188,7 +13829,6 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -14260,32 +13900,6 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -14318,7 +13932,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -14695,7 +14309,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -14766,7 +14380,6 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -14838,32 +14451,6 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -14896,7 +14483,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -15043,7 +14630,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -15114,7 +14701,6 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -15186,32 +14772,6 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -15244,7 +14804,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -15391,7 +14951,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -15462,7 +15022,6 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -15534,32 +15093,6 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -15592,7 +15125,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -16038,7 +15571,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -16109,7 +15642,6 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -16181,32 +15713,6 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -16239,7 +15745,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -16386,7 +15892,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -16457,7 +15963,6 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -16529,32 +16034,6 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -16587,7 +16066,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -16734,7 +16213,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -16805,7 +16284,6 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -16877,32 +16355,6 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -16935,7 +16387,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -17387,7 +16839,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -17458,7 +16910,6 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -17530,32 +16981,6 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -17588,7 +17013,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -17735,7 +17160,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -17806,7 +17231,6 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -17878,32 +17302,6 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -17936,7 +17334,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -18083,7 +17481,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -18154,7 +17552,6 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -18226,32 +17623,6 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -18284,7 +17655,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -18768,7 +18139,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -18839,7 +18210,6 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -18911,32 +18281,6 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -18969,7 +18313,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -19116,7 +18460,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -19187,7 +18531,6 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -19259,32 +18602,6 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -19317,7 +18634,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -19464,7 +18781,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -19535,7 +18852,6 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -19607,32 +18923,6 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -19665,7 +18955,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -19812,7 +19102,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -19883,7 +19173,6 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -19955,32 +19244,6 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -20013,7 +19276,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -20499,7 +19762,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -20570,7 +19833,6 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -20642,32 +19904,6 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -20700,7 +19936,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -20847,7 +20083,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -20918,7 +20154,6 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -20990,32 +20225,6 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -21048,7 +20257,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -21195,7 +20404,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -21266,7 +20475,6 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -21338,32 +20546,6 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -21396,7 +20578,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -21543,7 +20725,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -21614,7 +20796,6 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -21686,32 +20867,6 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -21744,7 +20899,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -22198,7 +21353,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -22269,7 +21424,6 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -22341,32 +21495,6 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -22399,7 +21527,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -22546,7 +21674,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -22617,7 +21745,6 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -22689,32 +21816,6 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -22747,7 +21848,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -22894,7 +21995,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -22965,7 +22066,6 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -23037,32 +22137,6 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -23095,7 +22169,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -23547,7 +22621,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -23618,7 +22692,6 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -23690,32 +22763,6 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -23748,7 +22795,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -23895,7 +22942,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -23966,7 +23013,6 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -24038,32 +23084,6 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -24096,7 +23116,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -24243,7 +23263,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -24314,7 +23334,6 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -24386,32 +23405,6 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -24444,7 +23437,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -24928,7 +23921,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -24999,7 +23992,6 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -25071,32 +24063,6 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -25129,7 +24095,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -25276,7 +24242,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -25347,7 +24313,6 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -25419,32 +24384,6 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -25477,7 +24416,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -25624,7 +24563,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -25695,7 +24634,6 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -25767,32 +24705,6 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -25825,7 +24737,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -25972,7 +24884,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -26043,7 +24955,6 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -26115,32 +25026,6 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -26173,7 +25058,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -26659,7 +25544,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -26730,7 +25615,6 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -26802,32 +25686,6 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -26860,7 +25718,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -27007,7 +25865,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -27078,7 +25936,6 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -27150,32 +26007,6 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -27208,7 +26039,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -27355,7 +26186,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -27426,7 +26257,6 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -27498,32 +26328,6 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -27556,7 +26360,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -27703,7 +26507,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -27774,7 +26578,6 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -27846,32 +26649,6 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -27904,7 +26681,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -28286,7 +27063,7 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -28357,7 +27134,6 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -28429,32 +27205,6 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -28487,7 +27237,7 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -29112,7 +27862,7 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -29183,7 +27933,6 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -29255,32 +28004,6 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -29313,7 +28036,7 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -29940,7 +28663,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -30011,7 +28734,6 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -30083,32 +28805,6 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -30141,7 +28837,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -30288,7 +28984,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -30359,7 +29055,6 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -30431,32 +29126,6 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -30489,7 +29158,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -31420,7 +30089,7 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -31491,7 +30160,6 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -31563,32 +30231,6 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -31621,7 +30263,7 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -32118,7 +30760,7 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -32189,7 +30831,6 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -32261,32 +30902,6 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -32319,7 +30934,7 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -32923,7 +31538,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -32994,7 +31609,6 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -33066,32 +31680,6 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -33124,7 +31712,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }
@@ -33271,7 +31859,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
            */
           if (PyList_Check(PyList_GetItem(value,0)) ||
             PyList_Check(PyList_GetItem(value,0))) {
-            printf("Use Numeric arrays for multiple dimension arrays.\n");
+            printf("Use NumPy arrays for multiple dimension arrays.\n");
             return NULL;
           }
           list_len = PyList_Size(value);
@@ -33342,7 +31930,6 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
             break;
           }
         }
-#ifdef USE_NUMPY
         /*
          *  Check for scalars.
          */
@@ -33414,32 +32001,6 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
             }
           }
         }
-#else
-        /*
-         *  value is an int.
-         */
-        else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a float.
-         */
-        else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-        }
-        /*
-         *  value is a long.
-         */
-        else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-        }
-        /*
-         *  value is a string
-         */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-        }
-#endif
         /*
          *  value is an array.
          */
@@ -33472,7 +32033,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
           }
           else {
             printf(
-              "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+              "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
           }
         }

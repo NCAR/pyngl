@@ -1,13 +1,5 @@
-#
-# Numeric test. Comment this out if you want a NumPy test.
-#
-import NglA, MA
-
-#
-# NumPy test. Comment this out if you want a Numeric test.
-#
-#import PAF_numpy.NglA as NglA
-#import numpy.core.ma as MA
+import NglA
+import numpy.core.ma as MA
 
 #
 #  chiinv

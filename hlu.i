@@ -35,11 +35,7 @@
 
 #include <ncarg/gks.h>
 
-#ifdef USE_NUMPY
 #include <numpy/arrayobject.h>
-#else
-#include <Numeric/arrayobject.h>
-#endif
 
 #define min(x,y) ((x) < (y) ? (x) : (y) )
 #define pow2(x)  ((x)*(x))
@@ -2400,11 +2396,7 @@ void bndary()
 // Include the required NumPy header.
 //
 %header %{
-#ifdef USE_NUMPY
 #include <numpy/arrayobject.h>
-#else
-#include <Numeric/arrayobject.h>
-#endif
 %}
 
 //
@@ -3503,7 +3495,7 @@ import_array();
  */
         if (PyList_Check(PyList_GetItem(value,0)) ||
            PyList_Check(PyList_GetItem(value,0))) {
-          printf("Use Numeric arrays for multiple dimension arrays.\n");
+          printf("Use NumPy arrays for multiple dimension arrays.\n");
           return NULL;
         }
         list_len = PyList_Size(value);
@@ -3574,7 +3566,6 @@ import_array();
             break;
         }
       }
-%#ifdef USE_NUMPY
 /*
  *  Check for scalars.
  */
@@ -3646,32 +3637,6 @@ import_array();
           }
         }
       }
-%#else
-/*
- *  value is an int.
- */
-      else if (PyInt_Check(value)) {
-        NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-      }
-/*
- *  value is a float.
- */
-      else if (PyFloat_Check(value)) {
-        NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
-      }
-/*
- *  value is a long.
- */
-      else if (PyLong_Check(value)) {
-        NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
-      }
-/*
- *  value is a string
- */
-      else if (PyString_Check(value)) {
-        NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
-      }
-%#endif
 /*
  *  value is an array.
  */
@@ -3705,7 +3670,7 @@ import_array();
         }
         else {
           printf(
-            "Numeric arrays must be of type Int, Int32, Float, Float0, Float32, or Float64.\n");
+            "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
         }
       }
@@ -3853,7 +3818,7 @@ import_array();
  */
         if (PyList_Check(PyList_GetItem(value,0)) ||
            PyList_Check(PyList_GetItem(value,0))) {
-          printf("Use Numeric arrays for multiple dimension arrays.\n");
+          printf("Use NumPy arrays for multiple dimension arrays.\n");
           return NULL;
         }
         list_len = PyList_Size(value);
@@ -3981,7 +3946,7 @@ import_array();
         }
         else {
           printf(
-            "Numeric arrays must be of type int, int32, float, float0, float32, or float64.\n");
+            "NumPy arrays must be of type int, int32, float, float0, float32, or float64.\n");
             return NULL;
         }
       }

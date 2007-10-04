@@ -1,20 +1,10 @@
-# To test with the Numeric module, be sure to uncomment these three
-# lines, and comment the NumPy lines after this.
-#
-# import PAF_numeric.NglA as NglA
-# import MA
-# default_type = "numeric"
-
-# To test with the NumPy module, be sure to uncomment these two lines,
-# and comment the three Numeric lines above.
-import NglA
+import Ngl
 default_type = "numpy"
 
 #
 # Leave these both alone, regardless of what module you are testing.
 #
 import numpy
-import Numeric
 from utils import *
 
 #
@@ -32,7 +22,7 @@ y = numpy.array([1115.,1425.,1515.,1795.,1715.,1710., \
 
 tval  = 0.
 nptxy = 0
-rcl,fv,attrs = NglA.regline(x,y)
+rcl,fv,attrs = Ngl.regline(x,y)
 
 #
 # Correct values for first set of tests.
