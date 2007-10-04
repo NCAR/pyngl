@@ -22,9 +22,7 @@ def print_usage():
       -n
         Copy over the source files, but do not execute.
       --numeric
-        Execute the numeric version of the examples. You must have
-        the numeric version of the PyNGL package installed in order
-        for this to work.
+        Deprecated.
       --numpy
         Deprecated.
       -l
@@ -88,37 +86,20 @@ if (odict.has_key("-h")):
   sys.exit()
 
 #
-# Try to generate Numeric version of examples if "--numeric" is specified or
-# if the NumPy version can't be imported, and vice versa.
+# Since Numeric is no longer supported, print a message if somebody
+# references the --numeric option.
 #
 if (odict.has_key("--numeric")):
-  try:
-    import PyNGL_numeric.Ngl as Ngl
-  except:
-    print "\nWarning: I am unable to import the Numeric version of Ngl via"
-    print "         'import PyNGL_numeric.Ngl as Ngl'. I will try the"
-    print "         NumPy version via 'import Ngl'.\n"
-    try:
-      import Ngl
-    except:
-      print "Error: I am also unable to import the NumPy version of Ngl."
-      print "       Please report this problem to pyngl-talk@ucar.edu"
-      print "       if you feel this is in error.\n"
-      sys.exit()
-else:
-  try:
-    import Ngl
-  except:
-    print "\nWarning: I am unable to import the NumPy version of Ngl via"
-    print "         'import Ngl'. I will try the Numeric version via"
-    print "         'import PyNGL_numeric.Ngl as Ngl'\n"
-    try:
-      import PyNGL_numeric.Ngl as Ngl
-    except:
-      print "Error: I am also unable to import the Numeric version of Ngl."
-      print "       Please report this problem to pyngl-talk@ucar.edu"
-      print "       if you feel this is in error.\n"
-      sys.exit()
+  print "\nError: Numeric support has been dropped in this version of"
+  print "       Ngl and Nio. This option will no longer work."
+  sys.exit()
+
+try:
+  import Ngl
+except:
+  print "\nError: I am unable to import the NumPy version of Ngl via"
+  print "         'import Ngl'."
+  sys.exit()
 
 #
 #  Determine the root directory that contains the PyNGL
