@@ -16,6 +16,12 @@ def check_type(value,type_expected):
         print "Type test unsuccessful."
     except:
         print "Type test unsuccessful."
+  else:
+    if isinstance(value,type_expected):
+      print "Type test successful."
+    else:
+      print "Type test unsuccessful."
+
 #
 # Compare two single values for equality.
 #

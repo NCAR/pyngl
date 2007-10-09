@@ -3520,15 +3520,16 @@ name -- A string representing abbreviated name for which you want a
 
 def regline(x, y, return_info=True):
   """
-Calculates the linear regression coefficient between two series,
-and returns a masked array with the same fill_value as y.
+Calculates the linear regression coefficient between two series, and
+returns a masked array with the same fill_value as y. If no missing
+values are specified (via a masked array), then 1e20 is assumed.
 
 rc = Ngl.regline (x,y)
 
 x,y -- One-dimensional masked arrays of the same length.
 
 return_info -- An optional logical that indicates whether additional
-               calculations should be returned (True by default):
+               calculations should be returned in a list:
 
                xave -- average of x
                yave -- average of y
@@ -3544,33 +3545,35 @@ return_info -- An optional logical that indicates whether additional
 #
   if (fill_value_x != None and fill_value_y != None):
     result = fplib.regline(x.filled(fill_value_x), y.filled(fill_value_y), \
-                           fill_value_x, fill_value_y)
+                           fill_value_x, fill_value_y,return_info)
 #
 #  x is a masked array, y is not.
 #
   elif (fill_value_x != None and fill_value_y == None):
     fill_value_y = 1.e20
     result = fplib.regline(x.filled(fill_value_x), y, fill_value_x, \
-                                                      fill_value_y)
+                                                      fill_value_y,
+                                                      return_info)
 #
 #  x is not a masked array, y is.
 #
   elif (fill_value_x == None and fill_value_y != None):
     fill_value_x = 1.e20
     result = fplib.regline(x, y.filled(fill_value_y), fill_value_x, \
-                                                      fill_value_y)
+                                                      fill_value_y,
+                                                      return_info)
 #
 #  Neither x nor y is a masked array.
 #
   else:
     fill_value_x = fill_value_y = 1.e20
-    result = fplib.regline(x,y,fill_value_x,fill_value_y)
+    result = fplib.regline(x,y,fill_value_x,fill_value_y,return_info)
 # 
 #  Return a masked array with y's fill value as the fill_value.
+#  Return the additional calculated values if desired.
 # 
   if (return_info == True): 
-    result[0] = numpy.ma.masked_array(result[0],fill_value=fill_value_y)
-    return result
+    return [numpy.ma.masked_array(result[0]),result[1]]
   else:
     return numpy.ma.masked_array(result[0],fill_value=fill_value_y)
 

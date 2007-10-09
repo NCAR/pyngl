@@ -5,20 +5,21 @@ PyObject *fplib_regline(PyObject *self, PyObject *args)
   PyArrayObject *arr = NULL;
   double *x, *y;
   double fill_value_x, fill_value_y;
+  int return_info;
 
 /*
  * Output variables
  */
-  double rcoef, tval, rstd, xave, yave, yint;
+  double *rcoef, tval, rstd, xave, yave, yint;
   int nptxy, ier = 0;
-  PyObject *pdict, *rc, *fill_value, *result;
-  int npts, dsizes_x[1], dsizes_y[1];
+  PyObject *pdict, *rc, *result;
+  int npts, dsizes_x[1], dsizes_y[1], dsizes_rcoef[1];
 
 /*
  *  Retrieve arguments.
  */
-  if (!PyArg_ParseTuple(args, "OOdd:regline", &xar, &yar, 
-                         &fill_value_x, &fill_value_y)) {
+  if (!PyArg_ParseTuple(args, "OOddi:regline", &xar, &yar, 
+                         &fill_value_x, &fill_value_y, &return_info)) {
     printf("regline: argument parsing failed\n");
     Py_INCREF(Py_None);
     return Py_None;
@@ -56,11 +57,13 @@ PyObject *fplib_regline(PyObject *self, PyObject *args)
     return Py_None;
   }
 
+  rcoef = (double *)malloc(sizeof(double));
+
 /*
  * Call the f77 version of 'regline' with the full argument list.
  */
   NGCALLF(dregcoef,DREGCOEF)(x, y, &npts, &fill_value_x, &fill_value_y,
-                             &rcoef, &tval, &nptxy, &xave, &yave, &rstd, &ier);
+                             rcoef, &tval, &nptxy, &xave, &yave, &rstd, &ier);
   if (ier == 5) {
     printf ("regline: The x and/or y array contains all missing values\n");
     Py_INCREF(Py_None);
@@ -72,36 +75,45 @@ PyObject *fplib_regline(PyObject *self, PyObject *args)
     return Py_None;
   }
 
-  yint  = yave - rcoef*(xave);
+  yint  = yave - *rcoef*(xave);
 
+/*
+ * Return extra calculations only if return_info is True (1).
+ */
+  if(return_info) {
 /*
  *  Create return tuple.
  */
-  rc = PyFloat_FromDouble(rcoef);
+    rc = PyFloat_FromDouble(*rcoef);
 
-  fill_value = PyFloat_FromDouble(fill_value_y);
-  
-  pdict = PyDict_New();
-  PyDict_SetItem(pdict, PyString_FromString("tval"), PyFloat_FromDouble(tval));
-  PyDict_SetItem(pdict, PyString_FromString("xave"), PyFloat_FromDouble(xave));
-  PyDict_SetItem(pdict, PyString_FromString("yave"), PyFloat_FromDouble(yave));
-  PyDict_SetItem(pdict, PyString_FromString("rstd"), PyFloat_FromDouble(rstd));
-  PyDict_SetItem(pdict, PyString_FromString("nptxy"), PyInt_FromLong((long) nptxy));
-  PyDict_SetItem(pdict, PyString_FromString("yintercept"), PyFloat_FromDouble(yint));
+    pdict = PyDict_New();
+    PyDict_SetItem(pdict, PyString_FromString("xave"), PyFloat_FromDouble(xave));
+    PyDict_SetItem(pdict, PyString_FromString("yave"), PyFloat_FromDouble(yave));
+    PyDict_SetItem(pdict, PyString_FromString("tval"), PyFloat_FromDouble(tval));
+    PyDict_SetItem(pdict, PyString_FromString("rstd"), PyFloat_FromDouble(rstd));
+    PyDict_SetItem(pdict, PyString_FromString("yintercept"), PyFloat_FromDouble(yint));
+    PyDict_SetItem(pdict, PyString_FromString("nptxy"), PyInt_FromLong((long) nptxy));
 
 /*
- *  pdict = Py_BuildValue("{s:f, s:f, s:f, s:f, s:i, s:f}",  
- *                 "tval",tval, 
+ *  pdict = Py_BuildValue("{s:f, s:f, s:f, s:f, s:f, s:i}",
  *                 "xave",xave, 
  *                 "yave",yave, 
+ *                 "tval",tval, 
  *                 "rstd",rstd, 
- *                 "nptxy",nptxy, 
- *                 "yintercept",yint);
+ *                 "yintercept",yint,
+ *                 "nptxy",nptxy);
  */
-  result = Py_None;
-  result = t_output_helper(result,rc);
-  result = t_output_helper(result,fill_value);
-  result = t_output_helper(result,pdict);
-  if (result == Py_None) Py_INCREF(Py_None);
-  return result;
+    result = Py_None;
+    result = t_output_helper(result,rc);
+    result = t_output_helper(result,pdict);
+    if (result == Py_None) Py_INCREF(Py_None);
+    return result;
+  }
+  else {
+    dsizes_rcoef[0] = 1;
+    return ((PyObject *) PyArray_FromDimsAndData(1,
+						 dsizes_rcoef,
+						 PyArray_DOUBLE,
+						 (void *) rcoef));
+  }
 }
