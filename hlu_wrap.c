@@ -3033,18 +3033,18 @@ NhlErrorTypes NglGaus_p(int num, int n, int m, double *data_out[]) {
 PyObject *mapgci(float alat, float alon, float blat, float blon, int npts)
 {
   float *rlati,*rloni;
-  PyObject *obj1,*obj2,*status,*resultobj;
+  PyObject *obj1,*obj2,*resultobj;
 
-  int dims[1],ier;
+  npy_intp dims[1];
 
   rlati = (float *) malloc(npts*sizeof(float));
   rloni = (float *) malloc(npts*sizeof(float));
   c_mapgci(alat, alon, blat, blon, npts, rlati, rloni);
-  dims[0] = npts;
-  obj1 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
-                                              (char *) rlati);
-  obj2 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
-                                              (char *) rloni);
+  dims[0] = (npy_intp)npts;
+  obj1 = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,
+                                                (char *) rlati);
+  obj2 = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,
+                                                (char *) rloni);
   resultobj = Py_None;
   resultobj = t_output_helper(resultobj,obj1);
   resultobj = t_output_helper(resultobj,obj2);
@@ -3055,17 +3055,18 @@ PyObject *mapgci(float alat, float alon, float blat, float blon, int npts)
 PyObject *dcapethermo(double *penv, double *tenv, int nlvl, double lclmb, 
                       int iprnt, double tmsg)
 {
-  PyObject *obj1,*obj2,*obj3,*obj4,*obj5,*status,*resultobj;
-  int jlcl, jlfc, jcross, dims[1];
+  PyObject *obj1,*obj2,*obj3,*obj4,*obj5,*resultobj;
+  int jlcl, jlfc, jcross;
+  npy_intp dims[1];
   double cape, *tparcel;
 
   cape = c_dcapethermo(penv, tenv, nlvl, lclmb, iprnt, &tparcel, tmsg,
                        &jlcl, &jlfc, &jcross);                       
 
-  dims[0] = nlvl;
+  dims[0] = (npy_intp)nlvl;
   obj1 = (PyObject *) PyFloat_FromDouble(cape);
-  obj2 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_DOUBLE,
-                                              (char *) tparcel);
+  obj2 = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_DOUBLE,
+                                                (char *) tparcel);
   obj3 = (PyObject *) PyInt_FromLong((long) jlcl);
   obj4 = (PyObject *) PyInt_FromLong((long) jlfc);
   obj5 = (PyObject *) PyInt_FromLong((long) jcross);
@@ -3085,14 +3086,15 @@ PyObject *ftcurvc(int n, float *x, float *y, int m, float *xo)
   float *yo;
   PyObject *obj1,*status,*resultobj;
 
-  int dims[1],ier;
+  int ier;
+  npy_intp dims[1];
 
   yo = (float *) malloc(m*sizeof(float));
   ier = c_ftcurv(n,x,y,m,xo,yo);
   status = (PyObject *) PyInt_FromLong((long) ier);
-  dims[0] = m;
-  obj1 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
-                                              (char *) yo);
+  dims[0] = (npy_intp)m;
+  obj1 = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,
+                                                (char *) yo);
   resultobj = Py_None;
   resultobj = t_output_helper(resultobj,status);
   resultobj = t_output_helper(resultobj,obj1);
@@ -3105,14 +3107,15 @@ PyObject *ftcurvpc(int n, float *x, float *y, float p, int m, float *xo)
   float *yo;
   PyObject *obj1,*status,*resultobj;
 
-  int dims[1],ier;
+  int ier;
+  npy_intp dims[1];
 
   yo = (float *) malloc(m*sizeof(float));
   ier = c_ftcurvp(n,x,y,p,m,xo,yo);
   status = (PyObject *) PyInt_FromLong((long) ier);
-  dims[0] = m;
-  obj1 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
-                                              (char *) yo);
+  dims[0] = (npy_intp)m;
+  obj1 = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,
+                                                (char *) yo);
   resultobj = Py_None;
   resultobj = t_output_helper(resultobj,status);
   resultobj = t_output_helper(resultobj,obj1);
@@ -3123,9 +3126,9 @@ PyObject *ftcurvpc(int n, float *x, float *y, float p, int m, float *xo)
 PyObject *ftcurvpic(float xl, float xr, float p, int m, float *xi, float *yi)
 {
   float yo;
-  PyObject *obj1,*status,*resultobj;
+  PyObject *status,*resultobj;
 
-  int dims[1],ier;
+  int ier;
 
   ier = c_ftcurvpi(xl,xr,p,m,xi,yi,&yo);
   status = (PyObject *) PyInt_FromLong((long) ier);
@@ -3289,7 +3292,8 @@ PyObject *NhlPNDCToData(int pid, float *x, float *y, int n, float xmissing,
 {
   float *xout, *yout;
   PyObject *obj1, *obj2, *nhlerr, *rstatus, *range, *resultobj;
-  int dims[1],status,rval;
+  int status,rval;
+  npy_intp dims[1];
   float out_of_range;
 
   xout = (float *) malloc(n*sizeof(float));
@@ -3298,11 +3302,11 @@ PyObject *NhlPNDCToData(int pid, float *x, float *y, int n, float xmissing,
                              ymissing, ixmissing, iymissing,
                              &status, &out_of_range);
   nhlerr = (PyObject *) PyInt_FromLong((long) rval); 
-  dims[0] = n;
-  obj1 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
-                                              (char *) xout);
-  obj2 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
-                                              (char *) yout);
+  dims[0] = (npy_intp)n;
+  obj1 = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,
+                                                (char *) xout);
+  obj2 = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,
+                                                (char *) yout);
   rstatus = (PyObject *) PyInt_FromLong((long) status); 
   range = (PyObject *) PyFloat_FromDouble((double) out_of_range); 
 
@@ -3345,7 +3349,8 @@ PyObject *NhlPDataToNDC(int pid, float *x, float *y, int n, float xmissing,
 {
   float *xout, *yout;
   PyObject *obj1, *obj2, *nhlerr, *rstatus, *range, *resultobj;
-  int dims[1],status,rval;
+  int status,rval;
+  npy_intp dims[1];
   float out_of_range;
 
   xout = (float *) malloc(n*sizeof(float));
@@ -3354,11 +3359,11 @@ PyObject *NhlPDataToNDC(int pid, float *x, float *y, int n, float xmissing,
                              ymissing, ixmissing, iymissing,
                              &status, &out_of_range);
   nhlerr = (PyObject *) PyInt_FromLong((long) rval); 
-  dims[0] = n;
-  obj1 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
-                                              (char *) xout);
-  obj2 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
-                                              (char *) yout);
+  dims[0] = (npy_intp)n;
+  obj1 = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,
+                                                (char *) xout);
+  obj2 = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,
+                                                (char *) yout);
   rstatus = (PyObject *) PyInt_FromLong((long) status); 
   range = (PyObject *) PyFloat_FromDouble((double) out_of_range); 
 
@@ -4166,7 +4171,7 @@ SWIGINTERN PyObject *_wrap_c_cssgrid(PyObject *SWIGUNUSEDPARM(self), PyObject *a
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -4177,7 +4182,7 @@ SWIGINTERN PyObject *_wrap_c_cssgrid(PyObject *SWIGUNUSEDPARM(self), PyObject *a
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -4188,7 +4193,7 @@ SWIGINTERN PyObject *_wrap_c_cssgrid(PyObject *SWIGUNUSEDPARM(self), PyObject *a
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj3,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -4205,7 +4210,7 @@ SWIGINTERN PyObject *_wrap_c_cssgrid(PyObject *SWIGUNUSEDPARM(self), PyObject *a
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj6,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj6,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -4216,7 +4221,7 @@ SWIGINTERN PyObject *_wrap_c_cssgrid(PyObject *SWIGUNUSEDPARM(self), PyObject *a
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj7,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj7,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -4548,7 +4553,7 @@ SWIGINTERN PyObject *_wrap_NhlSetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -4559,7 +4564,7 @@ SWIGINTERN PyObject *_wrap_NhlSetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -4778,7 +4783,7 @@ SWIGINTERN PyObject *_wrap_NhlNDCPolyline(PyObject *SWIGUNUSEDPARM(self), PyObje
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -4789,7 +4794,7 @@ SWIGINTERN PyObject *_wrap_NhlNDCPolyline(PyObject *SWIGUNUSEDPARM(self), PyObje
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj3,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -4834,7 +4839,7 @@ SWIGINTERN PyObject *_wrap_NhlNDCPolymarker(PyObject *SWIGUNUSEDPARM(self), PyOb
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -4845,7 +4850,7 @@ SWIGINTERN PyObject *_wrap_NhlNDCPolymarker(PyObject *SWIGUNUSEDPARM(self), PyOb
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj3,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -4890,7 +4895,7 @@ SWIGINTERN PyObject *_wrap_NhlNDCPolygon(PyObject *SWIGUNUSEDPARM(self), PyObjec
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -4901,7 +4906,7 @@ SWIGINTERN PyObject *_wrap_NhlNDCPolygon(PyObject *SWIGUNUSEDPARM(self), PyObjec
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj3,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -4946,7 +4951,7 @@ SWIGINTERN PyObject *_wrap_NhlDataPolyline(PyObject *SWIGUNUSEDPARM(self), PyObj
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -4957,7 +4962,7 @@ SWIGINTERN PyObject *_wrap_NhlDataPolyline(PyObject *SWIGUNUSEDPARM(self), PyObj
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj3,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -5002,7 +5007,7 @@ SWIGINTERN PyObject *_wrap_NhlDataPolymarker(PyObject *SWIGUNUSEDPARM(self), PyO
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -5013,7 +5018,7 @@ SWIGINTERN PyObject *_wrap_NhlDataPolymarker(PyObject *SWIGUNUSEDPARM(self), PyO
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj3,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -5058,7 +5063,7 @@ SWIGINTERN PyObject *_wrap_NhlDataPolygon(PyObject *SWIGUNUSEDPARM(self), PyObje
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -5069,7 +5074,7 @@ SWIGINTERN PyObject *_wrap_NhlDataPolygon(PyObject *SWIGUNUSEDPARM(self), PyObje
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj3,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -5764,7 +5769,7 @@ SWIGINTERN PyObject *_wrap_NhlRLSetMDIntegerArray(PyObject *SWIGUNUSEDPARM(self)
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_INT,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_INT,0,0);
     arg3 = (int *) arr->data;
   }
   {
@@ -5773,7 +5778,7 @@ SWIGINTERN PyObject *_wrap_NhlRLSetMDIntegerArray(PyObject *SWIGUNUSEDPARM(self)
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj4,PyArray_INT,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj4,PyArray_INT,0,0);
     arg5 = (int *) arr->data;
   }
   result = (NhlErrorTypes)NhlRLSetMDIntegerArray(arg1,arg2,arg3,arg4,arg5);
@@ -5817,7 +5822,7 @@ SWIGINTERN PyObject *_wrap_NhlRLSetMDDoubleArray(PyObject *SWIGUNUSEDPARM(self),
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     arg3 = (double *) arr->data;
   }
   {
@@ -5826,7 +5831,7 @@ SWIGINTERN PyObject *_wrap_NhlRLSetMDDoubleArray(PyObject *SWIGUNUSEDPARM(self),
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj4,PyArray_INT,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj4,PyArray_INT,0,0);
     arg5 = (int *) arr->data;
   }
   result = (NhlErrorTypes)NhlRLSetMDDoubleArray(arg1,arg2,arg3,arg4,arg5);
@@ -5871,7 +5876,7 @@ SWIGINTERN PyObject *_wrap_NhlRLSetMDFloatArray(PyObject *SWIGUNUSEDPARM(self), 
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -5884,7 +5889,7 @@ SWIGINTERN PyObject *_wrap_NhlRLSetMDFloatArray(PyObject *SWIGUNUSEDPARM(self), 
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj4,PyArray_INT,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj4,PyArray_INT,0,0);
     arg5 = (int *) arr->data;
   }
   result = (NhlErrorTypes)NhlRLSetMDFloatArray(arg1,arg2,arg3,arg4,arg5);
@@ -5927,7 +5932,7 @@ SWIGINTERN PyObject *_wrap_NhlRLSetFloatArray(PyObject *SWIGUNUSEDPARM(self), Py
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -5976,7 +5981,7 @@ SWIGINTERN PyObject *_wrap_NhlRLSetIntegerArray(PyObject *SWIGUNUSEDPARM(self), 
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_INT,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_INT,0,0);
     arg3 = (int *) arr->data;
   }
   {
@@ -6305,7 +6310,7 @@ SWIGINTERN PyObject *_wrap_NhlGetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -6316,7 +6321,7 @@ SWIGINTERN PyObject *_wrap_NhlGetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -6413,9 +6418,9 @@ SWIGINTERN PyObject *_wrap_NhlGetFloatArray(PyObject *SWIGUNUSEDPARM(self), PyOb
   result = (float *)NhlGetFloatArray(arg1,arg2,arg3);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_float, 0 |  0 );
   {
-    int dims[1];
-    dims[0] = *(arg3);
-    resultobj = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,(char *) result);
+    npy_intp dims[1];
+    dims[0] = (npy_intp)*(arg3);
+    resultobj = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,(char *) result);
   }
   if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
   return resultobj;
@@ -6483,9 +6488,9 @@ SWIGINTERN PyObject *_wrap_NhlGetIntegerArray(PyObject *SWIGUNUSEDPARM(self), Py
   result = (int *)NhlGetIntegerArray(arg1,arg2,arg3);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_int, 0 |  0 );
   {
-    int dims[1];
-    dims[0] = *(arg3);
-    resultobj = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_INT,(char *) result);
+    npy_intp dims[1];
+    dims[0] = (npy_intp)*(arg3);
+    resultobj = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_INT,(char *) result);
   }
   if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
   return resultobj;
@@ -6553,9 +6558,9 @@ SWIGINTERN PyObject *_wrap_NhlGetDoubleArray(PyObject *SWIGUNUSEDPARM(self), PyO
   result = (double *)NhlGetDoubleArray(arg1,arg2,arg3);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_double, 0 |  0 );
   {
-    int dims[1];
-    dims[0] = *(arg3);
-    resultobj = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_DOUBLE,(char *) result);
+    npy_intp dims[1];
+    dims[0] = (int)*(arg3);
+    resultobj = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_DOUBLE,(char *) result);
   }
   if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
   return resultobj;
@@ -7076,7 +7081,7 @@ SWIGINTERN PyObject *_wrap_NhlPNDCToData(PyObject *SWIGUNUSEDPARM(self), PyObjec
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -7087,7 +7092,7 @@ SWIGINTERN PyObject *_wrap_NhlPNDCToData(PyObject *SWIGUNUSEDPARM(self), PyObjec
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -7145,7 +7150,7 @@ SWIGINTERN PyObject *_wrap_NhlPDataToNDC(PyObject *SWIGUNUSEDPARM(self), PyObjec
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -7156,7 +7161,7 @@ SWIGINTERN PyObject *_wrap_NhlPDataToNDC(PyObject *SWIGUNUSEDPARM(self), PyObjec
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -7644,9 +7649,9 @@ SWIGINTERN PyObject *_wrap_gendat(PyObject *SWIGUNUSEDPARM(self), PyObject *args
   gendat(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);
   resultobj = SWIG_Py_Void();
   {
-    int dims[1];
-    dims[0] = arg1;
-    resultobj = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,(char *) arg8);
+    npy_intp dims[1];
+    dims[0] = (npy_intp)arg1;
+    resultobj = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,(char *) arg8);
   }
   return resultobj;
 fail:
@@ -7924,7 +7929,7 @@ SWIGINTERN PyObject *_wrap_c_cprect(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj0,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj0,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -7944,7 +7949,7 @@ SWIGINTERN PyObject *_wrap_c_cprect(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj4,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj4,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -7957,7 +7962,7 @@ SWIGINTERN PyObject *_wrap_c_cprect(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj6,PyArray_INT,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj6,PyArray_INT,0,0);
     arg7 = (int *) arr->data;
   }
   {
@@ -7985,7 +7990,7 @@ SWIGINTERN PyObject *_wrap_c_cpcldr(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj0,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj0,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -7996,7 +8001,7 @@ SWIGINTERN PyObject *_wrap_c_cpcldr(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -8006,7 +8011,7 @@ SWIGINTERN PyObject *_wrap_c_cpcldr(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_INT,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_INT,0,0);
     arg3 = (int *) arr->data;
   }
   c_cpcldr(arg1,arg2,arg3);
@@ -8378,7 +8383,7 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -8389,7 +8394,7 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -8699,7 +8704,7 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -8710,7 +8715,7 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -8823,13 +8828,13 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj4,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj4,PyArray_DOUBLE,0,0);
     arg5 = (void *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj5,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj5,PyArray_DOUBLE,0,0);
     arg6 = (void *) arr->data;
   }
   res7 = SWIG_AsCharPtrAndSize(obj6, &buf7, NULL, &alloc7);
@@ -9123,7 +9128,7 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -9134,7 +9139,7 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -9401,13 +9406,13 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj4,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj4,PyArray_DOUBLE,0,0);
     arg5 = (void *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj5,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj5,PyArray_DOUBLE,0,0);
     arg6 = (void *) arr->data;
   }
   res7 = SWIG_AsCharPtrAndSize(obj6, &buf7, NULL, &alloc7);
@@ -9701,7 +9706,7 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -9712,7 +9717,7 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -9967,7 +9972,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     arg2 = (void *) arr->data;
   }
   res3 = SWIG_AsCharPtrAndSize(obj2, &buf3, NULL, &alloc3);
@@ -10293,7 +10298,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -10304,7 +10309,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -10614,7 +10619,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -10625,7 +10630,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -10935,7 +10940,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -10946,7 +10951,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -11441,7 +11446,7 @@ SWIGINTERN PyObject *_wrap_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -11452,7 +11457,7 @@ SWIGINTERN PyObject *_wrap_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -11703,7 +11708,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     arg2 = (void *) arr->data;
   }
   res3 = SWIG_AsCharPtrAndSize(obj2, &buf3, NULL, &alloc3);
@@ -12029,7 +12034,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -12040,7 +12045,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -12350,7 +12355,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -12361,7 +12366,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -12671,7 +12676,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -12682,7 +12687,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -12935,13 +12940,13 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     arg2 = (void *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     arg3 = (void *) arr->data;
   }
   res4 = SWIG_AsCharPtrAndSize(obj3, &buf4, NULL, &alloc4);
@@ -12960,7 +12965,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj6,PyArray_INT,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj6,PyArray_INT,0,0);
     arg7 = (int *) arr->data;
   }
   {
@@ -12969,7 +12974,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj8,PyArray_INT,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj8,PyArray_INT,0,0);
     arg9 = (int *) arr->data;
   }
   {
@@ -13267,7 +13272,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -13278,7 +13283,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -13588,7 +13593,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -13599,7 +13604,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -13909,7 +13914,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -13920,7 +13925,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -14155,7 +14160,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     arg2 = (void *) arr->data;
   }
   res3 = SWIG_AsCharPtrAndSize(obj2, &buf3, NULL, &alloc3);
@@ -14169,7 +14174,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj4,PyArray_INT,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj4,PyArray_INT,0,0);
     arg5 = (int *) arr->data;
   }
   {
@@ -14460,7 +14465,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -14471,7 +14476,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -14781,7 +14786,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -14792,7 +14797,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -15102,7 +15107,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -15113,7 +15118,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -15378,13 +15383,13 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     arg2 = (void *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     arg3 = (void *) arr->data;
   }
   res4 = SWIG_AsCharPtrAndSize(obj3, &buf4, NULL, &alloc4);
@@ -15722,7 +15727,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -15733,7 +15738,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -16043,7 +16048,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -16054,7 +16059,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -16364,7 +16369,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -16375,7 +16380,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -16646,13 +16651,13 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     arg2 = (void *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     arg3 = (void *) arr->data;
   }
   res4 = SWIG_AsCharPtrAndSize(obj3, &buf4, NULL, &alloc4);
@@ -16990,7 +16995,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -17001,7 +17006,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -17311,7 +17316,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -17322,7 +17327,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -17632,7 +17637,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -17643,7 +17648,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -17928,19 +17933,19 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     arg2 = (void *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     arg3 = (void *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj3,PyArray_DOUBLE,0,0);
     arg4 = (void *) arr->data;
   }
   res5 = SWIG_AsCharPtrAndSize(obj4, &buf5, NULL, &alloc5);
@@ -18290,7 +18295,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -18301,7 +18306,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -18611,7 +18616,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -18622,7 +18627,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -18932,7 +18937,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -18943,7 +18948,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -19253,7 +19258,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -19264,7 +19269,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -19551,19 +19556,19 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     arg2 = (void *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     arg3 = (void *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj3,PyArray_DOUBLE,0,0);
     arg4 = (void *) arr->data;
   }
   res5 = SWIG_AsCharPtrAndSize(obj4, &buf5, NULL, &alloc5);
@@ -19913,7 +19918,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -19924,7 +19929,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -20234,7 +20239,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -20245,7 +20250,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -20555,7 +20560,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -20566,7 +20571,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -20876,7 +20881,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -20887,7 +20892,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -21160,13 +21165,13 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     arg2 = (void *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     arg3 = (void *) arr->data;
   }
   res4 = SWIG_AsCharPtrAndSize(obj3, &buf4, NULL, &alloc4);
@@ -21504,7 +21509,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -21515,7 +21520,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -21825,7 +21830,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -21836,7 +21841,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -22146,7 +22151,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -22157,7 +22162,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -22428,13 +22433,13 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     arg2 = (void *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     arg3 = (void *) arr->data;
   }
   res4 = SWIG_AsCharPtrAndSize(obj3, &buf4, NULL, &alloc4);
@@ -22772,7 +22777,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -22783,7 +22788,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -23093,7 +23098,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -23104,7 +23109,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -23414,7 +23419,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -23425,7 +23430,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -23710,19 +23715,19 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     arg2 = (void *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     arg3 = (void *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj3,PyArray_DOUBLE,0,0);
     arg4 = (void *) arr->data;
   }
   res5 = SWIG_AsCharPtrAndSize(obj4, &buf5, NULL, &alloc5);
@@ -24072,7 +24077,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -24083,7 +24088,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -24393,7 +24398,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -24404,7 +24409,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -24714,7 +24719,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -24725,7 +24730,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -25035,7 +25040,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -25046,7 +25051,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -25333,19 +25338,19 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     arg2 = (void *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     arg3 = (void *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj3,PyArray_DOUBLE,0,0);
     arg4 = (void *) arr->data;
   }
   res5 = SWIG_AsCharPtrAndSize(obj4, &buf5, NULL, &alloc5);
@@ -25695,7 +25700,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -25706,7 +25711,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -26016,7 +26021,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -26027,7 +26032,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -26337,7 +26342,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -26348,7 +26353,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -26658,7 +26663,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -26669,7 +26674,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -26914,13 +26919,13 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     arg3 = (void *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj3,PyArray_DOUBLE,0,0);
     arg4 = (void *) arr->data;
   }
   res5 = SWIG_AsCharPtrAndSize(obj4, &buf5, NULL, &alloc5);
@@ -27214,7 +27219,7 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -27225,7 +27230,7 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -27713,13 +27718,13 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj3,PyArray_DOUBLE,0,0);
     arg4 = (void *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj4,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj4,PyArray_DOUBLE,0,0);
     arg5 = (void *) arr->data;
   }
   res6 = SWIG_AsCharPtrAndSize(obj5, &buf6, NULL, &alloc6);
@@ -28013,7 +28018,7 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -28024,7 +28029,7 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -28514,13 +28519,13 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj3,PyArray_DOUBLE,0,0);
     arg4 = (void *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj4,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj4,PyArray_DOUBLE,0,0);
     arg5 = (void *) arr->data;
   }
   res6 = SWIG_AsCharPtrAndSize(obj5, &buf6, NULL, &alloc6);
@@ -28814,7 +28819,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -28825,7 +28830,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -29135,7 +29140,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -29146,7 +29151,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -29918,13 +29923,13 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     arg3 = (void *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj3,PyArray_DOUBLE,0,0);
     arg4 = (void *) arr->data;
   }
   res5 = SWIG_AsCharPtrAndSize(obj4, &buf5, NULL, &alloc5);
@@ -30240,7 +30245,7 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -30251,7 +30256,7 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -30589,13 +30594,13 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     arg3 = (void *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj3,PyArray_DOUBLE,0,0);
     arg4 = (void *) arr->data;
   }
   res5 = SWIG_AsCharPtrAndSize(obj4, &buf5, NULL, &alloc5);
@@ -30911,7 +30916,7 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -30922,7 +30927,7 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -31402,7 +31407,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_INT,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj3,PyArray_INT,0,0);
     arg4 = (int *) arr->data;
   }
   {
@@ -31689,7 +31694,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -31700,7 +31705,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -32010,7 +32015,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
            *  Process the legal array types.
            */
           if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_LONG,0,0);
             lvals = (long *)arr->data;
             ndims = arr->nd;
@@ -32021,7 +32026,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
             NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-            arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+            arr = (PyArrayObject *) PyArray_ContiguousFromAny \
             ((PyObject *) value,PyArray_DOUBLE,0,0);
             dvals = (double *)arr->data;
             ndims = arr->nd;
@@ -32119,13 +32124,13 @@ SWIGINTERN PyObject *_wrap_dcapethermo(PyObject *SWIGUNUSEDPARM(self), PyObject 
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj0,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj0,PyArray_DOUBLE,0,0);
     arg1 = (double *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     arg2 = (double *) arr->data;
   }
   {
@@ -32205,7 +32210,7 @@ SWIGINTERN PyObject *_wrap_natgridc(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -32216,7 +32221,7 @@ SWIGINTERN PyObject *_wrap_natgridc(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -32227,7 +32232,7 @@ SWIGINTERN PyObject *_wrap_natgridc(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj3,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj3,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -32244,7 +32249,7 @@ SWIGINTERN PyObject *_wrap_natgridc(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj6,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj6,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -32255,7 +32260,7 @@ SWIGINTERN PyObject *_wrap_natgridc(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj7,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj7,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -32277,11 +32282,11 @@ SWIGINTERN PyObject *_wrap_natgridc(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((void*)(arg9), SWIGTYPE_p_int, new_flags));
   }
   {
-    int dims[2];
+    npy_intp dims[2];
     PyObject *o;
-    dims[0] = arg10;
-    dims[1] = arg11;
-    o = (PyObject *)PyArray_FromDimsAndData(2,dims,PyArray_FLOAT,
+    dims[0] = (npy_intp)arg10;
+    dims[1] = (npy_intp)arg11;
+    o = (PyObject *)PyArray_SimpleNewFromData(2,dims,PyArray_FLOAT,
       (char *) arg12[0]);
     resultobj = t_output_helper(resultobj,o);
   }
@@ -32313,7 +32318,7 @@ SWIGINTERN PyObject *_wrap_ftcurvc(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -32324,7 +32329,7 @@ SWIGINTERN PyObject *_wrap_ftcurvc(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -32338,7 +32343,7 @@ SWIGINTERN PyObject *_wrap_ftcurvc(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj4,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj4,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -32377,7 +32382,7 @@ SWIGINTERN PyObject *_wrap_ftcurvpc(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -32388,7 +32393,7 @@ SWIGINTERN PyObject *_wrap_ftcurvpc(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -32405,7 +32410,7 @@ SWIGINTERN PyObject *_wrap_ftcurvpc(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj5,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj5,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -32453,7 +32458,7 @@ SWIGINTERN PyObject *_wrap_ftcurvpic(PyObject *SWIGUNUSEDPARM(self), PyObject *a
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj4,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj4,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -32464,7 +32469,7 @@ SWIGINTERN PyObject *_wrap_ftcurvpic(PyObject *SWIGUNUSEDPARM(self), PyObject *a
     int i,ndims,tdims=1;
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj5,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj5,PyArray_DOUBLE,0,0);
     ndims = arr->nd;
     for (i = 0; i < ndims; i++) {
       tdims *= (int) arr->dimensions[i];
@@ -33510,19 +33515,19 @@ SWIGINTERN PyObject *_wrap_c_dshowalskewt(PyObject *SWIGUNUSEDPARM(self), PyObje
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj0,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj0,PyArray_DOUBLE,0,0);
     arg1 = (double *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     arg2 = (double *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj2,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj2,PyArray_DOUBLE,0,0);
     arg3 = (double *) arr->data;
   }
   {
@@ -33550,13 +33555,13 @@ SWIGINTERN PyObject *_wrap_c_dpwskewt(PyObject *SWIGUNUSEDPARM(self), PyObject *
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj0,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj0,PyArray_DOUBLE,0,0);
     arg1 = (double *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj1,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj1,PyArray_DOUBLE,0,0);
     arg2 = (double *) arr->data;
   }
   {
@@ -33803,11 +33808,11 @@ SWIGINTERN PyObject *_wrap_NglGaus_p(PyObject *SWIGUNUSEDPARM(self), PyObject *a
     resultobj = PyInt_FromLong ((long) result);
   }
   {
-    int dims[2];
+    npy_intp dims[2];
     PyObject *o;
-    dims[0] = arg2;
-    dims[1] = arg3;
-    o = (PyObject *)PyArray_FromDimsAndData(2,dims,PyArray_DOUBLE,
+    dims[0] = (npy_intp)arg2;
+    dims[1] = (npy_intp)arg3;
+    o = (PyObject *)PyArray_SimpleNewFromData(2,dims,PyArray_DOUBLE,
       (char *) arg4[0]);
     resultobj = t_output_helper(resultobj,o);
   }
@@ -33861,7 +33866,7 @@ SWIGINTERN PyObject *_wrap_NglVinth2p(PyObject *SWIGUNUSEDPARM(self), PyObject *
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj0,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj0,PyArray_DOUBLE,0,0);
     arg1 = (double *) arr->data;
   }
   {
@@ -33876,13 +33881,13 @@ SWIGINTERN PyObject *_wrap_NglVinth2p(PyObject *SWIGUNUSEDPARM(self), PyObject *
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj4,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj4,PyArray_DOUBLE,0,0);
     arg6 = (double *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj5,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj5,PyArray_DOUBLE,0,0);
     arg7 = (double *) arr->data;
   }
   {
@@ -33891,13 +33896,13 @@ SWIGINTERN PyObject *_wrap_NglVinth2p(PyObject *SWIGUNUSEDPARM(self), PyObject *
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj7,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj7,PyArray_DOUBLE,0,0);
     arg9 = (double *) arr->data;
   }
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj8,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj8,PyArray_DOUBLE,0,0);
     arg10 = (double *) arr->data;
   }
   {
@@ -33909,7 +33914,7 @@ SWIGINTERN PyObject *_wrap_NglVinth2p(PyObject *SWIGUNUSEDPARM(self), PyObject *
   {
     PyArrayObject *arr;
     arr =
-    (PyArrayObject *) PyArray_ContiguousFromObject(obj11,PyArray_DOUBLE,0,0);
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj11,PyArray_DOUBLE,0,0);
     arg13 = (double *) arr->data;
   }
   {
@@ -33927,12 +33932,12 @@ SWIGINTERN PyObject *_wrap_NglVinth2p(PyObject *SWIGUNUSEDPARM(self), PyObject *
   NglVinth2p(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13,arg14,arg15,arg16,arg17);
   resultobj = SWIG_Py_Void();
   {
-    int dims[3];
+    npy_intp dims[3];
     PyObject *o;
-    dims[0] = arg2;
-    dims[1] = arg3;
-    dims[2] = arg4;
-    o = (PyObject *)PyArray_FromDimsAndData(3,dims,PyArray_DOUBLE,
+    dims[0] = (npy_intp)arg2;
+    dims[1] = (npy_intp)arg3;
+    dims[2] = (npy_intp)arg4;
+    o = (PyObject *)PyArray_SimpleNewFromData(3,dims,PyArray_DOUBLE,
       (char *) arg5[0]);
     resultobj = t_output_helper(resultobj,o);
   }

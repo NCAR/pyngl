@@ -545,18 +545,18 @@ NhlErrorTypes NglGaus_p(int num, int n, int m, double *data_out[]) {
 PyObject *mapgci(float alat, float alon, float blat, float blon, int npts)
 {
   float *rlati,*rloni;
-  PyObject *obj1,*obj2,*status,*resultobj;
+  PyObject *obj1,*obj2,*resultobj;
 
-  int dims[1],ier;
+  npy_intp dims[1];
 
   rlati = (float *) malloc(npts*sizeof(float));
   rloni = (float *) malloc(npts*sizeof(float));
   c_mapgci(alat, alon, blat, blon, npts, rlati, rloni);
-  dims[0] = npts;
-  obj1 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
-                                              (char *) rlati);
-  obj2 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
-                                              (char *) rloni);
+  dims[0] = (npy_intp)npts;
+  obj1 = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,
+                                                (char *) rlati);
+  obj2 = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,
+                                                (char *) rloni);
   resultobj = Py_None;
   resultobj = t_output_helper(resultobj,obj1);
   resultobj = t_output_helper(resultobj,obj2);
@@ -567,17 +567,18 @@ PyObject *mapgci(float alat, float alon, float blat, float blon, int npts)
 PyObject *dcapethermo(double *penv, double *tenv, int nlvl, double lclmb, 
                       int iprnt, double tmsg)
 {
-  PyObject *obj1,*obj2,*obj3,*obj4,*obj5,*status,*resultobj;
-  int jlcl, jlfc, jcross, dims[1];
+  PyObject *obj1,*obj2,*obj3,*obj4,*obj5,*resultobj;
+  int jlcl, jlfc, jcross;
+  npy_intp dims[1];
   double cape, *tparcel;
 
   cape = c_dcapethermo(penv, tenv, nlvl, lclmb, iprnt, &tparcel, tmsg,
                        &jlcl, &jlfc, &jcross);                       
 
-  dims[0] = nlvl;
+  dims[0] = (npy_intp)nlvl;
   obj1 = (PyObject *) PyFloat_FromDouble(cape);
-  obj2 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_DOUBLE,
-                                              (char *) tparcel);
+  obj2 = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_DOUBLE,
+                                                (char *) tparcel);
   obj3 = (PyObject *) PyInt_FromLong((long) jlcl);
   obj4 = (PyObject *) PyInt_FromLong((long) jlfc);
   obj5 = (PyObject *) PyInt_FromLong((long) jcross);
@@ -597,14 +598,15 @@ PyObject *ftcurvc(int n, float *x, float *y, int m, float *xo)
   float *yo;
   PyObject *obj1,*status,*resultobj;
 
-  int dims[1],ier;
+  int ier;
+  npy_intp dims[1];
 
   yo = (float *) malloc(m*sizeof(float));
   ier = c_ftcurv(n,x,y,m,xo,yo);
   status = (PyObject *) PyInt_FromLong((long) ier);
-  dims[0] = m;
-  obj1 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
-                                              (char *) yo);
+  dims[0] = (npy_intp)m;
+  obj1 = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,
+                                                (char *) yo);
   resultobj = Py_None;
   resultobj = t_output_helper(resultobj,status);
   resultobj = t_output_helper(resultobj,obj1);
@@ -617,14 +619,15 @@ PyObject *ftcurvpc(int n, float *x, float *y, float p, int m, float *xo)
   float *yo;
   PyObject *obj1,*status,*resultobj;
 
-  int dims[1],ier;
+  int ier;
+  npy_intp dims[1];
 
   yo = (float *) malloc(m*sizeof(float));
   ier = c_ftcurvp(n,x,y,p,m,xo,yo);
   status = (PyObject *) PyInt_FromLong((long) ier);
-  dims[0] = m;
-  obj1 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
-                                              (char *) yo);
+  dims[0] = (npy_intp)m;
+  obj1 = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,
+                                                (char *) yo);
   resultobj = Py_None;
   resultobj = t_output_helper(resultobj,status);
   resultobj = t_output_helper(resultobj,obj1);
@@ -635,9 +638,9 @@ PyObject *ftcurvpc(int n, float *x, float *y, float p, int m, float *xo)
 PyObject *ftcurvpic(float xl, float xr, float p, int m, float *xi, float *yi)
 {
   float yo;
-  PyObject *obj1,*status,*resultobj;
+  PyObject *status,*resultobj;
 
-  int dims[1],ier;
+  int ier;
 
   ier = c_ftcurvpi(xl,xr,p,m,xi,yi,&yo);
   status = (PyObject *) PyInt_FromLong((long) ier);
@@ -801,7 +804,8 @@ PyObject *NhlPNDCToData(int pid, float *x, float *y, int n, float xmissing,
 {
   float *xout, *yout;
   PyObject *obj1, *obj2, *nhlerr, *rstatus, *range, *resultobj;
-  int dims[1],status,rval;
+  int status,rval;
+  npy_intp dims[1];
   float out_of_range;
 
   xout = (float *) malloc(n*sizeof(float));
@@ -810,11 +814,11 @@ PyObject *NhlPNDCToData(int pid, float *x, float *y, int n, float xmissing,
                              ymissing, ixmissing, iymissing,
                              &status, &out_of_range);
   nhlerr = (PyObject *) PyInt_FromLong((long) rval); 
-  dims[0] = n;
-  obj1 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
-                                              (char *) xout);
-  obj2 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
-                                              (char *) yout);
+  dims[0] = (npy_intp)n;
+  obj1 = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,
+                                                (char *) xout);
+  obj2 = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,
+                                                (char *) yout);
   rstatus = (PyObject *) PyInt_FromLong((long) status); 
   range = (PyObject *) PyFloat_FromDouble((double) out_of_range); 
 
@@ -857,7 +861,8 @@ PyObject *NhlPDataToNDC(int pid, float *x, float *y, int n, float xmissing,
 {
   float *xout, *yout;
   PyObject *obj1, *obj2, *nhlerr, *rstatus, *range, *resultobj;
-  int dims[1],status,rval;
+  int status,rval;
+  npy_intp dims[1];
   float out_of_range;
 
   xout = (float *) malloc(n*sizeof(float));
@@ -866,11 +871,11 @@ PyObject *NhlPDataToNDC(int pid, float *x, float *y, int n, float xmissing,
                              ymissing, ixmissing, iymissing,
                              &status, &out_of_range);
   nhlerr = (PyObject *) PyInt_FromLong((long) rval); 
-  dims[0] = n;
-  obj1 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
-                                              (char *) xout);
-  obj2 = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
-                                              (char *) yout);
+  dims[0] = (npy_intp)n;
+  obj1 = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,
+                                                (char *) xout);
+  obj2 = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,
+                                                (char *) yout);
   rstatus = (PyObject *) PyInt_FromLong((long) status); 
   range = (PyObject *) PyFloat_FromDouble((double) out_of_range); 
 
@@ -2443,7 +2448,7 @@ import_array();
   int i,ndims,tdims=1;
   PyArrayObject *arr;
   arr =
-   (PyArrayObject *) PyArray_ContiguousFromObject($input,PyArray_DOUBLE,0,0);
+   (PyArrayObject *) PyArray_ContiguousFromAny($input,PyArray_DOUBLE,0,0);
   ndims = arr->nd;
   for (i = 0; i < ndims; i++) {
     tdims *= (int) arr->dimensions[i];
@@ -2458,28 +2463,28 @@ import_array();
 %typemap (in) double *sequence_as_double {
   PyArrayObject *arr;
   arr =
-   (PyArrayObject *) PyArray_ContiguousFromObject($input,PyArray_DOUBLE,0,0);
+   (PyArrayObject *) PyArray_ContiguousFromAny($input,PyArray_DOUBLE,0,0);
   $1 = (double *) arr->data;
 }
 
 %typemap (in) void *sequence_as_void {
   PyArrayObject *arr;
   arr =
-   (PyArrayObject *) PyArray_ContiguousFromObject($input,PyArray_DOUBLE,0,0);
+   (PyArrayObject *) PyArray_ContiguousFromAny($input,PyArray_DOUBLE,0,0);
   $1 = (void *) arr->data;
 }
 
 %typemap (in) int *sequence_as_int {
   PyArrayObject *arr;
   arr =
-   (PyArrayObject *) PyArray_ContiguousFromObject($input,PyArray_INT,0,0);
+   (PyArrayObject *) PyArray_ContiguousFromAny($input,PyArray_INT,0,0);
   $1 = (int *) arr->data;
 }
 
 %typemap (argout) (int *numberf) {
-  int dims[1];
-  dims[0] = *($1);
-  $result = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,(char *) result);
+  npy_intp dims[1];
+  dims[0] = (npy_intp)*($1);
+  $result = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,(char *) result);
 }
 %typemap(in,numinputs=0) int *numberf (int tempx) {
   $1 = &tempx;
@@ -2493,20 +2498,20 @@ import_array();
 }
 
 %typemap (argout) (int *numberd) {
-  int dims[1];
-  dims[0] = *($1);
-  $result = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_DOUBLE,(char *) result);
+  npy_intp dims[1];
+  dims[0] = (int)*($1);
+  $result = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_DOUBLE,(char *) result);
 }
 %typemap(in,numinputs=0) int *numberd (int tempx) {
   $1 = &tempx;
 }
 
 %typemap (argout) (int nxir, int nyir, float *p_array_float_out[]) {
-  int dims[2];
+  npy_intp dims[2];
   PyObject *o;
-  dims[0] = arg10;
-  dims[1] = arg11;
-  o = (PyObject *)PyArray_FromDimsAndData(2,dims,PyArray_FLOAT,
+  dims[0] = (npy_intp)arg10;
+  dims[1] = (npy_intp)arg11;
+  o = (PyObject *)PyArray_SimpleNewFromData(2,dims,PyArray_FLOAT,
                   (char *) arg12[0]);
   resultobj = t_output_helper(resultobj,o);
 }
@@ -2515,11 +2520,11 @@ import_array();
 }
 
 %typemap (argout) (int nxir, int nyir, double *p_array_double_out[]) {
-  int dims[2];
+  npy_intp dims[2];
   PyObject *o;
-  dims[0] = $1;
-  dims[1] = $2;
-  o = (PyObject *)PyArray_FromDimsAndData(2,dims,PyArray_DOUBLE,
+  dims[0] = (npy_intp)$1;
+  dims[1] = (npy_intp)$2;
+  o = (PyObject *)PyArray_SimpleNewFromData(2,dims,PyArray_DOUBLE,
                   (char *) $3[0]);
   resultobj = t_output_helper(resultobj,o);
 }
@@ -2528,12 +2533,12 @@ import_array();
 }
 
 %typemap (argout)(int nxir, int nyir, int nzir, double *p_array3_double_out[]) {
-  int dims[3];
+  npy_intp dims[3];
   PyObject *o;
-  dims[0] = $1;
-  dims[1] = $2;
-  dims[2] = $3;
-  o = (PyObject *)PyArray_FromDimsAndData(3,dims,PyArray_DOUBLE,
+  dims[0] = (npy_intp)$1;
+  dims[1] = (npy_intp)$2;
+  dims[2] = (npy_intp)$3;
+  o = (PyObject *)PyArray_SimpleNewFromData(3,dims,PyArray_DOUBLE,
                   (char *) $4[0]);
   resultobj = t_output_helper(resultobj,o);
 }
@@ -2542,10 +2547,10 @@ import_array();
 }
 
 %typemap (argout) (int nx, float *t_array_float_out) {
-  int dims[1];
+  npy_intp dims[1];
   PyObject *o;
-  dims[0] = nx;
-  o = (PyObject *)PyArray_FromDimsAndData(2,dims,PyArray_FLOAT,
+  dims[0] = (npy_intp)nx;
+  o = (PyObject *)PyArray_SimpleNewFromData(2,dims,PyArray_FLOAT,
                   (char *) arg7);
   resultobj = t_output_helper(resultobj,o);
 }
@@ -2561,9 +2566,9 @@ import_array();
 }
 
 %typemap (argout) (int *numberi) {
-  int dims[1];
-  dims[0] = *($1);
-  $result = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_INT,(char *) result);
+  npy_intp dims[1];
+  dims[0] = (npy_intp)*($1);
+  $result = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_INT,(char *) result);
 }
 %typemap(in,numinputs=0) int *numberi (int tempx) {
   $1 = &tempx;
@@ -2574,10 +2579,10 @@ import_array();
 %}
 
 %typemap (argout) (float **data_addr, int *num_elements) {
-  int dims[1];
+  npy_intp dims[1];
   PyObject *o;
-  dims[0] = *$2;
-  o = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,(char *) *$1);
+  dims[0] = (npy_intp)*$2;
+  o = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,(char *) *$1);
   $result = t_output_helper($result,o);
 }
 %typemap(in,numinputs=0) float **data_addr (float *temp) {
@@ -3298,10 +3303,10 @@ import_array();
 }
 
 %typemap (argout) float *farray_float_out {
-  int dims[1];
+  npy_intp dims[1];
   PyObject *o;
-  dims[0] = arg4;
-  o = (PyObject *)PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,
+  dims[0] = (npy_intp)arg4;
+  o = (PyObject *)PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,
                   (char *) arg6);
   resultobj = t_output_helper(resultobj,o);
 }
@@ -3313,9 +3318,9 @@ import_array();
 // Typemaps for gendat.
 //
 %typemap (argout) float *array_float_out {
-  int dims[1];
-  dims[0] = arg1;
-  $result = (PyObject *) PyArray_FromDimsAndData(1,dims,PyArray_FLOAT,(char *) arg8);
+  npy_intp dims[1];
+  dims[0] = (npy_intp)arg1;
+  $result = (PyObject *) PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,(char *) arg8);
 }
 %typemap(in,numinputs=0) float *array_float_out (float tempx) %{
   $1 = &tempx;
@@ -3647,7 +3652,7 @@ import_array();
  *  Process the legal array types.
  */
         if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-          arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+          arr = (PyArrayObject *) PyArray_ContiguousFromAny \
                      ((PyObject *) value,PyArray_LONG,0,0);
           lvals = (long *)arr->data;
           ndims = arr->nd;
@@ -3658,7 +3663,7 @@ import_array();
           NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
         }
         else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-          arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+          arr = (PyArrayObject *) PyArray_ContiguousFromAny \
                  ((PyObject *) value,PyArray_DOUBLE,0,0);
           dvals = (double *)arr->data;
           ndims = arr->nd;
@@ -3923,7 +3928,7 @@ import_array();
  *  Process the legal array types.
  */
         if (array_type == PyArray_LONG || array_type == PyArray_INT) {
-          arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+          arr = (PyArrayObject *) PyArray_ContiguousFromAny \
                 ((PyObject *) value,PyArray_LONG,0,0);
           lvals = (long *)arr->data;
           ndims = arr->nd;
@@ -3934,7 +3939,7 @@ import_array();
           NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
         }
         else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
-          arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+          arr = (PyArrayObject *) PyArray_ContiguousFromAny \
                  ((PyObject *) value,PyArray_DOUBLE,0,0);
           dvals = (double *)arr->data;
           ndims = arr->nd;
