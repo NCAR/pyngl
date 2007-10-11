@@ -7,13 +7,15 @@ PyObject *fplib_chiinv(PyObject *self, PyObject *args)
  */
   PyObject *arr_p = NULL;
   double *p;
-  int ndims_p, *dsizes_p;
+  int ndims_p;
+  npy_intp *dsizes_p;
 /*
  * Argument # 1
  */
   PyObject *arr_df = NULL;
   double *df;
-  int ndims_df, *dsizes_df;
+  int ndims_df;
+  npy_intp *dsizes_df;
 /*
  * Return variable
  */
@@ -28,8 +30,9 @@ PyObject *fplib_chiinv(PyObject *self, PyObject *args)
 /*
  * Various
  */
-  int np;
-  int i, ndims_leftmost, size_leftmost, size_chi;
+  npy_intp np, inpy;
+  npy_intp size_leftmost, size_chi;
+  int i, ndims_leftmost;
 
 /*
  * Retrieve arguments.
@@ -45,12 +48,12 @@ PyObject *fplib_chiinv(PyObject *self, PyObject *args)
 /*
  * Get argument # 0
  */
-  arr = (PyArrayObject *) PyArray_ContiguousFromObject
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny
                         (arr_p,PyArray_DOUBLE,0,0);
   p        = (double *)arr->data;
   ndims_p  = arr->nd;
-  dsizes_p = (int *)malloc(ndims_p * sizeof(int));
-  for(i = 0; i < ndims_p; i++ ) dsizes_p[i] = arr->dimensions[i];
+  dsizes_p = (npy_intp *)malloc(ndims_p * sizeof(npy_intp));
+  for(i = 0; i < ndims_p; i++ ) dsizes_p[i] = (npy_intp)arr->dimensions[i];
 
 /*
  * Check dimension sizes.
@@ -68,8 +71,8 @@ PyObject *fplib_chiinv(PyObject *self, PyObject *args)
                         (arr_df,PyArray_DOUBLE,0,0);
   df        = (double *)arr->data;
   ndims_df  = arr->nd;
-  dsizes_df = (int *)malloc(ndims_df * sizeof(int));
-  for(i = 0; i < ndims_df; i++ ) dsizes_df[i] = arr->dimensions[i];
+  dsizes_df = (npy_intp *)malloc(ndims_df * sizeof(npy_intp));
+  for(i = 0; i < ndims_df; i++ ) dsizes_df[i] = (npy_intp)arr->dimensions[i];
 
 /*
  * Check dimension sizes.
@@ -119,7 +122,7 @@ PyObject *fplib_chiinv(PyObject *self, PyObject *args)
  * Loop across leftmost dimensions and call the Fortran routine for each
  * subsection of the input arrays.
  */
-  for(i = 0; i < size_leftmost; i++) {
+  for(inpy = 0; inpy < size_leftmost; inpy++) {
 /*
  * Loop across leftmost dimensions and call the Fortran routine.
  */
@@ -129,6 +132,7 @@ PyObject *fplib_chiinv(PyObject *self, PyObject *args)
 /*
  * Return value back to PyNGL script.
  */
-  ret_chi = (PyArrayObject *) PyArray_FromDimsAndData(ndims_p,dsizes_p, PyArray_DOUBLE, (void *) chi);
+  ret_chi = (PyArrayObject *) PyArray_SimpleNewFromData(ndims_p,dsizes_p,
+                                                 PyArray_DOUBLE, (void *) chi);
   PyArray_Return(ret_chi);
 }

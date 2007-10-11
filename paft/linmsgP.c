@@ -10,8 +10,8 @@ PyObject *fplib_linmsg(PyObject *self, PyObject *args)
 /*
  *  Other variables
  */
-  int i, index_x, npts, total_size_x, total_size_x1;
-  int ndims_x, *dsizes_x, mflag, nflag, max_msg;
+  int i, inpts, ndims_x, mflag, nflag, max_msg;
+  npy_intp inpy, index_x, npts, total_size_x, total_size_x1, *dsizes_x;
   double *x;
 
   PyArrayObject *arr;
@@ -29,22 +29,22 @@ PyObject *fplib_linmsg(PyObject *self, PyObject *args)
 /*
  *  Extract array information.
  */
-  arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
                         (xar,PyArray_DOUBLE,0,0);
   x = (double *)arr->data;
   ndims_x = arr->nd;
-  dsizes_x = (int *) calloc(ndims_x,sizeof(int));
+  dsizes_x = (npy_intp *) calloc(ndims_x,sizeof(npy_intp));
   for(i = 0; i < ndims_x; i++ ) {
-    dsizes_x[i] = arr->dimensions[i];
+    dsizes_x[i] = (npy_intp)arr->dimensions[i];
   }
-  npts = dsizes_x[ndims_x-1];
-
+  npts  = dsizes_x[ndims_x-1];
+  inpts = (int)npts;   /* inpts may not be big enough to hold value of npts */
 /*
  *  Check on max_msg.  If it is zero, then set mflag to the
  *  maximum.
  */
   if (max_msg == 0) {
-    mflag = npts;     
+    mflag = inpts;     
   }
   else {
     mflag = max_msg;
@@ -66,8 +66,8 @@ PyObject *fplib_linmsg(PyObject *self, PyObject *args)
  *  Call Fortran.
  */
   index_x = 0;
-  for (i = 0; i < total_size_x1; i++) {
-    NGCALLF(dlinmsg,DLINMSG) (xlinmsg+index_x, &npts, &fill_value, 
+  for (inpy = 0; inpy < total_size_x1; inpy++) {
+    NGCALLF(dlinmsg,DLINMSG) (xlinmsg+index_x, &inpts, &fill_value, 
                               &nflag, &mflag);
     index_x += npts;
   }
@@ -75,6 +75,6 @@ PyObject *fplib_linmsg(PyObject *self, PyObject *args)
 /*
  *  Return.
  */
-  return ((PyObject *) PyArray_FromDimsAndData(ndims_x,dsizes_x,
+  return ((PyObject *) PyArray_SimpleNewFromData(ndims_x,dsizes_x,
                                         PyArray_DOUBLE, (void *) xlinmsg));
 }

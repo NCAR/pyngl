@@ -11,9 +11,9 @@ PyObject *fplib_regline(PyObject *self, PyObject *args)
  * Output variables
  */
   double *rcoef, tval, rstd, xave, yave, yint;
-  int nptxy, ier = 0;
+  int inpts, nptxy, ier = 0;
   PyObject *pdict, *rc, *result;
-  int npts, dsizes_x[1], dsizes_y[1], dsizes_rcoef[1];
+  npy_intp npts, dsizes_x[1], dsizes_y[1], dsizes_rcoef[1];
 
 /*
  *  Retrieve arguments.
@@ -28,12 +28,12 @@ PyObject *fplib_regline(PyObject *self, PyObject *args)
 /*
  *  Extract array information.
  */
-  arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
                             (xar,PyArray_DOUBLE,0,0);
   x = (double *)arr->data;
   dsizes_x[0] = arr->dimensions[0];
 
-  arr = (PyArrayObject *) PyArray_ContiguousFromObject \
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
                             (yar,PyArray_DOUBLE,0,0);
   y = (double *)arr->data;
   dsizes_y[0] = arr->dimensions[0];
@@ -50,7 +50,8 @@ PyObject *fplib_regline(PyObject *self, PyObject *args)
 /*
  * Get and check number of input points.
  */
-  npts = dsizes_x[0];
+  npts  = dsizes_x[0];
+  inpts = (int)npts;   /* inpts may not be big enough to hold value of npts */
   if( npts < 2 ) {
     printf ("regline: The length of x and y must be at least 2\n");
     Py_INCREF(Py_None);
@@ -62,7 +63,7 @@ PyObject *fplib_regline(PyObject *self, PyObject *args)
 /*
  * Call the f77 version of 'regline' with the full argument list.
  */
-  NGCALLF(dregcoef,DREGCOEF)(x, y, &npts, &fill_value_x, &fill_value_y,
+  NGCALLF(dregcoef,DREGCOEF)(x, y, &inpts, &fill_value_x, &fill_value_y,
                              rcoef, &tval, &nptxy, &xave, &yave, &rstd, &ier);
   if (ier == 5) {
     printf ("regline: The x and/or y array contains all missing values\n");
@@ -111,9 +112,8 @@ PyObject *fplib_regline(PyObject *self, PyObject *args)
   }
   else {
     dsizes_rcoef[0] = 1;
-    return ((PyObject *) PyArray_FromDimsAndData(1,
-						 dsizes_rcoef,
-						 PyArray_DOUBLE,
-						 (void *) rcoef));
+    return ((PyObject *) PyArray_SimpleNewFromData(1,dsizes_rcoef,
+  						   PyArray_DOUBLE,
+						   (void *) rcoef));
   }
 }

@@ -850,19 +850,20 @@ for i in range(len(args)):
 #
 # Write out dimension information.
 #
-# int ndims_x, dsizes_x[...];
+# int ndims_x;
+# npy_intp dsizes_x[...];
 #
 #---------------------------------------------------------------------
   if args[i].ndims == 0:
-    w1file.write("  int " + args[i].ndims_name + ", *" + \
-                 args[i].dsizes_name + ";\n")
+    w1file.write("  int " + args[i].ndims_name + ";\n")
+    w1file.write("  npy_intp *" + args[i].dsizes_name + ";\n")
   else:
 #
 # We only need to include the dimension sizes if one of the sizes
 # is unknown (represented by being set to '0').
 #
     if 0 in args[i].dsizes:
-      w1file.write("  int " + args[i].dsizes_name + "[" + str(args[i].ndims) + "];\n")
+      w1file.write("  npy_intp " + args[i].dsizes_name + "[" + str(args[i].ndims) + "];\n")
 
 #---------------------------------------------------------------------
 #
@@ -898,8 +899,8 @@ if isfunc:
 # dimension sizes, then nothing is needed here.
 #---------------------------------------------------------------------
   if not ret_size_depend_input:
-    w1file.write("  int " + ret_arg.ndims_name + ", *" + \
-                 ret_arg.dsizes_name + ";\n")
+    w1file.write("  int " + ret_arg.ndims_name + ";\n")
+    w1file.write("  npy_intp *" + ret_arg.dsizes_name + ";\n")
 
 #---------------------------------------------------------------------
 #
@@ -935,7 +936,7 @@ w1file.write("""
  */
 """)
 if global_dsizes_names != []:
-  w1file.write("  int ")
+  w1file.write("  npy_intp ")
 #
 # Write out the various dimension size variables we've been collecting
 # into the global_dsizes_names array.
@@ -951,7 +952,7 @@ if global_dsizes_names != []:
 # "index_xxx" variable.
 #
 #---------------------------------------------------------------------
-  w1file.write("  int ")
+  w1file.write("  npy_intp ")
   for i in range(len(index_names)):
     if i == (len(index_names)-1):
       w1file.write(index_names[i] + ";\n")
@@ -974,7 +975,8 @@ if work_array_names != []:
 #
 # Write out integer variables that will hold the size of each work
 # array. This will be the same name as the work array, with an "l"
-# in front of it.
+# in front of it.  This may eventually need to be of type "npy_intp"
+# instead of just "int".
 #
   w1file.write("  int ")
   for i in range(len(work_array_names)):
@@ -991,13 +993,14 @@ if work_array_names != []:
 #---------------------------------------------------------------------
 if have_leftmost:
   if isfunc:
-    w1file.write("  int i, ndims_leftmost, size_leftmost, " + \
-                  ret_arg.size_name + ";\n")
+    w1file.write("  int i, ndims_leftmost;\n")
+    w1file.write("  npy_intp size_leftmost, " + ret_arg.size_name + ";\n")
   else:
-    w1file.write("  int i, ndims_leftmost, size_leftmost;\n")
+    w1file.write("  int i, ndims_leftmost;\n")
+    w1file.write("  npy_intp inpy, size_leftmost;\n")
 else:
   if isfunc:  
-    w1file.write("  int " + ret_arg.size_name + ";\n")
+    w1file.write("  npy_intp " + ret_arg.size_name + ";\n")
   
 #---------------------------------------------------------------------
 #
@@ -1039,16 +1042,16 @@ for i in range(len(args)):
   w1file.write(" * Get argument # " + str(i) + "\n")
   w1file.write(" */\n")
 
-  w1file.write("  arr = (PyArrayObject *) PyArray_ContiguousFromObject\n")
+  w1file.write("  arr = (PyArrayObject *) PyArray_ContiguousFromAny\n")
   w1file.write("                        (" + args[i].arr_name + \
                ",PyArray_DOUBLE,0,0);\n")
 
   w1file.write("  " + args[i].name + "        = (double *)arr->data;\n")
   w1file.write("  " + args[i].ndims_name + "  = arr->nd;\n")
-  w1file.write("  " + args[i].dsizes_name + " = (int *)malloc(" + \
-                      args[i].ndims_name + " * sizeof(int));\n")
+  w1file.write("  " + args[i].dsizes_name + " = (npy_intp *)malloc(" + \
+                      args[i].ndims_name + " * sizeof(npy_intp));\n")
   w1file.write("  for(i = 0; i < " + args[i].ndims_name + "; i++ ) " + \
-                  args[i].dsizes_name + "[i] = arr->dimensions[i];\n")
+                  args[i].dsizes_name + "[i] = (npy_intp)arr->dimensions[i];\n")
 #---------------------------------------------------------------------
 #
 # Write out code for doing some minimal error checking on input
@@ -1258,8 +1261,8 @@ if isfunc:
     else:
       w1file.write("  " + ret_arg.ndims_name + " = ndims_leftmost + " + \
                   str(ret_arg.min_ndims) + ";\n")
-    w1file.write("  " + ret_arg.dsizes_name + " = (int*)calloc(" + \
-                ret_arg.ndims_name + ",sizeof(int));  \n")
+    w1file.write("  " + ret_arg.dsizes_name + " = (npy_intp*)calloc(" + \
+                ret_arg.ndims_name + ",sizeof(npy_intp));  \n")
     w1file.write("  if( " + ret_arg.dsizes_name + " == NULL ) {\n")
     write_fatal_block(w1file,'Unable to allocate memory for holding dimension sizes')
 
@@ -1419,14 +1422,14 @@ if isfunc:
 
     if ret_size_depend_input:
       w1file.write("  " + ret_arg.ret_name + \
-                   " = (PyArrayObject *) PyArray_FromDimsAndData(" + \
+                   " = (PyArrayObject *) PyArray_SimpleNewFromData(" + \
                    args[ret_size_depend_index].ndims_name + "," + \
                    args[ret_size_depend_index].dsizes_name + \
                    ", PyArray_DOUBLE, (void *) " + ret_arg.name + ");\n")
 
     else:
       w1file.write("  " + ret_arg.ret_name + \
-                   " = (PyArrayObject *) PyArray_FromDimsAndData(" + \
+                   " = (PyArrayObject *) PyArray_SimpleNewFromData(" + \
                    ret_arg.ndims_name + "," + ret_arg.dsizes_name + \
                    ", PyArray_DOUBLE, (void *) " + ret_arg.name + ");\n")
 
