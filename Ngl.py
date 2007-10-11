@@ -2716,12 +2716,7 @@ fill_value -- The missing value for x. Defaults to 1.e20 if not set.
   type, fv = get_ma_fill_value(x)
   if (fv != None):
     aret = fplib.linmsg(x.filled(fv), end_pts_msg, max_msg, fv)
-    if (type == "MA"):
-      import MA
-      return MA.array(aret, fill_value=fv)
-    elif (type == "num"):
-      import numpy.core.ma
-      return numpy.core.ma.array(aret, fill_value=fv)
+    return ma.masked_array(aret, fill_value=fv)
   else:
     return fplib.linmsg(promote_scalar(x),end_pts_msg,max_msg,fill_value)
 
@@ -3572,10 +3567,16 @@ return_info -- An optional logical that indicates whether additional
 #  Return a masked array with y's fill value as the fill_value.
 #  Return the additional calculated values if desired.
 # 
-  if (return_info == True): 
-    return [numpy.ma.masked_array(result[0]),result[1]]
+  if HAS_MA:
+    if (return_info == True): 
+      return [ma.masked_array(result[0]),result[1]]
+    else:
+      return ma.masked_array(result[0],fill_value=fill_value_y)
   else:
-    return numpy.ma.masked_array(result[0],fill_value=fill_value_y)
+    if (return_info == True): 
+      return [result[0],result[1]]
+    else:
+      return result[0]
 
 def remove_annotation(plot_id1,plot_id2):
   """
@@ -6176,25 +6177,8 @@ def get_ma_fill_value(arr):
 #
 #  If arr is a numpy masked array, return its fill value.
 #
-  try:
-    import numpy.core.ma
-    if numpy.core.ma.isMaskedArray(arr):
-      return "num",arr.fill_value()
-  except:
-     pass
-
-  try:
-    import MA
-    fv = None
-#
-#  If arr is not a numpy masked array, try for numpy.
-#
-    if MA.isMaskedArray(arr):
-      fv = arr.fill_value()
-      return "MA",fv
-  except:
-    pass
-
+  if HAS_MA and ma.isMaskedArray(arr):
+    return "num",arr.fill_value()
 #
 #  Not a NumPy masked array.
 #

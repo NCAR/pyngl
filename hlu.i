@@ -891,18 +891,24 @@ PyObject *NhlPDataToNDC(int pid, float *x, float *y, int n, float xmissing,
 
 PyObject *NhlGetMDFloatArray(int pid, char *name) {
   PyObject *obj1, *nhlerr, *resultobj;
-  int num_dims, *len_dims, grlist;
+  int i, num_dims, *len_dims, grlist;
   float *bptr;
   NhlErrorTypes rval;
+  npy_intp *len_dims_npy;
 
   grlist = NhlRLCreate(NhlGETRL);
   NhlRLClear(grlist);
   rval = NhlRLGetMDFloatArray(grlist,name,&bptr,&num_dims,&len_dims);
   NhlGetValues(pid,grlist);
 
-  obj1 = (PyObject *) PyArray_FromDimsAndData(num_dims,len_dims,PyArray_FLOAT,
-                                              (char *) bptr);
+  len_dims_npy = (npy_intp *)malloc(num_dims*sizeof(npy_intp));
+  for(i=0;i<num_dims;i++) len_dims_npy[i] = (npy_intp)len_dims[i];
+
+  obj1 = (PyObject *) PyArray_SimpleNewFromData(num_dims,len_dims_npy,
+                                                PyArray_FLOAT,(char *) bptr);
   nhlerr = (PyObject *) PyInt_FromLong((long) rval); 
+
+  free(len_dims_npy);
 
   resultobj = Py_None;
   resultobj = t_output_helper(resultobj,nhlerr);
@@ -913,18 +919,24 @@ PyObject *NhlGetMDFloatArray(int pid, char *name) {
 
 PyObject *NhlGetMDDoubleArray(int pid, char *name) {
   PyObject *obj1, *nhlerr, *resultobj;
-  int num_dims, *len_dims, grlist;
+  int i, num_dims, *len_dims, grlist;
   double *bptr;
   NhlErrorTypes rval;
+  npy_intp *len_dims_npy;
 
   grlist = NhlRLCreate(NhlGETRL);
   NhlRLClear(grlist);
   rval = NhlRLGetMDDoubleArray(grlist,name,&bptr,&num_dims,&len_dims);
   NhlGetValues(pid,grlist);
 
-  obj1 = (PyObject *) PyArray_FromDimsAndData(num_dims,len_dims,PyArray_DOUBLE,
-                                              (char *) bptr);
+  len_dims_npy = (npy_intp *)malloc(num_dims*sizeof(npy_intp));
+  for(i=0;i<num_dims;i++) len_dims_npy[i] = (npy_intp)len_dims[i];
+
+  obj1 = (PyObject *) PyArray_SimpleNewFromData(num_dims,len_dims_npy,
+                                                PyArray_DOUBLE,(char *) bptr);
   nhlerr = (PyObject *) PyInt_FromLong((long) rval); 
+
+  free(len_dims_npy);
 
   resultobj = Py_None;
   resultobj = t_output_helper(resultobj,nhlerr);
@@ -935,18 +947,24 @@ PyObject *NhlGetMDDoubleArray(int pid, char *name) {
 
 PyObject *NhlGetMDIntegerArray(int pid, char *name) {
   PyObject *obj1, *nhlerr, *resultobj;
-  int num_dims, *len_dims, grlist;
+  int i, num_dims, *len_dims, grlist;
   int *bptr;
   NhlErrorTypes rval;
+  npy_intp *len_dims_npy;
 
   grlist = NhlRLCreate(NhlGETRL);
   NhlRLClear(grlist);
   rval = NhlRLGetMDIntegerArray(grlist,name,&bptr,&num_dims,&len_dims);
   NhlGetValues(pid,grlist);
 
-  obj1 = (PyObject *) PyArray_FromDimsAndData(num_dims,len_dims,PyArray_INT,
-                                              (char *) bptr);
+  len_dims_npy = (npy_intp *)malloc(num_dims*sizeof(npy_intp));
+  for(i=0;i<num_dims;i++) len_dims_npy[i] = (npy_intp)len_dims[i];
+
+  obj1 = (PyObject *) PyArray_SimpleNewFromData(num_dims,len_dims_npy,
+                                                PyArray_INT,(char *) bptr);
   nhlerr = (PyObject *) PyInt_FromLong((long) rval); 
+
+  free(len_dims_npy);
 
   resultobj = Py_None;
   resultobj = t_output_helper(resultobj,nhlerr);
