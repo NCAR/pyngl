@@ -57,6 +57,13 @@ test_value("regline yintercept",attrs["yintercept"],yint_value)
 test_value("regline nptxy",attrs["nptxy"],nptxy_value)
 del rcl
 
+#
+# Extra side test for Ngl.betainc
+#
+df = attrs["nptxy"]-2
+prob = (1 - Ngl.betainc(df/(df+attrs["tval"]**2),df/2.,0.5))
+test_value("betainc",prob,1.0)
+
 rcl = Ngl.regline(x,y,return_info=False)
 check_type(rcl,ma_type)
 test_value("regline (ma)",rcl,rcl_value,delta=1e-7)
