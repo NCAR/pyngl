@@ -7,6 +7,8 @@
 
 static PyObject *t_output_helper(PyObject *, PyObject *);
 
+extern void NGCALLF(betainc,BETAINC)(double*,double*,double*,double*);
+extern void NGCALLF(dlinmsg,DLINMSG)(double *,int *,double *,int *, int *);
 extern void NGCALLF(dlinmsg,DLINMSG)(double *,int *,double *,int *, int *);
 extern void NGCALLF(chisub,CHISUB)(double *, double *, double *);
 extern void NGCALLF(dregcoef,DREGCOEF)(double *,double *,int *,double *,
@@ -53,11 +55,13 @@ static PyObject* t_output_helper(PyObject* target, PyObject* o) {
 
 #endif  /* NGCALLF */                                     
 
+#include "betaincP.c"
 #include "chiinvP.c"
 #include "linmsgP.c"
 #include "reglineP.c"
 
 static PyMethodDef fplib_methods[] = {     
+    {"betainc", (PyCFunction)fplib_betainc,  METH_VARARGS},
     {"chiinv",  (PyCFunction)fplib_chiinv,  METH_VARARGS},
     {"linmsg",  (PyCFunction)fplib_linmsg,  METH_VARARGS},
     {"regline", (PyCFunction)fplib_regline, METH_VARARGS},

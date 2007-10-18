@@ -252,6 +252,54 @@ def set_msg_val_res(rlist,fv,plot_type):
   if(fv != None and (not rlist.has_key(res_to_set))):
     rlist[res_to_set] = fv
 
+def betainc(x, a, b):
+  """
+Evaluates the incomplete beta function.
+
+alpha = Ngl.betainc (x,a,b)
+
+x -- upper limit of integration x must must be in (0,1) inclusive and
+can only be float or double. Can contain missing values.
+
+a -- first beta distribution parameter; must be > 0.0. Must be same
+dimensionality as x.
+
+b -- second beta distribution parameter; must be > 0.0.  Must be same
+dimensionality as x.
+  """
+
+# Deal with masked array.
+  type_x, fill_value_x = get_ma_fill_value(x)
+
+  if (fill_value_x != None):
+    x2 = x.filled(fill_value_x)
+  else:
+    fill_value_x = 1.e20
+    x2 = promote_scalar(x)
+  
+#
+# Promote a and b to numpy arrays that have at least a dimension of 1.
+#
+  a2 = promote_scalar(a)
+  b2 = promote_scalar(b)
+
+  result = fplib.betainc(x2, a2, b2, fill_value_x)
+
+  del x2
+  del a2
+  del b2
+# 
+#  Return a masked array only if x was a masked array.
+# 
+  if type_x == "nma" or type_x == "pma":
+    if USE_NMA:
+      return nma.masked_array(result,fill_value=fill_value_x)
+    elif USE_PMA:
+      return pma.masked_array(result,fill_value=fill_value_x)
+  else:
+    return result
+
+
 def ck_for_rangs(dir):
 #
 #  This function checks that the appropriate data files for
@@ -2716,7 +2764,7 @@ Linearly interpolates to fill in missing values.
 
 x = Ngl.linmsg(x,end_pts_msg=None,max_msg=None,fill_value=1.e20)
 
-x -- An array of any dimensionality that contains some missing values.
+x -- A numpy or masked array of any dimensionality that contains missing values.
 
 end_pts_msg -- how missing beginning and end points will be
                returned. If this value is greater than or equal to 0,
@@ -3558,7 +3606,7 @@ values are specified (via a masked array), then 1e20 is assumed.
 
 rc = Ngl.regline (x,y)
 
-x,y -- One-dimensional masked arrays of the same length.
+x,y -- One-dimensional numpy or masked arrays of the same length.
 
 return_info -- An optional logical that indicates whether additional
                calculations should be returned in a list:
@@ -3570,36 +3618,26 @@ return_info -- An optional logical that indicates whether additional
                yintercept  -- y-intercept at x=0
                nptxy  -- number of points used
   """
+
+# Deal with masked arrays.
   type_x, fill_value_x = get_ma_fill_value(x)
   type_y, fill_value_y = get_ma_fill_value(y)
-#
-#  x and y are both masked arrays.
-#
-  if (fill_value_x != None and fill_value_y != None):
-    result = fplib.regline(x.filled(fill_value_x), y.filled(fill_value_y), \
-                           fill_value_x, fill_value_y,return_info)
-#
-#  x is a masked array, y is not.
-#
-  elif (fill_value_x != None and fill_value_y == None):
-    fill_value_y = 1.e20
-    result = fplib.regline(x.filled(fill_value_x), y, fill_value_x, \
-                                                      fill_value_y,
-                                                      return_info)
-#
-#  x is not a masked array, y is.
-#
-  elif (fill_value_x == None and fill_value_y != None):
-    fill_value_x = 1.e20
-    result = fplib.regline(x, y.filled(fill_value_y), fill_value_x, \
-                                                      fill_value_y,
-                                                      return_info)
-#
-#  Neither x nor y is a masked array.
-#
+
+  if (fill_value_x != None):
+    x2 = x.filled(fill_value_x)
   else:
-    fill_value_x = fill_value_y = 1.e20
-    result = fplib.regline(x,y,fill_value_x,fill_value_y,return_info)
+    fill_value_x = 1.e20
+    x2           = x
+  if (fill_value_y != None):
+    y2 = y.filled(fill_value_y)
+  else:
+    fill_value_y = 1.e20
+    y2           = y
+  
+  result = fplib.regline(x2, y2, fill_value_x, fill_value_y, return_info)
+
+  del x2
+  del y2
 # 
 #  Return a masked array with y's fill value as the fill_value.
 #  Return the additional calculated values if desired.
