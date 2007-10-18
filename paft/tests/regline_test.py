@@ -1,5 +1,14 @@
 import Ngl,types
-default_type = "numpy"
+USE_NMA = True   # If False, then maskedarray will be used
+
+if USE_NMA:
+  import numpy.core.ma as ma
+  ma_type = "nma"
+  Ngl.use_numpy_core_ma()     # Should be the default
+else:
+  import maskedarray as ma
+  ma_type = "pma"
+  Ngl.use_maskedarray()
 
 #
 # Leave these both alone, regardless of what module you are testing.
@@ -24,7 +33,7 @@ rc = Ngl.regline(x,y)
 check_type(rc,types.ListType)
 rcl,attrs = rc    # Separate into value and dictionary
 
-check_type(rcl,numpy.core.ma.MaskedArray)
+check_type(rcl,ma_type)
 check_type(attrs,types.DictType)
 
 #
@@ -39,7 +48,7 @@ nptxy_value = 18
 yint_value = 15.352282489361187
 
 test_value("regline",rcl,rcl_value,delta=1e-7)
-test_value("regline (fill_value)",rcl.fill_value(),1e20)
+test_value("regline (fill_value)",rcl._fill_value,1e20)
 test_value("regline tval",attrs["tval"],tval_value)
 test_value("regline xave",attrs["xave"],xave_value)
 test_value("regline yave",attrs["yave"],yave_value)
@@ -49,7 +58,7 @@ test_value("regline nptxy",attrs["nptxy"],nptxy_value)
 del rcl
 
 rcl = Ngl.regline(x,y,return_info=False)
-check_type(rcl,numpy.core.ma.MaskedArray)
+check_type(rcl,ma_type)
 test_value("regline (ma)",rcl,rcl_value,delta=1e-7)
-test_value("regline (fill_value)",rcl.fill_value(),1e20)
+test_value("regline (fill_value)",rcl._fill_value,1e20)
 

@@ -11,11 +11,34 @@ def check_type(value,type_expected):
     try:
       import numpy
       if isinstance(value,numpy.ndarray):
-        print "Type test successful."
+        print "'numpy' type test successful."
       else:
-        print "Type test unsuccessful."
+        print "'numpy' type test unsuccessful."
     except:
+        print "Unable to import numpy"
         print "Type test unsuccessful."
+  elif type_expected == "nma":
+    try:
+      import numpy.core.ma as ma
+      if ma.isMaskedArray(value):
+        print "'nma' type test successful."
+      else:
+        print "'nma' type test unsuccessful."
+    except:
+      print "Unable to import numpy.core.ma"
+      print "Type test unsuccessful."
+  elif type_expected == "pma":
+    import maskedarray as ma 
+    try:
+      import numpy
+      import maskedarray as ma
+      if isinstance(value,numpy.ndarray) and ma.isMaskedArray(value):
+        print "'pma' type test successful."
+      else:
+        print "'pma' type test unsuccessful."
+    except:
+      print "Unable to import maskedarray"
+      print "Type test unsuccessful."
   else:
     if isinstance(value,type_expected):
       print "Type test successful."
