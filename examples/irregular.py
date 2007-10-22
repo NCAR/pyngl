@@ -9,6 +9,7 @@
 #  Categories:
 #    Contouring
 #    Special effects
+#    Masked arrays
 #
 #  Author:
 #    Mary Haley
@@ -54,11 +55,6 @@
 import numpy
 
 #
-#  Import masked array
-#
-import numpy.core.ma as ma
-
-#
 #  Import Nio for reading netCDF files.
 #
 import Nio
@@ -67,6 +63,15 @@ import Nio
 #  Import Ngl support functions.
 #
 import Ngl
+
+#
+#  Import masked array module. If you want to use the maskedarray
+#  module instead of the numpy.core.ma module, then comment the first
+#  line below, and uncomment the other two.
+#
+import numpy.core.ma as ma
+#import maskedarray as ma
+#Ngl.use_maskedarray()
 
 #
 #  Open a netCDF file and get some data..
