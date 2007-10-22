@@ -1308,8 +1308,11 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
 # Create new arrays.
 #
   if data_is_masked:
-    new_data     = ma.zeros((new_ny,new_nx),data2.dtype.char)
-    new_data.set_fill_value(data.fill_value())
+    if USE_NMA:
+      new_data     = nma.zeros((new_ny,new_nx),data2.dtype.char)
+    elif USE_PMA:
+      new_data     = pma.zeros((new_ny,new_nx),data2.dtype.char)
+    new_data.set_fill_value(data._fill_value)
   else:
     new_data     = numpy.zeros((new_ny,new_nx),data2.dtype.char)
   if xcoord != None:
@@ -5483,6 +5486,8 @@ Sets the default to returning maskedarray masked arrays
 instead of numpy.core.ma masked arrays, for analysis functions
 that deal with masked arrays.
   """
+  global USE_PMA, USE_NMA
+
   if HAS_PMA:
     USE_PMA = True
     USE_NMA = False
@@ -5501,6 +5506,7 @@ Sets the default to returning numpy.core.ma masked arrays
 instead of maskedarray masked arrays, for analysis functions
 that deal with masked arrays.
   """
+  global USE_PMA, USE_NMA
   if HAS_NMA:
     USE_NMA = True
     USE_PMA = False
