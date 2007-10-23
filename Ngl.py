@@ -5482,9 +5482,7 @@ wks -- The identifier returned from calling Ngl.open_wks.
 
 def use_maskedarray():
   """
-Sets the default to returning maskedarray masked arrays
-instead of numpy.core.ma masked arrays, for analysis functions
-that deal with masked arrays.
+Sets the default masked array module to "maskedarray".
   """
   global USE_PMA, USE_NMA
 
@@ -5502,9 +5500,7 @@ that deal with masked arrays.
 
 def use_numpy_core_ma():
   """
-Sets the default to returning numpy.core.ma masked arrays
-instead of maskedarray masked arrays, for analysis functions
-that deal with masked arrays.
+Sets the default masked array module to "numpy.core.ma".
   """
   global USE_PMA, USE_NMA
   if HAS_NMA:
