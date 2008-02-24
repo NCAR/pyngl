@@ -754,13 +754,17 @@ def set_vector_res(reslist,reslist1):
 # Put the responsibility on the user
 #
   if( (reslist.has_key("vcMonoLineArrowColor") and
-       check_res_value(reslist["vcMonoLineArrowColor"],"False",0)) or
+       (check_res_value(reslist["vcMonoLineArrowColor"],"False",0) or
+       not reslist["vcMonoLineArrowColor"])) or
       (reslist.has_key("vcMonoFillArrowFillColor") and
-       check_res_value(reslist["vcMonoFillArrowFillColor"],"False",0)) or
+       (check_res_value(reslist["vcMonoFillArrowFillColor"],"False",0) or
+       not reslist["vcMonoFillArrowFillColor"])) or
       (reslist.has_key("vcMonoFillArrowEdgeColor") and
-       check_res_value(reslist["vcMonoFillArrowEdgeColor"],"False",0)) or
+       (check_res_value(reslist["vcMonoFillArrowEdgeColor"],"False",0) or
+       not reslist["vcMonoFillArrowEdgeColor"])) or
       (reslist.has_key("vcMonoWindBarbColor") and
-       check_res_value(reslist["vcMonoWindBarbColor"],"False",0))):
+       (check_res_value(reslist["vcMonoWindBarbColor"],"False",0) or
+        not reslist["vcMonoWindBarbColor"],"False",0))):
     if ( not (reslist.has_key("pmLabelBarDisplayMode")) and 
          (not (reslist.has_key("lbLabelBarOn")) or 
                reslist.has_key("lbLabelbarOn") and 
@@ -1592,6 +1596,21 @@ df -- degrees of freedom of the chi-square distribution (0, +infinity).
     return numpy.array(fplib.chiinv(x2,y2))
   else:
     return fplib.chiinv(x2,y2)
+
+def inputt(a,b):
+#
+# Promote a and b to numpy arrays that have at least a dimension of 1.
+#
+  a2 = promote_scalar(a)
+  b2 = promote_scalar(b)
+#
+# Determine what kind of array to return.
+#
+  if is_numpy(a) or is_numpy(b):
+    import numpy
+    return numpy.array(fplib.inputt(a2,b2))
+  else:
+    return fplib.inputt(a2,b2)
 
 def clear_workstation(obj):
   """
