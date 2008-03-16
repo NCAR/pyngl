@@ -403,3 +403,5 @@ for i in xrange(len(y_lose)):
     Ngl.text(wks,plot," " + losing_teams_nm[i],x_lose[i],y_lose[i],txres)
 
 Ngl.frame(wks)
+
+Ngl.end()
