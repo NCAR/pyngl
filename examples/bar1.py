@@ -22,7 +22,7 @@
 #    polygons.
 #
 #  Effects illustrated:
-#    o  Attaching primitives to a plot.
+#    o  Drawing primitives on a plot.
 #    o  Drawing text on a plot.
 # 
 #  Output:
