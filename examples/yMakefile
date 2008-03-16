@@ -1,5 +1,5 @@
 #
-#   $Id: yMakefile,v 1.50 2007-09-29 15:44:14 haley Exp $
+#   $Id: yMakefile,v 1.51 2008-03-16 21:10:38 haley Exp $
 #
 #   Makefile for pyngl examples
 #
@@ -16,7 +16,7 @@ EXAMPLES = chkbay.py clmdiv1.py cn01p.py cn02p.py cn05p.py cn12p.py cns01p.py \
 	nio01.py nio02.py nio03.py nio04.py vinth2p.py multi_y.py            \
 	contour_xyz.py vector_pop.py nio01.py overlay1.py natgrid1.py        \
 	coast1.py multi_plot.py xy1.py xy2.py wmstnm01.py wmstnm02.py        \
-	wmstnm03.py datatondc1.py
+	wmstnm03.py datatondc1.py bar1.py
 
 RESFILES = cn12p.res ngl08p.res ngl09p.res 
 
