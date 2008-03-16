@@ -10,6 +10,7 @@
 #    bar charts
 #    polygons
 #    polylines
+#    text
 #
 #  Author:
 #    Mary Haley
