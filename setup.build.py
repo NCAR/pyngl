@@ -158,7 +158,7 @@ py_files= ['Ngl.py','hlu.py','__init__.py','pyngl_version.py']
 # List the extra arguments and libraries that we need on the load line.
 #
 EXTRA_LINK_ARGS = ""
-LIBRARIES = ["nfpfort", "hlu", "ncarg", "ncarg_gks", "ncarg_c", "ngmath", "X11", "g2c"]
+LIBRARIES = ["nfpfort", "hlu", "ncarg", "ncarg_gks", "ncarg_c", "ngmath", "png", "z", "X11", "g2c"]
 
 #
 # The IRIX system is problematic, because distuils uses "-all" as one of the
