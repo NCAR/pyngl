@@ -1915,21 +1915,27 @@ nglPlotId xy_wrap(int wks, void *x, void *y, const char *type_x,
  * dataset for the xy object.
  */
 
+  printf("before coord_array\n");
   cafield = coord_array(x, y, type_x, type_y, ndims_x, dsizes_x, 
                         ndims_y, dsizes_y, is_missing_x, is_missing_y, 
                         FillValue_x, FillValue_y, ca_rlist);
  
+  printf("after coord_array\n");
+
 /*
  * Assign the data object.
  */
 
+  printf("before xyCoordData\n");
   NhlRLSetInteger(xy_rlist,"xyCoordData",cafield);
-
+  printf("after xyCoordData\n");
 /*
  * Create plot.
  */
 
+  printf("before NhlCreate\n");
   NhlCreate(&xy,"xy",NhlxyPlotClass,wks,xy_rlist);
+  printf("after NhlCreate\n");
 
 /*
  * Get the DataSpec object id. This object is needed in order to 
@@ -2012,7 +2018,6 @@ nglPlotId y_wrap(int wks, void *y, const char *type_y, int ndims_y,
   xy = xy_wrap(wks, NULL, y, NULL, type_y, 0, NULL,
                ndims_y, &dsizes_y[0], 0, is_missing_y, NULL, 
                FillValue_y, ca_res, xy_res, xyd_res, special_res);
-
 /*
  * Return.
  */

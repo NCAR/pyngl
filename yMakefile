@@ -1,5 +1,5 @@
 MYNAME	= _hlu.so
-PYSRCS  = Ngl.py hlu.py __init__.py pyngl_version.py
+PYSRCS  = Ngl.py hlu.py __init__.py pyngl_version.py netcdftime.py
 
 NUMPY_DEFS = -I$(PYTHONPKGSDIR)/numpy/core/include
 

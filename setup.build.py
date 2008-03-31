@@ -147,7 +147,7 @@ ncarg_dirs  = ["colormaps","data","database","fontcaps","graphcaps", \
 #
 # Gather up the *.py module files.
 #
-py_files= ['Ngl.py','hlu.py','__init__.py','pyngl_version.py']
+py_files= ['Ngl.py','hlu.py','__init__.py','pyngl_version.py','netcdftime/netcdftime.py']
 
 #----------------------------------------------------------------------
 #

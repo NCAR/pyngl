@@ -7,6 +7,15 @@ NCL Graphics Libraries," and it is pronounced "pingle."
 """
 import sys
 #
+# The "netcdftime" module was contributed by Jeffrey Whitaker of NOAA.
+# The latest version can be downloaded from:
+#
+# http://code.google.com/p/netcdf4-python/
+#
+# from netcdftime import __doc__, __version__
+# from netcdftime import *
+
+#
 #  Get version number and flag for numpy compatibility.
 #
 #  Also, get the __array_module__  and __array_module_version__
@@ -444,22 +453,34 @@ def lst2pobj(lst):
   rval.primitive    = lst[8]
 
   if (lst[9] == None):
-    rval.ncafield = 0
+    rval.nlabelbar = 0
   else:
-    rval.ncafield = len(lst[9])
-  rval.cafield    = lst[9]
+    rval.nlabelbar = len(lst[9])
+  rval.labelbar    = lst[9]
 
   if (lst[10] == None):
-    rval.nsffield = 0
+    rval.nlegend = 0
   else:
-    rval.nsffield = len(lst[10])
-  rval.sffield    = lst[10]
+    rval.nlegend = len(lst[10])
+  rval.legend    = lst[10]
 
   if (lst[11] == None):
+    rval.ncafield = 0
+  else:
+    rval.ncafield = len(lst[11])
+  rval.cafield    = lst[11]
+
+  if (lst[12] == None):
+    rval.nsffield = 0
+  else:
+    rval.nsffield = len(lst[12])
+  rval.sffield    = lst[12]
+
+  if (lst[13] == None):
     rval.nvffield = 0
   else:
-    rval.nvffield = len(lst[11])
-  rval.vffield    = lst[11]
+    rval.nvffield = len(lst[13])
+  rval.vffield    = lst[13]
 
   return rval
 
@@ -3664,21 +3685,22 @@ return_info -- An optional logical that indicates whether additional
 #  Return a masked array with y's fill value as the fill_value.
 #  Return the additional calculated values if desired.
 # 
-  if USE_NMA:
-    if (return_info == True): 
-      return [nma.masked_array(result[0]),result[1]]
+  if result != None:
+    if USE_NMA:
+      if (return_info == True): 
+        return [nma.masked_array(result[0]),result[1]]
+      else:
+        return nma.masked_array(result[0],fill_value=fill_value_y)
+    elif USE_PMA:
+      if (return_info == True): 
+        return [pma.masked_array(result[0]),result[1]]
+      else:
+        return pma.masked_array(result[0],fill_value=fill_value_y)
     else:
-      return nma.masked_array(result[0],fill_value=fill_value_y)
-  elif USE_PMA:
-    if (return_info == True): 
-      return [pma.masked_array(result[0]),result[1]]
-    else:
-      return pma.masked_array(result[0],fill_value=fill_value_y)
-  else:
-    if (return_info == True): 
-      return [result[0],result[1]]
-    else:
-      return result[0]
+      if (return_info == True): 
+        return [result[0],result[1]]
+      else:
+        return result[0]
 
 def remove_annotation(plot_id1,plot_id2):
   """
@@ -6338,4 +6360,3 @@ def promote_scalar(x):
     return numpy.array([x])
   else:
     return x
-
