@@ -2612,15 +2612,16 @@ import_array();
 
 %typemap (out) nglPlotId {
  PyObject *return_list;
- PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-          *l_map,       *l_xy     , *l_xydspec, *l_text,
-          *l_primitive, *l_cafield, *l_sffield, *l_vffield;
+ PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+          *l_map,       *l_xy      , *l_xydspec, *l_text,
+          *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+          *l_sffield, *l_vffield;
  nglPlotId pid;
  int i;
 
  pid = $1;
 
- return_list = PyList_New(12);
+ return_list = PyList_New(14);
 
  if (pid.nbase == 0) {
    Py_INCREF(Py_None); 
@@ -2726,40 +2727,64 @@ import_array();
    PyList_SetItem(return_list,8,l_primitive);
  }
 
- if (pid.ncafield == 0) {
+ if (pid.nlabelbar == 0) {
    Py_INCREF(Py_None); 
    PyList_SetItem(return_list,9,Py_None);
+ }
+ else {
+   l_labelbar = PyList_New(pid.nlabelbar);
+   for (i = 0; i < pid.nlabelbar; i++) {
+     PyList_SetItem(l_labelbar,i,PyInt_FromLong((long) *(pid.labelbar+i)));
+   }
+   PyList_SetItem(return_list,9,l_labelbar);
+ }
+
+ if (pid.nlegend == 0) {
+   Py_INCREF(Py_None); 
+   PyList_SetItem(return_list,10,Py_None);
+ }
+ else {
+   l_legend = PyList_New(pid.nlegend);
+   for (i = 0; i < pid.nlegend; i++) {
+     PyList_SetItem(l_legend,i,PyInt_FromLong((long) *(pid.legend+i)));
+   }
+   PyList_SetItem(return_list,10,l_legend);
+ }
+
+ if (pid.ncafield == 0) {
+   Py_INCREF(Py_None); 
+   PyList_SetItem(return_list,11,Py_None);
  }
  else {
    l_cafield = PyList_New(pid.ncafield);
    for (i = 0; i < pid.ncafield; i++) {
      PyList_SetItem(l_cafield,i,PyInt_FromLong((long) *(pid.cafield+i)));
    }
-   PyList_SetItem(return_list,9,l_cafield);
+   PyList_SetItem(return_list,11,l_cafield);
  }
 
  if (pid.nsffield == 0) {
    Py_INCREF(Py_None); 
-   PyList_SetItem(return_list,10,Py_None);
+   PyList_SetItem(return_list,12,Py_None);
  }
  else {
    l_sffield = PyList_New(pid.nsffield);
    for (i = 0; i < pid.nsffield; i++) {
      PyList_SetItem(l_sffield,i,PyInt_FromLong((long) *(pid.sffield+i)));
    }
-   PyList_SetItem(return_list,10,l_sffield);
+   PyList_SetItem(return_list,12,l_sffield);
  }
 
  if (pid.nvffield == 0) {
    Py_INCREF(Py_None); 
-   PyList_SetItem(return_list,11,Py_None);
+   PyList_SetItem(return_list,13,Py_None);
  }
  else {
    l_vffield = PyList_New(pid.nvffield);
    for (i = 0; i < pid.nvffield; i++) {
      PyList_SetItem(l_vffield,i,PyInt_FromLong((long) *(pid.vffield+i)));
    }
-   PyList_SetItem(return_list,11,l_vffield);
+   PyList_SetItem(return_list,13,l_vffield);
  }
 
  Py_INCREF(return_list); 
@@ -2769,12 +2794,14 @@ import_array();
 %typemap(in) (nglPlotId *plot_seq) {
   nglPlotId *inlist;
   PyObject *ptmp;
-  PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-           *l_map,       *l_xy     , *l_xydspec, *l_text,
-           *l_primitive, *l_cafield, *l_sffield, *l_vffield;
-  int      *ibase,       *icontour,  *ivector,   *istreamline,
-           *imap,        *ixy     ,  *ixydspec,  *itext,
-           *iprimitive,  *icafield,  *isffield,  *ivffield;
+  PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+           *l_map,       *l_xy      , *l_xydspec, *l_text,
+           *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+           *l_sffield,   *l_vffield;
+  int      *ibase,       *icontour ,  *ivector,   *istreamline,
+           *imap,        *ixy      ,  *ixydspec,  *itext,
+           *iprimitive,  *ilabelbar,  *ilegend,   *icafield,
+           *isffield,    *ivffield;
   int      i,j;
 
   if (!PyList_Check($input)) {
@@ -2959,7 +2986,45 @@ import_array();
       }
     }
 
-    l_cafield = PyList_GetItem(ptmp,9);
+    l_labelbar = PyList_GetItem(ptmp,9);
+    if (l_labelbar == Py_None) {
+      inlist[j].nlabelbar = 0;
+      inlist[j].labelbar = (int *) NULL;
+    }
+    else {
+      if (!PyList_Check(l_labelbar)) {
+        printf("PlotId labelbar element must be None or a Python list\n");
+      }
+      else {
+        inlist[j].nlabelbar = PyList_Size(l_labelbar);
+        ilabelbar = (int *) malloc(inlist[j].nlabelbar*sizeof(int));
+        for (i = 0; i < inlist[j].nlabelbar; i++) {
+          *(ilabelbar+i) = (int) PyInt_AsLong(PyList_GetItem(l_labelbar,i));
+        }
+        inlist[j].labelbar = ilabelbar;
+      }
+    }
+
+    l_legend = PyList_GetItem(ptmp,10);
+    if (l_legend == Py_None) {
+      inlist[j].nlegend = 0;
+      inlist[j].legend = (int *) NULL;
+    }
+    else {
+      if (!PyList_Check(l_legend)) {
+        printf("PlotId legend element must be None or a Python list\n");
+      }
+      else {
+        inlist[j].nlegend = PyList_Size(l_legend);
+        ilegend = (int *) malloc(inlist[j].nlegend*sizeof(int));
+        for (i = 0; i < inlist[j].nlegend; i++) {
+          *(ilegend+i) = (int) PyInt_AsLong(PyList_GetItem(l_legend,i));
+        }
+        inlist[j].legend = ilegend;
+      }
+    }
+
+    l_cafield = PyList_GetItem(ptmp,11);
     if (l_cafield == Py_None) {
       inlist[j].ncafield = 0;
       inlist[j].cafield = (int *) NULL;
@@ -2978,7 +3043,7 @@ import_array();
       }
     }
 
-    l_sffield = PyList_GetItem(ptmp,10);
+    l_sffield = PyList_GetItem(ptmp,12);
     if (l_sffield == Py_None) {
       inlist[j].nsffield = 0;
       inlist[j].sffield = (int *) NULL;
@@ -2997,7 +3062,7 @@ import_array();
       }
     }
 
-    l_vffield = PyList_GetItem(ptmp,11);
+    l_vffield = PyList_GetItem(ptmp,13);
     if (l_vffield == Py_None) {
       inlist[j].nvffield = 0;
       inlist[j].vffield = (int *) NULL;
@@ -3024,12 +3089,14 @@ import_array();
   int i;
   nglPlotId inlist;
 
-  PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-           *l_map,       *l_xy     , *l_xydspec, *l_text,
-           *l_primitive, *l_cafield, *l_sffield, *l_vffield;
-  int      *ibase,       *icontour,  *ivector,   *istreamline,
-           *imap,        *ixy     ,  *ixydspec,  *itext,
-           *iprimitive,  *icafield,  *isffield,  *ivffield;
+  PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+           *l_map,       *l_xy      , *l_xydspec, *l_text,
+           *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+           *l_sffield,   *l_vffield;
+  int      *ibase,       *icontour ,  *ivector,   *istreamline,
+           *imap,        *ixy      ,  *ixydspec,  *itext,
+           *iprimitive,  *ilabelbar,  *ilegend,   *icafield,  
+           *isffield,    *ivffield;
 
   if (PyList_Check($input) == 0) {
     printf("PlotIds must be Python lists\n"); 
@@ -3206,7 +3273,45 @@ import_array();
     }
   }
 
-  l_cafield = PyList_GetItem($input,9);
+  l_labelbar = PyList_GetItem($input,9);
+  if (l_labelbar == Py_None) {
+    inlist.nlabelbar = 0;
+    inlist.labelbar = (int *) NULL;
+  }
+  else {
+    if (!PyList_Check(l_labelbar)) {
+      printf("PlotId labelbar element must be None or a Python list\n");
+    }
+    else {
+      inlist.nlabelbar = PyList_Size(l_labelbar);
+      ilabelbar = (int *) malloc(inlist.nlabelbar*sizeof(int));
+      for (i = 0; i < inlist.nlabelbar; i++) {
+        *(ilabelbar+i) = (int) PyInt_AsLong(PyList_GetItem(l_labelbar,i));
+      }
+      inlist.labelbar = ilabelbar;
+    }
+  }
+
+  l_legend = PyList_GetItem($input,10);
+  if (l_legend == Py_None) {
+    inlist.nlegend = 0;
+    inlist.legend = (int *) NULL;
+  }
+  else {
+    if (!PyList_Check(l_legend)) {
+      printf("PlotId legend element must be None or a Python list\n");
+    }
+    else {
+      inlist.nlegend = PyList_Size(l_legend);
+      ilegend = (int *) malloc(inlist.nlegend*sizeof(int));
+      for (i = 0; i < inlist.nlegend; i++) {
+        *(ilegend+i) = (int) PyInt_AsLong(PyList_GetItem(l_legend,i));
+      }
+      inlist.legend = ilegend;
+    }
+  }
+
+  l_cafield = PyList_GetItem($input,11);
   if (l_cafield == Py_None) {
     inlist.ncafield = 0;
     inlist.cafield = (int *) NULL;
@@ -3225,7 +3330,7 @@ import_array();
     }
   }
 
-  l_sffield = PyList_GetItem($input,10);
+  l_sffield = PyList_GetItem($input,12);
   if (l_sffield == Py_None) {
     inlist.nsffield = 0;
     inlist.sffield = (int *) NULL;
@@ -3244,7 +3349,7 @@ import_array();
     }
   }
 
-  l_vffield = PyList_GetItem($input,11);
+  l_vffield = PyList_GetItem($input,13);
   if (l_vffield == Py_None) {
     inlist.nvffield = 0;
     inlist.vffield = (int *) NULL;

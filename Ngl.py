@@ -392,6 +392,8 @@ def lst2pobj(lst):
 #    xydspec
 #    text
 #    primitive
+#    labelbar
+#    legend
 #    cafield
 #    sffield
 #    vffield
@@ -497,6 +499,8 @@ def pobj2lst(pobj):
 #    xydspec
 #    text
 #    primitive
+#    labelbar
+#    legend
 #    cafield
 #    sffield
 #    vffield
@@ -504,11 +508,11 @@ def pobj2lst(pobj):
 #  Converts the attributes of a PlotId object to a Python list.
 #
   if (pobj == 0):
-    return [None,None,None,None,None,None,None,None,None,None,None,None]
+    return [None,None,None,None,None,None,None,None,None,None,None,None,None,None]
   else:
     return [pobj.base,pobj.contour,pobj.vector,pobj.streamline,pobj.map, \
-           pobj.xy,pobj.xydspec,pobj.text,pobj.primitive,pobj.cafield,   \
-           pobj.sffield,pobj.vffield]
+           pobj.xy,pobj.xydspec,pobj.text,pobj.primitive,pobj.labelbar, \
+           pobj.legend,pobj.cafield,pobj.sffield,pobj.vffield]
 
 def pseq2lst(pseq):
 #
@@ -2763,6 +2767,7 @@ res -- An optional instance of the Resources class having Labelbar
                           "double","double",rlist1,pvoid())
   del rlist
   del rlist1
+
   return (lst2pobj(ilb))
 
 def legend_ndc(wks,nitems,labels,x,y,rlistc=None):

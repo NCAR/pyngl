@@ -9192,15 +9192,16 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
   result = labelbar_ndc_wrap(arg1,arg2,arg3,arg4,arg5,arg6,(char const *)arg7,(char const *)arg8,arg9,arg10);
   {
     PyObject *return_list;
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield, *l_vffield;
     nglPlotId pid;
     int i;
     
     pid = result;
     
-    return_list = PyList_New(12);
+    return_list = PyList_New(14);
     
     if (pid.nbase == 0) {
       Py_INCREF(Py_None); 
@@ -9306,40 +9307,64 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
       PyList_SetItem(return_list,8,l_primitive);
     }
     
-    if (pid.ncafield == 0) {
+    if (pid.nlabelbar == 0) {
       Py_INCREF(Py_None); 
       PyList_SetItem(return_list,9,Py_None);
+    }
+    else {
+      l_labelbar = PyList_New(pid.nlabelbar);
+      for (i = 0; i < pid.nlabelbar; i++) {
+        PyList_SetItem(l_labelbar,i,PyInt_FromLong((long) *(pid.labelbar+i)));
+      }
+      PyList_SetItem(return_list,9,l_labelbar);
+    }
+    
+    if (pid.nlegend == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,10,Py_None);
+    }
+    else {
+      l_legend = PyList_New(pid.nlegend);
+      for (i = 0; i < pid.nlegend; i++) {
+        PyList_SetItem(l_legend,i,PyInt_FromLong((long) *(pid.legend+i)));
+      }
+      PyList_SetItem(return_list,10,l_legend);
+    }
+    
+    if (pid.ncafield == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,11,Py_None);
     }
     else {
       l_cafield = PyList_New(pid.ncafield);
       for (i = 0; i < pid.ncafield; i++) {
         PyList_SetItem(l_cafield,i,PyInt_FromLong((long) *(pid.cafield+i)));
       }
-      PyList_SetItem(return_list,9,l_cafield);
+      PyList_SetItem(return_list,11,l_cafield);
     }
     
     if (pid.nsffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,10,Py_None);
+      PyList_SetItem(return_list,12,Py_None);
     }
     else {
       l_sffield = PyList_New(pid.nsffield);
       for (i = 0; i < pid.nsffield; i++) {
         PyList_SetItem(l_sffield,i,PyInt_FromLong((long) *(pid.sffield+i)));
       }
-      PyList_SetItem(return_list,10,l_sffield);
+      PyList_SetItem(return_list,12,l_sffield);
     }
     
     if (pid.nvffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,11,Py_None);
+      PyList_SetItem(return_list,13,Py_None);
     }
     else {
       l_vffield = PyList_New(pid.nvffield);
       for (i = 0; i < pid.nvffield; i++) {
         PyList_SetItem(l_vffield,i,PyInt_FromLong((long) *(pid.vffield+i)));
       }
-      PyList_SetItem(return_list,11,l_vffield);
+      PyList_SetItem(return_list,13,l_vffield);
     }
     
     Py_INCREF(return_list); 
@@ -9770,15 +9795,16 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
   result = legend_ndc_wrap(arg1,arg2,arg3,arg4,arg5,arg6,(char const *)arg7,(char const *)arg8,arg9,arg10);
   {
     PyObject *return_list;
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield, *l_vffield;
     nglPlotId pid;
     int i;
     
     pid = result;
     
-    return_list = PyList_New(12);
+    return_list = PyList_New(14);
     
     if (pid.nbase == 0) {
       Py_INCREF(Py_None); 
@@ -9884,40 +9910,64 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
       PyList_SetItem(return_list,8,l_primitive);
     }
     
-    if (pid.ncafield == 0) {
+    if (pid.nlabelbar == 0) {
       Py_INCREF(Py_None); 
       PyList_SetItem(return_list,9,Py_None);
+    }
+    else {
+      l_labelbar = PyList_New(pid.nlabelbar);
+      for (i = 0; i < pid.nlabelbar; i++) {
+        PyList_SetItem(l_labelbar,i,PyInt_FromLong((long) *(pid.labelbar+i)));
+      }
+      PyList_SetItem(return_list,9,l_labelbar);
+    }
+    
+    if (pid.nlegend == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,10,Py_None);
+    }
+    else {
+      l_legend = PyList_New(pid.nlegend);
+      for (i = 0; i < pid.nlegend; i++) {
+        PyList_SetItem(l_legend,i,PyInt_FromLong((long) *(pid.legend+i)));
+      }
+      PyList_SetItem(return_list,10,l_legend);
+    }
+    
+    if (pid.ncafield == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,11,Py_None);
     }
     else {
       l_cafield = PyList_New(pid.ncafield);
       for (i = 0; i < pid.ncafield; i++) {
         PyList_SetItem(l_cafield,i,PyInt_FromLong((long) *(pid.cafield+i)));
       }
-      PyList_SetItem(return_list,9,l_cafield);
+      PyList_SetItem(return_list,11,l_cafield);
     }
     
     if (pid.nsffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,10,Py_None);
+      PyList_SetItem(return_list,12,Py_None);
     }
     else {
       l_sffield = PyList_New(pid.nsffield);
       for (i = 0; i < pid.nsffield; i++) {
         PyList_SetItem(l_sffield,i,PyInt_FromLong((long) *(pid.sffield+i)));
       }
-      PyList_SetItem(return_list,10,l_sffield);
+      PyList_SetItem(return_list,12,l_sffield);
     }
     
     if (pid.nvffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,11,Py_None);
+      PyList_SetItem(return_list,13,Py_None);
     }
     else {
       l_vffield = PyList_New(pid.nvffield);
       for (i = 0; i < pid.nvffield; i++) {
         PyList_SetItem(l_vffield,i,PyInt_FromLong((long) *(pid.vffield+i)));
       }
-      PyList_SetItem(return_list,11,l_vffield);
+      PyList_SetItem(return_list,13,l_vffield);
     }
     
     Py_INCREF(return_list); 
@@ -11004,15 +11054,16 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
   result = contour_wrap(arg1,arg2,(char const *)arg3,arg4,arg5,arg6,arg7,(char const *)arg8,arg9,arg10,(char const *)arg11,arg12,arg13,arg14,arg15,arg16,arg17);
   {
     PyObject *return_list;
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield, *l_vffield;
     nglPlotId pid;
     int i;
     
     pid = result;
     
-    return_list = PyList_New(12);
+    return_list = PyList_New(14);
     
     if (pid.nbase == 0) {
       Py_INCREF(Py_None); 
@@ -11118,40 +11169,64 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
       PyList_SetItem(return_list,8,l_primitive);
     }
     
-    if (pid.ncafield == 0) {
+    if (pid.nlabelbar == 0) {
       Py_INCREF(Py_None); 
       PyList_SetItem(return_list,9,Py_None);
+    }
+    else {
+      l_labelbar = PyList_New(pid.nlabelbar);
+      for (i = 0; i < pid.nlabelbar; i++) {
+        PyList_SetItem(l_labelbar,i,PyInt_FromLong((long) *(pid.labelbar+i)));
+      }
+      PyList_SetItem(return_list,9,l_labelbar);
+    }
+    
+    if (pid.nlegend == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,10,Py_None);
+    }
+    else {
+      l_legend = PyList_New(pid.nlegend);
+      for (i = 0; i < pid.nlegend; i++) {
+        PyList_SetItem(l_legend,i,PyInt_FromLong((long) *(pid.legend+i)));
+      }
+      PyList_SetItem(return_list,10,l_legend);
+    }
+    
+    if (pid.ncafield == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,11,Py_None);
     }
     else {
       l_cafield = PyList_New(pid.ncafield);
       for (i = 0; i < pid.ncafield; i++) {
         PyList_SetItem(l_cafield,i,PyInt_FromLong((long) *(pid.cafield+i)));
       }
-      PyList_SetItem(return_list,9,l_cafield);
+      PyList_SetItem(return_list,11,l_cafield);
     }
     
     if (pid.nsffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,10,Py_None);
+      PyList_SetItem(return_list,12,Py_None);
     }
     else {
       l_sffield = PyList_New(pid.nsffield);
       for (i = 0; i < pid.nsffield; i++) {
         PyList_SetItem(l_sffield,i,PyInt_FromLong((long) *(pid.sffield+i)));
       }
-      PyList_SetItem(return_list,10,l_sffield);
+      PyList_SetItem(return_list,12,l_sffield);
     }
     
     if (pid.nvffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,11,Py_None);
+      PyList_SetItem(return_list,13,Py_None);
     }
     else {
       l_vffield = PyList_New(pid.nvffield);
       for (i = 0; i < pid.nvffield; i++) {
         PyList_SetItem(l_vffield,i,PyInt_FromLong((long) *(pid.vffield+i)));
       }
-      PyList_SetItem(return_list,11,l_vffield);
+      PyList_SetItem(return_list,13,l_vffield);
     }
     
     Py_INCREF(return_list); 
@@ -11510,15 +11585,16 @@ SWIGINTERN PyObject *_wrap_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   result = map_wrap(arg1,arg2,arg3);
   {
     PyObject *return_list;
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield, *l_vffield;
     nglPlotId pid;
     int i;
     
     pid = result;
     
-    return_list = PyList_New(12);
+    return_list = PyList_New(14);
     
     if (pid.nbase == 0) {
       Py_INCREF(Py_None); 
@@ -11624,40 +11700,64 @@ SWIGINTERN PyObject *_wrap_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
       PyList_SetItem(return_list,8,l_primitive);
     }
     
-    if (pid.ncafield == 0) {
+    if (pid.nlabelbar == 0) {
       Py_INCREF(Py_None); 
       PyList_SetItem(return_list,9,Py_None);
+    }
+    else {
+      l_labelbar = PyList_New(pid.nlabelbar);
+      for (i = 0; i < pid.nlabelbar; i++) {
+        PyList_SetItem(l_labelbar,i,PyInt_FromLong((long) *(pid.labelbar+i)));
+      }
+      PyList_SetItem(return_list,9,l_labelbar);
+    }
+    
+    if (pid.nlegend == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,10,Py_None);
+    }
+    else {
+      l_legend = PyList_New(pid.nlegend);
+      for (i = 0; i < pid.nlegend; i++) {
+        PyList_SetItem(l_legend,i,PyInt_FromLong((long) *(pid.legend+i)));
+      }
+      PyList_SetItem(return_list,10,l_legend);
+    }
+    
+    if (pid.ncafield == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,11,Py_None);
     }
     else {
       l_cafield = PyList_New(pid.ncafield);
       for (i = 0; i < pid.ncafield; i++) {
         PyList_SetItem(l_cafield,i,PyInt_FromLong((long) *(pid.cafield+i)));
       }
-      PyList_SetItem(return_list,9,l_cafield);
+      PyList_SetItem(return_list,11,l_cafield);
     }
     
     if (pid.nsffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,10,Py_None);
+      PyList_SetItem(return_list,12,Py_None);
     }
     else {
       l_sffield = PyList_New(pid.nsffield);
       for (i = 0; i < pid.nsffield; i++) {
         PyList_SetItem(l_sffield,i,PyInt_FromLong((long) *(pid.sffield+i)));
       }
-      PyList_SetItem(return_list,10,l_sffield);
+      PyList_SetItem(return_list,12,l_sffield);
     }
     
     if (pid.nvffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,11,Py_None);
+      PyList_SetItem(return_list,13,Py_None);
     }
     else {
       l_vffield = PyList_New(pid.nvffield);
       for (i = 0; i < pid.nvffield; i++) {
         PyList_SetItem(l_vffield,i,PyInt_FromLong((long) *(pid.vffield+i)));
       }
-      PyList_SetItem(return_list,11,l_vffield);
+      PyList_SetItem(return_list,13,l_vffield);
     }
     
     Py_INCREF(return_list); 
@@ -12740,15 +12840,16 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
   result = contour_map_wrap(arg1,arg2,(char const *)arg3,arg4,arg5,arg6,arg7,(char const *)arg8,arg9,arg10,(char const *)arg11,arg12,arg13,arg14,arg15,arg16,arg17);
   {
     PyObject *return_list;
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield, *l_vffield;
     nglPlotId pid;
     int i;
     
     pid = result;
     
-    return_list = PyList_New(12);
+    return_list = PyList_New(14);
     
     if (pid.nbase == 0) {
       Py_INCREF(Py_None); 
@@ -12854,40 +12955,64 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
       PyList_SetItem(return_list,8,l_primitive);
     }
     
-    if (pid.ncafield == 0) {
+    if (pid.nlabelbar == 0) {
       Py_INCREF(Py_None); 
       PyList_SetItem(return_list,9,Py_None);
+    }
+    else {
+      l_labelbar = PyList_New(pid.nlabelbar);
+      for (i = 0; i < pid.nlabelbar; i++) {
+        PyList_SetItem(l_labelbar,i,PyInt_FromLong((long) *(pid.labelbar+i)));
+      }
+      PyList_SetItem(return_list,9,l_labelbar);
+    }
+    
+    if (pid.nlegend == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,10,Py_None);
+    }
+    else {
+      l_legend = PyList_New(pid.nlegend);
+      for (i = 0; i < pid.nlegend; i++) {
+        PyList_SetItem(l_legend,i,PyInt_FromLong((long) *(pid.legend+i)));
+      }
+      PyList_SetItem(return_list,10,l_legend);
+    }
+    
+    if (pid.ncafield == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,11,Py_None);
     }
     else {
       l_cafield = PyList_New(pid.ncafield);
       for (i = 0; i < pid.ncafield; i++) {
         PyList_SetItem(l_cafield,i,PyInt_FromLong((long) *(pid.cafield+i)));
       }
-      PyList_SetItem(return_list,9,l_cafield);
+      PyList_SetItem(return_list,11,l_cafield);
     }
     
     if (pid.nsffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,10,Py_None);
+      PyList_SetItem(return_list,12,Py_None);
     }
     else {
       l_sffield = PyList_New(pid.nsffield);
       for (i = 0; i < pid.nsffield; i++) {
         PyList_SetItem(l_sffield,i,PyInt_FromLong((long) *(pid.sffield+i)));
       }
-      PyList_SetItem(return_list,10,l_sffield);
+      PyList_SetItem(return_list,12,l_sffield);
     }
     
     if (pid.nvffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,11,Py_None);
+      PyList_SetItem(return_list,13,Py_None);
     }
     else {
       l_vffield = PyList_New(pid.nvffield);
       for (i = 0; i < pid.nvffield; i++) {
         PyList_SetItem(l_vffield,i,PyInt_FromLong((long) *(pid.vffield+i)));
       }
-      PyList_SetItem(return_list,11,l_vffield);
+      PyList_SetItem(return_list,13,l_vffield);
     }
     
     Py_INCREF(return_list); 
@@ -13978,15 +14103,16 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
   result = xy_wrap(arg1,arg2,arg3,(char const *)arg4,(char const *)arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13,arg14,arg15,arg16,arg17);
   {
     PyObject *return_list;
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield, *l_vffield;
     nglPlotId pid;
     int i;
     
     pid = result;
     
-    return_list = PyList_New(12);
+    return_list = PyList_New(14);
     
     if (pid.nbase == 0) {
       Py_INCREF(Py_None); 
@@ -14092,40 +14218,64 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
       PyList_SetItem(return_list,8,l_primitive);
     }
     
-    if (pid.ncafield == 0) {
+    if (pid.nlabelbar == 0) {
       Py_INCREF(Py_None); 
       PyList_SetItem(return_list,9,Py_None);
+    }
+    else {
+      l_labelbar = PyList_New(pid.nlabelbar);
+      for (i = 0; i < pid.nlabelbar; i++) {
+        PyList_SetItem(l_labelbar,i,PyInt_FromLong((long) *(pid.labelbar+i)));
+      }
+      PyList_SetItem(return_list,9,l_labelbar);
+    }
+    
+    if (pid.nlegend == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,10,Py_None);
+    }
+    else {
+      l_legend = PyList_New(pid.nlegend);
+      for (i = 0; i < pid.nlegend; i++) {
+        PyList_SetItem(l_legend,i,PyInt_FromLong((long) *(pid.legend+i)));
+      }
+      PyList_SetItem(return_list,10,l_legend);
+    }
+    
+    if (pid.ncafield == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,11,Py_None);
     }
     else {
       l_cafield = PyList_New(pid.ncafield);
       for (i = 0; i < pid.ncafield; i++) {
         PyList_SetItem(l_cafield,i,PyInt_FromLong((long) *(pid.cafield+i)));
       }
-      PyList_SetItem(return_list,9,l_cafield);
+      PyList_SetItem(return_list,11,l_cafield);
     }
     
     if (pid.nsffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,10,Py_None);
+      PyList_SetItem(return_list,12,Py_None);
     }
     else {
       l_sffield = PyList_New(pid.nsffield);
       for (i = 0; i < pid.nsffield; i++) {
         PyList_SetItem(l_sffield,i,PyInt_FromLong((long) *(pid.sffield+i)));
       }
-      PyList_SetItem(return_list,10,l_sffield);
+      PyList_SetItem(return_list,12,l_sffield);
     }
     
     if (pid.nvffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,11,Py_None);
+      PyList_SetItem(return_list,13,Py_None);
     }
     else {
       l_vffield = PyList_New(pid.nvffield);
       for (i = 0; i < pid.nvffield; i++) {
         PyList_SetItem(l_vffield,i,PyInt_FromLong((long) *(pid.vffield+i)));
       }
-      PyList_SetItem(return_list,11,l_vffield);
+      PyList_SetItem(return_list,13,l_vffield);
     }
     
     Py_INCREF(return_list); 
@@ -15171,15 +15321,16 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
   result = y_wrap(arg1,arg2,(char const *)arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11);
   {
     PyObject *return_list;
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield, *l_vffield;
     nglPlotId pid;
     int i;
     
     pid = result;
     
-    return_list = PyList_New(12);
+    return_list = PyList_New(14);
     
     if (pid.nbase == 0) {
       Py_INCREF(Py_None); 
@@ -15285,40 +15436,64 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
       PyList_SetItem(return_list,8,l_primitive);
     }
     
-    if (pid.ncafield == 0) {
+    if (pid.nlabelbar == 0) {
       Py_INCREF(Py_None); 
       PyList_SetItem(return_list,9,Py_None);
+    }
+    else {
+      l_labelbar = PyList_New(pid.nlabelbar);
+      for (i = 0; i < pid.nlabelbar; i++) {
+        PyList_SetItem(l_labelbar,i,PyInt_FromLong((long) *(pid.labelbar+i)));
+      }
+      PyList_SetItem(return_list,9,l_labelbar);
+    }
+    
+    if (pid.nlegend == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,10,Py_None);
+    }
+    else {
+      l_legend = PyList_New(pid.nlegend);
+      for (i = 0; i < pid.nlegend; i++) {
+        PyList_SetItem(l_legend,i,PyInt_FromLong((long) *(pid.legend+i)));
+      }
+      PyList_SetItem(return_list,10,l_legend);
+    }
+    
+    if (pid.ncafield == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,11,Py_None);
     }
     else {
       l_cafield = PyList_New(pid.ncafield);
       for (i = 0; i < pid.ncafield; i++) {
         PyList_SetItem(l_cafield,i,PyInt_FromLong((long) *(pid.cafield+i)));
       }
-      PyList_SetItem(return_list,9,l_cafield);
+      PyList_SetItem(return_list,11,l_cafield);
     }
     
     if (pid.nsffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,10,Py_None);
+      PyList_SetItem(return_list,12,Py_None);
     }
     else {
       l_sffield = PyList_New(pid.nsffield);
       for (i = 0; i < pid.nsffield; i++) {
         PyList_SetItem(l_sffield,i,PyInt_FromLong((long) *(pid.sffield+i)));
       }
-      PyList_SetItem(return_list,10,l_sffield);
+      PyList_SetItem(return_list,12,l_sffield);
     }
     
     if (pid.nvffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,11,Py_None);
+      PyList_SetItem(return_list,13,Py_None);
     }
     else {
       l_vffield = PyList_New(pid.nvffield);
       for (i = 0; i < pid.nvffield; i++) {
         PyList_SetItem(l_vffield,i,PyInt_FromLong((long) *(pid.vffield+i)));
       }
-      PyList_SetItem(return_list,11,l_vffield);
+      PyList_SetItem(return_list,13,l_vffield);
     }
     
     Py_INCREF(return_list); 
@@ -16433,15 +16608,16 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
   result = vector_wrap(arg1,arg2,arg3,(char const *)arg4,(char const *)arg5,arg6,arg7,arg8,arg9,(char const *)arg10,arg11,arg12,(char const *)arg13,arg14,arg15,arg16,arg17,arg18,arg19,arg20,arg21);
   {
     PyObject *return_list;
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield, *l_vffield;
     nglPlotId pid;
     int i;
     
     pid = result;
     
-    return_list = PyList_New(12);
+    return_list = PyList_New(14);
     
     if (pid.nbase == 0) {
       Py_INCREF(Py_None); 
@@ -16547,40 +16723,64 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
       PyList_SetItem(return_list,8,l_primitive);
     }
     
-    if (pid.ncafield == 0) {
+    if (pid.nlabelbar == 0) {
       Py_INCREF(Py_None); 
       PyList_SetItem(return_list,9,Py_None);
+    }
+    else {
+      l_labelbar = PyList_New(pid.nlabelbar);
+      for (i = 0; i < pid.nlabelbar; i++) {
+        PyList_SetItem(l_labelbar,i,PyInt_FromLong((long) *(pid.labelbar+i)));
+      }
+      PyList_SetItem(return_list,9,l_labelbar);
+    }
+    
+    if (pid.nlegend == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,10,Py_None);
+    }
+    else {
+      l_legend = PyList_New(pid.nlegend);
+      for (i = 0; i < pid.nlegend; i++) {
+        PyList_SetItem(l_legend,i,PyInt_FromLong((long) *(pid.legend+i)));
+      }
+      PyList_SetItem(return_list,10,l_legend);
+    }
+    
+    if (pid.ncafield == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,11,Py_None);
     }
     else {
       l_cafield = PyList_New(pid.ncafield);
       for (i = 0; i < pid.ncafield; i++) {
         PyList_SetItem(l_cafield,i,PyInt_FromLong((long) *(pid.cafield+i)));
       }
-      PyList_SetItem(return_list,9,l_cafield);
+      PyList_SetItem(return_list,11,l_cafield);
     }
     
     if (pid.nsffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,10,Py_None);
+      PyList_SetItem(return_list,12,Py_None);
     }
     else {
       l_sffield = PyList_New(pid.nsffield);
       for (i = 0; i < pid.nsffield; i++) {
         PyList_SetItem(l_sffield,i,PyInt_FromLong((long) *(pid.sffield+i)));
       }
-      PyList_SetItem(return_list,10,l_sffield);
+      PyList_SetItem(return_list,12,l_sffield);
     }
     
     if (pid.nvffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,11,Py_None);
+      PyList_SetItem(return_list,13,Py_None);
     }
     else {
       l_vffield = PyList_New(pid.nvffield);
       for (i = 0; i < pid.nvffield; i++) {
         PyList_SetItem(l_vffield,i,PyInt_FromLong((long) *(pid.vffield+i)));
       }
-      PyList_SetItem(return_list,11,l_vffield);
+      PyList_SetItem(return_list,13,l_vffield);
     }
     
     Py_INCREF(return_list); 
@@ -17701,15 +17901,16 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
   result = vector_map_wrap(arg1,arg2,arg3,(char const *)arg4,(char const *)arg5,arg6,arg7,arg8,arg9,(char const *)arg10,arg11,arg12,(char const *)arg13,arg14,arg15,arg16,arg17,arg18,arg19,arg20,arg21);
   {
     PyObject *return_list;
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield, *l_vffield;
     nglPlotId pid;
     int i;
     
     pid = result;
     
-    return_list = PyList_New(12);
+    return_list = PyList_New(14);
     
     if (pid.nbase == 0) {
       Py_INCREF(Py_None); 
@@ -17815,40 +18016,64 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
       PyList_SetItem(return_list,8,l_primitive);
     }
     
-    if (pid.ncafield == 0) {
+    if (pid.nlabelbar == 0) {
       Py_INCREF(Py_None); 
       PyList_SetItem(return_list,9,Py_None);
+    }
+    else {
+      l_labelbar = PyList_New(pid.nlabelbar);
+      for (i = 0; i < pid.nlabelbar; i++) {
+        PyList_SetItem(l_labelbar,i,PyInt_FromLong((long) *(pid.labelbar+i)));
+      }
+      PyList_SetItem(return_list,9,l_labelbar);
+    }
+    
+    if (pid.nlegend == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,10,Py_None);
+    }
+    else {
+      l_legend = PyList_New(pid.nlegend);
+      for (i = 0; i < pid.nlegend; i++) {
+        PyList_SetItem(l_legend,i,PyInt_FromLong((long) *(pid.legend+i)));
+      }
+      PyList_SetItem(return_list,10,l_legend);
+    }
+    
+    if (pid.ncafield == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,11,Py_None);
     }
     else {
       l_cafield = PyList_New(pid.ncafield);
       for (i = 0; i < pid.ncafield; i++) {
         PyList_SetItem(l_cafield,i,PyInt_FromLong((long) *(pid.cafield+i)));
       }
-      PyList_SetItem(return_list,9,l_cafield);
+      PyList_SetItem(return_list,11,l_cafield);
     }
     
     if (pid.nsffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,10,Py_None);
+      PyList_SetItem(return_list,12,Py_None);
     }
     else {
       l_sffield = PyList_New(pid.nsffield);
       for (i = 0; i < pid.nsffield; i++) {
         PyList_SetItem(l_sffield,i,PyInt_FromLong((long) *(pid.sffield+i)));
       }
-      PyList_SetItem(return_list,10,l_sffield);
+      PyList_SetItem(return_list,12,l_sffield);
     }
     
     if (pid.nvffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,11,Py_None);
+      PyList_SetItem(return_list,13,Py_None);
     }
     else {
       l_vffield = PyList_New(pid.nvffield);
       for (i = 0; i < pid.nvffield; i++) {
         PyList_SetItem(l_vffield,i,PyInt_FromLong((long) *(pid.vffield+i)));
       }
-      PyList_SetItem(return_list,11,l_vffield);
+      PyList_SetItem(return_list,13,l_vffield);
     }
     
     Py_INCREF(return_list); 
@@ -19322,15 +19547,16 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
   result = vector_scalar_wrap(arg1,arg2,arg3,arg4,(char const *)arg5,(char const *)arg6,(char const *)arg7,arg8,arg9,arg10,arg11,(char const *)arg12,arg13,arg14,(char const *)arg15,arg16,arg17,arg18,arg19,arg20,arg21,arg22,arg23,arg24,arg25,arg26);
   {
     PyObject *return_list;
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield, *l_vffield;
     nglPlotId pid;
     int i;
     
     pid = result;
     
-    return_list = PyList_New(12);
+    return_list = PyList_New(14);
     
     if (pid.nbase == 0) {
       Py_INCREF(Py_None); 
@@ -19436,40 +19662,64 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
       PyList_SetItem(return_list,8,l_primitive);
     }
     
-    if (pid.ncafield == 0) {
+    if (pid.nlabelbar == 0) {
       Py_INCREF(Py_None); 
       PyList_SetItem(return_list,9,Py_None);
+    }
+    else {
+      l_labelbar = PyList_New(pid.nlabelbar);
+      for (i = 0; i < pid.nlabelbar; i++) {
+        PyList_SetItem(l_labelbar,i,PyInt_FromLong((long) *(pid.labelbar+i)));
+      }
+      PyList_SetItem(return_list,9,l_labelbar);
+    }
+    
+    if (pid.nlegend == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,10,Py_None);
+    }
+    else {
+      l_legend = PyList_New(pid.nlegend);
+      for (i = 0; i < pid.nlegend; i++) {
+        PyList_SetItem(l_legend,i,PyInt_FromLong((long) *(pid.legend+i)));
+      }
+      PyList_SetItem(return_list,10,l_legend);
+    }
+    
+    if (pid.ncafield == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,11,Py_None);
     }
     else {
       l_cafield = PyList_New(pid.ncafield);
       for (i = 0; i < pid.ncafield; i++) {
         PyList_SetItem(l_cafield,i,PyInt_FromLong((long) *(pid.cafield+i)));
       }
-      PyList_SetItem(return_list,9,l_cafield);
+      PyList_SetItem(return_list,11,l_cafield);
     }
     
     if (pid.nsffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,10,Py_None);
+      PyList_SetItem(return_list,12,Py_None);
     }
     else {
       l_sffield = PyList_New(pid.nsffield);
       for (i = 0; i < pid.nsffield; i++) {
         PyList_SetItem(l_sffield,i,PyInt_FromLong((long) *(pid.sffield+i)));
       }
-      PyList_SetItem(return_list,10,l_sffield);
+      PyList_SetItem(return_list,12,l_sffield);
     }
     
     if (pid.nvffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,11,Py_None);
+      PyList_SetItem(return_list,13,Py_None);
     }
     else {
       l_vffield = PyList_New(pid.nvffield);
       for (i = 0; i < pid.nvffield; i++) {
         PyList_SetItem(l_vffield,i,PyInt_FromLong((long) *(pid.vffield+i)));
       }
-      PyList_SetItem(return_list,11,l_vffield);
+      PyList_SetItem(return_list,13,l_vffield);
     }
     
     Py_INCREF(return_list); 
@@ -20945,15 +21195,16 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
   result = vector_scalar_map_wrap(arg1,arg2,arg3,arg4,(char const *)arg5,(char const *)arg6,(char const *)arg7,arg8,arg9,arg10,arg11,(char const *)arg12,arg13,arg14,(char const *)arg15,arg16,arg17,arg18,arg19,arg20,arg21,arg22,arg23,arg24,arg25,arg26);
   {
     PyObject *return_list;
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield, *l_vffield;
     nglPlotId pid;
     int i;
     
     pid = result;
     
-    return_list = PyList_New(12);
+    return_list = PyList_New(14);
     
     if (pid.nbase == 0) {
       Py_INCREF(Py_None); 
@@ -21059,40 +21310,64 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
       PyList_SetItem(return_list,8,l_primitive);
     }
     
-    if (pid.ncafield == 0) {
+    if (pid.nlabelbar == 0) {
       Py_INCREF(Py_None); 
       PyList_SetItem(return_list,9,Py_None);
+    }
+    else {
+      l_labelbar = PyList_New(pid.nlabelbar);
+      for (i = 0; i < pid.nlabelbar; i++) {
+        PyList_SetItem(l_labelbar,i,PyInt_FromLong((long) *(pid.labelbar+i)));
+      }
+      PyList_SetItem(return_list,9,l_labelbar);
+    }
+    
+    if (pid.nlegend == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,10,Py_None);
+    }
+    else {
+      l_legend = PyList_New(pid.nlegend);
+      for (i = 0; i < pid.nlegend; i++) {
+        PyList_SetItem(l_legend,i,PyInt_FromLong((long) *(pid.legend+i)));
+      }
+      PyList_SetItem(return_list,10,l_legend);
+    }
+    
+    if (pid.ncafield == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,11,Py_None);
     }
     else {
       l_cafield = PyList_New(pid.ncafield);
       for (i = 0; i < pid.ncafield; i++) {
         PyList_SetItem(l_cafield,i,PyInt_FromLong((long) *(pid.cafield+i)));
       }
-      PyList_SetItem(return_list,9,l_cafield);
+      PyList_SetItem(return_list,11,l_cafield);
     }
     
     if (pid.nsffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,10,Py_None);
+      PyList_SetItem(return_list,12,Py_None);
     }
     else {
       l_sffield = PyList_New(pid.nsffield);
       for (i = 0; i < pid.nsffield; i++) {
         PyList_SetItem(l_sffield,i,PyInt_FromLong((long) *(pid.sffield+i)));
       }
-      PyList_SetItem(return_list,10,l_sffield);
+      PyList_SetItem(return_list,12,l_sffield);
     }
     
     if (pid.nvffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,11,Py_None);
+      PyList_SetItem(return_list,13,Py_None);
     }
     else {
       l_vffield = PyList_New(pid.nvffield);
       for (i = 0; i < pid.nvffield; i++) {
         PyList_SetItem(l_vffield,i,PyInt_FromLong((long) *(pid.vffield+i)));
       }
-      PyList_SetItem(return_list,11,l_vffield);
+      PyList_SetItem(return_list,13,l_vffield);
     }
     
     Py_INCREF(return_list); 
@@ -22215,15 +22490,16 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
   result = streamline_wrap(arg1,arg2,arg3,(char const *)arg4,(char const *)arg5,arg6,arg7,arg8,arg9,(char const *)arg10,arg11,arg12,(char const *)arg13,arg14,arg15,arg16,arg17,arg18,arg19,arg20,arg21);
   {
     PyObject *return_list;
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield, *l_vffield;
     nglPlotId pid;
     int i;
     
     pid = result;
     
-    return_list = PyList_New(12);
+    return_list = PyList_New(14);
     
     if (pid.nbase == 0) {
       Py_INCREF(Py_None); 
@@ -22329,40 +22605,64 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
       PyList_SetItem(return_list,8,l_primitive);
     }
     
-    if (pid.ncafield == 0) {
+    if (pid.nlabelbar == 0) {
       Py_INCREF(Py_None); 
       PyList_SetItem(return_list,9,Py_None);
+    }
+    else {
+      l_labelbar = PyList_New(pid.nlabelbar);
+      for (i = 0; i < pid.nlabelbar; i++) {
+        PyList_SetItem(l_labelbar,i,PyInt_FromLong((long) *(pid.labelbar+i)));
+      }
+      PyList_SetItem(return_list,9,l_labelbar);
+    }
+    
+    if (pid.nlegend == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,10,Py_None);
+    }
+    else {
+      l_legend = PyList_New(pid.nlegend);
+      for (i = 0; i < pid.nlegend; i++) {
+        PyList_SetItem(l_legend,i,PyInt_FromLong((long) *(pid.legend+i)));
+      }
+      PyList_SetItem(return_list,10,l_legend);
+    }
+    
+    if (pid.ncafield == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,11,Py_None);
     }
     else {
       l_cafield = PyList_New(pid.ncafield);
       for (i = 0; i < pid.ncafield; i++) {
         PyList_SetItem(l_cafield,i,PyInt_FromLong((long) *(pid.cafield+i)));
       }
-      PyList_SetItem(return_list,9,l_cafield);
+      PyList_SetItem(return_list,11,l_cafield);
     }
     
     if (pid.nsffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,10,Py_None);
+      PyList_SetItem(return_list,12,Py_None);
     }
     else {
       l_sffield = PyList_New(pid.nsffield);
       for (i = 0; i < pid.nsffield; i++) {
         PyList_SetItem(l_sffield,i,PyInt_FromLong((long) *(pid.sffield+i)));
       }
-      PyList_SetItem(return_list,10,l_sffield);
+      PyList_SetItem(return_list,12,l_sffield);
     }
     
     if (pid.nvffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,11,Py_None);
+      PyList_SetItem(return_list,13,Py_None);
     }
     else {
       l_vffield = PyList_New(pid.nvffield);
       for (i = 0; i < pid.nvffield; i++) {
         PyList_SetItem(l_vffield,i,PyInt_FromLong((long) *(pid.vffield+i)));
       }
-      PyList_SetItem(return_list,11,l_vffield);
+      PyList_SetItem(return_list,13,l_vffield);
     }
     
     Py_INCREF(return_list); 
@@ -23483,15 +23783,16 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
   result = streamline_map_wrap(arg1,arg2,arg3,(char const *)arg4,(char const *)arg5,arg6,arg7,arg8,arg9,(char const *)arg10,arg11,arg12,(char const *)arg13,arg14,arg15,arg16,arg17,arg18,arg19,arg20,arg21);
   {
     PyObject *return_list;
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield, *l_vffield;
     nglPlotId pid;
     int i;
     
     pid = result;
     
-    return_list = PyList_New(12);
+    return_list = PyList_New(14);
     
     if (pid.nbase == 0) {
       Py_INCREF(Py_None); 
@@ -23597,40 +23898,64 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
       PyList_SetItem(return_list,8,l_primitive);
     }
     
-    if (pid.ncafield == 0) {
+    if (pid.nlabelbar == 0) {
       Py_INCREF(Py_None); 
       PyList_SetItem(return_list,9,Py_None);
+    }
+    else {
+      l_labelbar = PyList_New(pid.nlabelbar);
+      for (i = 0; i < pid.nlabelbar; i++) {
+        PyList_SetItem(l_labelbar,i,PyInt_FromLong((long) *(pid.labelbar+i)));
+      }
+      PyList_SetItem(return_list,9,l_labelbar);
+    }
+    
+    if (pid.nlegend == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,10,Py_None);
+    }
+    else {
+      l_legend = PyList_New(pid.nlegend);
+      for (i = 0; i < pid.nlegend; i++) {
+        PyList_SetItem(l_legend,i,PyInt_FromLong((long) *(pid.legend+i)));
+      }
+      PyList_SetItem(return_list,10,l_legend);
+    }
+    
+    if (pid.ncafield == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,11,Py_None);
     }
     else {
       l_cafield = PyList_New(pid.ncafield);
       for (i = 0; i < pid.ncafield; i++) {
         PyList_SetItem(l_cafield,i,PyInt_FromLong((long) *(pid.cafield+i)));
       }
-      PyList_SetItem(return_list,9,l_cafield);
+      PyList_SetItem(return_list,11,l_cafield);
     }
     
     if (pid.nsffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,10,Py_None);
+      PyList_SetItem(return_list,12,Py_None);
     }
     else {
       l_sffield = PyList_New(pid.nsffield);
       for (i = 0; i < pid.nsffield; i++) {
         PyList_SetItem(l_sffield,i,PyInt_FromLong((long) *(pid.sffield+i)));
       }
-      PyList_SetItem(return_list,10,l_sffield);
+      PyList_SetItem(return_list,12,l_sffield);
     }
     
     if (pid.nvffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,11,Py_None);
+      PyList_SetItem(return_list,13,Py_None);
     }
     else {
       l_vffield = PyList_New(pid.nvffield);
       for (i = 0; i < pid.nvffield; i++) {
         PyList_SetItem(l_vffield,i,PyInt_FromLong((long) *(pid.vffield+i)));
       }
-      PyList_SetItem(return_list,11,l_vffield);
+      PyList_SetItem(return_list,13,l_vffield);
     }
     
     Py_INCREF(return_list); 
@@ -25104,15 +25429,16 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
   result = streamline_scalar_wrap(arg1,arg2,arg3,arg4,(char const *)arg5,(char const *)arg6,(char const *)arg7,arg8,arg9,arg10,arg11,(char const *)arg12,arg13,arg14,(char const *)arg15,arg16,arg17,arg18,arg19,arg20,arg21,arg22,arg23,arg24,arg25,arg26);
   {
     PyObject *return_list;
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield, *l_vffield;
     nglPlotId pid;
     int i;
     
     pid = result;
     
-    return_list = PyList_New(12);
+    return_list = PyList_New(14);
     
     if (pid.nbase == 0) {
       Py_INCREF(Py_None); 
@@ -25218,40 +25544,64 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
       PyList_SetItem(return_list,8,l_primitive);
     }
     
-    if (pid.ncafield == 0) {
+    if (pid.nlabelbar == 0) {
       Py_INCREF(Py_None); 
       PyList_SetItem(return_list,9,Py_None);
+    }
+    else {
+      l_labelbar = PyList_New(pid.nlabelbar);
+      for (i = 0; i < pid.nlabelbar; i++) {
+        PyList_SetItem(l_labelbar,i,PyInt_FromLong((long) *(pid.labelbar+i)));
+      }
+      PyList_SetItem(return_list,9,l_labelbar);
+    }
+    
+    if (pid.nlegend == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,10,Py_None);
+    }
+    else {
+      l_legend = PyList_New(pid.nlegend);
+      for (i = 0; i < pid.nlegend; i++) {
+        PyList_SetItem(l_legend,i,PyInt_FromLong((long) *(pid.legend+i)));
+      }
+      PyList_SetItem(return_list,10,l_legend);
+    }
+    
+    if (pid.ncafield == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,11,Py_None);
     }
     else {
       l_cafield = PyList_New(pid.ncafield);
       for (i = 0; i < pid.ncafield; i++) {
         PyList_SetItem(l_cafield,i,PyInt_FromLong((long) *(pid.cafield+i)));
       }
-      PyList_SetItem(return_list,9,l_cafield);
+      PyList_SetItem(return_list,11,l_cafield);
     }
     
     if (pid.nsffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,10,Py_None);
+      PyList_SetItem(return_list,12,Py_None);
     }
     else {
       l_sffield = PyList_New(pid.nsffield);
       for (i = 0; i < pid.nsffield; i++) {
         PyList_SetItem(l_sffield,i,PyInt_FromLong((long) *(pid.sffield+i)));
       }
-      PyList_SetItem(return_list,10,l_sffield);
+      PyList_SetItem(return_list,12,l_sffield);
     }
     
     if (pid.nvffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,11,Py_None);
+      PyList_SetItem(return_list,13,Py_None);
     }
     else {
       l_vffield = PyList_New(pid.nvffield);
       for (i = 0; i < pid.nvffield; i++) {
         PyList_SetItem(l_vffield,i,PyInt_FromLong((long) *(pid.vffield+i)));
       }
-      PyList_SetItem(return_list,11,l_vffield);
+      PyList_SetItem(return_list,13,l_vffield);
     }
     
     Py_INCREF(return_list); 
@@ -26727,15 +27077,16 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
   result = streamline_scalar_map_wrap(arg1,arg2,arg3,arg4,(char const *)arg5,(char const *)arg6,(char const *)arg7,arg8,arg9,arg10,arg11,(char const *)arg12,arg13,arg14,(char const *)arg15,arg16,arg17,arg18,arg19,arg20,arg21,arg22,arg23,arg24,arg25,arg26);
   {
     PyObject *return_list;
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield, *l_vffield;
     nglPlotId pid;
     int i;
     
     pid = result;
     
-    return_list = PyList_New(12);
+    return_list = PyList_New(14);
     
     if (pid.nbase == 0) {
       Py_INCREF(Py_None); 
@@ -26841,40 +27192,64 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
       PyList_SetItem(return_list,8,l_primitive);
     }
     
-    if (pid.ncafield == 0) {
+    if (pid.nlabelbar == 0) {
       Py_INCREF(Py_None); 
       PyList_SetItem(return_list,9,Py_None);
+    }
+    else {
+      l_labelbar = PyList_New(pid.nlabelbar);
+      for (i = 0; i < pid.nlabelbar; i++) {
+        PyList_SetItem(l_labelbar,i,PyInt_FromLong((long) *(pid.labelbar+i)));
+      }
+      PyList_SetItem(return_list,9,l_labelbar);
+    }
+    
+    if (pid.nlegend == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,10,Py_None);
+    }
+    else {
+      l_legend = PyList_New(pid.nlegend);
+      for (i = 0; i < pid.nlegend; i++) {
+        PyList_SetItem(l_legend,i,PyInt_FromLong((long) *(pid.legend+i)));
+      }
+      PyList_SetItem(return_list,10,l_legend);
+    }
+    
+    if (pid.ncafield == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,11,Py_None);
     }
     else {
       l_cafield = PyList_New(pid.ncafield);
       for (i = 0; i < pid.ncafield; i++) {
         PyList_SetItem(l_cafield,i,PyInt_FromLong((long) *(pid.cafield+i)));
       }
-      PyList_SetItem(return_list,9,l_cafield);
+      PyList_SetItem(return_list,11,l_cafield);
     }
     
     if (pid.nsffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,10,Py_None);
+      PyList_SetItem(return_list,12,Py_None);
     }
     else {
       l_sffield = PyList_New(pid.nsffield);
       for (i = 0; i < pid.nsffield; i++) {
         PyList_SetItem(l_sffield,i,PyInt_FromLong((long) *(pid.sffield+i)));
       }
-      PyList_SetItem(return_list,10,l_sffield);
+      PyList_SetItem(return_list,12,l_sffield);
     }
     
     if (pid.nvffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,11,Py_None);
+      PyList_SetItem(return_list,13,Py_None);
     }
     else {
       l_vffield = PyList_New(pid.nvffield);
       for (i = 0; i < pid.nvffield; i++) {
         PyList_SetItem(l_vffield,i,PyInt_FromLong((long) *(pid.vffield+i)));
       }
-      PyList_SetItem(return_list,11,l_vffield);
+      PyList_SetItem(return_list,13,l_vffield);
     }
     
     Py_INCREF(return_list); 
@@ -27283,15 +27658,16 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
   result = text_ndc_wrap(arg1,arg2,arg3,arg4,(char const *)arg5,(char const *)arg6,arg7,arg8);
   {
     PyObject *return_list;
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield, *l_vffield;
     nglPlotId pid;
     int i;
     
     pid = result;
     
-    return_list = PyList_New(12);
+    return_list = PyList_New(14);
     
     if (pid.nbase == 0) {
       Py_INCREF(Py_None); 
@@ -27397,40 +27773,64 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
       PyList_SetItem(return_list,8,l_primitive);
     }
     
-    if (pid.ncafield == 0) {
+    if (pid.nlabelbar == 0) {
       Py_INCREF(Py_None); 
       PyList_SetItem(return_list,9,Py_None);
+    }
+    else {
+      l_labelbar = PyList_New(pid.nlabelbar);
+      for (i = 0; i < pid.nlabelbar; i++) {
+        PyList_SetItem(l_labelbar,i,PyInt_FromLong((long) *(pid.labelbar+i)));
+      }
+      PyList_SetItem(return_list,9,l_labelbar);
+    }
+    
+    if (pid.nlegend == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,10,Py_None);
+    }
+    else {
+      l_legend = PyList_New(pid.nlegend);
+      for (i = 0; i < pid.nlegend; i++) {
+        PyList_SetItem(l_legend,i,PyInt_FromLong((long) *(pid.legend+i)));
+      }
+      PyList_SetItem(return_list,10,l_legend);
+    }
+    
+    if (pid.ncafield == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,11,Py_None);
     }
     else {
       l_cafield = PyList_New(pid.ncafield);
       for (i = 0; i < pid.ncafield; i++) {
         PyList_SetItem(l_cafield,i,PyInt_FromLong((long) *(pid.cafield+i)));
       }
-      PyList_SetItem(return_list,9,l_cafield);
+      PyList_SetItem(return_list,11,l_cafield);
     }
     
     if (pid.nsffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,10,Py_None);
+      PyList_SetItem(return_list,12,Py_None);
     }
     else {
       l_sffield = PyList_New(pid.nsffield);
       for (i = 0; i < pid.nsffield; i++) {
         PyList_SetItem(l_sffield,i,PyInt_FromLong((long) *(pid.sffield+i)));
       }
-      PyList_SetItem(return_list,10,l_sffield);
+      PyList_SetItem(return_list,12,l_sffield);
     }
     
     if (pid.nvffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,11,Py_None);
+      PyList_SetItem(return_list,13,Py_None);
     }
     else {
       l_vffield = PyList_New(pid.nvffield);
       for (i = 0; i < pid.nvffield; i++) {
         PyList_SetItem(l_vffield,i,PyInt_FromLong((long) *(pid.vffield+i)));
       }
-      PyList_SetItem(return_list,11,l_vffield);
+      PyList_SetItem(return_list,13,l_vffield);
     }
     
     Py_INCREF(return_list); 
@@ -27487,12 +27887,14 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
     int i;
     nglPlotId inlist;
     
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
-    int      *ibase,       *icontour,  *ivector,   *istreamline,
-    *imap,        *ixy     ,  *ixydspec,  *itext,
-    *iprimitive,  *icafield,  *isffield,  *ivffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield,   *l_vffield;
+    int      *ibase,       *icontour ,  *ivector,   *istreamline,
+    *imap,        *ixy      ,  *ixydspec,  *itext,
+    *iprimitive,  *ilabelbar,  *ilegend,   *icafield,  
+    *isffield,    *ivffield;
     
     if (PyList_Check(obj1) == 0) {
       printf("PlotIds must be Python lists\n"); 
@@ -27669,7 +28071,45 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
       }
     }
     
-    l_cafield = PyList_GetItem(obj1,9);
+    l_labelbar = PyList_GetItem(obj1,9);
+    if (l_labelbar == Py_None) {
+      inlist.nlabelbar = 0;
+      inlist.labelbar = (int *) NULL;
+    }
+    else {
+      if (!PyList_Check(l_labelbar)) {
+        printf("PlotId labelbar element must be None or a Python list\n");
+      }
+      else {
+        inlist.nlabelbar = PyList_Size(l_labelbar);
+        ilabelbar = (int *) malloc(inlist.nlabelbar*sizeof(int));
+        for (i = 0; i < inlist.nlabelbar; i++) {
+          *(ilabelbar+i) = (int) PyInt_AsLong(PyList_GetItem(l_labelbar,i));
+        }
+        inlist.labelbar = ilabelbar;
+      }
+    }
+    
+    l_legend = PyList_GetItem(obj1,10);
+    if (l_legend == Py_None) {
+      inlist.nlegend = 0;
+      inlist.legend = (int *) NULL;
+    }
+    else {
+      if (!PyList_Check(l_legend)) {
+        printf("PlotId legend element must be None or a Python list\n");
+      }
+      else {
+        inlist.nlegend = PyList_Size(l_legend);
+        ilegend = (int *) malloc(inlist.nlegend*sizeof(int));
+        for (i = 0; i < inlist.nlegend; i++) {
+          *(ilegend+i) = (int) PyInt_AsLong(PyList_GetItem(l_legend,i));
+        }
+        inlist.legend = ilegend;
+      }
+    }
+    
+    l_cafield = PyList_GetItem(obj1,11);
     if (l_cafield == Py_None) {
       inlist.ncafield = 0;
       inlist.cafield = (int *) NULL;
@@ -27688,7 +28128,7 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
       }
     }
     
-    l_sffield = PyList_GetItem(obj1,10);
+    l_sffield = PyList_GetItem(obj1,12);
     if (l_sffield == Py_None) {
       inlist.nsffield = 0;
       inlist.sffield = (int *) NULL;
@@ -27707,7 +28147,7 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
       }
     }
     
-    l_vffield = PyList_GetItem(obj1,11);
+    l_vffield = PyList_GetItem(obj1,13);
     if (l_vffield == Py_None) {
       inlist.nvffield = 0;
       inlist.vffield = (int *) NULL;
@@ -28082,15 +28522,16 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   result = text_wrap(arg1,arg2,arg3,arg4,arg5,(char const *)arg6,(char const *)arg7,arg8,arg9);
   {
     PyObject *return_list;
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield, *l_vffield;
     nglPlotId pid;
     int i;
     
     pid = result;
     
-    return_list = PyList_New(12);
+    return_list = PyList_New(14);
     
     if (pid.nbase == 0) {
       Py_INCREF(Py_None); 
@@ -28196,40 +28637,64 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
       PyList_SetItem(return_list,8,l_primitive);
     }
     
-    if (pid.ncafield == 0) {
+    if (pid.nlabelbar == 0) {
       Py_INCREF(Py_None); 
       PyList_SetItem(return_list,9,Py_None);
+    }
+    else {
+      l_labelbar = PyList_New(pid.nlabelbar);
+      for (i = 0; i < pid.nlabelbar; i++) {
+        PyList_SetItem(l_labelbar,i,PyInt_FromLong((long) *(pid.labelbar+i)));
+      }
+      PyList_SetItem(return_list,9,l_labelbar);
+    }
+    
+    if (pid.nlegend == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,10,Py_None);
+    }
+    else {
+      l_legend = PyList_New(pid.nlegend);
+      for (i = 0; i < pid.nlegend; i++) {
+        PyList_SetItem(l_legend,i,PyInt_FromLong((long) *(pid.legend+i)));
+      }
+      PyList_SetItem(return_list,10,l_legend);
+    }
+    
+    if (pid.ncafield == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,11,Py_None);
     }
     else {
       l_cafield = PyList_New(pid.ncafield);
       for (i = 0; i < pid.ncafield; i++) {
         PyList_SetItem(l_cafield,i,PyInt_FromLong((long) *(pid.cafield+i)));
       }
-      PyList_SetItem(return_list,9,l_cafield);
+      PyList_SetItem(return_list,11,l_cafield);
     }
     
     if (pid.nsffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,10,Py_None);
+      PyList_SetItem(return_list,12,Py_None);
     }
     else {
       l_sffield = PyList_New(pid.nsffield);
       for (i = 0; i < pid.nsffield; i++) {
         PyList_SetItem(l_sffield,i,PyInt_FromLong((long) *(pid.sffield+i)));
       }
-      PyList_SetItem(return_list,10,l_sffield);
+      PyList_SetItem(return_list,12,l_sffield);
     }
     
     if (pid.nvffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,11,Py_None);
+      PyList_SetItem(return_list,13,Py_None);
     }
     else {
       l_vffield = PyList_New(pid.nvffield);
       for (i = 0; i < pid.nvffield; i++) {
         PyList_SetItem(l_vffield,i,PyInt_FromLong((long) *(pid.vffield+i)));
       }
-      PyList_SetItem(return_list,11,l_vffield);
+      PyList_SetItem(return_list,13,l_vffield);
     }
     
     Py_INCREF(return_list); 
@@ -28288,12 +28753,14 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
     int i;
     nglPlotId inlist;
     
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
-    int      *ibase,       *icontour,  *ivector,   *istreamline,
-    *imap,        *ixy     ,  *ixydspec,  *itext,
-    *iprimitive,  *icafield,  *isffield,  *ivffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield,   *l_vffield;
+    int      *ibase,       *icontour ,  *ivector,   *istreamline,
+    *imap,        *ixy      ,  *ixydspec,  *itext,
+    *iprimitive,  *ilabelbar,  *ilegend,   *icafield,  
+    *isffield,    *ivffield;
     
     if (PyList_Check(obj1) == 0) {
       printf("PlotIds must be Python lists\n"); 
@@ -28470,7 +28937,45 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
       }
     }
     
-    l_cafield = PyList_GetItem(obj1,9);
+    l_labelbar = PyList_GetItem(obj1,9);
+    if (l_labelbar == Py_None) {
+      inlist.nlabelbar = 0;
+      inlist.labelbar = (int *) NULL;
+    }
+    else {
+      if (!PyList_Check(l_labelbar)) {
+        printf("PlotId labelbar element must be None or a Python list\n");
+      }
+      else {
+        inlist.nlabelbar = PyList_Size(l_labelbar);
+        ilabelbar = (int *) malloc(inlist.nlabelbar*sizeof(int));
+        for (i = 0; i < inlist.nlabelbar; i++) {
+          *(ilabelbar+i) = (int) PyInt_AsLong(PyList_GetItem(l_labelbar,i));
+        }
+        inlist.labelbar = ilabelbar;
+      }
+    }
+    
+    l_legend = PyList_GetItem(obj1,10);
+    if (l_legend == Py_None) {
+      inlist.nlegend = 0;
+      inlist.legend = (int *) NULL;
+    }
+    else {
+      if (!PyList_Check(l_legend)) {
+        printf("PlotId legend element must be None or a Python list\n");
+      }
+      else {
+        inlist.nlegend = PyList_Size(l_legend);
+        ilegend = (int *) malloc(inlist.nlegend*sizeof(int));
+        for (i = 0; i < inlist.nlegend; i++) {
+          *(ilegend+i) = (int) PyInt_AsLong(PyList_GetItem(l_legend,i));
+        }
+        inlist.legend = ilegend;
+      }
+    }
+    
+    l_cafield = PyList_GetItem(obj1,11);
     if (l_cafield == Py_None) {
       inlist.ncafield = 0;
       inlist.cafield = (int *) NULL;
@@ -28489,7 +28994,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
       }
     }
     
-    l_sffield = PyList_GetItem(obj1,10);
+    l_sffield = PyList_GetItem(obj1,12);
     if (l_sffield == Py_None) {
       inlist.nsffield = 0;
       inlist.sffield = (int *) NULL;
@@ -28508,7 +29013,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
       }
     }
     
-    l_vffield = PyList_GetItem(obj1,11);
+    l_vffield = PyList_GetItem(obj1,13);
     if (l_vffield == Py_None) {
       inlist.nvffield = 0;
       inlist.vffield = (int *) NULL;
@@ -29204,15 +29709,16 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
   result = add_text_wrap(arg1,arg2,arg3,arg4,arg5,(char const *)arg6,(char const *)arg7,arg8,arg9,arg10);
   {
     PyObject *return_list;
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield, *l_vffield;
     nglPlotId pid;
     int i;
     
     pid = result;
     
-    return_list = PyList_New(12);
+    return_list = PyList_New(14);
     
     if (pid.nbase == 0) {
       Py_INCREF(Py_None); 
@@ -29318,40 +29824,64 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
       PyList_SetItem(return_list,8,l_primitive);
     }
     
-    if (pid.ncafield == 0) {
+    if (pid.nlabelbar == 0) {
       Py_INCREF(Py_None); 
       PyList_SetItem(return_list,9,Py_None);
+    }
+    else {
+      l_labelbar = PyList_New(pid.nlabelbar);
+      for (i = 0; i < pid.nlabelbar; i++) {
+        PyList_SetItem(l_labelbar,i,PyInt_FromLong((long) *(pid.labelbar+i)));
+      }
+      PyList_SetItem(return_list,9,l_labelbar);
+    }
+    
+    if (pid.nlegend == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,10,Py_None);
+    }
+    else {
+      l_legend = PyList_New(pid.nlegend);
+      for (i = 0; i < pid.nlegend; i++) {
+        PyList_SetItem(l_legend,i,PyInt_FromLong((long) *(pid.legend+i)));
+      }
+      PyList_SetItem(return_list,10,l_legend);
+    }
+    
+    if (pid.ncafield == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,11,Py_None);
     }
     else {
       l_cafield = PyList_New(pid.ncafield);
       for (i = 0; i < pid.ncafield; i++) {
         PyList_SetItem(l_cafield,i,PyInt_FromLong((long) *(pid.cafield+i)));
       }
-      PyList_SetItem(return_list,9,l_cafield);
+      PyList_SetItem(return_list,11,l_cafield);
     }
     
     if (pid.nsffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,10,Py_None);
+      PyList_SetItem(return_list,12,Py_None);
     }
     else {
       l_sffield = PyList_New(pid.nsffield);
       for (i = 0; i < pid.nsffield; i++) {
         PyList_SetItem(l_sffield,i,PyInt_FromLong((long) *(pid.sffield+i)));
       }
-      PyList_SetItem(return_list,10,l_sffield);
+      PyList_SetItem(return_list,12,l_sffield);
     }
     
     if (pid.nvffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,11,Py_None);
+      PyList_SetItem(return_list,13,Py_None);
     }
     else {
       l_vffield = PyList_New(pid.nvffield);
       for (i = 0; i < pid.nvffield; i++) {
         PyList_SetItem(l_vffield,i,PyInt_FromLong((long) *(pid.vffield+i)));
       }
-      PyList_SetItem(return_list,11,l_vffield);
+      PyList_SetItem(return_list,13,l_vffield);
     }
     
     Py_INCREF(return_list); 
@@ -29390,12 +29920,14 @@ SWIGINTERN PyObject *_wrap_maximize_plots(PyObject *SWIGUNUSEDPARM(self), PyObje
     int i;
     nglPlotId inlist;
     
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
-    int      *ibase,       *icontour,  *ivector,   *istreamline,
-    *imap,        *ixy     ,  *ixydspec,  *itext,
-    *iprimitive,  *icafield,  *isffield,  *ivffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield,   *l_vffield;
+    int      *ibase,       *icontour ,  *ivector,   *istreamline,
+    *imap,        *ixy      ,  *ixydspec,  *itext,
+    *iprimitive,  *ilabelbar,  *ilegend,   *icafield,  
+    *isffield,    *ivffield;
     
     if (PyList_Check(obj1) == 0) {
       printf("PlotIds must be Python lists\n"); 
@@ -29572,7 +30104,45 @@ SWIGINTERN PyObject *_wrap_maximize_plots(PyObject *SWIGUNUSEDPARM(self), PyObje
       }
     }
     
-    l_cafield = PyList_GetItem(obj1,9);
+    l_labelbar = PyList_GetItem(obj1,9);
+    if (l_labelbar == Py_None) {
+      inlist.nlabelbar = 0;
+      inlist.labelbar = (int *) NULL;
+    }
+    else {
+      if (!PyList_Check(l_labelbar)) {
+        printf("PlotId labelbar element must be None or a Python list\n");
+      }
+      else {
+        inlist.nlabelbar = PyList_Size(l_labelbar);
+        ilabelbar = (int *) malloc(inlist.nlabelbar*sizeof(int));
+        for (i = 0; i < inlist.nlabelbar; i++) {
+          *(ilabelbar+i) = (int) PyInt_AsLong(PyList_GetItem(l_labelbar,i));
+        }
+        inlist.labelbar = ilabelbar;
+      }
+    }
+    
+    l_legend = PyList_GetItem(obj1,10);
+    if (l_legend == Py_None) {
+      inlist.nlegend = 0;
+      inlist.legend = (int *) NULL;
+    }
+    else {
+      if (!PyList_Check(l_legend)) {
+        printf("PlotId legend element must be None or a Python list\n");
+      }
+      else {
+        inlist.nlegend = PyList_Size(l_legend);
+        ilegend = (int *) malloc(inlist.nlegend*sizeof(int));
+        for (i = 0; i < inlist.nlegend; i++) {
+          *(ilegend+i) = (int) PyInt_AsLong(PyList_GetItem(l_legend,i));
+        }
+        inlist.legend = ilegend;
+      }
+    }
+    
+    l_cafield = PyList_GetItem(obj1,11);
     if (l_cafield == Py_None) {
       inlist.ncafield = 0;
       inlist.cafield = (int *) NULL;
@@ -29591,7 +30161,7 @@ SWIGINTERN PyObject *_wrap_maximize_plots(PyObject *SWIGUNUSEDPARM(self), PyObje
       }
     }
     
-    l_sffield = PyList_GetItem(obj1,10);
+    l_sffield = PyList_GetItem(obj1,12);
     if (l_sffield == Py_None) {
       inlist.nsffield = 0;
       inlist.sffield = (int *) NULL;
@@ -29610,7 +30180,7 @@ SWIGINTERN PyObject *_wrap_maximize_plots(PyObject *SWIGUNUSEDPARM(self), PyObje
       }
     }
     
-    l_vffield = PyList_GetItem(obj1,11);
+    l_vffield = PyList_GetItem(obj1,13);
     if (l_vffield == Py_None) {
       inlist.nvffield = 0;
       inlist.vffield = (int *) NULL;
@@ -29697,12 +30267,14 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
     int i;
     nglPlotId inlist;
     
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
-    int      *ibase,       *icontour,  *ivector,   *istreamline,
-    *imap,        *ixy     ,  *ixydspec,  *itext,
-    *iprimitive,  *icafield,  *isffield,  *ivffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield,   *l_vffield;
+    int      *ibase,       *icontour ,  *ivector,   *istreamline,
+    *imap,        *ixy      ,  *ixydspec,  *itext,
+    *iprimitive,  *ilabelbar,  *ilegend,   *icafield,  
+    *isffield,    *ivffield;
     
     if (PyList_Check(obj1) == 0) {
       printf("PlotIds must be Python lists\n"); 
@@ -29879,7 +30451,45 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
       }
     }
     
-    l_cafield = PyList_GetItem(obj1,9);
+    l_labelbar = PyList_GetItem(obj1,9);
+    if (l_labelbar == Py_None) {
+      inlist.nlabelbar = 0;
+      inlist.labelbar = (int *) NULL;
+    }
+    else {
+      if (!PyList_Check(l_labelbar)) {
+        printf("PlotId labelbar element must be None or a Python list\n");
+      }
+      else {
+        inlist.nlabelbar = PyList_Size(l_labelbar);
+        ilabelbar = (int *) malloc(inlist.nlabelbar*sizeof(int));
+        for (i = 0; i < inlist.nlabelbar; i++) {
+          *(ilabelbar+i) = (int) PyInt_AsLong(PyList_GetItem(l_labelbar,i));
+        }
+        inlist.labelbar = ilabelbar;
+      }
+    }
+    
+    l_legend = PyList_GetItem(obj1,10);
+    if (l_legend == Py_None) {
+      inlist.nlegend = 0;
+      inlist.legend = (int *) NULL;
+    }
+    else {
+      if (!PyList_Check(l_legend)) {
+        printf("PlotId legend element must be None or a Python list\n");
+      }
+      else {
+        inlist.nlegend = PyList_Size(l_legend);
+        ilegend = (int *) malloc(inlist.nlegend*sizeof(int));
+        for (i = 0; i < inlist.nlegend; i++) {
+          *(ilegend+i) = (int) PyInt_AsLong(PyList_GetItem(l_legend,i));
+        }
+        inlist.legend = ilegend;
+      }
+    }
+    
+    l_cafield = PyList_GetItem(obj1,11);
     if (l_cafield == Py_None) {
       inlist.ncafield = 0;
       inlist.cafield = (int *) NULL;
@@ -29898,7 +30508,7 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
       }
     }
     
-    l_sffield = PyList_GetItem(obj1,10);
+    l_sffield = PyList_GetItem(obj1,12);
     if (l_sffield == Py_None) {
       inlist.nsffield = 0;
       inlist.sffield = (int *) NULL;
@@ -29917,7 +30527,7 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
       }
     }
     
-    l_vffield = PyList_GetItem(obj1,11);
+    l_vffield = PyList_GetItem(obj1,13);
     if (l_vffield == Py_None) {
       inlist.nvffield = 0;
       inlist.vffield = (int *) NULL;
@@ -30368,12 +30978,14 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
     int i;
     nglPlotId inlist;
     
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
-    int      *ibase,       *icontour,  *ivector,   *istreamline,
-    *imap,        *ixy     ,  *ixydspec,  *itext,
-    *iprimitive,  *icafield,  *isffield,  *ivffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield,   *l_vffield;
+    int      *ibase,       *icontour ,  *ivector,   *istreamline,
+    *imap,        *ixy      ,  *ixydspec,  *itext,
+    *iprimitive,  *ilabelbar,  *ilegend,   *icafield,  
+    *isffield,    *ivffield;
     
     if (PyList_Check(obj1) == 0) {
       printf("PlotIds must be Python lists\n"); 
@@ -30550,7 +31162,45 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
       }
     }
     
-    l_cafield = PyList_GetItem(obj1,9);
+    l_labelbar = PyList_GetItem(obj1,9);
+    if (l_labelbar == Py_None) {
+      inlist.nlabelbar = 0;
+      inlist.labelbar = (int *) NULL;
+    }
+    else {
+      if (!PyList_Check(l_labelbar)) {
+        printf("PlotId labelbar element must be None or a Python list\n");
+      }
+      else {
+        inlist.nlabelbar = PyList_Size(l_labelbar);
+        ilabelbar = (int *) malloc(inlist.nlabelbar*sizeof(int));
+        for (i = 0; i < inlist.nlabelbar; i++) {
+          *(ilabelbar+i) = (int) PyInt_AsLong(PyList_GetItem(l_labelbar,i));
+        }
+        inlist.labelbar = ilabelbar;
+      }
+    }
+    
+    l_legend = PyList_GetItem(obj1,10);
+    if (l_legend == Py_None) {
+      inlist.nlegend = 0;
+      inlist.legend = (int *) NULL;
+    }
+    else {
+      if (!PyList_Check(l_legend)) {
+        printf("PlotId legend element must be None or a Python list\n");
+      }
+      else {
+        inlist.nlegend = PyList_Size(l_legend);
+        ilegend = (int *) malloc(inlist.nlegend*sizeof(int));
+        for (i = 0; i < inlist.nlegend; i++) {
+          *(ilegend+i) = (int) PyInt_AsLong(PyList_GetItem(l_legend,i));
+        }
+        inlist.legend = ilegend;
+      }
+    }
+    
+    l_cafield = PyList_GetItem(obj1,11);
     if (l_cafield == Py_None) {
       inlist.ncafield = 0;
       inlist.cafield = (int *) NULL;
@@ -30569,7 +31219,7 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
       }
     }
     
-    l_sffield = PyList_GetItem(obj1,10);
+    l_sffield = PyList_GetItem(obj1,12);
     if (l_sffield == Py_None) {
       inlist.nsffield = 0;
       inlist.sffield = (int *) NULL;
@@ -30588,7 +31238,7 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
       }
     }
     
-    l_vffield = PyList_GetItem(obj1,11);
+    l_vffield = PyList_GetItem(obj1,13);
     if (l_vffield == Py_None) {
       inlist.nvffield = 0;
       inlist.vffield = (int *) NULL;
@@ -30980,15 +31630,16 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
   result = add_poly_wrap(arg1,arg2,arg3,arg4,(char const *)arg5,(char const *)arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13,arg14);
   {
     PyObject *return_list;
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield, *l_vffield;
     nglPlotId pid;
     int i;
     
     pid = result;
     
-    return_list = PyList_New(12);
+    return_list = PyList_New(14);
     
     if (pid.nbase == 0) {
       Py_INCREF(Py_None); 
@@ -31094,40 +31745,64 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
       PyList_SetItem(return_list,8,l_primitive);
     }
     
-    if (pid.ncafield == 0) {
+    if (pid.nlabelbar == 0) {
       Py_INCREF(Py_None); 
       PyList_SetItem(return_list,9,Py_None);
+    }
+    else {
+      l_labelbar = PyList_New(pid.nlabelbar);
+      for (i = 0; i < pid.nlabelbar; i++) {
+        PyList_SetItem(l_labelbar,i,PyInt_FromLong((long) *(pid.labelbar+i)));
+      }
+      PyList_SetItem(return_list,9,l_labelbar);
+    }
+    
+    if (pid.nlegend == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,10,Py_None);
+    }
+    else {
+      l_legend = PyList_New(pid.nlegend);
+      for (i = 0; i < pid.nlegend; i++) {
+        PyList_SetItem(l_legend,i,PyInt_FromLong((long) *(pid.legend+i)));
+      }
+      PyList_SetItem(return_list,10,l_legend);
+    }
+    
+    if (pid.ncafield == 0) {
+      Py_INCREF(Py_None); 
+      PyList_SetItem(return_list,11,Py_None);
     }
     else {
       l_cafield = PyList_New(pid.ncafield);
       for (i = 0; i < pid.ncafield; i++) {
         PyList_SetItem(l_cafield,i,PyInt_FromLong((long) *(pid.cafield+i)));
       }
-      PyList_SetItem(return_list,9,l_cafield);
+      PyList_SetItem(return_list,11,l_cafield);
     }
     
     if (pid.nsffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,10,Py_None);
+      PyList_SetItem(return_list,12,Py_None);
     }
     else {
       l_sffield = PyList_New(pid.nsffield);
       for (i = 0; i < pid.nsffield; i++) {
         PyList_SetItem(l_sffield,i,PyInt_FromLong((long) *(pid.sffield+i)));
       }
-      PyList_SetItem(return_list,10,l_sffield);
+      PyList_SetItem(return_list,12,l_sffield);
     }
     
     if (pid.nvffield == 0) {
       Py_INCREF(Py_None); 
-      PyList_SetItem(return_list,11,Py_None);
+      PyList_SetItem(return_list,13,Py_None);
     }
     else {
       l_vffield = PyList_New(pid.nvffield);
       for (i = 0; i < pid.nvffield; i++) {
         PyList_SetItem(l_vffield,i,PyInt_FromLong((long) *(pid.vffield+i)));
       }
-      PyList_SetItem(return_list,11,l_vffield);
+      PyList_SetItem(return_list,13,l_vffield);
     }
     
     Py_INCREF(return_list); 
@@ -31169,12 +31844,14 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
   {
     nglPlotId *inlist;
     PyObject *ptmp;
-    PyObject *l_base,      *l_contour, *l_vector,  *l_streamline,
-    *l_map,       *l_xy     , *l_xydspec, *l_text,
-    *l_primitive, *l_cafield, *l_sffield, *l_vffield;
-    int      *ibase,       *icontour,  *ivector,   *istreamline,
-    *imap,        *ixy     ,  *ixydspec,  *itext,
-    *iprimitive,  *icafield,  *isffield,  *ivffield;
+    PyObject *l_base,      *l_contour , *l_vector,  *l_streamline,
+    *l_map,       *l_xy      , *l_xydspec, *l_text,
+    *l_primitive, *l_labelbar, *l_legend,  *l_cafield, 
+    *l_sffield,   *l_vffield;
+    int      *ibase,       *icontour ,  *ivector,   *istreamline,
+    *imap,        *ixy      ,  *ixydspec,  *itext,
+    *iprimitive,  *ilabelbar,  *ilegend,   *icafield,
+    *isffield,    *ivffield;
     int      i,j;
     
     if (!PyList_Check(obj1)) {
@@ -31359,7 +32036,45 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
         }
       }
       
-      l_cafield = PyList_GetItem(ptmp,9);
+      l_labelbar = PyList_GetItem(ptmp,9);
+      if (l_labelbar == Py_None) {
+        inlist[j].nlabelbar = 0;
+        inlist[j].labelbar = (int *) NULL;
+      }
+      else {
+        if (!PyList_Check(l_labelbar)) {
+          printf("PlotId labelbar element must be None or a Python list\n");
+        }
+        else {
+          inlist[j].nlabelbar = PyList_Size(l_labelbar);
+          ilabelbar = (int *) malloc(inlist[j].nlabelbar*sizeof(int));
+          for (i = 0; i < inlist[j].nlabelbar; i++) {
+            *(ilabelbar+i) = (int) PyInt_AsLong(PyList_GetItem(l_labelbar,i));
+          }
+          inlist[j].labelbar = ilabelbar;
+        }
+      }
+      
+      l_legend = PyList_GetItem(ptmp,10);
+      if (l_legend == Py_None) {
+        inlist[j].nlegend = 0;
+        inlist[j].legend = (int *) NULL;
+      }
+      else {
+        if (!PyList_Check(l_legend)) {
+          printf("PlotId legend element must be None or a Python list\n");
+        }
+        else {
+          inlist[j].nlegend = PyList_Size(l_legend);
+          ilegend = (int *) malloc(inlist[j].nlegend*sizeof(int));
+          for (i = 0; i < inlist[j].nlegend; i++) {
+            *(ilegend+i) = (int) PyInt_AsLong(PyList_GetItem(l_legend,i));
+          }
+          inlist[j].legend = ilegend;
+        }
+      }
+      
+      l_cafield = PyList_GetItem(ptmp,11);
       if (l_cafield == Py_None) {
         inlist[j].ncafield = 0;
         inlist[j].cafield = (int *) NULL;
@@ -31378,7 +32093,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
         }
       }
       
-      l_sffield = PyList_GetItem(ptmp,10);
+      l_sffield = PyList_GetItem(ptmp,12);
       if (l_sffield == Py_None) {
         inlist[j].nsffield = 0;
         inlist[j].sffield = (int *) NULL;
@@ -31397,7 +32112,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
         }
       }
       
-      l_vffield = PyList_GetItem(ptmp,11);
+      l_vffield = PyList_GetItem(ptmp,13);
       if (l_vffield == Py_None) {
         inlist[j].nvffield = 0;
         inlist[j].vffield = (int *) NULL;
