@@ -20,7 +20,9 @@ PyObject *fplib_regline(PyObject *self, PyObject *args)
  */
   if (!PyArg_ParseTuple(args, "OOddi:regline", &xar, &yar, 
                          &fill_value_x, &fill_value_y, &return_info)) {
-    return -1;
+    printf("regline: argument parsing failed\n");
+    Py_INCREF(Py_None);
+    return Py_None;
   }
 
 /*
@@ -40,7 +42,7 @@ PyObject *fplib_regline(PyObject *self, PyObject *args)
  * The x and y arrays coming in must have the same length.
  */
   if( dsizes_x[0] != dsizes_y[0] ) {
-    PyErr_SetString(PyExc_StandardError, "regline: The input arrays must be the same length.");
+    printf ("regline: The input arrays must be the same length\n");
     Py_INCREF(Py_None);
     return Py_None;
    }
@@ -51,7 +53,7 @@ PyObject *fplib_regline(PyObject *self, PyObject *args)
   npts  = dsizes_x[0];
   inpts = (int)npts;   /* inpts may not be big enough to hold value of npts */
   if( npts < 2 ) {
-    PyErr_SetString(PyExc_StandardError, "regline: The length of x and y must be at least 2.");
+    printf ("regline: The length of x and y must be at least 2\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
@@ -64,12 +66,12 @@ PyObject *fplib_regline(PyObject *self, PyObject *args)
   NGCALLF(dregcoef,DREGCOEF)(x, y, &inpts, &fill_value_x, &fill_value_y,
                              rcoef, &tval, &nptxy, &xave, &yave, &rstd, &ier);
   if (ier == 5) {
-    PyErr_SetString(PyExc_StandardError, "regline: The x and/or y array contains all missing values.");
+    printf ("regline: The x and/or y array contains all missing values\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
   if (ier == 6) {
-    PyErr_SetString(PyExc_StandardError, "regline: The x and/or y array contains less than 3 non-missing values.");
+    printf ("regline: The x and/or y array contains less than 3 non-missing values\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
