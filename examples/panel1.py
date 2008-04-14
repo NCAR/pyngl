@@ -22,7 +22,6 @@
 #    label bar for all plots on the page.
 #
 #  Effects illustrated:
-#    o  How to handle missing values.
 #    o  How to put multiple plots on a page.
 #    o  Drawing contours over maps.
 #    o  Some special paneling resources.
@@ -106,12 +105,6 @@ wks = Ngl.open_wks(wks_type,"panel1",rlist)  # Open an X11 workstation.
 resources          = Ngl.Resources()
 resources.nglDraw  = False
 resources.nglFrame = False
-
-#
-#  Set the scalarfield missing value if temp has one specified.
-#
-if hasattr(temp,"_FillValue"):
-  resources.sfMissingValueV = temp._FillValue
 
 #
 # Loop through the timesteps and create each plot, titling each

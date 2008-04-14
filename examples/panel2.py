@@ -71,7 +71,6 @@ res.nglFrame               = False     # Don't advance frame
 
 res.sfYArray               = lat       # Where to overlay  
 res.sfXArray               = lon       # contours on map
-res.sfMissingValueV        = 1.e+10
 
 res.cnFillOn               = True          # Turn on contour fill
 res.cnLinesOn              = False         # Turn off contour lines

@@ -30,7 +30,6 @@
 #      an X or Y axis should be displayed on a linear or log scale.
 #    o Using the resource "trYReverse" to show how to reverse 
 #      an axis.
-#    o Setting missing values using masked arrays.
 #    o Using Ngl.add_new_coord_limits to add new limits to coordinate
 #      arrays of an irregular axis.
 # 
@@ -65,13 +64,9 @@ import Nio
 import Ngl
 
 #
-#  Import masked array module. If you want to use the maskedarray
-#  module instead of the numpy.core.ma module, then comment the first
-#  line below, and uncomment the other two.
+#  Import masked array module.
 #
-import numpy.core.ma as ma
-#import maskedarray as ma
-#Ngl.use_maskedarray()
+from numpy import ma
 
 #
 #  Open a netCDF file and get some data..

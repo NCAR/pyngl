@@ -21,7 +21,6 @@
 #
 #  Effects illustrated:
 #    o  Reading data from a NetCDF file.
-#    o  Handling missing values in data conversion.
 #    o  Changing the color map.
 #    o  Contours with colored lines.
 #    o  Contours with hatch pattern fill.
@@ -93,23 +92,7 @@ resources = Ngl.Resources()
 #  attributes that are associated with the variable temp.
 #
 tempa = temp[0,0,:,:]
-
-#
-#  Convert tempa from Kelvin to Celcius while retaining the missing values.
-#  If you were to write the new temp data to a netCDF file, then you
-#  would want to change the temp units to "(C)".
-#
-if hasattr(temp,"_FillValue"):
-  tempa = ((tempa-273.15)*numpy.not_equal(tempa,temp._FillValue)) +   \
-        temp._FillValue*numpy.equal(tempa,temp._FillValue)
-else:
-  tempa = tempa - 273.15
-
-#
-#  Set the scalarfield missing value if temp has one specified.
-#
-if hasattr(temp,"_FillValue"):
-  resources.sfMissingValueV = float(temp._FillValue[0])
+tempa = tempa - 273.15
 
 #
 #  Specify the main title base on the long_name attribute of temp.
@@ -164,8 +147,6 @@ resources.tiMainFont      = "Helvetica-bold"
 resources.tiXAxisFont     = "Helvetica-bold"
 resources.tiYAxisFont     = "Helvetica-bold"
 
-if hasattr(Z,"_FillValue"):
-  resources.sfMissingValueV = float(Z._FillValue)
 if hasattr(Z,"long_name"):
   resources.tiMainString = Z.long_name
 plot = Ngl.contour(wks,Z[0,0,:,:],resources)    # Draw a contour plot.
@@ -191,15 +172,7 @@ Ngl.set_values(wks,rlist)
 if hasattr(pres,"long_name"):
   resources.tiMainString = pres.long_name
 
-#
-#  Convert the pressure to millibars while retaining the missing values.
-#
-presa = pres[0,:,:]
-if hasattr(pres,"_FillValue"):
-  presa = (0.01*presa*numpy.not_equal(presa,pres._FillValue)) +   \
-        pres._FillValue*numpy.equal(presa,pres._FillValue)
-else:
-  presa = 0.01*presa
+presa = 0.01*pres[0,:,:]
 
 plot = Ngl.contour(wks,presa,resources)  # Draw a contour plot.
 

@@ -43,6 +43,7 @@
 #  Import numpy and the Masked Array module.
 #
 import numpy
+from numpy import ma
 
 #
 # Import Ngl and Nio for file I/O and graphics.
@@ -66,7 +67,7 @@ Lon  = a.variables["Lon"][:]
 icem = a.variables["Icemask"][:,:]
 
 # Keep topo where icem.eq.1
-topo = numpy.where(icem == 1, topo,1e20)
+topo = numpy.ma.where(icem == 1, topo,1e20)
 
 # Add longitude cyclic point
 topo,Lon = Ngl.add_cyclic(topo,Lon)
@@ -74,7 +75,6 @@ topo,Lon = Ngl.add_cyclic(topo,Lon)
 sst       = b.variables["SST"][:,:]
 lat       = b.variables["lat"][:]
 lon       = b.variables["lon"][:]
-fillvalue = b.variables["SST"].missing_value
 sst,lon   = Ngl.add_cyclic(sst,lon)
 
 
@@ -225,7 +225,6 @@ mpres.vpYF        = .75
 
 mpres.sfXArray          = lon
 mpres.sfYArray          = lat
-mpres.sfMissingValueV   = fillvalue
 
 mpres.mpProjection      = "Robinson"        # choose projection
 mpres.mpFillOn          = False             # turn on map fill

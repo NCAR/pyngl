@@ -21,7 +21,6 @@
 #
 #  Effects illustrated:
 #    o  Drawing vectors over specified map regions.
-#    o  Handling missing values in the data.
 #    o  Drawing colored vectors.
 #    o  Specifying vector sizes.
 #    o  Using filled vectors.
@@ -93,10 +92,6 @@ wks = Ngl.open_wks(wks_type,"ngl06p")
 #----------- Begin first plot -----------------------------------------
 
 resources = Ngl.Resources()
-if hasattr(u,"_FillValue"):
-  resources.vfMissingUValueV = u._FillValue
-if hasattr(v,"_FillValue"):
-  resources.vfMissingVValueV = v._FillValue
 
 nlon = len(lon)
 nlat = len(lat)
@@ -146,16 +141,8 @@ map = Ngl.vector_map(wks,ua,va,resources)  # Draw a vector plot.
 
 #----------- Begin third plot -----------------------------------------
 
-temp = tfile.variables["t"]
-tempa = temp[0,:,:]
-if hasattr(temp,"_FillValue"):
-  tempa = ((tempa-273.15)*9.0/5.0+32.0) *  \
-          numpy.not_equal(tempa,temp._FillValue) + \
-          temp._FillValue*numpy.equal(tempa,temp._FillValue)
-  resources.sfMissingValueV = temp._FillValue
-else:
-  tempa = (tempa-273.15)*9.0/5.0+32.0
-
+temp       = tfile.variables["t"]
+tempa      = (temp[0,:,:]-273.15)*9.0/5.0+32.0
 temp_units = "(deg F)"
 
 resources.mpProjection = "Mercator"  # Change the map projection.

@@ -83,15 +83,11 @@ va = v[0,:,:]
 wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"ngl03p")
 
-resources = Ngl.Resources()
-if hasattr(u,"_FillValue"):
-  resources.vfMissingUValueV = u._FillValue
-if hasattr(v,"_FillValue"):
-  resources.vfMissingVValueV = v._FillValue
-
-vc = Ngl.vector(wks,ua,va,resources)
+vc = Ngl.vector(wks,ua,va)
 
 #----------- Begin second plot -----------------------------------------
+
+resources = Ngl.Resources()
 
 resources.vcMinFracLengthF = 0.33
 resources.vcRefMagnitudeF  = 20.0
@@ -128,18 +124,11 @@ temp = tfile.variables["t"]
 tempa = temp[0,:,:]
 #
 #  Convert from degrees Kelvin to degrees F.
-#  If the data has a fill value, do the conversion  at those 
-#  values not equal to the fill value and fill in with the fill 
-#  value elsewhere.
 #
-if hasattr(temp,"_FillValue"):
-  tempa = ((tempa-273.15)*9.0/5.0+32.0) *  \
-          numpy.not_equal(tempa,temp._FillValue) + \
-          temp._FillValue*numpy.equal(tempa,temp._FillValue)
-  resources.sfMissingValueV = temp._FillValue
-else:
-  tempa = (tempa-273.15)*9.0/5.0+32.0
-
+# Missing values are automatically handled here, because
+# tempa is a masked array.
+#
+tempa      = (tempa-273.15)*9.0/5.0+32.0
 temp_units = "(deg F)"
 
 cmap = numpy.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \

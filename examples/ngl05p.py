@@ -26,7 +26,6 @@
 #    o  Controlling the number and spacing of contour levels.
 #    o  Changing font height and color.
 #    o  How to explicitly define contour levels.
-#    o  How to scale data that have missing values.
 # 
 #  Output:
 #    This examples produces four visualizations:
@@ -167,9 +166,6 @@ map = Ngl.contour_map(wks,sst[0,:,:],resources) # Draw contours over a map.
 del resources
 resources = Ngl.Resources()
 
-if hasattr(pf,"_FillValue"):
-  resources.sfMissingValueV = pf._FillValue
-
 resources.tiXAxisString = "~F25~longitude"
 resources.tiYAxisString = "~F25~latitude"
 
@@ -207,15 +203,10 @@ resources.vpHeightF = 0.7
 resources.nglFrame = False # Don't advance frame.
 
 #
-#  Extract the dataset from pf and scale by 0.01, making sure to
-#  retain the original missing values.
+#  Extract the dataset from pf and scale by 0.01. 
 #
-pfa = pf[0,:,:]
-if hasattr(pf,"_FillValue"):
-  pfa = 0.01*(pfa*numpy.not_equal(pfa,pf._FillValue)) +   \
-        pf._FillValue*numpy.equal(pfa,pf._FillValue)
-else:
-  pfa = 0.01*pfa
+pfa = 0.01 * pf[0,:,:]
+
 #
 # draw contours over map.
 #
@@ -265,15 +256,9 @@ resources.cnLinesOn      = False         # Turn off contour lines.
 resources.lbOrientation  = "Horizontal"  # Label bar orientation.
 
 #
-#  Extract the dataset from pf and scale by 0.01, making sure to
-#  retain the original missing values.
+#  Extract the dataset from pf and scale by 0.01.
 #
-pfa = pf[1,:,:]
-if hasattr(pf,"_FillValue"):
-  pfa = 0.01*(pfa*numpy.not_equal(pfa,pf._FillValue)) +   \
-        pf._FillValue*numpy.equal(pfa,pf._FillValue)
-else:
-  pfa = 0.01*pfa
+pfa = 0.01*pf[1,:,:]
 
 map = Ngl.contour_map(wks,pfa,resources)
 

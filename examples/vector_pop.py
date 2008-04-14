@@ -89,8 +89,6 @@ temp = Ngl.add_cyclic(t[290:])
 # so you can see what the POP grid looks like.
 #
 cnres = Ngl.Resources()
-if hasattr(t,"_FillValue"):
-  cnres.sfMissingValueV = t._FillValue
 
 cnres.nglFrame               = False
 #
@@ -138,11 +136,6 @@ vcres = Ngl.Resources()
 #
 vcres.vfXArray = lon
 vcres.vfYArray = lat
-
-if hasattr(urot,"_FillValue"):
-  vcres.vfMissingUValueV = urot._FillValue
-if hasattr(vrot,"_FillValue"):
-  vcres.vfMissingVValueV = vrot._FillValue
 
 vcres.mpProjection           = "Orthographic"
 vcres.mpFillOn               = True
