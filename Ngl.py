@@ -48,42 +48,14 @@ except ImportError:
   sys.exit()
 
 #
-# Test to see if we can load either of two masked array modules
-# (numpy.core.ma or maskedarray). The default is to use 
-# numpy.core.ma masked arrays. This may change if Pierre GM's
-# maskedarray module replaces numpy.core.ma.
+# Test to see if we can load masked arrays.
 #
 
 try:
-  import maskedarray as pma
-  HAS_PMA = True
+  from numpy import ma
+  HAS_MA = True
 except:
-  HAS_PMA = False
-
-try:
-  import numpy.core.ma as nma
-  HAS_NMA = True
-except:
-  HAS_NMA = False
-
-USE_NMA = True     # Whether to use numpy.core.ma masked arrays
-USE_PMA = False    # Whether to use maskedarray masked arrays
-
-if USE_NMA and not HAS_NMA and HAS_PMA:
-  print "Can't import numpy.core.ma, so will use maskedarray for masked arrays."
-  USE_NMA = False
-  USE_PMA = True
-elif USE_PMA and not HAS_PMA and HAS_NMA:
-  print "Can't import maskedarray, so will use numpy.core.ma for masked arrays."
-  USE_PMA = False
-  USE_NMA = True
-elif not HAS_NMA and not HAS_PMA:
-  USE_NMA = False
-  USE_PMA = False
-
-# Only one can be True!
-if USE_NMA and USE_PMA:
-  USE_PMA = False
+  HAS_MA = False
 
 #
 # Import other stuff we need.
@@ -236,9 +208,7 @@ def arg_with_scalar(arg):
 # I can look for the "_FillValue" attribute and use this.
 #
 def get_arr_and_fill_value(arr):
-  if USE_NMA and nma.isMaskedArray(arr):
-    return arr.filled(),arr._fill_value
-  elif USE_PMA and pma.isMaskedArray(arr):
+  if HAS_MA and ma.isMaskedArray(arr):
     return arr.filled(),arr._fill_value
   else:
     return arr,None
@@ -252,8 +222,7 @@ def get_arr_and_fill_value(arr):
 # this code into the C interface.
 #
 def convert_ma_to_numpy(value):
-  if (USE_NMA and nma.isMaskedArray(value)) or \
-     (USE_PMA and pma.isMaskedArray(value)):
+  if HAS_MA and ma.isMaskedArray(value):
     return value.filled()
   else:
     return value
@@ -319,11 +288,8 @@ dimensionality as x.
 # 
 #  Return a masked array only if x was a masked array.
 # 
-  if type_x == "nma" or type_x == "pma":
-    if USE_NMA:
-      return nma.masked_array(result,fill_value=fill_value_x)
-    elif USE_PMA:
-      return pma.masked_array(result,fill_value=fill_value_x)
+  if HAS_MA and type_x == "ma":
+    return ma.masked_array(result,fill_value=fill_value_x)
   else:
     return result
 
@@ -1257,11 +1223,8 @@ longitude -- An optional one-dimensional array, representing
 #
 # Create the new data array with one extra value in the X direction.
 #
-  if USE_NMA and nma.isMaskedArray(data):
-    newdata         = nma.zeros((ny,nx1),data.dtype.char)
-    newdata.set_fill_value(data._fill_value)
-  elif USE_PMA and pma.isMaskedArray(data):
-    newdata         = pma.zeros((ny,nx1),data.dtype.char)
+  if HAS_MA and ma.isMaskedArray(data):
+    newdata         = ma.zeros((ny,nx1),data.dtype.char)
     newdata.set_fill_value(data._fill_value)
   else:
     newdata         = numpy.zeros((ny,nx1),data.dtype.char)
@@ -1323,8 +1286,7 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
 
   data_is_masked = False
   if fillvalue == None:
-    if (USE_NMA and nma.isMaskedArray(data)) or \
-       (USE_PMA and pma.isMaskedArray(data)):
+    if HAS_MA and ma.isMaskedArray(data):
       data2,fillvalue = get_arr_and_fill_value(data)
       data_is_masked = True
     else:
@@ -1401,10 +1363,8 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
 # Create new arrays.
 #
   if data_is_masked:
-    if USE_NMA:
-      new_data     = nma.zeros((new_ny,new_nx),data2.dtype.char)
-    elif USE_PMA:
-      new_data     = pma.zeros((new_ny,new_nx),data2.dtype.char)
+    if HAS_MA:
+      new_data     = ma.zeros((new_ny,new_nx),data2.dtype.char)
     new_data.set_fill_value(data._fill_value)
   else:
     new_data     = numpy.zeros((new_ny,new_nx),data2.dtype.char)
@@ -2916,10 +2876,8 @@ fill_value -- The missing value for x. Defaults to 1.e20 if not set.
   type, fv = get_ma_fill_value(x)
   if (fv != None):
     aret = fplib.linmsg(x.filled(fv), end_pts_msg, max_msg, fv)
-    if USE_NMA:
-      return nma.masked_array(aret, fill_value=fv)
-    elif USE_PMA:
-      return pma.masked_array(aret, fill_value=fv)
+    if HAS_MA:
+      return ma.masked_array(aret, fill_value=fv)
   else:
     return fplib.linmsg(promote_scalar(x),end_pts_msg,max_msg,fill_value)
 
@@ -3766,16 +3724,11 @@ return_info -- An optional logical that indicates whether additional
 #  Return the additional calculated values if desired.
 # 
   if result != None:
-    if USE_NMA:
+    if HAS_MA:
       if (return_info == True): 
-        return [nma.masked_array(result[0]),result[1]]
+        return [ma.masked_array(result[0]),result[1]]
       else:
-        return nma.masked_array(result[0],fill_value=fill_value_y)
-    elif USE_PMA:
-      if (return_info == True): 
-        return [pma.masked_array(result[0]),result[1]]
-      else:
-        return pma.masked_array(result[0],fill_value=fill_value_y)
+        return ma.masked_array(result[0],fill_value=fill_value_y)
     else:
       if (return_info == True): 
         return [result[0],result[1]]
@@ -5607,41 +5560,6 @@ wks -- The identifier returned from calling Ngl.open_wks.
   """
   NhlUpdateWorkstation(int_id(obj))
 
-def use_maskedarray():
-  """
-Sets the default masked array module to "maskedarray".
-  """
-  global USE_PMA, USE_NMA
-
-  if HAS_PMA:
-    USE_PMA = True
-    USE_NMA = False
-  elif HAS_NMA:
-    print "use_maskedarray: Unable to import maskedarray, will use numpy.core.ma"
-    USE_NMA = True
-    USE_PMA = False
-  else:
-    print "use_maskedarray: Unable to import maskedarray or numpy.core.ma"
-    USE_PMA = False
-    USE_NMA = False
-
-def use_numpy_core_ma():
-  """
-Sets the default masked array module to "numpy.core.ma".
-  """
-  global USE_PMA, USE_NMA
-  if HAS_NMA:
-    USE_NMA = True
-    USE_PMA = False
-  elif HAS_PMA:
-    print "use_numpy_core_ma: Unable to import numpy.core.ma, will use maskedarray"
-    USE_PMA = True
-    USE_NMA = False
-  else:
-    print "use_numpy_core_ma: Unable to import maskedarray or numpy.core.ma."
-    USE_NMA = False
-    USE_PMA = False
-
 def vector(wks,uarray,varray,rlistc=None):
   """
 Creates and draws vectors, and returns a PlotId of the plot created.
@@ -6444,9 +6362,7 @@ import fplib
 #     output:
 #       Two values: type, fill_value
 #         if arr is a numpy masked array:
-#            type = "nma" and fill_value is the fill value
-#         if arr is a maskedarray masked array:
-#            type = "pma" and fill_value is the fill value
+#            type = "ma" and fill_value is the fill value
 #         if arr is not a masked array
 #            type and fill_value are returned as None.
 #
@@ -6454,10 +6370,8 @@ def get_ma_fill_value(arr):
 #
 #  If arr is a numpy masked array, return its fill value.
 #
-  if USE_NMA and nma.isMaskedArray(arr):
-    return "nma",arr._fill_value
-  elif USE_PMA and pma.isMaskedArray(arr):
-    return "pma",arr._fill_value
+  if HAS_MA and ma.isMaskedArray(arr):
+    return "ma",arr._fill_value
 #
 #  Not a NumPy masked array.
 #
