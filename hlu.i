@@ -4353,10 +4353,13 @@ extern void maximize_plots(int, nglPlotId *plot, int, int, nglRes *rlist);
 
 extern void poly_wrap(int, nglPlotId *plot, void *sequence_as_void, 
                        void *sequence_as_void, const char *type_x,
-                       const char *type_y, int, int, int, void *, void*,
+                       const char *type_y, int, int, int,
+                       void *sequence_as_void, void *sequence_as_void,
                        NhlPolyType, ResInfo *rlist, nglRes *rlist);
-extern nglPlotId add_poly_wrap(int, nglPlotId *plot, void *sequence_as_void,                       void *sequence_as_void, const char *type_x,
-                       const char *type_y, int, int, int, void *, void*,
+extern nglPlotId add_poly_wrap(int, nglPlotId *plot, void *sequence_as_void,
+                       void *sequence_as_void, const char *type_x,
+                       const char *type_y, int, int, int, 
+                       void *sequence_as_void, void *sequence_as_void,
                        NhlPolyType, ResInfo *rlist, nglRes *rlist);
 void panel_wrap(int, nglPlotId *plot_seq, int, int *sequence_as_int, int, 
                  ResInfo *rlist, ResInfo *rlist, nglRes *rlist);
@@ -4648,9 +4651,16 @@ extern void NglVinth2p (double *sequence_as_double,
 
 %newobject maximize_plots(int, nglPlotId *plot, int, int, nglRes *rlist);
 
-%newobject  add_poly_wrap(int, nglPlotId *plot, void *sequence_as_void,                       void *sequence_as_void, const char *type_x,
-                       const char *type_y, int, int, int, void *, void*,
-                       NhlPolyType, ResInfo *rlist, nglRes *rlist);
+%newobject poly_wrap(int, nglPlotId *plot, void *sequence_as_void, 
+                     void *sequence_as_void, const char *type_x,
+                     const char *type_y, int, int, int, 
+                     void *sequence_as_void, void *sequence_as_void,
+                     NhlPolyType, ResInfo *rlist, nglRes *rlist);
+%newobject  add_poly_wrap(int, nglPlotId *plot, void *sequence_as_void,
+                          void *sequence_as_void, const char *type_x,
+                          const char *type_y, int, int, int,
+                          void *sequence_as_void, void *sequence_as_void,
+                          NhlPolyType, ResInfo *rlist, nglRes *rlist);
 %newobject ftcurvc(int, float *sequence_as_float, 
                          float *sequence_as_float,
                          int m, float *sequence_as_float);

@@ -303,9 +303,11 @@ os.chdir(cwd)
 if include_pynio:
   print '====> Will be installing the PyNIO files in the',pyngl_pkg_name,'package directory.'
   if sys.platform == "cygwin":
-    pynio_files = ['Nio.py', 'pynio_version.py', 'nio.dll']
+    pynio_files = ['Nio.py', 'coordsel.py', 'xarray.py', 'pynio_version.py', \
+                   'nio.dll']
   else:
-    pynio_files = ['Nio.py', 'pynio_version.py', 'nio.so']
+    pynio_files = ['Nio.py', 'coordsel.py', 'xarray.py', 'pynio_version.py', \
+                   'nio.so']
   for i in xrange(len(pynio_files)):
     pynio_files[i] = os.path.join(pynio_dir,pynio_files[i])
 else:

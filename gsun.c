@@ -1923,50 +1923,62 @@ nglPlotId xy_wrap(int wks, void *x, void *y, const char *type_x,
                         ndims_y, dsizes_y, is_missing_x, is_missing_y, 
                         FillValue_x, FillValue_y, ca_rlist);
 /*
+ * Make sure CoordArray object is valid before moving on.
+ */
+  if(cafield > 0) {
+/*
  * Assign the data object.
  */
-
-  NhlRLSetInteger(xy_rlist,"xyCoordData",cafield);
+    NhlRLSetInteger(xy_rlist,"xyCoordData",cafield);
 /*
  * Create plot.
  */
 
-  NhlCreate(&xy,"xy",NhlxyPlotClass,wks,xy_rlist);
+    NhlCreate(&xy,"xy",NhlxyPlotClass,wks,xy_rlist);
 
+/*
+ * Make sure XyPlot object is valid before moving on.
+ */
+    if(xy > 0) {
 /*
  * Get the DataSpec object id. This object is needed in order to 
  * set some of the XY resources, like line color, thickness, dash
  * patterns, etc. 
  */
-  grlist = NhlRLCreate(NhlGETRL);
-  NhlRLClear(grlist);
-  NhlRLGetIntegerArray(grlist,"xyCoordDataSpec",&xyds,&num_dspec);
-  NhlGetValues(xy,grlist);
+      grlist = NhlRLCreate(NhlGETRL);
+      NhlRLClear(grlist);
+      NhlRLGetIntegerArray(grlist,"xyCoordDataSpec",&xyds,&num_dspec);
+      NhlGetValues(xy,grlist);
 
 /*
- * Now apply the data spec resources.
+ * Now apply the data spec resources, if DataSpec is a valid object.
  */
-  NhlSetValues(*xyds,xyd_rlist);
+      if(*xyds > 0) NhlSetValues(*xyds,xyd_rlist);
 
 /*
  * Make tickmarks and axis labels the same size.
  */
-  if(special_res->nglScale) scale_plot(xy,xy_res,0);
+      if(special_res->nglScale) scale_plot(xy,xy_res,0);
 
 /*
  * Add an X and/or Y reference line if requested.
  */
-  if(special_res->nglYRefLine != -999 || special_res->nglXRefLine != -999) {
-    add_ref_line(wks,xy,special_res);
-  }
+      if(special_res->nglYRefLine != -999 || 
+         special_res->nglXRefLine != -999) {
+        add_ref_line(wks,xy,special_res);
+      }
 
 /*
  * Point tickmarks outward if requested specifically by user.
  */
-  if(special_res->nglPointTickmarksOutward) {
-    point_tickmarks_out(xy,xy_res);
+      if(special_res->nglPointTickmarksOutward) {
+        point_tickmarks_out(xy,xy_res);
+      }
+    }
   }
-
+  else {
+    xy = -1;
+  }
 /*
  * Initialize plot ids.
  */
@@ -1975,21 +1987,30 @@ nglPlotId xy_wrap(int wks, void *x, void *y, const char *type_x,
   plot.xydspec    = (int *)malloc(sizeof(int));
   plot.xy         = (int *)malloc(sizeof(int));
   plot.base       = (int *)malloc(sizeof(int));
-  *(plot.cafield) = cafield;
-  *(plot.xydspec) = *xyds;
-  *(plot.xy)      = xy;
-  *(plot.base)    = xy;
-  plot.ncafield   = 1;
-  plot.nxydspec   = 1;
-  plot.nxy        = 1;
-  plot.nbase      = plot.nxy;
+  if(cafield > 0 && xy > 0) {
+    *(plot.cafield) = cafield;
+    *(plot.xydspec) = *xyds;
+    *(plot.xy)      = xy;
+    *(plot.base)    = xy;
+    plot.ncafield   = 1;
+    plot.nxydspec   = 1;
+    plot.nxy        = 1;
+    plot.nbase      = plot.nxy;
 
 /*
  * Draw xy plot and advance frame.
  */
-
-  draw_and_frame(wks, &plot, 1, 0, special_res);
-
+    draw_and_frame(wks, &plot, 1, 0, special_res);
+  }
+  else {
+/*
+ * We have an invalid XyPlot object!
+ */
+    *(plot.cafield) = -1;
+    *(plot.xydspec) = -1;
+    *(plot.xy)      = -1;
+    *(plot.base)    = -1;
+  }
 /*
  * Return.
  */
@@ -2784,7 +2805,7 @@ nglPlotId vector_scalar_wrap(int wks, void *u, void *v, void *t,
 {
   int vffield, sffield, vector;
   nglPlotId plot;
-  int vf_rlist, sf_rlist, vc_rlist; 
+  int i, vf_rlist, sf_rlist, vc_rlist; 
 
 /*
  * Set resource ids.

@@ -244,6 +244,21 @@ def get_arr_and_fill_value(arr):
     return arr,None
 
 #
+# If a masked array, then convert to a numpy array.
+# This is similar to "get_arr_and_fill_value" except
+# it doesn't return the fill value.
+#
+# Hopefully after the release of numpy 1.0.5, we can move
+# this code into the C interface.
+#
+def convert_ma_to_numpy(value):
+  if (USE_NMA and nma.isMaskedArray(value)) or \
+     (USE_PMA and pma.isMaskedArray(value)):
+    return value.filled()
+  else:
+    return value
+
+#
 # This function checks if a fill value exists, and if it does,
 # sets the appropriate missing value PyNGL resource.
 #
@@ -258,8 +273,12 @@ def set_msg_val_res(rlist,fv,plot_type):
     return None
 
   res_to_set = type_res_pairs[plot_type]
-  if(fv != None and (not rlist.has_key(res_to_set))):
-    rlist[res_to_set] = fv
+  if fv != None:
+    if not rlist.has_key(res_to_set):
+      rlist[res_to_set] = fv
+    else:
+      if rlist[res_to_set] != fv:
+        print "Warning:",res_to_set,"is not equal to actual missing value of data,",fv
 
 def betainc(x, a, b):
   """
@@ -789,7 +808,7 @@ def set_vector_res(reslist,reslist1):
        not reslist["vcMonoFillArrowEdgeColor"])) or
       (reslist.has_key("vcMonoWindBarbColor") and
        (check_res_value(reslist["vcMonoWindBarbColor"],"False",0) or
-        not reslist["vcMonoWindBarbColor"],"False",0))):
+        not reslist["vcMonoWindBarbColor"]))):
     if ( not (reslist.has_key("pmLabelBarDisplayMode")) and 
          (not (reslist.has_key("lbLabelBarOn")) or 
                reslist.has_key("lbLabelbarOn") and 
@@ -990,32 +1009,77 @@ def set_spc_defaults(type):
   set_nglRes_i(55, 1)       # nglYRefLineColor
 
 def poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
+# Get NumPy array from masked arrays, if necessary.
+  x2,fill_value_x = get_arr_and_fill_value(x)
+  y2,fill_value_y = get_arr_and_fill_value(y)
+
   set_spc_defaults(0)
   rlist = crt_dict(rlistc)  
   rlist1 = {}
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
     if (key[0:3] == "ngl"):
       set_spc_res(key[3:],rlist[key])      
     else:
       rlist1[key] = rlist[key]
-  ply = poly_wrap(wks,pobj2lst(plot),arg_with_scalar(x),arg_with_scalar(y),
-                  "double","double",len(arg_with_scalar(x)),0,0,pvoid(), \
-                  pvoid(),ptype,rlist1,pvoid())
+
+# Four cases of x,y having fill values
+  if fill_value_x == None and fill_value_y == None:
+    fill_value_x = fill_value_y = -999.
+    ismx = ismy = 0
+  elif fill_value_x != None and fill_value_y == None:
+    fill_value_y = -999.
+    ismx = 1
+    ismy = 0
+  elif fill_value_x == None and fill_value_y != None:
+    fill_value_x = -999.
+    ismx = 0
+    ismy = 1
+  elif fill_value_x != None and fill_value_y != None:
+    ismx = 1
+    ismy = 1
+
+  ply = poly_wrap(wks,pobj2lst(plot),arg_with_scalar(x2),arg_with_scalar(y2),
+                  "double","double",len(arg_with_scalar(x2)),ismx,ismy, \
+                  fill_value_x,fill_value_y,ptype,rlist1,pvoid())
   del rlist
   del rlist1
   return None
 
 def add_poly(wks,plot,x,y,ptype,rlistc=None):
+# Get NumPy array from masked arrays, if necessary.
+  x2,fill_value_x = get_arr_and_fill_value(x)
+  y2,fill_value_y = get_arr_and_fill_value(y)
+
   rlist = crt_dict(rlistc)  
   rlist1 = {}
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
     if (key[0:3] == "ngl"):
       set_spc_res(key[3:],rlist[key])      
     else:
       rlist1[key] = rlist[key]
-  ply = add_poly_wrap(wks,pobj2lst(plot), arg_with_scalar(x), \
-            arg_with_scalar(y), "double","double",            \
-            len(arg_with_scalar(x)),0,0,pvoid(), pvoid(),ptype,rlist1,pvoid())
+
+# Four cases of x,y having fill values
+  if fill_value_x == None and fill_value_y == None:
+    fill_value_x = fill_value_y = -999.
+    ismx = ismy = 0
+  elif fill_value_x != None and fill_value_y == None:
+    fill_value_y = -999.
+    ismx = 1
+    ismy = 0
+  elif fill_value_x == None and fill_value_y != None:
+    fill_value_x = -999.
+    ismx = 0
+    ismy = 1
+  elif fill_value_x != None and fill_value_y != None:
+    ismx = 1
+    ismy = 1
+
+  ply = add_poly_wrap(wks,pobj2lst(plot), arg_with_scalar(x2),  \
+            arg_with_scalar(y2), "double","double", len(arg_with_scalar(x2)),
+            ismx,ismy,fill_value_x,fill_value_y,ptype,rlist1,pvoid())
+
   del rlist
   del rlist1
   return(lst2pobj(ply))
@@ -1464,6 +1528,7 @@ res -- An optional instance of the Resources class having TextItem
   am_rlist  = {}
   tx_rlist  = {}
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "tx"):
       tx_rlist[key] = rlist[key]
     if (key[0:2] == "am"):
@@ -1683,6 +1748,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "sf"):
       rlist1[key] = rlist[key]
     elif(key[0:3] == "ngl"):
@@ -1736,7 +1802,6 @@ data -- The data to contour.
 res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
-
 #
 #  Make sure the array is 2D.
 #
@@ -1746,7 +1811,7 @@ res -- An optional instance of the Resources class having PyNGL
 
 # Get NumPy array from masked array, if necessary.
   arr2,fill_value = get_arr_and_fill_value(array)
-  
+    
   set_spc_defaults(1)
   rlist = crt_dict(rlistc)  
  
@@ -1756,7 +1821,10 @@ res -- An optional instance of the Resources class having PyNGL
   rlist1 = {}
   rlist2 = {}
   rlist3 = {}
+
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
+# Now sort resources into correct individual resource lists.
     if (key[0:2] == "sf"):
       rlist1[key] = rlist[key]
     elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
@@ -2756,6 +2824,7 @@ res -- An optional instance of the Resources class having Labelbar
   rlist = crt_dict(rlistc)
   rlist1 = {}
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
     if(key[0:3] == "ngl"):
       set_spc_res(key[3:],rlist[key])      
     else:
@@ -2793,6 +2862,7 @@ res -- An optional instance of the Resources class having Labelbar
   rlist = crt_dict(rlistc)
   rlist1 = {}
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
     if(key[0:3] == "ngl"):
       set_spc_res(key[3:],rlist[key])      
     else:
@@ -2849,7 +2919,7 @@ fill_value -- The missing value for x. Defaults to 1.e20 if not set.
     if USE_NMA:
       return nma.masked_array(aret, fill_value=fv)
     elif USE_PMA:
-      return pnma.masked_array(aret, fill_value=fv)
+      return pma.masked_array(aret, fill_value=fv)
   else:
     return fplib.linmsg(promote_scalar(x),end_pts_msg,max_msg,fill_value)
 
@@ -2870,6 +2940,7 @@ res -- An optional instance of the Resources class having Map
   rlist = crt_dict(rlistc)  
   rlist1 = {}
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
     if (key[0:3] == "ngl"):
       set_spc_res(key[3:],rlist[key])      
     else:
@@ -2901,6 +2972,7 @@ res -- An optional optional instance of the Resources class having
   rlist = crt_dict(rlistc)  
   rlist1 = {}
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
     if (key[0:3] == "ngl"):
       set_spc_res(key[3:],rlist[key])      
     else:
@@ -3250,6 +3322,7 @@ res -- An optional instance of the Resources class having Workstation
   rlist2 = {}
 
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
     if (key[0:3] == "app"):
       rlist2[key] = rlist[key]
     elif(key[0:3] == "ngl"):
@@ -3374,6 +3447,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist1 = {}
   rlist2 = {}
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
     if (key[0:3] == "ngl"):
       if (key[0:21] == "nglPanelFigureStrings" and len(key) == 21):
         set_spc_res(key[3:],rlist[key])
@@ -3456,6 +3530,7 @@ x, y -- One-dimensional NumPy arrays or Python lists containing the
 res -- An optional instance of the Resources class having
        GraphicStyle resources as attributes.
   """
+
   return(poly(wks,plot,x,y,NhlPOLYGON,0,rlistc))
 
 def polygon_ndc(wks,x,y,rlistc=None):
@@ -5210,6 +5285,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:3] == "ngl"):
@@ -5275,6 +5351,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
@@ -5339,6 +5416,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist3 = {}
   rlist4 = {}
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:2] == "sf"):
@@ -5415,6 +5493,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist3 = {}
   rlist4 = {}
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:2] == "sf"):
@@ -5476,6 +5555,7 @@ res -- An optional variable containing a list of TextItem resources,
   rlist = crt_dict(rlistc)
   rlist1 = {}
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
     if(key[0:3] == "ngl"):
       set_spc_res(key[3:],rlist[key])      
     else:
@@ -5506,6 +5586,7 @@ res -- An (optional) instance of the Resources class having TextItem
   rlist = crt_dict(rlistc)
   rlist1 = {}
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
     if(key[0:3] == "ngl"):
       set_spc_res(key[3:],rlist[key])      
     else:
@@ -5574,6 +5655,12 @@ u,v -- The vector data.
 res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
+#
+#  Make sure the arrays are 2D.
+#
+  if len(uarray.shape) != 2 or len(varray.shape) != 2:
+    print "vector - arrays must be 2D"
+    return None
 
 # Get NumPy array from masked arrays, if necessary.
   uar2,uar_fill_value = get_arr_and_fill_value(uarray)
@@ -5590,6 +5677,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:3] == "ngl"):
@@ -5640,6 +5728,12 @@ u,v -- The vector data.
 res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
+#
+#  Make sure the arrays are 2D.
+#
+  if len(uarray.shape) != 2 or len(varray.shape) != 2:
+    print "vector_map - arrays must be 2D"
+    return None
 
 # Get NumPy array from masked arrays, if necessary.
   uar2,uar_fill_value = get_arr_and_fill_value(uarray)
@@ -5655,6 +5749,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
@@ -5704,6 +5799,13 @@ data - The scalar data.
 res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
+#
+#  Make sure the arrays are 2D.
+#
+  if len(uarray.shape) != 2 or len(varray.shape) != 2 or \
+     len(tarray.shape) != 2:
+    print "vector_scalar - arrays must be 2D"
+    return None
 
 # Get NumPy array from masked arrays, if necessary.
   uar2,uar_fill_value = get_arr_and_fill_value(uarray)
@@ -5721,6 +5823,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist3 = {}
   rlist4 = {}
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:2] == "sf"):
@@ -5750,6 +5853,7 @@ res -- An optional instance of the Resources class having PyNGL
 #
 #  Call the wrapped function and return.
 #
+    
   ivct = vector_scalar_wrap(wks,uar2,var2,tar2,  \
                      "double","double","double",         \
                      uar2.shape[0],uar2.shape[1],0,               \
@@ -5779,6 +5883,13 @@ data - The scalar data.
 res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
+#
+#  Make sure the arrays are 2D.
+#
+  if len(uarray.shape) != 2 or len(varray.shape) != 2 or \
+     len(tarray.shape) != 2:
+    print "vector_scalar_map - arrays must be 2D"
+    return None
 
 # Get NumPy array from masked arrays, if necessary.
   uar2,uar_fill_value = get_arr_and_fill_value(uarray)
@@ -5797,6 +5908,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist3 = {}
   rlist4 = {}
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:2] == "sf"):
@@ -6183,11 +6295,8 @@ res -- An (optional) instance of the Resources class having PyNGL
   set_msg_val_res(rlist,xar_fill_value,"xy_x")
   set_msg_val_res(rlist,yar_fill_value,"xy_y")
 
-#  if(xar_fill_value != None and (not (rlist.has_key("caXMissingV")))):
-#    rlist["caXMissingV"] = xar_fill_value
-#  if(yar_fill_value != None and (not (rlist.has_key("caYMissingV")))):
-#    rlist["caYMissingV"] = yar_fill_value
   for key in rlist.keys():
+    rlist[key] = convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "ca"):
       ca_rlist[key] = rlist[key]
     elif (key[0:2] == "xy"):
@@ -6217,6 +6326,8 @@ res -- An (optional) instance of the Resources class having PyNGL
   del ca_rlist
   del xy_rlist
   del xyd_rlist
+
+# ret.xy and ret.base will be None if XY plot is invalid.
   return(lst2pobj(ixy))
 
 def y(wks,yar,rlistc=None):

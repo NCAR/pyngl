@@ -30240,8 +30240,6 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   int res6 ;
   char *buf6 = 0 ;
   int alloc6 = 0 ;
-  int res10 ;
-  int res11 ;
   int val12 ;
   int ecode12 = 0 ;
   PyObject * obj0 = 0 ;
@@ -30579,13 +30577,17 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
   {
     arg9 = (int) PyInt_AsLong (obj8);
   }
-  res10 = SWIG_ConvertPtr(obj9,SWIG_as_voidptrptr(&arg10), 0, 0);
-  if (!SWIG_IsOK(res10)) {
-    SWIG_exception_fail(SWIG_ArgError(res10), "in method '" "poly_wrap" "', argument " "10"" of type '" "void *""'"); 
+  {
+    PyArrayObject *arr;
+    arr =
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj9,PyArray_DOUBLE,0,0);
+    arg10 = (void *) arr->data;
   }
-  res11 = SWIG_ConvertPtr(obj10,SWIG_as_voidptrptr(&arg11), 0, 0);
-  if (!SWIG_IsOK(res11)) {
-    SWIG_exception_fail(SWIG_ArgError(res11), "in method '" "poly_wrap" "', argument " "11"" of type '" "void *""'"); 
+  {
+    PyArrayObject *arr;
+    arr =
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj10,PyArray_DOUBLE,0,0);
+    arg11 = (void *) arr->data;
   }
   ecode12 = SWIG_AsVal_int(obj11, &val12);
   if (!SWIG_IsOK(ecode12)) {
@@ -30951,8 +30953,6 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
   int res6 ;
   char *buf6 = 0 ;
   int alloc6 = 0 ;
-  int res10 ;
-  int res11 ;
   int val12 ;
   int ecode12 = 0 ;
   PyObject * obj0 = 0 ;
@@ -31290,13 +31290,17 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
   {
     arg9 = (int) PyInt_AsLong (obj8);
   }
-  res10 = SWIG_ConvertPtr(obj9,SWIG_as_voidptrptr(&arg10), 0, 0);
-  if (!SWIG_IsOK(res10)) {
-    SWIG_exception_fail(SWIG_ArgError(res10), "in method '" "add_poly_wrap" "', argument " "10"" of type '" "void *""'"); 
+  {
+    PyArrayObject *arr;
+    arr =
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj9,PyArray_DOUBLE,0,0);
+    arg10 = (void *) arr->data;
   }
-  res11 = SWIG_ConvertPtr(obj10,SWIG_as_voidptrptr(&arg11), 0, 0);
-  if (!SWIG_IsOK(res11)) {
-    SWIG_exception_fail(SWIG_ArgError(res11), "in method '" "add_poly_wrap" "', argument " "11"" of type '" "void *""'"); 
+  {
+    PyArrayObject *arr;
+    arr =
+    (PyArrayObject *) PyArray_ContiguousFromAny(obj10,PyArray_DOUBLE,0,0);
+    arg11 = (void *) arr->data;
   }
   ecode12 = SWIG_AsVal_int(obj11, &val12);
   if (!SWIG_IsOK(ecode12)) {
