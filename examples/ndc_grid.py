@@ -206,7 +206,7 @@ def draw_text():
   mkres.gsMarkerIndex = 5      # "X"
   mkres.gsMarkerSizeF = 0.01
   mkres.gsMarkerThicknessF = 2.5
-  mkres.gsMarkerColor = 25
+  mkres.gsMarkerColor = "red"
 
   txres.txJust        = "BottomCenter"
   Ngl.text_ndc(wks,"_"+txres.txJust+"_",0.6,0.3,txres)
