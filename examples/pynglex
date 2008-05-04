@@ -115,8 +115,7 @@ except:
 #  This allows pynglex to point to a directory containing test 
 #  examples.
 #
-root_dir = Ngl.pynglpath_ncarg()
-os.environ["NCARG_NCARG"] = root_dir
+os.environ["NCARG_NCARG"] = Ngl.pynglpath("ncarg")
 example_dir = Ngl.pynglpath("examples")
 env_set_test = os.environ.get("PYNGL_EXAMPLES")
 if (env_set_test != None):
