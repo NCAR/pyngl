@@ -5,6 +5,35 @@ NCL Graphics Libraries," and it is pronounced "pingle."
 
       http://www.pyngl.ucar.edu/
 """
+
+__all__ = ['add_annotation', 'add_cyclic', 'add_new_coord_limits', \
+           'add_polygon', 'add_polyline', 'add_polymarker', 'add_text', \
+           'asciiread', 'betainc', 'change_workstation', 'chiinv', \
+           'clear_workstation', 'contour', 'contour_map', 'datatondc', \
+           'define_colormap', 'delete_wks', 'destroy', 'draw', \
+           'draw_colormap', 'draw_ndc_grid', 'end', 'frame', \
+           'free_color', 'fspan', 'ftcurv', 'ftcurvp', 'ftcurvpi', \
+           'gaus', 'gc_convert', 'gc_dist', 'gc_interp', 'gc_qarea', \
+           'gc_tarea', 'generate_2d_array', 'get_MDfloat_array', \
+           'get_MDinteger_array', 'get_float', 'get_float_array', \
+           'get_integer', 'get_integer_array', \
+           'get_named_color_index', 'get_string', 'get_string_array', \
+           'get_workspace_id', 'hlsrgb', 'hsvrgb', 'ind', \
+           'labelbar_ndc', 'legend_ndc', 'linmsg', 'map', \
+           'maximize_plot', 'merge_colormaps', 'natgrid', 'ndctodata', \
+           'new_color', 'new_dash_pattern', 'new_marker', 'nngetp', \
+           'nnsetp', 'normalize_angle', 'open_wks', 'overlay', \
+           'panel', 'polygon', 'polygon_ndc', 'polyline', \
+           'polyline_ndc', 'polymarker', 'polymarker_ndc', \
+           'pynglpath', 'regline', 'remove_annotation', \
+           'remove_overlay', 'retrieve_colormap', 'rgbhls', 'rgbhsv', \
+           'rgbyiq', 'set_color', 'set_values', 'skewt_bkg', \
+           'skewt_plt', 'streamline', 'streamline_map', \
+           'streamline_scalar', 'streamline_scalar_map', 'text', \
+           'text_ndc', 'update_workstation', 'vector', 'vector_map', \
+           'vector_scalar', 'vector_scalar_map', 'vinth2p', 'wmbarb', \
+           'wmbarbmap', 'wmgetp', 'wmsetp', 'wmstnm', 'xy', 'y', 'yiqrgb']
+
 import sys
 #
 # The "netcdftime" module was contributed by Jeffrey Whitaker of NOAA.
@@ -58,6 +87,16 @@ except:
   HAS_MA = False
 
 #
+# I copied this from Nio.py
+#
+def _get_integer_version(strversion):
+    d = strversion.split('.')
+    v = int(d[0]) * 10000 + int(d[1]) * 100 + int(d[2])
+    return v
+
+IS_NEW_MA = _get_integer_version(numpy.__version__) > 10004
+
+#
 # Import other stuff we need.
 #
 from hlu import *
@@ -90,7 +129,7 @@ class Resources:
 class PlotIds:
   pass
 
-def int_id(plot_id):
+def _int_id(plot_id):
 #
 #  Convert PlotIds objects to integer plot ids.
 #
@@ -110,13 +149,13 @@ def int_id(plot_id):
     print "plot id is not valid"
     return None
 
-def is_list_or_tuple(arg):
+def _is_list_or_tuple(arg):
   if ( ((type(arg) == types.ListType) or (type(arg) == types.TupleType)) ):
     return True
   else:
     return False
   
-def is_numpy_array(arg):
+def _is_numpy_array(arg):
   if isinstance(arg,numpy.ndarray):
     return True
   else:
@@ -125,7 +164,7 @@ def is_numpy_array(arg):
 #
 # This function returns True if it encounters a Python scalar.
 #
-def is_python_scalar(arg):
+def _is_python_scalar(arg):
   import types
   if (type(arg)==types.IntType or type(arg)==types.LongType or \
       type(arg)==types.FloatType):
@@ -136,7 +175,7 @@ def is_python_scalar(arg):
 # 
 # This function returns True if we have a numpy scalar or array.
 #
-def is_numpy(arg):
+def _is_numpy(arg):
   try:
     import numpy
     if isinstance(arg,numpy.ndarray) or isinstance(arg,numpy.generic):
@@ -152,7 +191,7 @@ def is_numpy(arg):
 # or a numpy scalar, which is a new thing that didn't exist in
 # numeric.
 #
-def is_numpy_scalar(arg):
+def _is_numpy_scalar(arg):
   try:
     import numpy
     if (isinstance(arg,numpy.ndarray)) and (len(arg.shape) == 0):
@@ -171,22 +210,10 @@ def is_numpy_scalar(arg):
 # This function returns True if it's a Python scalar or a 
 # numpy scalar.
 #
-def is_scalar(arg):
-  return is_numpy_scalar(arg) or is_python_scalar(arg)
+def _is_scalar(arg):
+  return _is_numpy_scalar(arg) or _is_python_scalar(arg)
 
-def is_list(arg):
-  if (type(arg) == types.ListType):
-    return True
-  else:
-    return False
-
-def is_tuple(arg):
-  if (type(arg) == types.TupleType):
-    return True
-  else:
-    return False
-
-def arg_with_scalar(arg):
+def _arg_with_scalar(arg):
 #
 #  This function is to accommodate scalar arguments for 
 #  some functions that take lists, tuples, or NumPy arrays.
@@ -194,7 +221,7 @@ def arg_with_scalar(arg):
 #  if so, it is converted to a single-element list.  Otherwise
 #  the original argument is returned.
 #
-    if (is_scalar(arg)):
+    if (_is_scalar(arg)):
       return [arg]
     else:
       return arg
@@ -207,21 +234,24 @@ def arg_with_scalar(arg):
 # Later, I'd like to add recognition of NioVariables, and then
 # I can look for the "_FillValue" attribute and use this.
 #
-def get_arr_and_fill_value(arr):
+def _get_arr_and_fill_value(arr):
   if HAS_MA and ma.isMaskedArray(arr):
-    return arr.filled(),arr._fill_value
+    if IS_NEW_MA:
+      return arr.filled(),arr.fill_value
+    else:
+      return arr.filled(),arr.fill_value()
   else:
     return arr,None
 
 #
 # If a masked array, then convert to a numpy array.
-# This is similar to "get_arr_and_fill_value" except
+# This is similar to "_get_arr_and_fill_value" except
 # it doesn't return the fill value.
 #
 # Hopefully after the release of numpy 1.0.5, we can move
 # this code into the C interface.
 #
-def convert_ma_to_numpy(value):
+def _convert_ma_to_numpy(value):
   if HAS_MA and ma.isMaskedArray(value):
     return value.filled()
   else:
@@ -231,7 +261,7 @@ def convert_ma_to_numpy(value):
 # This function checks if a fill value exists, and if it does,
 # sets the appropriate missing value PyNGL resource.
 #
-def set_msg_val_res(rlist,fv,plot_type):
+def _set_msg_val_res(rlist,fv,plot_type):
   type_res_pairs = { "xy_x"     : "caXMissingV", 
                      "xy_y"     : "caYMissingV", 
                      "scalar"   : "sfMissingValueV", 
@@ -266,19 +296,19 @@ dimensionality as x.
   """
 
 # Deal with masked array.
-  type_x, fill_value_x = get_ma_fill_value(x)
+  type_x, fill_value_x = _get_ma_fill_value(x)
 
   if (fill_value_x != None):
     x2 = x.filled(fill_value_x)
   else:
     fill_value_x = 1.e20
-    x2 = promote_scalar(x)
+    x2 = _promote_scalar(x)
   
 #
 # Promote a and b to numpy arrays that have at least a dimension of 1.
 #
-  a2 = promote_scalar(a)
-  b2 = promote_scalar(b)
+  a2 = _promote_scalar(a)
+  b2 = _promote_scalar(b)
 
   result = fplib.betainc(x2, a2, b2, fill_value_x)
 
@@ -294,7 +324,7 @@ dimensionality as x.
     return result
 
 
-def ck_for_rangs(dir):
+def _ck_for_rangs(dir):
 #
 #  This function checks that the appropriate data files for
 #  the high-res database exist.
@@ -318,7 +348,7 @@ def ck_for_rangs(dir):
       print '   is not in that directory.\n'
       return None
 
-def ismissing(arg,mval):
+def _ismissing(arg,mval):
 #
 #  Returns an array of the same shape as "arg" that
 #  has True values in all places where "arg" has 
@@ -329,17 +359,17 @@ def ismissing(arg,mval):
     elif (isinstance(arg,numpy.ndarray)):
       pass
     else:
-      print "ismissing: first argument must be a numpy array or scalar."
+      print "_ismissing: first argument must be a numpy array or scalar."
       return None
     return(numpy.equal(arg,mval))
 
-def get_values(obj,rlistc):
+def _get_values(obj,rlistc):
   rlist = crt_dict(rlistc)
-  values = NhlGetValues(int_id(obj),rlist)
+  values = NhlGetValues(_int_id(obj),rlist)
   del rlist
   return (values)
 
-def pynglpath_ncarg():
+def _pynglpath_ncarg():
 #
 #  Find the root directory that contains the supplemental PyNGL files,
 #  like fontcaps, colormaps, and map databases. The default is to look
@@ -361,7 +391,7 @@ def pynglpath_ncarg():
 
   return pyngl_ncarg
 
-def lst2pobj(lst):
+def _lst2pobj(lst):
 #
 #  Converts a list of object ids returned from a plotting function
 #  to a PlotIds object with attrubutes.
@@ -471,7 +501,7 @@ def lst2pobj(lst):
 
   return rval
 
-def pobj2lst(pobj):
+def _pobj2lst(pobj):
 #  
 #  A Python list of PlotIds is in the order:
 #
@@ -499,7 +529,7 @@ def pobj2lst(pobj):
            pobj.xy,pobj.xydspec,pobj.text,pobj.primitive,pobj.labelbar, \
            pobj.legend,pobj.cafield,pobj.sffield,pobj.vffield]
 
-def pseq2lst(pseq):
+def _pseq2lst(pseq):
 #
 #  Takes a list of Python plot objects and converts it to
 #  a list of lists that will be converted to a list of PlotId
@@ -507,10 +537,10 @@ def pseq2lst(pseq):
 #
   lst = []
   for i in range(len(pseq)):
-    lst.append(pobj2lst(pseq[i]))
+    lst.append(_pobj2lst(pseq[i]))
   return lst
 
-def set_spc_res(resource_name,value):
+def _set_spc_res(resource_name,value):
 #
 #  Change True and False values to 1 and 0 and leave all other
 #  values unchaged.
@@ -543,7 +573,7 @@ def set_spc_res(resource_name,value):
       elif(string.lower(lval) == "auto"):
         set_nglRes_i(5, 3) 
       else:
-        print "set_spc_res: Unknown value for " + resource_name
+        print "_set_spc_res: Unknown value for " + resource_name
     else:
       set_nglRes_i(5, lval) 
   elif (resource_name == "PaperWidth"):
@@ -637,7 +667,7 @@ def set_spc_res(resource_name,value):
       elif(string.lower(lval) == "logaxis"):
         set_nglRes_i(47, 2) 
       else:
-        print "set_spc_res: Unknown value for " + resource_name
+        print "_set_spc_res: Unknown value for " + resource_name
     else:
       set_nglRes_i(47, lval) 
   elif (resource_name == "YAxisType"):
@@ -649,7 +679,7 @@ def set_spc_res(resource_name,value):
       elif(string.lower(lval) == "logaxis"):
         set_nglRes_i(48, 2) 
       else:
-        print "set_spc_res: Unknown value for " + resource_name
+        print "_set_spc_res: Unknown value for " + resource_name
     else:
       set_nglRes_i(48, lval) 
   elif (resource_name == "PointTickmarksOutward"):
@@ -668,9 +698,9 @@ def set_spc_res(resource_name,value):
     set_nglRes_i(55, lval) 
 
   else:
-    print "set_spc_res: Unknown special resource ngl" + resource_name
+    print "_set_spc_res: Unknown special resource ngl" + resource_name
 
-def check_res_value(resvalue,strvalue,intvalue):
+def _check_res_value(resvalue,strvalue,intvalue):
 #
 #  Function for checking a resource value that can either be of
 #  type string or integer.
@@ -682,7 +712,7 @@ def check_res_value(resvalue,strvalue,intvalue):
   else:
     return(False)
 
-def set_tickmark_res(reslist,reslist1):
+def _set_tickmark_res(reslist,reslist1):
 #
 # Set tmEqualizeXYSizes to True so that tickmark lengths and font
 # heights are the same size on both axes.
@@ -691,7 +721,7 @@ def set_tickmark_res(reslist,reslist1):
      (not (reslist.has_key("nglScale")))):
     reslist1["tmEqualizeXYSizes"] = True
 
-def set_contour_res(reslist,reslist1):
+def _set_contour_res(reslist,reslist1):
 #
 #  Set some contour resources of which we either don't like the NCL
 #  defaults, or we want to set something on behalf of the user.
@@ -746,9 +776,9 @@ def set_contour_res(reslist,reslist1):
 #
 # Set some tickmark resources.
 #
-  set_tickmark_res(reslist,reslist1)
+  _set_tickmark_res(reslist,reslist1)
 
-def set_vector_res(reslist,reslist1):
+def _set_vector_res(reslist,reslist1):
 #
 #  Set some vector resources of which we either don't like the NCL
 #  defaults, or we want to set something on behalf of the user.
@@ -764,16 +794,16 @@ def set_vector_res(reslist,reslist1):
 # Put the responsibility on the user
 #
   if( (reslist.has_key("vcMonoLineArrowColor") and
-       (check_res_value(reslist["vcMonoLineArrowColor"],"False",0) or
+       (_check_res_value(reslist["vcMonoLineArrowColor"],"False",0) or
        not reslist["vcMonoLineArrowColor"])) or
       (reslist.has_key("vcMonoFillArrowFillColor") and
-       (check_res_value(reslist["vcMonoFillArrowFillColor"],"False",0) or
+       (_check_res_value(reslist["vcMonoFillArrowFillColor"],"False",0) or
        not reslist["vcMonoFillArrowFillColor"])) or
       (reslist.has_key("vcMonoFillArrowEdgeColor") and
-       (check_res_value(reslist["vcMonoFillArrowEdgeColor"],"False",0) or
+       (_check_res_value(reslist["vcMonoFillArrowEdgeColor"],"False",0) or
        not reslist["vcMonoFillArrowEdgeColor"])) or
       (reslist.has_key("vcMonoWindBarbColor") and
-       (check_res_value(reslist["vcMonoWindBarbColor"],"False",0) or
+       (_check_res_value(reslist["vcMonoWindBarbColor"],"False",0) or
         not reslist["vcMonoWindBarbColor"]))):
     if ( not (reslist.has_key("pmLabelBarDisplayMode")) and 
          (not (reslist.has_key("lbLabelBarOn")) or 
@@ -796,9 +826,9 @@ def set_vector_res(reslist,reslist1):
 #
 # Set some tickmark resources.
 #
-  set_tickmark_res(reslist,reslist1)
+  _set_tickmark_res(reslist,reslist1)
 
-def set_streamline_res(reslist,reslist1):
+def _set_streamline_res(reslist,reslist1):
 #
 #  Set some streamline resources of which we either don't like the NCL
 #  defaults, or we want to set something on behalf of the user.
@@ -822,9 +852,9 @@ def set_streamline_res(reslist,reslist1):
 #
 # Set some tickmark resources.
 #
-  set_tickmark_res(reslist,reslist1)
+  _set_tickmark_res(reslist,reslist1)
 
-def set_map_res(reslist,reslist1):
+def _set_map_res(reslist,reslist1):
 #
 # Turn on map tickmarks.
 #
@@ -839,7 +869,7 @@ def set_map_res(reslist,reslist1):
     if (not (reslist.has_key("mpMonoFillScale"))):
       reslist1["mpMonoFillScale"] = False
   
-def set_labelbar_res(reslist,reslist1,part_of_plot):
+def _set_labelbar_res(reslist,reslist1,part_of_plot):
 #
 # Set some labelbar resources of which we don't like the NCL
 # defaults.
@@ -857,12 +887,12 @@ def set_labelbar_res(reslist,reslist1,part_of_plot):
   if(part_of_plot):
       if(reslist.has_key("lbOrientation")):
         if ( not (reslist.has_key("pmLabelBarSide"))):
-          if(check_res_value(reslist["lbOrientation"],"Horizontal",0)):
+          if(_check_res_value(reslist["lbOrientation"],"Horizontal",0)):
             reslist1["pmLabelBarSide"] = "Bottom"
-          if(check_res_value(reslist["lbOrientation"],"Vertical",1)):
+          if(_check_res_value(reslist["lbOrientation"],"Vertical",1)):
             reslist1["pmLabelBarSide"] = "Right"
 
-def set_legend_res(reslist,reslist1):
+def _set_legend_res(reslist,reslist1):
 #
 # Set some legend resources of which we don't like the NCL
 # defaults.  These are mostly the Mono resources which we default to
@@ -897,7 +927,7 @@ def set_legend_res(reslist,reslist1):
     if (not (reslist.has_key("lgMonoMarkerSize"))):
       reslist1["lgMonoMarkerSize"] = False
 
-def crt_dict(resource_i):
+def _crt_dict(resource_i):
   dic = {}
   if (resource_i == None):
     return(dic)
@@ -906,7 +936,7 @@ def crt_dict(resource_i):
       dic[t] = getattr(resource_i,t)
   return(dic)
 
-def set_spc_defaults(type):
+def _set_spc_defaults(type):
 #
 #  Type = 1 sets the ngl special resources for plotting functions.
 #  Type = 0 sets the ngl special resources for text/poly resources
@@ -974,18 +1004,18 @@ def set_spc_defaults(type):
   set_nglRes_i(54, 1)       # nglXRefLineColor
   set_nglRes_i(55, 1)       # nglYRefLineColor
 
-def poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
+def _poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
 # Get NumPy array from masked arrays, if necessary.
-  x2,fill_value_x = get_arr_and_fill_value(x)
-  y2,fill_value_y = get_arr_and_fill_value(y)
+  x2,fill_value_x = _get_arr_and_fill_value(x)
+  y2,fill_value_y = _get_arr_and_fill_value(y)
 
-  set_spc_defaults(0)
-  rlist = crt_dict(rlistc)  
+  _set_spc_defaults(0)
+  rlist = _crt_dict(rlistc)  
   rlist1 = {}
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
     if (key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])      
     else:
       rlist1[key] = rlist[key]
 
@@ -1005,24 +1035,24 @@ def poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
     ismx = 1
     ismy = 1
 
-  ply = poly_wrap(wks,pobj2lst(plot),arg_with_scalar(x2),arg_with_scalar(y2),
-                  "double","double",len(arg_with_scalar(x2)),ismx,ismy, \
+  ply = poly_wrap(wks,_pobj2lst(plot),_arg_with_scalar(x2),_arg_with_scalar(y2),
+                  "double","double",len(_arg_with_scalar(x2)),ismx,ismy, \
                   fill_value_x,fill_value_y,ptype,rlist1,pvoid())
   del rlist
   del rlist1
   return None
 
-def add_poly(wks,plot,x,y,ptype,rlistc=None):
+def _add_poly(wks,plot,x,y,ptype,rlistc=None):
 # Get NumPy array from masked arrays, if necessary.
-  x2,fill_value_x = get_arr_and_fill_value(x)
-  y2,fill_value_y = get_arr_and_fill_value(y)
+  x2,fill_value_x = _get_arr_and_fill_value(x)
+  y2,fill_value_y = _get_arr_and_fill_value(y)
 
-  rlist = crt_dict(rlistc)  
+  rlist = _crt_dict(rlistc)  
   rlist1 = {}
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
     if (key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])      
     else:
       rlist1[key] = rlist[key]
 
@@ -1042,13 +1072,13 @@ def add_poly(wks,plot,x,y,ptype,rlistc=None):
     ismx = 1
     ismy = 1
 
-  ply = add_poly_wrap(wks,pobj2lst(plot), arg_with_scalar(x2),  \
-            arg_with_scalar(y2), "double","double", len(arg_with_scalar(x2)),
+  ply = add_poly_wrap(wks,_pobj2lst(plot), _arg_with_scalar(x2),  \
+            _arg_with_scalar(y2), "double","double", len(_arg_with_scalar(x2)),
             ismx,ismy,fill_value_x,fill_value_y,ptype,rlist1,pvoid())
 
   del rlist
   del rlist1
-  return(lst2pobj(ply))
+  return(_lst2pobj(ply))
 
 def get_workspace_id():
   """
@@ -1058,10 +1088,10 @@ wid = Ngl.get_workspace_id()
   """
   return NhlGetWorkspaceObjectId()
 
-def skewty(pres):    # y-coord given pressure (mb)
+def _skewty(pres):    # y-coord given pressure (mb)
   return(132.182-44.061*numpy.lib.scimath.log10(pres))
 
-def skewtx(temp,y):  # x-coord given temperature (c)
+def _skewtx(temp,y):  # x-coord given temperature (c)
   return (0.54*temp+0.90692*y)
 
 #########################################################################
@@ -1079,9 +1109,8 @@ def skewtx(temp,y):  # x-coord given temperature (c)
 #     Ngl.gc_tarea
 #     Ngl.gc_qarea
 #     Ngl.ind
-#     Ngl.ismissing
 #     Ngl.natgrid
-#     Ngl.ncargpath
+#     Ngl.pynglpath
 #     Ngl.normalize_angle
 # 
 #########################################################################
@@ -1093,22 +1122,22 @@ def skewtx(temp,y):  # x-coord given temperature (c)
 #
 ################################################################
 
-def dptlclskewt(p, tc, tdc):
+def _dptlclskewt(p, tc, tdc):
   return c_dptlclskewt(p, tc, tdc)
 
-def dtmrskewt(w, p):
+def _dtmrskewt(w, p):
   return c_dtmrskewt(w, p)
 
-def dtdaskewt(o,p):
+def _dtdaskewt(o,p):
   return c_dtdaskewt(o, p)
 
-def dsatlftskewt(thw,p):
+def _dsatlftskewt(thw,p):
   return c_dsatlftskewt(thw, p)
 
-def dshowalskewt(p,t,td,nlvls):
+def _dshowalskewt(p,t,td,nlvls):
   return c_dshowalskewt(p,t,td,nlvls)
 
-def dpwskewt(td,p,n):
+def _dpwskewt(td,p,n):
   return c_dpwskewt(td,p,n)
 
 #
@@ -1133,7 +1162,7 @@ dfran_rseq = [.749, .973, .666, .804, .081, .483, .919, .903,   \
 #
 #  Random number generator for generate_2d_array.
 #
-def dfran():
+def _dfran():
   global dfran_iseq
   global dfran_rseq
   dfran_iseq = dfran_iseq % 100
@@ -1162,9 +1191,9 @@ res -- An optional instance of the Resources class having annotation
       resources as attributes.
   """
 
-  rlist = crt_dict(rlistc)
-  anno = NhlAddAnnotation(int_id(plot_id1),int_id(plot_id2))
-  values = NhlSetValues(int_id(anno),rlist)
+  rlist = _crt_dict(rlistc)
+  anno = NhlAddAnnotation(_int_id(plot_id1),_int_id(plot_id2))
+  values = NhlSetValues(_int_id(anno),rlist)
   del rlist
   return anno
 
@@ -1225,7 +1254,10 @@ longitude -- An optional one-dimensional array, representing
 #
   if HAS_MA and ma.isMaskedArray(data):
     newdata         = ma.zeros((ny,nx1),data.dtype.char)
-    newdata.set_fill_value(data._fill_value)
+    if IS_NEW_MA:
+      newdata.set_fill_value(data.fill_value)
+    else:
+      newdata.set_fill_value(data.fill_value())
   else:
     newdata         = numpy.zeros((ny,nx1),data.dtype.char)
   newdata[:,0:nx] = data
@@ -1287,7 +1319,7 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
   data_is_masked = False
   if fillvalue == None:
     if HAS_MA and ma.isMaskedArray(data):
-      data2,fillvalue = get_arr_and_fill_value(data)
+      data2,fillvalue = _get_arr_and_fill_value(data)
       data_is_masked = True
     else:
       print "add_new_coord_limits - fillvalue must be set if you don't have a masked array"
@@ -1365,7 +1397,10 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
   if data_is_masked:
     if HAS_MA:
       new_data     = ma.zeros((new_ny,new_nx),data2.dtype.char)
-    new_data.set_fill_value(data._fill_value)
+    if IS_NEW_MA:
+      new_data.set_fill_value(data.fill_value)
+    else:
+      new_data.set_fill_value(data.fill_value())
   else:
     new_data     = numpy.zeros((new_ny,new_nx),data2.dtype.char)
   if xcoord != None:
@@ -1420,7 +1455,7 @@ x, y -- One-dimensional arrays containing the x, y coordinates of the
 res -- An optional instance of the Resources class having GraphicStyle
        resources as attributes.
   """
-  return(add_poly(wks,plot,x,y,NhlPOLYGON,rlistc))
+  return(_add_poly(wks,plot,x,y,NhlPOLYGON,rlistc))
 
 def add_polyline(wks,plot,x,y,rlistc=None):
   """
@@ -1439,7 +1474,7 @@ x, y -- One-dimensional arrays containing the x, y coordinates of the
 res -- An optional instance of the Resources class having GraphicStyle
        resources as attributes.
   """
-  return(add_poly(wks,plot,x,y,NhlPOLYLINE,rlistc))
+  return(_add_poly(wks,plot,x,y,NhlPOLYLINE,rlistc))
 
 def add_polymarker(wks,plot,x,y,rlistc=None):
   """
@@ -1458,7 +1493,7 @@ x, y -- One-dimensional arrays containing the x, y coordinates of the
 res -- An optional instance of the Resources class having GraphicStyle
        resources as attributes.
   """
-  return(add_poly(wks,plot,x,y,NhlPOLYMARKER,rlistc))
+  return(_add_poly(wks,plot,x,y,NhlPOLYMARKER,rlistc))
 
 def add_text(wks,plot,text,x,y,rlistc=None):
   """
@@ -1479,7 +1514,7 @@ x, y -- One-dimensional arrays containing the x, y coordinates of the
 res -- An optional instance of the Resources class having TextItem
        resources as attributes.
   """
-  rlist = crt_dict(rlistc)  
+  rlist = _crt_dict(rlistc)  
  
 #
 #  Separate the resource dictionary into those resources
@@ -1488,7 +1523,7 @@ res -- An optional instance of the Resources class having TextItem
   am_rlist  = {}
   tx_rlist  = {}
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "tx"):
       tx_rlist[key] = rlist[key]
     if (key[0:2] == "am"):
@@ -1497,12 +1532,12 @@ res -- An optional instance of the Resources class having TextItem
 #
 #  Call the wrapped function and return.
 #
-  atx = add_text_wrap(wks,pobj2lst(plot),text,x,y,"double","double",  \
+  atx = add_text_wrap(wks,_pobj2lst(plot),text,x,y,"double","double",  \
                           tx_rlist,am_rlist, pvoid())
   del rlist
   del tx_rlist
   del am_rlist
-  return(lst2pobj(atx))
+  return(_lst2pobj(atx))
 
 def asciiread(filename,dims,type="float",sep=","):
   """
@@ -1619,7 +1654,7 @@ plot -- The identifier returned from calling a plotting function
 
 wks -- The identifier returned from calling Ngl.open_wks.
   """
-  NhlChangeWorkstation(int_id(obj),wks)
+  NhlChangeWorkstation(_int_id(obj),wks)
 
 def chiinv(x,y):
   """
@@ -1634,33 +1669,33 @@ df -- degrees of freedom of the chi-square distribution (0, +infinity).
 #
 # Promote x and y to numpy arrays that have at least a dimension of 1.
 #
-  x2 = promote_scalar(x)
-  y2 = promote_scalar(y)
+  x2 = _promote_scalar(x)
+  y2 = _promote_scalar(y)
 #
 # Determine what kind of array to return. This is dependent on the
 # types of the arguments passed to chiinv, and not which fplib
 # module was loaded. Note that numpy is favored over numpy.
 #
-  if is_numpy(x) or is_numpy(y):
+  if _is_numpy(x) or _is_numpy(y):
     import numpy
     return numpy.array(fplib.chiinv(x2,y2))
   else:
     return fplib.chiinv(x2,y2)
 
-def inputt(a,b):
+def _inputt(a,b):
 #
 # Promote a and b to numpy arrays that have at least a dimension of 1.
 #
-  a2 = promote_scalar(a)
-  b2 = promote_scalar(b)
+  a2 = _promote_scalar(a)
+  b2 = _promote_scalar(b)
 #
 # Determine what kind of array to return.
 #
-  if is_numpy(a) or is_numpy(b):
+  if _is_numpy(a) or _is_numpy(b):
     import numpy
-    return numpy.array(fplib.inputt(a2,b2))
+    return numpy.array(fplib._inputt(a2,b2))
   else:
-    return fplib.inputt(a2,b2)
+    return fplib._inputt(a2,b2)
 
 def clear_workstation(obj):
   """
@@ -1670,7 +1705,7 @@ Ngl.clear_workstation(wks)
 
 wks -- The identifier returned from calling Ngl.open_wks.
   """
-  NhlClearWorkstation(int_id(obj))
+  NhlClearWorkstation(_int_id(obj))
 
 def contour(wks,array,rlistc=None):
   """
@@ -1695,10 +1730,10 @@ res -- An optional instance of the Resources class having PyNGL
     return None
 
 # Get NumPy array from masked array, if necessary.
-  arr2,fill_value = get_arr_and_fill_value(array)
+  arr2,fill_value = _get_arr_and_fill_value(array)
   
-  set_spc_defaults(1)
-  rlist = crt_dict(rlistc)  
+  _set_spc_defaults(1)
+  rlist = _crt_dict(rlistc)  
  
 #  Separate the resource dictionary into those resources
 #  that apply to ScalarField and those that apply to
@@ -1708,11 +1743,11 @@ res -- An optional instance of the Resources class having PyNGL
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "sf"):
       rlist1[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])      
     else:
       rlist2[key] = rlist[key]
 #
@@ -1725,11 +1760,11 @@ res -- An optional instance of the Resources class having PyNGL
         rlist3[key] = rlist[key]
 
 # Set missing value resource, if necessary
-  set_msg_val_res(rlist1,fill_value,"scalar")
+  _set_msg_val_res(rlist1,fill_value,"scalar")
 
-  set_contour_res(rlist,rlist2)       # Set some addtl contour resources
-  set_labelbar_res(rlist,rlist2,True) # Set some addtl labelbar resources
-  set_tickmark_res(rlist,rlist3)      # Set some addtl tickmark resources
+  _set_contour_res(rlist,rlist2)       # Set some addtl contour resources
+  _set_labelbar_res(rlist,rlist2,True) # Set some addtl labelbar resources
+  _set_tickmark_res(rlist,rlist3)      # Set some addtl tickmark resources
 #
 #  Call the wrapped function and return.
 #
@@ -1746,7 +1781,7 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist1
   del rlist2
   del rlist3
-  return(lst2pobj(icn))
+  return(_lst2pobj(icn))
 
 def contour_map(wks,array,rlistc=None):
   """
@@ -1770,10 +1805,10 @@ res -- An optional instance of the Resources class having PyNGL
     return None
 
 # Get NumPy array from masked array, if necessary.
-  arr2,fill_value = get_arr_and_fill_value(array)
+  arr2,fill_value = _get_arr_and_fill_value(array)
     
-  set_spc_defaults(1)
-  rlist = crt_dict(rlistc)  
+  _set_spc_defaults(1)
+  rlist = _crt_dict(rlistc)  
  
 #  Separate the resource dictionary into those resources
 #  that apply to ScalarField, MapPlot, and ContourPlot.
@@ -1783,7 +1818,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist3 = {}
 
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
 # Now sort resources into correct individual resource lists.
     if (key[0:2] == "sf"):
       rlist1[key] = rlist[key]
@@ -1792,16 +1827,16 @@ res -- An optional instance of the Resources class having PyNGL
           (key[0:2] == "ti") ):
       rlist2[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])      
     else:
       rlist3[key] = rlist[key]
 
 # Set missing value resource, if necessary
-  set_msg_val_res(rlist1,fill_value,"scalar")
+  _set_msg_val_res(rlist1,fill_value,"scalar")
 
-  set_map_res(rlist,rlist2)           # Set some addtl map resources
-  set_contour_res(rlist,rlist3)       # Set some addtl contour resources
-  set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
+  _set_map_res(rlist,rlist2)           # Set some addtl map resources
+  _set_contour_res(rlist,rlist3)       # Set some addtl contour resources
+  _set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
 
 #
 #  Call the wrapped function and return.
@@ -1821,11 +1856,22 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist1
   del rlist2
   del rlist3
-  return(lst2pobj(icm))
+  return(_lst2pobj(icm))
 
 def datatondc(obj,x,y):
+  """
+Converts coordinates in data space to coordinates in NDC space.
+
+xndc,yndc = Ngl.datatondc(plot,xdata,ydata)
+
+plot -- The identifier returned from calling any plot object creation
+        function, like Ngl.xy, Ngl.contour, Ngl.vector_map, etc.
+
+x,y -- One dimensional arrays containing values to be converted.
+  """
+
   error,xout,yout,status,range = \
-     NhlPDataToNDC(int_id(obj),x,y,len(promote_scalar(x)),1.e30,1.e30,1,1)
+     NhlPDataToNDC(_int_id(obj),x,y,len(_promote_scalar(x)),1.e30,1.e30,1,1)
   del error,status,range
   return xout,yout
 
@@ -1844,7 +1890,7 @@ cmap -- An n x 3 array of RGB triplets, or a predefined colormap name.
   set_values(wks,cres)
   return None
 
-def delete_wks (wks):
+def delete_wks(wks):
   """
 Deletes a workstation object that was created using open_wks.
 Calling this function after you are finished drawing to a workstation
@@ -1868,7 +1914,7 @@ Ngl.destroy(object)
 object -- The identifier returned from calling any object creation
           function, like Ngl.xy, Ngl.contour, Ngl.open_wks, etc.
   """
-  NhlDestroy(int_id(obj))
+  NhlDestroy(_int_id(obj))
   return None
 
 def draw(obj):
@@ -1880,7 +1926,7 @@ Ngl.draw(plot)
 plot -- The identifier returned from calling any plot object creation
         function, like Ngl.xy, Ngl.contour, Ngl.vector_map, etc.
   """
-  NhlDraw(int_id(obj))
+  NhlDraw(_int_id(obj))
   return None
 
 def draw_colormap(wks):
@@ -1997,17 +2043,17 @@ yi -- An array of any dimensionality, whose rightmost dimension is
 xo -- A 1D array of length nxo containing the abscissae for the
       interpolated values.
   """
-  if is_list_or_tuple(x):
+  if _is_list_or_tuple(x):
     dsizes_x = len(x)
-  elif is_numpy_array(x):
+  elif _is_numpy_array(x):
     dsizes_x = x.shape[0]
   else:
     print \
      "ftcurv: type of argument 1 must be one of: list, tuple, or NumPy array"
     return None
-  if is_list_or_tuple(y):
+  if _is_list_or_tuple(y):
     dsizes_y = len(y)
-  elif is_numpy_array(y):
+  elif _is_numpy_array(y):
     dsizes_y = y.shape[0]
   else:
     print \
@@ -2017,9 +2063,9 @@ xo -- A 1D array of length nxo containing the abscissae for the
     print "ftcurv: first and second arguments must be the same length."
     return None
 
-  if is_list_or_tuple(xo):
+  if _is_list_or_tuple(xo):
     dsizes_xo = len(xo)
-  elif is_numpy_array(xo):
+  elif _is_numpy_array(xo):
     dsizes_xo = xo.shape[0]
 
   status,yo = ftcurvc(dsizes_x,x,y,dsizes_xo,xo)
@@ -2055,17 +2101,17 @@ p -- A scalar value specifying the period of the input function; the
 xo -- A 1D array of length nxo containing the abscissae for the
       interpolated values.
   """
-  if is_list_or_tuple(x):
+  if _is_list_or_tuple(x):
     dsizes_x = len(x)
-  elif is_numpy_array(x):
+  elif _is_numpy_array(x):
     dsizes_x = x.shape[0]
   else:
     print \
      "ftcurvp: type of argument 1 must be one of: list, tuple, or NumPy array"
     return None
-  if is_list_or_tuple(y):
+  if _is_list_or_tuple(y):
     dsizes_y = len(y)
-  elif is_numpy_array(y):
+  elif _is_numpy_array(y):
     dsizes_y = y.shape[0]
   else:
     print \
@@ -2075,9 +2121,9 @@ xo -- A 1D array of length nxo containing the abscissae for the
     print "ftcurvp: first and second arguments must be the same length."
     return None
 
-  if is_list_or_tuple(xo):
+  if _is_list_or_tuple(xo):
     dsizes_xo = len(xo)
-  elif is_numpy_array(xo):
+  elif _is_numpy_array(xo):
     dsizes_xo = xo.shape[0]
 
   status,yo = ftcurvpc(dsizes_x,x,y,p,dsizes_xo,xo)
@@ -2114,17 +2160,17 @@ yi -- An array of any dimensionality, whose rightmost dimension is
       function. That is, yi(...,k) is the functional value at
       xi(...,k) for k=0,npts-1.
   """
-  if is_list_or_tuple(x):
+  if _is_list_or_tuple(x):
     dsizes_x = len(x)
-  elif is_numpy_array(x):
+  elif _is_numpy_array(x):
     dsizes_x = x.shape[0]
   else:
     print \
      "ftcurvpi: type of argument 4 must be one of: list, tuple, or NumPy array"
     return None
-  if is_list_or_tuple(y):
+  if _is_list_or_tuple(y):
     dsizes_y = len(y)
-  elif is_numpy_array(y):
+  elif _is_numpy_array(y):
     dsizes_y = y.shape[0]
   else:
     print \
@@ -2322,7 +2368,7 @@ connecting the vertices.
     rtn[i] = radius*radius*(sang1 + sang2 + sang3 - pi)
   del lat1t,lon1t,lat2t,lon2t,lat3t,lon3t,a,b,c,sa,sb,sc,ca,cb,cc, \
       sang1,sang2,sang3,tol
-  if (is_scalar(lat1)):
+  if (_is_scalar(lat1)):
     return rtn[0]
   else:
     return rtn
@@ -2453,8 +2499,8 @@ highs_at -- an optional argument that is a list of coordinate
       tmp_array[1,k] =  float(lows_at[k][0])
       tmp_array[2,k] = -1.
     else:
-      tmp_array[0,k] =  1.+(float(nx)-1.)*dfran() # lows at random locations.
-      tmp_array[1,k] =  1.+(float(ny)-1.)*dfran() # lows at random locations.
+      tmp_array[0,k] =  1.+(float(nx)-1.)*_dfran() # lows at random locations.
+      tmp_array[1,k] =  1.+(float(ny)-1.)*_dfran() # lows at random locations.
       tmp_array[2,k] = -1.
   for k in xrange(num_low,num_low+num_high):
     if (highs_at != None):
@@ -2462,8 +2508,8 @@ highs_at -- an optional argument that is a list of coordinate
       tmp_array[1,k] =  float(highs_at[k-num_low][0])  # highs locations
       tmp_array[2,k] =  1.
     else:
-      tmp_array[0,k] =  1.+(float(nx)-1.)*dfran() # highs at random locations.
-      tmp_array[1,k] =  1.+(float(ny)-1.)*dfran() # highs at random locations.
+      tmp_array[0,k] =  1.+(float(nx)-1.)*_dfran() # highs at random locations.
+      tmp_array[1,k] =  1.+(float(ny)-1.)*_dfran() # highs at random locations.
       tmp_array[2,k] =  1.
   
   dmin =  1.e+36
@@ -2489,11 +2535,11 @@ highs_at -- an optional argument that is a list of coordinate
   return numpy.transpose(out_array,[1,0])
 
 
-def get_double(obj,name):
-  return(NhlGetDouble(int_id(obj),name))
+def _get_double(obj,name):
+  return(NhlGetDouble(_int_id(obj),name))
 
-def get_double_array(obj,name):
-  return(NhlGetDoubleArray(int_id(obj),name))
+def _get_double_array(obj,name):
+  return(NhlGetDoubleArray(_int_id(obj),name))
 
 def get_float(obj,name):
   """
@@ -2507,7 +2553,7 @@ plotid -- The identifier returned from Ngl.open_wks, or any PyNGL
 resource_name -- The name of the resource whose value you want to
                  retrieve.
   """  
-  return(NhlGetFloat(int_id(obj),name))
+  return(NhlGetFloat(_int_id(obj),name))
 
 def get_float_array(obj,name):
   """
@@ -2521,7 +2567,7 @@ plotid -- The identifier returned from Ngl.open_wks, or any PyNGL
 resource_name -- The name of the resource whose value you want to
                  retrieve.
   """
-  return(NhlGetFloatArray(int_id(obj),name))
+  return(NhlGetFloatArray(_int_id(obj),name))
 
 def get_integer(obj,name):
   """
@@ -2535,7 +2581,7 @@ plotid -- The identifier returned from Ngl.open_wks, or any PyNGL
 resource_name -- The name of the resource whose value you want to
                  retrieve.
   """  
-  return(NhlGetInteger(int_id(obj),name))
+  return(NhlGetInteger(_int_id(obj),name))
 
 def get_integer_array(obj,name):
   """
@@ -2549,10 +2595,10 @@ plotid -- The identifier returned from Ngl.open_wks, or any PyNGL
 resource_name -- The name of the resource whose value you want to
                  retrieve.
   """
-  return(NhlGetIntegerArray(int_id(obj),name))
+  return(NhlGetIntegerArray(_int_id(obj),name))
 
-def get_MDdouble_array(obj,name):
-  rval = NhlGetMDDoubleArray(int_id(obj),name)
+def _get_MDdouble_array(obj,name):
+  rval = NhlGetMDDoubleArray(_int_id(obj),name)
   if (rval[0] != -1):
     print "get_MDdouble_array: error number %d" % (rval[0])
     return None
@@ -2571,7 +2617,7 @@ plotid -- The identifier returned from Ngl.open_wks, or any PyNGL
 resource_name - The name of the resource whose value you want to
                 retrieve.
   """
-  rval = NhlGetMDFloatArray(int_id(obj),name)
+  rval = NhlGetMDFloatArray(_int_id(obj),name)
   if (rval[0] != -1):
     print "get_MDfloat_array: error number %d" % (rval[0])
     return None
@@ -2590,7 +2636,7 @@ plotid -- The identifier returned from Ngl.open_wks, or any PyNGL
 resource_name - The name of the resource whose value you want to
                 retrieve.
   """
-  rval = NhlGetMDIntegerArray(int_id(obj),name)
+  rval = NhlGetMDIntegerArray(_int_id(obj),name)
   if (rval[0] != -1):
     print "get_MDinteger_array: error number %d" % (rval[0])
     return None
@@ -2613,8 +2659,8 @@ color_name -- A color name from the rgb.txt file.
   """
   return(NhlGetNamedColorIndex(wkid,name))
 
-def get_parent_workstation(plot_id):
-  NhlGetParentWorkstation(int_id(plot_id))
+def _get_parent_workstation(plot_id):
+  NhlGetParentWorkstation(_int_id(plot_id))
 
 def get_string(obj,name):
   """
@@ -2627,7 +2673,7 @@ plotid -- The identifier returned from Ngl.open_wks, or any PyNGL
 
 resource_name -- The name of the resource whose value you want to retrieve.
   """
-  return(NhlGetString(int_id(obj),name))
+  return(NhlGetString(_int_id(obj),name))
 
 def get_string_array(obj,name):
   """
@@ -2642,7 +2688,7 @@ plotid -- The identifier returned from Ngl.open_wks, or any PyNGL
 resource_name -- The name of the resource whose value you want to
                  retrieve.
   """
-  return(NhlGetStringArray(int_id(obj),name))
+  return(NhlGetStringArray(_int_id(obj),name))
 
 def hlsrgb(h,l,s):
   """
@@ -2665,9 +2711,9 @@ s -- Saturation values in the range [0.,100.]. Saturation is a measure
      100. are fully saturated colors. The hue is undefined when
      S=0. The fully saturated pure hues occur when S=100. and L=50.
   """
-  if (is_scalar(h) and is_scalar(l) and is_scalar(s)):
+  if (_is_scalar(h) and _is_scalar(l) and _is_scalar(s)):
     return(c_hlsrgb(h,l,s))
-  elif (is_numpy_array(h) and is_numpy_array(l) and is_numpy_array(s)):
+  elif (_is_numpy_array(h) and _is_numpy_array(l) and _is_numpy_array(s)):
     ishape = h.shape
     dimc = len(h.ravel())
     rr = numpy.zeros(dimc,'f')
@@ -2678,8 +2724,8 @@ s -- Saturation values in the range [0.,100.]. Saturation is a measure
     rr.shape = gr.shape = br.shape = ishape
     del ishape,dimc
     return rr,gr,br
-  elif ( ( is_list(h) and  is_list(l) and  is_list(s)) or    \
-         (is_tuple(h) and is_tuple(l) and is_tuple(s)) ):
+  elif ( _is_list_or_tuple(h) and _is_list_or_tuple(l) and \
+         _is_list_or_tuple(s) ):
     hi = numpy.array(h,'f')
     li = numpy.array(l,'f')
     si = numpy.array(s,'f')
@@ -2714,9 +2760,9 @@ s -- Saturation values in the range [0.,1.]. Saturation is a measure
 
 v -- Values for the value component in the range [0.,1.].
   """
-  if (is_scalar(h) and is_scalar(s) and is_scalar(v)):
+  if (_is_scalar(h) and _is_scalar(s) and _is_scalar(v)):
     return(c_hsvrgb(h,s,v))
-  elif (is_numpy_array(h) and is_numpy_array(s) and is_numpy_array(v)):
+  elif (_is_numpy_array(h) and _is_numpy_array(s) and _is_numpy_array(v)):
     ishape = h.shape
     dimc = len(h.ravel())
     rr = numpy.zeros(dimc,'f')
@@ -2726,8 +2772,8 @@ v -- Values for the value component in the range [0.,1.].
       rr[i],gr[i],br[i] = c_hsvrgb(h.ravel()[i],s.ravel()[i],v.ravel()[i])
     rr.shape = gr.shape = br.shape = ishape
     return rr,gr,br
-  elif ( ( is_list(h) and  is_list(s) and  is_list(v)) or    \
-         (is_tuple(h) and is_tuple(s) and is_tuple(v)) ):
+  elif ( _is_list_or_tuple(h) and _is_list_or_tuple(s) and \
+         _is_list_or_tuple(v) ):
     hi = numpy.array(h,'f')
     si = numpy.array(s,'f')
     vi = numpy.array(v,'f')
@@ -2780,24 +2826,24 @@ x, y -- The NDC values (values from 0 to 1) defining the
 res -- An optional instance of the Resources class having Labelbar
        resources as attributes.
   """
-  set_spc_defaults(0)
-  rlist = crt_dict(rlistc)
+  _set_spc_defaults(0)
+  rlist = _crt_dict(rlistc)
   rlist1 = {}
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
     if(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])      
     else:
       rlist1[key] = rlist[key]
 
-  set_labelbar_res(rlist,rlist1,False) # Set some addtl labelbar resources
+  _set_labelbar_res(rlist,rlist1,False) # Set some addtl labelbar resources
 
   ilb = labelbar_ndc_wrap(wks,nbox,labels,len(labels),x,y, 
                           "double","double",rlist1,pvoid())
   del rlist
   del rlist1
 
-  return (lst2pobj(ilb))
+  return (_lst2pobj(ilb))
 
 def legend_ndc(wks,nitems,labels,x,y,rlistc=None):
   """
@@ -2818,23 +2864,23 @@ x, y -- The NDC values (values from 0 to 1) defining the coordinates
 res -- An optional instance of the Resources class having Labelbar
        resources as attributes.
   """
-  set_spc_defaults(0)
-  rlist = crt_dict(rlistc)
+  _set_spc_defaults(0)
+  rlist = _crt_dict(rlistc)
   rlist1 = {}
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
     if(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])      
     else:
       rlist1[key] = rlist[key]
 
-  set_legend_res(rlist,rlist1)      # Set some addtl legend resources
+  _set_legend_res(rlist,rlist1)      # Set some addtl legend resources
 
   ilb = legend_ndc_wrap(wks,nitems,labels,len(labels),x,y, 
                         "double","double",rlist1,pvoid())
   del rlist
   del rlist1
-  return (lst2pobj(ilb))
+  return (_lst2pobj(ilb))
 
 def linmsg(x, end_pts_msg=None, max_msg=None, fill_value=1.e20):
   """
@@ -2873,13 +2919,13 @@ fill_value -- The missing value for x. Defaults to 1.e20 if not set.
 #  If input array is a numpy masked array, return a numpy masked array.
 #  Otherwise missing values are dealt with using the fill_value.
 #
-  type, fv = get_ma_fill_value(x)
+  type, fv = _get_ma_fill_value(x)
   if (fv != None):
     aret = fplib.linmsg(x.filled(fv), end_pts_msg, max_msg, fv)
     if HAS_MA:
       return ma.masked_array(aret, fill_value=fv)
   else:
-    return fplib.linmsg(promote_scalar(x),end_pts_msg,max_msg,fill_value)
+    return fplib.linmsg(_promote_scalar(x),end_pts_msg,max_msg,fill_value)
 
 def map(wks,rlistc=None,res=None):
   """
@@ -2894,23 +2940,23 @@ res -- An optional instance of the Resources class having Map
   """
   if (res != None):
     rlistc = res
-  set_spc_defaults(1)
-  rlist = crt_dict(rlistc)  
+  _set_spc_defaults(1)
+  rlist = _crt_dict(rlistc)  
   rlist1 = {}
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
     if (key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])      
     else:
       rlist1[key] = rlist[key]
 
-  set_map_res(rlist,rlist1)           # Set some addtl map resources
+  _set_map_res(rlist,rlist1)           # Set some addtl map resources
 
   imp = map_wrap(wks,rlist1,pvoid())
 
   del rlist
   del rlist1
-  return(lst2pobj(imp))
+  return(_lst2pobj(imp))
 
 def maximize_plot(wks,plot,rlistc=None):
   """
@@ -2926,16 +2972,16 @@ plotid -- The identifier returned from calling any graphics routine
 res -- An optional optional instance of the Resources class having
        PyNGL resources as attributes.
   """
-  set_spc_defaults(0)
-  rlist = crt_dict(rlistc)  
+  _set_spc_defaults(0)
+  rlist = _crt_dict(rlistc)  
   rlist1 = {}
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
     if (key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])      
     else:
       rlist1[key] = rlist[key]
-  maximize_plots(wks,pobj2lst(plot),1,0,pvoid())
+  maximize_plots(wks,_pobj2lst(plot),1,0,pvoid())
 
 def merge_colormaps(wks,cmap1,cmap2):
   """
@@ -3003,27 +3049,27 @@ xo, yo -- One-dimensional NumPy float arrays or Python lists (of
           length numxout and numyout) containing the coordinate points
           of the output data grid.
   """
-  if is_list_or_tuple(x):
+  if _is_list_or_tuple(x):
     dsizes_x = len(x)
-  elif is_numpy_array(x):
+  elif _is_numpy_array(x):
     dsizes_x = x.shape[0]
   else:
     print \
      "natgrid: type of argument 1 must be one of: list, tuple, or NumPy array"
     return None
 
-  if is_list_or_tuple(xo):
+  if _is_list_or_tuple(xo):
     dsizes_xo = len(xo)
-  elif is_numpy_array(xo):
+  elif _is_numpy_array(xo):
     dsizes_xo = xo.shape[0]
   else:
     print \
      "natgrid: type of argument 4 must be one of: list, tuple, or NumPy array"
     return None
 
-  if is_list_or_tuple(yo):
+  if _is_list_or_tuple(yo):
     dsizes_yo = len(yo)
-  elif is_numpy_array(yo):
+  elif _is_numpy_array(yo):
     dsizes_yo = yo.shape[0]
   else:
     print \
@@ -3040,7 +3086,7 @@ xo, yo -- One-dimensional NumPy float arrays or Python lists (of
   else:
     return zo
 
-def ncargpath(type):
+def _ncargpath(type):
   return pynglpath(type)
 
 def new_color(wks_id,r,g,b):
@@ -3056,11 +3102,21 @@ wks -- The identifier returned from calling Ngl.open_wks.
 red, green, blue -- Floating point values between 0.0 and 1.0
                     inclusive.
   """
-  return NhlNewColor(int_id(wks_id),r,g,b)
+  return NhlNewColor(_int_id(wks_id),r,g,b)
 
 def ndctodata(obj,x,y):
+  """
+Converts coordinates in NDC space to coordinates in data space.
+
+xdata,y = Ngl.ndctodata(plot,xndc,yndc)
+
+plot -- The identifier returned from calling any plot object creation
+        function, like Ngl.xy, Ngl.contour, Ngl.vector_map, etc.
+
+x,y -- One dimensional arrays containing values to be converted.
+  """
   error,xout,yout,status,range = \
-     NhlPNDCToData(int_id(obj),x,y,len(promote_scalar(x)),1.e30,1.e30,1,1)
+     NhlPNDCToData(_int_id(obj),x,y,len(_promote_scalar(x)),1.e30,1.e30,1,1)
   del error,status,range
   return xout,yout
 
@@ -3079,7 +3135,7 @@ dash_pattern -- A string indicating the dash pattern to create.  The
                 characters. The "$" represents a pen-down, and the
                 "_" represents a pen-up.
   """
-  return NhlNewDashPattern(int_id(wks_id),patterns)
+  return NhlNewDashPattern(_int_id(wks_id),patterns)
 
 def new_marker(wks_id,marker_strings,font_nums,xoffset=0.,yoffset=0., \
                aspect_ratio=1., size=1., angle=0.):
@@ -3131,7 +3187,7 @@ angle -- An optional scalar that is the angle at which to rotate the
          marker counter-clockwise; it must be greater than or equal to
          0. The default of 0.0 produces no rotation.
   """
-  return NhlNewMarker(int_id(wks_id),marker_strings, \
+  return NhlNewMarker(_int_id(wks_id),marker_strings, \
                font_nums,float(xoffset),float(yoffset), \
                float(aspect_ratio), float(size), float(angle))
 
@@ -3148,7 +3204,7 @@ index -- The index value in the color map of which to replace with the
 
 red, green, blue -- Floating point values between 0.0 and 1.0 inclusive.
   """
-  NhlSetColor(int_id(wks_id),index,r,g,b)
+  NhlSetColor(_int_id(wks_id),index,r,g,b)
   return None
 
 def free_color(wks_id,index):
@@ -3161,7 +3217,7 @@ workstation -- An identifier returned from calling Ngl.open_wks.
 
 color_index -- An integer scalar specifying a color index.
   """
-  NhlFreeColor(int_id(wks_id),index)
+  NhlFreeColor(_int_id(wks_id),index)
   return None
 
 def nngetp(pname):
@@ -3269,9 +3325,9 @@ res -- An optional instance of the Resources class having Workstation
        resources as attributes.
   """
 #
-  set_spc_defaults(1)
+  _set_spc_defaults(1)
   global first_call_to_open_wks
-  rlist = crt_dict(wk_rlist)
+  rlist = _crt_dict(wk_rlist)
 
 #
 # Divide out "app" and other resources.
@@ -3280,11 +3336,11 @@ res -- An optional instance of the Resources class having Workstation
   rlist2 = {}
 
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
     if (key[0:3] == "app"):
       rlist2[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])      
     else:
       rlist1[key] = rlist[key]
 
@@ -3297,7 +3353,7 @@ res -- An optional instance of the Resources class having Workstation
 #
 #  Set HLU environment variables.
 #
-    os.environ["NCARG_NCARG"] = pynglpath_ncarg()
+    os.environ["NCARG_NCARG"] = _pynglpath_ncarg()
 
     tmp_dir = os.environ.get("TMPDIR")
     if (tmp_dir != None and os.path.exists(tmp_dir)):
@@ -3323,10 +3379,10 @@ res -- An optional instance of the Resources class having Workstation
 #  Check if the high-res file are there - if not issue a
 #  an information message to that effect.
 #
-      ck_for_rangs(rangs_dir_envn)
+      _ck_for_rangs(rangs_dir_envn)
       os.environ["NCARG_RANGS"] = rangs_dir_envn
     else:
-      os.environ["NCARG_RANGS"] = pynglpath_ncarg() + "/rangs"
+      os.environ["NCARG_RANGS"] = _pynglpath_ncarg() + "/rangs"
 
     ures_dir_envn = os.environ.get("PYNGL_USRRESFILE")
     if (ures_dir_envn != None and os.path.exists(ures_dir_envn)):
@@ -3342,7 +3398,7 @@ res -- An optional instance of the Resources class having Workstation
     if (ares_dir_envn != None and os.path.exists(ares_dir_envn)):
       os.environ["NCARG_SYSAPPRES"] = ares_dir_envn
     else:
-      os.environ["NCARG_SYSAPPRES"] = pynglpath_ncarg() + "/sysappres"
+      os.environ["NCARG_SYSAPPRES"] = _pynglpath_ncarg() + "/sysappres"
 
     first_call_to_open_wks = first_call_to_open_wks + 1
 
@@ -3378,7 +3434,7 @@ PlotId_base -- The id of the plot on which you want to overlay
 PlotId_overlay -- The id of the plot you want to overlay on
                   PlotId_base.
   """
-  NhlAddOverlay(int_id(plot_id1),int_id(plot_id2),-1)
+  NhlAddOverlay(_int_id(plot_id1),_int_id(plot_id2),-1)
 
 def panel(wks,plots,dims,rlistc=None):
   """
@@ -3400,74 +3456,74 @@ dims -- An array of integers indicating the configuration of the plots
 res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
-  set_spc_defaults(1)
-  rlist = crt_dict(rlistc)  
+  _set_spc_defaults(1)
+  rlist = _crt_dict(rlistc)  
   rlist1 = {}
   rlist2 = {}
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
     if (key[0:3] == "ngl"):
       if (key[0:21] == "nglPanelFigureStrings" and len(key) == 21):
-        set_spc_res(key[3:],rlist[key])
-        set_spc_res("PanelFigureStringsCount",len(rlist[key]))
+        _set_spc_res(key[3:],rlist[key])
+        _set_spc_res("PanelFigureStringsCount",len(rlist[key]))
       elif (key[0:25] == "nglPanelFigureStringsJust"):
-        if(check_res_value(rlist[key],"TopLeft",0)):
-          set_spc_res(key[3:],0)
-        elif(check_res_value(rlist[key],"CenterLeft",1)): 
-          set_spc_res(key[3:],1)
-        elif(check_res_value(rlist[key],"BottomLeft",2)): 
-          set_spc_res(key[3:],2)
-        elif(check_res_value(rlist[key],"TopCenter",3)): 
-          set_spc_res(key[3:],3)
-        elif(check_res_value(rlist[key],"CenterCenter",4)): 
-          set_spc_res(key[3:],4)
-        elif(check_res_value(rlist[key],"BottomCenter",5)): 
-          set_spc_res(key[3:],5)
-        elif(check_res_value(rlist[key],"TopRight",6)):
-          set_spc_res(key[3:],6)
-        elif(check_res_value(rlist[key],"CenterRight",7)): 
-          set_spc_res(key[3:],7)
-        elif(check_res_value(rlist[key],"BottomRight",8)): 
-          set_spc_res(key[3:],8)
+        if(_check_res_value(rlist[key],"TopLeft",0)):
+          _set_spc_res(key[3:],0)
+        elif(_check_res_value(rlist[key],"CenterLeft",1)): 
+          _set_spc_res(key[3:],1)
+        elif(_check_res_value(rlist[key],"BottomLeft",2)): 
+          _set_spc_res(key[3:],2)
+        elif(_check_res_value(rlist[key],"TopCenter",3)): 
+          _set_spc_res(key[3:],3)
+        elif(_check_res_value(rlist[key],"CenterCenter",4)): 
+          _set_spc_res(key[3:],4)
+        elif(_check_res_value(rlist[key],"BottomCenter",5)): 
+          _set_spc_res(key[3:],5)
+        elif(_check_res_value(rlist[key],"TopRight",6)):
+          _set_spc_res(key[3:],6)
+        elif(_check_res_value(rlist[key],"CenterRight",7)): 
+          _set_spc_res(key[3:],7)
+        elif(_check_res_value(rlist[key],"BottomRight",8)): 
+          _set_spc_res(key[3:],8)
       else:
-        set_spc_res(key[3:],rlist[key])
+        _set_spc_res(key[3:],rlist[key])
     elif (key[0:2] == "lb"):
       if (key == "lbLabelAlignment"):
-        if (check_res_value(rlist[key],"BoxCenters",0)):
-          set_spc_res("PanelLabelBarAlignment",0)
-        elif (check_res_value(rlist[key],"InteriorEdges",1)):
-          set_spc_res("PanelLabelBarAlignment",1)
-        elif (check_res_value(rlist[key],"ExternalEdges",2)):
-          set_spc_res("PanelLabelBarAlignment",2)
+        if (_check_res_value(rlist[key],"BoxCenters",0)):
+          _set_spc_res("PanelLabelBarAlignment",0)
+        elif (_check_res_value(rlist[key],"InteriorEdges",1)):
+          _set_spc_res("PanelLabelBarAlignment",1)
+        elif (_check_res_value(rlist[key],"ExternalEdges",2)):
+          _set_spc_res("PanelLabelBarAlignment",2)
         else:
-          set_spc_res("PanelLabelBarAlignment",rlist[key])
+          _set_spc_res("PanelLabelBarAlignment",rlist[key])
       elif (key == "lbPerimOn"):
         if (rlist[key] == 1):
-          set_spc_res("PanelLabelBarPerimOn",1)
+          _set_spc_res("PanelLabelBarPerimOn",1)
         elif (rlist[key] == 0):
-          set_spc_res("PanelLabelBarPerimOn",0)
+          _set_spc_res("PanelLabelBarPerimOn",0)
         else:
-          set_spc_res("PanelLabelBarPerimOn",rlist[key])
+          _set_spc_res("PanelLabelBarPerimOn",rlist[key])
       elif (key == "lbLabelAutoStride"):
         if (rlist[key] == 1):
-          set_spc_res("PanelLabelBarAutoStride",1)
+          _set_spc_res("PanelLabelBarAutoStride",1)
         elif (rlist[key] == 0):
-          set_spc_res("PanelLabelBarAutoStride",0)
+          _set_spc_res("PanelLabelBarAutoStride",0)
         else:
-          set_spc_res("PanelLabelBarAutoStride",rlist[key])
+          _set_spc_res("PanelLabelBarAutoStride",rlist[key])
       elif (key == "lbLabelFontHeightF"):
-        set_spc_res("PanelLabelBarFontHeightF",rlist[key])
+        _set_spc_res("PanelLabelBarFontHeightF",rlist[key])
       elif (key == "lbOrientation"):
-        if (check_res_value(rlist[key],"Vertical",1)):
-          set_spc_res("PanelLabelBarOrientation",1)
-        elif (check_res_value(rlist[key],"Horizontal",0)):
-          set_spc_res("PanelLabelBarOrientation",0)
+        if (_check_res_value(rlist[key],"Vertical",1)):
+          _set_spc_res("PanelLabelBarOrientation",1)
+        elif (_check_res_value(rlist[key],"Horizontal",0)):
+          _set_spc_res("PanelLabelBarOrientation",0)
         else:
-          set_spc_res("PanelLabelBarOrientation",rlist[key])
+          _set_spc_res("PanelLabelBarOrientation",rlist[key])
         
 
       rlist1[key] = rlist[key]
-  panel_wrap(wks,pseq2lst(plots),len(plots),dims,len(dims),rlist1,rlist2,pvoid())
+  panel_wrap(wks,_pseq2lst(plots),len(plots),dims,len(dims),rlist1,rlist2,pvoid())
   del rlist
   del rlist1
 
@@ -3489,7 +3545,7 @@ res -- An optional instance of the Resources class having
        GraphicStyle resources as attributes.
   """
 
-  return(poly(wks,plot,x,y,NhlPOLYGON,0,rlistc))
+  return(_poly(wks,plot,x,y,NhlPOLYGON,0,rlistc))
 
 def polygon_ndc(wks,x,y,rlistc=None):
   """
@@ -3505,7 +3561,7 @@ x, y -- One-dimensional NumPy arrays or Python lists containing the
 res -- An optional instance of the Resources class having
        GraphicStyle resources as attributes.
   """
-  return(poly(wks,0,x,y,NhlPOLYGON,1,rlistc))
+  return(_poly(wks,0,x,y,NhlPOLYGON,1,rlistc))
 
 def polyline(wks,plot,x,y,rlistc=None):
   """
@@ -3524,7 +3580,7 @@ x, y -- One-dimensional NumPy arrays or Python lists containing the
 res -- An optional instance of the Resources class having
        GraphicStyle resources as attributes.
   """
-  return(poly(wks,plot,x,y,NhlPOLYLINE,0,rlistc))
+  return(_poly(wks,plot,x,y,NhlPOLYLINE,0,rlistc))
 
 def polyline_ndc(wks,x,y,rlistc=None):
   """
@@ -3540,7 +3596,7 @@ x, y -- One-dimensional NumPy arrays or Python lists containing the
 res -- An optional instance of the Resources class having
        GraphicStyle resources as attributes.
   """
-  return(poly(wks,0,x,y,NhlPOLYLINE,1,rlistc))
+  return(_poly(wks,0,x,y,NhlPOLYLINE,1,rlistc))
 
 def polymarker(wks,plot,x,y,rlistc=None):  # plot converted in poly
   """
@@ -3559,7 +3615,7 @@ x, y -- One-dimensional NumPy arrays or Python lists containing the
 res -- An optional instance of the Resources class having
        GraphicStyle resources as attributes.
   """
-  return(poly(wks,plot,x,y,NhlPOLYMARKER,0,rlistc))
+  return(_poly(wks,plot,x,y,NhlPOLYMARKER,0,rlistc))
 
 def polymarker_ndc(wks,x,y,rlistc=None):
   """
@@ -3575,7 +3631,7 @@ x, y -- One-dimensional NumPy arrays or Python lists containing the
 res -- An optional instance of the Resources class having
        GraphicStyle resources as attributes.
   """
-  return(poly(wks,0,x,y,NhlPOLYMARKER,1,rlistc))
+  return(_poly(wks,0,x,y,NhlPOLYMARKER,1,rlistc))
 
 def pynglpath(name):
   """
@@ -3600,7 +3656,7 @@ name -- A string representing abbreviated name for which you want a
 #
 # Create the path to the pynglex examples.
 #
-    examples_dir_dflt = os.path.join(pynglpath_ncarg(),"pynglex")
+    examples_dir_dflt = os.path.join(_pynglpath_ncarg(),"pynglex")
 
     if (examples_dir_envn != None and os.path.exists(examples_dir_envn)):
       return examples_dir_envn
@@ -3611,7 +3667,7 @@ name -- A string representing abbreviated name for which you want a
       return None
   elif (name == "data"):
     data_dir_envn = os.environ.get("PYNGL_DATA")
-    data_dir_dflt = os.path.join(pynglpath_ncarg(),"data")
+    data_dir_dflt = os.path.join(_pynglpath_ncarg(),"data")
     if (data_dir_envn != None and os.path.exists(data_dir_envn)):
       return data_dir_envn
     elif (os.path.exists(data_dir_dflt)):
@@ -3621,7 +3677,7 @@ name -- A string representing abbreviated name for which you want a
       return None
   elif (name == "colormaps"):
     color_dir_envn = os.environ.get("PYNGL_COLORMAPS")
-    color_dir_dflt = os.path.join(pynglpath_ncarg(),"colormaps")
+    color_dir_dflt = os.path.join(_pynglpath_ncarg(),"colormaps")
     if (color_dir_envn != None and os.path.exists(color_dir_envn)):
       return color_dir_envn
     elif (os.path.exists(color_dir_dflt)):
@@ -3631,7 +3687,7 @@ name -- A string representing abbreviated name for which you want a
       return None
   elif (name == "rangs"):
     rangs_dir_envn = os.environ.get("PYNGL_RANGS")
-    rangs_dir_dflt = os.path.join(pynglpath_ncarg(),"rangs")
+    rangs_dir_dflt = os.path.join(_pynglpath_ncarg(),"rangs")
     if (rangs_dir_envn != None and os.path.exists(rangs_dir_envn)):
       return rangs_dir_envn
     else: 
@@ -3639,7 +3695,7 @@ name -- A string representing abbreviated name for which you want a
   elif (name == "grib2_codetables"):
     print "name",name
     grib2_dir_envn = os.environ.get("NIO_GRIB2_CODETABLES")
-    grib2_dir_dflt = os.path.join(pynglpath_ncarg(),"grib2_codetables")
+    grib2_dir_dflt = os.path.join(_pynglpath_ncarg(),"grib2_codetables")
     if (grib2_dir_envn != None and os.path.exists(grib2_dir_envn)):
       return grib2_dir_envn
     else: 
@@ -3656,7 +3712,7 @@ name -- A string representing abbreviated name for which you want a
       return None
   elif (name == "sysresfile"):
     sres_dir_envn = os.environ.get("PYNGL_SYSRESFILE")
-    sres_dir_dflt = os.path.join(pynglpath_ncarg(),"sysresfile")
+    sres_dir_dflt = os.path.join(_pynglpath_ncarg(),"sysresfile")
     if (sres_dir_envn != None and os.path.exists(sres_dir_envn)):
       return sres_dir_envn
     elif (os.path.exists(sres_dir_dflt)):
@@ -3666,7 +3722,7 @@ name -- A string representing abbreviated name for which you want a
       return None
   elif (name == "sysappres"):
     ares_dir_envn = os.environ.get("PYNGL_SYSAPPRES")
-    ares_dir_dflt = os.path.join(pynglpath_ncarg(),"sysappres")
+    ares_dir_dflt = os.path.join(_pynglpath_ncarg(),"sysappres")
     if (ares_dir_envn != None and os.path.exists(ares_dir_envn)):
       return ares_dir_envn
     elif (os.path.exists(ares_dir_dflt)):
@@ -3675,7 +3731,7 @@ name -- A string representing abbreviated name for which you want a
       print "pynglpath: sysappres directory does not exist."
       return None
   elif (name == "ncarg"):
-    return pynglpath_ncarg()
+    return _pynglpath_ncarg()
   else:
     print 'pynglpath: input name "%s" not recognized' % (name)
 
@@ -3701,8 +3757,8 @@ return_info -- An optional logical that indicates whether additional
   """
 
 # Deal with masked arrays.
-  type_x, fill_value_x = get_ma_fill_value(x)
-  type_y, fill_value_y = get_ma_fill_value(y)
+  type_x, fill_value_x = _get_ma_fill_value(x)
+  type_y, fill_value_y = _get_ma_fill_value(y)
 
   if (fill_value_x != None):
     x2 = x.filled(fill_value_x)
@@ -3747,7 +3803,7 @@ PlotId_base -- The id of the plot from which you want to remove the
 annotation_id -- The id of the annotation which was attached to
                  PlotId_base via call to Ngl.add_annotation.
   """
-  NhlRemoveAnnotation(int_id(plot_id1),int_id(plot_id2))
+  NhlRemoveAnnotation(_int_id(plot_id1),_int_id(plot_id2))
 
 def remove_overlay(plot_id1,plot_id2,restore=False):
   """
@@ -3765,7 +3821,7 @@ restore -- An optional logical value. If True and the member plot
            members, the member plots are returned to the plot being
            removed.
   """
-  NhlRemoveOverlay(int_id(plot_id1),int_id(plot_id2),restore)
+  NhlRemoveOverlay(_int_id(plot_id1),_int_id(plot_id2),restore)
 
 def retrieve_colormap(wks):
   """
@@ -3806,9 +3862,9 @@ s -- The saturation value of the input point in HLS color space in the
      when S=0. The fully saturated pure hues occur when S=100. and
      L=50. The saturation value should be thought of as a percentage.
   """
-  if (is_scalar(r) and is_scalar(g) and is_scalar(b)):
+  if (_is_scalar(r) and _is_scalar(g) and _is_scalar(b)):
     return(c_rgbhls(r,g,b))
-  elif (is_numpy_array(r) and is_numpy_array(g) and is_numpy_array(b)):
+  elif (_is_numpy_array(r) and _is_numpy_array(g) and _is_numpy_array(b)):
     ishape = r.shape
     dimc = len(r.ravel())
     hr = numpy.zeros(dimc,'f')
@@ -3819,8 +3875,8 @@ s -- The saturation value of the input point in HLS color space in the
     hr.shape = lr.shape = sr.shape = ishape
     del dimc,ishape
     return hr,lr,sr
-  elif ( ( is_list(r) and  is_list(g) and  is_list(b)) or    \
-         (is_tuple(r) and is_tuple(g) and is_tuple(b)) ):
+  elif ( _is_list_or_tuple(r) and _is_list_or_tuple(g) and \
+         _is_list_or_tuple(b) ):
     ri = numpy.array(r,'f')
     gi = numpy.array(g,'f')
     bi = numpy.array(b,'f')
@@ -3864,9 +3920,9 @@ s -- The saturation value of the input point in HSV color space, in
 
 v -- The value in HSV space, in the range [0.,1.].
   """
-  if (is_scalar(r) and is_scalar(g) and is_scalar(b)):
+  if (_is_scalar(r) and _is_scalar(g) and _is_scalar(b)):
     return(c_rgbhsv(r,g,b))
-  if (is_numpy_array(r) and is_numpy_array(g) and is_numpy_array(b)):
+  if (_is_numpy_array(r) and _is_numpy_array(g) and _is_numpy_array(b)):
     ishape = r.shape
     dimc = len(r.ravel())
     hr = numpy.zeros(dimc,'f')
@@ -3877,8 +3933,8 @@ v -- The value in HSV space, in the range [0.,1.].
     hr.shape = sr.shape = vr.shape = ishape
     del ishape,dimc
     return hr,sr,vr
-  elif ( ( is_list(r) and  is_list(g) and  is_list(b)) or    \
-         (is_tuple(r) and is_tuple(g) and is_tuple(b)) ):
+  elif ( _is_list_or_tuple(r) and _is_list_or_tuple(g) and \
+         _is_list_or_tuple(b) ):
     ri = numpy.array(r,'f')
     gi = numpy.array(g,'f')
     bi = numpy.array(b,'f')
@@ -3916,9 +3972,9 @@ q -- Q component (chrominance purple-green) values in the range
 #
 #  Check if input is a NumPy array, scalar, list, or tuple.
 #
-  if (is_scalar(r) and is_scalar(g) and is_scalar(b)):
+  if (_is_scalar(r) and _is_scalar(g) and _is_scalar(b)):
     return(c_rgbyiq(r,g,b))
-  elif (is_numpy_array(r) and is_numpy_array(g) and is_numpy_array(b)):
+  elif (_is_numpy_array(r) and _is_numpy_array(g) and _is_numpy_array(b)):
     ishape = r.shape
     dimc = len(r.ravel())
     yr = numpy.zeros(dimc,'f')
@@ -3929,8 +3985,8 @@ q -- Q component (chrominance purple-green) values in the range
     yr.shape = ir.shape = qr.shape = ishape
     del ishape,dimc
     return yr,ir,qr
-  elif ( ( is_list(r) and  is_list(g) and  is_list(b)) or    \
-         (is_tuple(r) and is_tuple(g) and is_tuple(b)) ):
+  elif ( _is_list_or_tuple(r) and _is_list_or_tuple(g) and \
+         _is_list_or_tuple(b) ):
     ri = numpy.array(r,'f')
     gi = numpy.array(g,'f')
     bi = numpy.array(b,'f')
@@ -3960,8 +4016,8 @@ res -- An optional instance of the Resources class having PyNGL
        resources as attributes containing the resources you want to
 set.
   """
-  rlist = crt_dict(rlistc)
-  values = NhlSetValues(int_id(obj),rlist)
+  rlist = _crt_dict(rlistc)
+  values = NhlSetValues(_int_id(obj),rlist)
   del rlist
   return values
 
@@ -4067,8 +4123,8 @@ res -- A required instance of the Resources class having special
   if (not isinstance(Opts,Resources)):
     print "skewt_bkg: argument 2 must be an Ngl Resources instance"
     return None
-  OptsAtts = crt_dict(Opts)
-  if (len(crt_dict(Opts)) != 0):
+  OptsAtts = _crt_dict(Opts)
+  if (len(_crt_dict(Opts)) != 0):
     for key in OptsAtts.keys():
       setattr(localOpts,key,OptsAtts[key])
 #
@@ -4218,11 +4274,11 @@ res -- A required instance of the Resources class having special
 #  edges of the diagram.  These are computed by inserting the appropriate
 #  pressures and temperatures at the corners of the diagram.
 #
-                    # xmin = skewtx ( -33.60,skewty(1050.)) [t=deg C]
-  xmin = -18.9551048  # xmin = skewtx (-109.10,skewty( 100.)) [t=deg C]
-  xmax =  27.0973729  # xmax = skewtx (  51.75,skewty(1050.)) [t=deg C]
-  ymax =  -0.9346217  # ymax = skewty (1050.)
-  ymin =  44.0600000  # ymin = skewty ( 100.)
+                    # xmin = _skewtx ( -33.60,_skewty(1050.)) [t=deg C]
+  xmin = -18.9551048  # xmin = _skewtx (-109.10,_skewty( 100.)) [t=deg C]
+  xmax =  27.0973729  # xmax = _skewtx (  51.75,_skewty(1050.)) [t=deg C]
+  ymax =  -0.9346217  # ymax = _skewty (1050.)
+  ymin =  44.0600000  # ymin = _skewty ( 100.)
 
 #
 #  Specify arrays to hold corners of the diagram in x,y space.
@@ -4307,7 +4363,7 @@ res -- A required instance of the Resources class having special
 #  Define y tick mark labels.
 #
   xyOpts.tmYLMode   = "Explicit"
-  xyOpts.tmYLValues = skewty(pres[1:]) # skip 1050
+  xyOpts.tmYLValues = _skewty(pres[1:]) # skip 1050
   xyOpts.tmYLLabels =                            \
           [                                      \
            "1000", "850", "700", "500", "400",   \
@@ -4318,7 +4374,7 @@ res -- A required instance of the Resources class having special
 #  Define x tick mark labels.
 #
   xyOpts.tmXBMode   = "Explicit"
-  xyOpts.tmXBValues = skewtx (tc, skewty(1050.)) # transformed vals
+  xyOpts.tmXBValues = _skewtx (tc, _skewty(1050.)) # transformed vals
   if (localOpts.sktDrawFahrenheit):
       xyOpts.tmXBLabels = tf                     # plot the nice deg F
   else:
@@ -4390,7 +4446,7 @@ res -- A required instance of the Resources class having special
 #  Special for the right hand side.
 #
   if (localOpts.sktDrawHeightScale):  
-    xyOpts.trXMaxF      = skewtx (55. , skewty(1013.)) # extra wide
+    xyOpts.trXMaxF      = _skewtx (55. , _skewty(1013.)) # extra wide
     xyOpts.tmYUseLeft   = False # Keep right axis independent of left.
     xyOpts.tmYRBorderOn = True
     xyOpts.tmYROn       = True  # Turn on right axis tick marks.
@@ -4413,11 +4469,11 @@ res -- A required instance of the Resources class having special
 
     if (localOpts.sktDrawHeightScaleFt):
       znice =  zft
-      pnice = skewty(pft)
+      pnice = _skewty(pft)
       zLabel= "Height (1000 Feet)"
     else:
       znice = zkm
-      pnice = skewty(pkm)
+      pnice = _skewty(pkm)
       zLabel= "Height (Km)"
 #
 #  At each "nice" pressure value, put a "height" value label.
@@ -4438,8 +4494,8 @@ res -- A required instance of the Resources class having special
     txOpts.txAngleF          = 270.
     txOpts.txFontColor       = "Foreground"   # colTan
     txOpts.txFontHeightF     = xyOpts.tmYLLabelFontHeightF
-    xlab                     = skewtx (53., skewty(1013.))
-    ylab                     = skewty (350.)
+    xlab                     = _skewtx (53., _skewty(1013.))
+    ylab                     = _skewty (350.)
     text (wks,xyplot,zLabel,xlab,ylab,txOpts) 
     del txOpts
 
@@ -4454,14 +4510,14 @@ res -- A required instance of the Resources class having special
         gsOpts.gsFillColor = color2
 
       nx = 3
-      sy[0] = skewty(lendt[i  ])
-      sx[0] = skewtx( temp[i  ], sy[0])
-      sy[1] = skewty(lendt[i+1] )
-      sx[1] = skewtx( temp[i+1], sy[1])
-      sy[2] = skewty(rendt[i+1] )
-      sx[2] = skewtx( temp[i+1], sy[2])
-      sy[3] = skewty(rendt[i  ] )   
-      sx[3] = skewtx( temp[i  ], sy[3])
+      sy[0] = _skewty(lendt[i  ])
+      sx[0] = _skewtx( temp[i  ], sy[0])
+      sy[1] = _skewty(lendt[i+1] )
+      sx[1] = _skewtx( temp[i+1], sy[1])
+      sy[2] = _skewty(rendt[i+1] )
+      sx[2] = _skewtx( temp[i+1], sy[2])
+      sy[3] = _skewty(rendt[i  ] )   
+      sx[3] = _skewtx( temp[i  ], sy[3])
 
 
 #
@@ -4555,10 +4611,10 @@ res -- A required instance of the Resources class having special
     txOpts.txFontThicknessF  = 1.0
 
     for i in range(0,len(temp)-2):
-      yy[1] = skewty(rendt[i])
-      xx[1] = skewtx( temp[i], yy[1])
-      yy[0] = skewty(lendt[i])
-      xx[0] = skewtx( temp[i], yy[0])
+      yy[1] = _skewty(rendt[i])
+      xx[1] = _skewtx( temp[i], yy[1])
+      yy[0] = _skewty(lendt[i])
+      xx[0] = _skewtx( temp[i], yy[0])
       #gsOpts.gsLineLabelString  = int(temp[i])
       polyline(wks, xyplot, xx, yy, gsOpts)
 
@@ -4583,7 +4639,7 @@ res -- A required instance of the Resources class having special
       for i in range(0,npres):
         xx[0] = xpl[i]
         xx[1] = xpr[i]
-        ypl   = skewty(pres[i])
+        ypl   = _skewty(pres[i])
         yy[0] = ypl
         yy[1] = ypl
         polyline(wks, xyplot, xx, yy, gsOpts)
@@ -4611,19 +4667,19 @@ res -- A required instance of the Resources class having special
     txOpts.txFontColor       = colGreen
     txOpts.txFontHeightF     = 0.0100  
 
-    yy[1] = skewty( 400.)    # y at top [right end of slanted line]
-    yy[0] = skewty(1000.)    # y at bottom of line [was 1050.]
+    yy[1] = _skewty( 400.)    # y at top [right end of slanted line]
+    yy[0] = _skewty(1000.)    # y at bottom of line [was 1050.]
 
     for i in range(0,nmix):
       if (mixrat[i] == 20.):
-        yy[1] = skewty(440.)
-        tmix  = dtmrskewt(mixrat[i],440.)
+        yy[1] = _skewty(440.)
+        tmix  = _dtmrskewt(mixrat[i],440.)
       else:
-        yy[1] = skewty(400.)
-        tmix  = dtmrskewt(mixrat[i],400.)
-      xx[1] = skewtx(tmix,yy[1])
-      tmix  = dtmrskewt(mixrat[i],1000.)   # was 1050
-      xx[0] = skewtx(tmix,yy[0])
+        yy[1] = _skewty(400.)
+        tmix  = _dtmrskewt(mixrat[i],400.)
+      xx[1] = _skewtx(tmix,yy[1])
+      tmix  = _dtmrskewt(mixrat[i],1000.)   # was 1050
+      xx[0] = _skewtx(tmix,yy[0])
       polyline (wks,xyplot,xx,yy,gsOpts)   # dashed green
 
       xlab  = xx[0]-0.25
@@ -4655,20 +4711,20 @@ res -- A required instance of the Resources class having special
       for j in range(0,len(sy)):
         p = p+pinc
         if (p > rendth[i]):
-          sy[j] = skewty(rendth[i])
-          t     = dtdaskewt(theta[i],p)   # get temp on dry adiabat at p
-          sx[j] = skewtx(t,sy[j])
+          sy[j] = _skewty(rendth[i])
+          t     = _dtdaskewt(theta[i],p)   # get temp on dry adiabat at p
+          sx[j] = _skewtx(t,sy[j])
           break 
-        sy[j] = skewty(p)
-        t     = dtdaskewt(theta[i],p)
-        sx[j] = skewtx(t,sy[j])
+        sy[j] = _skewty(p)
+        t     = _dtdaskewt(theta[i],p)
+        sx[j] = _skewtx(t,sy[j])
       #polyline (wks,xyplot,sx[:j-1],sy[:j-1],gsOpts)     # whole line  
 
       if (theta[i] < 170.):
         polyline (wks,xyplot,sx[1:j],sy[1:j],gsOpts)  # label room  
-        ylab  = skewty(lendth[i]+5.)
-        t     = dtdaskewt(theta[i],lendth[i]+5.)
-        xlab  = skewtx(t,ylab)
+        ylab  = _skewty(lendth[i]+5.)
+        t     = _dtdaskewt(theta[i],lendth[i]+5.)
+        xlab  = _skewtx(t,ylab)
         label = int(theta[i])
         text(wks,xyplot,str(label),xlab,ylab,txOpts)
       else:                                            # no label
@@ -4700,15 +4756,15 @@ res -- A required instance of the Resources class having special
         p = p - pinc
         if (p < 230.):     # was "250"
           break
-        sy[j] = skewty(p)
-        t     = dsatlftskewt(pseudo[i],p)    # temp on moist adiabat at p.
-        sx[j] = skewtx(t,sy[j])
+        sy[j] = _skewty(p)
+        t     = _dsatlftskewt(pseudo[i],p)    # temp on moist adiabat at p.
+        sx[j] = _skewtx(t,sy[j])
 
       polyline (wks, xyplot, sx[:j-1], sy[:j-1], gsOpts)
 
-      ylab  = skewty(p + 0.5*pinc)
-      t     = dsatlftskewt(pseudo[i], p + 0.75*pinc)
-      xlab  = skewtx(t,ylab)
+      ylab  = _skewty(p + 0.5*pinc)
+      t     = _dsatlftskewt(pseudo[i], p + 0.75*pinc)
+      xlab  = _skewtx(t,ylab)
       label = int(pseudo[i])     # 9 Feb 99 fix
       text(wks, xyplot, str(label), xlab, ylab, txOpts)
 
@@ -4722,8 +4778,8 @@ res -- A required instance of the Resources class having special
       gsOpts.gsLineDashPattern = 0             
 
       for i in range(0,nlvl):
-         sy[i] = skewty(psa[i])
-         sx[i] = skewtx(tsa[i], sy[i])
+         sy[i] = _skewty(psa[i])
+         sx[i] = _skewtx(tsa[i], sy[i])
 
       polyline (wks, xyplot, sx[0:nlvl], sy[0:nlvl], gsOpts)
       del gsOpts
@@ -4741,12 +4797,12 @@ res -- A required instance of the Resources class having special
 
       presWind      = pres
       presWind[0]   = 1013.          # override 1050
-      xWind         = skewtx (45. , skewty(presWind[0])) 
+      xWind         = _skewtx (45. , _skewty(presWind[0])) 
       sx[0:npres] = xWind            # "x" location of wind plot
       try:
-        sy[0:npres] = skewty(presWind).astype(numpy.Float0)
+        sy[0:npres] = _skewty(presWind).astype(numpy.Float0)
       except:
-        sy[0:npres] = skewty(presWind).astype(numpy.float)
+        sy[0:npres] = _skewty(presWind).astype(numpy.float)
       polyline   (wks, xyplot, sx[0:npres], sy[0:npres], gsOpts)
       polymarker (wks, xyplot, sx[1:npres], sy[1:npres], gsOpts)
                                      # zwind => Pibal reports
@@ -4761,9 +4817,9 @@ res -- A required instance of the Resources class having special
 
       sx[0:nzkmW]  = xWind              # "x" location of wind plot
       try:
-        sy[0:nzkmW]  = skewty(pkmWind).astype(numpy.Float0)
+        sy[0:nzkmW]  = _skewty(pkmWind).astype(numpy.Float0)
       except:
-        sy[0:nzkmW]  = skewty(pkmWind).astype(numpy.float)
+        sy[0:nzkmW]  = _skewty(pkmWind).astype(numpy.float)
 
       gsOpts.gsMarkerIndex      = 16     # "circle_filled" -> Pibal
       gsOpts.gsMarkerSizeF      = 0.0035 # 0.007 is default
@@ -4817,7 +4873,7 @@ dataOpts -- An optional instance of the Resources class having
 #  Check for new resource names in dataOpts and convert them to
 #  the original ones and set them as dataOpts attributes.
 #
-  OptsAtts = crt_dict(dataOpts)
+  OptsAtts = _crt_dict(dataOpts)
   for new_name in OptsAtts.keys():
     if (RscConv.has_key(new_name)):
       setattr( dataOpts,RscConv[new_name],OptsAtts[new_name])
@@ -4861,9 +4917,9 @@ dataOpts -- An optional instance of the Resources class having
   else:
     Hmissing = -999.
 
-  mv0 = numpy.logical_and(numpy.logical_not(ismissing( P,Pmissing)),   \
-                          numpy.logical_not(ismissing(TC,TCmissing)))
-  mv1 = numpy.logical_and(mv0,numpy.logical_not(ismissing(TDC,TDCmissing)))
+  mv0 = numpy.logical_and(numpy.logical_not(_ismissing( P,Pmissing)),   \
+                          numpy.logical_not(_ismissing(TC,TCmissing)))
+  mv1 = numpy.logical_and(mv0,numpy.logical_not(_ismissing(TDC,TDCmissing)))
   mv2 = numpy.logical_and(mv1,numpy.greater_equal(P,100.))
   idx = ind(mv2)
   del mv0,mv1,mv2
@@ -4894,7 +4950,7 @@ dataOpts -- An optional instance of the Resources class having
     if (not isinstance(dataOpts,Resources)):
       print "skewt_plt: last argument must be an Ngl Resources instance."
       return None
-    OptsAtts = crt_dict(dataOpts)
+    OptsAtts = _crt_dict(dataOpts)
     if (len(OptsAtts) != 0):
       for key in OptsAtts.keys():
         setattr(localOpts,key,OptsAtts[key])
@@ -4986,12 +5042,12 @@ dataOpts -- An optional instance of the Resources class having
   if (hasattr(localOpts,"gsLineThicknessF")):
     gsOpts.gsLineThicknessF = localOpts.gsLineThicknessF
 
-  yp   = skewty(p)
-  xtc  = skewtx(tc, yp)
+  yp   = _skewty(p)
+  xtc  = _skewtx(tc, yp)
   gsOpts.gsLineColor  = sktcolTemperature
   polyline(wks, skewt_bkgd, xtc, yp, gsOpts)
 
-  xtdc = skewtx(tdc, yp)
+  xtdc = _skewtx(tdc, yp)
   gsOpts.gsLineColor  = sktcolDewPt
   polyline(wks, skewt_bkgd, xtdc, yp, gsOpts)
 
@@ -5002,10 +5058,10 @@ dataOpts -- An optional instance of the Resources class having
     nlvls= len(p)
     plcl = -999.             # p (hPa) Lifting Condensation Lvl (lcl)
     tlcl = -999.             # temperature (C) of lcl
-    plcl, tlcl = dptlclskewt(p[nP],tc[nP],tdc[nP])
-    shox = dshowalskewt(p,tc,tdc,nlvls)     # Showwalter Index
+    plcl, tlcl = _dptlclskewt(p[nP],tc[nP],tdc[nP])
+    shox = _dshowalskewt(p,tc,tdc,nlvls)     # Showwalter Index
 
-    pwat = dpwskewt(tdc,p,nlvls)            # precipitable water (cm)
+    pwat = _dpwskewt(tdc,p,nlvls)            # precipitable water (cm)
 
     iprnt= 0                                # debug only (>0)
     nlLcl= 0                              
@@ -5014,7 +5070,7 @@ dataOpts -- An optional instance of the Resources class having
 
     if (hasattr(localOpts,"sktTCmissingV")):
       TCmissing = localOpts.sktTCmissingV
-      if (ismissing(tc,TCmissing)):
+      if (_ismissing(tc,TCmissing)):
         print "skewt_plt: tc (temperature) cannot have missing values if sktThermoInfoLabelOn is True."
         return None
     TCmissing = -999.
@@ -5045,8 +5101,8 @@ dataOpts -- An optional instance of the Resources class having
       gsOpts.gsLineDashPattern = 1         # 14
       gsOpts.gsLineThicknessF  = 2.0
 
-      yp   = skewty(p)
-      xtp  = skewtx(tpar, yp)
+      yp   = _skewty(p)
+      xtp  = _skewtx(tpar, yp)
       polyline(wks, skewt_bkgd, xtp[nlLfc:nlCross+1], \
                    yp[nlLfc:nlCross+1], gsOpts)
       del gsOpts
@@ -5067,14 +5123,14 @@ dataOpts -- An optional instance of the Resources class having
                              300., 250., 200., 150., 100.   \
                            ],'f')
 
-    yz = skewty(1000.)
-    xz = skewtx(-30., yz)        # constant "x"
+    yz = _skewty(1000.)
+    xz = _skewtx(-30., yz)        # constant "x"
     for nl in range(len(P)):
 
-     if ( numpy.logical_not(ismissing(P[nl],Pmissing)) and   \
-          numpy.logical_not(ismissing(Z[nl],Zmissing)) and   \
+     if ( numpy.logical_not(_ismissing(P[nl],Pmissing)) and   \
+          numpy.logical_not(_ismissing(Z[nl],Zmissing)) and   \
           numpy.sometrue(numpy.equal(Pprint,P[nl])) ):
-       yz  = skewty(P[nl])
+       yz  = _skewty(P[nl])
        text(wks, skewt_bkgd, str(int(Z[nl])), xz, yz, txOpts)
     del txOpts
 
@@ -5086,14 +5142,14 @@ dataOpts -- An optional instance of the Resources class having
 #  Check if WSPD has a missing value attribute specified and
 #  that not all WSPD values are missing values.
 #
-    if (numpy.logical_not(numpy.alltrue(ismissing(WSPD,WSPDmissing)))):
+    if (numpy.logical_not(numpy.alltrue(_ismissing(WSPD,WSPDmissing)))):
 #
 #  IDW - indices where P/WSPD/WDIR are all not missing.
 #
-      mv0 = numpy.logical_and(numpy.logical_not(ismissing(P,Pmissing)), \
-            numpy.logical_not(ismissing(WSPD,WSPDmissing)))
+      mv0 = numpy.logical_and(numpy.logical_not(_ismissing(P,Pmissing)), \
+            numpy.logical_not(_ismissing(WSPD,WSPDmissing)))
       mv1 = numpy.logical_and(mv0,  \
-            numpy.logical_not(ismissing(WDIR,WDIRmissing)))
+            numpy.logical_not(_ismissing(WDIR,WDIRmissing)))
       mv2 = numpy.logical_and(mv1,numpy.greater_equal(P,100.))
       IDW = ind(mv2)
       if (hasattr(localOpts,"sktWthin") and localOpts.sktWthin > 1):
@@ -5120,20 +5176,20 @@ dataOpts -- An optional instance of the Resources class having
 
       wbcol = wmgetp("col")                # get current wbarb color
       wmsetp("col",get_named_color_index(wks,sktcolWindP)) # set new color
-      ypWind = skewty(pw)
+      ypWind = _skewty(pw)
       xpWind = numpy.ones(len(pw),'f')
 #
 #  Location of wind barb.
 #
-      xpWind = skewtx(45., skewty(1013.)) * xpWind
+      xpWind = _skewtx(45., _skewty(1013.)) * xpWind
       wmbarb(wks, xpWind, ypWind, up, vp)
       wmsetp("col",wbcol)               # restore initial color.
 
-      mv0 = numpy.logical_and(numpy.logical_not(ismissing( Z,Zmissing)), \
-            numpy.logical_not(ismissing(WSPD,WSPDmissing)))
+      mv0 = numpy.logical_and(numpy.logical_not(_ismissing( Z,Zmissing)), \
+            numpy.logical_not(_ismissing(WSPD,WSPDmissing)))
       mv1 = numpy.logical_and(mv0, \
-            numpy.logical_not(ismissing(WDIR,WDIRmissing)))
-      mv2 = numpy.logical_and(mv1,ismissing(P,Pmissing))
+            numpy.logical_not(_ismissing(WDIR,WDIRmissing)))
+      mv2 = numpy.logical_and(mv1,_ismissing(P,Pmissing))
       idz = ind(mv2)
 
       if (len(idz) > 0):
@@ -5149,8 +5205,8 @@ dataOpts -- An optional instance of the Resources class having
 #
 #  idzp flags where Z and P have non-missing values.
 #
-        mv0  = numpy.logical_not(ismissing(P,Pmissing))
-        mv1  = numpy.logical_not(ismissing(Z,Zmissing))
+        mv0  = numpy.logical_not(_ismissing(P,Pmissing))
+        mv1  = numpy.logical_not(_ismissing(Z,Zmissing))
         mv2  = numpy.logical_and(mv0,mv1)
         idzp = ind(mv2)
         Zv   = numpy.take(Z,idzp)
@@ -5159,9 +5215,9 @@ dataOpts -- An optional instance of the Resources class having
 
         wbcol = wmgetp("col")
         wmsetp("col",get_named_color_index(wks,sktcolWindZ)) 
-        yzWind = skewty(pz)
+        yzWind = _skewty(pz)
         xzWind = numpy.ones(len(pz),'f')
-        xzWind = skewtx(45., skewty(1013.)) * xzWind
+        xzWind = _skewtx(45., _skewty(1013.)) * xzWind
  
         wmbarb(wks, xzWind, yzWind, uz, vz )
         wmsetp("col",wbcol)
@@ -5176,7 +5232,7 @@ dataOpts -- An optional instance of the Resources class having
       dimHspd   = len(localOpts.sktHspd  )
       dimHdir   = len(localOpts.sktHdir  )
       if (dimHeight == dimHspd and dimHeight == dimHdir and \
-          numpy.logical_not(numpy.alltrue(ismissing(localOpts.sktHeight,Hmissing)))):
+          numpy.logical_not(numpy.alltrue(_ismissing(localOpts.sktHeight,Hmissing)))):
         if (localOpts.sktHspdHdir):
           dirh = 0.017453 * localOpts.sktHdir
           uh   = -localOpts.sktHspd * numpy.sin(dirh)
@@ -5185,8 +5241,8 @@ dataOpts -- An optional instance of the Resources class having
           uh   = localOpts.sktHspd
           vh   = localOpts.sktHdir
 
-        mv0  = numpy.logical_not(ismissing(P,Pmissing))
-        mv1  = numpy.logical_not(ismissing(Z,Zmissing))
+        mv0  = numpy.logical_not(_ismissing(P,Pmissing))
+        mv1  = numpy.logical_not(_ismissing(Z,Zmissing))
         mv2  = numpy.logical_and(mv0,mv1)
         idzp = ind(mv2)
         Zv   = numpy.take(Z,idzp)
@@ -5198,9 +5254,9 @@ dataOpts -- An optional instance of the Resources class having
           wbcol = wmgetp("col")             # get current color index
           wmsetp("col",get_named_color_index(wks,sktcolWindH)) # set new color
   
-          yhWind = skewty(ph)
+          yhWind = _skewty(ph)
           xhWind = numpy.ones(len(ph),'f')
-          xhWind = skewtx(45., skewty(1013.)) * xhWind
+          xhWind = _skewtx(45., _skewty(1013.)) * xhWind
           if (yhWind != None and xhWind != None):
             wmbarb(wks, xhWind, yhWind, uh, vh )
           wmsetp("col",wbcol)              # reset to initial color value
@@ -5224,11 +5280,11 @@ res -- An optional instance of the Resources class having PyNGL
   """
 
 # Get NumPy array from masked arrays, if necessary.
-  uar2,uar_fill_value = get_arr_and_fill_value(uarray)
-  var2,var_fill_value = get_arr_and_fill_value(varray)
+  uar2,uar_fill_value = _get_arr_and_fill_value(uarray)
+  var2,var_fill_value = _get_arr_and_fill_value(varray)
 
-  set_spc_defaults(1)
-  rlist = crt_dict(rlistc)  
+  _set_spc_defaults(1)
+  rlist = _crt_dict(rlistc)  
  
 #  Separate the resource dictionary into those resources
 #  that apply to VectorField and those that apply to
@@ -5238,11 +5294,11 @@ res -- An optional instance of the Resources class having PyNGL
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])      
     else:
       rlist2[key] = rlist[key]
 
@@ -5256,11 +5312,11 @@ res -- An optional instance of the Resources class having PyNGL
         rlist3[key] = rlist[key]
     
 # Set missing value resources, if necessary
-  set_msg_val_res(rlist1,uar_fill_value,"vector_u")
-  set_msg_val_res(rlist1,var_fill_value,"vector_v")
+  _set_msg_val_res(rlist1,uar_fill_value,"vector_u")
+  _set_msg_val_res(rlist1,var_fill_value,"vector_v")
 
-  set_streamline_res(rlist,rlist2)    # Set some addtl streamline resources
-  set_tickmark_res(rlist,rlist3)      # Set some addtl tickmark resources
+  _set_streamline_res(rlist,rlist2)    # Set some addtl streamline resources
+  _set_tickmark_res(rlist,rlist3)      # Set some addtl tickmark resources
 
 #
 #  Call the wrapped function and return.
@@ -5273,7 +5329,7 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist1
   del rlist2
   del rlist3
-  return(lst2pobj(strm))
+  return(_lst2pobj(strm))
 
 def streamline_map(wks,uarray,varray,rlistc=None):
   """
@@ -5291,11 +5347,11 @@ res -- An optional instance of the Resources class having PyNGL
   """
 
 # Get NumPy array from masked arrays, if necessary.
-  uar2,uar_fill_value = get_arr_and_fill_value(uarray)
-  var2,var_fill_value = get_arr_and_fill_value(varray)
+  uar2,uar_fill_value = _get_arr_and_fill_value(uarray)
+  var2,var_fill_value = _get_arr_and_fill_value(varray)
 
-  set_spc_defaults(1)
-  rlist = crt_dict(rlistc)  
+  _set_spc_defaults(1)
+  rlist = _crt_dict(rlistc)  
  
 #  Separate the resource dictionary into those resources
 #  that apply to VectorField, MapPlot, and StreamlinePlot.
@@ -5304,7 +5360,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
@@ -5312,16 +5368,16 @@ res -- An optional instance of the Resources class having PyNGL
           (key[0:2] == "ti") ):
       rlist3[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])      
     else:
       rlist2[key] = rlist[key]
 
 # Set missing value resources, if necessary
-  set_msg_val_res(rlist1,uar_fill_value,"vector_u")
-  set_msg_val_res(rlist1,var_fill_value,"vector_v")
+  _set_msg_val_res(rlist1,uar_fill_value,"vector_u")
+  _set_msg_val_res(rlist1,var_fill_value,"vector_v")
 
-  set_map_res(rlist,rlist3)           # Set some addtl map resources
-  set_streamline_res(rlist,rlist2)    # Set some addtl streamline resources
+  _set_map_res(rlist,rlist3)           # Set some addtl map resources
+  _set_streamline_res(rlist,rlist2)    # Set some addtl streamline resources
     
 #
 #  Call the wrapped function and return.
@@ -5334,7 +5390,7 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist1
   del rlist2
   del rlist3
-  return(lst2pobj(strm))
+  return(_lst2pobj(strm))
 
 def streamline_scalar(wks,uarray,varray,tarray,rlistc=None):
   """
@@ -5354,12 +5410,12 @@ res -- An optional instance of the Resources class having PyNGL
   """
 
 # Get NumPy array from masked arrays, if necessary.
-  uar2,uar_fill_value = get_arr_and_fill_value(uarray)
-  var2,var_fill_value = get_arr_and_fill_value(varray)
-  tar2,tar_fill_value = get_arr_and_fill_value(tarray)
+  uar2,uar_fill_value = _get_arr_and_fill_value(uarray)
+  var2,var_fill_value = _get_arr_and_fill_value(varray)
+  tar2,tar_fill_value = _get_arr_and_fill_value(tarray)
 
-  set_spc_defaults(1)
-  rlist = crt_dict(rlistc)  
+  _set_spc_defaults(1)
+  rlist = _crt_dict(rlistc)  
  
 #  Separate the resource dictionary into those resources
 #  that apply to VectorField, ScalarField, and StreamlinePlot.
@@ -5369,13 +5425,13 @@ res -- An optional instance of the Resources class having PyNGL
   rlist3 = {}
   rlist4 = {}
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:2] == "sf"):
       rlist2[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])      
     else:
       rlist3[key] = rlist[key]
 #
@@ -5388,13 +5444,13 @@ res -- An optional instance of the Resources class having PyNGL
         rlist4[key] = rlist[key]
     
 # Set missing value resources, if necessary
-  set_msg_val_res(rlist1,uar_fill_value,"vector_u")
-  set_msg_val_res(rlist1,var_fill_value,"vector_v")
-  set_msg_val_res(rlist2,tar_fill_value,"scalar")
+  _set_msg_val_res(rlist1,uar_fill_value,"vector_u")
+  _set_msg_val_res(rlist1,var_fill_value,"vector_v")
+  _set_msg_val_res(rlist2,tar_fill_value,"scalar")
 
-  set_streamline_res(rlist,rlist3)    # Set some addtl vector resources
-  set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
-  set_tickmark_res(rlist,rlist4)      # Set some addtl tickmark resources
+  _set_streamline_res(rlist,rlist3)    # Set some addtl vector resources
+  _set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
+  _set_tickmark_res(rlist,rlist4)      # Set some addtl tickmark resources
 
 #
 #  Call the wrapped function and return.
@@ -5410,7 +5466,7 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist2
   del rlist3
   del rlist4
-  return lst2pobj(ivct)
+  return _lst2pobj(ivct)
 
 def streamline_scalar_map(wks,uarray,varray,tarray,rlistc=None):
   """
@@ -5430,12 +5486,12 @@ res -- An optional instance of the Resources class having PyNGL
   """
 
 # Get NumPy array from masked arrays, if necessary.
-  uar2,uar_fill_value = get_arr_and_fill_value(uarray)
-  var2,var_fill_value = get_arr_and_fill_value(varray)
-  tar2,tar_fill_value = get_arr_and_fill_value(tarray)
+  uar2,uar_fill_value = _get_arr_and_fill_value(uarray)
+  var2,var_fill_value = _get_arr_and_fill_value(varray)
+  tar2,tar_fill_value = _get_arr_and_fill_value(tarray)
 
-  set_spc_defaults(1)
-  rlist = crt_dict(rlistc)  
+  _set_spc_defaults(1)
+  rlist = _crt_dict(rlistc)  
  
 #  Separate the resource dictionary into those resources
 #  that apply to VectorField, ScalarField, MapPlot, and 
@@ -5446,7 +5502,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist3 = {}
   rlist4 = {}
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:2] == "sf"):
@@ -5456,18 +5512,18 @@ res -- An optional instance of the Resources class having PyNGL
           (key[0:2] == "ti") ):
       rlist4[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])      
     else:
       rlist3[key] = rlist[key]
     
 # Set missing value resources, if necessary
-  set_msg_val_res(rlist1,uar_fill_value,"vector_u")
-  set_msg_val_res(rlist1,var_fill_value,"vector_v")
-  set_msg_val_res(rlist2,tar_fill_value,"scalar")
+  _set_msg_val_res(rlist1,uar_fill_value,"vector_u")
+  _set_msg_val_res(rlist1,var_fill_value,"vector_v")
+  _set_msg_val_res(rlist2,tar_fill_value,"scalar")
 
-  set_map_res(rlist,rlist4)           # Set some addtl map resources
-  set_streamline_res(rlist,rlist3)    # Set some addtl streamline resources
-  set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
+  _set_map_res(rlist,rlist4)           # Set some addtl map resources
+  _set_streamline_res(rlist,rlist3)    # Set some addtl streamline resources
+  _set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
 
 #
 #  Call the wrapped function and return.
@@ -5483,7 +5539,7 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist2
   del rlist3
   del rlist4
-  return lst2pobj(ivct)
+  return _lst2pobj(ivct)
 
 def text(wks, plot, text, x, y, rlistc=None):
   """
@@ -5504,19 +5560,19 @@ x, y -- One-dimensional arrays containing the x, y coordinates of the
 res -- An optional variable containing a list of TextItem resources,
        attached as attributes.
   """
-  set_spc_defaults(0)
-  rlist = crt_dict(rlistc)
+  _set_spc_defaults(0)
+  rlist = _crt_dict(rlistc)
   rlist1 = {}
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
     if(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])      
     else:
       rlist1[key] = rlist[key]
-  itxt = text_wrap(wks,pobj2lst(plot),text,x,y,"double","double",rlist1,pvoid())
+  itxt = text_wrap(wks,_pobj2lst(plot),text,x,y,"double","double",rlist1,pvoid())
   del rlist
   del rlist1
-  return(lst2pobj(itxt))
+  return(_lst2pobj(itxt))
 
 def text_ndc(wks, text, x, y, rlistc=None):
   """
@@ -5535,20 +5591,20 @@ x, y -- Scalars, one-dimensional NumPy arrays, or Python lists
 res -- An (optional) instance of the Resources class having TextItem
        resources as attributes.
   """
-  set_spc_defaults(0)
-  rlist = crt_dict(rlistc)
+  _set_spc_defaults(0)
+  rlist = _crt_dict(rlistc)
   rlist1 = {}
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
     if(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])      
     else:
       rlist1[key] = rlist[key]
 
   itxt = text_ndc_wrap(wks,text,x,y,"double","double",rlist1,pvoid())
   del rlist
   del rlist1
-  return (lst2pobj(itxt))
+  return (_lst2pobj(itxt))
 
 def update_workstation(obj):
   """
@@ -5558,7 +5614,7 @@ Ngl.update_workstation(wks)
 
 wks -- The identifier returned from calling Ngl.open_wks.
   """
-  NhlUpdateWorkstation(int_id(obj))
+  NhlUpdateWorkstation(_int_id(obj))
 
 def vector(wks,uarray,varray,rlistc=None):
   """
@@ -5581,11 +5637,11 @@ res -- An optional instance of the Resources class having PyNGL
     return None
 
 # Get NumPy array from masked arrays, if necessary.
-  uar2,uar_fill_value = get_arr_and_fill_value(uarray)
-  var2,var_fill_value = get_arr_and_fill_value(varray)
+  uar2,uar_fill_value = _get_arr_and_fill_value(uarray)
+  var2,var_fill_value = _get_arr_and_fill_value(varray)
 
-  set_spc_defaults(1)
-  rlist = crt_dict(rlistc)  
+  _set_spc_defaults(1)
+  rlist = _crt_dict(rlistc)  
  
 #  Separate the resource dictionary into those resources
 #  that apply to VectorField and those that apply to
@@ -5595,11 +5651,11 @@ res -- An optional instance of the Resources class having PyNGL
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])      
     else:
       rlist2[key] = rlist[key]
 #
@@ -5612,12 +5668,12 @@ res -- An optional instance of the Resources class having PyNGL
         rlist3[key] = rlist[key]
     
 # Set missing value resources, if necessary
-  set_msg_val_res(rlist1,uar_fill_value,"vector_u")
-  set_msg_val_res(rlist1,var_fill_value,"vector_v")
+  _set_msg_val_res(rlist1,uar_fill_value,"vector_u")
+  _set_msg_val_res(rlist1,var_fill_value,"vector_v")
 
-  set_vector_res(rlist,rlist2)        # Set some addtl vector resources
-  set_labelbar_res(rlist,rlist2,True) # Set some addtl labelbar resources
-  set_tickmark_res(rlist,rlist3)      # Set some addtl tickmark resources
+  _set_vector_res(rlist,rlist2)        # Set some addtl vector resources
+  _set_labelbar_res(rlist,rlist2,True) # Set some addtl labelbar resources
+  _set_tickmark_res(rlist,rlist3)      # Set some addtl tickmark resources
 
 #
 #  Call the wrapped function and return.
@@ -5630,7 +5686,7 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist1
   del rlist2
   del rlist3
-  return lst2pobj(ivct)
+  return _lst2pobj(ivct)
 
 def vector_map(wks,uarray,varray,rlistc=None):
   """
@@ -5654,11 +5710,11 @@ res -- An optional instance of the Resources class having PyNGL
     return None
 
 # Get NumPy array from masked arrays, if necessary.
-  uar2,uar_fill_value = get_arr_and_fill_value(uarray)
-  var2,var_fill_value = get_arr_and_fill_value(varray)
+  uar2,uar_fill_value = _get_arr_and_fill_value(uarray)
+  var2,var_fill_value = _get_arr_and_fill_value(varray)
 
-  set_spc_defaults(1)
-  rlist = crt_dict(rlistc)  
+  _set_spc_defaults(1)
+  rlist = _crt_dict(rlistc)  
  
 #  Separate the resource dictionary into those resources
 #  that apply to VectorField, MapPlot, and VectorPlot.
@@ -5667,7 +5723,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
@@ -5675,17 +5731,17 @@ res -- An optional instance of the Resources class having PyNGL
           (key[0:2] == "ti") ):
       rlist3[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])      
     else:
       rlist2[key] = rlist[key]
 
 # Set missing value resources, if necessary
-  set_msg_val_res(rlist1,uar_fill_value,"vector_u")
-  set_msg_val_res(rlist1,var_fill_value,"vector_v")
+  _set_msg_val_res(rlist1,uar_fill_value,"vector_u")
+  _set_msg_val_res(rlist1,var_fill_value,"vector_v")
 
-  set_map_res(rlist,rlist3)           # Set some addtl map resources
-  set_vector_res(rlist,rlist2)        # Set some addtl vector resources
-  set_labelbar_res(rlist,rlist2,True) # Set some addtl labelbar resources
+  _set_map_res(rlist,rlist3)           # Set some addtl map resources
+  _set_vector_res(rlist,rlist2)        # Set some addtl vector resources
+  _set_labelbar_res(rlist,rlist2,True) # Set some addtl labelbar resources
     
 #
 #  Call the wrapped function and return.
@@ -5699,7 +5755,7 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist1
   del rlist2
   del rlist3
-  return lst2pobj(ivct)
+  return _lst2pobj(ivct)
 
 def vector_scalar(wks,uarray,varray,tarray,rlistc=None):
   """
@@ -5726,12 +5782,12 @@ res -- An optional instance of the Resources class having PyNGL
     return None
 
 # Get NumPy array from masked arrays, if necessary.
-  uar2,uar_fill_value = get_arr_and_fill_value(uarray)
-  var2,var_fill_value = get_arr_and_fill_value(varray)
-  tar2,tar_fill_value = get_arr_and_fill_value(tarray)
+  uar2,uar_fill_value = _get_arr_and_fill_value(uarray)
+  var2,var_fill_value = _get_arr_and_fill_value(varray)
+  tar2,tar_fill_value = _get_arr_and_fill_value(tarray)
 
-  set_spc_defaults(1)
-  rlist = crt_dict(rlistc)  
+  _set_spc_defaults(1)
+  rlist = _crt_dict(rlistc)  
  
 #  Separate the resource dictionary into those resources
 #  that apply to VectorField, ScalarField, and VectorPlot.
@@ -5741,13 +5797,13 @@ res -- An optional instance of the Resources class having PyNGL
   rlist3 = {}
   rlist4 = {}
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:2] == "sf"):
       rlist2[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])      
     else:
       rlist3[key] = rlist[key]
 #
@@ -5760,13 +5816,13 @@ res -- An optional instance of the Resources class having PyNGL
         rlist4[key] = rlist[key]
     
 # Set missing value resources, if necessary
-  set_msg_val_res(rlist1,uar_fill_value,"vector_u")
-  set_msg_val_res(rlist1,var_fill_value,"vector_v")
-  set_msg_val_res(rlist2,tar_fill_value,"scalar")
+  _set_msg_val_res(rlist1,uar_fill_value,"vector_u")
+  _set_msg_val_res(rlist1,var_fill_value,"vector_v")
+  _set_msg_val_res(rlist2,tar_fill_value,"scalar")
 
-  set_vector_res(rlist,rlist3)        # Set some addtl vector resources
-  set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
-  set_tickmark_res(rlist,rlist4)      # Set some addtl tickmark resources
+  _set_vector_res(rlist,rlist3)        # Set some addtl vector resources
+  _set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
+  _set_tickmark_res(rlist,rlist4)      # Set some addtl tickmark resources
 
 #
 #  Call the wrapped function and return.
@@ -5783,7 +5839,7 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist2
   del rlist3
   del rlist4
-  return lst2pobj(ivct)
+  return _lst2pobj(ivct)
 
 def vector_scalar_map(wks,uarray,varray,tarray,rlistc=None):
   """
@@ -5810,12 +5866,12 @@ res -- An optional instance of the Resources class having PyNGL
     return None
 
 # Get NumPy array from masked arrays, if necessary.
-  uar2,uar_fill_value = get_arr_and_fill_value(uarray)
-  var2,var_fill_value = get_arr_and_fill_value(varray)
-  tar2,tar_fill_value = get_arr_and_fill_value(tarray)
+  uar2,uar_fill_value = _get_arr_and_fill_value(uarray)
+  var2,var_fill_value = _get_arr_and_fill_value(varray)
+  tar2,tar_fill_value = _get_arr_and_fill_value(tarray)
 
-  set_spc_defaults(1)
-  rlist = crt_dict(rlistc)  
+  _set_spc_defaults(1)
+  rlist = _crt_dict(rlistc)  
  
 #  Separate the resource dictionary into those resources
 #  that apply to VectorField, ScalarField, MapPlot, and 
@@ -5826,7 +5882,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist3 = {}
   rlist4 = {}
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:2] == "sf"):
@@ -5836,18 +5892,18 @@ res -- An optional instance of the Resources class having PyNGL
           (key[0:2] == "ti") ):
       rlist4[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])      
     else:
       rlist3[key] = rlist[key]
     
 # Set missing value resources, if necessary
-  set_msg_val_res(rlist1,uar_fill_value,"vector_u")
-  set_msg_val_res(rlist1,var_fill_value,"vector_v")
-  set_msg_val_res(rlist2,tar_fill_value,"scalar")
+  _set_msg_val_res(rlist1,uar_fill_value,"vector_u")
+  _set_msg_val_res(rlist1,var_fill_value,"vector_v")
+  _set_msg_val_res(rlist2,tar_fill_value,"scalar")
 
-  set_map_res(rlist,rlist4)           # Set some addtl map resources
-  set_vector_res(rlist,rlist3)        # Set some addtl vector resources
-  set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
+  _set_map_res(rlist,rlist4)           # Set some addtl map resources
+  _set_vector_res(rlist,rlist3)        # Set some addtl vector resources
+  _set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
 
 #
 #  Call the wrapped function and return.
@@ -5863,9 +5919,9 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist2
   del rlist3
   del rlist4
-  return lst2pobj(ivct)
+  return _lst2pobj(ivct)
 
-def vinth2p (dati, hbcofa, hbcofb, plevo, psfc, intyp, p0, ii, kxtrp):     
+def vinth2p(dati, hbcofa, hbcofb, plevo, psfc, intyp, p0, ii, kxtrp):     
   """
 Interpolates CCSM hybrid coordinates to pressure coordinates.  A
 multi-dimensional NumPy array of the same shape as datai is
@@ -6138,8 +6194,8 @@ imdat -- A string of 50 characters encoded as per the WMO/NOAA guidelines.
 #  Process depending on whether we have scalar coordinates,
 #  NumPy arrays, or Python lists or tuples.
 # 
-  xa = arg_with_scalar(numpy.array(x))
-  ya = arg_with_scalar(numpy.array(y))
+  xa = _arg_with_scalar(numpy.array(x))
+  ya = _arg_with_scalar(numpy.array(y))
   if (type(imdat) == type('a')):
     imdata = numpy.array([imdat])
   else:
@@ -6168,19 +6224,19 @@ x, y -- The X and Y coordinates of the curve(s). These values can be
 res -- An (optional) instance of the Resources class having PyNGL
        resources as attributes.
   """
-  set_spc_defaults(1)
+  _set_spc_defaults(1)
 
 # Get NumPy array from masked arrays, if necessary.
-  xar2,xar_fill_value = get_arr_and_fill_value(xar)
-  yar2,yar_fill_value = get_arr_and_fill_value(yar)
+  xar2,xar_fill_value = _get_arr_and_fill_value(xar)
+  yar2,yar_fill_value = _get_arr_and_fill_value(yar)
 
 #
 #  Get input array dimension information.
 #
-  if is_list_or_tuple(xar2):
+  if _is_list_or_tuple(xar2):
     ndims_x = 1
     dsizes_x = (len(xar2),)
-  elif is_numpy_array(xar2):
+  elif _is_numpy_array(xar2):
     ndims_x = (len(xar2.shape))
     dsizes_x = xar2.shape
   else:
@@ -6188,10 +6244,10 @@ res -- An (optional) instance of the Resources class having PyNGL
       "xy: type of argument 2 must be one of: list, tuple, or NumPy array"
     return None
 
-  if is_list_or_tuple(yar2):
+  if _is_list_or_tuple(yar2):
     ndims_y = 1
     dsizes_y = (len(yar2),)
-  elif is_numpy_array(yar2):
+  elif _is_numpy_array(yar2):
     ndims_y = (len(yar2.shape))
     dsizes_y = yar2.shape
   else:
@@ -6199,7 +6255,7 @@ res -- An (optional) instance of the Resources class having PyNGL
       "xy: type of argument 3 must be one of: list, tuple, or NumPy array"
     return None
 
-  rlist = crt_dict(rlistc)  
+  rlist = _crt_dict(rlistc)  
  
 #
 #  Separate the resource dictionary into those resources
@@ -6210,11 +6266,11 @@ res -- An (optional) instance of the Resources class having PyNGL
   xyd_rlist = {}
 
 # Set missing value resources, if necessary
-  set_msg_val_res(rlist,xar_fill_value,"xy_x")
-  set_msg_val_res(rlist,yar_fill_value,"xy_y")
+  _set_msg_val_res(rlist,xar_fill_value,"xy_x")
+  _set_msg_val_res(rlist,yar_fill_value,"xy_y")
 
   for key in rlist.keys():
-    rlist[key] = convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_ma_to_numpy(rlist[key])
     if (key[0:2] == "ca"):
       ca_rlist[key] = rlist[key]
     elif (key[0:2] == "xy"):
@@ -6229,7 +6285,7 @@ res -- An (optional) instance of the Resources class having PyNGL
       else:
         xyd_rlist[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])      
     else:
       xy_rlist[key] = rlist[key]
 
@@ -6246,7 +6302,7 @@ res -- An (optional) instance of the Resources class having PyNGL
   del xyd_rlist
 
 # ret.xy and ret.base will be None if XY plot is invalid.
-  return(lst2pobj(ixy))
+  return(_lst2pobj(ixy))
 
 def y(wks,yar,rlistc=None):
   """
@@ -6268,17 +6324,17 @@ res -- An (optional) instance of the Resources class having PyNGL
   """
   
 # Get NumPy array from masked array, if necessary.
-  yar2,fill_value = get_arr_and_fill_value(yar)
+  yar2,fill_value = _get_arr_and_fill_value(yar)
 
 #
 #  Get input array dimension information. We have to go through all
 #  of this just to get the number of points, which we need for the
 # "range" call below.
 #
-  if is_list_or_tuple(yar2):
+  if _is_list_or_tuple(yar2):
     ndims_y = 1
     dsizes_y = (len(yar2),)
-  elif is_numpy_array(yar2):
+  elif _is_numpy_array(yar2):
     ndims_y = (len(yar2.shape))
     dsizes_y = yar2.shape
   else:
@@ -6318,9 +6374,9 @@ Return values
 r, g, b -- The red, green, and blue intensity values in the range
            [0.,1.].
   """
-  if (is_scalar(y) and is_scalar(i) and is_scalar(q)):
+  if (_is_scalar(y) and _is_scalar(i) and _is_scalar(q)):
     return(c_yiqrgb(y,i,q))
-  if (is_numpy_array(y) and is_numpy_array(i) and is_numpy_array(q)):
+  if (_is_numpy_array(y) and _is_numpy_array(i) and _is_numpy_array(q)):
     ishape = y.shape
     dimc = len(y.ravel())
     rr = numpy.zeros(dimc,'f')
@@ -6331,8 +6387,8 @@ r, g, b -- The red, green, and blue intensity values in the range
     rr.shape = gr.shape = br.shape = ishape
     del dimc,ishape
     return rr,gr,br
-  elif ( ( is_list(y) and  is_list(i) and  is_list(q)) or    \
-         (is_tuple(y) and is_tuple(i) and is_tuple(q)) ):
+  elif ( _is_list_or_tuple(y) and _is_list_or_tuple(i) and \
+         _is_list_or_tuple(q) ):
     yi = numpy.array(y,'f')
     ii = numpy.array(i,'f')
     qi = numpy.array(q,'f')
@@ -6356,7 +6412,7 @@ r, g, b -- The red, green, and blue intensity values in the range
 import fplib
 
 #
-#  get_ma_fill_value(arr)
+#  _get_ma_fill_value(arr)
 #     input: 
 #       arr - any Python object
 #     output:
@@ -6366,12 +6422,15 @@ import fplib
 #         if arr is not a masked array
 #            type and fill_value are returned as None.
 #
-def get_ma_fill_value(arr):
+def _get_ma_fill_value(arr):
 #
 #  If arr is a numpy masked array, return its fill value.
 #
   if HAS_MA and ma.isMaskedArray(arr):
-    return "ma",arr._fill_value
+    if IS_NEW_MA:
+      return "ma",arr.fill_value
+    else:
+      return "ma",arr.fill_value()
 #
 #  Not a NumPy masked array.
 #
@@ -6379,14 +6438,15 @@ def get_ma_fill_value(arr):
 
 #
 # Special function to deal with values that may come in as
-# a scalar (as defined by the "is_scalar" function above)
+# a scalar (as defined by the "_is_scalar" function above)
 # that need to be converted to something that won't
 # register as having 0 dimensions.  We do this by 
 # promoting it to a numpy array.
 #
-def promote_scalar(x):
-  if is_scalar(x):
+def _promote_scalar(x):
+  if _is_scalar(x):
     import numpy
     return numpy.array([x])
   else:
     return x
+
