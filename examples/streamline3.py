@@ -140,16 +140,15 @@ del stres.nglFrame
 # Copy all three resource lists to one big resource list.
 #
 resources = Ngl.Resources()
-list  = Ngl.crt_dict(mpres)
-for key in list.keys():
-  setattr(resources,key,list[key])
-list  = Ngl.crt_dict(cnres)
-for key in list.keys():
-  if key[0:6] != 'cnLine':
-    setattr(resources,key,list[key])
-list  = Ngl.crt_dict(stres)
-for key in list.keys():
-  setattr(resources,key,list[key])
+for t in dir(cnres):
+  if len(t) > 5 and t[0:6] != 'cnLine':
+    setattr(resources,t,getattr(cnres,t))
+
+for t in dir(mpres):
+  setattr(resources,t,getattr(mpres,t))
+
+for t in dir(stres):
+  setattr(resources,t,getattr(stres,t))
 
 #resources.pmLabelBarDisplayMode = "Always"
 resources.nglSpreadColorStart   = 3

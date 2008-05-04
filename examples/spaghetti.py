@@ -114,10 +114,9 @@ plot_base = Ngl.contour_map(wks,hgt0,mpres)
 # Copy just the contour resources from mpres to a new resource list (cnres).
 #
 cnres = Ngl.Resources()
-list  = Ngl.crt_dict(mpres)
-for key in list.keys():
-  if (key[0:2] == 'cn' or key[0:2] == 'sf' or key[0:3] == 'ngl'):
-    setattr(cnres,key,list[key])
+for t in dir(mpres):
+  if (t[0:2] == 'cn' or t[0:2] == 'sf' or t[0:3] == 'ngl'):
+    setattr(cnres,t,getattr(mpres,t))
 
 #
 # Loop over other 19 fields but only do contour plot.
