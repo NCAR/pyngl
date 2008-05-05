@@ -1867,7 +1867,7 @@ xndc,yndc = Ngl.datatondc(plot,xdata,ydata)
 plot -- The identifier returned from calling any plot object creation
         function, like Ngl.xy, Ngl.contour, Ngl.vector_map, etc.
 
-x,y -- One dimensional arrays containing values to be converted.
+xdata,ydata -- One dimensional arrays containing values to be converted.
   """
 
   error,xout,yout,status,range = \
@@ -3108,12 +3108,12 @@ def ndctodata(obj,x,y):
   """
 Converts coordinates in NDC space to coordinates in data space.
 
-xdata,y = Ngl.ndctodata(plot,xndc,yndc)
+xdata,ydata = Ngl.ndctodata(plot,xndc,yndc)
 
 plot -- The identifier returned from calling any plot object creation
         function, like Ngl.xy, Ngl.contour, Ngl.vector_map, etc.
 
-x,y -- One dimensional arrays containing values to be converted.
+xndc,yndc -- One dimensional arrays containing values to be converted.
   """
   error,xout,yout,status,range = \
      NhlPNDCToData(_int_id(obj),x,y,len(_promote_scalar(x)),1.e30,1.e30,1,1)
