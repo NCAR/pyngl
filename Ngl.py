@@ -1449,8 +1449,8 @@ wks -- The identifier returned from calling Ngl.open_wks.
 
 plot -- The id of the plot which you want to add the polygon to.
 
-x, y -- One-dimensional arrays containing the x, y coordinates of the
-        polygon.
+x, y -- One-dimensional (masked) NumPy arrays or Python lists containing
+        the x, y coordinates of the polygon.
 
 res -- An optional instance of the Resources class having GraphicStyle
        resources as attributes.
@@ -1468,8 +1468,8 @@ wks -- The identifier returned from calling Ngl.open_wks.
 
 plot -- The id of the plot which you want to add the polylines to.
 
-x, y -- One-dimensional arrays containing the x, y coordinates of the
-        polylines.
+x, y -- One-dimensional (masked) NumPy arrays containing the x, y
+        coordinates of the polylines.
 
 res -- An optional instance of the Resources class having GraphicStyle
        resources as attributes.
@@ -1487,8 +1487,8 @@ wks -- The identifier returned from calling Ngl.open_wks.
 
 plot -- The id of the plot which you want to add the polymarkers to.
 
-x, y -- One-dimensional arrays containing the x, y coordinates of the
-        polymarkers.
+x, y -- One-dimensional (masked) NumPy arrays containing the x, y
+        coordinates of the polymarkers.
 
 res -- An optional instance of the Resources class having GraphicStyle
        resources as attributes.
@@ -3537,8 +3537,8 @@ wks -- The identifier returned from calling Ngl.open_wks.
 
 plot -- The id of the plot on which you want to draw the polygon
 
-x, y -- One-dimensional NumPy arrays or Python lists containing the
-        x, y coordinates of the polygon, which must be in the same 
+x, y -- One-dimensional (masked) NumPy arrays or Python lists containing
+        the x, y coordinates of the polygon, which must be in the same 
         coordinate space as the plot.
 
 res -- An optional instance of the Resources class having
@@ -3555,8 +3555,8 @@ Ngl.polygon_ndc(wks, x, y, res=None)
 
 wks -- The identifier returned from calling Ngl.open_wks.
 
-x, y -- One-dimensional NumPy arrays or Python lists containing the
-        x, y NDC coordinates (values from 0 to 1) of the polygon.
+x, y -- One-dimensional (masked) NumPy arrays or Python lists containing
+        the x, y NDC coordinates (values from 0 to 1) of the polygon.
 
 res -- An optional instance of the Resources class having
        GraphicStyle resources as attributes.
@@ -3573,8 +3573,8 @@ wks -- The identifier returned from calling Ngl.open_wks.
 
 plot -- The id of the plot on which you want to draw the polylines.
 
-x, y -- One-dimensional NumPy arrays or Python lists containing the
-        x, y coordinates of the polylines, which must be in the same 
+x, y -- One-dimensional (masked) NumPy arrays or Python lists containing
+        the x, y coordinates of the polylines, which must be in the same 
         coordinate space as the plot.
 
 res -- An optional instance of the Resources class having
@@ -3590,8 +3590,8 @@ Ngl.polyline_ndc(wks, x, y, res=None)
 
 wks -- The identifier returned from calling Ngl.open_wks.
 
-x, y -- One-dimensional NumPy arrays or Python lists containing the
-        x, y NDC coordinates (values from 0 to 1) of the polylines.
+x, y -- One-dimensional (masked) NumPy arrays or Python lists containing
+        the x, y NDC coordinates (values from 0 to 1) of the polylines.
 
 res -- An optional instance of the Resources class having
        GraphicStyle resources as attributes.
@@ -3608,8 +3608,8 @@ wks -- The identifier returned from calling Ngl.open_wks.
 
 plot -- The id of the plot on which you want to draw the polymarkers.
 
-x, y -- One-dimensional NumPy arrays or Python lists containing the
-        x, y coordinates of the polymarkers, which must be in the same 
+x, y -- One-dimensional (masked) NumPy arrays or Python lists containing
+        the x, y coordinates of the polymarkers, which must be in the same 
         coordinate space as the plot.
 
 res -- An optional instance of the Resources class having
@@ -3625,8 +3625,8 @@ Ngl.polymarker_ndc(wks, x, y, res=None)
 
 wks -- The identifier returned from calling Ngl.open_wks.
 
-x, y -- One-dimensional NumPy arrays or Python lists containing the
-        x, y NDC coordinates (values from 0 to 1) of the polymarkers.
+x, y -- One-dimensional (masked) NumPy arrays or Python lists containing
+        the x, y NDC coordinates (values from 0 to 1) of the polymarkers.
 
 res -- An optional instance of the Resources class having
        GraphicStyle resources as attributes.
