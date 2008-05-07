@@ -4843,10 +4843,15 @@ bkgd -- The identifier returned from calling Ngl.skewt_bkg.
 
 P -- An array of pressure values (mb/hPa).
 
-TC -- An array of the same length as P containing temperature values (C).
+TC -- An array of the same length as P containing temperature values.  By
+      default these are assumed to be in Fahrenheit.  If you are using
+      Celsius, then you need to specify this using the resource
+      sktTemperatureUnits.
 
 TDC -- An array of the same length as P containing dew point
-       temperature values (C).
+       temperature values.  By default these are assumed to be in 
+       Fahrenheit.  If you are using Celsius, then you need to 
+       specify this using the resource sktTemperatureUnits.
 
 Z -- An array of the same length as P containing geopotential values
      (gpm).
@@ -4862,12 +4867,25 @@ dataOpts -- An optional instance of the Resources class having
   """
 #
 #  p    =  pressure     [mb / hPa]
-#  tc   = temperature   [C]
-#  tdc  = dew pt temp   [C]
+#  tc   = temperature   [F or C]
+#  tdc  = dew pt temp   [F or C]
 #  z    = geopotential  [gpm]
 #  wspd = wind speed    [knots or m/s]
 #  wdir = meteorological wind direction
 #
+
+#
+#  Check if the temperature and pressure data values are out of range.
+#
+  if (numpy.any(TC > 150.)):
+      print "skewt_plt: temperature values are out of range for Fahrenheit or Celsius."
+      return None
+  if (numpy.any(TDC > 150.)):
+      print "skewt_plt: dew point temperature values are out of range for Fahrenheit or Celsius."
+      return None
+  if (numpy.any(P > 1100.)):
+      print "skewt_plt: pressure values are out of range (must be in millibars)."
+      return None
 
 #
 #  Check for new resource names in dataOpts and convert them to
