@@ -4874,18 +4874,6 @@ dataOpts -- An optional instance of the Resources class having
 #  wdir = meteorological wind direction
 #
 
-#
-#  Check if the temperature and pressure data values are out of range.
-#
-  if (numpy.any(TC > 150.)):
-      print "skewt_plt: temperature values are out of range for Fahrenheit or Celsius."
-      return None
-  if (numpy.any(TDC > 150.)):
-      print "skewt_plt: dew point temperature values are out of range for Fahrenheit or Celsius."
-      return None
-  if (numpy.any(P > 1100.)):
-      print "skewt_plt: pressure values are out of range (must be in millibars)."
-      return None
 
 #
 #  Check for new resource names in dataOpts and convert them to
@@ -4944,6 +4932,19 @@ dataOpts -- An optional instance of the Resources class having
   p   = numpy.take(  P,idx)
   tc  = numpy.take( TC,idx)
   tdc = numpy.take(TDC,idx)
+
+#
+#  Check if the temperature and pressure data values are out of range.
+#
+  if (numpy.any(tc > 150.)):
+      print "skewt_plt: temperature values are out of range for Fahrenheit or Celsius."
+      return None
+  if (numpy.any(tdc > 150.)):
+      print "skewt_plt: dew point temperature values are out of range for Fahrenheit or Celsius."
+      return None
+  if (numpy.any(p > 1100.)):
+      print "skewt_plt: pressure values are out of range (must be in millibars)."
+      return None
 
 #
 #  Local options describing data and ploting.
