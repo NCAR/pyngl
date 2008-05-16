@@ -6,7 +6,7 @@ import Numeric
 #
 # Check type of value.
 #
-def check_type(value,type_expected):
+def check_type(value,type_expected="numpy"):
   if type_expected == "numpy":
     try:
       import numpy

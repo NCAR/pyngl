@@ -14,16 +14,6 @@ default_type = "numpy"
 #
 import numpy
 
-USE_NMA = True   # If False, then maskedarray will be used
-if USE_NMA:
-  import numpy.core.ma as ma
-  ma_type = "nma"
-  Ngl.use_numpy_core_ma()     # Should be the default
-else:
-  import maskedarray as ma
-  ma_type = "pma"
-  Ngl.use_maskedarray()
-
 from utils import *
 
 #

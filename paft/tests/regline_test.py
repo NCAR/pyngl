@@ -1,14 +1,4 @@
 import Ngl,types
-USE_NMA = True   # If False, then maskedarray will be used
-
-if USE_NMA:
-  import numpy.core.ma as ma
-  ma_type = "nma"
-  Ngl.use_numpy_core_ma()     # Should be the default
-else:
-  import maskedarray as ma
-  ma_type = "pma"
-  Ngl.use_maskedarray()
 
 #
 # Leave these both alone, regardless of what module you are testing.
@@ -33,7 +23,8 @@ rc = Ngl.regline(x,y)
 check_type(rc,types.ListType)
 rcl,attrs = rc    # Separate into value and dictionary
 
-check_type(rcl,ma_type)
+print type(rcl)
+check_type(rcl,"nma")
 check_type(attrs,types.DictType)
 
 #
@@ -65,7 +56,7 @@ prob = (1 - Ngl.betainc(df/(df+attrs["tval"]**2),df/2.,0.5))
 test_value("betainc",prob,1.0)
 
 rcl = Ngl.regline(x,y,return_info=False)
-check_type(rcl,ma_type)
+check_type(rcl,"nma")
 test_value("regline (ma)",rcl,rcl_value,delta=1e-7)
 test_value("regline (fill_value)",rcl._fill_value,1e20)
 
