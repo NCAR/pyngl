@@ -354,14 +354,13 @@ def _ismissing(arg,mval):
 #  has True values in all places where "arg" has 
 #  missing values.
 #
-    if (isinstance(arg,numpy.generic)):
-      pass
-    elif (isinstance(arg,numpy.ndarray)):
+    arg2 = _convert_ma_to_numpy(arg)
+    if _is_numpy(arg2):
       pass
     else:
       print "_ismissing: first argument must be a numpy array or scalar."
       return None
-    return(numpy.equal(arg,mval))
+    return(numpy.equal(arg2,mval))
 
 def _get_values(obj,rlistc):
   rlist = crt_dict(rlistc)
@@ -4829,6 +4828,27 @@ res -- A required instance of the Resources class having special
 
   return xyplot
 
+#
+# Check if user has explicitly set a skewt missing value resource,
+# or whether there's one from a masked array. The masked array one
+# takes precedence, because this is the value that is used to fill
+# in all the missing value locations.
+#
+def _get_skewt_msg(varname,res_intrnl,res_public,opt,ma_fv):
+  if hasattr(opt,res_intrnl):
+    if ma_fv != None and ma_fv != getattr(opt,res_intrnl):
+      print "_get_skewt_msg:",res_public,"is being set to a different value"
+      print "           than the fill_value in the",varname,"masked array."
+      print "           The masked array fill_value will take precedence."
+      msg = ma_fv
+    else:
+      msg = getattr(opt,res_intrnl)
+  elif ma_fv != None:
+    msg = ma_fv
+  else:
+    msg = -999.
+  return msg
+
 def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR, 
              dataOpts=None):
   """
@@ -4874,6 +4894,16 @@ dataOpts -- An optional instance of the Resources class having
 #  wdir = meteorological wind direction
 #
 
+#
+# Make sure if we have masked arrays, they get converted to
+# numpy arrays.
+#
+  P2,fill_value_P2       = _get_arr_and_fill_value(P)
+  Z2,fill_value_Z2       = _get_arr_and_fill_value(Z)
+  TC2,fill_value_TC2     = _get_arr_and_fill_value(TC)
+  TDC2,fill_value_TDC2   = _get_arr_and_fill_value(TDC)
+  WSPD2,fill_value_WSPD2 = _get_arr_and_fill_value(WSPD)
+  WDIR2,fill_value_WDIR2 = _get_arr_and_fill_value(WDIR)
 
 #
 #  Check for new resource names in dataOpts and convert them to
@@ -4888,50 +4918,37 @@ dataOpts -- An optional instance of the Resources class having
 #  used in plotting the sounding and 
 #  in calculating thermodynamic quantities.
 #
-  if (hasattr(dataOpts,"sktPmissingV")):
-    Pmissing = dataOpts.sktPmissingV
-  else:
-    Pmissing = -999.
+  Pmissing    = _get_skewt_msg("P","sktPmissingV",
+                                   "sktPressureMissingV",
+                                  dataOpts,fill_value_P2)
+  TCmissing   = _get_skewt_msg("TC","sktTCmissingV",
+                                    "sktTemperatureMissingV",
+                                    dataOpts,fill_value_TC2)
+  TDCmissing  = _get_skewt_msg("TDC","sktTDCmissingV",
+                                     "sktDewPointMissingV",
+                                     dataOpts,fill_value_TDC2)
+  Zmissing    = _get_skewt_msg("Z","sktZmissingV",
+                                   "sktGeopotentialMissingV",
+                                   dataOpts,fill_value_Z2)
+  WSPDmissing = _get_skewt_msg("WSPD","sktWSPDmissingV",
+                                      "sktWindSpeedMissingV",
+                                      dataOpts,fill_value_WSPD2)
+  WDIRmissing = _get_skewt_msg("WDIR","sktWDIRmissingV",
+                                      "sktWindDirectionMissingV",
+                                       dataOpts,fill_value_WDIR2)
+  Hmissing    = _get_skewt_msg("H","sktHmissingV",
+                                   "sktHeightWindBarbPositionMissingV",
+                                   dataOpts,None)
 #
-  if (hasattr(dataOpts,"sktTCmissingV")):
-    TCmissing = dataOpts.sktTCmissingV
-  else:
-    TCmissing = -999.
-#
-  if (hasattr(dataOpts,"sktTDCmissingV")):
-    TDCmissing = dataOpts.sktTDCmissingV
-  else:
-    TDCmissing = -999.
-#
-  if (hasattr(dataOpts,"sktZmissingV")):
-    Zmissing = dataOpts.sktZmissingV
-  else:
-    Zmissing = -999.
-#
-  if (hasattr(dataOpts,"sktWSPDmissingV")):
-    WSPDmissing = dataOpts.sktWSPDmissingV
-  else:
-    WSPDmissing = -999.
-#
-  if (hasattr(dataOpts,"sktWDIRmissingV")):
-    WDIRmissing = dataOpts.sktWDIRmissingV
-  else:
-    WDIRmissing = -999.
-#
-  if (hasattr(dataOpts,"sktHmissingV")):
-    Hmissing = dataOpts.sktHmissingV
-  else:
-    Hmissing = -999.
-
-  mv0 = numpy.logical_and(numpy.logical_not(_ismissing( P,Pmissing)),   \
-                          numpy.logical_not(_ismissing(TC,TCmissing)))
-  mv1 = numpy.logical_and(mv0,numpy.logical_not(_ismissing(TDC,TDCmissing)))
-  mv2 = numpy.logical_and(mv1,numpy.greater_equal(P,100.))
+  mv0 = numpy.logical_and(numpy.logical_not(_ismissing( P2,Pmissing)),   \
+                          numpy.logical_not(_ismissing(TC2,TCmissing)))
+  mv1 = numpy.logical_and(mv0,numpy.logical_not(_ismissing(TDC2,TDCmissing)))
+  mv2 = numpy.logical_and(mv1,numpy.greater_equal(P2,100.))
   idx = ind(mv2)
   del mv0,mv1,mv2
-  p   = numpy.take(  P,idx)
-  tc  = numpy.take( TC,idx)
-  tdc = numpy.take(TDC,idx)
+  p   = numpy.take(  P2,idx)
+  tc  = numpy.take( TC2,idx)
+  tdc = numpy.take(TDC2,idx)
 
 #
 #  Check if the temperature and pressure data values are out of range.
@@ -5089,7 +5106,7 @@ dataOpts -- An optional instance of the Resources class having
 
     if (hasattr(localOpts,"sktTCmissingV")):
       TCmissing = localOpts.sktTCmissingV
-      if (_ismissing(tc,TCmissing)):
+      if (numpy.any(_ismissing(tc,TCmissing))):
         print "skewt_plt: tc (temperature) cannot have missing values if sktThermoInfoLabelOn is True."
         return None
     TCmissing = -999.
@@ -5135,7 +5152,7 @@ dataOpts -- An optional instance of the Resources class having
     txOpts.txFontColor   = sktcolZLabel
     txOpts.txFontHeightF = 0.9*tmYLLabelFontHeightF
 #
-#  Levels at which Z is printed.
+#  Levels at which Z2 is printed.
 #
     Pprint = numpy.array(                                   \
                            [1000., 850., 700., 500., 400.,  \
@@ -5144,13 +5161,13 @@ dataOpts -- An optional instance of the Resources class having
 
     yz = _skewty(1000.)
     xz = _skewtx(-30., yz)        # constant "x"
-    for nl in range(len(P)):
+    for nl in range(len(P2)):
 
-     if ( numpy.logical_not(_ismissing(P[nl],Pmissing)) and   \
-          numpy.logical_not(_ismissing(Z[nl],Zmissing)) and   \
-          numpy.sometrue(numpy.equal(Pprint,P[nl])) ):
-       yz  = _skewty(P[nl])
-       text(wks, skewt_bkgd, str(int(Z[nl])), xz, yz, txOpts)
+     if ( numpy.logical_not(_ismissing(P2[nl],Pmissing)) and   \
+          numpy.logical_not(_ismissing(Z2[nl],Zmissing)) and   \
+          numpy.sometrue(numpy.equal(Pprint,P2[nl])) ):
+       yz  = _skewty(P2[nl])
+       text(wks, skewt_bkgd, str(int(Z2[nl])), xz, yz, txOpts)
     del txOpts
 
   if (localOpts.sktPlotWindP):
@@ -5158,18 +5175,18 @@ dataOpts -- An optional instance of the Resources class having
     gsOpts.gsLineThicknessF  = 1.0
 
 #
-#  Check if WSPD has a missing value attribute specified and
-#  that not all WSPD values are missing values.
+#  Check if WSPD2 has a missing value attribute specified and
+#  that not all WSPD2 values are missing values.
 #
-    if (numpy.logical_not(numpy.alltrue(_ismissing(WSPD,WSPDmissing)))):
+    if (numpy.logical_not(numpy.alltrue(_ismissing(WSPD2,WSPDmissing)))):
 #
-#  IDW - indices where P/WSPD/WDIR are all not missing.
+#  IDW - indices where P2/WSPD2/WDIR2 are all not missing.
 #
-      mv0 = numpy.logical_and(numpy.logical_not(_ismissing(P,Pmissing)), \
-            numpy.logical_not(_ismissing(WSPD,WSPDmissing)))
+      mv0 = numpy.logical_and(numpy.logical_not(_ismissing(P2,Pmissing)), \
+            numpy.logical_not(_ismissing(WSPD2,WSPDmissing)))
       mv1 = numpy.logical_and(mv0,  \
-            numpy.logical_not(_ismissing(WDIR,WDIRmissing)))
-      mv2 = numpy.logical_and(mv1,numpy.greater_equal(P,100.))
+            numpy.logical_not(_ismissing(WDIR2,WDIRmissing)))
+      mv2 = numpy.logical_and(mv1,numpy.greater_equal(P2,100.))
       IDW = ind(mv2)
       if (hasattr(localOpts,"sktWthin") and localOpts.sktWthin > 1):
         nThin = localOpts.sktWthin
@@ -5177,7 +5194,7 @@ dataOpts -- An optional instance of the Resources class having
       else:
         idw   = IDW
 
-      pw  = numpy.take(P,idw)
+      pw  = numpy.take(P2,idw)
 
       wmsetp("wdf", 1)         # meteorological dir (Sep 2001)
 
@@ -5185,13 +5202,13 @@ dataOpts -- An optional instance of the Resources class having
 #  Wind speed and direction.
 #
       if (localOpts.sktWspdWdir):
-        dirw = 0.017453 * numpy.take(WDIR,idw)
+        dirw = 0.017453 * numpy.take(WDIR2,idw)
 
-        up   = -numpy.take(WSPD,idw) * numpy.sin(dirw)
-        vp   = -numpy.take(WSPD,idw) * numpy.cos(dirw)
+        up   = -numpy.take(WSPD2,idw) * numpy.sin(dirw)
+        vp   = -numpy.take(WSPD2,idw) * numpy.cos(dirw)
       else:
-        up   = numpy.take(WSPD,idw)      # must be u,v components
-        vp   = numpy.take(WDIR,idw)
+        up   = numpy.take(WSPD2,idw)      # must be u,v components
+        vp   = numpy.take(WDIR2,idw)
 
       wbcol = wmgetp("col")                # get current wbarb color
       wmsetp("col",get_named_color_index(wks,sktcolWindP)) # set new color
@@ -5204,32 +5221,32 @@ dataOpts -- An optional instance of the Resources class having
       wmbarb(wks, xpWind, ypWind, up, vp)
       wmsetp("col",wbcol)               # restore initial color.
 
-      mv0 = numpy.logical_and(numpy.logical_not(_ismissing( Z,Zmissing)), \
-            numpy.logical_not(_ismissing(WSPD,WSPDmissing)))
+      mv0 = numpy.logical_and(numpy.logical_not(_ismissing( Z2,Zmissing)), \
+            numpy.logical_not(_ismissing(WSPD2,WSPDmissing)))
       mv1 = numpy.logical_and(mv0, \
-            numpy.logical_not(_ismissing(WDIR,WDIRmissing)))
-      mv2 = numpy.logical_and(mv1,_ismissing(P,Pmissing))
+            numpy.logical_not(_ismissing(WDIR2,WDIRmissing)))
+      mv2 = numpy.logical_and(mv1,_ismissing(P2,Pmissing))
       idz = ind(mv2)
 
       if (len(idz) > 0):
-        zw  = numpy.take(Z,idz)
+        zw  = numpy.take(Z2,idz)
         if (localOpts.sktWspdWdir):          # wind spd,dir (?)
-          dirz = 0.017453 * numpy.take(WDIR,idz)
-          uz   = -numpy.take(WSPD,idz) * numpy.sin(dirz)
-          vz   = -numpy.take(WSPD,idz) * numpy.cos(dirz)
+          dirz = 0.017453 * numpy.take(WDIR2,idz)
+          uz   = -numpy.take(WSPD2,idz) * numpy.sin(dirz)
+          vz   = -numpy.take(WSPD2,idz) * numpy.cos(dirz)
         else:
-          uz   = WSPD(idz)              # must be u,v components
-          vz   = WDIR(idz)
+          uz   = WSPD2(idz)              # must be u,v components
+          vz   = WDIR2(idz)
 
 #
-#  idzp flags where Z and P have non-missing values.
+#  idzp flags where Z2 and P2 have non-missing values.
 #
-        mv0  = numpy.logical_not(_ismissing(P,Pmissing))
-        mv1  = numpy.logical_not(_ismissing(Z,Zmissing))
+        mv0  = numpy.logical_not(_ismissing(P2,Pmissing))
+        mv1  = numpy.logical_not(_ismissing(Z2,Zmissing))
         mv2  = numpy.logical_and(mv0,mv1)
         idzp = ind(mv2)
-        Zv   = numpy.take(Z,idzp)
-        Pv   = numpy.take(P,idzp)
+        Zv   = numpy.take(Z2,idzp)
+        Pv   = numpy.take(P2,idzp)
         pz   = ftcurv(Zv,Pv,zw)               # map zw to p levels.
 
         wbcol = wmgetp("col")
@@ -5260,15 +5277,15 @@ dataOpts -- An optional instance of the Resources class having
           uh   = localOpts.sktHspd
           vh   = localOpts.sktHdir
 
-        mv0  = numpy.logical_not(_ismissing(P,Pmissing))
-        mv1  = numpy.logical_not(_ismissing(Z,Zmissing))
+        mv0  = numpy.logical_not(_ismissing(P2,Pmissing))
+        mv1  = numpy.logical_not(_ismissing(Z2,Zmissing))
         mv2  = numpy.logical_and(mv0,mv1)
         idzp = ind(mv2)
-        Zv   = numpy.take(Z,idzp)
+        Zv   = numpy.take(Z2,idzp)
         if (len(Zv) == 0):
           print "Warning - skewt_plt: attempt to plot wind barbs at specified heights when there are no coordinates where pressure and geopotential are both defined."
         else:
-          Pv   = numpy.take(P,idzp)
+          Pv   = numpy.take(P2,idzp)
           ph   = ftcurv(Zv,Pv,localOpts.sktHeight)
           wbcol = wmgetp("col")             # get current color index
           wmsetp("col",get_named_color_index(wks,sktcolWindH)) # set new color
