@@ -34,6 +34,9 @@ __all__ = ['add_annotation', 'add_cyclic', 'add_new_coord_limits', \
            'vector_scalar', 'vector_scalar_map', 'vinth2p', 'wmbarb', \
            'wmbarbmap', 'wmgetp', 'wmsetp', 'wmstnm', 'xy', 'y', 'yiqrgb']
 
+# PyNGL analysis functions
+import fplib
+
 import sys
 #
 # The "netcdftime" module was contributed by Jeffrey Whitaker of NOAA.
@@ -129,6 +132,21 @@ class Resources:
 class PlotIds:
   pass
 
+def _inputt(a,b):
+#
+# Promote a and b to numpy arrays that have at least a dimension of 1.
+#
+  a2 = _promote_scalar(a)
+  b2 = _promote_scalar(b)
+#
+# Determine what kind of array to return.
+#
+  if _is_numpy(a) or _is_numpy(b):
+    import numpy
+    return numpy.array(fplib._inputt(a2,b2))
+  else:
+    return fplib._inputt(a2,b2)
+
 def _int_id(plot_id):
 #
 #  Convert PlotIds objects to integer plot ids.
@@ -157,6 +175,12 @@ def _is_list_or_tuple(arg):
   
 def _is_numpy_array(arg):
   if isinstance(arg,numpy.ndarray):
+    return True
+  else:
+    return False
+
+def _is_numpy_ma(arg):
+  if HAS_MA and ma.isMaskedArray(arg):
     return True
   else:
     return False
@@ -234,8 +258,8 @@ def _arg_with_scalar(arg):
 # Later, I'd like to add recognition of NioVariables, and then
 # I can look for the "_FillValue" attribute and use this.
 #
-def _get_arr_and_fill_value(arr):
-  if HAS_MA and ma.isMaskedArray(arr):
+def _get_arr_and_fv(arr):
+  if _is_numpy_ma(arr):
     if IS_NEW_MA:
       return arr.filled(),arr.fill_value
     else:
@@ -244,18 +268,43 @@ def _get_arr_and_fill_value(arr):
     return arr,None
 
 #
-# If a masked array, then convert to a numpy array.
-# This is similar to "_get_arr_and_fill_value" except
+# This function returns a NumPy array and the fill value 
+# if arr is a masked array; otherwise it just returns arr and 
+# a default missing value.
+#
+# This is similar to _get_arr_and_fv, except a fill
+# value is always returned.
+#
+def _get_arr_and_force_fv(arr,default_msg=1.e20):
+  if _is_numpy_ma(arr):
+    if IS_NEW_MA:
+      return arr.filled(),arr.fill_value
+    else:
+      return arr.filled(),arr.fill_value()
+  else:
+    return arr,default_msg
+
+#
+# If a masked array, then convert to a numpy array. 
+# Otherwise just return the value.
+#
+# This is similar to "_get_arr_and_fv" except
 # it doesn't return the fill value.
 #
 # Hopefully after the release of numpy 1.0.5, we can move
 # this code into the C interface.
 #
-def _convert_ma_to_numpy(value):
-  if HAS_MA and ma.isMaskedArray(value):
+def _convert_from_ma(value):
+  if _is_numpy_ma(value):
     return value.filled()
   else:
     return value
+
+def _convert_to_ma(arr,fv):
+  if HAS_MA:
+    return ma.masked_values(arr,value=fv)
+  else:
+    return arr
 
 #
 # This function checks if a fill value exists, and if it does,
@@ -296,7 +345,7 @@ dimensionality as x.
   """
 
 # Deal with masked array.
-  type_x, fill_value_x = _get_ma_fill_value(x)
+  fill_value_x = _get_fill_value(x)
 
   if (fill_value_x != None):
     x2 = x.filled(fill_value_x)
@@ -318,7 +367,7 @@ dimensionality as x.
 # 
 #  Return a masked array only if x was a masked array.
 # 
-  if HAS_MA and type_x == "ma":
+  if _is_numpy_ma(x):
     return ma.masked_array(result,fill_value=fill_value_x)
   else:
     return result
@@ -354,7 +403,7 @@ def _ismissing(arg,mval):
 #  has True values in all places where "arg" has 
 #  missing values.
 #
-    arg2 = _convert_ma_to_numpy(arg)
+    arg2 = _convert_from_ma(arg)
     if _is_numpy(arg2):
       pass
     else:
@@ -362,11 +411,50 @@ def _ismissing(arg,mval):
       return None
     return(numpy.equal(arg2,mval))
 
+
+#
+#  _get_fill_value(arr)
+#     input: 
+#       arr - any Python object
+#     output:
+#       if arr is a numpy masked array:
+#          fill_value is the fill value
+#         if arr is not a masked array
+#          fill_value returned as None.
+#
+def _get_fill_value(arr):
+#
+#  If arr is a numpy masked array, return its fill value.
+#
+  if _is_numpy_ma(arr):
+    if IS_NEW_MA:
+      return arr.fill_value
+    else:
+      return arr.fill_value()
+#
+#  Not a NumPy masked array.
+#
+  return None
+
 def _get_values(obj,rlistc):
   rlist = crt_dict(rlistc)
   values = NhlGetValues(_int_id(obj),rlist)
   del rlist
   return (values)
+
+#
+# Special function to deal with values that may come in as
+# a scalar (as defined by the "_is_scalar" function above)
+# that need to be converted to something that won't
+# register as having 0 dimensions.  We do this by 
+# promoting it to a numpy array.
+#
+def _promote_scalar(x):
+  if _is_scalar(x):
+    import numpy
+    return numpy.array([x])
+  else:
+    return x
 
 def _pynglpath_ncarg():
 #
@@ -539,6 +627,16 @@ def _pseq2lst(pseq):
     lst.append(_pobj2lst(pseq[i]))
   return lst
 
+#
+# Set a default missing value and a flag indicating 
+# whether a fill value was already present.
+#
+def _set_default_msg(fv,default_msg=1.e20):
+  if fv == None:
+    return default_msg,0
+  else:
+    return fv,1
+
 def _set_spc_res(resource_name,value):
 #
 #  Change True and False values to 1 and 0 and leave all other
@@ -552,6 +650,10 @@ def _set_spc_res(resource_name,value):
 
 #
 #  Set the special resource values.
+#
+#  These resources must stay in this order!
+#  If you add new resources, add them at the
+#  end of the list. See also _set_spc_defaults.
 #
   if (resource_name   == "Maximize"):
     set_nglRes_i(0, lval) 
@@ -702,7 +804,7 @@ def _set_spc_res(resource_name,value):
 def _check_res_value(resvalue,strvalue,intvalue):
 #
 #  Function for checking a resource value that can either be of
-#  type string or integer.
+#  type string or integer (like color resource values).
 #
   if( (type(resvalue) == types.StringType and \
      string.lower(resvalue) == string.lower(strvalue)) or \
@@ -926,6 +1028,7 @@ def _set_legend_res(reslist,reslist1):
     if (not (reslist.has_key("lgMonoMarkerSize"))):
       reslist1["lgMonoMarkerSize"] = False
 
+# Converts resource class to a dictionary.
 def _crt_dict(resource_i):
   dic = {}
   if (resource_i == None):
@@ -939,6 +1042,9 @@ def _set_spc_defaults(type):
 #
 #  Type = 1 sets the ngl special resources for plotting functions.
 #  Type = 0 sets the ngl special resources for text/poly resources
+#
+#  These resources must stay in this order. 
+#   See also _set_spc_res.
 #
   if (type == 1):
     set_nglRes_i(0, 1)      # nglMaximize
@@ -1003,123 +1109,17 @@ def _set_spc_defaults(type):
   set_nglRes_i(54, 1)       # nglXRefLineColor
   set_nglRes_i(55, 1)       # nglYRefLineColor
 
-def _poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
-# Get NumPy array from masked arrays, if necessary.
-  x2,fill_value_x = _get_arr_and_fill_value(x)
-  y2,fill_value_y = _get_arr_and_fill_value(y)
-
-  _set_spc_defaults(0)
-  rlist = _crt_dict(rlistc)  
-  rlist1 = {}
-  for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
-    if (key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
-    else:
-      rlist1[key] = rlist[key]
-
-# Four cases of x,y having fill values
-  if fill_value_x == None and fill_value_y == None:
-    fill_value_x = fill_value_y = -999.
-    ismx = ismy = 0
-  elif fill_value_x != None and fill_value_y == None:
-    fill_value_y = -999.
-    ismx = 1
-    ismy = 0
-  elif fill_value_x == None and fill_value_y != None:
-    fill_value_x = -999.
-    ismx = 0
-    ismy = 1
-  elif fill_value_x != None and fill_value_y != None:
-    ismx = 1
-    ismy = 1
-
-  ply = poly_wrap(wks,_pobj2lst(plot),_arg_with_scalar(x2),_arg_with_scalar(y2),
-                  "double","double",len(_arg_with_scalar(x2)),ismx,ismy, \
-                  fill_value_x,fill_value_y,ptype,rlist1,pvoid())
-  del rlist
-  del rlist1
-  return None
-
-def _add_poly(wks,plot,x,y,ptype,rlistc=None):
-# Get NumPy array from masked arrays, if necessary.
-  x2,fill_value_x = _get_arr_and_fill_value(x)
-  y2,fill_value_y = _get_arr_and_fill_value(y)
-
-  rlist = _crt_dict(rlistc)  
-  rlist1 = {}
-  for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
-    if (key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
-    else:
-      rlist1[key] = rlist[key]
-
-# Four cases of x,y having fill values
-  if fill_value_x == None and fill_value_y == None:
-    fill_value_x = fill_value_y = -999.
-    ismx = ismy = 0
-  elif fill_value_x != None and fill_value_y == None:
-    fill_value_y = -999.
-    ismx = 1
-    ismy = 0
-  elif fill_value_x == None and fill_value_y != None:
-    fill_value_x = -999.
-    ismx = 0
-    ismy = 1
-  elif fill_value_x != None and fill_value_y != None:
-    ismx = 1
-    ismy = 1
-
-  ply = add_poly_wrap(wks,_pobj2lst(plot), _arg_with_scalar(x2),  \
-            _arg_with_scalar(y2), "double","double", len(_arg_with_scalar(x2)),
-            ismx,ismy,fill_value_x,fill_value_y,ptype,rlist1,pvoid())
-
-  del rlist
-  del rlist1
-  return(_lst2pobj(ply))
-
-def get_workspace_id():
-  """
-Returns a reference to the current Workspace object.
-
-wid = Ngl.get_workspace_id()
-  """
-  return NhlGetWorkspaceObjectId()
+################################################################
+#
+#  Skewt support functions.
+#
+################################################################
 
 def _skewty(pres):    # y-coord given pressure (mb)
   return(132.182-44.061*numpy.lib.scimath.log10(pres))
 
 def _skewtx(temp,y):  # x-coord given temperature (c)
   return (0.54*temp+0.90692*y)
-
-#########################################################################
-# 
-#   Processing functions:
-#     Ngl.add_cyclic
-#     Ngl.fspan
-#     Ngl.ftcurv
-#     Ngl.ftcurvp
-#     Ngl.ftcurvpi
-#     Ngl.gaus
-#     Ngl.gc_convert
-#     Ngl.gc_dist
-#     Ngl.gc_interp
-#     Ngl.gc_tarea
-#     Ngl.gc_qarea
-#     Ngl.ind
-#     Ngl.natgrid
-#     Ngl.pynglpath
-#     Ngl.normalize_angle
-# 
-#########################################################################
-
-
-################################################################
-#
-#  Processing support functions.
-#
-################################################################
 
 def _dptlclskewt(p, tc, tdc):
   return c_dptlclskewt(p, tc, tdc)
@@ -1138,6 +1138,130 @@ def _dshowalskewt(p,t,td,nlvls):
 
 def _dpwskewt(td,p,n):
   return c_dpwskewt(td,p,n)
+
+def _get_skewt_msg(varname,res_intrnl,res_public,opt,ma_fv):
+#
+# Check if user has explicitly set a skewt missing value resource,
+# or whether there's one from a masked array. The masked array one
+# takes precedence, because this is the value that is used to fill
+# in all the missing value locations.
+#
+  if hasattr(opt,res_intrnl):
+    if ma_fv != None and ma_fv != getattr(opt,res_intrnl):
+      print "_get_skewt_msg:",res_public,"is being set to a different value"
+      print "           than the fill_value in the",varname,"masked array."
+      print "           The masked array fill_value will take precedence."
+      msg = ma_fv
+    else:
+      msg = getattr(opt,res_intrnl)
+  elif ma_fv != None:
+    msg = ma_fv
+  else:
+    msg = -999.
+  return msg
+
+#
+#  A dictionary for converting from new skew-T resource names
+#  to the originals.
+#
+RscConv = {  \
+           "sktColoredBandsOn":"sktDrawColAreaFill",                 \
+           "sktDewPointLineColor":"sktcolDewPt",                     \
+           "sktDewPointMissingV":"sktTDCmissingV",                   \
+           "sktDryAdiabaticLinesOn":"sktDrawDryAdiabat",             \
+           "sktGeopotentialLabelColor":"sktcolZLabel",               \
+           "sktGeopotentialLabelsOn":"sktPrintZ",                    \
+           "sktGeopotentialMissingV":"sktZmissingV",                 \
+           "sktGeopotentialWindBarbColor":"sktcolWindZ",             \
+           "sktHeightScaleOn":"sktDrawHeightScale",                  \
+           "sktHeightWindBarbColor":"sktcolWindH",                   \
+           "sktHeightWindBarbPositionMissingV":"sktHmissingV",       \
+           "sktHeightWindBarbPositions":"sktHeight",                 \
+           "sktHeightWindBarbDirections":"sktHdir",                  \
+           "sktHeightWindBarbSpeeds":"sktHspd",                      \
+           "sktHeightWindBarbsOn":"sktPlotWindH",                    \
+           "sktIsobarLinesOn":"sktDrawIsobar",                       \
+           "sktIsothermalLinesOn":"sktDrawIsotherm",                 \
+           "sktMixingRatioLinesOn":"sktDrawMixRatio",                \
+           "sktMoistAdiabaticLinesOn":"sktDrawMoistAdiabat",         \
+           "sktParcelPathLineColor":"sktcolPpath",                   \
+           "sktParcelPathLineOn":"sktCape",                          \
+           "sktParcelPathStartCoordinate":"sktParcel",               \
+           "sktPressureMissingV":"sktPmissingV",                     \
+           "sktPressureWindBarbColor":"sktcolWindP",                 \
+           "sktPressureWindBarbStride":"sktWthin",                   \
+           "sktPressureWindBarbsOn":"sktPlotWindP",                  \
+           "sktStdAtmosphereLineOn":"sktDrawStandardAtm",            \
+           "sktStdAtmosphereLineThicknessF":"sktDrawStandardAtmThk", \
+           "sktTemperatureMissingV":"sktTCmissingV",                 \
+           "sktTemperatureSoundingLineColor":"sktcolTemperature",    \
+           "sktThermoInfoLabelColor":"sktcolThermoInfo",             \
+           "sktThermoInfoLabelOn":"sktThermoInfo",                   \
+           "sktUseMultipleLineColors":"sktDrawColLine",              \
+           "sktWindBarbLineOn":"sktDrawWind",                        \
+           "sktWindDirectionMissingV":"sktWDIRmissingV",             \
+           "sktWindSpeedMissingV":"sktWSPDmissingV",                 \
+          }
+
+def _poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
+# Get NumPy array from masked arrays, if necessary.
+  x2,fill_value_x = _get_arr_and_fv(x)
+  y2,fill_value_y = _get_arr_and_fv(y)
+
+  _set_spc_defaults(0)
+  rlist = _crt_dict(rlistc)  
+  rlist1 = {}
+  for key in rlist.keys():
+    rlist[key] = _convert_from_ma(rlist[key])
+    if (key[0:3] == "ngl"):
+      _set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist1[key] = rlist[key]
+
+# Set flags indicating whether missing values present.
+  fill_value_x,ismx = _set_default_msg(fill_value_x)
+  fill_value_y,ismy = _set_default_msg(fill_value_y)
+
+  ply = poly_wrap(wks,_pobj2lst(plot),_arg_with_scalar(x2),_arg_with_scalar(y2),
+                  "double","double",len(_arg_with_scalar(x2)),ismx,ismy, \
+                  fill_value_x,fill_value_y,ptype,rlist1,pvoid())
+  del rlist
+  del rlist1
+  return None
+
+def _add_poly(wks,plot,x,y,ptype,rlistc=None):
+# Get NumPy array from masked arrays, if necessary.
+  x2,fill_value_x = _get_arr_and_fv(x)
+  y2,fill_value_y = _get_arr_and_fv(y)
+
+  rlist = _crt_dict(rlistc)  
+  rlist1 = {}
+  for key in rlist.keys():
+    rlist[key] = _convert_from_ma(rlist[key])
+    if (key[0:3] == "ngl"):
+      _set_spc_res(key[3:],rlist[key])      
+    else:
+      rlist1[key] = rlist[key]
+
+# Set flags indicating whether missing values present.
+  fill_value_x,ismx = _set_default_msg(fill_value_x)
+  fill_value_y,ismy = _set_default_msg(fill_value_y)
+
+  ply = add_poly_wrap(wks,_pobj2lst(plot), _arg_with_scalar(x2),  \
+            _arg_with_scalar(y2), "double","double", len(_arg_with_scalar(x2)),
+            ismx,ismy,fill_value_x,fill_value_y,ptype,rlist1,pvoid())
+
+  del rlist
+  del rlist1
+  return(_lst2pobj(ply))
+
+def get_workspace_id():
+  """
+Returns a reference to the current Workspace object.
+
+wid = Ngl.get_workspace_id()
+  """
+  return NhlGetWorkspaceObjectId()
 
 #
 #  Globals for random number generator for generat_2d_array
@@ -1174,6 +1298,10 @@ def _dfran():
 #  Public functions in alphabetical order.
 #  
 ################################################################
+
+
+################################################################
+
 def add_annotation(plot_id1,plot_id2,rlistc=None):
   """
 Adds an annotation to a given plot and returns an integer that
@@ -1195,6 +1323,8 @@ res -- An optional instance of the Resources class having annotation
   values = NhlSetValues(_int_id(anno),rlist)
   del rlist
   return anno
+
+################################################################
 
 #
 # Add a cyclic point in the x dimension (longitude dimension) to
@@ -1251,7 +1381,7 @@ longitude -- An optional one-dimensional array, representing
 #
 # Create the new data array with one extra value in the X direction.
 #
-  if HAS_MA and ma.isMaskedArray(data):
+  if _is_numpy_ma(data):
     newdata         = ma.zeros((ny,nx1),data.dtype.char)
     if IS_NEW_MA:
       newdata.set_fill_value(data.fill_value)
@@ -1273,6 +1403,8 @@ longitude -- An optional one-dimensional array, representing
     return newdata,newloncoord
   else:
     return newdata
+
+################################################################
 
 #
 # In order to add new axes limits for the case where sfXArray and/or
@@ -1317,8 +1449,8 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
 
   data_is_masked = False
   if fillvalue == None:
-    if HAS_MA and ma.isMaskedArray(data):
-      data2,fillvalue = _get_arr_and_fill_value(data)
+    if _is_numpy_ma(data):
+      data2,fillvalue = _get_arr_and_fv(data)
       data_is_masked = True
     else:
       print "add_new_coord_limits - fillvalue must be set if you don't have a masked array"
@@ -1437,6 +1569,8 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
   else:
     return new_data, new_ycoord
 
+################################################################
+
 def add_polygon(wks,plot,x,y,rlistc=None):
   """
 Adds a polygon to an existing plot and returns a PlotId representing
@@ -1455,6 +1589,8 @@ res -- An optional instance of the Resources class having GraphicStyle
        resources as attributes.
   """
   return(_add_poly(wks,plot,x,y,NhlPOLYGON,rlistc))
+
+################################################################
 
 def add_polyline(wks,plot,x,y,rlistc=None):
   """
@@ -1475,6 +1611,8 @@ res -- An optional instance of the Resources class having GraphicStyle
   """
   return(_add_poly(wks,plot,x,y,NhlPOLYLINE,rlistc))
 
+################################################################
+
 def add_polymarker(wks,plot,x,y,rlistc=None):
   """
 Adds polymarkers to an existing plot and returns a PlotId representing
@@ -1493,6 +1631,8 @@ res -- An optional instance of the Resources class having GraphicStyle
        resources as attributes.
   """
   return(_add_poly(wks,plot,x,y,NhlPOLYMARKER,rlistc))
+
+################################################################
 
 def add_text(wks,plot,text,x,y,rlistc=None):
   """
@@ -1522,7 +1662,7 @@ res -- An optional instance of the Resources class having TextItem
   am_rlist  = {}
   tx_rlist  = {}
   for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:2] == "tx"):
       tx_rlist[key] = rlist[key]
     if (key[0:2] == "am"):
@@ -1537,6 +1677,8 @@ res -- An optional instance of the Resources class having TextItem
   del tx_rlist
   del am_rlist
   return(_lst2pobj(atx))
+
+################################################################
 
 def asciiread(filename,dims,type="float",sep=","):
   """
@@ -1642,6 +1784,8 @@ type -- An optional argument specifying the type of the data you are
   else:
     return numpy.reshape(ar,dims)
 
+################################################################
+
 def change_workstation(obj,wks):
   """
 Changes the workstation that plots will be drawn to.
@@ -1654,6 +1798,8 @@ plot -- The identifier returned from calling a plotting function
 wks -- The identifier returned from calling Ngl.open_wks.
   """
   NhlChangeWorkstation(_int_id(obj),wks)
+
+################################################################
 
 def chiinv(x,y):
   """
@@ -1681,20 +1827,7 @@ df -- degrees of freedom of the chi-square distribution (0, +infinity).
   else:
     return fplib.chiinv(x2,y2)
 
-def _inputt(a,b):
-#
-# Promote a and b to numpy arrays that have at least a dimension of 1.
-#
-  a2 = _promote_scalar(a)
-  b2 = _promote_scalar(b)
-#
-# Determine what kind of array to return.
-#
-  if _is_numpy(a) or _is_numpy(b):
-    import numpy
-    return numpy.array(fplib._inputt(a2,b2))
-  else:
-    return fplib._inputt(a2,b2)
+################################################################
 
 def clear_workstation(obj):
   """
@@ -1706,6 +1839,8 @@ wks -- The identifier returned from calling Ngl.open_wks.
   """
   NhlClearWorkstation(_int_id(obj))
 
+################################################################
+
 def contour(wks,array,rlistc=None):
   """
 Creates and draws a contour plot, and returns a PlotId of the plot
@@ -1715,7 +1850,7 @@ plot = Ngl.contour(wks, data, res=None)
 
 wks -- The identifier returned from calling Ngl.open_wks
 
-data -- The data to contour.
+data -- The data to contour. Masked arrays allowed.
 
 res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
@@ -1729,7 +1864,7 @@ res -- An optional instance of the Resources class having PyNGL
     return None
 
 # Get NumPy array from masked array, if necessary.
-  arr2,fill_value = _get_arr_and_fill_value(array)
+  arr2,fill_value = _get_arr_and_fv(array)
   
   _set_spc_defaults(1)
   rlist = _crt_dict(rlistc)  
@@ -1742,7 +1877,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:2] == "sf"):
       rlist1[key] = rlist[key]
     elif(key[0:3] == "ngl"):
@@ -1782,6 +1917,8 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist3
   return(_lst2pobj(icn))
 
+################################################################
+
 def contour_map(wks,array,rlistc=None):
   """
 Creates and draws contours over a map, and returns a PlotId of the plot
@@ -1791,7 +1928,7 @@ plot = Ngl.contour_map(wks, data, res=None)
 
 wks -- The identifier returned from calling Ngl.open_wks
 
-data -- The data to contour.
+data -- The data to contour. Masked arrays allowed.
 
 res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
@@ -1804,7 +1941,7 @@ res -- An optional instance of the Resources class having PyNGL
     return None
 
 # Get NumPy array from masked array, if necessary.
-  arr2,fill_value = _get_arr_and_fill_value(array)
+  arr2,fill_value = _get_arr_and_fv(array)
     
   _set_spc_defaults(1)
   rlist = _crt_dict(rlistc)  
@@ -1817,7 +1954,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist3 = {}
 
   for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_from_ma(rlist[key])
 # Now sort resources into correct individual resource lists.
     if (key[0:2] == "sf"):
       rlist1[key] = rlist[key]
@@ -1857,6 +1994,8 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist3
   return(_lst2pobj(icm))
 
+################################################################
+
 def datatondc(obj,x,y):
   """
 Converts coordinates in data space to coordinates in NDC space.
@@ -1874,6 +2013,8 @@ xdata,ydata -- One dimensional arrays containing values to be converted.
   del error,status,range
   return xout,yout
 
+################################################################
+
 def define_colormap(wks,cmap):
   """
 Defines a new color map for the given workstation.
@@ -1888,6 +2029,8 @@ cmap -- An n x 3 array of RGB triplets, or a predefined colormap name.
   cres.wkColorMap = cmap
   set_values(wks,cres)
   return None
+
+################################################################
 
 def delete_wks(wks):
   """
@@ -1904,6 +2047,8 @@ wks -- The identifier returned from calling Ngl.open_wks.
   NhlDestroy(wks)
   return None
 
+################################################################
+
 def destroy(obj):
   """
 Destroys an Ngl object.
@@ -1915,6 +2060,8 @@ object -- The identifier returned from calling any object creation
   """
   NhlDestroy(_int_id(obj))
   return None
+
+################################################################
 
 def draw(obj):
   """
@@ -1928,6 +2075,8 @@ plot -- The identifier returned from calling any plot object creation
   NhlDraw(_int_id(obj))
   return None
 
+################################################################
+
 def draw_colormap(wks):
   """
 Draws the current color map and advances the frame.
@@ -1938,6 +2087,8 @@ wks -- The identifier returned from calling Ngl.open_wks.
   """
   draw_colormap_wrap(wks)
   return None
+
+################################################################
 
 def draw_ndc_grid(wks):
   """
@@ -1983,6 +2134,8 @@ wks -- The identifier returned from calling Ngl.open_wks.
 
   return None
 
+################################################################
+
 def end():
   """
 Terminates a PyNGL script, flushes all buffers, and closes all
@@ -1992,6 +2145,8 @@ Ngl.end()
   """
   NhlClose()
   return None
+
+################################################################
 
 def frame(wks):
   """
@@ -2003,6 +2158,8 @@ wks -- The identifier returned from calling Ngl.open_wks.
   """
   NhlFrame(wks)
   return None
+
+################################################################
 
 def fspan(min,max,num):
   """
@@ -2022,6 +2179,8 @@ num -- Number of equally-spaced points desired between start and end.
     a.append(min + float(i)*delta)
   a.append(max)
   return numpy.array(a,'f')
+
+################################################################
 
 def ftcurv(x,y,xo):
   """
@@ -2077,6 +2236,8 @@ xo -- A 1D array of length nxo containing the abscissae for the
   else:
     del status
     return yo
+
+################################################################
 
 def ftcurvp(x,y,p,xo):
   """
@@ -2136,6 +2297,8 @@ xo -- A 1D array of length nxo containing the abscissae for the
     del status
     return yo
 
+################################################################
+
 def ftcurvpi(xl, xr, p, x, y):
   """
 Calculates an integral of an interpolatory spline between two
@@ -2181,6 +2344,8 @@ yi -- An array of any dimensionality, whose rightmost dimension is
 
   return (ftcurvpic(xl,xr,p,dsizes_x,x,y)[1])
 
+################################################################
+
 def gaus(n):
   """
 Computes gaussian latitudes and weights and returns a NumPy array
@@ -2192,6 +2357,8 @@ nlat -- A scalar integer equal to the number of latitude points per
         hemisphere.
   """
   return NglGaus_p(n,2*n,2)[1]
+
+################################################################
 
 def gc_convert(angle,ctype):
   """
@@ -2246,6 +2413,8 @@ type -- A string (or integer) indicating the units you want to convert
   else:
     print "gc_convert: unrecognized conversion type " + str(ctype)
 
+################################################################
+
 def gc_dist(rlat1,rlon1,rlat2,rlon2):
   """
 Calculates the distance in degrees along a great circle between two
@@ -2258,6 +2427,8 @@ lat1, lon1 -- Latitude and longitude of first point on the globe.
 lat2, lon2 -- Latitude and longitude of second point on the globe.
   """
   return c_dgcdist(rlat1,rlon1,rlat2,rlon2,2)
+
+################################################################
 
 def gc_interp(rlat1,rlon1,rlat2,rlon2,numi):
   """
@@ -2317,6 +2488,8 @@ npts -- The number of equally-spaced points you want to interpolate to.
 
     return lat_tmp,lon_tmp
 
+################################################################
+
 def gc_tarea(lat1, lon1, lat2, lon2, lat3, lon3, radius=1.):
   """
 Finds the area of a triangular patch on a sphere whose vertices
@@ -2372,6 +2545,8 @@ connecting the vertices.
   else:
     return rtn
 
+################################################################
+
 def gc_qarea(lat1, lon1, lat2, lon2, lat3, lon3, lat4, lon4, radius=1.):
   """
 Finds the area of a convex quadrilateral patch on a sphere whose vertices
@@ -2402,6 +2577,8 @@ the vertices.
   """
   return gc_tarea(lat1, lon1, lat2, lon2, lat3, lon3, radius=radius) +  \
          gc_tarea(lat1, lon1, lat3, lon3, lat4, lon4, radius=radius)
+
+################################################################
 
 def generate_2d_array(dims, num_low, num_high, minv, maxv, seed=0, \
                       highs_at=None, lows_at=None):
@@ -2540,6 +2717,8 @@ def _get_double(obj,name):
 def _get_double_array(obj,name):
   return(NhlGetDoubleArray(_int_id(obj),name))
 
+################################################################
+
 def get_float(obj,name):
   """
 Retrieves the value of a resource that uses a float scalar.
@@ -2553,6 +2732,8 @@ resource_name -- The name of the resource whose value you want to
                  retrieve.
   """  
   return(NhlGetFloat(_int_id(obj),name))
+
+################################################################
 
 def get_float_array(obj,name):
   """
@@ -2568,6 +2749,8 @@ resource_name -- The name of the resource whose value you want to
   """
   return(NhlGetFloatArray(_int_id(obj),name))
 
+################################################################
+
 def get_integer(obj,name):
   """
 Retrieves the value of a resource that uses an integer scalar.
@@ -2581,6 +2764,8 @@ resource_name -- The name of the resource whose value you want to
                  retrieve.
   """  
   return(NhlGetInteger(_int_id(obj),name))
+
+################################################################
 
 def get_integer_array(obj,name):
   """
@@ -2603,6 +2788,8 @@ def _get_MDdouble_array(obj,name):
     return None
   return(rval[1])
 
+################################################################
+
 def get_MDfloat_array(obj,name):
   """
 Retrieves the value of a resource that uses a multi-dimensional float
@@ -2622,6 +2809,8 @@ resource_name - The name of the resource whose value you want to
     return None
   return(rval[1])
 
+################################################################
+
 def get_MDinteger_array(obj,name):
   """
 Retrieves the value of a resource that uses a multi-dimensional
@@ -2640,6 +2829,8 @@ resource_name - The name of the resource whose value you want to
     print "get_MDinteger_array: error number %d" % (rval[0])
     return None
   return(rval[1])
+
+################################################################
 
 #
 #  Returns the color index whose associated color on the given
@@ -2661,6 +2852,8 @@ color_name -- A color name from the rgb.txt file.
 def _get_parent_workstation(plot_id):
   NhlGetParentWorkstation(_int_id(plot_id))
 
+################################################################
+
 def get_string(obj,name):
   """
 Retrieves the value of a resource that uses a string.
@@ -2673,6 +2866,8 @@ plotid -- The identifier returned from Ngl.open_wks, or any PyNGL
 resource_name -- The name of the resource whose value you want to retrieve.
   """
   return(NhlGetString(_int_id(obj),name))
+
+################################################################
 
 def get_string_array(obj,name):
   """
@@ -2688,6 +2883,8 @@ resource_name -- The name of the resource whose value you want to
                  retrieve.
   """
   return(NhlGetStringArray(_int_id(obj),name))
+
+################################################################
 
 def hlsrgb(h,l,s):
   """
@@ -2741,6 +2938,8 @@ s -- Saturation values in the range [0.,100.]. Saturation is a measure
   else:
     print "hlsrgb: arguments must be scalars, arrays, lists or tuples."
 
+################################################################
+
 def hsvrgb(h,s,v):
   """
 Converts from the HSV color space to RGB.
@@ -2789,6 +2988,8 @@ v -- Values for the value component in the range [0.,1.].
   else:
     print "hsvrgb: arguments must be scalars, arrays, lists or tuples."
 
+################################################################
+
 #
 #  Get indices of a list where the list values are true.
 #
@@ -2805,6 +3006,8 @@ plist -- A Python list, tuple, or one-dimensional NumPy array.
     if (seq[i] != 0):
       inds.append(i)
   return(inds)
+
+################################################################
 
 def labelbar_ndc(wks,nbox,labels,x,y,rlistc=None):
   """
@@ -2829,7 +3032,7 @@ res -- An optional instance of the Resources class having Labelbar
   rlist = _crt_dict(rlistc)
   rlist1 = {}
   for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_from_ma(rlist[key])
     if(key[0:3] == "ngl"):
       _set_spc_res(key[3:],rlist[key])      
     else:
@@ -2843,6 +3046,8 @@ res -- An optional instance of the Resources class having Labelbar
   del rlist1
 
   return (_lst2pobj(ilb))
+
+################################################################
 
 def legend_ndc(wks,nitems,labels,x,y,rlistc=None):
   """
@@ -2867,7 +3072,7 @@ res -- An optional instance of the Resources class having Labelbar
   rlist = _crt_dict(rlistc)
   rlist1 = {}
   for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_from_ma(rlist[key])
     if(key[0:3] == "ngl"):
       _set_spc_res(key[3:],rlist[key])      
     else:
@@ -2880,6 +3085,8 @@ res -- An optional instance of the Resources class having Labelbar
   del rlist
   del rlist1
   return (_lst2pobj(ilb))
+
+################################################################
 
 def linmsg(x, end_pts_msg=None, max_msg=None, fill_value=1.e20):
   """
@@ -2918,13 +3125,14 @@ fill_value -- The missing value for x. Defaults to 1.e20 if not set.
 #  If input array is a numpy masked array, return a numpy masked array.
 #  Otherwise missing values are dealt with using the fill_value.
 #
-  type, fv = _get_ma_fill_value(x)
+  fv = _get_fill_value(x)
   if (fv != None):
     aret = fplib.linmsg(x.filled(fv), end_pts_msg, max_msg, fv)
-    if HAS_MA:
-      return ma.masked_array(aret, fill_value=fv)
+    return ma.masked_array(aret, fill_value=fv)
   else:
     return fplib.linmsg(_promote_scalar(x),end_pts_msg,max_msg,fill_value)
+
+################################################################
 
 def map(wks,rlistc=None,res=None):
   """
@@ -2943,7 +3151,7 @@ res -- An optional instance of the Resources class having Map
   rlist = _crt_dict(rlistc)  
   rlist1 = {}
   for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:3] == "ngl"):
       _set_spc_res(key[3:],rlist[key])      
     else:
@@ -2956,6 +3164,8 @@ res -- An optional instance of the Resources class having Map
   del rlist
   del rlist1
   return(_lst2pobj(imp))
+
+################################################################
 
 def maximize_plot(wks,plot,rlistc=None):
   """
@@ -2975,12 +3185,14 @@ res -- An optional optional instance of the Resources class having
   rlist = _crt_dict(rlistc)  
   rlist1 = {}
   for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:3] == "ngl"):
       _set_spc_res(key[3:],rlist[key])      
     else:
       rlist1[key] = rlist[key]
   maximize_plots(wks,_pobj2lst(plot),1,0,pvoid())
+
+################################################################
 
 def merge_colormaps(wks,cmap1,cmap2):
   """
@@ -3029,6 +3241,8 @@ cmap2 -- A second n x 3 array of RGB triplets, or a predefined colormap name.
   
   define_colormap(wks,new_cmap)
   return None
+
+################################################################
 
 def natgrid(x,y,z,xo,yo):
   """
@@ -3088,6 +3302,8 @@ xo, yo -- One-dimensional NumPy float arrays or Python lists (of
 def _ncargpath(type):
   return pynglpath(type)
 
+################################################################
+
 def new_color(wks_id,r,g,b):
   """
 Adds the given color to the end of the color map of the given
@@ -3102,6 +3318,8 @@ red, green, blue -- Floating point values between 0.0 and 1.0
                     inclusive.
   """
   return NhlNewColor(_int_id(wks_id),r,g,b)
+
+################################################################
 
 def ndctodata(obj,x,y):
   """
@@ -3119,6 +3337,8 @@ xndc,yndc -- One dimensional arrays containing values to be converted.
   del error,status,range
   return xout,yout
 
+################################################################
+
 def new_dash_pattern(wks_id,patterns):
   """
 Adds a new dash pattern to the existing table of dash patterns, and
@@ -3135,6 +3355,8 @@ dash_pattern -- A string indicating the dash pattern to create.  The
                 "_" represents a pen-up.
   """
   return NhlNewDashPattern(_int_id(wks_id),patterns)
+
+################################################################
 
 def new_marker(wks_id,marker_strings,font_nums,xoffset=0.,yoffset=0., \
                aspect_ratio=1., size=1., angle=0.):
@@ -3190,6 +3412,8 @@ angle -- An optional scalar that is the angle at which to rotate the
                font_nums,float(xoffset),float(yoffset), \
                float(aspect_ratio), float(size), float(angle))
 
+################################################################
+
 def set_color(wks_id,index,r,g,b):
   """
 Sets a color in the color map of the given workstation.
@@ -3206,6 +3430,8 @@ red, green, blue -- Floating point values between 0.0 and 1.0 inclusive.
   NhlSetColor(_int_id(wks_id),index,r,g,b)
   return None
 
+################################################################
+
 def free_color(wks_id,index):
   """
 Removes a color entry from a workstation.
@@ -3218,6 +3444,8 @@ color_index -- An integer scalar specifying a color index.
   """
   NhlFreeColor(_int_id(wks_id),index)
   return None
+
+################################################################
 
 def nngetp(pname):
   """
@@ -3255,6 +3483,8 @@ pname -- Name of the parameter whose value you want to retrieve.
       "nngetp: specified value for " + pname + " is not of a recognized type." 
   return None
 
+################################################################
+
 def nnsetp(pname,val):
   """
 Sets control parameter values for Ngl.natgrid.
@@ -3278,6 +3508,8 @@ pvalue -- Value of the parameter you want to set.
     print \
       "nnsetp: specified value for " + pname + " is not of a recognized type." 
   return None
+
+################################################################
 
 def normalize_angle(ang,type):
   """
@@ -3308,6 +3540,8 @@ option -- An option flag that is either zero or non-zero.
       bang = bang - 360.
   return bang
 
+################################################################
+
 def open_wks(wk_type,wk_name,wk_rlist=None):
   """
 Opens a workstation on which to draw graphics, and returns a PlotID
@@ -3335,7 +3569,7 @@ res -- An optional instance of the Resources class having Workstation
   rlist2 = {}
 
   for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:3] == "app"):
       rlist2[key] = rlist[key]
     elif(key[0:3] == "ngl"):
@@ -3421,6 +3655,8 @@ res -- An optional instance of the Resources class having Workstation
   del rlist2
   return(iopn)
 
+################################################################
+
 def overlay(plot_id1,plot_id2):
   """
 Overlays one plot onto another.
@@ -3434,6 +3670,8 @@ PlotId_overlay -- The id of the plot you want to overlay on
                   PlotId_base.
   """
   NhlAddOverlay(_int_id(plot_id1),_int_id(plot_id2),-1)
+
+################################################################
 
 def panel(wks,plots,dims,rlistc=None):
   """
@@ -3460,9 +3698,9 @@ res -- An optional instance of the Resources class having PyNGL
   rlist1 = {}
   rlist2 = {}
   for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:3] == "ngl"):
-      if (key[0:21] == "nglPanelFigureStrings" and len(key) == 21):
+      if (len(key) == 21 and key[0:21] == "nglPanelFigureStrings"):
         _set_spc_res(key[3:],rlist[key])
         _set_spc_res("PanelFigureStringsCount",len(rlist[key]))
       elif (key[0:25] == "nglPanelFigureStringsJust"):
@@ -3526,6 +3764,8 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist
   del rlist1
 
+################################################################
+
 def polygon(wks,plot,x,y,rlistc=None):
   """
 Draws a filled polygon on an existing plot.
@@ -3546,6 +3786,8 @@ res -- An optional instance of the Resources class having
 
   return(_poly(wks,plot,x,y,NhlPOLYGON,0,rlistc))
 
+################################################################
+
 def polygon_ndc(wks,x,y,rlistc=None):
   """
 Draws a filled polygon on the viewport.
@@ -3561,6 +3803,8 @@ res -- An optional instance of the Resources class having
        GraphicStyle resources as attributes.
   """
   return(_poly(wks,0,x,y,NhlPOLYGON,1,rlistc))
+
+################################################################
 
 def polyline(wks,plot,x,y,rlistc=None):
   """
@@ -3581,6 +3825,8 @@ res -- An optional instance of the Resources class having
   """
   return(_poly(wks,plot,x,y,NhlPOLYLINE,0,rlistc))
 
+################################################################
+
 def polyline_ndc(wks,x,y,rlistc=None):
   """
 Draws polylines on the viewport.
@@ -3596,6 +3842,8 @@ res -- An optional instance of the Resources class having
        GraphicStyle resources as attributes.
   """
   return(_poly(wks,0,x,y,NhlPOLYLINE,1,rlistc))
+
+################################################################
 
 def polymarker(wks,plot,x,y,rlistc=None):  # plot converted in poly
   """
@@ -3616,6 +3864,8 @@ res -- An optional instance of the Resources class having
   """
   return(_poly(wks,plot,x,y,NhlPOLYMARKER,0,rlistc))
 
+################################################################
+
 def polymarker_ndc(wks,x,y,rlistc=None):
   """
 Draws polymarkers on the viewport.
@@ -3631,6 +3881,8 @@ res -- An optional instance of the Resources class having
        GraphicStyle resources as attributes.
   """
   return(_poly(wks,0,x,y,NhlPOLYMARKER,1,rlistc))
+
+################################################################
 
 def pynglpath(name):
   """
@@ -3734,6 +3986,8 @@ name -- A string representing abbreviated name for which you want a
   else:
     print 'pynglpath: input name "%s" not recognized' % (name)
 
+################################################################
+
 def regline(x, y, return_info=True):
   """
 Calculates the linear regression coefficient between two series, and
@@ -3756,8 +4010,8 @@ return_info -- An optional logical that indicates whether additional
   """
 
 # Deal with masked arrays.
-  type_x, fill_value_x = _get_ma_fill_value(x)
-  type_y, fill_value_y = _get_ma_fill_value(y)
+  fill_value_x = _get_fill_value(x)
+  fill_value_y = _get_fill_value(y)
 
   if (fill_value_x != None):
     x2 = x.filled(fill_value_x)
@@ -3790,6 +4044,8 @@ return_info -- An optional logical that indicates whether additional
       else:
         return result[0]
 
+################################################################
+
 def remove_annotation(plot_id1,plot_id2):
   """
 Removes an annotation from the given plot.
@@ -3803,6 +4059,8 @@ annotation_id -- The id of the annotation which was attached to
                  PlotId_base via call to Ngl.add_annotation.
   """
   NhlRemoveAnnotation(_int_id(plot_id1),_int_id(plot_id2))
+
+################################################################
 
 def remove_overlay(plot_id1,plot_id2,restore=False):
   """
@@ -3822,6 +4080,8 @@ restore -- An optional logical value. If True and the member plot
   """
   NhlRemoveOverlay(_int_id(plot_id1),_int_id(plot_id2),restore)
 
+################################################################
+
 def retrieve_colormap(wks):
   """
 Retrieves the current color map associated with the given workstation
@@ -3832,6 +4092,8 @@ cmap = Ngl.retrieve_colormap(wks)
 wks -- The identifier returned from calling Ngl.open_wks.
   """
   return get_MDfloat_array(wks,"wkColorMap")
+
+################################################################
 
 def rgbhls(r,g,b):
   """
@@ -3893,6 +4155,8 @@ s -- The saturation value of the input point in HLS color space in the
     print "rgbhls: arguments must be scalars, arrays, lists or tuples."
 
 
+################################################################
+
 def rgbhsv(r,g,b):
   """
 Converts from the RGB color space to HSV.
@@ -3950,6 +4214,8 @@ v -- The value in HSV space, in the range [0.,1.].
   else:
     print "rgbhsv: arguments must be scalars, arrays, lists or tuples."
 
+################################################################
+
 def rgbyiq(r,g,b):
   """
 Converts from the RGB color space to YIQ.
@@ -4002,6 +4268,8 @@ q -- Q component (chrominance purple-green) values in the range
   else:
     print "rgbyiq: arguments must be scalars, arrays, lists or tuples."
 
+################################################################
+
 def set_values(obj,rlistc):
   """
 Sets resource values for a specified plot object.
@@ -4020,48 +4288,8 @@ set.
   del rlist
   return values
 
-#
-#  A dictionary for converting from new skew-T resource names
-#  to the originals.
-#
-RscConv = {  \
-           "sktColoredBandsOn":"sktDrawColAreaFill",                 \
-           "sktDewPointLineColor":"sktcolDewPt",                     \
-           "sktDewPointMissingV":"sktTDCmissingV",              \
-           "sktDryAdiabaticLinesOn":"sktDrawDryAdiabat",             \
-           "sktGeopotentialLabelColor":"sktcolZLabel",               \
-           "sktGeopotentialLabelsOn":"sktPrintZ",                   \
-           "sktGeopotentialMissingV":"sktZmissingV",            \
-           "sktGeopotentialWindBarbColor":"sktcolWindZ",             \
-           "sktHeightScaleOn":"sktDrawHeightScale",                  \
-           "sktHeightWindBarbColor":"sktcolWindH",                   \
-           "sktHeightWindBarbPositionMissingV":"sktHmissingV",  \
-           "sktHeightWindBarbPositions":"sktHeight",                 \
-           "sktHeightWindBarbDirections":"sktHdir",              \
-           "sktHeightWindBarbSpeeds":"sktHspd",                  \
-           "sktHeightWindBarbsOn":"sktPlotWindH",                   \
-           "sktIsobarLinesOn":"sktDrawIsobar",                       \
-           "sktIsothermalLinesOn":"sktDrawIsotherm",                 \
-           "sktMixingRatioLinesOn":"sktDrawMixRatio",                \
-           "sktMoistAdiabaticLinesOn":"sktDrawMoistAdiabat",         \
-           "sktParcelPathLineColor":"sktcolPpath",                   \
-           "sktParcelPathLineOn":"sktCape",                         \
-           "sktParcelPathStartCoordinate":"sktParcel",              \
-           "sktPressureMissingV":"sktPmissingV",                \
-           "sktPressureWindBarbColor":"sktcolWindP",                 \
-           "sktPressureWindBarbStride":"sktWthin",                   \
-           "sktPressureWindBarbsOn":"sktPlotWindP",                 \
-           "sktStdAtmosphereLineOn":"sktDrawStandardAtm",            \
-           "sktStdAtmosphereLineThicknessF":"sktDrawStandardAtmThk", \
-           "sktTemperatureMissingV":"sktTCmissingV",            \
-           "sktTemperatureSoundingLineColor":"sktcolTemperature",    \
-           "sktThermoInfoLabelColor":"sktcolThermoInfo",             \
-           "sktThermoInfoLabelOn":"sktThermoInfo",                  \
-           "sktUseMultipleLineColors":"sktDrawColLine",              \
-           "sktWindBarbLineOn":"sktDrawWind",                        \
-           "sktWindDirectionMissingV":"sktWDIRmissingV",        \
-           "sktWindSpeedMissingV":"sktWSPDmissingV",            \
-          }
+
+################################################################
 
 def skewt_bkg(wks, Opts):
   """
@@ -4828,26 +5056,7 @@ res -- A required instance of the Resources class having special
 
   return xyplot
 
-#
-# Check if user has explicitly set a skewt missing value resource,
-# or whether there's one from a masked array. The masked array one
-# takes precedence, because this is the value that is used to fill
-# in all the missing value locations.
-#
-def _get_skewt_msg(varname,res_intrnl,res_public,opt,ma_fv):
-  if hasattr(opt,res_intrnl):
-    if ma_fv != None and ma_fv != getattr(opt,res_intrnl):
-      print "_get_skewt_msg:",res_public,"is being set to a different value"
-      print "           than the fill_value in the",varname,"masked array."
-      print "           The masked array fill_value will take precedence."
-      msg = ma_fv
-    else:
-      msg = getattr(opt,res_intrnl)
-  elif ma_fv != None:
-    msg = ma_fv
-  else:
-    msg = -999.
-  return msg
+################################################################
 
 def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR, 
              dataOpts=None):
@@ -4898,12 +5107,12 @@ dataOpts -- An optional instance of the Resources class having
 # Make sure if we have masked arrays, they get converted to
 # numpy arrays.
 #
-  P2,fill_value_P2       = _get_arr_and_fill_value(P)
-  Z2,fill_value_Z2       = _get_arr_and_fill_value(Z)
-  TC2,fill_value_TC2     = _get_arr_and_fill_value(TC)
-  TDC2,fill_value_TDC2   = _get_arr_and_fill_value(TDC)
-  WSPD2,fill_value_WSPD2 = _get_arr_and_fill_value(WSPD)
-  WDIR2,fill_value_WDIR2 = _get_arr_and_fill_value(WDIR)
+  P2,fill_value_P2       = _get_arr_and_fv(P)
+  Z2,fill_value_Z2       = _get_arr_and_fv(Z)
+  TC2,fill_value_TC2     = _get_arr_and_fv(TC)
+  TDC2,fill_value_TDC2   = _get_arr_and_fv(TDC)
+  WSPD2,fill_value_WSPD2 = _get_arr_and_fv(WSPD)
+  WDIR2,fill_value_WDIR2 = _get_arr_and_fv(WDIR)
 
 #
 #  Check for new resource names in dataOpts and convert them to
@@ -5301,6 +5510,8 @@ dataOpts -- An optional instance of the Resources class having
   
   return skewt_bkgd
 
+################################################################
+
 def streamline(wks,uarray,varray,rlistc=None):
   """
 Creates and draws streamlines, and returns a PlotId of the plot created.
@@ -5309,15 +5520,15 @@ plot = Ngl.streamline(wks, u, v, res=None)
 
 wks -- The identifier returned from calling Ngl.open_wks
 
-u,v -- The streamline data.
+u,v -- The streamline data. Masked arrays allowed.
 
 res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
 
 # Get NumPy array from masked arrays, if necessary.
-  uar2,uar_fill_value = _get_arr_and_fill_value(uarray)
-  var2,var_fill_value = _get_arr_and_fill_value(varray)
+  uar2,uar_fill_value = _get_arr_and_fv(uarray)
+  var2,var_fill_value = _get_arr_and_fv(varray)
 
   _set_spc_defaults(1)
   rlist = _crt_dict(rlistc)  
@@ -5330,7 +5541,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:3] == "ngl"):
@@ -5367,6 +5578,8 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist3
   return(_lst2pobj(strm))
 
+################################################################
+
 def streamline_map(wks,uarray,varray,rlistc=None):
   """
 Creates and draws streamlines over a map, and returns a PlotId of the
@@ -5376,15 +5589,15 @@ plot = Ngl.streamline_map(wks, u, v, res=None)
 
 wks -- The identifier returned from calling Ngl.open_wks
 
-u,v -- The streamline data.
+u,v -- The streamline data. Masked arrays allowed.
 
 res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
 
 # Get NumPy array from masked arrays, if necessary.
-  uar2,uar_fill_value = _get_arr_and_fill_value(uarray)
-  var2,var_fill_value = _get_arr_and_fill_value(varray)
+  uar2,uar_fill_value = _get_arr_and_fv(uarray)
+  var2,var_fill_value = _get_arr_and_fv(varray)
 
   _set_spc_defaults(1)
   rlist = _crt_dict(rlistc)  
@@ -5396,7 +5609,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
@@ -5428,6 +5641,8 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist3
   return(_lst2pobj(strm))
 
+################################################################
+
 def streamline_scalar(wks,uarray,varray,tarray,rlistc=None):
   """
 Creates and draws streamlines colored according to a scalar field, and
@@ -5437,18 +5652,18 @@ plot = Ngl.streamline_scalar(wks, u, v, data, res=None)
 
 wks -- The identifier returned from calling Ngl.open_wks
 
-u,v -- The streamline data.
+u,v -- The streamline data. Masked arrays allowed.
 
-data - The scalar data.
+data -- The scalar data. Masked arrays allowed.
 
 res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
 
 # Get NumPy array from masked arrays, if necessary.
-  uar2,uar_fill_value = _get_arr_and_fill_value(uarray)
-  var2,var_fill_value = _get_arr_and_fill_value(varray)
-  tar2,tar_fill_value = _get_arr_and_fill_value(tarray)
+  uar2,uar_fill_value = _get_arr_and_fv(uarray)
+  var2,var_fill_value = _get_arr_and_fv(varray)
+  tar2,tar_fill_value = _get_arr_and_fv(tarray)
 
   _set_spc_defaults(1)
   rlist = _crt_dict(rlistc)  
@@ -5461,7 +5676,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist3 = {}
   rlist4 = {}
   for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:2] == "sf"):
@@ -5504,6 +5719,8 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist4
   return _lst2pobj(ivct)
 
+################################################################
+
 def streamline_scalar_map(wks,uarray,varray,tarray,rlistc=None):
   """
 Creates and draws streamlines over a map colored according to a scalar
@@ -5513,18 +5730,18 @@ plot = Ngl.streamline_scalar_map(wks, u, v, data, res=None)
 
 wks -- The identifier returned from calling Ngl.open_wks
 
-u,v -- The streamline data.
+u,v -- The streamline data. Masked arrays allowed.
 
-data - The scalar data.
+data -- The scalar data. Masked arrays allowed.
 
 res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
 
 # Get NumPy array from masked arrays, if necessary.
-  uar2,uar_fill_value = _get_arr_and_fill_value(uarray)
-  var2,var_fill_value = _get_arr_and_fill_value(varray)
-  tar2,tar_fill_value = _get_arr_and_fill_value(tarray)
+  uar2,uar_fill_value = _get_arr_and_fv(uarray)
+  var2,var_fill_value = _get_arr_and_fv(varray)
+  tar2,tar_fill_value = _get_arr_and_fv(tarray)
 
   _set_spc_defaults(1)
   rlist = _crt_dict(rlistc)  
@@ -5538,7 +5755,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist3 = {}
   rlist4 = {}
   for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:2] == "sf"):
@@ -5577,6 +5794,8 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist4
   return _lst2pobj(ivct)
 
+################################################################
+
 def text(wks, plot, text, x, y, rlistc=None):
   """
 Draws text strings on an existing plot.
@@ -5600,7 +5819,7 @@ res -- An optional variable containing a list of TextItem resources,
   rlist = _crt_dict(rlistc)
   rlist1 = {}
   for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_from_ma(rlist[key])
     if(key[0:3] == "ngl"):
       _set_spc_res(key[3:],rlist[key])      
     else:
@@ -5609,6 +5828,8 @@ res -- An optional variable containing a list of TextItem resources,
   del rlist
   del rlist1
   return(_lst2pobj(itxt))
+
+################################################################
 
 def text_ndc(wks, text, x, y, rlistc=None):
   """
@@ -5631,7 +5852,7 @@ res -- An (optional) instance of the Resources class having TextItem
   rlist = _crt_dict(rlistc)
   rlist1 = {}
   for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_from_ma(rlist[key])
     if(key[0:3] == "ngl"):
       _set_spc_res(key[3:],rlist[key])      
     else:
@@ -5641,6 +5862,8 @@ res -- An (optional) instance of the Resources class having TextItem
   del rlist
   del rlist1
   return (_lst2pobj(itxt))
+
+################################################################
 
 def update_workstation(obj):
   """
@@ -5652,6 +5875,8 @@ wks -- The identifier returned from calling Ngl.open_wks.
   """
   NhlUpdateWorkstation(_int_id(obj))
 
+################################################################
+
 def vector(wks,uarray,varray,rlistc=None):
   """
 Creates and draws vectors, and returns a PlotId of the plot created.
@@ -5660,7 +5885,7 @@ plot = Ngl.vector(wks, u, v, res=None)
 
 wks -- The identifier returned from calling Ngl.open_wks
 
-u,v -- The vector data.
+u,v -- The vector data. Masked arrays allowed.
 
 res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
@@ -5673,8 +5898,8 @@ res -- An optional instance of the Resources class having PyNGL
     return None
 
 # Get NumPy array from masked arrays, if necessary.
-  uar2,uar_fill_value = _get_arr_and_fill_value(uarray)
-  var2,var_fill_value = _get_arr_and_fill_value(varray)
+  uar2,uar_fill_value = _get_arr_and_fv(uarray)
+  var2,var_fill_value = _get_arr_and_fv(varray)
 
   _set_spc_defaults(1)
   rlist = _crt_dict(rlistc)  
@@ -5687,7 +5912,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:3] == "ngl"):
@@ -5724,6 +5949,8 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist3
   return _lst2pobj(ivct)
 
+################################################################
+
 def vector_map(wks,uarray,varray,rlistc=None):
   """
 Creates and draws vectors over a map, and returns a PlotId of the plot
@@ -5733,7 +5960,7 @@ plot = Ngl.vector_map(wks, u, v, res=None)
 
 wks -- The identifier returned from calling Ngl.open_wks
 
-u,v -- The vector data.
+u,v -- The vector data. Masked arrays allowed.
 
 res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
@@ -5746,8 +5973,8 @@ res -- An optional instance of the Resources class having PyNGL
     return None
 
 # Get NumPy array from masked arrays, if necessary.
-  uar2,uar_fill_value = _get_arr_and_fill_value(uarray)
-  var2,var_fill_value = _get_arr_and_fill_value(varray)
+  uar2,uar_fill_value = _get_arr_and_fv(uarray)
+  var2,var_fill_value = _get_arr_and_fv(varray)
 
   _set_spc_defaults(1)
   rlist = _crt_dict(rlistc)  
@@ -5759,7 +5986,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist2 = {}
   rlist3 = {}
   for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif( (key[0:2] == "mp") or (key[0:2] == "vp") or (key[0:3] == "pmA") or \
@@ -5793,6 +6020,8 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist3
   return _lst2pobj(ivct)
 
+################################################################
+
 def vector_scalar(wks,uarray,varray,tarray,rlistc=None):
   """
 Creates and draws vectors colored according to a scalar field, and
@@ -5802,9 +6031,9 @@ plot = Ngl.vector_scalar(wks, u, v, data, res=None)
 
 wks -- The identifier returned from calling Ngl.open_wks
 
-u,v -- The vector data.
+u,v -- The vector data. Masked arrays allowed.
 
-data - The scalar data.
+data -- The scalar data. Masked arrays allowed.
 
 res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
@@ -5818,9 +6047,9 @@ res -- An optional instance of the Resources class having PyNGL
     return None
 
 # Get NumPy array from masked arrays, if necessary.
-  uar2,uar_fill_value = _get_arr_and_fill_value(uarray)
-  var2,var_fill_value = _get_arr_and_fill_value(varray)
-  tar2,tar_fill_value = _get_arr_and_fill_value(tarray)
+  uar2,uar_fill_value = _get_arr_and_fv(uarray)
+  var2,var_fill_value = _get_arr_and_fv(varray)
+  tar2,tar_fill_value = _get_arr_and_fv(tarray)
 
   _set_spc_defaults(1)
   rlist = _crt_dict(rlistc)  
@@ -5833,7 +6062,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist3 = {}
   rlist4 = {}
   for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:2] == "sf"):
@@ -5877,6 +6106,8 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist4
   return _lst2pobj(ivct)
 
+################################################################
+
 def vector_scalar_map(wks,uarray,varray,tarray,rlistc=None):
   """
 Creates and draws vectors over a map colored according to a scalar
@@ -5886,9 +6117,9 @@ plot = Ngl.vector_scalar_map(wks, u, v, data, res=None)
 
 wks -- The identifier returned from calling Ngl.open_wks
 
-u,v -- The vector data.
+u,v -- The vector data. Masked arrays allowed.
 
-data - The scalar data.
+data -- The scalar data. Masked arrays allowed.
 
 res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
@@ -5902,9 +6133,9 @@ res -- An optional instance of the Resources class having PyNGL
     return None
 
 # Get NumPy array from masked arrays, if necessary.
-  uar2,uar_fill_value = _get_arr_and_fill_value(uarray)
-  var2,var_fill_value = _get_arr_and_fill_value(varray)
-  tar2,tar_fill_value = _get_arr_and_fill_value(tarray)
+  uar2,uar_fill_value = _get_arr_and_fv(uarray)
+  var2,var_fill_value = _get_arr_and_fv(varray)
+  tar2,tar_fill_value = _get_arr_and_fv(tarray)
 
   _set_spc_defaults(1)
   rlist = _crt_dict(rlistc)  
@@ -5918,7 +6149,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist3 = {}
   rlist4 = {}
   for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:2] == "sf"):
@@ -5956,6 +6187,8 @@ res -- An optional instance of the Resources class having PyNGL
   del rlist3
   del rlist4
   return _lst2pobj(ivct)
+
+################################################################
 
 def vinth2p(dati, hbcofa, hbcofb, plevo, psfc, intyp, p0, ii, kxtrp):     
   """
@@ -6052,6 +6285,8 @@ kxtrp -- A logical value. If False, then no extrapolation is done when
     print "vinth2p - invalid input data array."
     return None
 
+################################################################
+
 def wmbarb(wks,x,y,u,v):
   """
 Draws wind barbs at specified locations.
@@ -6106,6 +6341,8 @@ dx, dy -- Scalars, one-dimensional NumPy arrays or Python lists
     c_wmbarbp(gksid,x,y,u,v)
   return 0
 
+################################################################
+
 def wmbarbmap(wks,x,y,u,v):
   """
 Draws wind barbs over maps at specified locations.
@@ -6129,6 +6366,8 @@ u, v -- Scalars, one-dimensional NumPy arrays or Python lists
   wmbarb(wks,x,y,u,v)
   wmsetp("ezf",ezf)
   wmsetp("wdf",wdf)
+
+################################################################
 
 def wmgetp(pname):
   """
@@ -6183,6 +6422,8 @@ value -- The return value of the given input parameter.
       "wmgetp: specified value for " + pname + " is not of a recognized type." 
   return None
 
+################################################################
+
 def wmsetp(pname,val):
   """
 Sets control parameter values for Ngl.wmbarb and Ngl.wmbarbmap procedures.
@@ -6206,6 +6447,8 @@ pvalue -- Value of the parameter you want to set.
     print \
       "wmsetp: specified value for " + pname + " is not of a recognized type." 
   return None
+
+################################################################
 
 def wmstnm(wks,x,y,imdat):
   """
@@ -6242,6 +6485,8 @@ imdat -- A string of 50 characters encoded as per the WMO/NOAA guidelines.
   del xa,ya,imdata
   return None
 
+################################################################
+
 def xy(wks,xar,yar,rlistc=None):
   """
 Creates and draws an XY plot, and returns a PlotId representing the XY
@@ -6263,8 +6508,8 @@ res -- An (optional) instance of the Resources class having PyNGL
   _set_spc_defaults(1)
 
 # Get NumPy array from masked arrays, if necessary.
-  xar2,xar_fill_value = _get_arr_and_fill_value(xar)
-  yar2,yar_fill_value = _get_arr_and_fill_value(yar)
+  xar2,xar_fill_value = _get_arr_and_fv(xar)
+  yar2,yar_fill_value = _get_arr_and_fv(yar)
 
 #
 #  Get input array dimension information.
@@ -6306,7 +6551,7 @@ res -- An (optional) instance of the Resources class having PyNGL
   _set_msg_val_res(rlist,yar_fill_value,"xy_y")
 
   for key in rlist.keys():
-    rlist[key] = _convert_ma_to_numpy(rlist[key])
+    rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:2] == "ca"):
       ca_rlist[key] = rlist[key]
     elif (key[0:2] == "xy"):
@@ -6340,6 +6585,8 @@ res -- An (optional) instance of the Resources class having PyNGL
 # ret.xy and ret.base will be None if XY plot is invalid.
   return(_lst2pobj(ixy))
 
+################################################################
+
 def y(wks,yar,rlistc=None):
   """
 Creates and draws an XY plot using index values for the X axis, and
@@ -6360,7 +6607,7 @@ res -- An (optional) instance of the Resources class having PyNGL
   """
   
 # Get NumPy array from masked array, if necessary.
-  yar2,fill_value = _get_arr_and_fill_value(yar)
+  yar2,fill_value = _get_arr_and_fv(yar)
 
 #
 #  Get input array dimension information. We have to go through all
@@ -6390,6 +6637,8 @@ res -- An (optional) instance of the Resources class having PyNGL
 # Just pass yar and let the xy function deal with setting msg val
 # resources, if any.
   return xy(wks,range(0,npts),yar,rlistc)
+
+################################################################
 
 def yiqrgb(y,i,q):
   """
@@ -6440,49 +6689,3 @@ r, g, b -- The red, green, and blue intensity values in the range
     return rr,gr,br
   else:
     print "yiqrgb: arguments must be scalars, arrays, lists or tuples."
-
-######################################################################
-#     This is the PAF section (PyNGL analysis functions)             #
-######################################################################
-
-import fplib
-
-#
-#  _get_ma_fill_value(arr)
-#     input: 
-#       arr - any Python object
-#     output:
-#       Two values: type, fill_value
-#         if arr is a numpy masked array:
-#            type = "ma" and fill_value is the fill value
-#         if arr is not a masked array
-#            type and fill_value are returned as None.
-#
-def _get_ma_fill_value(arr):
-#
-#  If arr is a numpy masked array, return its fill value.
-#
-  if HAS_MA and ma.isMaskedArray(arr):
-    if IS_NEW_MA:
-      return "ma",arr.fill_value
-    else:
-      return "ma",arr.fill_value()
-#
-#  Not a NumPy masked array.
-#
-  return None, None
-
-#
-# Special function to deal with values that may come in as
-# a scalar (as defined by the "_is_scalar" function above)
-# that need to be converted to something that won't
-# register as having 0 dimensions.  We do this by 
-# promoting it to a numpy array.
-#
-def _promote_scalar(x):
-  if _is_scalar(x):
-    import numpy
-    return numpy.array([x])
-  else:
-    return x
-
