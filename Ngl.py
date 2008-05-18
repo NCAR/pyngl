@@ -2021,10 +2021,11 @@ xdata,ydata -- One dimensional (masked) arrays containing values to be
      NhlPDataToNDC(_int_id(obj),x2,y2,len(_promote_scalar(x2)),
                    fvx,fvy,ismx,ismy)
 
-# Convert to masked array if input was masked array.
-  if ismx:
+# Convert to masked array if input was masked array, or any of the
+# values are outside the plot data space.
+  if ismx or status == 1:
     xout = _convert_to_ma(xout,range)
-  if ismy:
+  if ismy or status == 1:
     yout = _convert_to_ma(yout,range)
 
   del error,status,range
@@ -3364,10 +3365,11 @@ xndc,yndc -- One dimensional (masked) arrays containing values to be
      NhlPNDCToData(_int_id(obj),x2,y2,len(_promote_scalar(x2)),fvx,fvy,
                    ismx,ismy)
 
-# Convert to masked array if input was masked array.
-  if ismx:
+# Convert to masked array if input was masked array, or any of the
+# values are outside the plot data space.
+  if ismx or status == 1:
     xout = _convert_to_ma(xout,range)
-  if ismy:
+  if ismy or status == 1:
     yout = _convert_to_ma(yout,range)
 
   del error,status,range
