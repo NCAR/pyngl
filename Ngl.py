@@ -1998,18 +1998,35 @@ res -- An optional instance of the Resources class having PyNGL
 
 def datatondc(obj,x,y):
   """
-Converts coordinates in data space to coordinates in NDC space.
+Converts coordinates in data space to coordinates in NDC
+space. Missing values are ignored.
 
 xndc,yndc = Ngl.datatondc(plot,xdata,ydata)
 
 plot -- The identifier returned from calling any plot object creation
         function, like Ngl.xy, Ngl.contour, Ngl.vector_map, etc.
 
-xdata,ydata -- One dimensional arrays containing values to be converted.
+xdata,ydata -- One dimensional (masked) arrays containing values to be
+               converted.
   """
 
+  x2,fvx = _get_arr_and_fv(x)
+  y2,fvy = _get_arr_and_fv(y)
+
+# Set flags indicating whether missing values present.
+  fvx,ismx = _set_default_msg(fvx)
+  fvy,ismy = _set_default_msg(fvy)
+
   error,xout,yout,status,range = \
-     NhlPDataToNDC(_int_id(obj),x,y,len(_promote_scalar(x)),1.e30,1.e30,1,1)
+     NhlPDataToNDC(_int_id(obj),x2,y2,len(_promote_scalar(x2)),
+                   fvx,fvy,ismx,ismy)
+
+# Convert to masked array if input was masked array.
+  if ismx:
+    xout = _convert_to_ma(xout,range)
+  if ismy:
+    yout = _convert_to_ma(yout,range)
+
   del error,status,range
   return xout,yout
 
@@ -3324,16 +3341,35 @@ red, green, blue -- Floating point values between 0.0 and 1.0
 def ndctodata(obj,x,y):
   """
 Converts coordinates in NDC space to coordinates in data space.
+Missing values are ignored.
 
 xdata,ydata = Ngl.ndctodata(plot,xndc,yndc)
 
 plot -- The identifier returned from calling any plot object creation
         function, like Ngl.xy, Ngl.contour, Ngl.vector_map, etc.
 
-xndc,yndc -- One dimensional arrays containing values to be converted.
+xndc,yndc -- One dimensional (masked) arrays containing values to be
+             converted.
   """
+
+  x2,fvx = _get_arr_and_fv(x)
+  y2,fvy = _get_arr_and_fv(y)
+
+# Set flags indicating whether missing values present.
+  fvx,ismx = _set_default_msg(fvx)
+  fvy,ismy = _set_default_msg(fvy)
+
+
   error,xout,yout,status,range = \
-     NhlPNDCToData(_int_id(obj),x,y,len(_promote_scalar(x)),1.e30,1.e30,1,1)
+     NhlPNDCToData(_int_id(obj),x2,y2,len(_promote_scalar(x2)),fvx,fvy,
+                   ismx,ismy)
+
+# Convert to masked array if input was masked array.
+  if ismx:
+    xout = _convert_to_ma(xout,range)
+  if ismy:
+    yout = _convert_to_ma(yout,range)
+
   del error,status,range
   return xout,yout
 

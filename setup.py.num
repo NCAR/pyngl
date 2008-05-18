@@ -44,8 +44,7 @@ for i in xrange(len(bin_files)):
   bin_files[i] = join('bin',bin_files[i])
 
 py_files = ['Ngl.py','Nio.py','coordsel.py','xarray.py','hlu.py', \
-            '__init__.py','pyngl_version.py', \
-            'pynio_version.py','netcdftime.py']
+            '__init__.py','pyngl_version.py','pynio_version.py']
 for i in xrange(len(py_files)):
   py_files[i] = join(pyngl_pkg_name,py_files[i])
 

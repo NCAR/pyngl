@@ -147,7 +147,7 @@ ncarg_dirs  = ["colormaps","data","database","fontcaps","graphcaps", \
 #
 # Gather up the *.py module files.
 #
-py_files= ['Ngl.py','hlu.py','__init__.py','pyngl_version.py','netcdftime/netcdftime.py']
+py_files= ['Ngl.py','hlu.py','__init__.py','pyngl_version.py']
 
 #----------------------------------------------------------------------
 #
@@ -293,8 +293,9 @@ os.chdir(ncl_ncarg_dir)
 for ncarg_dir in ncarg_dirs:
   for root, dirs, files in os.walk(ncarg_dir):
     for name in files:
-      pyngl_ncarg_files.append((os.path.join(pyngl_ncarg_dir,root), \
-                               [os.path.join(ncl_ncarg_dir,root,name)]))
+      if root != "database/rangs":
+        pyngl_ncarg_files.append((os.path.join(pyngl_ncarg_dir,root), \
+                                 [os.path.join(ncl_ncarg_dir,root,name)]))
 os.chdir(cwd)
 #
 # If INCLUDE_PYNIO is set, then make sure we include the PyNIO files
