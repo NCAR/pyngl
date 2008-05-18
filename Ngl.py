@@ -4046,23 +4046,12 @@ return_info -- An optional logical that indicates whether additional
   """
 
 # Deal with masked arrays.
-  fill_value_x = _get_fill_value(x)
-  fill_value_y = _get_fill_value(y)
+  x2,fill_value_x = _get_arr_and_force_fv(x)
+  y2,fill_value_y = _get_arr_and_force_fv(y)
 
-  if (fill_value_x != None):
-    x2 = x.filled(fill_value_x)
-  else:
-    fill_value_x = 1.e20
-    x2           = x
-  if (fill_value_y != None):
-    y2 = y.filled(fill_value_y)
-  else:
-    fill_value_y = 1.e20
-    y2           = y
-  
   result = fplib.regline(x2, y2, fill_value_x, fill_value_y, return_info)
 
-  del x2
+  del x2,fill_value_x
   del y2
 # 
 #  Return a masked array with y's fill value as the fill_value.
