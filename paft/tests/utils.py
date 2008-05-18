@@ -1,7 +1,10 @@
 import numpy
-import numpy.core.ma as ma
-import Numeric
 
+try:
+  from numpy import ma
+  HAS_MA = True
+except:
+  HAS_MA = False
 
 #
 # Check type of value.
@@ -19,25 +22,12 @@ def check_type(value,type_expected="numpy"):
         print "Type test unsuccessful."
   elif type_expected == "nma":
     try:
-      import numpy.core.ma as ma
-      if ma.isMaskedArray(value):
-        print "'nma' type test successful."
+      if HAS_MA and ma.isMaskedArray(value):
+        print "'numpy MA' type test successful."
       else:
-        print "'nma' type test unsuccessful."
+        print "'numpy MA' type test unsuccessful."
     except:
       print "Unable to import numpy.core.ma"
-      print "Type test unsuccessful."
-  elif type_expected == "pma":
-    import maskedarray as ma 
-    try:
-      import numpy
-      import maskedarray as ma
-      if isinstance(value,numpy.ndarray) and ma.isMaskedArray(value):
-        print "'pma' type test successful."
-      else:
-        print "'pma' type test unsuccessful."
-    except:
-      print "Unable to import maskedarray"
       print "Type test unsuccessful."
   else:
     if isinstance(value,type_expected):
@@ -60,27 +50,27 @@ def test_value(title,value1,value2,delta=None):
 #
 # Compare two numpy values for equality.
 #
-def test_values(title,values1,values2,delta=None):
-  if delta == None:
-    delta = 1e-8
-
-  if ma.isMaskedArray(values1):
-    values11 = values1.filled()
+def test_values(title,values1,values2,delta=1e-8):
+  if HAS_MA and ma.isMaskedArray(values1):
+    values11 = values1.filled(1e-30)
   else:
     values11 = values1
-  if ma.isMaskedArray(values2):
-    values22 = values2.filled()
+  if HAS_MA and ma.isMaskedArray(values2):
+    values22 = values2.filled(1e-30)
   else:
     values22 = values2
-  if numpy.all(values11 == values22):
+
+# First see if values are exactly equal.
+  if numpy.array_equal(values11,values22):
     print title + " test successful."
   else:
+# If not exactly equal, then almost equal?
     diff = numpy.max(numpy.abs(values11 - values22))
-
     if diff < delta:
       print title + " test successful."
     else:
       print title + " test unsuccessful."
+      print "diff = ",diff
       if isinstance(values11,numpy.ndarray):
         print "min/max values11 =" + str(numpy.min(values11)) + "/" + \
                                      str(numpy.max(values11))
