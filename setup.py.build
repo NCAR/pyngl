@@ -354,19 +354,19 @@ if use_cvs:
 else:
 #
 # Create a Scripts directory and copy the .py and .res files
-# from the ../examples directory into the Scripts directory.
-# The executable ../examples/pynglex must also be copied.
+# from the examples directory into the Scripts directory.
+# The executable examples/pynglex must also be copied.
 #
-  all_pynglex_files = os.listdir("../examples")
+  all_pynglex_files = os.listdir("examples")
   os.mkdir(pynglex_dir)
   pynglex_files = []
   for file in all_pynglex_files:
     if (file[-3:] == ".py" or file[-4:] == ".res"):
       pynglex_files.append(file)
-      os.system("cp ../examples/" + file + " " + pynglex_dir)
+      os.system("cp examples/" + file + " " + pynglex_dir)
 
-os.system("cp ../examples/pynglex " + pynglex_dir)
-os.system("cp ../examples/pynglex " + os.path.join(pynglex_dir,"pynglex"+sys.version[:3]))
+os.system("cp examples/pynglex " + pynglex_dir)
+os.system("cp examples/pynglex " + os.path.join(pynglex_dir,"pynglex"+sys.version[:3]))
 #
 # Modify the pynglex script to have the correct python invocation.
 #
