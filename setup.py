@@ -111,7 +111,7 @@ def set_ncl_libs_and_paths():
     if(os.path.exists(dir)):
       PATHS.append(dir)
 
-  if sys.platform == "linux2" and os.uname()[-1] == "x86_64":
+  if (os.uname()[-1] == "x86_64" or os.uname()[-1] == "ia64"):
     dir = '/usr/X11R6/lib64'
     if(os.path.exists(dir)):
       PATHS.append(dir)
@@ -121,8 +121,9 @@ def set_ncl_libs_and_paths():
           "ngmath", "png", "z", "X11"]
 
 # Add extra library needed for C/Fortran interfacing.
-  if sys.platform == "linux2" and os.uname()[-1] == "x86_64" and \
-    platform.python_compiler() == "GCC 4.1.1":
+  if platform.python_compiler() == "GCC 4.1.1":
+# You may need to change "gfortran" if you are using a different
+# Fortran compiler.
     LIBS.append("gfortran")
   elif sys.platform == "aix5":
     LIBS.append("xlf90")
