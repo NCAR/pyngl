@@ -162,8 +162,8 @@ if os.path.exists('MANIFEST'): os.remove('MANIFEST')
 PYNGL_PKG_NAME = 'PyNGL'                    # Name of package to install.
 pyngl_pth_file = [PYNGL_PKG_NAME + '.pth']  # and it's *.pth file.
 pkgs_pth       = get_python_lib()
-platform       = get_platform()
 
+#
 # Make sure NCARG_ROOT is set. This is only necessary if building
 # PyNGL from source code.
 
