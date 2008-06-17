@@ -153,7 +153,7 @@ def set_include_paths():
 # Main section
 #----------------------------------------------------------------------
 
-long_description = "PyNGL is a Python language module designed for publication-quality visualization of data. PyNGL stands for 'Python Interface to the NCL Graphics Libraries,' and it is pronounced 'pingle.' It now contains the 'Nio' module, which enables NetCDF-like access for NetCDF (rw), HDF (rw), GRIB (r), and CCM (r) data files"
+long_description = "PyNGL is a Python language module designed for publication-quality visualization and analysis of scientific data. PyNGL stands for 'Python Interface to the NCL Graphics Libraries,' and it is pronounced 'pingle.' It contains the 'Nio' module, which enables NetCDF-like access for NetCDF (rw), HDF (rw), GRIB (r), and CCM (r) data files"
 
 # I read somewhere that distutils doesn't update this file properly
 # when the contents of directories change.
@@ -232,6 +232,8 @@ DATA_FILES.append((os.path.join(pyngl_ncarg_dir,'pynglex'),pynglex_files))
 
 setup (name = 'PyNGL',
        version          = '1.3.0',
+       license          = 'PyNGL license, similar to University of Illinois/NCSA license',
+       platforms         = "Unix, Linux, Windows (Cygwin), MacOSX",
        author           = 'Dave Brown, Fred Clare, and Mary Haley',
        author_email     = 'dbrown@ucar.edu, haley@ucar.edu',
        maintainer       = 'Mary Haley',
