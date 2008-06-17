@@ -61,6 +61,9 @@ def get_pynglex_files():
 
 # Return list of files we need under $NCARG_ROOT/lib/ncarg.
 def get_ncarg_files():
+  plat_dir = os.path.join("build","lib."+get_platform()+"-"+sys.version[:3], \
+                          "PyNGL")
+
   ncl_lib       = os.path.join(ncl_root,'lib')
   ncl_ncarg_dir = os.path.join(ncl_lib,'ncarg')
   ncarg_dirs    = ["colormaps","data","database","fontcaps","graphcaps"]
