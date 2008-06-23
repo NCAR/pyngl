@@ -1,0 +1,17 @@
+include PyNGL.pth
+include setup.py
+include README
+include INSTALL
+include Ngl.py
+include __init__.py
+include Helper.c
+include gsun.c
+include gsun.h
+include hlu.i
+include hlu.py
+include hlu_wrap.c
+include sysresfile
+include version
+recursive-include paft *.c
+recursive-include examples *.py *.res pynglex
+
