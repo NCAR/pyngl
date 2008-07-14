@@ -348,7 +348,6 @@ if use_cvs:
 #
 # Remove everything but *.py and *.res files from the list of files.
 #
-  pynglex_files.remove("yMakefile")
   pynglex_files.remove("CVS")
   pynglex_files.remove("pynglex")
 else:
