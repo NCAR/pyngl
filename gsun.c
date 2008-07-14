@@ -13,6 +13,7 @@
 const char *polylinestr = "polyline";
   
 int global_wk_orientation = -1;
+int nhl_initialized = 0;
 
 /*
  *  This function calculates the maximum value of a 1D int array.
@@ -435,7 +436,15 @@ void maximize_plots(int wks, nglPlotId *plot, int nplots, int ispanel,
   float scale, vpx, vpy, vpw, vph, dx, dy, new_uw, new_uh, new_ux, new_uy;
   float new_vpx, new_vpy, new_vpw, new_vph, margin = 0.02;
   int srlist, grlist, *coords;
+  const char *name;
 
+/*
+ * If wks < 0, this means we have a "bad" workstation.
+ */
+  if(wks < 0) {
+    NhlPError(NhlWARNING,NhlEUNKNOWN,"maximize_plots: Invalid workstation. No plot maximization can take place.");
+    return;
+  }
 /*
  * Initialize setting and retrieving resource lists.
  */
@@ -523,8 +532,9 @@ void maximize_plots(int wks, nglPlotId *plot, int nplots, int ispanel,
     }
   }
 
-  if(!strcmp(NhlClassName(wks),"psWorkstationClass") ||
-     !strcmp(NhlClassName(wks),"pdfWorkstationClass")) {
+  name = NhlClassName(wks);
+  if(name != NULL && (!strcmp(name,"psWorkstationClass") ||
+		      !strcmp(name,"pdfWorkstationClass"))) {
 /*
  * Compute and set device coordinates that will make plot fill the 
  * whole page.
@@ -1633,7 +1643,9 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
 /*
  * Initialize HLU library.
  */
-  NhlInitialize();
+  if(!nhl_initialized) {
+    NhlInitialize();
+  }
 
 /*
  * Create Application object.
@@ -1657,7 +1669,9 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
  * Load color maps. This is necessary for access to the color maps in
  * $NCARG_ROOT/lib/ncarg/colormaps, not for the 9 built-in color maps.
  */
-  NhlPalLoadColormapFiles(NhlworkstationClass,True);
+  if(!nhl_initialized) {
+    NhlPalLoadColormapFiles(NhlworkstationClass,True);
+  }
 
 /*
  * Start workstation code.
@@ -1787,6 +1801,7 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
  * Clean up and return.
  */
 
+  nhl_initialized = 1;
   if(filename != NULL) free(filename);
   return(wks);
 }
