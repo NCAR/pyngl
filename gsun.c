@@ -4072,15 +4072,15 @@ void panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
   int *row_spec, all_ismissing, first_time;
   int nvalid_plot, nvalid_plots, valid_plot;
   int panel_save, panel_debug, panel_center;
-  int panel_labelbar, main_string_on, is_figure_strings;
+  int panel_labelbar, main_string_on, is_figure_strings, explicit;
   int fs_bkgrn, fs_perim_on, just;
   int *anno, fs_text, added_anno, am_rlist;
   float paras[9], orths[9], para, orth, len_pct, wsp_hpct, wsp_wpct;
-  NhlString *panel_strings;
+  NhlString *panel_strings, *lstrings;
   int *colors, *patterns;
   float *scales, *levels;
   int fill_on, glyph_style, fill_arrows_on, mono_line_color, mono_fill_arrow;
-  int ncolors, nlevels, npatterns, nscales;
+  int ncolors, nlevels, npatterns, nscales, nstrings;
   int mono_fill_pat, mono_fill_scl, mono_fill_col;
   int lb_orient, lb_perim_on, lb_auto_stride, lb_alignment, labelbar_object;
   float lb_width_set, lb_height_set;
@@ -4357,8 +4357,9 @@ void panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
  * labelbar, if requested.
  */
       NhlRLClear(grlist);
-      NhlRLGetFloat(grlist,   "cnInfoLabelFontHeightF", &font_height);
-      NhlRLGetInteger(grlist, "cnFillOn",               &fill_on);
+      NhlRLGetFloat(grlist,   "cnInfoLabelFontHeightF",     &font_height);
+      NhlRLGetInteger(grlist, "cnFillOn",                   &fill_on);
+      NhlRLGetInteger(grlist, "cnExplicitLabelBarLabelsOn", &explicit);
       (void)NhlGetValues(*(plots[valid_plot].contour), grlist);
 
       if(panel_labelbar) {
@@ -4371,7 +4372,14 @@ void panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
           NhlRLGetInteger(grlist,      "cnMonoFillPattern", &mono_fill_pat);
           NhlRLGetInteger(grlist,      "cnMonoFillScale",   &mono_fill_scl);
           NhlRLGetInteger(grlist,      "cnMonoFillColor",   &mono_fill_col);
-          NhlRLGetFloatArray(grlist,   "cnLevels",          &levels, &nlevels);
+	  if(explicit) {
+	    NhlRLGetStringArray(grlist,"lbLabelStrings",    
+				&lstrings, &nstrings);
+	  }
+	  else {
+	    NhlRLGetStringArray(grlist,"cnLineLabelStrings", 
+				&lstrings, &nstrings);
+	  }
           (void)NhlGetValues(*(plots[valid_plot].contour), grlist);
         }
         else {
@@ -4940,7 +4948,13 @@ void panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
       NhlRLSetInteger     (lb_rlist,"lbOrientation",     lb_orient);
       NhlRLSetIntegerArray(lb_rlist,"lbFillColors",      colors, ncolors);
       NhlRLSetInteger     (lb_rlist,"lbBoxCount",        ncolors);
-      NhlRLSetFloatArray  (lb_rlist,"lbLabelStrings",    levels, nlevels);
+      if(!strcmp(plot_type,"contour")) {
+	NhlRLSetStringArray (lb_rlist,"lbLabelStrings", lstrings, nstrings);
+      }
+      else {
+	NhlRLSetFloatArray  (lb_rlist,"lbLabelStrings", levels, nlevels);
+      }
+      
       NhlRLSetInteger     (lb_rlist,"lbPerimOn",         lb_perim_on);
       NhlRLSetInteger     (lb_rlist,"lbLabelAutoStride", lb_auto_stride);
       NhlRLSetFloat       (lb_rlist,"lbLabelFontHeightF",lb_fh);
@@ -4970,7 +4984,9 @@ void panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
 /*
  * Free up memory.
  */
-      free(levels);
+      if(strcmp(plot_type,"contour")) {
+	free(levels);
+      }
       free(colors);
       if(!mono_fill_pat) free(patterns);
       if(!mono_fill_scl) free(scales);
