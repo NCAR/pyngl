@@ -1,6 +1,6 @@
 #
 #  File:
-#    stream_scalar1.py
+#    streamline2.py
 #
 #  Synopsis:
 #    Draws streamlines colored by a scalar field.over contours and a map.
@@ -63,7 +63,7 @@ rlist.wkColorMap = "so4_23"
 if(wks_type == "ps" or wks_type == "pdf"):
   rlist.wkOrientation = "Portrait"      # For PS or PDF output only.
 
-wks = Ngl.open_wks(wks_type,"stream_scalar1",rlist)
+wks = Ngl.open_wks(wks_type,"streamline2",rlist)
 gray  = Ngl.new_color(wks,0.88,0.88,0.88)      # add gray to colormap
 
 stres = Ngl.Resources()

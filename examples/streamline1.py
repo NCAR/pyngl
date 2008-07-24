@@ -1,6 +1,6 @@
 #
 #  File:
-#    streamline.py
+#    streamline1.py
 #
 #  Synopsis:
 #    Draws streamlines on a map over water only.
@@ -57,7 +57,7 @@ wks_type = "ps"
 
 rlist            = Ngl.Resources()
 rlist.wkColorMap = ["White","Black","Tan1","SkyBlue","Red"]
-wks = Ngl.open_wks(wks_type,"streamline",rlist)
+wks = Ngl.open_wks(wks_type,"streamline1",rlist)
 
 #
 #  Get the u/v and lat/lon variables.
