@@ -3,33 +3,28 @@
 #    stream_scalar.py
 #
 #  Synopsis:
-#    Draws streamlines over contours and colored by a scalar field.
+#    Shows how add text outside of a streamline plot.
 #
 #  Category:
 #    Streamlines
+#    Annotations on a plot
 #
 #  Author:
-#    Mary Haley (based on NCL/HLU example)
+#    Mary Haley
 #  
 #  Date of initial publication:
-#    September, 2007
+#    July, 2008
 #
 #  Description:
-#    This example draws streamlines overlaid on contours on a map,
-#    and then streamlines colored by a scalar field on a map.
+#    This example draws text strings around a streamline plot
 #
 #  Effects illustrated:
-#    o  Selecting a color map by name.
-#    o  Adding a color to the color map.
-#    o  Overlaying multiple plots on a single plot.
-#    o  Copying one resource list to another.
-#    o  Drawing colored streamlines.
-#    o  Maximizing a plot in the frame.
+#    o  Drawing streamlines colored by a scalar field
+#    o  Annotating plots
+#    o  Maximizing a plot after it is created
 # 
 #  Output:
-#    This example produces two frames: one with streamlines and
-#    contours over a map, and the second with streamlines colored
-#    by a scalar field.
+#    This example produces one visualization.
 #
 #  Notes:
 #     
@@ -40,123 +35,156 @@
 import numpy
 
 #
-#  Import Nio for a NetCDF reader.
-#
-import Nio
-
-#
 #  Import PyNGL support functions.
 #
 import Ngl
-import os,string,types
 
-# Read data off file.
+# Create some dummy data.
+def create_uv():
+  N  = 25
+  M  = 30
+  PI = 3.14159
+  jj = numpy.arange(0,M-1,1)
+  ii = numpy.arange(0,N-1,1)
+  uu = (2.0 * PI / N) * ii
+  vv = (2.0 * PI / M) * jj
+  u  = 10.0 * numpy.cos(numpy.resize(uu,[M,N]))
+  v  = numpy.transpose(10.0 * numpy.cos(numpy.resize(vv,[N,M])))
 
-filename = os.path.join(Ngl.pynglpath("data"),"asc","fcover.dat")
-data     = Ngl.asciiread(filename,[3,73,73],"float")
+  return u,v
 
-# Open workstation and change color map.
+
+# This function adds three subtitles to the top of a plot, left-justified,
+# centered, and right-justified.
+
+def subtitles(wks, plot, left_string, center_string, right_string, tres):
+  ttres         = tres     # Copy resources
+  ttres.nglDraw = False    # Make sure string is just created, not drawn.
+
+#
+# Retrieve font height of left axis string and use this to calculate
+# size of subtitles.
+#
+  if not hasattr(ttres,"txFontHeightF"):
+    font_height = Ngl.get_float(plot.base,"tiXAxisFontHeightF")
+    ttres.txFontHeightF = font_height*0.8    # Slightly smaller
+
+#
+# Set some some annotation resources to describe how close text
+# is to be attached to plot.
+#
+  amres = Ngl.Resources()
+  if not hasattr(ttres,"amOrthogonalPosF"):
+    amres.amOrthogonalPosF = -0.51   # Top of plot plus a little extra
+                                     # to stay off the border.
+  else:
+    amres.amOrthogonalPosF = ttres.amOrthogonalPosF
+
+#
+# Create three strings to put at the top, using a slightly
+# smaller font height than the axis titles.
+#
+  if left_string != "":
+    txidl = Ngl.text(wks, plot, left_string, 0., 0., ttres)
+
+    amres.amJust         = "BottomLeft"
+    amres.amParallelPosF = -0.5   # Left-justified
+    annoidl              = Ngl.add_annotation(plot, txidl, amres)
+
+  if center_string != "":
+    txidc = Ngl.text(wks, plot, center_string, 0., 0., ttres)
+
+    amres.amJust         = "BottomCenter"
+    amres.amParallelPosF = 0.0   # Centered
+    annoidc              = Ngl.add_annotation(plot, txidc, amres)
+
+  if right_string != "":
+    txidr = Ngl.text(wks, plot, right_string, 0., 0., ttres)
+
+    amres.amJust         = "BottomRight"
+    amres.amParallelPosF = 0.5   # Right-justifed
+    annoidr              = Ngl.add_annotation(plot, txidr, amres)
+
+  return
+
+# This function adds a string to the right axis, allowing you to have
+# labels on both axes.
+
+def right_axis(wks, plot, yaxis_string, tres):
+  ttres          = tres     # Copy resources
+  ttres.nglDraw  = False    # Make sure string is just created, not drawn.
+  ttres.txAngleF = -90.     # Use 90 to rotate other direction.
+
+#
+# Retrieve font height of left axis string and use to calculate size of
+# right axis string
+#
+  if not hasattr(ttres,"txFontHeightF"):
+    ttres.txFontHeightF = Ngl.get_float(plot.base,"tiXAxisFontHeightF")
+
+#
+# Set up variable to hold annotation resources.
+#
+  amres = Ngl.Resources()
+
+#
+# Create string to put at right of plot, like a Y axis title.
+#
+  if yaxis_string != "":
+    txid = Ngl.text(wks, plot, yaxis_string, 0., 0., ttres)
+
+    amres.amJust           = "CenterCenter"
+    amres.amParallelPosF   = 0.55   # Move towards plot.
+    annoid                 = Ngl.add_annotation(plot, txid, amres)
+
+  return
+
+# Generate some data
+u,v = create_uv()
+spd =  numpy.sqrt(u**2 + v**2)
+
+# Create plot
+#
 wks_type = "ps"
+wks = Ngl.open_wks(wks_type,"stream_scalar")
+Ngl.define_colormap(wks,"so4_21")
+  
+res              = Ngl.Resources()          # plot mods desired
+res.nglMaximize  = True
+res.nglDraw      = False                    # Turn off draw and frame so
+res.nglFrame     = False                    # we can attach some text.
 
-rlist = Ngl.Resources()
-rlist.wkColorMap = "so4_23"
-if(wks_type == "ps" or wks_type == "pdf"):
-  rlist.wkOrientation = "Portrait"      # For PS or PDF output only.
+res.nglSpreadColorStart = -4    # Control which part of colormap to use.
+res.nglSpreadColorEnd   =  3
 
-wks = Ngl.open_wks(wks_type,"stream_scalar",rlist)
-gray  = Ngl.new_color(wks,0.88,0.88,0.88)      # add gray to colormap
+res.tiMainString      = "This is the main title"
+res.tiMainFontColor   = "Navy"
+res.tiMainOffsetYF    = 0.02
+res.tiMainFontHeightF = 0.035
+res.tiYAxisString     = "Left Y axis string"
 
-stres = Ngl.Resources()
-cnres = Ngl.Resources()
-mpres = Ngl.Resources()
+res.stMonoLineColor   = False     # Use multiple colors for streamlines.
+res.stLineThicknessF  = 2.0       # Twice as thick
 
-cnres.nglDraw  = False
-cnres.nglFrame = False
-mpres.nglDraw  = False
-mpres.nglFrame = False
-stres.nglDraw  = False
-stres.nglFrame = False
+res.lbOrientation            = "Horizontal"
+res.pmLabelBarOrthogonalPosF = -0.02
+res.pmLabelBarHeightF        = 0.1
+res.pmLabelBarWidthF         = 0.6
 
-# Set sf/vf resources to indicate where on map to overlay.
-cnres.sfXCStartV             = -180.
-cnres.sfXCEndV               =  180.
-cnres.sfYCStartV             =  -90.
-cnres.sfYCEndV               =   90.
-stres.vfXCStartV             = -180.
-stres.vfXCEndV               =  180.
-stres.vfYCStartV             =  -90.
-stres.vfYCEndV               =   90.
+plot = Ngl.streamline_scalar(wks,u,v,spd,res)      # Create streamline plot.
 
-stres.stLineColor            = 8      # green
-cnres.cnLineColor            = 6      # blue
-stres.stLineThicknessF       = 1.5
-cnres.cnLineThicknessF       = 1.7
-cnres.cnLineDashPattern      = 7
-cnres.cnLineLabelsOn         = False
+txres             = Ngl.Resources()          # Text resources desired
+txres.txFontColor = "OrangeRed"
 
-# Set map resources.
-mpres.mpGridAndLimbOn        = False
-mpres.mpCenterLatF           = 90.0
-mpres.mpCenterLonF           = 180.0
-mpres.mpCenterRotF           = 45.0
-mpres.mpFillOn               = True
-mpres.mpGridAndLimbDrawOrder = "Draw"
-mpres.mpGridLineDashPattern  = 5
-mpres.mpInlandWaterFillColor = -1
-mpres.mpOceanFillColor       = -1
-mpres.mpLandFillColor        = gray
-mpres.mpLabelsOn             = False
-mpres.mpLeftCornerLatF       = 10.
-mpres.mpLeftCornerLonF       = -180.
-mpres.mpLimitMode            = "corners"
-mpres.mpProjection           = "Stereographic"
-mpres.mpRightCornerLatF      = 10.
-mpres.mpRightCornerLonF      = 0.
+subtitles(wks,plot,"Left string","Center string","Right string",txres)
 
-mpres.tiMainFontHeightF      = 0.02
-mpres.tiMainString           = "Busy graphic with contours and streamlines"
+del txres.txFontColor    # Go back to foreground color (black)
+right_axis(wks, plot, "Right Y axis string", txres)
 
-stream  = Ngl.streamline(wks,data[0,:,:],data[1,:,:],stres)
-contour = Ngl.contour(wks,data[2,:,:],cnres)
-map     = Ngl.map(wks,mpres)
+Ngl.maximize_plot(wks, plot)
 
-Ngl.overlay(map,stream)
-Ngl.overlay(map,contour)
-
-# Since we overlaid 2 plots, we need to resize them to make sure
-# they fit in frame.
-Ngl.maximize_plot(wks,map)
-
-Ngl.draw(map)
+Ngl.draw(plot)     # Drawing the plot will draw the three subtitles attached.
 Ngl.frame(wks)
 
-del cnres.nglDraw
-del cnres.nglFrame
-del mpres.nglDraw
-del mpres.nglFrame
-del stres.nglDraw
-del stres.nglFrame
-#
-# Copy all three resource lists to one big resource list.
-#
-resources = Ngl.Resources()
-for t in dir(cnres):
-  if len(t) > 5 and t[0:6] != 'cnLine':
-    setattr(resources,t,getattr(cnres,t))
-
-for t in dir(mpres):
-  setattr(resources,t,getattr(mpres,t))
-
-for t in dir(stres):
-  setattr(resources,t,getattr(stres,t))
-
-#resources.pmLabelBarDisplayMode = "Always"
-resources.nglSpreadColorStart   = 3
-resources.nglSpreadColorEnd     = -4
-resources.stMonoLineColor       = False
-resources.stLineThicknessF      = 1.7
-resources.tiMainString          = "Streamlines colored by scalar field"
-
-stream = Ngl.streamline_scalar_map(wks,data[0,:,:],data[1,:,:],data[2,:,:], \
-                                   resources)
 Ngl.end()
+
