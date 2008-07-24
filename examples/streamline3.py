@@ -1,6 +1,6 @@
 #
 #  File:
-#    stream_scalar.py
+#    stream_scalar2.py
 #
 #  Synopsis:
 #    Shows how add text outside of a streamline plot.
@@ -146,7 +146,7 @@ spd =  numpy.sqrt(u**2 + v**2)
 # Create plot
 #
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"stream_scalar")
+wks = Ngl.open_wks(wks_type,"stream_scalar2")
 Ngl.define_colormap(wks,"so4_21")
   
 res              = Ngl.Resources()          # plot mods desired
