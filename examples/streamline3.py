@@ -41,15 +41,13 @@ import Ngl
 
 # Create some dummy data.
 def create_uv():
-  N  = 25
-  M  = 30
+  N  = 30
+  M  = 25
   PI = 3.14159
-  jj = numpy.arange(0,M-1,1)
-  ii = numpy.arange(0,N-1,1)
-  uu = (2.0 * PI / N) * ii
-  vv = (2.0 * PI / M) * jj
-  u  = 10.0 * numpy.cos(numpy.resize(uu,[M,N]))
-  v  = numpy.transpose(10.0 * numpy.cos(numpy.resize(vv,[N,M])))
+  uu = ((2.0 * PI)/ N) * numpy.arange(0,N,1)
+  vv = ((2.0 * PI)/ M) * numpy.arange(0,M,1)
+  u  = numpy.transpose(10.0 * numpy.cos(numpy.resize(uu,[M,N])))
+  v  = 10.0 * numpy.cos(numpy.resize(vv,[N,M]))
 
   return u,v
 
@@ -120,8 +118,7 @@ def right_axis(wks, plot, yaxis_string, tres):
 # right axis string
 #
   if not hasattr(ttres,"txFontHeightF"):
-    ttres.txFontHeightF = Ngl.get_float(plot.base,"tiXAxisFontHeightF")
-
+    ttres.txFontHeightF = Ngl.get_float(plot.base,"tiYAxisFontHeightF")
 #
 # Set up variable to hold annotation resources.
 #
@@ -147,15 +144,15 @@ spd =  numpy.sqrt(u**2 + v**2)
 #
 wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"streamline3")
-Ngl.define_colormap(wks,"so4_21")
+Ngl.define_colormap(wks,"prcp_3")
   
 res              = Ngl.Resources()          # plot mods desired
 res.nglMaximize  = True
 res.nglDraw      = False                    # Turn off draw and frame so
 res.nglFrame     = False                    # we can attach some text.
 
-res.nglSpreadColorStart = -4    # Control which part of colormap to use.
-res.nglSpreadColorEnd   =  3
+res.nglSpreadColorStart = 5    # Control which part of colormap to use.
+res.nglSpreadColorEnd   = 21
 
 res.tiMainString      = "This is the main title"
 res.tiMainFontColor   = "Navy"
@@ -179,6 +176,7 @@ txres.txFontColor = "OrangeRed"
 subtitles(wks,plot,"Left string","Center string","Right string",txres)
 
 del txres.txFontColor    # Go back to foreground color (black)
+txres.txFontHeightF = 0.029
 right_axis(wks, plot, "Right Y axis string", txres)
 
 Ngl.maximize_plot(wks, plot)
