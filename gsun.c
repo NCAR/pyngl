@@ -435,7 +435,7 @@ void maximize_plots(int wks, nglPlotId *plot, int nplots, int ispanel,
   float top, bot, lft, rgt, uw, uh;
   float scale, vpx, vpy, vpw, vph, dx, dy, new_uw, new_uh, new_ux, new_uy;
   float new_vpx, new_vpy, new_vpw, new_vph, margin = 0.02;
-  int srlist, grlist, *coords;
+  int srlist, grlist;
   const char *name;
 
 /*
@@ -1033,7 +1033,7 @@ void add_ref_line(int wks, int plot, nglRes *special_res)
 
 void point_tickmarks_out(int plot, ResInfo *res)
 {
-  int srlist, grlist, mode;
+  int srlist, grlist;
   float xb_length, xt_length, yl_length, yr_length;
   float xb_mlength, xt_mlength, yl_mlength, yr_mlength;
 
@@ -1633,7 +1633,7 @@ int vector_field(void *u, void *v, const char *type_u, const char *type_v,
 int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
                   ResInfo *ap_res, nglRes *special_res)
 {
-  int i, wks, len, tlen, wk_rlist, ap_rlist, grlist, check_orientation = 0;
+  int wks, len, tlen, wk_rlist, ap_rlist, grlist, check_orientation = 0;
   char *filename = (char *) NULL;
   int app;
 
@@ -2820,7 +2820,7 @@ nglPlotId vector_scalar_wrap(int wks, void *u, void *v, void *t,
 {
   int vffield, sffield, vector;
   nglPlotId plot;
-  int i, vf_rlist, sf_rlist, vc_rlist; 
+  int vf_rlist, sf_rlist, vc_rlist; 
 
 /*
  * Set resource ids.
@@ -3106,7 +3106,7 @@ nglPlotId labelbar_ndc_wrap(int wks, int nbox, NhlString *labels,
                             const char *type_x, const char *type_y,
                             ResInfo *lb_res, nglRes *special_res)
 {
-  int i, lbid, lb_rlist, *labelbar_object;
+  int lb_rlist, *labelbar_object;
   nglPlotId labelbar;
   float *xf, *yf;
 
@@ -3164,7 +3164,7 @@ nglPlotId legend_ndc_wrap(int wks, int nitems, NhlString *labels,
                           const char *type_x, const char *type_y,
                           ResInfo *lg_res, nglRes *special_res)
 {
-  int i, lgid, lg_rlist, *legend_object;
+  int lg_rlist, *legend_object;
   nglPlotId legend;
   float *xf, *yf;
 
@@ -3366,7 +3366,7 @@ nglPlotId add_poly_wrap(int wks, nglPlotId *plot, void *x, void *y,
                         NhlPolyType polytype, ResInfo *gs_res, 
                         nglRes *special_res)
 {
-  int *primitive_object, gsid, pr_rlist, grlist;
+  int *primitive_object, gsid, pr_rlist;
   int i, newlen, *indices, nlines, npoly, ibeg, iend, npts;
   float *xf, *yf, *xfnew, *yfnew, *xfmsg, *yfmsg;
   char *astring;
@@ -4069,7 +4069,7 @@ void panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
   int i, nplots, npanels, is_row_spec, nrows, ncols, draw_boxes = 0;
   int num_plots_left, nplot, nplot4, nr, nc, new_ncols, nnewplots;
   nglPlotId *newplots, pplot;
-  int *row_spec, all_ismissing, first_time;
+  int *row_spec, first_time;
   int nvalid_plot, nvalid_plots, valid_plot;
   int panel_save, panel_debug, panel_center;
   int panel_labelbar, main_string_on, is_figure_strings, explicit;
@@ -4093,7 +4093,7 @@ void panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
   float xlft, xrgt, xbot, xtop;
   float xsp, ysp, xwsp_perc, ywsp_perc, xwsp, ywsp;
   float vpx, vpy, vpw, vph, dxl, dxr, dyt, dyb;
-  float *old_vp, *xpos, *ypos, max_rgt, max_top, max_lft, max_bot;
+  float *old_vp, *xpos, *ypos, max_rgt, max_top;
   float top, bottom, left, right;
   float newtop, newbot, newrgt, newlft;
   float plot_width, plot_height, total_width, total_height;
@@ -5174,7 +5174,7 @@ void c_wmbarbp(int wksid, float x, float y, float u, float v) {
 
 void c_wmstnmp(int wksid, float x, float y, char *imdat) {
 
-  int ezf,i,iang;
+  int ezf,iang;
   float xt,yt,xtt,ytt,fang;
   char tang[3];
   
