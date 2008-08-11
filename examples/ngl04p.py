@@ -59,13 +59,12 @@ print names
 
 #
 #  For variable in names[1], retrieve and print all attributes
-#  and their values (exclude printing the built-in functions).
+#  and their values.
 #
 print "\nThe attributes and their values for variable " + names[1] + ":"
-for attrib in dir(file.variables[names[1]]):
+for attrib in file.variables[names[1]].attributes.keys():
   t = getattr(file.variables[names[1]],attrib)
-  if (type(t) != types.BuiltinFunctionType):
-   print "Attribute " + "'" + attrib + "' has value:", t
+  print "Attribute " + "'" + attrib + "' has value:", t
 
 #
 #  For variable in names[1], retrieve and print the dimension names.
