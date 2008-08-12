@@ -1,14 +1,17 @@
 
 PyNGL ("pingle") stands for "Python NCL Graphics Library" and is a
-Python package for producing publication-quality 2D visualizations.
+Python package for producing publication-quality two-dimensional
+visualizations.
 
-PyNGL is available with NumPy support only (Numeric support was
-dropped October 2007).  You can import this package with:
+You can import this package with:
 
-import Ngl
+  import Ngl
 
-These binaries were built against Python 2.5.x, Python 2.4.4, and 
-NumPy 1.x.
+PyNGL is available with NumPy support only.  (Numeric support was
+dropped October 2007.)
+
+PyNGL has been tested against Python 2.5.x, Python 2.4.x, and NumPy
+1.x.
 
 The visualizations can be drawn on an X11 window or saved as
 PostScript, PDF, or NCGM files.
@@ -22,7 +25,7 @@ Interfaces exist for the rapid display of:
     Streamline plots
     Output primitives (lines, markers, polygons, text)
 
-For documentation, see:
+For documentation, examples, and a line-by-line tutorial, see:
 
   http://www.pyngl.ucar.edu/
 
@@ -48,23 +51,30 @@ Binary installation is simple:
 
 This command may require root privileges on some systems.
 
-Source code installation is not trivial. See the INSTALL file
-in this directory.
+Source code installation is not trivial. See the INSTALL file in this
+directory.
 
 Examples:
 ---------
 
-To run a PyNGL example, type:
+Many PyNGL examples depend on PyNIO, which used to be packaged with
+PyNGL. PyNIO is now a separate package, but can be downloaded from the
+same location as PyNGL.  See http://www.pyngl.ucar.edu/download.shtml
+
+To run a PyNGL example (that doesn't depend on PyNIO), type:
 
    pynglex ngl01p
 
-This command will generate a PostScript file called "ngl01p.ps"
-containing XY plots.
+This command will generate a multi-page PostScript file called
+"ngl01p.ps" containing several XY plots.
 
-To have the example generate an X11 window instead of a PostScript
+To have this example generate an X11 window instead of a PostScript
 file, type:
 
    pynglex -w x11 ngl01p
+
+You will need to click on the X11 window with your left mouse button to
+advance to the next page (frame).
 
 For a PDF file:
 
