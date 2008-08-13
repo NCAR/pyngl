@@ -68,8 +68,6 @@ def create_version_file():
   if os.path.exists(pyngl_vfile):
     os.remove(pyngl_vfile)
 
-  pyngl_version = open('version','r').readlines()[0].strip('\n')
-
   vfile = open(pyngl_vfile,'w')
   vfile.write("version = '%s'\n" % pyngl_version)
   vfile.write("array_module = 'numpy'\n")
@@ -99,7 +97,11 @@ def copy_pynglex_script():
 def get_pynglex_files():
   all_pynglex_files = os.listdir(pynglex_dir)
 
-  dir_to_copy_to = os.path.join('ncarg','pynglex')
+  ndir = 'ncarg'
+  if not os.path.exists(ndir):
+    os.mkdir(ndir)
+
+  dir_to_copy_to = os.path.join(ndir,'pynglex')
   if not os.path.exists(dir_to_copy_to):
     os.mkdir(dir_to_copy_to)
 
@@ -209,7 +211,8 @@ pkgs_pth       = get_python_lib()
 # Construct the version file.
 from numpy import __version__ as array_module_version
 
-pyngl_vfile = "pyngl_version.py"     # Name of version file.
+pyngl_vfile   = "pyngl_version.py"     # Name of version file.
+pyngl_version = open('version','r').readlines()[0].strip('\n')
 create_version_file()
 
 # Get directories of installed NCL/NCAR Graphics libraries and include
@@ -255,7 +258,7 @@ pynglex_scripts = copy_pynglex_script()  # Copy pynglex script to itself with
 get_ncarg_files()                        # We need NCARG_ROOT for the lib
 
 setup (name = 'PyNGL',
-       version          = '1.3.0',
+       version          = pyngl_version,
        license          = 'PyNGL license, similar to University of Illinois/NCSA license',
        platforms         = "Unix, Linux, Windows (Cygwin), MacOSX",
        author           = 'Dave Brown, Fred Clare, and Mary Haley',
