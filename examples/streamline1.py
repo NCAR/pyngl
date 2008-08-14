@@ -84,11 +84,6 @@ resources.nglFrame = False
 resources.vfXArray = lon2d[::4,::4]
 resources.vfYArray = lat2d[::4,::4]
 
-if hasattr(urot,"_FillValue"):
-  resources.vfMissingUValueV = urot._FillValue
-if hasattr(vrot,"_FillValue"):
-  resources.vfMissingVValueV = vrot._FillValue
-
 resources.mpProjection           = "CylindricalEquidistant"
 resources.mpFillOn               = True
 resources.mpLandFillColor        = "Tan1"

@@ -95,11 +95,6 @@ if hasattr(uvar,"units"):
 else:
   resources.tiMainString = "GRD_6_ISBL"
 
-if hasattr(uvar,"_FillValue"):
-  resources.vfMissingUValueV = uvar._FillValue
-if hasattr(vvar,"_FillValue"):
-  resources.vfMissingVValueV = vvar._FillValue
-
 resources.tiMainFont    = "Times-Roman"
 resources.tiXAxisString = "streamlines"
 
@@ -120,11 +115,6 @@ if hasattr(uvar,"units"):
   resources.tiMainString = "GRD_6_TRO (u,v " + uvar.units + ")"
 else:
   resources.tiMainString = "GRD_6_TRO"
-
-if hasattr(uvar,"_FillValue"):
-  resources.vfMissingUValueV = uvar._FillValue
-if hasattr(vvar,"_FillValue"):
-  resources.vfMissingVValueV = vvar._FillValue
 
 resources.tiXAxisFont   = "Times-Roman"  # Change the default font used.
 resources.tmXBLabelFont = "Times-Roman"
@@ -154,11 +144,6 @@ if hasattr(uvar,"units"):
   resources.tiMainString = "GRD_6_GPML (u,v " + uvar.units + ")"
 else:
   resources.tiMainString = "GRD_6_GPML"
-
-if hasattr(uvar,"_FillValue"):
-  resources.vfMissingUValueV = uvar._FillValue
-if hasattr(vvar,"_FillValue"):
-  resources.vfMissingVValueV = vvar._FillValue
 
 plot = Ngl.streamline(wks,uvar[0,::2,::2],vvar[0,::2,::2],resources)
 
