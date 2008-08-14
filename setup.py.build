@@ -438,7 +438,7 @@ if create_distribution:
 #
 # Copy over the appropriate "setup.py" file.
 #
-  os.system('/bin/cp setup.num.py setup.py')
+  os.system('/bin/cp setup.py.num setup.py')
 #
 # Modify it and update the version number in the file.
 #
