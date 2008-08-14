@@ -17,6 +17,14 @@
 # See http://www.ncl.ucar.edu/Download/ for information on 
 # installing NCL/NCAR Graphics (available as one package).
 #
+#
+# For the libpng and zlib libraries, if they reside in a different
+# location than NCARG_ROOT, then you can use the following environment
+# variables to indicate their root installation location:
+#
+#  PNG_PREFIX
+#  ZLIB_PREFIX
+#
 # You may need to include Fortran system libraries (like
 # "-lgfortran" or "-lf95") to resolve undefined symbols.
 #
@@ -36,12 +44,24 @@ except ImportError:
 
 import os, sys
 
+#
+# Tests for environment variables.
+#
 try:
   ncarg_root = os.environ["NCARG_ROOT"]
 except:
   print "NCARG_ROOT is not set; can't continue!"
   sys.exit()
 
+try:
+  PNG_PREFIX = os.environ["PNG_PREFIX"]
+except:
+  PNG_PREFIX = ""
+
+try:
+  ZLIB_PREFIX = os.environ["ZLIB_PREFIX"]
+except:
+  ZLIB_PREFIX = ""
 
 # Depending on what Fortran compiler was used to build, we may need
 # additional library paths or libraries.
@@ -174,6 +194,12 @@ def set_ncl_libs_and_paths():
       LIBS.append('fsu')
       LIBS.append('sunmath')
 
+  if PNG_PREFIX != "":
+    PATHS.append(os.path.join(PNG_PREFIX,"lib"))
+
+  if ZLIB_PREFIX != "":
+    PATHS.append(os.path.join(ZLIB_PREFIX,"lib"))
+
   if F2CLIBS != "":
     for lib in F2CLIBS:
       LIBS.append(lib)
@@ -190,6 +216,12 @@ def set_include_paths():
 
 # Location of numpy's "arrayobject.h".
   PATHS.insert(0,os.path.join(pkgs_pth,"numpy","core","include"))
+
+  if PNG_PREFIX != "":
+    PATHS.append(os.path.join(PNG_PREFIX,"include"))
+
+  if ZLIB_PREFIX != "":
+    PATHS.append(os.path.join(ZLIB_PREFIX,"include"))
 
   return PATHS
 
