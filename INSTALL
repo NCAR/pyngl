@@ -1,32 +1,148 @@
 
-To build and install PyNGL, type;
+   The latest version of this document can be found at:
+   http://www.pyngl.ucar.edu/Download/build_pyngl_from_src.shtml
 
-   python setup.py install
+How to build PyNGL from source code
 
-This installation assumes that you have NCAR Graphics files (like
-fontcaps, databases, ctrans, med) installed to $NCARG_ROOT/{bin,lib}.
+PyNGL can only be built on UNIX systems. It has been successfully built
+on systems running Linux (32 or 64-bit), MacOSX (PPC or Intel),
+Windows/Cygwin, Suns using native compilers, IBMs running AIX (32 or
+64-bit), and SGIs running IRIX.
 
-By default, the "pynglex" script and example *.py files will get
-copied from the "examples" directory in this directory. This means if
-you have extraneous files in this directory, they may get installed
-too. (Files like "Makefile" and "yMakefile" will not get installed.)
+This document covers what external software packages you need for PyNGL
+and how to build them, and then finally how to build PyNGL.
 
-To avoid this, you can force the setup.py file to get a clean copy
-of the example scripts by doing a "cvs co". To get setup.py to do this,
-setenv USE_CVS to 1.
+For information on building PyNIO from source code, see the "build PyNIO
+from source code <build_pynio_from_src.shtml>" document.
 
-To just build the _hlu.so file and not install anything, type:
+    * Download and build external software <#BuildExternalSoftware>
+          o NCL <#NCL>
+          o X11 library <#X11Lib>
+          o PNG <#PNG>
+          o ZLIB <#ZLIB> 
+    * Download the source code for PyNGL <#GetPyNGLSourceCode>
+    * Set environment variables if necessary <#SetEnvVars>
+    * Execute the 'setup.py' script <#RunSetup> 
 
-   python setup.py build_ext
+------------------------------------------------------------------------
 
-If you need to include additional system library paths, like "/sw/lib"
-for MacOSX, then you can add this library to the "ncl_and_sys_libs"
-variable in setup.py, or you can type:
 
-  python setup.py build_ext -L/sw/lib
+    Download and build external software
 
-There are other things you can include on the line like this. For
-more information, type:
+/Once you download and install any external software to use with PyNGL,
+you must comply with the license of that software, regardless of PyNGL's
+source code license </Licenses/PyNGL_source_license.shtml>/.
 
-  python setup.py build_ext --help
+List of external software to install:
+
+    * NCL <http://www.ncl.ucar.edu>
+
+      See the full instructions <http://www.ncl.ucar.edu/Download/> for
+      building NCL from either source code or binary. NCL is a difficult
+      package to build, so we recommend going the binary distribution
+      route if possible. Don't fret if you can't get the code in
+      $NCARG/ni/src/ncl to build; it is not needed by PyNGL.
+
+      Make sure the NCARG_ROOT environment variable is set to the root
+      directory of where this software was installed.
+
+    * X11 library
+
+      You must have the X11 library (libX11.a, libX11.so) installed on
+      your system.
+
+      This library is usually installed as part of an X developer's
+      package, and will reside in a directory like /usr/X11R6/lib or
+      /usr/X11R6/lib64.
+
+    * libpng <http://www.libpng.org/pub/png/libpng.html>
+
+      Download version 1.2.27 or later (earlier versions had a serious
+      bug).
+
+      Once you have the libpng source code, you can build and install it
+      with:
+
+        ./configure  --with-pic --disable-shared --prefix=/usr/local 
+        make all install
+
+    * zlib <http://www.zlib.net/> - needed for both PyNGL and PyNIO.
+
+      Download version 1.2.3 or later.
+
+      Once you have the zlib source code, you can build and install it
+      with:
+
+        ./configure --prefix=/usr/local
+        make all install
+
+------------------------------------------------------------------------
+
+
+    Download the source code for PyNGL
+
+Accessing, downloading, and/or using PyNGL implies acceptance of the
+PyNGL source code license
+<http://www.pyngl.ucar.edu/Licenses/PyNGL_source_license.shtml>.
+
+To download the PyNGL source code, follow the instructions at the URL:
+
+    * http://www.pyngl.ucar.edu/Download/ * 
+
+The source code you download will be a single compressed tar file called
+something like "PyNGL-1.3.0b1.tar.gz". Move this file to a temporary
+directory where you have plenty of disk space (around 250 megabytes to
+hold all of the source code, object files, binaries, and so on). Then,
+uncompress and untar the file as follows:
+
+  gunzip PyNGL-1.3.0b1.tar.gz
+  tar -xvf PyNGL-1.3.0b1.tar
+
+The above steps will create a directory called "PyNGL-1.3.0b1".
+
+------------------------------------------------------------------------
+
+
+    Set environment variables if necessary
+
+To build PyNGL, you must set the NCARG_ROOT environment variable to the
+root directory of where NCL was installed.
+
+To help PyNGL locate the png and zlib software, you may need to set the
+corresponding environment variables to the root directory of that
+installed software:
+
+PNG_PREFIX
+ZLIB_PREFIX
+
+You only need to set one of these if the paths are all the same.
+
+You may need to help the PyNGL installation find the location of any
+system Fortran libraries needed to resolve symbols between C and Fortran
+code. For example, "-lgfortran" is needed if you built the software with
+gfortran, or "-lg2c" if g77 was used, and "-lf95" for g95. Use F2CLIBS
+to indicate the library name (don't include the "-l", and F2CLIBS_PREFIX
+to point to the location. For example:
+
+setenv F2CLIBS gfortran
+setenv F2CLIBS_PREFIX /usr/local/lib
+
+------------------------------------------------------------------------
+
+
+    Execute the 'setup.py' script
+
+Type:
+
+python setup.py install
+
+to build and install PyNGL. Go back to the "test software
+<index.shtml#TestSoftware>" section in the download section for
+information on testing PyNGL.
+
+If you have problems, send email to pyngl-talk
+<http://mailman.ucar.edu/mailman/listinfo/pyngl-talk> (you must be a
+member to post). We will add a trouble-shooting guide once we see what
+kind of problems people have.
+
 
