@@ -3,7 +3,7 @@
 #    nio03.py
 #
 #  Synopsis:
-#    Demonstrates PyNIO reading GRIB/ writing NetCDF
+#    Demonstrates PyNIO reading GRIB2/ writing NetCDF
 #
 #  Category:
 #    Processing.
@@ -15,12 +15,12 @@
 #    June, 2006
 #
 #  Description:
-#    This example reads a GRIB file and copies its contents
+#    This example reads a GRIB2 file and copies its contents
 #    to a NetCDF file, setting some options for efficient
 #    copying along the way.
 #
 #  Effects illustrated:
-#    o  Reading a GRIB file, setting options, and programatically
+#    o  Reading a GRIB2 file, setting options, and programatically
 #       writing a NetCDF file
 # 
 #  Output:
@@ -36,10 +36,10 @@ import time,os
 
 
 #
-#  Read a GRIB file from the example data directory
+#  Read a GRIB2 file from the example data directory
 #
 dirc = Ngl.pynglpath("data")
-fname = "ced1.lf00.t00z.eta"
+fname = "wafsgfs_L_t06z_intdsk60.grib2"
 f = Nio.open_file(dirc + "/grb/" + fname + ".grb")
 
 #
@@ -70,7 +70,7 @@ opt.CompressionLevel = 5                  # Can go up to 9
 #
 # Set the history attribute
 #
-hatt = "Converted from GRIB: " + time.ctime(time.time())
+hatt = "Converted from GRIB2: " + time.ctime(time.time())
 
 #
 # Create the output file
