@@ -31,7 +31,8 @@ from source code <build_pynio_from_src.shtml>" document.
 
 /Once you download and install any external software to use with PyNGL,
 you must comply with the license of that software, regardless of PyNGL's
-source code license </Licenses/PyNGL_source_license.shtml>/.
+source code license
+<http://www.pyngl.ucar.edu/Licenses/PyNGL_source_license.shtml>/.
 
 List of external software to install:
 

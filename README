@@ -3,6 +3,11 @@ PyNGL ("pingle") stands for "Python NCL Graphics Library" and is a
 Python package for producing publication-quality two-dimensional
 visualizations.
 
+Use of this software implies agreement of the PyNGL source code
+license:
+
+  http://www.pyngl.ucar.edu/Licenses/PyNGL_source_license.shtml
+
 You can import this package with:
 
   import Ngl
