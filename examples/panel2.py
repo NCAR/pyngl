@@ -69,6 +69,17 @@ res = Ngl.Resources()
 res.nglDraw                = False     # Don't draw individual plots
 res.nglFrame               = False     # Don't advance frame
 
+#
+# Note: the data in this case are already on a mercator projection.
+#
+# So, as long as you have the map projection set up correctly, you
+# don't need to set sfXArray/sfYArray. You can instead set:
+#
+#   res.tfDoNDCOverlay = True
+#
+# telling PyNGL that the data doesn't need to go through transformation
+# equations before being overlaid on a mercator projection.
+#
 res.sfYArray               = lat       # Where to overlay  
 res.sfXArray               = lon       # contours on map
 
