@@ -437,7 +437,7 @@ def _get_fill_value(arr):
   return None
 
 def _get_values(obj,rlistc):
-  rlist = crt_dict(rlistc)
+  rlist = _crt_dict(rlistc)
   values = NhlGetValues(_int_id(obj),rlist)
   del rlist
   return (values)
