@@ -462,7 +462,7 @@ if create_distribution:
     os.remove("MANIFEST")
 
   mfile = open(man_file,'w')
-  mfile.write("include PyNGL.pth\n")
+  mfile.write("include Ngl.pth\n")
 
   mfile.write("include setup.py\n")
   mfile.write("include README\n")

@@ -1,4 +1,4 @@
-include PyNGL.pth
+include Ngl.pth
 include setup.py
 include README
 include INSTALL
