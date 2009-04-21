@@ -75,6 +75,10 @@ try:
 except:
   F2CLIBS_PREFIX = ""
 
+try:
+  EXTRA_OBJECTS = [os.environ["EXTRA_OBJECTS"]]
+except:
+  EXTRA_OBJECTS = ""
 
 # Done with environment variables.
 
@@ -265,13 +269,15 @@ EXT_MODULES = [Extension('_hlu',
                 define_macros   = DMACROS,
                 include_dirs    = INC_DIRS,
                 library_dirs    = LIB_DIRS,
-                libraries       = LIBRARIES),
+                libraries       = LIBRARIES,
+                extra_objects   = EXTRA_OBJECTS),
                Extension('fplib', 
                [os.path.join('paft','fplibmodule.c')],
                 define_macros   = DMACROS,
                 include_dirs    = INC_DIRS,
                 library_dirs    = LIB_DIRS,
-                libraries       = LIBRARIES)]
+                libraries       = LIBRARIES,
+                extra_objects   = EXTRA_OBJECTS)]
 
 # Set the directories of where the extra PyNGL data files (fontcaps,
 # graphcaps, map databases, example scripts, etc) will be installed.
