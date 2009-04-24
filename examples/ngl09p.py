@@ -100,7 +100,7 @@ for i in xrange(fice_masked.shape[0]):
 #  Fill the places where icemon is zero with the fill value.
 #
 icemon = MA.masked_values(icemon,0.,rtol=0.,atol=1.e-15)
-icemon = MA.filled(icemon,value=fill_value)
+icemon = MA.filled(icemon,fill_value)
 
                        # Calculate the January (nmo=0) average.
 
@@ -146,7 +146,7 @@ for nmo in range(1,nmos):
     for j in xrange(fice_masked.shape[1]):
       icemon[i,j] = MA.average(fice_masked[i,j,nmo:ntime:12])
   icemon = MA.masked_values(icemon,0.,rtol=0.,atol=1.e-15)
-  icemon = MA.filled(icemon,value=fill_value)
+  icemon = MA.filled(icemon,fill_value)
 
   resources.tiMainString = "CSM Y00-99 Mean Ice Fraction Month =" + str(month)
   map = \
