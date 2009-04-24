@@ -17,15 +17,28 @@
 # See http://www.ncl.ucar.edu/Download/ for information on 
 # installing NCL/NCAR Graphics (available as one package).
 #
+# You can optionally build PyNGL with PNG and/or CAIRO
+# support. You must have a version of NCAR Graphics that has
+# this support as well, in order for this to work.
+
+# To indicate PNG and/or CAIRO support, set the corresponding
+# environment variables to 1:
 #
-# For the libpng and zlib libraries, if they reside in a different
-# location than NCARG_ROOT, then you can use the following environment
-# variables to indicate their root installation location:
+#    HAS_CAIRO
+#    HAS_PNG
+#
+# Furthermore, you must indicate the locations of the png/zlib and/or
+# cairo/freetype software with the following environment variables:
 #
 #  PNG_PREFIX
 #  ZLIB_PREFIX
+#  CAIRO_PREFIX
+#  FREETYPE_PREFIX
 #
-# You may need to include Fortran system libraries (like
+# If any one of these are the same, then you don't need to set all
+# of them.
+#
+# Finally, you may need to include Fortran system libraries (like
 # "-lgfortran" or "-lf95") to resolve undefined symbols.
 #
 # Use F2CLIBS and F2CLIBS_PREFIX for this. For example, if you
@@ -54,14 +67,14 @@ except:
   sys.exit()
 
 try:
-  PNG_PREFIX = os.environ["PNG_PREFIX"]
+  HAS_PNG = int(os.environ["HAS_PNG"])
 except:
-  PNG_PREFIX = ""
+  HAS_PNG = 0
 
 try:
-  ZLIB_PREFIX = os.environ["ZLIB_PREFIX"]
+  HAS_CAIRO = os.environ["HAS_CAIRO"]
 except:
-  ZLIB_PREFIX = ""
+  HAS_CAIRO = 0
 
 # Depending on what Fortran compiler was used to build, we may need
 # additional library paths or libraries.
@@ -188,7 +201,7 @@ def set_ncl_libs_and_paths():
 
 # Libraries needed to compile _hlu.so/fplib.so modules.
   LIBS = ["nfpfort", "hlu", "ncarg", "ncarg_gks", "ncarg_c",
-          "ngmath", "png", "z", "X11"]
+          "ngmath", "X11"]
 
 # Add extra library needed for C/Fortran interfacing.
   if sys.platform == "aix5":
@@ -198,11 +211,33 @@ def set_ncl_libs_and_paths():
       LIBS.append('fsu')
       LIBS.append('sunmath')
 
-  if PNG_PREFIX != "":
-    PATHS.append(os.path.join(PNG_PREFIX,"lib"))
+# Add extra libraries if PNG support is desired. You must link
+# against a PNG-enabled version of the NCAR Graphics libraries.
+  if HAS_PNG > 0:
+    LIBS.append('png')
+    LIBS.append('z')
+    try:
+      PATHS.append(os.path.join(os.environ["PNG_PREFIX"],"lib"))
+    except:
+      pass
+    try:
+      PATHS.append(os.path.join(os.environ["ZLIB_PREFIX"],"lib"))
+    except:
+      pass
 
-  if ZLIB_PREFIX != "":
-    PATHS.append(os.path.join(ZLIB_PREFIX,"lib"))
+# Add extra libraries if cairo support is desired. You must link
+# against a cairo-enabled version of the NCAR Graphics libraries.
+  if HAS_CAIRO > 0:
+    LIBS.append('cairo')
+    LIBS.append('freetype')
+    try:
+      PATHS.append(os.path.join(os.environ["CAIRO_PREFIX"],"lib"))
+    except:
+      pass
+    try:
+      PATHS.append(os.path.join(os.environ["FREETYPE_PREFIX"],"lib"))
+    except:
+      pass
 
   if F2CLIBS != "":
     for lib in F2CLIBS:
@@ -221,11 +256,26 @@ def set_include_paths():
 # Location of numpy's "arrayobject.h".
   PATHS.insert(0,os.path.join(pkgs_pth,"numpy","core","include"))
 
-  if PNG_PREFIX != "":
-    PATHS.append(os.path.join(PNG_PREFIX,"include"))
+  if HAS_PNG > 0:
+    try:
+      PATHS.append(os.path.join(os.environ["PNG_PREFIX"],"include"))
+    except:
+      pass
+    try:
+      PATHS.append(os.path.join(os.environ["ZLIB_PREFIX"],"include"))
+    except:
+      pass
 
-  if ZLIB_PREFIX != "":
-    PATHS.append(os.path.join(ZLIB_PREFIX,"include"))
+  if HAS_CAIRO > 0:
+    try:
+      PATHS.append(os.path.join(os.environ["CAIRO_PREFIX"],"include"))
+    except:
+      pass
+    try:
+      PATHS.append(os.path.join(os.environ["FREETYPE_PREFIX"],"include"))
+      PATHS.append(os.path.join(os.environ["FREETYPE_PREFIX"],"include/freetype2"))
+    except:
+      pass
 
   return PATHS
 
