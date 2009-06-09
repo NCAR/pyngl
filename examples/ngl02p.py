@@ -198,6 +198,7 @@ for i in range(7,2,-2):
 
 # Clean up (not really necessary, but a good practice).
 
+sys.stdout.close()
 del plot 
 del resources
 del temp
