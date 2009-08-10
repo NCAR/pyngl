@@ -4848,7 +4848,6 @@ res -- A required instance of the Resources class having special
 #
 #  Draw diagonal isotherms.
 #  [brown with labels interspersed at 45 degree angle]
-#  http://ngwww.ucar.edu/ngdoc/ng/ref/hlu/obj/GraphicStyle.obj.html
 #
   if (localOpts.sktDrawIsotherm):
     gsOpts                   = Resources()
