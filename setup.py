@@ -254,7 +254,7 @@ def set_include_paths():
   PATHS = [ncl_inc]
 
 # Location of numpy's "arrayobject.h".
-  PATHS.insert(0,os.path.join(pkgs_pth,"numpy","core","include"))
+  PATHS.insert(0,numpy.get_include())
 
   if HAS_PNG > 0:
     try:
