@@ -6273,9 +6273,11 @@ kxtrp -- A logical value. If False, then no extrapolation is done when
     return None
   if (len(dati.shape) == 3):
     plevi = numpy.zeros(dati.shape[0]+1,'f')
-    return NglVinth2p (dati, len(plevo), dati.shape[1], dati.shape[2],    \
+    ar_out = NglVinth2p (dati, len(plevo), dati.shape[1], dati.shape[2],  \
                        hbcofa, hbcofb, p0, plevi, plevo, intyp,           \
                        1, psfc, 1.e30, kxtrp, dati.shape[0]+1, dati.shape[0])
+    del plevi
+    return ar_out
 #
 #  The case with an input array having four dimensions is resolved
 #  by calling the 3D case over the time variavle.
@@ -6306,6 +6308,7 @@ kxtrp -- A logical value. If False, then no extrapolation is done when
                         dati.shape[2], dati.shape[3], hbcofa, hbcofb,       \
                         p0, plevi, plevo, intyp, 1, psfc[i,:,:], 1.e30,     \
                         kxtrp, dati.shape[1]+1, dati.shape[1])
+    del plevi
     return ar_out
   else:
     print "vinth2p - invalid input data array."
