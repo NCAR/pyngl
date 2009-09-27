@@ -251,6 +251,5 @@ get_nglRes_c = _hlu.get_nglRes_c
 set_nglRes_s = _hlu.set_nglRes_s
 get_nglRes_s = _hlu.get_nglRes_s
 NglGaus_p = _hlu.NglGaus_p
-NglVinth2p = _hlu.NglVinth2p
 
 

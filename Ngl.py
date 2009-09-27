@@ -6216,7 +6216,7 @@ res -- An optional instance of the Resources class having PyNGL
 
 ################################################################
 
-def vinth2p(dati, hbcofa, hbcofb, plevo, psfc, intyp, p0, ii, kxtrp):     
+def vinth2p(datai, hbcofa, hbcofb, plevo, psfc, intyp, p0, ii, kxtrp):     
   """
 Interpolates CCSM hybrid coordinates to pressure coordinates.  A
 multi-dimensional NumPy array of the same shape as datai is
@@ -6260,59 +6260,8 @@ kxtrp -- A logical value. If False, then no extrapolation is done when
          the pressure level is outside of the range of psfc.
   """
 
-#
-#  Argument plevi is calculated in the Fortran code, just zero it out below.
-#
-#  Argument ii is not used at this time - it is set to 1 in the
-#    call to the Fortran routine.
-#
-  if (len(dati.shape) > 4):
-    print "\n vinth2p: requires a minimum of 3 dimensions [lev]x[lat]x[lon] \n"\
-          "          and a maximum of 4 dimensions [time]x[lev]x[lat]x[lon] - \n"\
-          "          an array with " + str(len(dati.shape)) + " dimensions was entered.\n"
-    return None
-  if (len(dati.shape) == 3):
-    plevi = numpy.zeros(dati.shape[0]+1,'f')
-    ar_out = NglVinth2p (dati, len(plevo), dati.shape[1], dati.shape[2],  \
-                       hbcofa, hbcofb, p0, plevi, plevo, intyp,           \
-                       1, psfc, 1.e30, kxtrp, dati.shape[0]+1, dati.shape[0])
-    del plevi
-    return ar_out
-#
-#  The case with an input array having four dimensions is resolved
-#  by calling the 3D case over the time variavle.
-#
-  elif (len(dati.shape) == 4):
-    if (                                                                    \
-         (                                                                  \
-           (type(dati) == type(numpy.array([0.],numpy.float)))              \
-         )                                                                  \
-       ):
-
-#
-#  Delete ar_out if it exists, and define it to be the correct
-#  shape to hold the output.
-#
-      try:
-        del ar_out
-      except:
-        pass
-      ar_out = numpy.zeros([dati.shape[0],len(plevo),dati.shape[2],  \
-                            dati.shape[3]],'f')
-      plevi  = numpy.zeros(dati.shape[1]+1,'f')
-    else:
-      print "vinth2p: input data must be a NumPy array"
-      return None
-    for i in xrange(dati.shape[0]):
-      ar_out[i,:,:,:] = NglVinth2p (dati[i,:,:,:], len(plevo),              \
-                        dati.shape[2], dati.shape[3], hbcofa, hbcofb,       \
-                        p0, plevi, plevo, intyp, 1, psfc[i,:,:], 1.e30,     \
-                        kxtrp, dati.shape[1]+1, dati.shape[1])
-    del plevi
-    return ar_out
-  else:
-    print "vinth2p - invalid input data array."
-    return None
+  return fplib.vinth2p(datai, hbcofa, hbcofb, plevo, psfc, 
+                       intyp, p0, ii, kxtrp)
 
 ################################################################
 

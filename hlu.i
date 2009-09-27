@@ -51,9 +51,6 @@ double c_dcapethermo(double *, double *, int, double, int,
 extern void NGCALLF(dptlclskewt,DPTLCLSKEWT)(double *, double *, double *,
                                              double *, double *);
 extern NhlErrorTypes NglGaus(int, double **output);
-extern void NglVinth2p (double *dati, int, int, int, double *[], double *,
-                 double *, double, double *, double *, int, int, double *,
-                 double, int, int, int);
 extern void c_nnseti(NhlString,int);
 extern void c_nnsetrd(NhlString,double);
 extern void c_nnsetc(NhlString,NhlString);
@@ -3080,14 +3077,6 @@ extern void set_nglRes_s(int, NhlString);
 extern NhlString get_nglRes_s(int);
 
 extern NhlErrorTypes NglGaus_p(int num, int nxir, int nyir, double *p_array_double_out[]);
-
-extern void NglVinth2p (double *sequence_as_double, 
-                 int nxir, int nyir, int nzir, double *p_array3_double_out[], 
-                 double *sequence_as_double,
-                 double *sequence_as_double, double, 
-                 double *sequence_as_double, double *sequence_as_double, 
-                 int, int, double *sequence_as_double, double,
-                 int, int, int);
 
 %newobject _NGGetNCARGEnv(const char *);
 %newobject  NhlSetValues (int, int res_id);

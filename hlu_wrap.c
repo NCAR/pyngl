@@ -2565,9 +2565,6 @@ double c_dcapethermo(double *, double *, int, double, int,
 extern void NGCALLF(dptlclskewt,DPTLCLSKEWT)(double *, double *, double *,
                                              double *, double *);
 extern NhlErrorTypes NglGaus(int, double **output);
-extern void NglVinth2p (double *dati, int, int, int, double *[], double *,
-                 double *, double, double *, double *, int, int, double *,
-                 double, int, int, int);
 extern void c_nnseti(NhlString,int);
 extern void c_nnsetrd(NhlString,double);
 extern void c_nnsetc(NhlString,NhlString);
@@ -34583,131 +34580,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_NglVinth2p(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  double *arg1 = (double *) 0 ;
-  int arg2 ;
-  int arg3 ;
-  int arg4 ;
-  double **arg5 ;
-  double *arg6 = (double *) 0 ;
-  double *arg7 = (double *) 0 ;
-  double arg8 ;
-  double *arg9 = (double *) 0 ;
-  double *arg10 = (double *) 0 ;
-  int arg11 ;
-  int arg12 ;
-  double *arg13 = (double *) 0 ;
-  double arg14 ;
-  int arg15 ;
-  int arg16 ;
-  int arg17 ;
-  double *tempx5 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
-  PyObject * obj4 = 0 ;
-  PyObject * obj5 = 0 ;
-  PyObject * obj6 = 0 ;
-  PyObject * obj7 = 0 ;
-  PyObject * obj8 = 0 ;
-  PyObject * obj9 = 0 ;
-  PyObject * obj10 = 0 ;
-  PyObject * obj11 = 0 ;
-  PyObject * obj12 = 0 ;
-  PyObject * obj13 = 0 ;
-  PyObject * obj14 = 0 ;
-  PyObject * obj15 = 0 ;
-  
-  {
-    arg5 = &tempx5;
-  }
-  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOOOOOOOO:NglVinth2p",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9,&obj10,&obj11,&obj12,&obj13,&obj14,&obj15)) SWIG_fail;
-  {
-    PyArrayObject *arr;
-    arr =
-    (PyArrayObject *) PyArray_ContiguousFromAny(obj0,PyArray_DOUBLE,0,0);
-    arg1 = (double *) arr->data;
-  }
-  {
-    arg2 = (int) PyInt_AsLong (obj1);
-  }
-  {
-    arg3 = (int) PyInt_AsLong (obj2);
-  }
-  {
-    arg4 = (int) PyInt_AsLong (obj3);
-  }
-  {
-    PyArrayObject *arr;
-    arr =
-    (PyArrayObject *) PyArray_ContiguousFromAny(obj4,PyArray_DOUBLE,0,0);
-    arg6 = (double *) arr->data;
-  }
-  {
-    PyArrayObject *arr;
-    arr =
-    (PyArrayObject *) PyArray_ContiguousFromAny(obj5,PyArray_DOUBLE,0,0);
-    arg7 = (double *) arr->data;
-  }
-  {
-    arg8 = PyFloat_AsDouble (obj6);
-  }
-  {
-    PyArrayObject *arr;
-    arr =
-    (PyArrayObject *) PyArray_ContiguousFromAny(obj7,PyArray_DOUBLE,0,0);
-    arg9 = (double *) arr->data;
-  }
-  {
-    PyArrayObject *arr;
-    arr =
-    (PyArrayObject *) PyArray_ContiguousFromAny(obj8,PyArray_DOUBLE,0,0);
-    arg10 = (double *) arr->data;
-  }
-  {
-    arg11 = (int) PyInt_AsLong (obj9);
-  }
-  {
-    arg12 = (int) PyInt_AsLong (obj10);
-  }
-  {
-    PyArrayObject *arr;
-    arr =
-    (PyArrayObject *) PyArray_ContiguousFromAny(obj11,PyArray_DOUBLE,0,0);
-    arg13 = (double *) arr->data;
-  }
-  {
-    arg14 = PyFloat_AsDouble (obj12);
-  }
-  {
-    arg15 = (int) PyInt_AsLong (obj13);
-  }
-  {
-    arg16 = (int) PyInt_AsLong (obj14);
-  }
-  {
-    arg17 = (int) PyInt_AsLong (obj15);
-  }
-  NglVinth2p(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13,arg14,arg15,arg16,arg17);
-  resultobj = SWIG_Py_Void();
-  {
-    npy_intp dims[3];
-    PyObject *o;
-    dims[0] = (npy_intp)arg2;
-    dims[1] = (npy_intp)arg3;
-    dims[2] = (npy_intp)arg4;
-    o = (PyObject *)PyArray_SimpleNewFromData(3,dims,PyArray_DOUBLE,
-      (char *) arg5[0]);
-    resultobj = t_output_helper(resultobj,o);
-  }
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 static PyMethodDef SwigMethods[] = {
 	 { (char *)"new_intp", _wrap_new_intp, METH_VARARGS, NULL},
 	 { (char *)"copy_intp", _wrap_copy_intp, METH_VARARGS, NULL},
@@ -34899,7 +34771,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"set_nglRes_s", _wrap_set_nglRes_s, METH_VARARGS, NULL},
 	 { (char *)"get_nglRes_s", _wrap_get_nglRes_s, METH_VARARGS, NULL},
 	 { (char *)"NglGaus_p", _wrap_NglGaus_p, METH_VARARGS, NULL},
-	 { (char *)"NglVinth2p", _wrap_NglVinth2p, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 

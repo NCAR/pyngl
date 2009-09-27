@@ -40,15 +40,6 @@ extern void NGCALLF(gaqdncl,GAQDNCL)(int *, double *, double *, double *, int *,
 extern void c_nngetc(char *, char *);
 
 char *c_nngetcp(char *);
-void NGCALLF(vinth2p,VINTH2P)(double *, double *, double *, double *,
-                              double *, double *, double *,int *,
-                              int *, double *, double *, int *,
-                                     int *, int *, int *, int *, int *);
-
-void NglVinth2p (double *, int, int, int, double **, double *,
-                 double *, double, double *, double *, int, int, double *,
-                 double, int, int, int);
-
 
 /*
  *  Various Nhl functions.
@@ -208,18 +199,6 @@ NhlErrorTypes NglGaus (int nlat, double **output)
   return NhlNOERROR;
 }
 
-void NglVinth2p (double *dati, int nlevo, int nlat, int imax,
-                 double **dato, double *hbcofa,
-                 double *hbcofb, double p0, double *plevi,
-                 double *plevo, int intyp, int ilev, double *psfc,
-                 double spvl, int kxtrp, int nlevip1, int nlevi) {
-
-  *dato = (double *)malloc(sizeof(double)*nlevo*imax*nlat);
-  NGCALLF(vinth2p,VINTH2P)(dati, *dato, hbcofa, hbcofb, &p0, plevi,
-          plevo, &intyp, &ilev, psfc, &spvl, &kxtrp, &imax,
-          &nlat, &nlevi, &nlevip1, &nlevo);
-
-}
 char *c_nngetcp(char *pnam) {
   static char xc[100];
 
