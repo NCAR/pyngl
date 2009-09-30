@@ -181,6 +181,10 @@ PyObject *fplib_vinth2p(PyObject *self, PyObject *args)
  */
   arr_p0 = (PyArrayObject *) PyArray_ContiguousFromAny
                            (obj_p0,PyArray_DOUBLE,0,0);
+  if(arr_p0->nd != 0) {
+    printf("vinth2p: fatal: p0 must be a scalar\n");
+    goto fail;
+  }
 
 /* 
  * Allocate space for output array and its dimensions.
@@ -216,7 +220,11 @@ PyObject *fplib_vinth2p(PyObject *self, PyObject *args)
   ret_obj = (PyObject *) PyArray_SimpleNew(ndims_datai,
 					   dsizes_datao,
 					   PyArray_DOUBLE);
-  if (ret_obj == NULL) goto fail;
+  if (ret_obj == NULL) {
+    free(plevi);
+    free(dsizes_datao);
+    goto fail;
+  }
   nlevolatlonsize = nlevolatlon * PyArray_ITEMSIZE((PyArrayObject*) ret_obj);
 
 /* 
@@ -247,7 +255,7 @@ PyObject *fplib_vinth2p(PyObject *self, PyObject *args)
   }
 
 /*
- * Return value back to PyNGL script.
+ * Return value back to Python script.
  */
   free(plevi);
   free(dsizes_datao);
@@ -265,14 +273,12 @@ PyObject *fplib_vinth2p(PyObject *self, PyObject *args)
   return PyArray_Return(ret_obj);
   
 fail:
-  free(plevi);
-  free(dsizes_datao);
-  Py_DECREF(arr_datai);
-  Py_DECREF(arr_hbcofa);
-  Py_DECREF(arr_hbcofb);
-  Py_DECREF(arr_plevo);
-  Py_DECREF(arr_psfc);
-  Py_DECREF(arr_p0);
+  Py_XDECREF(arr_datai);
+  Py_XDECREF(arr_hbcofa);
+  Py_XDECREF(arr_hbcofb);
+  Py_XDECREF(arr_plevo);
+  Py_XDECREF(arr_psfc);
+  Py_XDECREF(arr_p0);
   Py_INCREF(Py_None);
   return Py_None;
 }
