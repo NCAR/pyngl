@@ -231,6 +231,8 @@ world_series = {
                 2005 : ["CWS", "HA"], \
                 2006 : ["SLC", "DT"], \
                 2007 : ["BRS", "CRo"], \
+                2008 : ["PPh", "TBR"], \
+                2009 : ["NYY", "Pph"] \
            }
 #
 # Count the number of times each team has won or lost and store
