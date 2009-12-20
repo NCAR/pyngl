@@ -1710,7 +1710,7 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
           !strcmp(type,"eps")  || !strcmp(type,"EPS") || 
           !strcmp(type,"epsi") || !strcmp(type,"EPSI")) {
 
-    NhlRLSetString(wk_rlist,"wkPSFormat",type);
+    NhlRLSetString(wk_rlist,"wkPSFormat",(char*)type);
 /*
  * Flag for whether we need to check for wkOrientation later.
  */
@@ -3361,7 +3361,7 @@ void poly_wrap(int wks, nglPlotId *plot, void *x, void *y,
  */
 nglPlotId add_poly_wrap(int wks, nglPlotId *plot, void *x, void *y,
                         const char *type_x, const char *type_y, int len, 
-                        int is_missing_x, int is_missing_y, 
+                        int is_missing_x, int is_missing_y,  int isndc,
                         void *FillValue_x, void *FillValue_y,
                         NhlPolyType polytype, ResInfo *gs_res, 
                         nglRes *special_res)
@@ -3371,7 +3371,8 @@ nglPlotId add_poly_wrap(int wks, nglPlotId *plot, void *x, void *y,
   float *xf, *yf, *xfnew, *yfnew, *xfmsg, *yfmsg;
   char *astring;
   nglPlotId poly;
-  int gs_rlist;
+  int gs_rlist, srlist, grlist, canvas;
+  float vpx, vpy, vpw, vph;
 
 /*
  * Set resource ids.
@@ -3383,6 +3384,30 @@ nglPlotId add_poly_wrap(int wks, nglPlotId *plot, void *x, void *y,
  */
 
   pr_rlist = NhlRLCreate(NhlSETRL);
+
+/*
+ * If in NDC space, make sure X and Y values are in the range 0 to 1 AND
+ * within the viewport of the polot.
+ */
+  if(isndc) {
+    grlist = NhlRLCreate(NhlGETRL);
+    NhlRLClear(grlist);
+    NhlRLGetFloat(grlist,"vpHeightF",&vph);
+    NhlRLGetFloat(grlist,"vpWidthF", &vpw);
+    NhlRLGetFloat(grlist,"vpXF",     &vpx);
+    NhlRLGetFloat(grlist,"vpYF",     &vpy);
+    NhlGetValues(*(plot->base),grlist);
+
+    srlist = NhlRLCreate(NhlSETRL);
+    NhlRLClear(srlist);
+
+    NhlRLSetInteger(srlist,"tfDoNDCOverlay",1);
+    NhlRLSetFloat(srlist,"trXMinF",  vpx);
+    NhlRLSetFloat(srlist,"trXMaxF",  vpx+vpw);
+    NhlRLSetFloat(srlist,"trYMaxF",  vpy);
+    NhlRLSetFloat(srlist,"trYMinF",  vpy-vph);
+    NhlCreate(&canvas,"ndc_canvas",NhllogLinPlotClass,wks,srlist);
+  }
 
 /*
  * Create graphic style object on which to draw primitives.
@@ -3439,7 +3464,13 @@ nglPlotId add_poly_wrap(int wks, nglPlotId *plot, void *x, void *y,
  * Attach primitive object to the plot.
  */
 
-    NhlAddPrimitive(*(plot->base),*primitive_object,-1);
+    if(isndc) {
+      NhlAddPrimitive(canvas,*primitive_object,-1);
+      NhlAddOverlay(*(plot->base),canvas,-1);
+    }
+    else {
+      NhlAddPrimitive(*(plot->base),*primitive_object,-1);
+    }
 /*
  * Free up memory.
  */
@@ -3504,14 +3535,24 @@ nglPlotId add_poly_wrap(int wks, nglPlotId *plot, void *x, void *y,
         NhlCreate(&primitive_object[i],"Primitive",NhlprimitiveClass,
                   wks,pr_rlist);
 
-        NhlAddPrimitive(*(plot->base),primitive_object[i],-1);
+	if(isndc) {
+	  NhlAddPrimitive(canvas,primitive_object[i],-1);
+	}
+	else {
+	  NhlAddPrimitive(*(plot->base),primitive_object[i],-1);
+	}
       }
     }
     else {
 /*
  * Create a NULL primitive object.
  */
-      primitive_object = (int*)malloc(sizeof(int));
+      if(isndc) {
+	NhlAddOverlay(*(plot->base),canvas,-1);
+      }
+      else {
+	primitive_object = (int*)malloc(sizeof(int));
+      }
     }     
     free(indices);
   }
@@ -3643,7 +3684,7 @@ nglPlotId add_polyline_wrap(int wks, nglPlotId *plot, void *x, void *y,
   nglPlotId poly;
 
   poly = add_poly_wrap(wks, plot, x, y, type_x, type_y, len, 
-                       is_missing_x, is_missing_y, FillValue_x, 
+                       is_missing_x, is_missing_y, 0, FillValue_x, 
                        FillValue_y, NhlPOLYLINE, gs_res, 
                        special_res);
 /*
@@ -3667,7 +3708,7 @@ nglPlotId add_polymarker_wrap(int wks, nglPlotId *plot, void *x, void *y,
   nglPlotId poly;
 
   poly = add_poly_wrap(wks, plot, x, y, type_x, type_y, len, 
-                       is_missing_x, is_missing_y, FillValue_x, 
+                       is_missing_x, is_missing_y, 0, FillValue_x, 
                        FillValue_y, NhlPOLYMARKER, gs_res, 
                        special_res);
 /*
@@ -3690,7 +3731,7 @@ nglPlotId add_polygon_wrap(int wks, nglPlotId *plot, void *x, void *y,
   nglPlotId poly;
 
   poly = add_poly_wrap(wks, plot, x, y, type_x, type_y, len, 
-                       is_missing_x, is_missing_y, FillValue_x, 
+                       is_missing_x, is_missing_y, 0, FillValue_x, 
                        FillValue_y, NhlPOLYGON, gs_res, 
                        special_res);
 /*

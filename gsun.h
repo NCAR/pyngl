@@ -14,6 +14,7 @@
 #include <ncarg/hlu/VectorPlot.h>
 #include <ncarg/hlu/LabelBar.h>
 #include <ncarg/hlu/Legend.h>
+#include <ncarg/hlu/LogLinPlot.h>
 #include <ncarg/hlu/StreamlinePlot.h>
 #include <ncarg/hlu/ScalarField.h>
 #include <ncarg/hlu/MeshScalarField.h>
@@ -132,6 +133,11 @@ typedef struct {
   int   nglXRefLineColor;
   int   nglYRefLineColor;
 
+/*
+ * Special resources for masking lambert conformal projections
+ */
+  int nglMaskLambertConformal;
+  int nglMaskLambertConformalOutlineOn;
 } nglRes;
 
 /*
@@ -371,7 +377,7 @@ extern void poly_wrap(int, nglPlotId *, void *, void *,
 
 extern nglPlotId add_poly_wrap(int, nglPlotId *, void *, void *, 
                                const char *, const char *, int, int,
-                               int, void *, void *,NhlPolyType,
+                               int, int, void *, void *,NhlPolyType,
                                ResInfo *, nglRes *);
 
 extern void polymarker_ndc_wrap(int, void *, void *, const char *, 

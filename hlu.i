@@ -217,6 +217,12 @@ void set_nglRes_i(int pos, int ival) {
   else if (pos == 55) {
     nglRlist.nglYRefLineColor = ival;
   }
+  else if (pos == 56) {
+    nglRlist.nglMaskLambertConformal = ival;
+  }
+  else if (pos == 57) {
+    nglRlist.nglMaskLambertConformalOutlineOn = ival;
+  }
   else {
     printf("set_nglRes_i: invalid argument %d\n",pos);
   }
@@ -303,6 +309,12 @@ int get_nglRes_i(int pos) {
   }
   else if (pos == 55) {
     return(nglRlist.nglYRefLineColor);
+  }
+  else if (pos == 56) {
+    return(nglRlist.nglMaskLambertConformal);
+  }
+  else if (pos == 57) {
+    return(nglRlist.nglMaskLambertConformalOutlineOn);
   }
   else {
     printf("get_nglRes_i: invalid argument %d\n",pos);
@@ -3003,7 +3015,7 @@ extern void poly_wrap(int, nglPlotId *plot, void *sequence_as_void,
                        NhlPolyType, ResInfo *rlist, nglRes *rlist);
 extern nglPlotId add_poly_wrap(int, nglPlotId *plot, void *sequence_as_void,
                        void *sequence_as_void, const char *type_x,
-                       const char *type_y, int, int, int, 
+                       const char *type_y, int, int, int, int,
                        void *sequence_as_void, void *sequence_as_void,
                        NhlPolyType, ResInfo *rlist, nglRes *rlist);
 void panel_wrap(int, nglPlotId *plot_seq, int, int *sequence_as_int, int, 
@@ -3295,7 +3307,7 @@ extern NhlErrorTypes NglGaus_p(int num, int nxir, int nyir, double *p_array_doub
                      NhlPolyType, ResInfo *rlist, nglRes *rlist);
 %newobject  add_poly_wrap(int, nglPlotId *plot, void *sequence_as_void,
                           void *sequence_as_void, const char *type_x,
-                          const char *type_y, int, int, int,
+                          const char *type_y, int, int, int, int,
                           void *sequence_as_void, void *sequence_as_void,
                           NhlPolyType, ResInfo *rlist, nglRes *rlist);
 %newobject ftcurvc(int, float *sequence_as_float, 

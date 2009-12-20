@@ -285,6 +285,17 @@ def _get_arr_and_force_fv(arr,default_msg=1.e20):
     return arr,default_msg
 
 #
+# Determine if a variable has an attribute. If so,
+# return that attribute's value. Otherwise, return
+# the default value given.
+#
+def _get_res_value_keep(res, attrname,default):
+  if hasattr(res,attrname):
+    return(getattr(res,attrname))
+  else:
+    return(default)
+
+#
 # If a masked array, then convert to a numpy array. 
 # Otherwise just return the value.
 #
@@ -441,6 +452,372 @@ def _get_values(obj,rlistc):
   values = NhlGetValues(_int_id(obj),rlist)
   del rlist
   return (values)
+
+# 
+# Test procedure to see if we're masking a lambert conformal map.
+#
+def _test_for_mask_lc(rlist,rlist1):
+  masklc      = False
+  maskoutline = 1
+
+  if rlist.has_key("nglMaskLambertConformal"):
+    if rlist["nglMaskLambertConformal"]:
+      masklc = True
+  if rlist.has_key("nglMaskLambertConformalOutlineOn"):
+    maskoutline = rlist["nglMaskLambertConformalOutlineOn"]
+
+  if masklc:
+    if rlist1.has_key("mpMinLatF") and rlist1.has_key("mpMaxLatF") and \
+       rlist1.has_key("mpMinLonF") and rlist1.has_key("mpMaxLonF"):
+      if (rlist1["mpMinLatF"] < 0):
+        rlist1["mpLambertParallel1F"] = -0.001
+        rlist1["mpLambertParallel2F"] = -89.999
+    else:
+      print "map: Warning: one or more of the resources mpMinLatF, mpMaxLatF, mpMinLonF, and mpMaxLonF have not been set."
+      print("No masking of the Lambert Conformal map will take place.")
+      masklc = False
+
+#
+# Don't draw or advance frame if we're masking a
+# lambert conformal map. We'll do that later.
+#
+  drawit  = True
+  frameit = True
+  maxit   = True
+  if masklc:
+    if rlist.has_key("nglDraw"):
+      drawit = rlist["nglDraw"]
+    if rlist.has_key("nglFrame"):
+      frameit = rlist["nglFrame"]
+    if rlist.has_key("nglMaximize"):
+      maxit = rlist["nglMaximize"]
+
+    _set_spc_res("Draw",False)
+    _set_spc_res("Frame",False)
+    _set_spc_res("Maximize",False)
+
+  mask_list = {}
+  mask_list["MaskLC"]         = masklc
+  mask_list["MaskLCDraw"]     = drawit
+  mask_list["MaskLCFrame"]    = frameit
+  mask_list["MaskLCMaximize"] = maxit
+  mask_list["MaskLCOutline"]  = maskoutline
+  return mask_list
+
+#***********************************************************************#
+# Function : mask_lambert_conformal                                     #
+#                 wks: graphic                                          #
+#               maplc: graphic                                          #
+#           mask_list: dictionary                                       #
+#                 res: logical                                          #
+#                                                                       #
+#   Given a lambert conformal projection, and min/max lat/lon coords,   #
+#   this function will mask the map outside the boundaries defined by   #
+#   the coords. mask_list has a set of resources that determines the    #
+#   behavior of the masked plot.                                        #
+#   "res" is an optional list of resources.                             #
+#                                                                       #
+#   Note, due to the nature of Lambert Conformal plots, lon labels      #
+#   cannot be automatically drawn on this type of plot.                 #
+#                                                                       #
+#   Programming Note: The function expects longitude input data to      #
+#   range from -360:180E. If this is not the case, the function         #
+#   will alter the min/max to be in that range.                         #
+#                                                                       #
+#***********************************************************************;
+def _mask_lambert_conformal(wks, maplc, mask_list, mlcres):
+#
+# the mpMin/MaxLat/LonF resources should be set at this point,
+# otherwise we're in trouble.
+#
+  minlat = mlcres["mpMinLatF"]
+  maxlat = mlcres["mpMaxLatF"]
+  minlon = mlcres["mpMinLonF"]
+  maxlon = mlcres["mpMaxLonF"]
+
+#
+# Some error checking.
+#
+  if (maxlat > 0 and minlat < 0):
+    print "mask_lambert_conformal: warning: you are not authorized to specify."
+    print "  a maxlat that is above the equator and a minlat that is below"
+    print "  the equator. No masking will take place."
+    return maplc
+
+  if (minlon > maxlon):
+     print "mask_lambert_conformal: warning: Minimum longitude is greated than"
+     print "  maximum, subtracting 360 from minumum."
+     minlon = minlon - 360
+     print "minlon = "+minlon+", maxlon = "+maxlon
+
+  if (minlat > maxlat):
+     print "mask_lambert_conformal: warning: Minimum latitude is greater than"
+     print "  maximum, swapping the two."
+     tmplat = minlat
+     minlat = maxlat
+     maxlat = tmplat
+     print "minlat = "+minlat+", maxlat = "+maxlat
+
+  if (minlon >= 180 and maxlon > 180):
+     minlon = minlon - 360
+     maxlon = maxlon - 360  
+
+  if (minlon < 180 and maxlon >= 180):
+     minlon = minlon - 360
+     maxlon = maxlon - 360  
+
+#
+# Set up list of map resources. The user should have already created a 
+# lambert conformal map, but just in case  he/she didn't, it will be done
+# here. Some of these resources may have already been set by the user, so
+# be sure to use these values.
+#
+  meridian = minlon + (maxlon - minlon)/2.
+  mpres = Resources()
+  mpres.mpProjection = "LambertConformal"
+
+  if hasattr(mlcres,"mpLimitMode"):
+    need_to_set_limits = False
+  else:
+    need_to_set_limits = True
+    mpres.mpLimitMode  = "LatLon"
+
+  mpres.mpLambertMeridianF = _get_res_value_keep(mlcres,"mpLambertMeridianF",meridian)
+
+  if (minlat < 0):
+     mpres.mpLambertParallel2F = _get_res_value_keep(mlcres, \
+                                 "mpLambertParallel2F",-89.999  )
+  else:
+     mpres.mpLambertParallel1F = _get_res_value_keep(mlcres, \
+                                 "mpLambertParallel1F", 0.001)
+     mpres.mpLambertParallel2F = _get_res_value_keep(mlcres, \
+                                 "mpLambertParallel2F",89.999  )
+
+#
+# Determine whether we are in the southern or northern hemisphere.
+#
+  if(minlat >= 0):
+    is_nh = True
+  else:
+    is_nh = False
+
+#
+# If the user hasn't already set the limits of the map, then set them
+# here. Make sure there's some space around the area we want to mask.
+#
+  if need_to_set_limits:
+    if is_nh:
+      mpres.mpMinLatF = max(minlat-0.5,  0)
+      mpres.mpMaxLatF = min(maxlat+0.5, 90)
+    else:
+      mpres.mpMinLatF = max(minlat-0.5,-90)
+      mpres.mpMaxLatF = min(maxlat+0.5,  0)
+    mpres.mpMinLonF = minlon-0.5
+    mpres.mpMaxLonF = maxlon+0.5
+
+#
+# These draw order resources are necessary to make sure the map
+# outlines, lat/lon lines, and perimeter gets drawn *after* the
+# masking polygons are drawn.
+#
+  mpres.mpOutlineDrawOrder     = _get_res_value_keep(mlcres, \
+                                 "mpOutlineDrawOrder","PostDraw")
+  mpres.mpGridAndLimbDrawOrder = _get_res_value_keep(mlcres, \
+                                 "mpGridAndLimbDrawOrder","PostDraw")
+  mpres.mpPerimDrawOrder       = _get_res_value_keep(mlcres, \
+                                 "mpPerimDrawOrder","PostDraw")
+
+#
+# This section is to get rid of some of the remnants that appear around the
+# edges of the plot, even after the masking is done. To accomplish this,
+# tickmarks are being turned on, but only the border is being drawn in the
+# background color.  Since things like streamlines can *still* leave 
+# remnants, even with this extra code, we have put in a hook to allow the
+# user to specify the thickness of the border line.
+# 
+  mpres.pmTickMarkDisplayMode = "Always"
+  mpres.tmXBLabelsOn          = False
+  mpres.tmXTLabelsOn          = False
+  mpres.tmYLLabelsOn          = False
+  mpres.tmYRLabelsOn          = False
+  mpres.tmYLOn                = False
+  mpres.tmYROn                = False
+  mpres.tmXBOn                = False
+  mpres.tmXTOn                = False
+  mpres.tmBorderLineColor     = "background"
+  mpres.tmBorderThicknessF    = _get_res_value_keep(mlcres, \
+                                "tmBorderThicknessF",2.0)
+#
+# Now that we've set all these resources, apply them to the map.
+#
+  set_values(maplc,mpres)
+
+#
+# Thus begins the section for creating the two masking polygons.
+# The polygons must be drawn in NDC, because trying to draw them in
+# lat/lon space is not a good use of time and produces unpredictable
+# results.
+#
+# Get viewport coordinates and calculate NDC positionsd of the
+# four corners of the plot.
+#
+  vpx = get_float(maplc,"vpXF")
+  vpy = get_float(maplc,"vpYF")
+  vpw = get_float(maplc,"vpWidthF")
+  vph = get_float(maplc,"vpHeightF")
+
+  xlft = vpx
+  xrgt = vpx + vpw
+  ytop = vpy
+  ybot = vpy - vph
+
+#
+# Calculate NDC coordinates of four corners of area defined by min/max
+# lat/lon coordinates.
+#
+  xmnlnmnlt, ymnlnmnlt = datatondc(maplc, minlon, minlat) 
+  xmxlnmnlt, ymxlnmnlt = datatondc(maplc, maxlon, minlat) 
+  xmnlnmxlt, ymnlnmxlt = datatondc(maplc, minlon, maxlat) 
+  xmxlnmxlt, ymxlnmxlt = datatondc(maplc, maxlon, maxlat) 
+
+#
+# Calculate NDC coordinates of southern hemisphere semi-circle.
+#
+  nscirc     = 100
+  scirc_lon  = fspan(maxlon,minlon,nscirc)
+  scirc_lat  = numpy.zeros([nscirc],'f')
+  scirc_lat[:] = minlat
+  scirc_xndc, scirc_yndc = datatondc(maplc,scirc_lon,scirc_lat)
+
+#
+# Calculate NDC coordinates of northern hemisphere semi-circle.
+#
+  nncirc     = 100
+  ncirc_lon  = numpy.array(fspan(maxlon,minlon,nncirc))
+  ncirc_lat  = numpy.zeros([nncirc],'f')
+  ncirc_lat[:]  = maxlat
+  ncirc_xndc,ncirc_yndc = datatondc(maplc,ncirc_lon,ncirc_lat)
+  
+#
+# Create two polygons in NDC space (northern and southern hemisphere),
+# using all the coordinates we gathered above. The two polygons will be
+# set differently depending on whether we're in the northern or 
+# southern hemisphere.  Yes, we could do this with one polygon, but it's
+# a little cleaner this way, trust me.
+#
+  if is_nh:
+    nxpoly = numpy.zeros(nncirc+7,'f')
+    nypoly = numpy.zeros(nncirc+7,'f')
+    sxpoly = numpy.zeros(nscirc+5,'f')
+    sypoly = numpy.zeros(nscirc+5,'f')
+  else:
+    nxpoly = numpy.zeros(nncirc+5,'f')
+    nypoly = numpy.zeros(nncirc+5,'f')
+    sxpoly = numpy.zeros(nscirc+7,'f')
+    sypoly = numpy.zeros(nscirc+7,'f')
+
+#
+# Define masking polygons for map that is in the northern hemisphere.
+#
+  if is_nh:
+    nxpoly[0]          = xrgt
+    nypoly[0]          = ymxlnmnlt
+    nxpoly[1]          = xmxlnmnlt
+    nypoly[1]          = ymxlnmnlt
+    nxpoly[2:nncirc+2] = ncirc_xndc
+    nypoly[2:nncirc+2] = ncirc_yndc
+    nxpoly[nncirc+2]   = xmnlnmnlt
+    nypoly[nncirc+2]   = ymnlnmnlt
+    nxpoly[nncirc+3]   = xlft
+    nypoly[nncirc+3]   = ymnlnmnlt
+    nxpoly[nncirc+4]   = xlft
+    nypoly[nncirc+4]   = ytop
+    nxpoly[nncirc+5]   = xrgt
+    nypoly[nncirc+5]   = ytop
+    nxpoly[nncirc+6]   = xrgt
+    nypoly[nncirc+6]   = ymxlnmnlt
+
+    sxpoly[0]        = xrgt
+    sypoly[0]        = ymxlnmnlt
+    sxpoly[1:nscirc+1] = scirc_xndc
+    sypoly[1:nscirc+1] = scirc_yndc
+    sxpoly[nscirc+1] = xlft
+    sypoly[nscirc+1] = ymnlnmnlt
+    sxpoly[nscirc+2] = xlft
+    sypoly[nscirc+2] = ybot
+    sxpoly[nscirc+3] = xrgt
+    sypoly[nscirc+3] = ybot
+    sxpoly[nscirc+4] = xrgt
+    sypoly[nscirc+4] = ymxlnmnlt
+  else:
+#
+# Define masking polygons for plot that is in the southern hemisphere.
+#
+    nxpoly[0]        = xrgt
+    nypoly[0]        = ymxlnmxlt
+    nxpoly[1:nncirc+1] = ncirc_xndc
+    nypoly[1:nncirc+1] = ncirc_yndc
+    nxpoly[nncirc+1] = xlft
+    nypoly[nncirc+1] = ymnlnmxlt
+    nxpoly[nncirc+2] = xlft
+    nypoly[nncirc+2] = ytop
+    nxpoly[nncirc+3] = xrgt
+    nypoly[nncirc+3] = ytop
+    nxpoly[nncirc+4] = xrgt
+    nypoly[nncirc+4] = ymxlnmxlt
+
+    sxpoly[0]          = xrgt
+    sypoly[0]          = ymxlnmxlt
+    sxpoly[1]          = xmxlnmxlt
+    sypoly[1]          = ymxlnmxlt
+    sxpoly[2:nscirc+2] = scirc_xndc
+    sypoly[2:nscirc+2] = scirc_yndc
+    sxpoly[nscirc+2]   = xmnlnmxlt
+    sypoly[nscirc+2]   = ymnlnmxlt
+    sxpoly[nscirc+3]   = xlft
+    sypoly[nscirc+3]   = ymnlnmxlt
+    sxpoly[nscirc+4]   = xlft
+    sypoly[nscirc+4]   = ybot
+    sxpoly[nscirc+5]   = xrgt
+    sypoly[nscirc+5]   = ybot
+    sxpoly[nscirc+6]   = xrgt
+    sypoly[nscirc+6]   = ymxlnmxlt
+
+#
+# Attach the two polygons (and optionally, the outline polyline) 
+# to the map.  Fill the polygons in the background color.
+#
+  pres             = Resources()
+  pres.gsFillColor = "background"
+
+#
+# Northern hemisphere polygon
+#
+  maplc.prim1 = add_polygon(wks,maplc,nxpoly,nypoly,pres,isndc=1)
+
+#
+# Southern hemisphere polygon
+#
+  maplc.prim2 = add_polygon(wks,maplc,sxpoly,sypoly,pres,isndc=1)
+
+#
+# Outline the area we are looking at (optional).
+#
+  if mask_list["MaskLCOutline"]:
+    pres.gsLineColor      = "foreground"
+    pres.gsLineThicknessF = 3.0
+    outline_lon        = [ minlon, maxlon, maxlon, minlon, minlon ]
+    outline_lat        = [ minlat, minlat, maxlat, maxlat, minlat ]
+    maplc.prim3 = add_polyline(wks,maplc,outline_lon,outline_lat,pres)
+
+  if mask_list["MaskLCMaximize"]:
+    maximize_plot(wks,maplc)
+  if mask_list["MaskLCDraw"]:
+    draw(maplc)
+  if mask_list["MaskLCFrame"]:
+    frame(wks)
+
+  return(maplc)
 
 #
 # Special function to deal with values that may come in as
@@ -797,6 +1174,10 @@ def _set_spc_res(resource_name,value):
     set_nglRes_i(54, lval) 
   elif (resource_name == "YRefLineColor"):
     set_nglRes_i(55, lval) 
+  elif (resource_name == "MaskLambertConformal"):
+    set_nglRes_i(56, lval) 
+  elif (resource_name == "MaskLambertConformalOutlineOn"):
+    set_nglRes_i(57, lval) 
 
   else:
     print "_set_spc_res: Unknown special resource ngl" + resource_name
@@ -1108,6 +1489,8 @@ def _set_spc_defaults(type):
   set_nglRes_f(53, 1.)      # nglYRefLineThicknessF
   set_nglRes_i(54, 1)       # nglXRefLineColor
   set_nglRes_i(55, 1)       # nglYRefLineColor
+  set_nglRes_i(56, 0)       # nglMaskLambertConformal
+  set_nglRes_i(57, 1)       # nglMaskLambertConformalOutlineOn
 
 ################################################################
 #
@@ -1229,7 +1612,7 @@ def _poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
   del rlist1
   return None
 
-def _add_poly(wks,plot,x,y,ptype,rlistc=None):
+def _add_poly(wks,plot,x,y,ptype,rlistc=None,isndc=0):
 # Get NumPy array from masked arrays, if necessary.
   x2,fill_value_x = _get_arr_and_fv(x)
   y2,fill_value_y = _get_arr_and_fv(y)
@@ -1249,7 +1632,7 @@ def _add_poly(wks,plot,x,y,ptype,rlistc=None):
 
   ply = add_poly_wrap(wks,_pobj2lst(plot), _arg_with_scalar(x2),  \
             _arg_with_scalar(y2), "double","double", len(_arg_with_scalar(x2)),
-            ismx,ismy,fill_value_x,fill_value_y,ptype,rlist1,pvoid())
+            ismx,ismy,isndc,fill_value_x,fill_value_y,ptype,rlist1,pvoid())
 
   del rlist
   del rlist1
@@ -1571,7 +1954,7 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
 
 ################################################################
 
-def add_polygon(wks,plot,x,y,rlistc=None):
+def add_polygon(wks,plot,x,y,rlistc=None,isndc=0):
   """
 Adds a polygon to an existing plot and returns a PlotId representing
 the polygon added.
@@ -1588,11 +1971,11 @@ x, y -- One-dimensional (masked) NumPy arrays or Python lists containing
 res -- An optional instance of the Resources class having GraphicStyle
        resources as attributes.
   """
-  return(_add_poly(wks,plot,x,y,NhlPOLYGON,rlistc))
+  return(_add_poly(wks,plot,x,y,NhlPOLYGON,rlistc,isndc))
 
 ################################################################
 
-def add_polyline(wks,plot,x,y,rlistc=None):
+def add_polyline(wks,plot,x,y,rlistc=None,isndc=0):
   """
 Adds polylines to an existing plot and returns a PlotId representing
 polylines added.
@@ -1609,11 +1992,11 @@ x, y -- One-dimensional (masked) NumPy arrays containing the x, y
 res -- An optional instance of the Resources class having GraphicStyle
        resources as attributes.
   """
-  return(_add_poly(wks,plot,x,y,NhlPOLYLINE,rlistc))
+  return(_add_poly(wks,plot,x,y,NhlPOLYLINE,rlistc,isndc))
 
 ################################################################
 
-def add_polymarker(wks,plot,x,y,rlistc=None):
+def add_polymarker(wks,plot,x,y,rlistc=None,isndc=0):
   """
 Adds polymarkers to an existing plot and returns a PlotId representing
 polymarkers added.
@@ -1630,7 +2013,7 @@ x, y -- One-dimensional (masked) NumPy arrays containing the x, y
 res -- An optional instance of the Resources class having GraphicStyle
        resources as attributes.
   """
-  return(_add_poly(wks,plot,x,y,NhlPOLYMARKER,rlistc))
+  return(_add_poly(wks,plot,x,y,NhlPOLYMARKER,rlistc,isndc))
 
 ################################################################
 
@@ -1974,6 +2357,11 @@ res -- An optional instance of the Resources class having PyNGL
   _set_contour_res(rlist,rlist3)       # Set some addtl contour resources
   _set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
 
+# 
+# Test for masking a lambert conformal plot.
+#
+  mask_list = _test_for_mask_lc(rlist,rlist2)
+
 #
 #  Call the wrapped function and return.
 #
@@ -1988,11 +2376,16 @@ res -- An optional instance of the Resources class having PyNGL
                                 pvoid(),"",0,pvoid(),"", 0, pvoid(), \
                                 rlist1,rlist3,rlist2,pvoid())
 
+  licm = _lst2pobj(icm)
+
+  if mask_list["MaskLC"]:
+    licm = _mask_lambert_conformal(wks, licm, mask_list, rlist2)
+
   del rlist
   del rlist1
   del rlist2
   del rlist3
-  return(_lst2pobj(icm))
+  return(licm)
 
 ################################################################
 
@@ -3177,11 +3570,20 @@ res -- An optional instance of the Resources class having Map
 
   _set_map_res(rlist,rlist1)           # Set some addtl map resources
 
-  imp = map_wrap(wks,rlist1,pvoid())
+# 
+# Test for masking a lambert conformal plot.
+#
+  mask_list = _test_for_mask_lc(rlist,rlist1)
+
+  imap  = map_wrap(wks,rlist1,pvoid())
+  limap = _lst2pobj(imap)
+
+  if mask_list["MaskLC"]:
+    limap = _mask_lambert_conformal(wks, limap, mask_list, rlist1)
 
   del rlist
   del rlist1
-  return(_lst2pobj(imp))
+  return(limap)
 
 ################################################################
 
@@ -5654,6 +6056,11 @@ res -- An optional instance of the Resources class having PyNGL
   _set_map_res(rlist,rlist3)           # Set some addtl map resources
   _set_streamline_res(rlist,rlist2)    # Set some addtl streamline resources
     
+# 
+# Test for masking a lambert conformal plot.
+#
+  mask_list = _test_for_mask_lc(rlist,rlist3)
+
 #
 #  Call the wrapped function and return.
 #
@@ -5661,11 +6068,17 @@ res -- An optional instance of the Resources class having PyNGL
                          uar2.shape[0],uar2.shape[1],0,               \
                          pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(), \
                          rlist1,rlist2,rlist3,pvoid())
+  lstrm = _lst2pobj(strm) 
+
+  if mask_list["MaskLC"]:
+    lstrm = _mask_lambert_conformal(wks, lstrm, mask_list, rlist3)
+
   del rlist
   del rlist1
   del rlist2
   del rlist3
-  return(_lst2pobj(strm))
+
+  return(lstrm)
 
 ################################################################
 
@@ -5804,6 +6217,11 @@ res -- An optional instance of the Resources class having PyNGL
   _set_streamline_res(rlist,rlist3)    # Set some addtl streamline resources
   _set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
 
+# 
+# Test for masking a lambert conformal plot.
+#
+  mask_list = _test_for_mask_lc(rlist,rlist4)
+
 #
 #  Call the wrapped function and return.
 #
@@ -5813,12 +6231,17 @@ res -- An optional instance of the Resources class having PyNGL
                      pvoid(),"",0,pvoid(),"", 0, 0, 0, pvoid(), pvoid(), \
                      pvoid(),rlist1,rlist2,rlist3,rlist4,pvoid())
 
+  livct = _lst2pobj(ivct)
+
+  if mask_list["MaskLC"]:
+    livct = _mask_lambert_conformal(wks, livct, mask_list, rlist4)
+
   del rlist
   del rlist1
   del rlist2
   del rlist3
   del rlist4
-  return _lst2pobj(ivct)
+  return (livct)
 
 ################################################################
 
@@ -6032,6 +6455,11 @@ res -- An optional instance of the Resources class having PyNGL
   _set_vector_res(rlist,rlist2)        # Set some addtl vector resources
   _set_labelbar_res(rlist,rlist2,True) # Set some addtl labelbar resources
     
+# 
+# Test for masking a lambert conformal plot.
+#
+  mask_list = _test_for_mask_lc(rlist,rlist3)
+
 #
 #  Call the wrapped function and return.
 #
@@ -6040,11 +6468,16 @@ res -- An optional instance of the Resources class having PyNGL
                      pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(), \
                      rlist1,rlist2,rlist3,pvoid())
 
+  livct = _lst2pobj(ivct)
+
+  if mask_list["MaskLC"]:
+    livct = _mask_lambert_conformal(wks, livct, mask_list, rlist3)
+
   del rlist
   del rlist1
   del rlist2
   del rlist3
-  return _lst2pobj(ivct)
+  return (livct)
 
 ################################################################
 
@@ -6198,6 +6631,11 @@ res -- An optional instance of the Resources class having PyNGL
   _set_vector_res(rlist,rlist3)        # Set some addtl vector resources
   _set_labelbar_res(rlist,rlist3,True) # Set some addtl labelbar resources
 
+# 
+# Test for masking a lambert conformal plot.
+#
+  mask_list = _test_for_mask_lc(rlist,rlist4)
+
 #
 #  Call the wrapped function and return.
 #
@@ -6207,12 +6645,17 @@ res -- An optional instance of the Resources class having PyNGL
                      pvoid(),"",0,pvoid(),"", 0, 0, 0, pvoid(), pvoid(), \
                      pvoid(),rlist1,rlist2,rlist3,rlist4,pvoid())
 
+  livct = _lst2pobj(ivct)
+
+  if mask_list["MaskLC"]:
+    livct = _mask_lambert_conformal(wks, livct, mask_list, rlist4)
+
   del rlist
   del rlist1
   del rlist2
   del rlist3
   del rlist4
-  return _lst2pobj(ivct)
+  return (livct)
 
 ################################################################
 
@@ -6223,7 +6666,7 @@ multi-dimensional NumPy array of the same shape as datai is
 returned, except that the input level coordinate is replaced by
 plevo.
 
-array = Ngl.vinth2p(datai, hbcofa, hbcofb, plevo, psfc, intyp, p0, ii,
+array = Ngl.vinth2p(datai, hbcofa, hbcofb, plevo, psfc, intyp, p0, ilev,
                     kxtrp)
 
 datai -- A NumPy array of 3 or 4 dimensions. This array needs to
@@ -6254,7 +6697,7 @@ intyp -- A scalar integer value equal to the interpolation type: 1 =
 
 p0 -- A scalar value equal to surface reference pressure in mb.
 
-ii -- Not used at this time. Set to 1.
+ilev -- Not used at this time. Set to 1.
 
 kxtrp -- A logical value. If False, then no extrapolation is done when
          the pressure level is outside of the range of psfc.
