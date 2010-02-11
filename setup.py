@@ -211,6 +211,23 @@ def set_ncl_libs_and_paths():
       LIBS.append('fsu')
       LIBS.append('sunmath')
 
+# Add extra libraries if cairo support is desired. You must link
+# against a cairo-enabled version of the NCAR Graphics libraries.
+  if HAS_CAIRO > 0:
+    LIBS.append('cairo')
+    LIBS.append('fontconfig')
+    LIBS.append('pixman-1')
+    LIBS.append('freetype')
+#    LIBS.append('expat')
+    try:
+      PATHS.append(os.path.join(os.environ["CAIRO_PREFIX"],"lib"))
+    except:
+      pass
+    try:
+      PATHS.append(os.path.join(os.environ["FREETYPE_PREFIX"],"lib"))
+    except:
+      pass
+
 # Add extra libraries if PNG support is desired. You must link
 # against a PNG-enabled version of the NCAR Graphics libraries.
   if HAS_PNG > 0:
@@ -222,20 +239,6 @@ def set_ncl_libs_and_paths():
       pass
     try:
       PATHS.append(os.path.join(os.environ["ZLIB_PREFIX"],"lib"))
-    except:
-      pass
-
-# Add extra libraries if cairo support is desired. You must link
-# against a cairo-enabled version of the NCAR Graphics libraries.
-  if HAS_CAIRO > 0:
-    LIBS.append('cairo')
-    LIBS.append('freetype')
-    try:
-      PATHS.append(os.path.join(os.environ["CAIRO_PREFIX"],"lib"))
-    except:
-      pass
-    try:
-      PATHS.append(os.path.join(os.environ["FREETYPE_PREFIX"],"lib"))
     except:
       pass
 
