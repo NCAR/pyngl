@@ -213,6 +213,10 @@ def set_ncl_libs_and_paths():
 
 # Add extra libraries if cairo support is desired. You must link
 # against a cairo-enabled version of the NCAR Graphics libraries.
+#
+# If you get some XML undefined references, then you need to
+# build the "expat" library and uncomment it below.
+#
   if HAS_CAIRO > 0:
     LIBS.append('cairo')
     LIBS.append('fontconfig')
