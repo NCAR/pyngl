@@ -230,7 +230,7 @@ def set_ncl_libs_and_paths():
 
 # Add extra libraries if PNG support is desired. You must link
 # against a PNG-enabled version of the NCAR Graphics libraries.
-  if HAS_PNG > 0:
+  if HAS_PNG > 0 or HAS_CAIRO > 0:
     LIBS.append('png')
     LIBS.append('z')
     try:
@@ -259,7 +259,7 @@ def set_include_paths():
 # Location of numpy's "arrayobject.h".
   PATHS.insert(0,numpy.get_include())
 
-  if HAS_PNG > 0:
+  if HAS_PNG > 0 or HAS_CAIRO > 0:
     try:
       PATHS.append(os.path.join(os.environ["PNG_PREFIX"],"include"))
     except:
