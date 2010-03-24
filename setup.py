@@ -200,8 +200,12 @@ def set_ncl_libs_and_paths():
       PATHS.append(dir)
 
 # Libraries needed to compile _hlu.so/fplib.so modules.
-  LIBS = ["nfpfort", "hlu", "ncarg", "ncarg_gks", "ncarg_c",
-          "ngmath", "X11"]
+  if HAS_CAIRO > 0:
+    LIBS = ["nfpfort", "hlu_cairo", "ncarg", "ncarg_gks_cairo", "ncarg_c",
+            "ngmath", "X11"]
+  else:
+    LIBS = ["nfpfort", "hlu", "ncarg", "ncarg_gks", "ncarg_c",
+            "ngmath", "X11"]
 
 # Add extra library needed for C/Fortran interfacing.
   if sys.platform == "aix5":

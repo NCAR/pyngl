@@ -138,6 +138,10 @@ int is_res_set(ResInfo *res_list, char *resname)
  * "nglPaperOrientation" - orientation of paper. Can be "landscape",
  *                         "portrait", or "auto". Default is "auto".
  *
+ * The nglPaperHeight and nglPaperWidth should no longer be used, as
+ *    we now have wkPaperWidthF and wkPaperHeightF. We will still 
+ *    recognize them for now.
+ *
  *       "nglPaperWidth"  - width of paper (in inches, default is 8.5)
  *       "nglPaperHeight" - height of paper (in inches, default is 11.0)
  *       "nglPaperMargin" - margin to leave around plots (in inches,
@@ -154,6 +158,7 @@ void compute_ps_device_coords(int wks, nglPlotId *plots, int nplots,
   int i, srlist, is_debug, dpi, coords[4];
   int lft_pnl, rgt_pnl, top_pnl, bot_pnl;
   int lft_inv_pnl, rgt_inv_pnl, top_inv_pnl, bot_inv_pnl;
+  int grlist;
   NhlWorkOrientation paper_orient; 
 
   is_debug     = special_res->nglDebug;
@@ -182,8 +187,28 @@ void compute_ps_device_coords(int wks, nglPlotId *plots, int nplots,
       printf("Unrecognized value for nglPaperOrientation (%d).\nDefaulting to auto.\n",special_res->nglPaperOrientation);
     }
   }
-  paper_height = special_res->nglPaperHeight;
-  paper_width  = special_res->nglPaperWidth;
+
+/*
+ * Get paper width and height.
+ */
+  grlist = NhlRLCreate(NhlGETRL);
+  NhlRLClear(grlist);
+  NhlRLGetFloat(grlist,"wkPaperHeightF", &paper_height);
+  NhlRLGetFloat(grlist,"wkPaperWidthF",  &paper_width);
+  (void)NhlGetValues(wks, grlist);
+
+/*
+ * The nglPaperWidth/Height resources override the 
+ * wkPaperWidthF/wkPaperHeightF resources.
+ */
+  if(special_res->nglPaperHeight != 11.) {
+    paper_height = special_res->nglPaperHeight;
+    printf("Warning: nglPaperWidth/nglPaperHeight are deprecated. Use wkPaperWidthF/wkPaperHeightF instead.\n");
+  }
+  if(special_res->nglPaperWidth != 8.5) {
+    paper_width = special_res->nglPaperWidth;
+    printf("Warning: nglPaperWidth/nglPaperHeight are deprecated. Use wkPaperWidthF/wkPaperHeightF instead.\n");
+  }
   paper_margin = special_res->nglPaperMargin;
 
 /*
@@ -473,7 +498,7 @@ void maximize_plots(int wks, nglPlotId *plot, int nplots, int ispanel,
  * Get height/width of plot in NDC units.
  */
 
-    uw  = rgt - lft;
+    uw = rgt - lft;
     uh = top - bot;
 
 /*
@@ -533,8 +558,9 @@ void maximize_plots(int wks, nglPlotId *plot, int nplots, int ispanel,
   }
 
   name = NhlClassName(wks);
-  if(name != NULL && (!strcmp(name,"psWorkstationClass") ||
-		      !strcmp(name,"pdfWorkstationClass"))) {
+  if(name != NULL && !strcmp(name,"psWorkstationClass") ||
+                     !strcmp(name,"pdfWorkstationClass") ||
+                     !strcmp(name,"documentWorkstationClass")) {
 /*
  * Compute and set device coordinates that will make plot fill the 
  * whole page.
@@ -1760,22 +1786,41 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
     }
     NhlCreate(&wks,"pdf",NhlpdfWorkstationClass,NhlDEFAULT_APP,wk_rlist);
   }
+  else if(!strcmp(type,"newps") || !strcmp(type,"newpdf") || 
+          !strcmp(type,"NEWPS") || !strcmp(type,"NEWPDF")) {
+    NhlRLSetString(wk_rlist,"wkFormat",(char*)type);
 /*
- * Generate PNG file name.
- * Not yet available.
+ * Flag for whether we need to check for wkOrientation later.
  */
-  else if(!strcmp(type,"png") || !strcmp(type,"PNG")) {
+    check_orientation = 1;
+
     len      = strlen(name);
     filename = (char *)calloc(len+1,sizeof(char));
     strncpy(filename,name,len);
     filename[len] = '\0';
-    if(!is_res_set(wk_res,"wkImageFileName")) {
-      NhlRLSetString(wk_rlist,"wkImageFileName",filename);
+
+    if(!is_res_set(wk_res,"wkFileName")) {
+      NhlRLSetString(wk_rlist,"wkFileName",filename);
     }
-    if(!is_res_set(wk_res,"wkImageFormat")) {
-      NhlRLSetString(wk_rlist,"wkImageFormat","png");
+    NhlCreate(&wks,type,NhlcairoPSPDFWorkstationClass,NhlDEFAULT_APP,wk_rlist);
+  }
+/*
+ * Generate PNG file name.
+ * Not yet available.
+ */
+  else if(!strcmp(type,"png")    || !strcmp(type,"PNG") ||
+          !strcmp(type,"newpng") || !strcmp(type,"NEWPNG")) {
+    len      = strlen(name);
+    filename = (char *)calloc(len+1,sizeof(char));
+    strncpy(filename,name,len);
+    filename[len] = '\0';
+    if(!is_res_set(wk_res,"wkFileName")) {
+      NhlRLSetString(wk_rlist,"wkFileName",filename);
     }
-    NhlCreate(&wks,"png",NhlimageWorkstationClass,NhlDEFAULT_APP,wk_rlist);
+    if(!is_res_set(wk_res,"wkFormat")) {
+      NhlRLSetString(wk_rlist,"wkFormat","png");
+    }
+    NhlCreate(&wks,"png",NhlcairoImageWorkstationClass,NhlDEFAULT_APP,wk_rlist);
   }
   else {
     NhlPError(NhlWARNING,NhlEUNKNOWN,"spread_colors: Invalid workstation type, must be 'x11', 'ncgm', 'ps', 'png', or 'pdf'\n");
@@ -4255,13 +4300,15 @@ void panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
 
 /*
  * We only need to set maxbb to True if the plots are being
- * drawn to a PostScript or PDF workstation, because the
+ * drawn to a PostScript, PDF, or image workstation, because the
  * bounding box is already maximized for an NCGM/X11 window.
  */ 
   maxbb = 1;
   if(special_res->nglMaximize) {
-    if( (strcmp(NhlClassName(wks),"psWorkstationClass")) && 
-        (strcmp(NhlClassName(wks),"pdfWorkstationClass"))) {
+    if( strcmp(NhlClassName(wks),"psWorkstationClass") &&
+        strcmp(NhlClassName(wks),"pdfWorkstationClass") &&
+        strcmp(NhlClassName(wks),"cairoPSPDFWorkstationClass") &&
+        strcmp(NhlClassName(wks),"cairoImageWorkstationClass")) {
       maxbb = 0;
     }
   }
