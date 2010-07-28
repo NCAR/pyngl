@@ -1592,14 +1592,15 @@ def _poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
   y2,fill_value_y = _get_arr_and_fv(y)
 
   _set_spc_defaults(0)
-  rlist = _crt_dict(rlistc)  
   rlist1 = {}
-  for key in rlist.keys():
-    rlist[key] = _convert_from_ma(rlist[key])
-    if (key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
-    else:
-      rlist1[key] = rlist[key]
+  if rlistc != None and rlistc != False:
+    rlist = _crt_dict(rlistc)  
+    for key in rlist.keys():
+      rlist[key] = _convert_from_ma(rlist[key])
+      if (key[0:3] == "ngl"):
+        _set_spc_res(key[3:],rlist[key])      
+      else:
+        rlist1[key] = rlist[key]
 
 # Set flags indicating whether missing values present.
   fill_value_x,ismx = _set_default_msg(fill_value_x)
@@ -1608,8 +1609,9 @@ def _poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
   ply = poly_wrap(wks,_pobj2lst(plot),_arg_with_scalar(x2),_arg_with_scalar(y2),
                   "double","double",len(_arg_with_scalar(x2)),ismx,ismy, \
                   fill_value_x,fill_value_y,ptype,rlist1,pvoid())
-  del rlist
   del rlist1
+  if rlistc != None and rlistc != False:
+    del rlist
   return None
 
 def _add_poly(wks,plot,x,y,ptype,rlistc=None,isndc=0):
