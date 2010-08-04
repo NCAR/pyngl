@@ -91,15 +91,15 @@ To download the PyNGL source code, follow the instructions at the URL:
     * http://www.pyngl.ucar.edu/Download/ * 
 
 The source code you download will be a single compressed tar file called
-something like "PyNGL-1.3.0b1.tar.gz". Move this file to a temporary
+something like "PyNGL-1.3.0.tar.gz". Move this file to a temporary
 directory where you have plenty of disk space (around 250 megabytes to
 hold all of the source code, object files, binaries, and so on). Then,
 uncompress and untar the file as follows:
 
-  gunzip PyNGL-1.3.0b1.tar.gz
-  tar -xvf PyNGL-1.3.0b1.tar
+  gunzip PyNGL-1.3.0.tar.gz
+  tar -xvf PyNGL-1.3.0.tar
 
-The above steps will create a directory called "PyNGL-1.3.0b1".
+The above steps will create a directory called "PyNGL-1.3.0".
 
 ------------------------------------------------------------------------
 

@@ -109,7 +109,7 @@ def create_version_file():
   vfile.write("version = '%s'\n" % pyngl_version)
   vfile.write("array_module = 'numpy'\n")
   vfile.write("array_module_version = '%s'\n" % array_module_version)
-  vfile.write("python_version = '%s'\n" % sys.version[:3])
+  vfile.write("python_version = '%s'\n" % sys.version[:5])
   vfile.close()
 
 # Copy the pynglex script to same filename w/the python version appended.
