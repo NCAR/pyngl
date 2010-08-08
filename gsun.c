@@ -558,9 +558,9 @@ void maximize_plots(int wks, nglPlotId *plot, int nplots, int ispanel,
   }
 
   name = NhlClassName(wks);
-  if(name != NULL && !strcmp(name,"psWorkstationClass") ||
+  if(name != NULL && (!strcmp(name,"psWorkstationClass") ||
                      !strcmp(name,"pdfWorkstationClass") ||
-                     !strcmp(name,"documentWorkstationClass")) {
+		      !strcmp(name,"documentWorkstationClass"))) {
 /*
  * Compute and set device coordinates that will make plot fill the 
  * whole page.
@@ -687,21 +687,16 @@ void overlay_on_irregular(int wks, nglPlotId *plot, ResInfo *plot_res,
  * If x/yaxistype is irregular, then we must set trX/YCoordPoints
  * in order to retain the irregular axis.
  *
- * Also, if xpts or ypts are missing, this means the corresponding
+ * Also, if xpts or ypts are NULL, this means the corresponding
  * axis can't be irregular, and thus we default to linear.
- * This test is commented out for now since we don't really have a way
- * for checking for missing values here.
- *
- *  if(any(ismissing(xpts)).and.xaxistype.eq.0) then
- *   xaxistype = 1     (LinearAxis)
- * end if
- *
- *  if(any(ismissing(Ypts)).and.yaxistype.eq.0) then
- *   yaxistype = 1     (LinearAxis)
- * end if
  *
  */
-
+  if(xpts == NULL && xaxistype == 0) {
+    xaxistype = 1;
+  }
+  if(ypts == NULL && yaxistype == 0) {
+    yaxistype = 1;
+  }
 /*
  * We have three possible cases that can exist at this point:
  *
