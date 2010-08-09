@@ -12,11 +12,10 @@ You can import this package with:
 
   import Ngl
 
-PyNGL is available with NumPy support only.  (Numeric support was
-dropped October 2007.)
+PyNGL is available with NumPy support only.
 
-PyNGL has been tested against Python 2.5.x, Python 2.4.x, and NumPy
-1.x.
+PyNGL 1.3.0 has been tested against Python 2.6.x and Python 2.5.x,
+NumPy 1.3.0, and NumPy 1.4.1.
 
 The visualizations can be drawn on an X11 window or saved as
 PostScript, PDF, or NCGM files.
@@ -36,17 +35,17 @@ For documentation, examples, and a line-by-line tutorial, see:
 
 Bug reports and feedback are appreciated (see email addresses below).
 
-David Brown, Fred Clare, and Mary Haley
+David Brown and Mary Haley
 National Center for Atmospheric Research
 1850 Table Mesa Drive
 Boulder, CO  80305
 USA
-E-Mail: dbrown@ucar.edu, fred@ucar.edu, haley@ucar.edu
+E-Mail: dbrown@ucar.edu, haley@ucar.edu
 
 Installation:
 -------------
 
-Required: Python 2.4 or higher and NumPy version 1.0 or higher.
+Required: Python 2.5 or higher and NumPy version 1.3 or higher.
 Earlier or later versions of these packages may work, but we haven't
 tested all of them.
 

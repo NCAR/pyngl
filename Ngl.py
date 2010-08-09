@@ -15,8 +15,8 @@ __all__ = ['add_annotation', 'add_cyclic', 'add_new_coord_limits', \
            'free_color', 'fspan', 'ftcurv', 'ftcurvp', 'ftcurvpi', \
            'gaus', 'gc_convert', 'gc_dist', 'gc_interp', 'gc_qarea', \
            'gc_tarea', 'generate_2d_array', 'get_MDfloat_array', \
-           'get_MDinteger_array', 'get_float', 'get_float_array', \
-           'get_integer', 'get_integer_array', \
+           'get_MDinteger_array', 'get_bounding_box', 'get_float', \
+           'get_float_array', 'get_integer', 'get_integer_array', \
            'get_named_color_index', 'get_string', 'get_string_array', \
            'get_workspace_id', 'hlsrgb', 'hsvrgb', 'ind', \
            'labelbar_ndc', 'legend_ndc', 'linmsg', 'map', \
@@ -3145,6 +3145,22 @@ resource_name -- The name of the resource whose value you want to
                  retrieve.
   """  
   return(NhlGetFloat(_int_id(obj),name))
+
+################################################################
+
+def get_bounding_box(obj):
+  """
+Retrieves the NDC bounding box values for the given object.
+
+plotid -- The identifier returned from Ngl.open_wks, or any PyNGL
+          function that returns a PlotId.
+  """  
+  t = numpy.zeros(1,'f')
+  b = numpy.zeros(1,'f')
+  l = numpy.zeros(1,'f')
+  r = numpy.zeros(1,'f')
+  t,b,l,r = getbb(_int_id(obj))
+  return t,b,l,r
 
 ################################################################
 

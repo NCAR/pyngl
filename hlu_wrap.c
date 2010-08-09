@@ -2448,21 +2448,20 @@ SWIG_Python_MustGetPtr(PyObject *obj, swig_type_info *ty, int argnum, int flags)
 
 /* -------- TYPES TABLE (BEGIN) -------- */
 
-#define SWIGTYPE_p_NhlBoundingBox swig_types[0]
-#define SWIGTYPE_p_NhlClass swig_types[1]
-#define SWIGTYPE_p_ResInfo swig_types[2]
-#define SWIGTYPE_p_char swig_types[3]
-#define SWIGTYPE_p_double swig_types[4]
-#define SWIGTYPE_p_float swig_types[5]
-#define SWIGTYPE_p_int swig_types[6]
-#define SWIGTYPE_p_nglPlotId swig_types[7]
-#define SWIGTYPE_p_nglRes swig_types[8]
-#define SWIGTYPE_p_p_char swig_types[9]
-#define SWIGTYPE_p_p_double swig_types[10]
-#define SWIGTYPE_p_p_float swig_types[11]
-#define SWIGTYPE_p_void swig_types[12]
-static swig_type_info *swig_types[14];
-static swig_module_info swig_module = {swig_types, 13, 0, 0, 0, 0};
+#define SWIGTYPE_p_NhlClass swig_types[0]
+#define SWIGTYPE_p_ResInfo swig_types[1]
+#define SWIGTYPE_p_char swig_types[2]
+#define SWIGTYPE_p_double swig_types[3]
+#define SWIGTYPE_p_float swig_types[4]
+#define SWIGTYPE_p_int swig_types[5]
+#define SWIGTYPE_p_nglPlotId swig_types[6]
+#define SWIGTYPE_p_nglRes swig_types[7]
+#define SWIGTYPE_p_p_char swig_types[8]
+#define SWIGTYPE_p_p_double swig_types[9]
+#define SWIGTYPE_p_p_float swig_types[10]
+#define SWIGTYPE_p_void swig_types[11]
+static swig_type_info *swig_types[13];
+static swig_module_info swig_module = {swig_types, 12, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -2507,6 +2506,7 @@ static swig_module_info swig_module = {swig_types, 13, 0, 0, 0, 0};
 #include <ncarg/hlu/LabelBar.h>
 #include <ncarg/hlu/Legend.h>
 #include <ncarg/hlu/TextItem.h>
+#include <ncarg/hlu/View.h>
 
 /***********************************************************************
  *
@@ -3258,18 +3258,6 @@ NhlString *NhlGetStringArray(int oid, char *name, int *number)
     NhlGetValues(oid,grlist);
 
     return (slist);
-}
-
-NhlErrorTypes NhlPGetBB (int pid, float *t, float *b, float *l, float *r) {
-  NhlBoundingBox *Box;
-  NhlErrorTypes rv;
-  Box = (NhlBoundingBox *) malloc(sizeof(NhlBoundingBox));
-  rv = NhlGetBB(pid,Box);
-  *t = Box->t;
-  *b = Box->b;
-  *l = Box->l;
-  *r = Box->r;
-  return(rv);
 }
 
 NhlErrorTypes NhlQNDCToData(int pid, float *x, float *y, int n, 
@@ -6966,35 +6954,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_NhlGetBB(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  int arg1 ;
-  NhlBoundingBox *arg2 = (NhlBoundingBox *) 0 ;
-  NhlErrorTypes result;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:NhlGetBB",&obj0,&obj1)) SWIG_fail;
-  {
-    arg1 = (int) PyInt_AsLong (obj0);
-  }
-  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_NhlBoundingBox, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "NhlGetBB" "', argument " "2"" of type '" "NhlBoundingBox *""'"); 
-  }
-  arg2 = (NhlBoundingBox *)(argp2);
-  result = (NhlErrorTypes)NhlGetBB(arg1,arg2);
-  {
-    resultobj = PyInt_FromLong ((long) result);
-  }
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_NhlChangeWorkstation(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
@@ -7013,66 +6972,6 @@ SWIGINTERN PyObject *_wrap_NhlChangeWorkstation(PyObject *SWIGUNUSEDPARM(self), 
   result = (NhlErrorTypes)NhlChangeWorkstation(arg1,arg2);
   {
     resultobj = PyInt_FromLong ((long) result);
-  }
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_NhlPGetBB(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  int arg1 ;
-  float *arg2 = (float *) 0 ;
-  float *arg3 = (float *) 0 ;
-  float *arg4 = (float *) 0 ;
-  float *arg5 = (float *) 0 ;
-  NhlErrorTypes result;
-  float temp2 ;
-  int res2 = SWIG_TMPOBJ ;
-  float temp3 ;
-  int res3 = SWIG_TMPOBJ ;
-  float temp4 ;
-  int res4 = SWIG_TMPOBJ ;
-  float temp5 ;
-  int res5 = SWIG_TMPOBJ ;
-  PyObject * obj0 = 0 ;
-  
-  arg2 = &temp2;
-  arg3 = &temp3;
-  arg4 = &temp4;
-  arg5 = &temp5;
-  if (!PyArg_ParseTuple(args,(char *)"O:NhlPGetBB",&obj0)) SWIG_fail;
-  {
-    arg1 = (int) PyInt_AsLong (obj0);
-  }
-  result = (NhlErrorTypes)NhlPGetBB(arg1,arg2,arg3,arg4,arg5);
-  {
-    resultobj = PyInt_FromLong ((long) result);
-  }
-  if (SWIG_IsTmpObj(res2)) {
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_From_float((*arg2)));
-  } else {
-    int new_flags = SWIG_IsNewObj(res2) ? (SWIG_POINTER_OWN |  0 ) :  0 ;
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((void*)(arg2), SWIGTYPE_p_float, new_flags));
-  }
-  if (SWIG_IsTmpObj(res3)) {
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_From_float((*arg3)));
-  } else {
-    int new_flags = SWIG_IsNewObj(res3) ? (SWIG_POINTER_OWN |  0 ) :  0 ;
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((void*)(arg3), SWIGTYPE_p_float, new_flags));
-  }
-  if (SWIG_IsTmpObj(res4)) {
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_From_float((*arg4)));
-  } else {
-    int new_flags = SWIG_IsNewObj(res4) ? (SWIG_POINTER_OWN |  0 ) :  0 ;
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((void*)(arg4), SWIGTYPE_p_float, new_flags));
-  }
-  if (SWIG_IsTmpObj(res5)) {
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_From_float((*arg5)));
-  } else {
-    int new_flags = SWIG_IsNewObj(res5) ? (SWIG_POINTER_OWN |  0 ) :  0 ;
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((void*)(arg5), SWIGTYPE_p_float, new_flags));
   }
   return resultobj;
 fail:
@@ -33577,6 +33476,63 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_getbb(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  float *arg2 = (float *) 0 ;
+  float *arg3 = (float *) 0 ;
+  float *arg4 = (float *) 0 ;
+  float *arg5 = (float *) 0 ;
+  float temp2 ;
+  int res2 = SWIG_TMPOBJ ;
+  float temp3 ;
+  int res3 = SWIG_TMPOBJ ;
+  float temp4 ;
+  int res4 = SWIG_TMPOBJ ;
+  float temp5 ;
+  int res5 = SWIG_TMPOBJ ;
+  PyObject * obj0 = 0 ;
+  
+  arg2 = &temp2;
+  arg3 = &temp3;
+  arg4 = &temp4;
+  arg5 = &temp5;
+  if (!PyArg_ParseTuple(args,(char *)"O:getbb",&obj0)) SWIG_fail;
+  {
+    arg1 = (int) PyInt_AsLong (obj0);
+  }
+  getbb(arg1,arg2,arg3,arg4,arg5);
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsTmpObj(res2)) {
+    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_From_float((*arg2)));
+  } else {
+    int new_flags = SWIG_IsNewObj(res2) ? (SWIG_POINTER_OWN |  0 ) :  0 ;
+    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((void*)(arg2), SWIGTYPE_p_float, new_flags));
+  }
+  if (SWIG_IsTmpObj(res3)) {
+    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_From_float((*arg3)));
+  } else {
+    int new_flags = SWIG_IsNewObj(res3) ? (SWIG_POINTER_OWN |  0 ) :  0 ;
+    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((void*)(arg3), SWIGTYPE_p_float, new_flags));
+  }
+  if (SWIG_IsTmpObj(res4)) {
+    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_From_float((*arg4)));
+  } else {
+    int new_flags = SWIG_IsNewObj(res4) ? (SWIG_POINTER_OWN |  0 ) :  0 ;
+    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((void*)(arg4), SWIGTYPE_p_float, new_flags));
+  }
+  if (SWIG_IsTmpObj(res5)) {
+    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_From_float((*arg5)));
+  } else {
+    int new_flags = SWIG_IsNewObj(res5) ? (SWIG_POINTER_OWN |  0 ) :  0 ;
+    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((void*)(arg5), SWIGTYPE_p_float, new_flags));
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_c_wmbarbp(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
@@ -34652,9 +34608,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"NhlGetStringArray", _wrap_NhlGetStringArray, METH_VARARGS, NULL},
 	 { (char *)"NhlRLDestroy", _wrap_NhlRLDestroy, METH_VARARGS, NULL},
 	 { (char *)"NhlGetNamedColorIndex", _wrap_NhlGetNamedColorIndex, METH_VARARGS, NULL},
-	 { (char *)"NhlGetBB", _wrap_NhlGetBB, METH_VARARGS, NULL},
 	 { (char *)"NhlChangeWorkstation", _wrap_NhlChangeWorkstation, METH_VARARGS, NULL},
-	 { (char *)"NhlPGetBB", _wrap_NhlPGetBB, METH_VARARGS, NULL},
 	 { (char *)"NhlPNDCToData", _wrap_NhlPNDCToData, METH_VARARGS, NULL},
 	 { (char *)"NhlPDataToNDC", _wrap_NhlPDataToNDC, METH_VARARGS, NULL},
 	 { (char *)"NhlGetMDFloatArray", _wrap_NhlGetMDFloatArray, METH_VARARGS, NULL},
@@ -34732,6 +34686,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"c_hsvrgb", _wrap_c_hsvrgb, METH_VARARGS, NULL},
 	 { (char *)"c_rgbyiq", _wrap_c_rgbyiq, METH_VARARGS, NULL},
 	 { (char *)"c_yiqrgb", _wrap_c_yiqrgb, METH_VARARGS, NULL},
+	 { (char *)"getbb", _wrap_getbb, METH_VARARGS, NULL},
 	 { (char *)"c_wmbarbp", _wrap_c_wmbarbp, METH_VARARGS, NULL},
 	 { (char *)"c_wmsetip", _wrap_c_wmsetip, METH_VARARGS, NULL},
 	 { (char *)"c_wmsetrp", _wrap_c_wmsetrp, METH_VARARGS, NULL},
@@ -34770,7 +34725,6 @@ static PyMethodDef SwigMethods[] = {
 
 /* -------- TYPE CONVERSION AND EQUIVALENCE RULES (BEGIN) -------- */
 
-static swig_type_info _swigt__p_NhlBoundingBox = {"_p_NhlBoundingBox", "NhlBoundingBox *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_NhlClass = {"_p_NhlClass", "NhlClass *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_ResInfo = {"_p_ResInfo", "ResInfo *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
@@ -34785,7 +34739,6 @@ static swig_type_info _swigt__p_p_float = {"_p_p_float", "float **", 0, 0, (void
 static swig_type_info _swigt__p_void = {"_p_void", "void *", 0, 0, (void*)0, 0};
 
 static swig_type_info *swig_type_initial[] = {
-  &_swigt__p_NhlBoundingBox,
   &_swigt__p_NhlClass,
   &_swigt__p_ResInfo,
   &_swigt__p_char,
@@ -34800,7 +34753,6 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_void,
 };
 
-static swig_cast_info _swigc__p_NhlBoundingBox[] = {  {&_swigt__p_NhlBoundingBox, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_NhlClass[] = {  {&_swigt__p_NhlClass, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_ResInfo[] = {  {&_swigt__p_ResInfo, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
@@ -34815,7 +34767,6 @@ static swig_cast_info _swigc__p_p_float[] = {  {&_swigt__p_p_float, 0, 0, 0},{0,
 static swig_cast_info _swigc__p_void[] = {  {&_swigt__p_void, 0, 0, 0},{0, 0, 0, 0}};
 
 static swig_cast_info *swig_cast_initial[] = {
-  _swigc__p_NhlBoundingBox,
   _swigc__p_NhlClass,
   _swigc__p_ResInfo,
   _swigc__p_char,

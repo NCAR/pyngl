@@ -27,6 +27,7 @@
 #include <ncarg/hlu/IrregularPlot.h>
 #include <ncarg/hlu/Primitive.h>
 #include <ncarg/hlu/TransObj.h>
+#include <ncarg/hlu/View.h>
 
 #define min(x,y)   ((x) < (y) ? (x) : (y))
 #define max(x,y)   ((x) > (y) ? (x) : (y))
@@ -197,6 +198,7 @@ extern float xmin_array(float *, int);
 extern float *fspan(float, float, int);
 extern int *ispan(int, int, int);
 extern int is_res_set(ResInfo *, char *);
+extern void getbb (int pid, float *t, float *b, float *l, float *r);
 extern void compute_ps_device_coords(int, nglPlotId *, int, nglRes *);
 
 extern void maximize_plots(int, nglPlotId *, int, int, nglRes *);

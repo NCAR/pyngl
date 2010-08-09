@@ -126,6 +126,21 @@ int is_res_set(ResInfo *res_list, char *resname)
 
 
 /*
+ * This is for the PyNGL function Ngl.get_bounding_box.
+ */
+void getbb (int pid, float *t, float *b, float *l, float *r)
+{
+  NhlBoundingBox *Box;
+  Box = (NhlBoundingBox *) malloc(sizeof(NhlBoundingBox));
+  NhlGetBB(pid,Box);
+  *t = Box->t;
+  *b = Box->b;
+  *l = Box->l;
+  *r = Box->r;
+  free(Box);
+}
+
+/*
  * This function computes the PostScript device coordinates needed to
  * make a plot fill up the full page.
  *

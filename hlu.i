@@ -19,6 +19,7 @@
 #include <ncarg/hlu/LabelBar.h>
 #include <ncarg/hlu/Legend.h>
 #include <ncarg/hlu/TextItem.h>
+#include <ncarg/hlu/View.h>
 
 /***********************************************************************
  *
@@ -770,18 +771,6 @@ NhlString *NhlGetStringArray(int oid, char *name, int *number)
     NhlGetValues(oid,grlist);
 
     return (slist);
-}
-
-NhlErrorTypes NhlPGetBB (int pid, float *t, float *b, float *l, float *r) {
-  NhlBoundingBox *Box;
-  NhlErrorTypes rv;
-  Box = (NhlBoundingBox *) malloc(sizeof(NhlBoundingBox));
-  rv = NhlGetBB(pid,Box);
-  *t = Box->t;
-  *b = Box->b;
-  *l = Box->l;
-  *r = Box->r;
-  return(rv);
 }
 
 NhlErrorTypes NhlQNDCToData(int pid, float *x, float *y, int n, 
@@ -2852,10 +2841,7 @@ extern NhlErrorTypes NhlRemoveOverlay(int, int, NhlBoolean);
 extern NhlString *NhlGetStringArray(int oid, char *name, int *numbers);
 extern void NhlRLDestroy(int);
 extern int NhlGetNamedColorIndex(int, const char *);
-extern NhlErrorTypes NhlGetBB(int, NhlBoundingBox *);
 extern NhlErrorTypes NhlChangeWorkstation(int, int);
-extern NhlErrorTypes NhlPGetBB(int, float *OUTPUT, float *OUTPUT, float *OUTPUT,
-                                float *OUTPUT);
 extern PyObject *NhlPNDCToData(int, float *sequence_as_float, 
                                float *sequence_as_float, int, float,
                                float, int, int);
@@ -3047,6 +3033,9 @@ extern void c_hsvrgb(float, float, float, float *OUTPUT, float *OUTPUT, float *O
 extern void c_rgbyiq(float, float, float, float *OUTPUT, float *OUTPUT, float *OUTPUT);
 extern void c_yiqrgb(float, float, float, float *OUTPUT, float *OUTPUT, float *OUTPUT);
 
+extern void getbb(int, float *OUTPUT, float *OUTPUT, float *OUTPUT, float *OUTPUT);
+
+
 extern void c_wmbarbp(int, float, float, float, float);
 extern void c_wmsetip(NhlString,int);
 extern void c_wmsetrp(NhlString,float);
@@ -3159,10 +3148,7 @@ extern NhlErrorTypes NglGaus_p(int num, int nxir, int nyir, double *p_array_doub
 %newobject  NhlRemoveOverlay(int, int, NhlBoolean);
 %newobject  NhlGetStringArray(int oid, char *name, int *numbers);
 %newobject  NhlGetNamedColorIndex(int, const char *);
-%newobject  NhlGetBB(int, NhlBoundingBox *);
 %newobject  NhlChangeWorkstation(int, int);
-%newobject  NhlPGetBB(int, float *OUTPUT, float *OUTPUT, float *OUTPUT,
-                                float *OUTPUT);
 %newobject  NhlPNDCToData(int, float *sequence_as_float, 
                                float *sequence_as_float, int, float,
                                float, int, int);
