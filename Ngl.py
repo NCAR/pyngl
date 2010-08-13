@@ -7128,3 +7128,140 @@ r, g, b -- The red, green, and blue intensity values in the range
     return rr,gr,br
   else:
     print "yiqrgb: arguments must be scalars, arrays, lists or tuples."
+
+################################################################
+# This function is one of three codes contributed by Lou Wicker
+# of NOAA.
+#
+#    _nearlyequal
+#    nice_mnmxintvl
+#    nice_cntr_levels
+#
+def _nearlyequal(a, b, sig_digit=None):
+  """
+  Measures the equality (for two floats), in unit of decimal significant figures.  
+  If no sigificant digit is specified, default is 7 digits.
+  """
+
+  if sig_digit == None or sig_digit > 7:
+    sig_digit = 7
+
+  if a == b:
+    return True
+
+  difference = abs(a - b)
+  avg = (a + b)/2
+  return numpy.log10( avg / difference ) >= sig_digit
+      
+#
+# This function is one of three codes contributed by Lou Wicker of NOAA.
+#
+#    _nearlyequal
+#    nice_mnmxintvl
+#    nice_cntr_levels
+#
+def nice_mnmxintvl( min, max, outside=True, max_steps=15, cint=None):
+  """ 
+  * Description: Given min and max values of a data domain and the maximum
+  *              number of steps desired, determines "nice" values of 
+  *              for endpoints and spacing to create a series of steps 
+  *              through the data domain. A flag controls whether the max 
+  *              and min are inside or outside the data range.
+  *
+  * In Args: float   min 		the minimum value of the domain
+  *          float   max   	    the maximum value of the domain
+  *          int     max_steps	the maximum number of steps desired
+  *          logical outside     controls whether return min/max fall just
+  *                              outside or just inside the data domain.
+  *				if outside: 
+  * 				    min_out <= min < min_out + step_size
+  *                                  max_out >= max > max_out - step_size
+  *                              if inside:
+  * 				    min_out >= min > min_out - step_size
+  *                                  max_out <= max < max_out + step_size
+  *
+  *          float    cint      if specified, the contour interval is set to this, 
+  *                             and the max/min bounds, based on "outside" are returned.
+  *
+  *
+  * Out Args: min_out     a "nice" minimum value
+  *           max_out     a "nice" maximum value  
+  *           step_size   a step value such that 
+  *                              (where n is an integer < max_steps):
+  *                               min_out + n * step_size == max_out 
+  *                               with no remainder 
+  *
+  * If max==min, or a contour interval cannot be computed, returns "None"
+  *
+  * Algorithm mimics the NCAR NCL lib "nice_mnmxintvl"; code adapted from "nicevals.c"
+  * however, added the optional "cint" arg to facilitate user specified specific interval.
+  *
+  * Lou Wicker, August 2009
+  """
+  
+  table = numpy.array([1.0,2.0,2.5,4.0,5.0,10.0,20.0,25.0,40.0,50.0,100.0,200.0,250.0,400.0,500.0])
+    
+  if _nearlyequal(max,min):
+    return None
+    
+# Help people like me who can never remember - flip max/min if inputted reversed
+
+  if max < min:
+    amax = min
+    amin = max
+  else:
+    amax = max
+    amin = min
+        
+  d  = 10.0**(numpy.floor(numpy.log10(amax - amin)) - 2.0)
+  
+  if cint == None or cint == 0.0:
+    t = table * d
+  else:
+    t = cint
+    
+  if outside:
+
+    am1   = numpy.floor(amin/t) * t
+    ax1   = numpy.ceil(amax/t)  * t
+    cints = (ax1 - am1) / t 
+  else:
+    am1   = numpy.ceil(amin/t) * t
+    ax1   = numpy.floor(amax/t)  * t
+    cints = (ax1 - am1) / t
+    
+#  print t, am1, ax1, cints
+    
+  if cint == None or cint == 0.0:   
+    try:
+      index = numpy.where(cints < max_steps)[0][0]
+      return am1[index], ax1[index], cints[index]
+    except IndexError:
+      return None
+  else:
+    return am1, ax1, cint
+
+# Error, return zeros
+    return None
+
+#
+# This function is one of three codes contributed by Lou Wicker of NOAA.
+#
+#    _nearlyequal
+#    nice_mnmxintvl
+#    nice_cntr_levels
+#
+def nice_cntr_levels( *args, **kargs):
+  """
+  Extra function to generate the array of contour levels for plotting using
+  "nice_mnmxintvl" code.  Removes an extra step.  Returns 4 args,
+  with the 4th the array of contour levels.  The first three values
+  are the same as "nice_mnmxintvl"
+  """
+  try:
+    amin, amax, cint = nice_mnmxintvl(*args, **kargs)
+    return amin, amax, cint, numpy.arange(amin, amax+cint, cint) 
+  except:
+  	return None
+
+################################################################
