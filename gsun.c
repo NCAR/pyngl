@@ -3578,8 +3578,8 @@ nglPlotId add_poly_wrap(int wks, nglPlotId *plot, void *x, void *y,
  * We have more than one point, so create a polyline.
  */
 
-          NhlRLSetFloatArray(pr_rlist,"prXArray",       xf, npts);
-          NhlRLSetFloatArray(pr_rlist,"prYArray",       yf, npts);
+          NhlRLSetFloatArray(pr_rlist,"prXArray",       &xf[ibeg], npts);
+          NhlRLSetFloatArray(pr_rlist,"prYArray",       &yf[ibeg], npts);
           NhlRLSetInteger   (pr_rlist,"prPolyType",     polytype);
           NhlRLSetInteger   (pr_rlist,"prGraphicStyle", gsid);
         }
