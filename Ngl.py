@@ -7255,12 +7255,12 @@ def nice_cntr_levels( *args, **kargs):
   """
   Extra function to generate the array of contour levels for plotting using
   "nice_mnmxintvl" code.  Removes an extra step.  Returns 4 args,
-  with the 4th the array of contour levels.  The first three values
-  are the same as "nice_mnmxintvl"
+  with the 1st the array of contour levels.  The remaining three values
+  are the same as "Ngl.nice_mnmxintvl"
   """
   try:
     amin, amax, cint = nice_mnmxintvl(*args, **kargs)
-    return amin, amax, cint, numpy.arange(amin, amax+cint, cint) 
+    return numpy.arange(amin, amax+cint, cint)
   except:
   	return None
 
