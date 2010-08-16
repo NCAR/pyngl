@@ -38,7 +38,7 @@
 #
 #  Import numpy.
 #
-import numpy
+import numpy, os
 
 #
 #  Import Nio for a NetCDF reader.
@@ -63,10 +63,10 @@ dirc = Ngl.pynglpath("data")
 #
 #  Open the netCDF files.
 #
-ufile = Nio.open_file(dirc + "/cdf/Ustorm.cdf","r")
-vfile = Nio.open_file(dirc + "/cdf/Vstorm.cdf","r")
-tfile = Nio.open_file(dirc + "/cdf/Tstorm.cdf","r")
-pfile = Nio.open_file(dirc + "/cdf/Pstorm.cdf","r")
+ufile = Nio.open_file(os.path.join(dirc,"cdf","Ustorm.cdf"),"r")
+vfile = Nio.open_file(os.path.join(dirc,"cdf","Vstorm.cdf"),"r")
+tfile = Nio.open_file(os.path.join(dirc,"cdf","Tstorm.cdf"),"r")
+pfile = Nio.open_file(os.path.join(dirc,"cdf","Pstorm.cdf"),"r")
 
 #
 #  Get the u/v, temperature, and pressure variables.

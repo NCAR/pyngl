@@ -52,12 +52,13 @@
 import Ngl
 import Nio
 import numpy
+import os
 
 #
 #  Open the netCDF file.
 #
 dirc = Ngl.pynglpath("data")
-file = Nio.open_file(dirc + "/cdf/pop.nc")
+file = Nio.open_file(os.path.join(dirc,"cdf","pop.nc"))
 
 #
 #  Open a workstation.

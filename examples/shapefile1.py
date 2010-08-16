@@ -86,7 +86,8 @@ plot = Ngl.map(wks,res) # create the map plot
 # Read data off shapefile. Must have states.shp, states.dbf,
 # and states.prj file in this directory.
 #
-f        = Nio.open_file("states.shp", "r")   # Open shapefile
+dirc = Ngl.pynglpath("data")
+f    = Nio.open_file(os.path.join(dirc,"shp","states.shp"), "r")   # Open shapefile
 segments = f.variables["segments"][:]
 geometry = f.variables["geometry"][:]
 segsDims = segments.shape

@@ -48,10 +48,9 @@ import copy
 import Nio
 
 #
-#  Import numpy and sys.
+#  Import numpy, sys, os.
 #
-import numpy
-import sys
+import numpy, sys, os
 
 #
 #  Import the PyNGL module names.
@@ -113,7 +112,7 @@ def smth9(x,p,q):
 #
 #  Read in the data variables from the NetCDF file.
 #
-cdf_file   = Nio.open_file(Ngl.pynglpath("data") + "/cdf/meteo_data.nc","r")
+cdf_file   = Nio.open_file(os.path.join(Ngl.pynglpath("data"),"cdf","meteo_data.nc"))
 tempisobar = cdf_file.variables["tempisobar"][:,:]  # temperature
 levels     = cdf_file.variables["levels"][:]        # levels
 taus       = cdf_file.variables["taus"][:]          # taus

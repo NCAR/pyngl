@@ -51,7 +51,7 @@
 #
 #  Import numpy.
 #
-import numpy
+import numpy, os
 
 #
 #  Import Nio for reading netCDF files.
@@ -72,7 +72,7 @@ from numpy import ma
 #  Open a netCDF file and get some data..
 #
 data_dir = Ngl.pynglpath("data")
-cdf_file = Nio.open_file(data_dir + "/cdf/ocean.nc","r")
+cdf_file = Nio.open_file(os.path.join(data_dir,"cdf","ocean.nc"))
 T        = ma.masked_values(cdf_file.variables["T"][:,:],cdf_file.variables["T"]._FillValue)
 lat_t    = cdf_file.variables["lat_t"][:]
 z_t      = cdf_file.variables["z_t"][:] / 100.         # convert cm to m

@@ -38,6 +38,7 @@
 #
 import numpy
 import random
+import os
 
 #
 #  Import Nio for reading netCDF files.
@@ -53,7 +54,7 @@ import Ngl
 #  Open the netCDF file containing the climate divisions polygons.
 #
 dirc = Ngl.pynglpath("data")
-ncdf = Nio.open_file(dirc + "/cdf/climdiv_polygons.nc","r")
+ncdf = Nio.open_file(os.path.join(dirc,"cdf","climdiv_polygons.nc"))
 
 #
 #  State names for the contiguous U.S. states.

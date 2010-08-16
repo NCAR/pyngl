@@ -56,7 +56,7 @@
 #
 #  Import numpy.
 #
-import numpy
+import numpy, os
 
 #
 #  Import Ngl support functions.
@@ -69,7 +69,7 @@ import Ngl
 import Nio
 
 dirc  = Ngl.pynglpath("data")
-cfile = Nio.open_file(dirc + "/cdf/ctcbay.nc","r")
+cfile = Nio.open_file(os.path.join(dirc,"cdf","ctcbay.nc"))
 
 #
 #  Read the lat/lon/ele/depth arrays to numpy.arrays.

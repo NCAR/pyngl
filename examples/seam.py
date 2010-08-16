@@ -47,9 +47,9 @@
 #     
 
 #
-#  Import numpy.
+#  Import numpy and os
 #
-import numpy
+import numpy, os
 
 #
 #  Import Ngl support functions.
@@ -67,7 +67,7 @@ import Nio
 #  called SEAM (Spectral Element Atmosphere Model).
 #
 dirc  = Ngl.pynglpath("data")
-cfile = Nio.open_file(dirc + "/cdf/seam.nc")
+cfile = Nio.open_file(os.path.join(dirc,"cdf","seam.nc"))
 
 #
 #  Read the lat/lon/ps arrays to numpy arrays, and convert

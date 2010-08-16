@@ -40,7 +40,7 @@
 #
 #  Import numpy.
 #
-import numpy
+import numpy, os
 
 #
 #  Import Ngl support functions.
@@ -56,7 +56,7 @@ import Nio
 # Open a netCDF file containing storm data.
 #
 dirc  = Ngl.pynglpath("data")
-tfile = Nio.open_file(dirc + "/cdf/Tstorm.cdf","r")
+tfile = Nio.open_file(os.path.join(dirc,+ "cdf","Tstorm.cdf"))
 
 #
 # Access the temperature arrays for the first 6 time steps.

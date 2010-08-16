@@ -45,7 +45,7 @@
 #
 #  Import numpy.
 #
-import numpy
+import numpy, os
 
 #
 #  Import Ngl support functions.
@@ -111,7 +111,7 @@ plot = Ngl.xy(wks,x,y2,resources)       # Draw an XY plot.
   
 #---------- Begin fifth plot ------------------------------------------
   
-filename = Ngl.pynglpath("data") + "/asc/xy.asc"
+filename = os.path.join(Ngl.pynglpath("data"),"asc","xy.asc")
 data     = Ngl.asciiread(filename,(129,4),"float")
   
 #

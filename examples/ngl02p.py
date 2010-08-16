@@ -60,12 +60,12 @@ import Ngl
 #  
 #  Open the netCDF file.
 #  
-cdf_file = Nio.open_file(Ngl.pynglpath("data") + "/cdf/contour.cdf","r")
+cdf_file = Nio.open_file(os.path.join(Ngl.pynglpath("data"),"cdf","contour.cdf"),"r")
 
 #
 #  This is the ScientificPython method for opening a netCDF file.
 #
-# cdf_file = NetCDFFile(Ngl.pynglpath("data") + "/cdf/contour.cdf","r")
+# cdf_file = NetCDFFile(os.path.join(Ngl.pynglpath("data"),"cdf","contour.cdf"),"r")
 
 #
 #  Associate Python variables with NetCDF variables.

@@ -40,6 +40,7 @@
 #  Import numpy.
 #
 import numpy
+import os
 
 #
 #  Import Nio read functions (for netCDF files).
@@ -61,14 +62,14 @@ import Ngl
 #  Open the netCDF files.
 #
 dirc  = Ngl.pynglpath("data")
-ufile = Nio.open_file(dirc + "/cdf/Ustorm.cdf","r")  # Open two netCDF files.
-vfile = Nio.open_file(dirc + "/cdf/Vstorm.cdf","r")
+ufile = Nio.open_file(os.path.join(dirc,"cdf","Ustorm.cdf"),"r")  # Open two netCDF files.
+vfile = Nio.open_file(os.path.join(dirc,"cdf","Vstorm.cdf"),"r")
 
 #
 #  This is the ScientificPython method for opening netCDF files.
 #
-# ufile = NetCDFFile(dirc + "/cdf/Ustorm.cdf","r")  # Open two netCDF files.
-# vfile = NetCDFFile(dirc + "/cdf/Vstorm.cdf","r")
+# ufile = NetCDFFile(os.path.join(dirc,"cdf","Ustorm.cdf")"r")  # Open two netCDF files.
+# vfile = NetCDFFile(os.path.join(dirc,"cdf","Vstorm.cdf"),"r")
 
 #
 #  Get the u/v variables.
@@ -113,11 +114,11 @@ vc = Ngl.vector(wks,ua,va,resources)
 
 #---------- Begin fourth plot ------------------------------------------
 
-tfile = Nio.open_file(dirc+"/cdf/Tstorm.cdf","r")    # Open a netCDF file.
+tfile = Nio.open_file(os.path.join(dirc,"cdf","Tstorm.cdf"),"r")    # Open a netCDF file.
 #
 #  This is the ScientificPython method for opening netCDF files.
 #
-# tfile = NetCDFFile(dirc+"/cdf/Tstorm.cdf","r")    # Open a netCDF file.
+# tfile = NetCDFFile(os.path.join(dirc,"cdf","Tstorm.cdf"),"r")    # Open a netCDF file.
 
 temp = tfile.variables["t"]
 

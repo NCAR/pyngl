@@ -42,7 +42,7 @@
 #
 #  Import numpy and the Masked Array module.
 #
-import numpy
+import numpy, os
 from numpy import ma
 
 #
@@ -58,8 +58,8 @@ dirc  = Ngl.pynglpath("data")
 filea = "ice5g_21k_1deg.nc"
 fileb = "sstanom.robinsonproj.nc"
 
-a = Nio.open_file(dirc + "/cdf/" + filea)
-b = Nio.open_file(dirc + "/cdf/" + fileb)
+a = Nio.open_file(os.path.join(dirc,"cdf",filea))
+b = Nio.open_file(os.path.join(dirc,"cdf",fileb))
 
 topo = a.variables["Topo"][:,:]
 Lat  = a.variables["Lat"][:]

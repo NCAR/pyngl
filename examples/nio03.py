@@ -40,7 +40,7 @@ import time,os
 #
 dirc = Ngl.pynglpath("data")
 fname = "wafsgfs_L_t06z_intdsk60.grib2"
-f = Nio.open_file(dirc + "/grb/" + fname + ".grb")
+f = Nio.open_file(os.path.join(dirc,"grb",fname + ".grb"))
 
 #
 # Print the input file contents

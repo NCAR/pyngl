@@ -32,10 +32,11 @@
 #     
 
 #
-#  Import numpy and types.
+#  Import numpy, types, os.
 #
 import numpy 
 import types
+import os
 
 #
 #  Import the GRIB1 reader.
@@ -50,7 +51,7 @@ import Ngl
 #
 #  Open the GRIB file.
 #
-file = Nio.open_file(Ngl.pynglpath("data") + "/grb/ced1.lf00.t00z.eta.grb","r")
+file = Nio.open_file(os.path.join(Ngl.pynglpath("data"),"grb","ced1.lf00.t00z.eta.grb"),"r")
 
 names = file.variables.keys()  #  Get the variable names
 print "\nVariable names:"      #  and print them out.

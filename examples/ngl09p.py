@@ -38,6 +38,7 @@ import numpy
 #  Import the masked array module.
 #
 from numpy import ma as MA
+import os
 
 #
 #  Import Ngl support functions.
@@ -60,7 +61,7 @@ import Nio
 #  Open the netCDF files, get variables.
 #
 data_dir = Ngl.pynglpath("data")
-ice1     = Nio.open_file(data_dir + "/cdf/fice.nc","r")
+ice1     = Nio.open_file(os.path.join(data_dir,"cdf","fice.nc"),"r")
 
 #
 #  This is the ScientificPython method for opening a netCDF file.

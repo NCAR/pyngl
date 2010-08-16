@@ -42,7 +42,7 @@
 #
 #  Import numpy.
 #
-import numpy
+import numpy, os
 
 #
 # Import Nio for reading netCDF files.
@@ -62,7 +62,7 @@ import Ngl
 #  Read the scattered data and extract the x, y, and color variables.
 #
 dirc  = Ngl.pynglpath("data")
-ncdf = Nio.open_file(dirc + "/cdf/scatter1.nc","r")
+ncdf = Nio.open_file(os.path.join(dirc,"cdf","scatter1.nc"),"r")
 x = ncdf.variables["x"][:]
 y = ncdf.variables["y"][:]
 colors = ncdf.variables["colors"][:]

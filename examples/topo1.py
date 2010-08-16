@@ -40,7 +40,7 @@
 #    It is freely available to anyone to download.
 #     
 
-import numpy
+import numpy, os
 
 #
 #  Import Nio for reading netCDF files.
@@ -57,7 +57,7 @@ import Ngl
 # Open netCDF file and read variables
 #
 dirc  = Ngl.pynglpath("data")
-cfile = Nio.open_file(dirc+"/cdf/trinidad.nc","r")
+cfile = Nio.open_file(os.path.join(dirc,"cdf","trinidad.nc"))
 
 data         = cfile.variables["data"]
 lat          = cfile.variables["lat"][:]

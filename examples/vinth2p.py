@@ -32,12 +32,13 @@
 import Ngl
 import numpy
 import Nio
+import os
 
 #
 #  Open the netCDF file containing the input data.
 #
 dirc  = Ngl.pynglpath("data")
-cfile = Nio.open_file(dirc+"/cdf/vinth2p.nc","r")
+cfile = Nio.open_file(os.path.join(dirc,"cdf","vinth2p.nc"),"r")
 
 #
 #  Define the surface pressure value.

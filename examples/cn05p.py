@@ -46,12 +46,13 @@
 import numpy 
 import Ngl 
 import Nio
+import os
 
 #
 # Read some variables off the file.
 #
 dirc = Ngl.pynglpath("data")
-nf   = Nio.open_file(dirc + "/cdf/meccatemp.cdf","r")
+nf   = Nio.open_file(os.path.join(dirc,"cdf","meccatemp.cdf"))
 T    = nf.variables["t"][:,:,:]
 lat  = nf.variables["lat"][:]
 lon  = nf.variables["lon"][:]

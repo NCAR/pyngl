@@ -38,6 +38,7 @@
 import numpy
 import Ngl
 import Nio
+import os
 
 #
 # Open file and get variable. The lat/lon variables will be
@@ -45,7 +46,7 @@ import Nio
 # that had lat/lon on the file, but lat/lon was nothing more
 # than equally-spaced values which we can regenerate exactly.
 #
-f = Nio.open_file(Ngl.pynglpath("data") + "/cdf/hgt.nc","r")
+f = Nio.open_file(os.path.join(Ngl.pynglpath("data"),"cdf","hgt.nc"),"r")
 
 hgt = f.variables["HGT"][:,:,:]
 lat = Ngl.fspan(-90,90,73)

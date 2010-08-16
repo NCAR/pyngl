@@ -35,11 +35,11 @@
 #    Skew-T resource names decided on.
 #     
 
-import Ngl
+import Ngl, os
   
 nlvl = 65
 ncol = 7
-TestData =  Ngl.asciiread(Ngl.pynglpath("data") + "/asc/sounding_ATS.asc", \
+TestData =  Ngl.asciiread(os.path.join(Ngl.pynglpath("data"),"asc","sounding_ATS.asc"), \
                           [nlvl,ncol], "float")
 
 #

@@ -58,7 +58,7 @@ color_files = ["thelix","GreenYellow","gsltod"]
 #
 #pkgs_pth    = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
 #                          'site-packages')
-#color_dir   = pkgs_pth + "/PyNGL/ncarg/colormaps"
+#color_dir   = os.path.join(pkgs_pth,"PyNGL","ncarg","colormaps")
 #color_files = os.listdir(color_dir)
 
 for i in xrange(len(color_files)):

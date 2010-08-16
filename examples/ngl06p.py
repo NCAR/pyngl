@@ -39,7 +39,7 @@
 #
 #  Import numpy.
 #
-import numpy
+import numpy, os
 
 #
 #  Import Nio for a NetCDF reader.
@@ -65,16 +65,16 @@ dirc = Ngl.pynglpath("data")
 #
 #  Open the netCDF files.
 #
-ufile = Nio.open_file(dirc + "/cdf/Ustorm.cdf","r")
-vfile = Nio.open_file(dirc + "/cdf/Vstorm.cdf","r")
-tfile = Nio.open_file(dirc + "/cdf/Tstorm.cdf","r")
+ufile = Nio.open_file(os.path.join(dirc,"cdf","Ustorm.cdf"),"r")
+vfile = Nio.open_file(os.path.join(dirc,"cdf","Vstorm.cdf"),"r")
+tfile = Nio.open_file(os.path.join(dirc,"cdf","Tstorm.cdf"),"r")
 
 #
 #  This is the ScientificPython method for opening netCDF files.
 #
-# ufile = NetCDFFile(dirc + "/cdf/Ustorm.cdf","r")
-# vfile = NetCDFFile(dirc + "/cdf/Vstorm.cdf","r")
-# tfile = NetCDFFile(dirc + "/cdf/Tstorm.cdf","r")
+# ufile = NetCDFFile(os.path.join(dirc,"cdf","Ustorm.cdf"),"r")
+# vfile = NetCDFFile(os.path.join(dirc,"cdf","Vstorm.cdf"),"r")
+# tfile = NetCDFFile(os.path.join(dirc,"cdf","Tstorm.cdf"),"r")
 
 #
 #  Get the u/v variables.

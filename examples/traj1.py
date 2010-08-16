@@ -42,7 +42,7 @@
 #
 #  Import numpy.
 #
-import numpy
+import numpy, os
 
 #
 #  Import Nio.
@@ -71,7 +71,7 @@ def nint(r):
 #  Open the netCDF file containing the salinity data for the trajectories.
 #
 dirc = Ngl.pynglpath("data")
-ncdf = Nio.open_file(dirc+"/cdf/traj_data.nc","r")
+ncdf = Nio.open_file(os.path.join(dirc,"cdf","traj_data.nc"),"r")
 
 #
 #  Define a color map and open a workstation.

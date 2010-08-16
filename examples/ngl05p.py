@@ -44,7 +44,7 @@
 #
 #  Import NumPy.
 #
-import numpy
+import numpy, os
 
 #
 #  Import Nio for a NetCDF reader.
@@ -66,16 +66,16 @@ import Ngl
 #  Open three netCDF files and get variables.
 #
 data_dir  = Ngl.pynglpath("data")
-cdf_file1 = Nio.open_file(data_dir + "/cdf/941110_P.cdf","r")
-cdf_file2 = Nio.open_file(data_dir + "/cdf/sstdata_netcdf.nc","r")
-cdf_file3 = Nio.open_file(data_dir + "/cdf/Pstorm.cdf","r")
+cdf_file1 = Nio.open_file(os.path.join(data_dir,"cdf","941110_P.cdf"),"r")
+cdf_file2 = Nio.open_file(os.path.join(data_dir,"cdf","sstdata_netcdf.nc"),"r")
+cdf_file3 = Nio.open_file(os.path.join(data_dir,"cdf","Pstorm.cdf"),"r")
 
 #
 #  This is the ScientificPython method for opening netCDF files.
 #
-# cdf_file1 = NetCDFFile(data_dir + "/cdf/941110_P.cdf","r")
-# cdf_file2 = NetCDFFile(data_dir + "/cdf/sstdata_netcdf.nc","r")
-# cdf_file3 = NetCDFFile(data_dir + "/cdf/Pstorm.cdf","r")
+# cdf_file1 = NetCDFFile(os.path.join(data_dir,"cdf","941110_P.cdf"),"r")
+# cdf_file2 = NetCDFFile(os.path.join(data_dir,"cdf","sstdata_netcdf.nc"),"r")
+# cdf_file3 = NetCDFFile(os.path.join(data_dir,"cdf","Pstorm.cdf"),"r")
 
 psl = cdf_file1.variables["Psl"]   
 sst = cdf_file2.variables["sst"]  

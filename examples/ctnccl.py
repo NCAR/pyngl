@@ -52,7 +52,7 @@
 #
 #  Import numpy.
 #
-import numpy
+import numpy, os
 
 #
 #  Import Ngl support functions.
@@ -68,7 +68,7 @@ import Nio
 #  Open a netCDF file containing data off the coast of North Carolina.
 #
 dirc  = Ngl.pynglpath("data")
-cfile = Nio.open_file(dirc + "/cdf/ctnccl.nc","r")
+cfile = Nio.open_file(os.path.join(dirc,"cdf","ctnccl.nc"))
 
 #
 #  Read the lat/lon/ele/depth arrays to numpy.arrays.

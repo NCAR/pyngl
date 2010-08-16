@@ -36,7 +36,7 @@
 #
 #  Import numpy.
 #
-import numpy
+import numpy, os
 
 #
 #  Import Ngl support functions.
@@ -48,7 +48,7 @@ import Ngl
 #  and additional data.
 #
 dirc     = Ngl.pynglpath("data")
-filename = dirc + "/asc/climdivcorr.txt"
+filename = os.path.join(dirc,"asc","climdivcorr.txt")
 cldata = Ngl.asciiread(filename,[345,3],"float")
 clmin = min(cldata[:,2])
 clmax = max(cldata[:,2])

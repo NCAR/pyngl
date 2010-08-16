@@ -42,7 +42,7 @@
 #
 #  Import numpy.
 #
-import numpy
+import numpy, os
 
 #
 #  Import Ngl support functions.
@@ -53,7 +53,7 @@ import Ngl
 #  Open the ASCII file.
 #  
 dirc    = Ngl.pynglpath("data")
-seismic = Ngl.asciiread(dirc + "/asc/seismic.asc" ,[52,3],"float")
+seismic = Ngl.asciiread(os.path.join(dirc,"asc","seismic.asc") ,[52,3],"float")
 
 x = numpy.array(seismic[:,0],'f')
 y = numpy.array(seismic[:,1],'f')

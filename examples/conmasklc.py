@@ -35,7 +35,7 @@
 #
 #  Import NumPy.
 #
-import numpy
+import numpy, os
 
 #
 #  Import Nio for a NetCDF reader and Ngl for plotting.
@@ -46,7 +46,7 @@ import Nio, Ngl
 # Read some variables off the file.
 #
 dirc = Ngl.pynglpath("data")
-nf   = Nio.open_file(dirc + "/cdf/meccatemp.cdf","r")
+nf   = Nio.open_file(os.path.join(dirc,"cdf","meccatemp.cdf"))
 T    = nf.variables["t"][:]
 lat  = nf.variables["lat"][:]
 lon  = nf.variables["lon"][:]

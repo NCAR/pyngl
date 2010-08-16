@@ -36,7 +36,7 @@
 #     
 
 import Ngl
-import numpy
+import numpy, os
 
 #
 #  Import Nio for a NetCDF reader.
@@ -76,7 +76,7 @@ def neg_dash_contours(contour):
 # Open netCDF file and get variables.
 #
 dirc  = Ngl.pynglpath("data")
-cdf_file = Nio.open_file(dirc + "/cdf/chi200_ud_smooth.nc","r")
+cdf_file = Nio.open_file(os.path.join(dirc,"cdf","chi200_ud_smooth.nc"))
 chi  = cdf_file.variables["CHI"]
 chi  = chi[:,:]/1e6
 lon  =  cdf_file.variables["lon"][:]
