@@ -18,7 +18,7 @@
 #    April 2008
 #
 #  Description:
-#    This example shows how to raw primitives and text using
+#    This example shows how to draw primitives and text using
 #    NDC coordinates. The draw_ndc_grid function is used as
 #    a tool to help determine which coordinates to use.
 
