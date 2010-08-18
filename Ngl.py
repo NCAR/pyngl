@@ -1746,7 +1746,11 @@ longitude -- An optional one-dimensional array, representing
 #
 # Test longitude array, if it exists.
 #
-  if(lon_coord != None):
+# In numpy 1.4.1 and later, you can't test a numpy masked
+# array for being equal to None.
+#
+  if(_is_numpy_ma(lon_coord) or \
+     (not _is_numpy_ma(lon_coord) and lon_coord != None)):
     lon_coord_dims = lon_coord.shape
     lon_coord_rank = len(lon_coord_dims)
 #
@@ -1780,7 +1784,11 @@ longitude -- An optional one-dimensional array, representing
 #
 # Add 360 to the longitude value in order to make it cyclic.
 #
-  if(lon_coord != None):
+# In numpy 1.4.1 and later, you can't test a numpy masked
+# array for being equal to None.
+#
+  if(_is_numpy_ma(lon_coord) or \
+     (not _is_numpy_ma(lon_coord) and lon_coord != None)):
     newloncoord       = numpy.zeros(nx1,lon_coord.dtype.char)
     newloncoord[0:nx] = lon_coord
     newloncoord[nx]   = lon_coord[0] + 360
