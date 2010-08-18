@@ -50,7 +50,7 @@ import Nio
 #
 dirc  = Ngl.pynglpath("data")
 data_file = "panel2.nc"
-file = Nio.open_file(os.path.join(dirc,+ "cdf","panel2.nc"),"r")
+file = Nio.open_file(os.path.join(dirc,"cdf","panel2.nc"),"r")
 fsd = file.variables["FSD"][0,:,:]  # Read some data off file.
 lat = file.variables["lat"][:]
 lon = file.variables["lon"][:]
