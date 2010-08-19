@@ -39,6 +39,13 @@
 #    The data are artificially generated with a missing
 #    value of 1.e+10 outside the contoured area.
 #     
+#    In order to get high-resolution coastlines,  you must have the 
+#    RANGS/GSHHS database installed. Otherwise, this example will
+#    revert to using medium-resolution coastlines.
+#
+#    For information on getting the RANGS/GSHHS database, see:
+#
+#        http://www.pyngl.ucar.edu/Graphics/rangs.shtml
 
 import numpy
 import os

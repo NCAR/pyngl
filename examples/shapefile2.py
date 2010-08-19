@@ -40,9 +40,7 @@
 #       tar -xf sa_str.tar
 #
 #
-#  Import numpy and os
-#
-import numpy,os
+import numpy,os,sys
 
 #
 #  Import Ngl,Nio support functions.
@@ -54,7 +52,13 @@ rlist = Ngl.Resources()
 rlist.wkColorMap = ["White","Black","Blue","SlateGray2","NavajoWhite"]
 wks = Ngl.open_wks (wks_type,"shapefile2",rlist)
 
-f = Nio.open_file("sa_str.shp", "r")   # Open shapefile
+filename = "sa_str.shp"
+if(not os.path.exists(filename)):
+  print "You do not have the necessary shapefile file(s) to run this example."
+  print "The comments at the top of this script tell you how to get the files."
+  sys.exit()
+
+f = Nio.open_file(filename, "r")   # Open shapefile
 
 #
 # Read data off shapefile

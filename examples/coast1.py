@@ -29,9 +29,10 @@
 #     installed) visualization is created.
 #
 #  Notes:
-#     You must have the RANGS/GSHHS database installed in order to be
-#     able to generate the third frame of this example. For more 
-#     information see:
+#     You must have the RANGS/GSHHS database installed in order to
+#     generate the third frame of this example.
+#
+#     For information on getting the RANGS/GSHHS database, see:
 #
 #        http://www.pyngl.ucar.edu/Graphics/rangs.shtml
 #
