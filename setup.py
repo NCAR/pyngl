@@ -63,7 +63,7 @@ except:
   sys.exit()
 
 try:
-  HAS_CAIRO = os.environ["HAS_CAIRO"]
+  HAS_CAIRO = int(os.environ["HAS_CAIRO"])
 except:
   HAS_CAIRO = 0
 
@@ -217,7 +217,7 @@ def set_ncl_libs_and_paths():
     LIBS.append('fontconfig')
     LIBS.append('pixman-1')
     LIBS.append('freetype')
-#    LIBS.append('expat')
+    LIBS.append('expat')
     try:
       PATHS.append(os.path.join(os.environ["CAIRO_PREFIX"],"lib"))
     except:
