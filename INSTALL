@@ -1,6 +1,7 @@
-
-   The latest version of this document can be found at:
-   http://www.pyngl.ucar.edu/Download/build_pyngl_from_src.shtml
+======================================================================
+The latest version of this document can be found at:
+http://www.pyngl.ucar.edu/Download/build_pyngl_from_src.shtml
+======================================================================
 
 How to build PyNGL from source code
 
@@ -8,39 +9,105 @@ PyNGL can only be built on UNIX systems. It has been successfully built
 on systems running Linux (32 or 64-bit), MacOSX (PPC or Intel),
 Windows/Cygwin, and IBMs running AIX (64-bit).
 
+This version of PyNGL was tested with Python versions 2.5.5 and 2.6.5,
+and NumPy versions 1.3.0 and 1.4.1. We have some precompiled binaries
+you can try.
+
 This document covers what external software packages you need for PyNGL
 and how to build them, and then finally how to build PyNGL.
 
-For information on building PyNIO from source code, see the "build PyNIO
-from source code <build_pynio_from_src.shtml>" document.
+------------------------------------------------------------------------
+*Table of Contents*
 
-    * Download and build external software <#BuildExternalSoftware>
+    * Compilers needed to build PyNGL <#CompilersNeeded>
+    * Set environment variables for compilers <#SetCompilerEnvVars>
+      (helpful, not required)
+    * Download and build non-optional external software <#BuildNonOptionalSoftware>
           o NCL <#NCL>
-          o X11 library <#X11Lib>
-          o PNG <#PNG>
-          o ZLIB <#ZLIB> 
+          o X11 development libraries <#X11DevLibs> 
+    * Download and build optional external software <#BuildOptionalSoftware>
+          o cairo <#cairo>
+                + libpng <#PNG>
+                + pkg-config <#pkgconfig>
+                + fontconfig <#fontconfig>
+                + FreeType <#freetype>
+                + pixman <#pixman>
+                + expat <#expat>
+                + ZLIB <#ZLIB> 
     * Download the source code for PyNGL <#GetPyNGLSourceCode>
-    * Set environment variables if necessary <#SetEnvVars>
+    * Set PyNGL-specific environment variables if necessary <#SetPyNGLEnvVars>
     * Execute the 'setup.py' script <#RunSetup> 
+    * Test PyNGL <#TestPyNGL> 
+    * How to get help <#Help> 
 
 ------------------------------------------------------------------------
+<CompilersNeeded>
+*Compilers needed to build PyNGL*
 
+You need a Fortran 77 or 90 compiler and an ANSI C compiler to build
+PyNGL. We use gcc/gfortran on Linux and Mac systems.
 
-    Download and build external software
+We recommend *not* using g77 as a Fortran compiler.
 
-/Once you download and install any external software to use with PyNGL,
+------------------------------------------------------------------------
+<SetCompilerEnvVars>
+*Set up compiler environment variables for external software*
+
+Most of the external software packages that PyNGL depends on are
+configured using a "configure" script. These "configure" scripts
+recognize a number of standard environment variables that allow you to
+set compilers and compile options.
+
+Decide what compilers and compile options you want to use, and then set
+the following environment variables as appropriate:
+
+Environ. var.  Description                   Example
+
+*CC*           C compiler                    bash/ksh: export CC=gcc
+                                             csh/tcsh: setenv CC gcc
+
+*CFLAGS*       C compile flags               bash/ksh: export CFLAGS='-O -ansi -fPIC'
+                                             csh/tcsh: setenv CFLAGS '-O -ansi -fPIC'
+
+*FC*           Fortran compiler              bash/ksh: export FC=gfortran
+                                             csh/tcsh: setenv FC gfortran
+
+*FFLAGS*       Fortran compile flags         bash/ksh: export FFLAGS='-fPIC'
+                                             csh/tcsh: setenv FFLAGS '-fPIC'
+
+*F90*          Fortran 90 compiler           bash/ksh: export FC=gfortran
+                                             csh/tcsh: setenv FC gfortran
+
+*F90FLAGS*     Fortran 90 compile flags      bash/ksh: export F90FLAGS='-fPIC'
+                                             csh/tcsh: setenv F90FLAGS '-fPIC'
+
+*CXX*          C++ compiler                  bash/ksh: export CXX=g++
+                                             csh/tcsh: setenv CXX g++
+
+*CXXFLAGS*     C++ compile flags             bash/ksh: export CXXFLAGS='-O -ansi -fPIC'
+                                             csh/tcsh: setenv CXXFLAGS '-O -ansi -fPIC'
+
+*CPPFLAGS*     preproc. compile flags        bash/ksh: export CPPFLAGS='-DNDEBUG'
+                                             csh/tcsh: setenv CXXFLAGS '-DNDEBUG'
+
+------------------------------------------------------------------------
+<BuildNonOptionalSoftware>
+*Download and build non-optional software*
+
+Once you download and install any external software to use with PyNGL,
 you must comply with the license of that software, regardless of PyNGL's
-source code license
-<http://www.pyngl.ucar.edu/Licenses/PyNGL_source_license.shtml>/.
+source code license.
 
 List of external software to install:
 
     * NCL <http://www.ncl.ucar.edu>
 
+      Download version 5.2.0 or later.
+
       See the full instructions <http://www.ncl.ucar.edu/Download/> for
       building NCL from either source code or binary. NCL is a difficult
-      package to build, so we recommend going the binary distribution
-      route if possible. Don't fret if you can't get the code in
+      package to build, so we recommend downloading a precompiled binary
+      if possible. Don't fret if you can't get the code in
       $NCARG/ni/src/ncl to build; it is not needed by PyNGL.
 
       Make sure the NCARG_ROOT environment variable is set to the root
@@ -55,35 +122,136 @@ List of external software to install:
       package, and will reside in a directory like /usr/X11R6/lib or
       /usr/X11R6/lib64.
 
-    * libpng <http://www.libpng.org/pub/png/libpng.html>
+------------------------------------------------------------------------
+<BuildOptionalSoftware>
+*Download and build optional software*
 
-      Download version 1.2.27 or later (earlier versions had a serious
-      bug).
+      *cairo software*
 
-      Once you have the libpng source code, you can build and install it
-      with:
+      If you need support for creating PNG files, then you will need to
+      download and install cairo, which has dependencies on several
+      other packages:
 
-        ./configure  --with-pic --disable-shared --prefix=/usr/local 
-        make all install
+          o *libpng <http://www.libpng.org/pub/png/libpng.html>*
 
-    * zlib <http://www.zlib.net/> - needed for both PyNGL and PyNIO.
+            Download version 1.2.27 (earlier versions had a serious bug)
+            or later
 
-      Download version 1.2.3 or later.
+            Once you have the libpng source code, you can build and
+            install it with:
 
-      Once you have the zlib source code, you can build and install it
-      with:
+              ./configure  --with-pic --prefix=/usr/local 
+              make all install
 
-        ./configure --prefix=/usr/local
-        make all install
+          o pkg-config <http://pkgconfig.freedesktop.org/releases/> -
+            Download version 0.23 or later.
+
+            Once you have the pkg-config source code, you can build and
+            install it with:
+
+              ./configure --prefix=/usr/local
+              make all install
+
+            Make sure that the location of pkg-config is on your search
+            path and library path. For example, if you installed
+            pkg-config to "/usr/local", then you also need to do the
+            following:
+
+            From tcsh or csh:
+
+              setenv PKG_CONFIG_PATH /usr/local/lib/pkgconfig
+              setenv LD_LIBRARY_PATH /usr/local/cairo/lib
+              set path=(/usr/local/bin $path)
+
+            From ksh or bash:
+
+              export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+              export LD_LIBRARY_PATH=/usr/local/cairo/lib
+              export PATH=/usr/local/bin:$PATH
+
+            [On a Mac, use DYLD_LIBRARY_PATH instead of LD_LIBRARY_PATH.]
+
+          o fontconfig <http://fontconfig.org/release/> - Download
+            version 2.8.0 or later.
+
+            Once you have the fontconfig source code, you can build and
+            install it with:
+
+              ./configure --prefix=/usr/local
+              make all install
+
+          o FreeType <http://freetype.sourceforge.net/index2.html> -
+            Download version 2.3.11 or later.
+
+            Once you have the FreeType source code, you can build and
+            install it with:
+
+              ./configure --prefix=/usr/local
+              make all install
+
+          o pixman <http://cairographics.org/releases/> - Download
+            version 0.16.4 or later.
+
+            Once you have the pixman source code, you can build and
+            install it with:
+
+              ./configure --prefix=/usr/local
+              make all install
+
+          o Expat <http://sourceforge.net/projects/expat/> - Download
+            version 2.0.1 or later.
+
+            This software may not be needed, but the instructions are
+            here in case you need expat to get cairo support into PyNGL.
+
+            Once you have the expat source code, you can build and
+            install it with:
+
+              ./configure --prefix=/usr/local
+              make all install
+
+          o cairo <http://cairographics.org/releases/> - Download
+            version 1.8.8 or later.
+
+            You can't build cairo until you have installed fontconfig,
+            FreeType, pixman, and pkg-config.
+
+            Make sure the "pkg-config" you built is on your search path.
+            For example, if you installed it to /usr/local, then
+            /usr/local/bin needs to be in your search path.
+
+            From tcsh or csh:
+
+              setenv PATH /usr/local/bin:$PATH
+              which pkg-config
+
+            From ksh or bash:
+
+              export PATH=/usr/local/bin:$PATH
+              which pkg-config
+
+            Once you have the cairo source code, you can build and
+            install it with:
+
+              ./configure --prefix=/usr/local
+              make all install
+
+          o zlib <http://www.zlib.net/> - needed for cairo support
+
+            Download version 1.2.3 or later.
+
+            Once you have the zlib source code, you can build and
+            install it with:
+
+              ./configure --prefix=/usr/local
+              make all install
 
 ------------------------------------------------------------------------
-
-
-    Download the source code for PyNGL
+<GetPyNGLSourceCode>
+*Download the source code for PyNGL*
 
 Accessing, downloading, and/or using PyNGL implies acceptance of the
-PyNGL source code license
-<http://www.pyngl.ucar.edu/Licenses/PyNGL_source_license.shtml>.
+PyNGL source code license.
 
 To download the PyNGL source code, follow the instructions at the URL:
 
@@ -101,48 +269,102 @@ uncompress and untar the file as follows:
 The above steps will create a directory called "PyNGL-1.3.1".
 
 ------------------------------------------------------------------------
+<SetPyNGLEnvVars>
+*Set PyNGL-specific environment variables if necessary*
 
+To build PyNGL, at a minimum, you must set the NCARG_ROOT environment
+variable to the root directory of where NCL was installed.
 
-    Set environment variables if necessary
+If you optionally want cairo support, then you need to set HAS_CAIRO to 1:
 
-To build PyNGL, you must set the NCARG_ROOT environment variable to the
-root directory of where NCL was installed.
+  setenv HAS_CAIRO 1
 
-To help PyNGL locate the png and zlib software, you may need to set the
-corresponding environment variables to the root directory of that
-installed software:
+or
 
-PNG_PREFIX
-ZLIB_PREFIX
+  export HAS_CAIRO=1
+
+You may need to set additional environment variables to help the PyNGL
+source find necessary external software:
+
+  PNG_PREFIX
+  ZLIB_PREFIX
+  CAIRO_PREFIX
+  FREETYPE_PREFIX
 
 You only need to set one of these if the paths are all the same.
 
-You may need to help the PyNGL installation find the location of any
-system Fortran libraries needed to resolve symbols between C and Fortran
-code. For example, "-lgfortran" is needed if you built the software with
-gfortran, or "-lg2c" if g77 was used, and "-lf95" for g95. Use F2CLIBS
-to indicate the library name (don't include the "-l", and F2CLIBS_PREFIX
-to point to the location. For example:
+Finally, you may need to help the PyNGL installation find the location
+of any system Fortran libraries needed to resolve symbols between C and
+Fortran code. For example, "-lgfortran" is needed if you built the
+software with gfortran, or "-lg2c" if g77 was used, and "-lf95" for g95.
+Use F2CLIBS to indicate the library name (don't include the "-l", and
+F2CLIBS_PREFIX to point to the location. For example:
 
-setenv F2CLIBS gfortran
-setenv F2CLIBS_PREFIX /usr/local/lib
+  setenv F2CLIBS gfortran
+  setenv F2CLIBS_PREFIX /usr/local/lib
+
+or
+
+  export F2CLIBS=gfortran
+  export F2CLIBS_PREFIX=/usr/local/lib
 
 ------------------------------------------------------------------------
-
-
-    Execute the 'setup.py' script
+<RunSetup> 
+*Execute the 'setup.py' script*
 
 Type:
 
-python setup.py install
+  python setup.py install
 
-to build and install PyNGL. Go back to the "test software
-<index.shtml#TestSoftware>" section in the download section for
-information on testing PyNGL.
+to build and install PyNGL.
+
+------------------------------------------------------------------------
+<TestSetup> 
+*Test PyNGL*
+
+You can quickly test PyNGL by running python and importing Ngl:
+
+import Ngl
+
+For more extensive PyNGL tests, you can run any one of the examples in
+the PyNGL gallery <https://www.pyngl.ucar.edu/Examples/gallery.shtml>
+by typing:
+
+   pynglex example_name
+
+For example:
+
+   pynglex ngl01p
+
+Note that some of these examples depend on PyNIO, and will not run
+unless you install PyNIO, or use another package to read in the data
+files.
+
+For a list of all the examples, type:
+
+   pynglex -l
+
+The default for most of these examples is to send the output to a
+PostScript file using the example name, with a ".ps" appended. To
+change the output to an X11 window, PNG, or PDF file, use the "-w"
+option:
+
+   pynglex -w x11 ngl01p
+   pynglex -w pdf ngl01p
+   pynglex -w png ngl01p
+
+Note that if the output file contains multiple frames and you are
+sending the output to an X11 window, you need to click on the window
+with your left mouse button to advance the next frame. Or, you can
+position your mouse over the window and hit <RETURN>.
+
+------------------------------------------------------------------------
+<Help> 
+*How to get help*
 
 If you have problems, send email to pyngl-talk
 <http://mailman.ucar.edu/mailman/listinfo/pyngl-talk> (you must be a
-member to post). We will add a trouble-shooting guide once we see what
-kind of problems people have.
+member to post).
 
+------------------------------------------------------------------------
 

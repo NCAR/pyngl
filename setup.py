@@ -21,14 +21,10 @@
 # support. You must have a version of NCAR Graphics that has
 # this support as well, in order for this to work.
 
-# To indicate PNG and/or CAIRO support, set the corresponding
-# environment variables to 1:
+# To include CAIRO support, set the HAS_CAIRO environment variable to 1.
 #
-#    HAS_CAIRO
-#    HAS_PNG
-#
-# Furthermore, you must indicate the locations of the png/zlib and/or
-# cairo/freetype software with the following environment variables:
+# Furthermore, you must indicate the locations of the cairo, freetype,
+# png, or zlib software with the following environment variables:
 #
 #  PNG_PREFIX
 #  ZLIB_PREFIX
@@ -65,11 +61,6 @@ try:
 except:
   print "NCARG_ROOT is not set; can't continue!"
   sys.exit()
-
-try:
-  HAS_PNG = int(os.environ["HAS_PNG"])
-except:
-  HAS_PNG = 0
 
 try:
   HAS_CAIRO = os.environ["HAS_CAIRO"]
@@ -236,9 +227,9 @@ def set_ncl_libs_and_paths():
     except:
       pass
 
-# Add extra libraries if PNG support is desired. You must link
-# against a PNG-enabled version of the NCAR Graphics libraries.
-  if HAS_PNG > 0 or HAS_CAIRO > 0:
+# Add extra libraries if cairo support is desired. You must link
+# against a cairo-enabled version of the NCAR Graphics libraries.
+  if HAS_CAIRO > 0:
     LIBS.append('png')
     LIBS.append('z')
     try:
@@ -267,7 +258,7 @@ def set_include_paths():
 # Location of numpy's "arrayobject.h".
   PATHS.insert(0,numpy.get_include())
 
-  if HAS_PNG > 0 or HAS_CAIRO > 0:
+  if HAS_CAIRO > 0:
     try:
       PATHS.append(os.path.join(os.environ["PNG_PREFIX"],"include"))
     except:
