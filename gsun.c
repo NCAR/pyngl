@@ -1862,6 +1862,70 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
 }
 
 /*
+ * This function uses the HLUs to create a blank plot.
+ */
+
+nglPlotId blank_plot_wrap(int wks, ResInfo *blank_res, nglRes *special_res)
+{
+  int loglin, grlist, blank_rlist;
+  nglPlotId plot;
+
+/*
+ * Set resource ids.
+ */
+  blank_rlist  = blank_res->id;
+
+/*
+ * Create loglin plot.
+ */
+  NhlCreate(&loglin,"blank",NhllogLinPlotClass,wks,blank_rlist);
+
+/*
+ * Make sure LogLin object is valid before moving on.
+ */
+  if(loglin > 0) {
+/*
+ * Make tickmarks and axis labels the same size.
+ */
+    if(special_res->nglScale) scale_plot(loglin,blank_res,0);
+
+/*
+ * Point tickmarks outward if requested specifically by user.
+ */
+    if(special_res->nglPointTickmarksOutward) {
+      point_tickmarks_out(loglin,blank_res);
+    }
+  }
+  else {
+    loglin = -1;
+  }
+/*
+ * Initialize plot ids.
+ */
+  initialize_ids(&plot);
+  plot.base = (int *)malloc(sizeof(int));
+  if(loglin > 0) {
+    *(plot.base) = loglin;
+    plot.nbase   = 1;
+/*
+ * Draw blank plot and advance frame.
+ */
+    if(special_res->nglDraw)  NhlDraw(loglin);
+    if(special_res->nglFrame) NhlFrame(wks);
+  }
+  else {
+/*
+ * We have an invalid LogLin object!
+ */
+    *(plot.base) = -1;
+  }
+/*
+ * Return.
+ */
+  return(plot);
+}
+  
+/*
  * This function uses the HLUs to create a contour plot.
  */
 
@@ -2110,7 +2174,6 @@ nglPlotId y_wrap(int wks, void *y, const char *type_y, int ndims_y,
  */
   return(xy);
 }
-
 
 /*
  * This function uses the HLUs to create a vector plot.
@@ -3179,7 +3242,7 @@ nglPlotId labelbar_ndc_wrap(int wks, int nbox, NhlString *labels,
 /*
  * Allocate a variable to hold the labelbar object, and create it.
  */
-  labelbar_object = (int*)malloc(sizeof(int));
+  *labelbar_object = (int*)malloc(sizeof(int));
 
   NhlRLSetFloat(lb_rlist,"vpXF",*xf);
   NhlRLSetFloat(lb_rlist,"vpYF",*yf);
@@ -3282,7 +3345,7 @@ void poly_wrap(int wks, nglPlotId *plot, void *x, void *y,
 {
   int i, gsid, newlen, *indices, ibeg, iend, nlines, color;
   int srlist, grlist;
-  float *xf, *yf, *xfnew, *yfnew, *xfmsg, *yfmsg;
+  float *xf, *yf, *xfnew, *yfnew, *xfmsg, *yfmsg, thickness;
   int gs_rlist;
 
 /*
@@ -3360,10 +3423,12 @@ void poly_wrap(int wks, nglPlotId *plot, void *x, void *y,
           grlist = NhlRLCreate(NhlGETRL);
           NhlRLClear(grlist);
           NhlRLGetInteger(grlist,"gsLineColor",&color);
+          NhlRLGetFloat(grlist,"gsLineThicknessF",&thickness);
           NhlGetValues(gsid,grlist);
           
           NhlRLClear(srlist);
           NhlRLSetInteger(srlist,"gsMarkerColor",color);
+          NhlRLSetFloat(srlist,"gsMarkerThicknessF",thickness);
           NhlSetValues(gsid,srlist);
           
           if(plot->base == NULL) {
@@ -3426,8 +3491,8 @@ nglPlotId add_poly_wrap(int wks, nglPlotId *plot, void *x, void *y,
   float *xf, *yf, *xfnew, *yfnew, *xfmsg, *yfmsg;
   char *astring;
   nglPlotId poly;
-  int gs_rlist, srlist, grlist, canvas;
-  float vpx, vpy, vpw, vph;
+  int gs_rlist, srlist, grlist, canvas, color;
+  float vpx, vpy, vpw, vph, thickness;
 
 /*
  * Set resource ids.
@@ -3562,6 +3627,12 @@ nglPlotId add_poly_wrap(int wks, nglPlotId *plot, void *x, void *y,
  * we need to create a marker.
  */
         if(iend == ibeg) {
+          grlist = NhlRLCreate(NhlGETRL);
+
+          NhlRLClear(grlist);
+          NhlRLGetInteger(grlist,"gsLineColor",&color);
+          NhlRLGetFloat(grlist,"gsLineThicknessF",&thickness);
+          NhlGetValues(gsid,grlist);
 /*
  * Create primitive object.
  */
@@ -3571,6 +3642,13 @@ nglPlotId add_poly_wrap(int wks, nglPlotId *plot, void *x, void *y,
           NhlRLSetInteger(pr_rlist,"prGraphicStyle", gsid);
           NhlCreate(&primitive_object[i],astring,NhlprimitiveClass,wks,
                     pr_rlist);
+
+          srlist = NhlRLCreate(NhlSETRL);
+          NhlRLClear(srlist);
+          NhlRLSetInteger(srlist,"gsMarkerColor",color);
+          NhlRLSetFloat(srlist,"gsMarkerThicknessF",thickness);
+          NhlSetValues(gsid,srlist);
+          
         }
         else {
           npts = iend - ibeg + 1;

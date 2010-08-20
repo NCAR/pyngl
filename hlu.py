@@ -184,6 +184,7 @@ c_plchhq = _hlu.c_plchhq
 open_wks_wrap = _hlu.open_wks_wrap
 labelbar_ndc_wrap = _hlu.labelbar_ndc_wrap
 legend_ndc_wrap = _hlu.legend_ndc_wrap
+blank_plot_wrap = _hlu.blank_plot_wrap
 contour_wrap = _hlu.contour_wrap
 map_wrap = _hlu.map_wrap
 contour_map_wrap = _hlu.contour_map_wrap

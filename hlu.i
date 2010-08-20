@@ -2903,6 +2903,7 @@ extern nglPlotId legend_ndc_wrap(int, int, NhlString *, int, void
                                  const char *, const char *, 
                                  ResInfo *rlist, nglRes *rlist);
 
+extern nglPlotId blank_plot_wrap(int, ResInfo *rlist, nglRes *rlist);
 extern nglPlotId contour_wrap(int, void *sequence_as_void, 
                             const char *, int, int,
                             int, void *, const char *, int, void *, 
@@ -3195,6 +3196,7 @@ extern NhlErrorTypes NglGaus_p(int num, int nxir, int nyir, double *p_array_doub
                            void *sequence_as_void, const char *,
                            const char *, ResInfo *rlist, nglRes *rlist);
 
+%newobject  blank_plot_wrap(int, ResInfo *rlist, nglRes *rlist);
 %newobject  contour_wrap(int, void *sequence_as_void, 
                             const char *, int, int,
                             int, void *, const char *, int, void *, 

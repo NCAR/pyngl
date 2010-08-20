@@ -2179,6 +2179,63 @@ type -- An optional argument specifying the type of the data you are
 
 ################################################################
 
+def blank_plot(wks,rlistc=None):
+  """
+Creates and draws a blank plot, and returns a PlotId representing the 
+plot created.
+
+blankplot = Ngl.blank_plot(wks, res=None)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+res -- An (optional) instance of the Resources class having PyNGL
+       resources as attributes.
+  """
+  _set_spc_defaults(1)
+
+  rlist = _crt_dict(rlistc)  
+ 
+#
+#  Separate the resource dictionary into those resources
+#  that apply to various lists.
+#
+  bp_rlist  = {}
+
+# For a blank plot, we usually don't want to draw it or advance the frame.
+  if not rlist.has_key("nglDraw"):
+    rlist["nglDraw"] = False
+
+  if not rlist.has_key("nglFame"):
+    rlist["nglFrame"] = False
+
+  for key in rlist.keys():
+    rlist[key] = _convert_from_ma(rlist[key])
+    if(key[0:3] == "ngl"):
+      _set_spc_res(key[3:],rlist[key])      
+    else:
+      bp_rlist[key] = rlist[key]
+
+  _set_tickmark_res(rlist,bp_rlist)      # Set some addtl tickmark resources
+
+  if not rlist.has_key("pmTickMarkDisplayMode"):
+    bp_rlist["pmTickMarkDisplayMode"] = "Always"
+
+  if not rlist.has_key("pmTitleDisplayMode"):
+    bp_rlist["pmTitleDisplayMode"] = "Always"
+
+#
+#  Call the wrapped function and return.
+#
+  ibp = blank_plot_wrap(wks,bp_rlist,pvoid())
+
+  del rlist
+  del bp_rlist
+
+# ret.xy and ret.base will be None if XY plot is invalid.
+  return(_lst2pobj(ibp))
+
+################################################################
+
 def change_workstation(obj,wks):
   """
 Changes the workstation that plots will be drawn to.

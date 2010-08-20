@@ -259,6 +259,8 @@ extern int open_wks_wrap(const char *, const char *, ResInfo *, ResInfo *,
  * Plotting routines.
  */
 
+extern nglPlotId blank_plot_wrap(int, ResInfo *, nglRes *);
+
 extern nglPlotId contour_wrap(int, void *, const char *, int, int, 
                               int, void *, const char *, int, void *, 
                               const char *, int, void *, ResInfo *,
