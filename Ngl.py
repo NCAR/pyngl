@@ -8,10 +8,10 @@ NCL Graphics Libraries," and it is pronounced "pingle."
 
 __all__ = ['add_annotation', 'add_cyclic', 'add_new_coord_limits', \
            'add_polygon', 'add_polyline', 'add_polymarker', 'add_text', \
-           'asciiread', 'betainc', 'change_workstation', 'chiinv', \
-           'clear_workstation', 'contour', 'contour_map', 'datatondc', \
-           'define_colormap', 'delete_wks', 'destroy', 'draw', \
-           'draw_colormap', 'draw_ndc_grid', 'end', 'frame', \
+           'asciiread', 'betainc', 'blank_plot', 'change_workstation', \
+           'chiinv', 'clear_workstation', 'contour', 'contour_map', \
+           'datatondc', 'define_colormap', 'delete_wks', 'destroy', \
+           'draw', 'draw_colormap', 'draw_ndc_grid', 'end', 'frame', \
            'free_color', 'fspan', 'ftcurv', 'ftcurvp', 'ftcurvpi', \
            'gaus', 'gc_convert', 'gc_dist', 'gc_interp', 'gc_qarea', \
            'gc_tarea', 'generate_2d_array', 'get_MDfloat_array', \
@@ -88,6 +88,269 @@ try:
   HAS_MA = True
 except:
   HAS_MA = False
+
+#
+# This function calculates where two lines cross each other.
+#
+def _find_cross_xy(x1,x2,y11,y12,y21,y22):
+  if((x2-x1) == 0 or (y12-y11+y21-y22) == 0):
+    x0 = -9999
+    y0 = -9999
+  else:
+    x0 = (x2*y21 - x2*y11 + x1*y12 - x1*y22)/(y12-y11+y21-y22)
+    y0 = (y11*y22 - y12*y21) / (y11-y12+y22-y21)
+  return [x0,y0]
+
+
+#
+# This function takes "n" Y or X curves, defined on the same set of X
+# or Y points, and fills the area between each adjacent curves with
+# some given color. Depending on options set by the user, the areas
+# between curves can be filled differently if one is greater than
+# another.
+#
+def _fill_bw_xy(wks,plot,xx,yy,res):
+#
+# Determine whether we're filling between Y curves or X curves.
+#
+  ndimsx = xx.shape
+  ndimsy = yy.shape
+  rankx  = len(ndimsx)
+  ranky  = len(ndimsy)
+
+  if(rankx == 1 and ranky == 2):
+    fill_x = False
+    xi = xx
+    yi = yy
+  else:
+    if(rankx == 2 and ranky == 1):
+      fill_x = True
+      xi = yy
+      yi = xx
+    else:
+      print("_fill_bw_xy: Error: If filling between two curves, one set must be 2D, and the other 1D.")
+      return plot
+
+# Check length of arrays.
+  dsizes_y = yi.shape
+  npts     = xi.shape[0]
+  ncurves  = dsizes_y[0]
+
+  if(dsizes_y[1] != npts):
+    print("_fill_bw_xy: Error: The rightmost dimension of both arrays must be the same.")
+    return plot
+
+  if(ncurves <= 1):
+    print("_fill_bw_xy: Error: The leftmost dimension of input array must be at least 2.")
+    return plot
+
+  if( not res.has_key("nglXYFillColors") and  \
+      not res.has_key("nglXYAboveFillColors") and  \
+      not res.has_key("nglXYBelowFillColors") and  \
+      not res.has_key("nglXYRightFillColors") and  \
+      not res.has_key("nglXYLeftFillColors")):
+    return plot     # No resources set, so just return.
+  
+#
+# Check resources. There are five possible resources:
+#    nglXYFillColors
+#    nglXYAboveFillColors
+#    nglXYBelowFillColors
+#    nglXYRightFillColors
+#    nglXYLeftFillColors
+#
+# If the first one is set, it overwrites the others. If
+# none of them are set, then no fill color will be used.
+#
+# To make things a little easier, above==right and below==left
+#
+  if(res.has_key("nglXYFillColors")):
+    above_fill_colors = _get_key_value_keep(res,"nglXYFillColors",[-1])
+    below_fill_colors = above_fill_colors
+  else:
+    if(fill_x):
+      above_fill_colors = _get_key_value_keep(res,"nglXYRightFillColors",[-1])
+      below_fill_colors = _get_key_value_keep(res,"nglXYLeftFillColors",[-1])
+    else:
+      above_fill_colors = _get_key_value_keep(res,"nglXYAboveFillColors",[-1])
+      below_fill_colors = _get_key_value_keep(res,"nglXYBelowFillColors",[-1])
+      
+  nacol = len(above_fill_colors)
+  nbcol = len(below_fill_colors)
+
+#
+# Make a copy of the input arrays. Not sure if I need this.
+#
+  x  = xi
+  y  = yi
+
+#
+# Create arrays for storing polygon points.
+#
+  first     = numpy.zeros(2,'f')
+  last      = numpy.zeros(2,'f')
+  polygon_x = numpy.zeros(2*npts+3,'f')
+  polygon_y = numpy.zeros(2*npts+3,'f')
+
+#
+# Loop through each set of two curves, filling them as we go.
+#
+  gsres = Resources()
+  plot.polygon = []
+
+  xmsg = _get_fill_value(xi)
+  ymsg = _get_fill_value(yi)
+
+  for n in range(0,ncurves-1):
+    y1 = yi[n,:]    # Grab the current curve
+    y2 = yi[n+1,:]  # and the next curve.
+  
+    iacol = n % nacol
+    ibcol = n % nbcol
+#
+# Compute a delta that will be used to determine if two points are
+# actually the same point. 
+#
+    range_y1 = max(y1) - min(y1)
+    range_y2 = max(y2) - min(y2)
+
+    delta_y1 = 0.01 * range_y1
+    delta_y2 = 0.01 * range_y2
+    if(delta_y1 == 0):
+      delta = delta_y2
+    elif(delta_y2 == 0):
+      delta = delta_y1
+    else:
+      delta = min([delta_y1,delta_y2])
+      
+    npoly = 0     # Number of polygons
+#
+# First fill in polygons where y1 is above y2, and then fill in
+# polygons where y2 is above y1.
+#
+    for ab in range(0,2):
+      gsres.gsFillColor = above_fill_colors[iacol]
+      if(ab == 1):
+        y1 = yi[n+1,:]
+        y2 = yi[n,:]
+# Color for when first curve is > second curve
+        gsres.gsFillColor = below_fill_colors[ibcol]
+#
+# Get areas where y1 > y2.
+#
+      y1_gt_y2 = numpy.ma.where(y1 > y2, True, False)
+      msg      = _get_fill_value(y1_gt_y2)
+
+      bpt = -1    # Index of first point of polygon.
+      ept = -1    # Index of last point of polygon.
+#
+# Loop through points.
+#
+      for i in range(0,npts):
+        if(bpt < 0):
+          if y1_gt_y2[i]:
+            bpt = i
+            ept = i
+        else:
+          if y1_gt_y2[i]:
+            ept = i
+          
+          if(not y1_gt_y2[i] or ept == (npts-1)):
+#
+# Draw polygon. If bpt is the very first point or ept is the
+# very last point, then these are special cases we have to
+# handle separately.
+#
+            if(bpt == 0 or (bpt > 0 and (_ismissing(y1[bpt-1],ymsg) or \
+                                         _ismissing(y2[bpt-1],ymsg) or \
+                                         _ismissing(x[bpt-1],xmsg)))):
+              first[0] =  x[bpt]
+              first[1] =  y2[bpt]
+            else:
+              if(numpy.fabs(y1[bpt-1]-y2[bpt-1]) <= delta):
+#
+# If the two points are within delta of each other, then we'll
+# consider them to be the same point.
+#
+                first[0] =   x[bpt-1]
+                first[1] =  y1[bpt-1]
+              else:
+#
+# Otherwise, find the intersection where the two curves cross.
+#
+                first = _find_cross_xy(x[bpt-1],x[bpt],y1[bpt-1], \
+                                       y1[bpt],y2[bpt-1],y2[bpt])
+            
+            if(ept == (npts-1) or (ept < (npts-1) and \
+               (_ismissing(y1[ept+1],ymsg) or \
+                _ismissing(y2[ept+1],ymsg) or \
+                _ismissing(x[ept+1],xmsg)))):
+              last[0] =   x[ept]
+              last[1] =  y2[ept]
+            else:
+              if(numpy.fabs(y1[ept+1]-y2[ept+1]) <= delta):
+#
+# If the two points are within delta of each other, then we'll
+# consider them to be the same point.
+#
+                last[0] =   x[ept+1]
+                last[1] =  y1[ept+1]
+              else:
+#
+# Otherwise, find the intersection where the two curves cross.
+#
+                last = _find_cross_xy(x[ept],x[ept+1],y1[ept],y1[ept+1], \
+                                     y2[ept],y2[ept+1])
+#
+# Initialize polygon indexes.
+#
+            ppts  = ept - bpt + 1
+            ppts2 = ppts * 2
+# The start of the "forward" points.
+            polygon_x[0]              = first[0]
+            polygon_y[0]              = first[1]
+# The "forward" points.
+            polygon_x[1:ppts+1]       = x[bpt:ept+1]
+            polygon_y[1:ppts+1]       = y1[bpt:ept+1]
+# The start of the "backwards" points.
+            polygon_x[ppts+1]         = last[0]
+            polygon_y[ppts+1]         = last[1]
+# The "backwards" points.
+            if bpt == 0:
+              polygon_y[ppts+2:ppts2+2] = y2[ept::-1]
+              polygon_x[ppts+2:ppts2+2] = x[ept::-1]
+            else:
+              polygon_y[ppts+2:ppts2+2] = y2[ept:bpt-1:-1]
+              polygon_x[ppts+2:ppts2+2] = x[ept:bpt-1:-1]
+# Close the polygon.
+            polygon_x[ppts2+2]        = first[0]
+            polygon_y[ppts2+2]        = first[1]
+#
+# Make sure polygons get drawn *after* the plot gets drawn.
+#
+            if(npoly == 0):
+              tmpres = Resources()
+              tmpres.tfPolyDrawOrder = "Predraw"
+              set_values(plot,tmpres)
+#
+# Add polygon to XY plot. It won't get drawn until plot is drawn.
+#
+            if(fill_x):
+              plot.polygon.append(add_polygon(wks,plot, \
+                                              polygon_y[0:ppts2+3], \
+                                              polygon_x[0:ppts2+3],gsres))
+            else:
+              plot.polygon.append(add_polygon(wks,plot, \
+                                              polygon_x[0:ppts2+3], \
+                                              polygon_y[0:ppts2+3],gsres))
+#
+# Advance polygon counter.
+#
+            npoly = npoly + 1
+            bpt = -1            # Reinitialize
+            ept = -1
+          
+  return plot
 
 #
 # I copied this from Nio.py
@@ -292,6 +555,17 @@ def _get_arr_and_force_fv(arr,default_msg=1.e20):
 def _get_res_value_keep(res, attrname,default):
   if hasattr(res,attrname):
     return(getattr(res,attrname))
+  else:
+    return(default)
+
+#
+# Determine if a variable has a key. If so,
+# return that key's value. Otherwise, return
+# the default value given.
+#
+def _get_key_value_keep(res, keyname,default):
+  if res.has_key(keyname):
+    return(res[keyname])
   else:
     return(default)
 
@@ -858,7 +1132,7 @@ def _pynglpath_ncarg():
 def _lst2pobj(lst):
 #
 #  Converts a list of object ids returned from a plotting function
-#  to a PlotIds object with attrubutes.
+#  to a PlotIds object with attributes.
 #
 #  A Python list of PlotIds is in the order:
 #
@@ -7046,17 +7320,33 @@ res -- An (optional) instance of the Resources class having PyNGL
 #  Separate the resource dictionary into those resources
 #  that apply to various lists.
 #
-  ca_rlist  = {}
-  xy_rlist  = {}
-  xyd_rlist = {}
+  ca_rlist   = {}
+  xy_rlist   = {}
+  xyd_rlist  = {}
+  fill_rlist = {}
 
 # Set missing value resources, if necessary
   _set_msg_val_res(rlist,xar_fill_value,"xy_x")
   _set_msg_val_res(rlist,yar_fill_value,"xy_y")
 
+# Set list of special fill attributes
+  fill_attrs = ['nglXYAboveFillColors','nglXYBelowFillColors', \
+                'nglXYRightFillColors','nglXYLeftFillColors',  \
+                'nglXYFillColors']
+  fill_xy = False
   for key in rlist.keys():
     rlist[key] = _convert_from_ma(rlist[key])
-    if (key[0:2] == "ca"):
+#---Test for special fill attributes
+    if key in fill_attrs:
+      fill_xy         = True
+      if type(rlist[key]) == type(" ") or type(rlist[key]) == type(1):
+        fill_rlist[key] = [rlist[key]]    # Make sure it's a list.
+      else:
+        fill_rlist[key] = rlist[key]
+      _set_spc_res('Frame',False)
+      _set_spc_res('Draw',False)
+      
+    elif (key[0:2] == "ca"):
       ca_rlist[key] = rlist[key]
     elif (key[0:2] == "xy"):
       if (key[0:4] == "xyCo"):
@@ -7075,19 +7365,32 @@ res -- An (optional) instance of the Resources class having PyNGL
       xy_rlist[key] = rlist[key]
 
 #
-#  Call the wrapped function and return.
+# Call the wrapped function.
 #
   ixy = xy_wrap(wks,xar2,yar2,"double","double",ndims_x,dsizes_x,ndims_y, \
                     dsizes_y,0,0,pvoid(),pvoid(),ca_rlist,xy_rlist,xyd_rlist,
                     pvoid())
+
+  rval = _lst2pobj(ixy)
+
+#---Check if we need to fill between curves.
+  if fill_xy and rval != None:
+    rval = _fill_bw_xy(wks,rval,xar,yar,fill_rlist)
+
+    if (rlist.has_key("nglDraw") and rlist["nglDraw"]) or \
+       not rlist.has_key("nglDraw"):
+      draw(rval.xy)
+    if (rlist.has_key("nglFrame") and rlist["nglFrame"]) or \
+       not rlist.has_key("nglFrame"):
+      frame(wks)
 
   del rlist
   del ca_rlist
   del xy_rlist
   del xyd_rlist
 
-# ret.xy and ret.base will be None if XY plot is invalid.
-  return(_lst2pobj(ixy))
+# rval.xy and rval.base will be None if XY plot is invalid.
+  return(rval)
 
 ################################################################
 
