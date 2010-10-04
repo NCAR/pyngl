@@ -3242,7 +3242,7 @@ nglPlotId labelbar_ndc_wrap(int wks, int nbox, NhlString *labels,
 /*
  * Allocate a variable to hold the labelbar object, and create it.
  */
-  *labelbar_object = (int*)malloc(sizeof(int));
+  labelbar_object = (int*)malloc(sizeof(int));
 
   NhlRLSetFloat(lb_rlist,"vpXF",*xf);
   NhlRLSetFloat(lb_rlist,"vpYF",*yf);
