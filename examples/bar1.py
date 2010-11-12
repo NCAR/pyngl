@@ -232,8 +232,10 @@ world_series = {
                 2006 : ["SLC", "DT"], \
                 2007 : ["BRS", "CRo"], \
                 2008 : ["PPh", "TBR"], \
-                2009 : ["NYY", "Pph"] \
+                2009 : ["NYY", "Pph"], \
+                2010 : ["SFG", "TR"] \
            }
+
 #
 # Count the number of times each team has won or lost and store
 # in an array.
@@ -323,7 +325,7 @@ res.trXMinF               = 0              # Minimum value on X axis.
 res.trYMaxF               = max(y_win)+1   # Maximum value on Y axis.
 res.trXMaxF               = max(x_win)+1   # Maximum value on X axis.
   
-res.tiXAxisString          = "World Series Wins through " + str(max_year)
+res.tiXAxisString          = "# of World Series Wins through " + str(max_year)
 res.tiXAxisFontHeightF     = 0.03
 
 res.nglFrame              = False          # Don't advance frame.
@@ -377,7 +379,7 @@ bar_width = bar_width_perc * dx               # Bar width.
 
 res.trYMaxF               = max(y_lose)+1   # Maximum value on Y axis.
 res.trXMaxF               = max(x_lose)+1   # Maximum value on X axis.
-res.tiXAxisString         = "World Series Losses through " + str(max_year)
+res.tiXAxisString         = "# of World Series Losses through " + str(max_year)
 
 #
 # Loop through each value, and create and draw a bar for it.
