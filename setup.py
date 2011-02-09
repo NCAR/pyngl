@@ -43,6 +43,7 @@
 #  F2CLIBS gfortran
 #  F2CLIBS_PREFIX /sw/lib
 #
+import os, sys
 
 # Test to make sure we actually have NumPy.
 try:
@@ -50,8 +51,6 @@ try:
 except ImportError:
   print "Error: Cannot import NumPy. Can't continue."
   sys.exit()
-
-import os, sys
 
 #
 # Tests for environment variables.
