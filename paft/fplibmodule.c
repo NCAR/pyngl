@@ -20,6 +20,8 @@ extern void NGCALLF(vinth2p,VINTH2P)(double *, double *, double *, double *,
                                      int *, double *, double *, int *,
                                      int *, int *, int *, int *, int *);
 
+extern int NGCALLF(gcinout,GCINOUT)(double*,double*,double*,double*,
+                                     int*,double*);
 /*
  * t_output_helper concatenates objects.  That is, 
  * if you have two objects "obj1" and "obj2" 
@@ -64,11 +66,13 @@ static PyObject* t_output_helper(PyObject* target, PyObject* o) {
 #include "chiinvP.c"
 #include "linmsgP.c"
 #include "reglineP.c"
+#include "sgtoolsP.c"
 #include "vinth2pP.c"
 
 static PyMethodDef fplib_methods[] = {     
     {"betainc", (PyCFunction)fplib_betainc, METH_VARARGS},
     {"chiinv",  (PyCFunction)fplib_chiinv,  METH_VARARGS},
+    {"gc_inout", (PyCFunction)fplib_gc_inout, METH_VARARGS},
     {"linmsg",  (PyCFunction)fplib_linmsg,  METH_VARARGS},
     {"regline", (PyCFunction)fplib_regline, METH_VARARGS},
     {"vinth2p", (PyCFunction)fplib_vinth2p, METH_VARARGS},

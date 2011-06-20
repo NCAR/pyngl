@@ -12,8 +12,8 @@ __all__ = ['add_annotation', 'add_cyclic', 'add_new_coord_limits', \
            'chiinv', 'clear_workstation', 'contour', 'contour_map', \
            'datatondc', 'define_colormap', 'delete_wks', 'destroy', \
            'draw', 'draw_colormap', 'draw_ndc_grid', 'end', 'frame', \
-           'free_color', 'fspan', 'ftcurv', 'ftcurvp', 'ftcurvpi', \
-           'gaus', 'gc_convert', 'gc_dist', 'gc_interp', 'gc_qarea', \
+           'free_color', 'fspan', 'ftcurv', 'ftcurvp', 'ftcurvpi', 'gaus', \
+           'gc_convert', 'gc_dist', 'gc_inout', 'gc_interp', 'gc_qarea', \
            'gc_tarea', 'generate_2d_array', 'get_MDfloat_array', \
            'get_MDinteger_array', 'get_bounding_box', 'get_float', \
            'get_float_array', 'get_integer', 'get_integer_array', \
@@ -2543,7 +2543,7 @@ df -- degrees of freedom of the chi-square distribution (0, +infinity).
 #
 # Determine what kind of array to return. This is dependent on the
 # types of the arguments passed to chiinv, and not which fplib
-# module was loaded. Note that numpy is favored over numpy.
+# module was loaded.
 #
   if _is_numpy(x) or _is_numpy(y):
     import numpy
@@ -3239,6 +3239,27 @@ npts -- The number of equally-spaced points you want to interpolate to.
     del lat,lon
 
     return lat_tmp,lon_tmp
+
+################################################################
+
+def gc_inout(plat,plon,lat,lon):
+  """
+Determines if a set of lat/lon points are inside or outside of a spherical polygon.
+
+inout = Ngl.gc_inout(plat, plon, lat, lon)
+
+plat, plon -- Latitude and longitude, in degrees, of a set 
+              of points on the globe.
+
+lat, lon -- Latitude and longitude, in degrees, of the vertices
+            of a spherical polygon.
+  """
+#
+# Promote plat and plon to numpy arrays that have at least a dimension of 1.
+#
+  plat2 = _promote_scalar(plat)
+  plon2 = _promote_scalar(plon)
+  return(fplib.gc_inout(plat2,plon2,lat,lon))
 
 ################################################################
 
