@@ -197,6 +197,7 @@ extern float xmax_array(float *, int);
 extern float xmin_array(float *, int);
 extern float *fspan(float, float, int);
 extern int *ispan(int, int, int);
+extern ng_size_t *convert_dims(int *,int);
 extern int is_res_set(ResInfo *, char *);
 extern void getbb (int pid, float *t, float *b, float *l, float *r);
 extern void compute_ps_device_coords(int, nglPlotId *, int, nglRes *);

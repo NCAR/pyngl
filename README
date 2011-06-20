@@ -15,7 +15,12 @@ You can import this package with:
 PyNGL is available with NumPy support only.
 
 PyNGL 1.3.1 has been tested against Python 2.6.x and Python 2.5.x,
-NumPy 1.3.0, and NumPy 1.4.1.
+NumPy 1.3.0, and NumPy 1.4.1. PyNGL 1.3.1 and earlier can only
+be built against NCL versions 5.2.1 and earlier.
+
+PyNGL 1.4.0 has been tested against Python 2.6.x and Python 2.7.1, and
+NumPy 1.5.1. PyNGL 1.4.0 and later can only be built against NCL
+versions 6.0.0 and higher.
 
 The visualizations can be drawn on an X11 window or saved as
 PostScript, PDF, or NCGM files.
@@ -45,7 +50,7 @@ E-Mail: dbrown@ucar.edu, haley@ucar.edu
 Installation:
 -------------
 
-Required: Python 2.5 or higher and NumPy version 1.3 or higher.
+Required: Python 2.6 or higher and NumPy version 1.5 or higher.
 Earlier or later versions of these packages may work, but we haven't
 tested all of them.
 

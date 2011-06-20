@@ -102,6 +102,17 @@ int *ispan(int start, int end, int nskip)
   return(ret_val);
 }
 
+ng_size_t *convert_dims(int *tmp_dimensions,int n_dimensions)
+{
+  ng_size_t i, *dimensions;
+
+  dimensions = (ng_size_t *)malloc(sizeof(ng_size_t) * n_dimensions);
+  for (i = 0; i < n_dimensions; i++) {
+    ((ng_size_t *)dimensions)[i] = ((int*)tmp_dimensions)[i];
+  }
+  return(dimensions);
+}
+
 /*
  * This function checks a given resource list to see if a resource
  * has been set. If it has, then 1 is returned; otherwise 0 is returned.
@@ -602,9 +613,10 @@ void overlay_on_irregular(int wks, nglPlotId *plot, ResInfo *plot_res,
 {
   int xaxistype, yaxistype, overlay_plot, base_plot;
   float xmin, xmax, ymin, ymax, *xpts, *ypts;
-  int xpts_ndims, ypts_ndims, *xpts_dimsizes, *ypts_dimsizes;
+  int xpts_ndims, ypts_ndims;
   int xreverse, yreverse;  
   int ir_rlist, grlist;
+  ng_size_t *xpts_dimsizes, *ypts_dimsizes;
 
   overlay_plot = *(plot->base);
 
@@ -896,7 +908,7 @@ void spread_colors(int wks, int plot, int min_index, int max_index,
  * list of color indices.
  */
   NhlRLClear(srlist);
-  NhlRLSetIntegerArray(srlist, set_resname, icols, lcount+1);
+  NhlRLSetIntegerArray(srlist, set_resname, icols, (ng_size_t)(lcount+1));
   NhlSetValues(plot,srlist);
 
   free(icols);
@@ -1252,8 +1264,11 @@ void collapse_nomsg_xy(float *xf, float *yf, float **xfnew, float **yfnew,
  */
 
 void set_resource(char *resname, int rlist, void *x, 
-                  const char *type_x, int ndims_x, int *dsizes_x)
+                  const char *type_x, int ndims_x, int *idsizes_x)
 {
+  ng_size_t *dsizes_x;
+
+  dsizes_x = convert_dims(idsizes_x,ndims_x);
 
 /*
  * Check if scalar or multi-dimensional array. (A 1D array is treated
@@ -1282,6 +1297,7 @@ void set_resource(char *resname, int rlist, void *x,
       NhlRLSetMDIntegerArray (rlist, resname, (int*)x   , ndims_x, dsizes_x);
     }
   }
+  free(dsizes_x);
 }
 
 /*
@@ -1867,7 +1883,7 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
 
 nglPlotId blank_plot_wrap(int wks, ResInfo *blank_res, nglRes *special_res)
 {
-  int loglin, grlist, blank_rlist;
+  int loglin, blank_rlist;
   nglPlotId plot;
 
 /*
@@ -2037,7 +2053,8 @@ nglPlotId xy_wrap(int wks, void *x, void *y, const char *type_x,
                   ResInfo *ca_res, ResInfo *xy_res, ResInfo *xyd_res,
                   nglRes *special_res)
 {
-  int cafield, xy, grlist, num_dspec, *xyds;
+  int cafield, xy, grlist, *xyds;
+  ng_size_t num_dspec;
   nglPlotId plot;
   int ca_rlist, xy_rlist, xyd_rlist;
 
@@ -3232,7 +3249,7 @@ nglPlotId labelbar_ndc_wrap(int wks, int nbox, NhlString *labels,
  * Set resource ids.
  */
   lb_rlist = lb_res->id;
-
+  
 /*
  * Determine if we need to convert x and/or y.
  */
@@ -3246,7 +3263,7 @@ nglPlotId labelbar_ndc_wrap(int wks, int nbox, NhlString *labels,
 
   NhlRLSetFloat(lb_rlist,"vpXF",*xf);
   NhlRLSetFloat(lb_rlist,"vpYF",*yf);
-  NhlRLSetStringArray(lb_rlist,"lbLabelStrings",labels,nlabels);
+  NhlRLSetStringArray(lb_rlist,"lbLabelStrings",labels,(ng_size_t)nlabels);
   NhlRLSetInteger(lb_rlist,"lbBoxCount",nbox);
   NhlCreate(labelbar_object,"Labelbar",NhllabelBarClass,wks,lb_rlist);
 
@@ -3304,7 +3321,7 @@ nglPlotId legend_ndc_wrap(int wks, int nitems, NhlString *labels,
 
   NhlRLSetFloat(lg_rlist,"vpXF",*xf);
   NhlRLSetFloat(lg_rlist,"vpYF",*yf);
-  NhlRLSetStringArray(lg_rlist,"lgLabelStrings",labels,nlabels);
+  NhlRLSetStringArray(lg_rlist,"lgLabelStrings",labels,(ng_size_t)nlabels);
   NhlRLSetInteger(lg_rlist,"lgItemCount",nitems);
   NhlCreate(legend_object,"Legend",NhllegendClass,wks,lg_rlist);
 
@@ -3568,8 +3585,8 @@ nglPlotId add_poly_wrap(int wks, nglPlotId *plot, void *x, void *y,
  * the X/Y points, and the type of primitive (polymarker or polygon
  * in this case).
  */
-    NhlRLSetFloatArray(pr_rlist,"prXArray",       &xfnew[0], newlen);
-    NhlRLSetFloatArray(pr_rlist,"prYArray",       &yfnew[0], newlen);
+    NhlRLSetFloatArray(pr_rlist,"prXArray",       &xfnew[0], (ng_size_t)newlen);
+    NhlRLSetFloatArray(pr_rlist,"prYArray",       &yfnew[0], (ng_size_t)newlen);
     NhlRLSetInteger   (pr_rlist,"prPolyType",     polytype);
     NhlRLSetInteger   (pr_rlist,"prGraphicStyle", gsid);
 
@@ -3889,7 +3906,8 @@ nglPlotId add_text_wrap(int wks, nglPlotId *plot, char *string, void *x,
                         nglRes *special_res)
 {
   int i, srlist, grlist, text, just;
-  int *anno_views, *anno_mgrs, *new_anno_views, num_annos;
+  ng_size_t num_annos;
+  int *anno_views, *anno_mgrs, *new_anno_views;
   float *xf, *yf;
   nglPlotId annos;
   int tx_rlist, am_rlist;
@@ -4009,7 +4027,8 @@ void draw_colormap_wrap(int wks)
 {
   int i, j, k, ii, jj, ibox, nrows, ncols, ncolors, maxcols, ntotal, offset;
   int grlist, sr_list, tx_rlist, ln_rlist, gn_rlist;
-  int reset_colormap, cmap_ndims, *cmap_dimsizes;
+  int reset_colormap, cmap_ndims;
+  ng_size_t *cmap_dimsizes;
   float width, height, *xpos, *ypos, xbox[5], ybox[5], xbox2[5], ybox2[5];
   float txpos, typos;
   float *cmap, *cmapnew, font_height, font_space;
@@ -4254,7 +4273,7 @@ void panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
   int *colors, *patterns;
   float *scales, *levels;
   int fill_on, glyph_style, fill_arrows_on, mono_line_color, mono_fill_arrow;
-  int ncolors, nlevels, npatterns, nscales, nstrings;
+  ng_size_t ncolors, nlevels, npatterns, nscales, nstrings;
   int mono_fill_pat, mono_fill_scl, mono_fill_col;
   int lb_orient, lb_perim_on, lb_auto_stride, lb_alignment, labelbar_object;
   float lb_width_set, lb_height_set;
@@ -5123,7 +5142,7 @@ void panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
       NhlRLSetString      (lb_rlist,"lbAutoManage",      "False");
       NhlRLSetInteger     (lb_rlist,"lbOrientation",     lb_orient);
       NhlRLSetIntegerArray(lb_rlist,"lbFillColors",      colors, ncolors);
-      NhlRLSetInteger     (lb_rlist,"lbBoxCount",        ncolors);
+      NhlRLSetInteger     (lb_rlist,"lbBoxCount",        (int)ncolors);
       if(!strcmp(plot_type,"contour")) {
 	NhlRLSetStringArray (lb_rlist,"lbLabelStrings", lstrings, nstrings);
       }

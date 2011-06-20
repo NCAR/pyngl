@@ -725,11 +725,13 @@ float *NhlGetFloatArray(int oid, char *name, int *number)
 {
     int grlist;
     float *fscales;
+    ng_size_t nnumber;
 
     grlist = NhlRLCreate(NhlGETRL);
     NhlRLClear(grlist);
-    NhlRLGetFloatArray(grlist,name,&fscales,number);
+    NhlRLGetFloatArray(grlist,name,&fscales,&nnumber);
     NhlGetValues(oid,grlist);
+    *number = (int)nnumber;
 
     return (fscales);
 }
@@ -738,12 +740,14 @@ double *NhlGetDoubleArray(int oid, char *name, int *number)
 {
     int grlist;
     double *dar;
+    ng_size_t nnumber;
 
     grlist = NhlRLCreate(NhlGETRL);
     NhlRLClear(grlist);
-    NhlRLGetDoubleArray(grlist,name,&dar,number);
+    NhlRLGetDoubleArray(grlist,name,&dar,&nnumber);
     NhlGetValues(oid,grlist);
 
+    *number = (int)nnumber;
     return (dar);
 }
 
@@ -751,12 +755,14 @@ int *NhlGetIntegerArray(int oid, char *name, int *number)
 {
     int grlist;
     int *iar;
+    ng_size_t nnumber;
 
     grlist = NhlRLCreate(NhlGETRL);
     NhlRLClear(grlist);
-    NhlRLGetIntegerArray(grlist,name,&iar,number);
+    NhlRLGetIntegerArray(grlist,name,&iar,&nnumber);
     NhlGetValues(oid,grlist);
 
+    *number = (int)nnumber;
     return (iar);
 }
 
@@ -764,12 +770,14 @@ NhlString *NhlGetStringArray(int oid, char *name, int *number)
 {
     int grlist;
     NhlString *slist;
+    ng_size_t nnumber;
 
     grlist = NhlRLCreate(NhlGETRL);
     NhlRLClear(grlist);
-    NhlRLGetStringArray(grlist,name,&slist,number);
+    NhlRLGetStringArray(grlist,name,&slist,&nnumber);
     NhlGetValues(oid,grlist);
 
+    *number = (int)nnumber;
     return (slist);
 }
 
@@ -889,7 +897,8 @@ PyObject *NhlPDataToNDC(int pid, float *x, float *y, int n, float xmissing,
 
 PyObject *NhlGetMDFloatArray(int pid, char *name) {
   PyObject *obj1, *nhlerr, *resultobj;
-  int i, num_dims, *len_dims, grlist;
+  int i, num_dims, grlist;
+  ng_size_t *len_dims;
   float *bptr;
   NhlErrorTypes rval;
   npy_intp *len_dims_npy;
@@ -917,7 +926,8 @@ PyObject *NhlGetMDFloatArray(int pid, char *name) {
 
 PyObject *NhlGetMDDoubleArray(int pid, char *name) {
   PyObject *obj1, *nhlerr, *resultobj;
-  int i, num_dims, *len_dims, grlist;
+  int i, num_dims, grlist;
+  ng_size_t *len_dims;
   double *bptr;
   NhlErrorTypes rval;
   npy_intp *len_dims_npy;
@@ -945,7 +955,8 @@ PyObject *NhlGetMDDoubleArray(int pid, char *name) {
 
 PyObject *NhlGetMDIntegerArray(int pid, char *name) {
   PyObject *obj1, *nhlerr, *resultobj;
-  int i, num_dims, *len_dims, grlist;
+  int i, num_dims, grlist;
+  ng_size_t *len_dims;
   int *bptr;
   NhlErrorTypes rval;
   npy_intp *len_dims_npy;
@@ -1161,6 +1172,13 @@ import_array();
   arr =
    (PyArrayObject *) PyArray_ContiguousFromAny($input,PyArray_INT,0,0);
   $1 = (int *) arr->data;
+}
+
+%typemap (in) ng_size_t *sequence_as_ngsizet {
+  PyArrayObject *arr;
+  arr =
+   (PyArrayObject *) PyArray_ContiguousFromAny($input,PyArray_LONG,0,0);
+  $1 = (long *) arr->data;
 }
 
 %typemap (argout) (int *numberf) {
@@ -2158,13 +2176,15 @@ import_array();
 %}
 
 %typemap(in) ResInfo *rlist {
-  int i,list_type,list_len,count;
+  int i,list_type,count;
+  ng_size_t list_len;
   Py_ssize_t pos=0;
   PyObject *key,*value;
   PyArrayObject *arr;
   char **strings;
   double *dvals;
-  int *ivals,array_type,rlist,ndims,*len_dims;
+  int *ivals,array_type,rlist,ndims;
+  ng_size_t *len_dims;
   long *lvals;
   static ResInfo trname;
   char **trnames;
@@ -2204,7 +2224,7 @@ import_array();
           printf("Tuple values are not allowed to have list or tuple items.\n");
           return NULL;
         }
-        list_len = PyTuple_Size(value);
+        list_len = (ng_size_t)PyTuple_Size(value);
 /*
  *  Determine if the tuple is a tuple of strings, ints, or floats.
  *  
@@ -2290,7 +2310,7 @@ import_array();
           printf("Use NumPy arrays for multiple dimension arrays.\n");
           return NULL;
         }
-        list_len = PyList_Size(value);
+        list_len = (ng_size_t)PyList_Size(value);
 /*
  *  Determine if the list is a list of strings, ints, or floats.
  *  
@@ -2443,9 +2463,9 @@ import_array();
                      ((PyObject *) value,PyArray_LONG,0,0);
           lvals = (long *)arr->data;
           ndims = arr->nd;
-          len_dims = (int *)malloc(ndims*sizeof(int));
+          len_dims = (ng_size_t *)malloc(ndims*sizeof(ng_size_t));
           for(i = 0; i < ndims; i++ ) {
-            len_dims[i] = arr->dimensions[i];
+            len_dims[i] = (ng_size_t)arr->dimensions[i];
           }
           NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
         }
@@ -2454,9 +2474,9 @@ import_array();
                  ((PyObject *) value,PyArray_DOUBLE,0,0);
           dvals = (double *)arr->data;
           ndims = arr->nd;
-          len_dims = (int *)malloc(ndims*sizeof(int));
+          len_dims = (ng_size_t *)malloc(ndims*sizeof(ng_size_t));
           for(i = 0; i < ndims; i++ ) {
-            len_dims[i] = arr->dimensions[i];
+            len_dims[i] = (ng_size_t)arr->dimensions[i];
           }
           NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
         }
@@ -2481,13 +2501,15 @@ import_array();
 }
 
 %typemap(in) int res_id {
-  int i,list_type,list_len,count;
+  int i,list_type,count;
+  ng_size_t list_len;
   Py_ssize_t pos=0;
   PyObject *key,*value;
   PyArrayObject *arr;
   char **strings;
   double *dvals;
-  int *ivals,array_type,rlist,ndims,*len_dims;
+  int *ivals,array_type,rlist,ndims;
+  ng_size_t *len_dims;
   long *lvals;
   ResInfo trname;
   char **trnames;
@@ -2527,7 +2549,7 @@ import_array();
           printf("Tuple values are not allowed to have list or tuple items.\n");
           return NULL;
         }
-        list_len = PyTuple_Size(value);
+        list_len = (ng_size_t)PyTuple_Size(value);
 /*
  *  Determine if the tuple is a tuple of strings, ints, or floats.
  *  
@@ -2613,7 +2635,7 @@ import_array();
           printf("Use NumPy arrays for multiple dimension arrays.\n");
           return NULL;
         }
-        list_len = PyList_Size(value);
+        list_len = (ng_size_t)PyList_Size(value);
 /*
  *  Determine if the list is a list of strings, ints, or floats.
  *  
@@ -2719,9 +2741,9 @@ import_array();
                 ((PyObject *) value,PyArray_LONG,0,0);
           lvals = (long *)arr->data;
           ndims = arr->nd;
-          len_dims = (int *)malloc(ndims*sizeof(int));
+          len_dims = (ng_size_t *)malloc(ndims*sizeof(ng_size_t));
           for(i = 0; i < ndims; i++ ) {
-            len_dims[i] = arr->dimensions[i];
+            len_dims[i] = (ng_size_t)arr->dimensions[i];
           }
           NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
         }
@@ -2730,9 +2752,9 @@ import_array();
                  ((PyObject *) value,PyArray_DOUBLE,0,0);
           dvals = (double *)arr->data;
           ndims = arr->nd;
-          len_dims = (int *)malloc(ndims*sizeof(int));
+          len_dims = (ng_size_t *)malloc(ndims*sizeof(ng_size_t));
           for(i = 0; i < ndims; i++ ) {
-            len_dims[i] = arr->dimensions[i];
+            len_dims[i] = (ng_size_t)arr->dimensions[i];
           }
           NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
         }
@@ -2814,12 +2836,12 @@ extern NhlErrorTypes NhlCreate (int *OUTPUT, const char *, NhlClass, int, int);
 extern int NhlRLCreate(NhlRLType);
 extern NhlErrorTypes NhlFrame (int);
 extern NhlErrorTypes NhlDestroy (int);
-extern NhlErrorTypes NhlRLSetMDIntegerArray(int, char *, int *sequence_as_int, int, int *sequence_as_int);
-extern NhlErrorTypes NhlRLSetMDDoubleArray(int, char *, double *sequence_as_double, int, int *sequence_as_int);
-extern NhlErrorTypes NhlRLSetMDFloatArray(int, char *, float *sequence_as_float, int, int *sequence_as_int);
-extern NhlErrorTypes NhlRLSetFloatArray(int, char *, float *sequence_as_float, int);
-extern NhlErrorTypes NhlRLSetIntegerArray(int, char *, int *sequence_as_int, int);
-extern NhlErrorTypes NhlRLSetStringArray(int, NhlString, NhlString *, int);
+extern NhlErrorTypes NhlRLSetMDIntegerArray(int, char *, int *sequence_as_int, int, ng_size_t *sequence_as_ngsizet);
+extern NhlErrorTypes NhlRLSetMDDoubleArray(int, char *, double *sequence_as_double, int, ng_size_t *sequence_as_ngsizet);
+extern NhlErrorTypes NhlRLSetMDFloatArray(int, char *, float *sequence_as_float, int, ng_size_t *sequence_as_ngsizet);
+extern NhlErrorTypes NhlRLSetFloatArray(int, char *, float *sequence_as_float, ng_size_t);
+extern NhlErrorTypes NhlRLSetIntegerArray(int, char *, int *sequence_as_int, ng_size_t);
+extern NhlErrorTypes NhlRLSetStringArray(int, NhlString, NhlString *, ng_size_t);
 extern NhlErrorTypes NhlGetValues(int, int res_id);
 extern float NhlGetFloat(int oid, char *name);
 extern float *NhlGetFloatArray(int oid, char *name, int *numberf);
@@ -3123,12 +3145,12 @@ extern NhlErrorTypes NglGaus_p(int num, int nxir, int nyir, double *p_array_doub
 %newobject  NhlRLCreate(NhlRLType);
 %newobject  NhlFrame (int);
 %newobject  NhlDestroy (int);
-%newobject  NhlRLSetMDIntegerArray(int, char *, int *sequence_as_int, int, int *sequence_as_int);
-%newobject  NhlRLSetMDDoubleArray(int, char *, double *sequence_as_double, int, int *sequence_as_int);
-%newobject  NhlRLSetMDFloatArray(int, char *, float *sequence_as_float, int, int *sequence_as_int);
-%newobject  NhlRLSetFloatArray(int, char *, float *sequence_as_float, int);
-%newobject  NhlRLSetIntegerArray(int, char *, int *sequence_as_int, int);
-%newobject  NhlRLSetStringArray(int, NhlString, NhlString *, int);
+%newobject  NhlRLSetMDIntegerArray(int, char *, int *sequence_as_int, int, ng_size_t *sequence_as_ngsizet);
+%newobject  NhlRLSetMDDoubleArray(int, char *, double *sequence_as_double, int, ng_size_t *sequence_as_ngsizet);
+%newobject  NhlRLSetMDFloatArray(int, char *, float *sequence_as_float, int, ng_size_t *sequence_as_ngsizet);
+%newobject  NhlRLSetFloatArray(int, char *, float *sequence_as_float, ng_size_t);
+%newobject  NhlRLSetIntegerArray(int, char *, int *sequence_as_int, ng_size_t);
+%newobject  NhlRLSetStringArray(int, NhlString, NhlString *, ng_size_t);
 %newobject  NhlGetValues(int, int res_id);
 %newobject  NhlGetFloat(int oid, char *name);
 %newobject  NhlGetFloatArray(int oid, char *name, int *numberf);
