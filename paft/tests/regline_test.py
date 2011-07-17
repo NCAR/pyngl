@@ -23,7 +23,6 @@ rc = Ngl.regline(x,y)
 check_type(rc,types.ListType)
 rcl,attrs = rc    # Separate into value and dictionary
 
-print type(rcl)
 check_type(rcl,"nma")
 check_type(attrs,types.DictType)
 
@@ -39,7 +38,6 @@ nptxy_value = 18
 yint_value = 15.352282489361187
 
 test_value("regline",rcl,rcl_value,delta=1e-7)
-test_value("regline (fill_value)",rcl._fill_value,1e20)
 test_value("regline tval",attrs["tval"],tval_value)
 test_value("regline xave",attrs["xave"],xave_value)
 test_value("regline yave",attrs["yave"],yave_value)
