@@ -12,18 +12,16 @@ You can import this package with:
 
   import Ngl
 
-PyNGL is available with NumPy support only.
-
 PyNGL 1.3.1 has been tested against Python 2.6.x and Python 2.5.x,
 NumPy 1.3.0, and NumPy 1.4.1. PyNGL 1.3.1 and earlier can only
 be built against NCL versions 5.2.1 and earlier.
 
-PyNGL 1.4.0 has been tested against Python 2.6.x and Python 2.7.1, and
-NumPy 1.5.1. PyNGL 1.4.0 and later can only be built against NCL
-versions 6.0.0 and higher.
+PyNGL 1.4.0 has been tested against Python 2.6.x and Python 2.7.x,
+NumPy 1.5.1, and NumPy 1.6.0. PyNGL 1.4.0 and later can only be built
+against NCL versions 6.0.0 and higher.
 
 The visualizations can be drawn on an X11 window or saved as
-PostScript, PDF, or NCGM files.
+PostScript, PDF, PNG, or NCGM files.
 
 Interfaces exist for the rapid display of:
 
@@ -37,15 +35,6 @@ Interfaces exist for the rapid display of:
 For documentation, examples, and a line-by-line tutorial, see:
 
   http://www.pyngl.ucar.edu/
-
-Bug reports and feedback are appreciated (see email addresses below).
-
-David Brown and Mary Haley
-National Center for Atmospheric Research
-1850 Table Mesa Drive
-Boulder, CO  80305
-USA
-E-Mail: dbrown@ucar.edu, haley@ucar.edu
 
 Installation:
 -------------
@@ -68,7 +57,7 @@ Examples:
 
 Many PyNGL examples depend on PyNIO, which used to be packaged with
 PyNGL. PyNIO is now a separate package, but can be downloaded from the
-same location as PyNGL.  See http://www.pyngl.ucar.edu/download.shtml
+same location as PyNGL.  See http://www.pyngl.ucar.edu/Download/
 
 To run a PyNGL example (that doesn't depend on PyNIO), type:
 

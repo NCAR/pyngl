@@ -1,6 +1,9 @@
 #
 # This script builds PyNGL from source. Some environment variables
-# may be required. See the following comments.
+# may be required. See the following comments. 
+#
+# This version of PyNGL must be built against NCL V6.0.0 or later.
+# Version 5.2.1 or earlier will not work.
 #
 
 #
@@ -217,6 +220,7 @@ def set_ncl_libs_and_paths():
     LIBS.append('pixman-1')
     LIBS.append('freetype')
     LIBS.append('expat')
+#    LIBS.append('iconv')
     try:
       PATHS.append(os.path.join(os.environ["CAIRO_PREFIX"],"lib"))
     except:

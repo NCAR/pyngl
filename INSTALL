@@ -9,8 +9,8 @@ PyNGL can only be built on UNIX systems. It has been successfully built
 on systems running Linux (32 or 64-bit), MacOSX (PPC or Intel),
 Windows/Cygwin, and IBMs running AIX (64-bit).
 
-This version of PyNGL was tested with Python versions 2.5.5 and 2.6.5,
-and NumPy versions 1.3.0 and 1.4.1. We have some precompiled binaries
+This version of PyNGL was tested with Python versions 2.6.x and 2.7.x,
+and NumPy versions 1.5.1 and 1.6.0. We have some precompiled binaries
 you can try.
 
 This document covers what external software packages you need for PyNGL
@@ -45,9 +45,9 @@ and how to build them, and then finally how to build PyNGL.
 *Compilers needed to build PyNGL*
 
 You need a Fortran 77 or 90 compiler and an ANSI C compiler to build
-PyNGL. We use gcc/gfortran on Linux and Mac systems.
+PyNGL. We use gcc/gfortran on Linux and Mac OSX systems.
 
-We recommend *not* using g77 as a Fortran compiler.
+Do not use g77 as a Fortran compiler.
 
 ------------------------------------------------------------------------
 <SetCompilerEnvVars>
@@ -102,7 +102,7 @@ List of external software to install:
 
     * NCL <http://www.ncl.ucar.edu>
 
-      Download version 5.2.0 or later.
+      Download version 6.0.0 or later.
 
       See the full instructions <http://www.ncl.ucar.edu/Download/> for
       building NCL from either source code or binary. NCL is a difficult
@@ -135,7 +135,7 @@ List of external software to install:
           o *libpng <http://www.libpng.org/pub/png/libpng.html>*
 
             Download version 1.2.27 (earlier versions had a serious bug)
-            or later
+            or later (not 1.4.x or 1.5.x)
 
             Once you have the libpng source code, you can build and
             install it with:
@@ -144,7 +144,7 @@ List of external software to install:
               make all install
 
           o pkg-config <http://pkgconfig.freedesktop.org/releases/> -
-            Download version 0.23 or later.
+            Download version 0.25 or later.
 
             Once you have the pkg-config source code, you can build and
             install it with:
@@ -181,7 +181,7 @@ List of external software to install:
               make all install
 
           o FreeType <http://freetype.sourceforge.net/index2.html> -
-            Download version 2.3.11 or later.
+            Download version 2.4.4 or later.
 
             Once you have the FreeType source code, you can build and
             install it with:
@@ -190,7 +190,7 @@ List of external software to install:
               make all install
 
           o pixman <http://cairographics.org/releases/> - Download
-            version 0.16.4 or later.
+            version 0.21.2 or later.
 
             Once you have the pixman source code, you can build and
             install it with:
@@ -238,7 +238,7 @@ List of external software to install:
 
           o zlib <http://www.zlib.net/> - needed for cairo support
 
-            Download version 1.2.3 or later.
+            Download version 1.2.5 or later.
 
             Once you have the zlib source code, you can build and
             install it with:
@@ -258,15 +258,15 @@ To download the PyNGL source code, follow the instructions at the URL:
     * http://www.pyngl.ucar.edu/Download/ * 
 
 The source code you download will be a single compressed tar file called
-something like "PyNGL-1.3.1.tar.gz". Move this file to a temporary
+something like "PyNGL-1.4.0.tar.gz". Move this file to a temporary
 directory where you have plenty of disk space (around 250 megabytes to
 hold all of the source code, object files, binaries, and so on). Then,
 uncompress and untar the file as follows:
 
-  gunzip PyNGL-1.3.1.tar.gz
-  tar -xvf PyNGL-1.3.1.tar
+  gunzip PyNGL-1.4.0.tar.gz
+  tar -xvf PyNGL-1.4.0.tar
 
-The above steps will create a directory called "PyNGL-1.3.1".
+The above steps will create a directory called "PyNGL-1.4.0".
 
 ------------------------------------------------------------------------
 <SetPyNGLEnvVars>
