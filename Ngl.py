@@ -357,7 +357,12 @@ def _fill_bw_xy(wks,plot,xx,yy,res):
 #
 def _get_integer_version(strversion):
     d = strversion.split('.')
-    v = int(d[0]) * 10000 + int(d[1]) * 100 + int(d[2])
+    if len(d) > 2:
+       v = int(d[0]) * 10000 + int(d[1]) * 100 + int(d[2][0])
+    elif len(d) is 2:
+       v = int(d[0]) * 10000 + int(d[1]) * 100
+    else:
+       v = int(d[0]) * 10000
     return v
 
 IS_NEW_MA = _get_integer_version(numpy.__version__) > 10004
@@ -7537,7 +7542,7 @@ def nearlyequal(a, b, sig_digit=None):
     if a == b:
         return True
     difference = abs(a - b)
-    avg = (a + b)/2
+    avg = abs((a + b)/2)
     
     return numpy.log10(avg / difference) >= sig_digit
     
