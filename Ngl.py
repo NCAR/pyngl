@@ -11,16 +11,17 @@ __all__ = ['add_annotation', 'add_cyclic', 'add_new_coord_limits', \
            'asciiread', 'betainc', 'blank_plot', 'change_workstation', \
            'chiinv', 'clear_workstation', 'contour', 'contour_map', \
            'datatondc', 'define_colormap', 'delete_wks', 'destroy', \
-           'draw', 'draw_colormap', 'draw_ndc_grid', 'end', 'frame', \
-           'free_color', 'fspan', 'ftcurv', 'ftcurvp', 'ftcurvpi', 'gaus', \
-           'gc_convert', 'gc_dist', 'gc_inout', 'gc_interp', 'gc_qarea', \
-           'gc_tarea', 'generate_2d_array', 'get_MDfloat_array', \
-           'get_MDinteger_array', 'get_bounding_box', 'get_float', \
-           'get_float_array', 'get_integer', 'get_integer_array', \
-           'get_named_color_index', 'get_string', 'get_string_array', \
-           'get_workspace_id', 'hlsrgb', 'hsvrgb', 'ind', \
-           'labelbar_ndc', 'legend_ndc', 'linmsg', 'map', \
-           'maximize_plot', 'merge_colormaps', 'natgrid', 'ndctodata', \
+           'dim_gbits', 'draw', 'draw_colormap', 'draw_ndc_grid', 'end', \
+           'frame', 'free_color', 'fspan', 'ftcurv', 'ftcurvp', \
+           'ftcurvpi', 'gaus', 'gc_convert', 'gc_dist', 'gc_inout', \
+           'gc_interp', 'gc_qarea', 'gc_tarea', 'generate_2d_array', \
+           'get_MDfloat_array', 'get_MDinteger_array', \
+           'get_bounding_box', 'get_float', 'get_float_array', \
+           'get_integer', 'get_integer_array', 'get_named_color_index', \
+           'get_string', 'get_string_array', 'get_workspace_id', \
+           'hlsrgb', 'hsvrgb', 'ind', 'labelbar_ndc', 'legend_ndc', \
+           'linmsg', 'map', 'maximize_plot', 'merge_colormaps', \
+           'natgrid', 'ndctodata', \
            'new_color', 'new_dash_pattern', 'new_marker', \
            'nice_cntr_levels','nngetp', 'nnsetp', 'normalize_angle', \
            'open_wks', 'overlay', 'panel', 'polygon', 'polygon_ndc', \
@@ -1105,10 +1106,24 @@ def _mask_lambert_conformal(wks, maplc, mask_list, mlcres):
 # register as having 0 dimensions.  We do this by 
 # promoting it to a numpy array.
 #
+# Note: this function promotes the value to a double.
+# There's a promote_scalar_int if you need an integer.
+#
 def _promote_scalar(x):
   if _is_scalar(x):
     import numpy
     return numpy.array([x])
+  else:
+    return x
+
+#
+# Similar to _promote_scalar, except it promotes
+# value to a numpy integer.
+#
+def _promote_scalar_int(x):
+  if _is_scalar(x):
+    import numpy
+    return numpy.array([x],'int32')
   else:
     return x
 
@@ -2817,6 +2832,46 @@ object -- The identifier returned from calling any object creation
   """
   NhlDestroy(_int_id(obj))
   return None
+
+################################################################
+
+def dim_gbits(npack,ibit,nbits,nskip,iter):
+  """
+Unpacks bit chunks from the rightmost dimension of the input array.
+
+xchunk = Ngl.dim_gbits(npack,ibit,nbits,nskip,iter)
+
+ibit -- a bit-count offset to be used before the first bit chunk is unpacked.
+
+nbits -- the number of bits in each bit chunk to be unpacked.
+
+nskip -- the number of bits to skip between each bit chunk to be unpacked
+(after the first bit chunk has been unpacked)
+
+iter -- the number of bit chunks to be unpacked.
+  """
+#
+# Promote plat and plon to numpy arrays that have at least a dimension of 1.
+#
+#
+# Check npack type
+#
+  npack2      = _promote_scalar_int(npack)
+  npack_dtype = npack2.dtype
+
+  if( npack_dtype != numpy.int8  and npack_dtype != numpy.uint8 and \
+      npack_dtype != numpy.int16 and npack_dtype != numpy.uint16 and \
+      npack_dtype != numpy.int32 and npack_dtype != numpy.uint32):
+    print("dim_gbits: Error: wrong type for npack")
+    return None
+
+  ibit2  = _promote_scalar_int(ibit)
+  nbits2 = _promote_scalar_int(nbits)
+  nskip2 = _promote_scalar_int(nskip)
+  iter2  = _promote_scalar_int(iter)
+
+  dgbits = fplib.dim_gbits(npack2,ibit2,nbits2,nskip2,iter2)
+  return numpy.array(dgbits,npack_dtype)
 
 ################################################################
 
