@@ -158,7 +158,8 @@ res.mpMaxLonF             = max(lon1d)
 map = Ngl.contour_map(wks,data,res)
 
 #---Open shapefile with Mississippi River Basin outlines
-filename = "mrb.shp"
+dir      = Ngl.pynglpath("data")
+filename = os.path.join(dir,"shp","mrb.shp")
 if(not os.path.exists(filename)):
   print "You do not have the necessary files to run this example."
   print "The comments at the top of this script tell you how to get the files."
