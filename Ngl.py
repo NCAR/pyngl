@@ -1107,7 +1107,7 @@ def _mask_lambert_conformal(wks, maplc, mask_list, mlcres):
 # promoting it to a numpy array.
 #
 # Note: this function promotes the value to a double.
-# There's a promote_scalar_int if you need an integer.
+# There's a promote_scalar_int32 if you need an integer.
 #
 def _promote_scalar(x):
   if _is_scalar(x):
@@ -1118,10 +1118,11 @@ def _promote_scalar(x):
 
 #
 # Similar to _promote_scalar, except it promotes
-# value to a numpy integer.
+# value to a numpy integer if it comes in as a Python
+# scalar.
 #
-def _promote_scalar_int(x):
-  if _is_scalar(x):
+def _promote_scalar_int32(x):
+  if _is_python_scalar(x):
     import numpy
     return numpy.array([x],'int32')
   else:
@@ -2851,12 +2852,10 @@ nskip -- the number of bits to skip between each bit chunk to be unpacked
 iter -- the number of bit chunks to be unpacked.
   """
 #
-# Promote plat and plon to numpy arrays that have at least a dimension of 1.
+# Make sure main value is not a python scalar
 #
-#
-# Check npack type
-#
-  npack2      = _promote_scalar_int(npack)
+  npack2 = _promote_scalar_int32(npack)
+
   npack_dtype = npack2.dtype
 
   if( npack_dtype != numpy.int8  and npack_dtype != numpy.uint8 and \
@@ -2865,13 +2864,12 @@ iter -- the number of bit chunks to be unpacked.
     print("dim_gbits: Error: wrong type for npack")
     return None
 
-  ibit2  = _promote_scalar_int(ibit)
-  nbits2 = _promote_scalar_int(nbits)
-  nskip2 = _promote_scalar_int(nskip)
-  iter2  = _promote_scalar_int(iter)
+  ibit2  = _promote_scalar_int32(ibit)
+  nbits2 = _promote_scalar_int32(nbits)
+  nskip2 = _promote_scalar_int32(nskip)
+  iter2  = _promote_scalar_int32(iter)
 
-  dgbits = fplib.dim_gbits(npack2,ibit2,nbits2,nskip2,iter2)
-  return numpy.array(dgbits,npack_dtype)
+  return(fplib.dim_gbits(npack2,ibit2,nbits2,nskip2,iter2))
 
 ################################################################
 

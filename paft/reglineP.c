@@ -20,7 +20,8 @@ PyObject *fplib_regline(PyObject *self, PyObject *args)
  */
   if (!PyArg_ParseTuple(args, "OOddi:regline", &xar, &yar, 
                          &fill_value_x, &fill_value_y, &return_info)) {
-    return -1;
+    Py_INCREF(Py_None);
+    return Py_None;
   }
 
 /*
