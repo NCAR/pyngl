@@ -91,7 +91,7 @@ colors   = ["white","black","gray","red","green","white"]
 wks_type = "ps"
 wklist = Ngl.Resources()
 wklist.wkColorMap = colors
-wks = Ngl.open_wks(wks_type,"hdf1_py",wklist)
+wks = Ngl.open_wks(wks_type,"hdf1",wklist)
 
 #---Create variable to hold list of plot resources.
 res = Ngl.Resources()
