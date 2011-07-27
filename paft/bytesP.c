@@ -51,14 +51,13 @@ PyObject *fplib_dim_gbits(PyObject *self, PyObject *args)
  */
   type_npack      = PyArray_TYPE(arr_npack);
   size_type_npack = PyArray_ITEMSIZE(arr_npack);
-
 /*
  * Check type of npack.
  */
   if(type_npack != PyArray_BYTE  && type_npack != PyArray_UBYTE && 
      type_npack != PyArray_SHORT && type_npack != PyArray_USHORT && 
-     type_npack != PyArray_INT) {
-    printf("dim_gbits: npack must be of numpy type byte, unsigned byte, short, unsigned short, or int");
+     type_npack != PyArray_INT   && type_npack != PyArray_INT32) {
+    printf("dim_gbits: npack must be of type byte, unsigned byte, short, unsigned short, or int");
     Py_INCREF(Py_None);
     return Py_None;
   }
@@ -72,29 +71,34 @@ PyObject *fplib_dim_gbits(PyObject *self, PyObject *args)
                         (arr_npack,PyArray_INT32,0,0);
   npack      = (int *)arr->data;
   ndims_npack = arr->nd;
-  dsizes_npack = (npy_intp *)malloc(ndims_npack * sizeof(npy_intp));
-  for(i = 0; i < ndims_npack; i++) {
-    dsizes_npack[i] = (npy_intp)arr->dimensions[i];
-  }
 /*
  * Check if we have a numpy scalar. If so, fix the number of dimensions.
  */
-  if(ndims_npack == 0) ndims_npack = 1;
-
+  if(ndims_npack == 0) {
+    ndims_npack = 1;
+    dsizes_npack = (npy_intp *)malloc(ndims_npack * sizeof(npy_intp));
+    dsizes_npack[0] = 1;
+  }
+  else {
+    dsizes_npack = (npy_intp *)malloc(ndims_npack * sizeof(npy_intp));
+    for(i = 0; i < ndims_npack; i++) {
+      dsizes_npack[i] = (npy_intp)arr->dimensions[i];
+    }
+  }
 /*
  * Get arguments # 1-4
  */
   arr = (PyArrayObject *) PyArray_ContiguousFromAny
-                        (arr_ibit,PyArray_INT,0,0);
+                        (arr_ibit,PyArray_INT32,0,0);
   ibit = (int *)arr->data;
   arr = (PyArrayObject *) PyArray_ContiguousFromAny
-                        (arr_nbits,PyArray_INT,0,0);
+                        (arr_nbits,PyArray_INT32,0,0);
   nbits = (int *)arr->data;
   arr = (PyArrayObject *) PyArray_ContiguousFromAny
-                        (arr_nskip,PyArray_INT,0,0);
+                        (arr_nskip,PyArray_INT32,0,0);
   nskip = (int *)arr->data;
   arr = (PyArrayObject *) PyArray_ContiguousFromAny
-                        (arr_iter,PyArray_INT,0,0);
+                        (arr_iter,PyArray_INT32,0,0);
   iter = (int *)arr->data;
 
 /*
@@ -116,7 +120,7 @@ PyObject *fplib_dim_gbits(PyObject *self, PyObject *args)
 /*
  * Allocate space for input/output arrays.
  */
-  if(type_npack != PyArray_INT) {
+  if(type_npack != PyArray_INT && type_npack != PyArray_INT32) {
     tmp_npack = (int*)calloc(n,sizeof(int));
     tmp_isam  = (int*)calloc(*iter,sizeof(int));
 
@@ -166,7 +170,7 @@ PyObject *fplib_dim_gbits(PyObject *self, PyObject *args)
  */
 
   for(i = 1; i <= size_leftmost; i++) {
-    if(type_npack != PyArray_INT) {
+    if(type_npack != PyArray_INT && type_npack != PyArray_INT32) {
 /*
  * Run npack through sbytes to pack it into the leftmost bits of 
  * tmp_npack.
