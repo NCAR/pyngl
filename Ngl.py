@@ -1508,7 +1508,7 @@ def _set_contour_res(reslist,reslist1):
       reslist1["cnInfoLabelOn"] = False
     if ( not (reslist.has_key("pmLabelBarDisplayMode")) and 
          (not (reslist.has_key("lbLabelBarOn")) or 
-               reslist.has_key("lbLabelbarOn") and 
+               reslist.has_key("lbLabelBarOn") and 
                         reslist["lbLabelBarOn"] > 0)):
       reslist1["pmLabelBarDisplayMode"] = "Always"
 #
