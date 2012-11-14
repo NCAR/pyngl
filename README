@@ -18,7 +18,10 @@ be built against NCL versions 5.2.1 and earlier.
 
 PyNGL 1.4.0 has been tested against Python 2.6.x and Python 2.7.x,
 NumPy 1.5.1, and NumPy 1.6.0. PyNGL 1.4.0 and later can only be built
-against NCL versions 6.0.0 and higher.
+against NCL version 6.0.0 (not 6.1.0 or later).
+
+PyNGL 1.5.0 has been tested against Python 2.7.3 and NumPy 1.6.2. 
+It can only be built against NCL versions 6.1.0 and higher.
 
 The visualizations can be drawn on an X11 window or saved as
 PostScript, PDF, PNG, or NCGM files.
@@ -39,7 +42,7 @@ For documentation, examples, and a line-by-line tutorial, see:
 Installation:
 -------------
 
-Required: Python 2.6 or higher and NumPy version 1.5 or higher.
+Required: Python 2.7 or higher and NumPy version 1.6 or higher.
 Earlier or later versions of these packages may work, but we haven't
 tested all of them.
 
