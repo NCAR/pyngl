@@ -586,7 +586,7 @@ void maximize_plots(int wks, nglPlotId *plot, int nplots, int ispanel,
   name = NhlClassName(wks);
   if(name != NULL && (!strcmp(name,"psWorkstationClass") ||
                      !strcmp(name,"pdfWorkstationClass") ||
-		      !strcmp(name,"documentWorkstationClass"))) {
+		      !strcmp(name,"cairoDocumentWorkstationClass"))) {
 /*
  * Compute and set device coordinates that will make plot fill the 
  * whole page.
@@ -1758,7 +1758,7 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
     }
     NhlCreate(&wks,"ncgm",NhlncgmWorkstationClass,NhlDEFAULT_APP,wk_rlist);
   }
-  else if(!strcmp(type,"ps")   || !strcmp(type,"PS") || 
+  else if(!strcmp(type,"oldps")   || !strcmp(type,"OLDPS") || 
           !strcmp(type,"eps")  || !strcmp(type,"EPS") || 
           !strcmp(type,"epsi") || !strcmp(type,"EPSI")) {
 
@@ -1788,7 +1788,7 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
     }
     NhlCreate(&wks,type,NhlpsWorkstationClass,NhlDEFAULT_APP,wk_rlist);
   }
-  else if(!strcmp(type,"pdf") || !strcmp(type,"PDF")) {
+  else if(!strcmp(type,"oldpdf") || !strcmp(type,"OLDPDF")) {
 /*
  * Flag for whether we need to check for wkOrientation later.
  */
@@ -1812,8 +1812,8 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
     }
     NhlCreate(&wks,"pdf",NhlpdfWorkstationClass,NhlDEFAULT_APP,wk_rlist);
   }
-  else if(!strcmp(type,"newps") || !strcmp(type,"newpdf") || 
-          !strcmp(type,"NEWPS") || !strcmp(type,"NEWPDF")) {
+  else if(!strcmp(type,"ps") || !strcmp(type,"pdf") || 
+          !strcmp(type,"PS") || !strcmp(type,"PDF")) {
     NhlRLSetString(wk_rlist,"wkFormat",(char*)type);
 /*
  * Flag for whether we need to check for wkOrientation later.
@@ -1828,11 +1828,10 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
     if(!is_res_set(wk_res,"wkFileName")) {
       NhlRLSetString(wk_rlist,"wkFileName",filename);
     }
-    NhlCreate(&wks,type,NhlcairoPSPDFWorkstationClass,NhlDEFAULT_APP,wk_rlist);
+    NhlCreate(&wks,type,NhlcairoDocumentWorkstationClass,NhlDEFAULT_APP,wk_rlist);
   }
 /*
  * Generate PNG file name.
- * Not yet available.
  */
   else if(!strcmp(type,"png")    || !strcmp(type,"PNG") ||
           !strcmp(type,"newpng") || !strcmp(type,"NEWPNG")) {
@@ -1840,8 +1839,8 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
     filename = (char *)calloc(len+1,sizeof(char));
     strncpy(filename,name,len);
     filename[len] = '\0';
-    if(!is_res_set(wk_res,"wkFileName")) {
-      NhlRLSetString(wk_rlist,"wkFileName",filename);
+    if(!is_res_set(wk_res,"wkImageFileName")) {
+      NhlRLSetString(wk_rlist,"wkImageFileName",filename);
     }
     if(!is_res_set(wk_res,"wkFormat")) {
       NhlRLSetString(wk_rlist,"wkFormat","png");
@@ -1849,7 +1848,7 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
     NhlCreate(&wks,"png",NhlcairoImageWorkstationClass,NhlDEFAULT_APP,wk_rlist);
   }
   else {
-    NhlPError(NhlWARNING,NhlEUNKNOWN,"spread_colors: Invalid workstation type, must be 'x11', 'ncgm', 'ps', 'png', or 'pdf'\n");
+    NhlPError(NhlWARNING,NhlEUNKNOWN,"open_wks: Invalid workstation type, must be 'x11', 'ncgm', 'ps', 'png', or 'pdf'\n");
   }
 
 /*
@@ -4414,7 +4413,7 @@ void panel_wrap(int wks, nglPlotId *plots, int nplots_orig, int *dims,
   if(special_res->nglMaximize) {
     if( strcmp(NhlClassName(wks),"psWorkstationClass") &&
         strcmp(NhlClassName(wks),"pdfWorkstationClass") &&
-        strcmp(NhlClassName(wks),"cairoPSPDFWorkstationClass") &&
+        strcmp(NhlClassName(wks),"cairoDocumentWorkstationClass") &&
         strcmp(NhlClassName(wks),"cairoImageWorkstationClass")) {
       maxbb = 0;
     }
