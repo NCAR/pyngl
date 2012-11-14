@@ -585,8 +585,8 @@ void maximize_plots(int wks, nglPlotId *plot, int nplots, int ispanel,
 
   name = NhlClassName(wks);
   if(name != NULL && (!strcmp(name,"psWorkstationClass") ||
-                     !strcmp(name,"pdfWorkstationClass") ||
-		      !strcmp(name,"cairoDocumentWorkstationClass"))) {
+                      !strcmp(name,"pdfWorkstationClass") ||
+	              !strcmp(name,"documentWorkstationClass"))) {
 /*
  * Compute and set device coordinates that will make plot fill the 
  * whole page.
@@ -1398,7 +1398,7 @@ void initialize_resources(nglRes *res, int list_type)
  * Special resources for spanning a full color map when
  * filling vectors and/or contours.
  */
-  res->nglSpreadColors     =  1;
+  res->nglSpreadColors     =  0;
   res->nglSpreadColorStart =  2;
   res->nglSpreadColorEnd   = -1;
 
@@ -1731,12 +1731,12 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
 
   if(!strcmp(type,"x11") || !strcmp(type,"X11")) {
 /*
- * Create an XWorkstation object.
+ * Create a cairoWindowWorkstationClass object.
  */
     if(!is_res_set(wk_res,"wkPause")) {
       NhlRLSetInteger(wk_rlist,"wkPause",True);
     }
-    NhlCreate(&wks,"x11",NhlxWorkstationClass,
+    NhlCreate(&wks,"x11",NhlcairoWindowWorkstationClass,
               NhlDEFAULT_APP,wk_rlist);
   }
   else if(!strcmp(type,"ncgm") || !strcmp(type,"NCGM")) {

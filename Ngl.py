@@ -1518,11 +1518,19 @@ def _set_contour_res(reslist,reslist1):
   if (reslist1.has_key("lbLabelBarOn")):
     del reslist1["lbLabelBarOn"]
 #
-# If cnFillColors is set, don't set nglSpreadColors to True.
+# It used to be that nglSpreadColors was set to True by default.
 #
-  if(reslist.has_key("cnFillColors")):
-    if ( not (reslist.has_key("nglSpreadColors"))):
-      lval = 0
+# With PyNGL 1.5.0, however, this resource is somewhat obsolete,
+# as cnFillPalette should now be used. nglSpreadColors will only
+# be set back to True if nglSpreadColorStart set explicitly to
+# something other than 2 and/or nglSpreadColorEnd is set explicitly
+# to something other than -1.
+#
+  if((reslist.has_key("nglSpreadColorStart") and
+      reslist["nglSpreadColorStart"] != 2) or 
+     (reslist.has_key("nglSpreadColorEnd") and
+      reslist["nglSpreadColorEnd"] != -1)):
+      lval = 1
       set_nglRes_i(23, lval) 
 #
 #  Check for "plural" resources that only take effect if their
@@ -1594,11 +1602,19 @@ def _set_vector_res(reslist,reslist1):
   if (reslist1.has_key("lbLabelBarOn")):
     del reslist1["lbLabelBarOn"]
 #
-# If vcLevelColors is set, don't set nglSpreadColors to True.
+# It used to be that nglSpreadColors was set to True by default.
 #
-  if(reslist.has_key("vcLevelColors")):
-    if ( not (reslist.has_key("nglSpreadColors"))):
-      lval = 0
+# With PyNGL 1.5.0, however, this resource is somewhat obsolete,
+# as vcLevelPalette should now be used. nglSpreadColors will only
+# be set back to True if nglSpreadColorStart set explicitly to
+# something other than 2 and/or nglSpreadColorEnd is set explicitly
+# to something other than -1.
+#
+  if((reslist.has_key("nglSpreadColorStart") and
+      reslist["nglSpreadColorStart"] != 2) or 
+     (reslist.has_key("nglSpreadColorEnd") and
+      reslist["nglSpreadColorEnd"] != -1)):
+      lval = 1
       set_nglRes_i(23, lval) 
 #
 # Set some tickmark resources.
@@ -1751,7 +1767,7 @@ def _set_spc_defaults(type):
   set_nglRes_f(20, -999.)   # nglPanelInvsblRight
   set_nglRes_f(21, -999.)   # nglPanelInvsblBottom
   set_nglRes_i(22, 0)       # nglPanelSave
-  set_nglRes_i(23, 1)       # nglSpreadColors
+  set_nglRes_i(23, 0)       # nglSpreadColors
   set_nglRes_i(24, 2)       # nglSpreadColorStart
   set_nglRes_i(25, -1)      # nglSpreadColorEnd
   set_nglRes_i(26, 0)       # nglPanelLabelBarOrientation
