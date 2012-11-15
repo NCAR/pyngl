@@ -19,14 +19,12 @@
 #
 #  Effects illustrated:
 #    o  Using the new "vcGlyphOpacityF" resource.
+#    o  Reading an existing color map and subsetting it.
 # 
 #  Output:
 #    This example produces two visualizations: 
 #      1.  Fully opaque vectors
 #      2.  Partially opaque vectors
-#
-#  Notes: I would like to get a python version of read_colormap_file
-#         working so I can use it to limit the range of colors.
 #     
 import os, numpy
 import Ngl, Nio
@@ -42,19 +40,19 @@ lat  = f.variables["lat"][:]
 lon  = f.variables["lon"][:]
 spd  = numpy.sqrt(u**2 + v**2)
  
-wks_type = "pdf"
+wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"newcolor3")
 
 cnres                             = Ngl.Resources()
 cnres.nglDraw                     = False
 cnres.nglFrame                    = False
 
-#cmap = read_colormap_file("WhiteBlueGreenYellowRed")
+cmap = Ngl.read_colormap_file("WhiteBlueGreenYellowRed")
 
 cnres.cnLinesOn                   = False
 cnres.cnLineLabelsOn              = False
 cnres.cnFillOn                    = True
-cnres.cnFillPalette               = "WhiteBlueGreenYellowRed"
+cnres.cnFillPalette               = cmap[15:,:]
 cnres.lbOrientation               = "horizontal"
 
 cnres.mpFillOn                    = False
