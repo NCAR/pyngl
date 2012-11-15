@@ -26,7 +26,7 @@ __all__ = ['add_annotation', 'add_cyclic', 'add_new_coord_limits', \
            'nice_cntr_levels','nngetp', 'nnsetp', 'normalize_angle', \
            'open_wks', 'overlay', 'panel', 'polygon', 'polygon_ndc', \
            'polyline', 'polyline_ndc', 'polymarker', 'polymarker_ndc', \
-           'pynglpath', 'regline', 'remove_annotation', \
+           'pynglpath', 'read_colormap_file', 'regline', 'remove_annotation', \
            'remove_overlay', 'retrieve_colormap', 'rgbhls', 'rgbhsv', \
            'rgbyiq', 'set_color', 'set_values', 'skewt_bkg', \
            'skewt_plt', 'streamline', 'streamline_map', \
@@ -4877,6 +4877,132 @@ name -- A string representing abbreviated name for which you want a
     return _pynglpath_ncarg()
   else:
     print 'pynglpath: input name "%s" not recognized' % (name)
+
+################################################################
+
+def read_colormap_file(colorMapName):
+  """
+This function either reads a PyNGL-standard colormap, given is name,
+or expects to read a colormap from a given file.  It supports reading
+either RGB-tuples or RGBA-tuples (or a mixture).
+
+It always returns a colormap comprised of RGBA-tuples [N,4]
+
+cmap = Ngl.read_colormap_file (colormap_name)
+
+colormap_name -- Either the name of a PyNGL-standard colormap, or the
+                 filename of a user-supplied colormap.
+  """
+# This function was taken from the NCL version written by R.Brownrigg.
+
+  MAXCOLORS = 256     # symbolic constant, used below
+
+  # ----------------------------------------------------------
+  # Inner convenience function to test string as suitable for 
+  # conversion to numeric.
+  def isNumerical(s):
+    try:
+      float(s)
+      return True
+    except ValueError:
+      return False
+
+  # ------------------------------------------------------------
+  # Inner convenience function to find appropriate pathname for 
+  # the given filename.
+  def _get_cmap_file_path(colorMapName):
+    # Is this one of our standard named colormaps? There are several well-defined
+    # locations and suffixes to try...
+    tmp = os.getenv("NCARG_COLORMAPS")
+    if (tmp != None):
+        paths = tmp.split(":")
+    else:
+        paths = [os.path.join(pynglpath("ncarg"),"colormaps")]
+
+    suffixes = [ ".rgb", ".gp", ".ncmap" ]
+
+    # loop over the product of possible paths and possible suffixes...
+    for path in paths:
+        path1 = os.path.join(path,colorMapName)
+        for suffix in suffixes:
+            path2 = path1+suffix
+            if(os.path.exists(path2)):
+              return path2
+
+    # if still here, just return colorMapName literally; presumably is a 
+    # filename for a user-managed colormap...
+    return colorMapName
+
+  # get an appropriate pathname for the given colortable name and load it..
+  pathname = _get_cmap_file_path(colorMapName)
+  f = open(pathname)
+  lines = f.readlines()
+
+  # parse up to MAXCOLORS rgba tuples from the file just read...
+  tmpCmap   = numpy.zeros((MAXCOLORS,4),'f')
+  numColors = 0
+  maxValue  = -1.0
+  i = 0
+  while (i < len(lines) and numColors < MAXCOLORS):
+      if (len(lines[i]) == 0):
+          lines[i] = "#"  # zero-lengthed lines cause us grief...
+      lines[i].strip()
+      tokens = lines[i].split()
+      if (len(tokens) >= 3):
+          red   = -1.0
+          green = -1.0
+          blue  = -1.0
+          if (isNumerical(tokens[0])):
+              red = float(tokens[0])
+          if (isNumerical(tokens[1])):
+              green = float(tokens[1])
+          if (isNumerical(tokens[2])):
+              blue = float(tokens[2])
+          if (len(tokens) > 3 and isNumerical(tokens[3])):
+              alpha = float(tokens[3])
+          else:
+              alpha = -1.0  # used a marker, replaced appropriately below...
+
+          # were we able to get a rgba-tuple?
+          #
+          if (red >= 0 and green >= 0 and blue >= 0):
+              # yes, add it to our colormap...
+              tmpCmap[numColors,0] = red
+              tmpCmap[numColors,1] = green
+              tmpCmap[numColors,2] = blue
+              tmpCmap[numColors,3] = alpha
+              numColors = numColors + 1
+              # keep track of the magnitude of these values; used to rescale below...
+              if (red > maxValue):
+                  maxValue = red
+              if (green > maxValue):
+                  maxValue = green
+              if (blue > maxValue):
+                  maxValue = blue
+      i = i + 1
+
+  # copy tmpCmap into appropriately sized array
+  cmap = numpy.zeros([numColors, 4],'f')
+  cmap = tmpCmap[0:numColors,:]
+
+  # normalize the values
+  # this logical taken directly from HLU code in "Palette.c"
+  if (maxValue < 256):
+      cmap[:,3] = numpy.where(cmap[:,3] < 0, 255., cmap[:,3])
+      cmap = cmap / 255.
+  elif (maxValue == 256):
+      cmap[:,3] = numpy.where(cmap[:,3] < 0, 256., cmap[:,3])
+      cmap = cmap / 256.
+  elif (maxValue == 65536):
+      cmap[:,3] = numpy.where(cmap[:,3] < 0, 65535., cmap[:,3])
+      cmap = cmap / 65535. 
+  elif (maxValue == 65536):
+      cmap[:,3] = numpy.where(cmap[:,3] < 0, 65536., cmap[:,3])
+      cmap = cmap / 65536.
+  else:
+      cmap[:,3] = numpy.where(cmap[:,3] < 0, maxValue, cmap[:,3])
+      cmap = cmap / maxValue
+  return cmap
 
 ################################################################
 
