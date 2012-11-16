@@ -5,9 +5,9 @@ run:
   python wrapper.py  < chiinv.txt
 
 and compare the resultant "chiinvP.c" file with the one checked into
-CVS:
+svn:
 
-   cvs diff chiinvP.c
+   svn diff chiinvP.c
 
 This helps see what areas need cleaning up.
 

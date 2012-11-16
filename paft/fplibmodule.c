@@ -24,6 +24,13 @@ extern int NGCALLF(gcinout,GCINOUT)(double*,double*,double*,double*,
                                      int*,double*);
 extern void NGCALLF(gbytes,GBYTES)(int *, int *, int *, int *, int *, int *);
 extern void NGCALLF(sbytes,SBYTES)(int *, int *, int *, int *, int *, int *);
+extern void NGCALLF(dcomputetk,DCOMPUTETK)(double *,double *,double *,int *);
+extern void NGCALLF(dcomputerh,DCOMPUTERH)(double *,double *,double *,
+                                           double *,int *);
+extern void NGCALLF(calcdbz,CALCDBZ)(double *, double *, double *, double *,
+                                     double *, double *, double *, int *, 
+                                     int *, int *, int *, int *, int *);
+
 
 /*
  * t_output_helper concatenates objects.  That is, 
@@ -72,6 +79,7 @@ static PyObject* t_output_helper(PyObject* target, PyObject* o) {
 #include "reglineP.c"
 #include "sgtoolsP.c"
 #include "vinth2pP.c"
+#include "wrfP.c"
 
 static PyMethodDef fplib_methods[] = {     
     {"betainc", (PyCFunction)fplib_betainc, METH_VARARGS},
@@ -81,6 +89,8 @@ static PyMethodDef fplib_methods[] = {
     {"linmsg",  (PyCFunction)fplib_linmsg,  METH_VARARGS},
     {"regline", (PyCFunction)fplib_regline, METH_VARARGS},
     {"vinth2p", (PyCFunction)fplib_vinth2p, METH_VARARGS},
+    {"wrf_rh", (PyCFunction)fplib_wrf_rh, METH_VARARGS},
+    {"wrf_tk", (PyCFunction)fplib_wrf_tk, METH_VARARGS},
     {NULL,      NULL}        /* Sentinel */
 };
 

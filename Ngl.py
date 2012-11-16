@@ -21,19 +21,20 @@ __all__ = ['add_annotation', 'add_cyclic', 'add_new_coord_limits', \
            'get_string', 'get_string_array', 'get_workspace_id', \
            'hlsrgb', 'hsvrgb', 'ind', 'labelbar_ndc', 'legend_ndc', \
            'linmsg', 'map', 'maximize_plot', 'merge_colormaps', \
-           'natgrid', 'ndctodata', \
-           'new_color', 'new_dash_pattern', 'new_marker', \
-           'nice_cntr_levels','nngetp', 'nnsetp', 'normalize_angle', \
-           'open_wks', 'overlay', 'panel', 'polygon', 'polygon_ndc', \
-           'polyline', 'polyline_ndc', 'polymarker', 'polymarker_ndc', \
-           'pynglpath', 'read_colormap_file', 'regline', 'remove_annotation', \
+           'natgrid', 'ndctodata', 'new_color', 'new_dash_pattern', \
+           'new_marker', 'nice_cntr_levels','nngetp', 'nnsetp', \
+           'normalize_angle', 'open_wks', 'overlay', 'panel', 'polygon', \
+           'polygon_ndc', 'polyline', 'polyline_ndc', 'polymarker', \
+           'polymarker_ndc', 'pynglpath', \
+           'read_colormap_file', 'regline', 'remove_annotation', \
            'remove_overlay', 'retrieve_colormap', 'rgbhls', 'rgbhsv', \
            'rgbyiq', 'set_color', 'set_values', 'skewt_bkg', \
            'skewt_plt', 'streamline', 'streamline_map', \
            'streamline_scalar', 'streamline_scalar_map', 'text', \
            'text_ndc', 'update_workstation', 'vector', 'vector_map', \
            'vector_scalar', 'vector_scalar_map', 'vinth2p', 'wmbarb', \
-           'wmbarbmap', 'wmgetp', 'wmsetp', 'wmstnm', 'xy', 'y', 'yiqrgb']
+           'wmbarbmap', 'wmgetp', 'wmsetp', 'wmstnm', \
+           'wrf_rh', 'wrf_tk', 'xy', 'y', 'yiqrgb']
 
 # PyNGL analysis functions
 import fplib
@@ -4880,9 +4881,9 @@ name -- A string representing abbreviated name for which you want a
 
 ################################################################
 
-def read_colormap_file(colorMapName):
+def read_colormap_file(colormap_name):
   """
-This function either reads a PyNGL-standard colormap, given is name,
+This function either reads a PyNGL-standard colormap, given its name,
 or expects to read a colormap from a given file.  It supports reading
 either RGB-tuples or RGBA-tuples (or a mixture).
 
@@ -4910,7 +4911,7 @@ colormap_name -- Either the name of a PyNGL-standard colormap, or the
   # ------------------------------------------------------------
   # Inner convenience function to find appropriate pathname for 
   # the given filename.
-  def _get_cmap_file_path(colorMapName):
+  def _get_cmap_file_path(colormap_name):
     # Is this one of our standard named colormaps? There are several well-defined
     # locations and suffixes to try...
     tmp = os.getenv("NCARG_COLORMAPS")
@@ -4923,18 +4924,18 @@ colormap_name -- Either the name of a PyNGL-standard colormap, or the
 
     # loop over the product of possible paths and possible suffixes...
     for path in paths:
-        path1 = os.path.join(path,colorMapName)
+        path1 = os.path.join(path,colormap_name)
         for suffix in suffixes:
             path2 = path1+suffix
             if(os.path.exists(path2)):
               return path2
 
-    # if still here, just return colorMapName literally; presumably is a 
+    # if still here, just return colormap_name literally; presumably is a 
     # filename for a user-managed colormap...
-    return colorMapName
+    return colormap_name
 
   # get an appropriate pathname for the given colortable name and load it..
-  pathname = _get_cmap_file_path(colorMapName)
+  pathname = _get_cmap_file_path(colormap_name)
   f = open(pathname)
   lines = f.readlines()
 
@@ -7483,6 +7484,57 @@ imdat -- A string of 50 characters encoded as per the WMO/NOAA guidelines.
 
   del xa,ya,imdata
   return None
+
+################################################################
+
+def wrf_rh(qv, p, t):
+  """
+Calculates relative humidity from ARW WRF model output.
+
+rh = Ngl.wrf_rh (qv,p,t)
+
+qv -- Water vapor mixing ratio in [kg/kg]. The rightmost dimensions
+must be bottom_top x south_north x west_east.
+
+p -- Full pressure (perturbation + base state pressure) with the same
+dimension structure as qv. Units must be [Pa].
+
+t -- Temperature in [K] with the same dimension structure as qv. This
+variable can be calculated by Ngl.wrf_tk.
+  """
+#
+# Promote p and theta to numpy arrays that have at least a dimension of 1.
+#
+  qv2 = _promote_scalar(qv)
+  p2  = _promote_scalar(p)
+  t2  = _promote_scalar(t)
+
+  return fplib.wrf_rh(qv2,p2,t2)
+
+################################################################
+
+def wrf_tk(p, theta):
+  """
+Calculates temperature in [K] from ARW WRF model output.
+
+tk = Ngl.wrf_tk (p,theta)
+
+P -- Full pressure (perturbation + base state pressure). The rightmost
+dimensions must be bottom_top x south_north x west_east. Units must be
+[Pa].
+
+theta -- Potential temperature (i.e, perturbation + reference
+temperature) with the same dimension structure as P. Units must be
+[K].
+  """
+
+#
+# Promote p and theta to numpy arrays that have at least a dimension of 1.
+#
+  p2     = _promote_scalar(p)
+  theta2 = _promote_scalar(theta)
+
+  return fplib.wrf_tk(p2, theta2)
 
 ################################################################
 
