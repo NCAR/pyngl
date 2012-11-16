@@ -1839,8 +1839,8 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
     filename = (char *)calloc(len+1,sizeof(char));
     strncpy(filename,name,len);
     filename[len] = '\0';
-    if(!is_res_set(wk_res,"wkImageFileName")) {
-      NhlRLSetString(wk_rlist,"wkImageFileName",filename);
+    if(!is_res_set(wk_res,"wkFileName")) {
+      NhlRLSetString(wk_rlist,"wkFileName",filename);
     }
     if(!is_res_set(wk_res,"wkFormat")) {
       NhlRLSetString(wk_rlist,"wkFormat","png");
