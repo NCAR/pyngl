@@ -32,6 +32,8 @@ extern void NGCALLF(calcdbz,CALCDBZ)(double *, double *, double *, double *,
                                      int *, int *, int *, int *, int *);
 
 
+				    extern int is_scalar(int,npy_intp*);
+
 /*
  * t_output_helper concatenates objects.  That is, 
  * if you have two objects "obj1" and "obj2" 
@@ -89,6 +91,7 @@ static PyMethodDef fplib_methods[] = {
     {"linmsg",  (PyCFunction)fplib_linmsg,  METH_VARARGS},
     {"regline", (PyCFunction)fplib_regline, METH_VARARGS},
     {"vinth2p", (PyCFunction)fplib_vinth2p, METH_VARARGS},
+    {"wrf_dbz", (PyCFunction)fplib_wrf_dbz, METH_VARARGS},
     {"wrf_rh", (PyCFunction)fplib_wrf_rh, METH_VARARGS},
     {"wrf_tk", (PyCFunction)fplib_wrf_tk, METH_VARARGS},
     {NULL,      NULL}        /* Sentinel */

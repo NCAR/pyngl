@@ -34,7 +34,7 @@ __all__ = ['add_annotation', 'add_cyclic', 'add_new_coord_limits', \
            'text_ndc', 'update_workstation', 'vector', 'vector_map', \
            'vector_scalar', 'vector_scalar_map', 'vinth2p', 'wmbarb', \
            'wmbarbmap', 'wmgetp', 'wmsetp', 'wmstnm', \
-           'wrf_rh', 'wrf_tk', 'xy', 'y', 'yiqrgb']
+           'wrf_dbz','wrf_rh', 'wrf_tk', 'xy', 'y', 'yiqrgb']
 
 # PyNGL analysis functions
 import fplib
@@ -7484,6 +7484,65 @@ imdat -- A string of 50 characters encoded as per the WMO/NOAA guidelines.
 
   del xa,ya,imdata
   return None
+
+################################################################
+
+def wrf_dbz(P, T, qv, qr, qs=None, qg=None, ivarint=0, iliqskin=0):
+  """
+Calculates simulated equivalent radar reflectivity factor [dBZ] from
+WRF model output.
+
+dbz = Ngl.wrf_dbz (P, T, qv, qr, qs, qg, ivarint, iliqskin)
+
+P -- Full pressure (perturbation + base state pressure). The rightmost
+dimensions are bottom_top x south_north x west_east. Units must be
+[Pa].
+
+T -- Temperature in [K]. An array with the same dimensionality as
+P. This variable can be calculated by wrf_tk.
+
+qv -- Water vapor mixing ratio in [kg/kg]. An array with the same
+dimensionality as P.
+
+qr -- Rain mixing ratio in [kg/kg]. An array with the same
+dimensionality as P.
+
+qs -- [optional] Snow mixing ratio in [kg/kg]. A scalar or an array
+with the same dimensionality as P.  If not set, a scalar value of 0.0
+will be used.
+
+qg -- [optional] Graupel mixing ratio in [kg/kg]. A scalar or array
+with the same dimensionality as P. If not set, a scalar value of 0.0
+will be used.
+
+ivarint -- [optional, default=0] A scalar option for the behavior of
+intercept parameters for the size distributions of rain, snow, and
+graupel. See description below.
+
+iliqskin -- [optional, default=0] A scalar option for scattering. If set to 1,
+frozen particles that are at a temperature above freezing will be
+assumed to scatter as a liquid particle.
+  """
+
+#
+# Promote p and theta to numpy arrays that have at least a dimension of 1.
+#
+  p2  = _promote_scalar(P)
+  t2  = _promote_scalar(T)
+  qv2 = _promote_scalar(qv)
+  qr2 = _promote_scalar(qr)
+
+  zero = 0.0
+  if qs != None:
+    qs2 = _promote_scalar(qs)
+  else:
+    qs2 = _promote_scalar(zero)
+  if qg != None:
+    qg2 = _promote_scalar(qg)
+  else:
+    qg2 = _promote_scalar(zero)
+
+  return fplib.wrf_dbz(p2,t2,qv2,qr2,qs2,qg2,ivarint,iliqskin)
 
 ################################################################
 
