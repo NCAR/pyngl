@@ -34,7 +34,7 @@ __all__ = ['add_annotation', 'add_cyclic', 'add_new_coord_limits', \
            'text_ndc', 'update_workstation', 'vector', 'vector_map', \
            'vector_scalar', 'vector_scalar_map', 'vinth2p', 'wmbarb', \
            'wmbarbmap', 'wmgetp', 'wmsetp', 'wmstnm', \
-           'wrf_dbz','wrf_rh', 'wrf_tk', 'xy', 'y', 'yiqrgb']
+           'wrf_dbz','wrf_rh', 'wrf_td', 'wrf_tk', 'xy', 'y', 'yiqrgb']
 
 # PyNGL analysis functions
 import fplib
@@ -7569,6 +7569,29 @@ variable can be calculated by Ngl.wrf_tk.
   t2  = _promote_scalar(t)
 
   return fplib.wrf_rh(qv2,p2,t2)
+
+################################################################
+
+def wrf_td(p, qv):
+  """
+Calculates dewpoint temperature in [C] from ARW WRF model output.
+
+td = Ngl.wrf_td (p,qv)
+
+p -- Full pressure (perturbation + base state pressure). The rightmost
+dimensions are bottom_top x south_north x west_east. Units must be
+[Pa].
+
+qv -- Water vapor mixing ratio in [kg/kg]. An array with the same dimensionality as P.
+  """
+
+#
+# Promote p and theta to numpy arrays that have at least a dimension of 1.
+#
+  p2  = _promote_scalar(p)
+  qv2 = _promote_scalar(qv)
+
+  return fplib.wrf_td(p2, qv2)
 
 ################################################################
 

@@ -25,14 +25,16 @@ extern int NGCALLF(gcinout,GCINOUT)(double*,double*,double*,double*,
 extern void NGCALLF(gbytes,GBYTES)(int *, int *, int *, int *, int *, int *);
 extern void NGCALLF(sbytes,SBYTES)(int *, int *, int *, int *, int *, int *);
 extern void NGCALLF(dcomputetk,DCOMPUTETK)(double *,double *,double *,int *);
+extern void NGCALLF(dcomputetd,DCOMPUTETD)(double *,double *,double *,int *);
 extern void NGCALLF(dcomputerh,DCOMPUTERH)(double *,double *,double *,
                                            double *,int *);
 extern void NGCALLF(calcdbz,CALCDBZ)(double *, double *, double *, double *,
                                      double *, double *, double *, int *, 
                                      int *, int *, int *, int *, int *);
 
-
-				    extern int is_scalar(int,npy_intp*);
+extern void convert_to_hPa(double *pp, npy_intp np);
+extern void var_zero(double *tmp_var, npy_intp n);
+extern int is_scalar(int,npy_intp*);
 
 /*
  * t_output_helper concatenates objects.  That is, 
@@ -93,6 +95,7 @@ static PyMethodDef fplib_methods[] = {
     {"vinth2p", (PyCFunction)fplib_vinth2p, METH_VARARGS},
     {"wrf_dbz", (PyCFunction)fplib_wrf_dbz, METH_VARARGS},
     {"wrf_rh", (PyCFunction)fplib_wrf_rh, METH_VARARGS},
+    {"wrf_td", (PyCFunction)fplib_wrf_td, METH_VARARGS},
     {"wrf_tk", (PyCFunction)fplib_wrf_tk, METH_VARARGS},
     {NULL,      NULL}        /* Sentinel */
 };

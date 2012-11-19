@@ -90,6 +90,102 @@ PyObject *fplib_wrf_tk(PyObject *self, PyObject *args)
 }
 
 
+PyObject *fplib_wrf_td(PyObject *self, PyObject *args)
+{
+  PyObject *par = NULL;
+  PyObject *qvar = NULL;
+  double *p = NULL;
+  double *qv = NULL;
+  PyArrayObject *arr = NULL;
+  double *td;
+/*
+ * Various
+ */
+  int ndims_p, inx;
+  npy_intp i, nx, *dsizes_p, size_leftmost, size_td, index_p;
+
+  if (!PyArg_ParseTuple(args, "OO:wrf_td", &par, &qvar)) {
+    printf("wrf_td: argument parsing failed\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+/*
+ *  Extract array information.
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (par,PyArray_DOUBLE,0,0);
+  p        = (double *)arr->data;
+  ndims_p  = arr->nd;
+  dsizes_p = (npy_intp *) calloc(ndims_p,sizeof(npy_intp));
+  for(i = 0; i < ndims_p; i++ ) {
+    dsizes_p[i] = (npy_intp)arr->dimensions[i];
+  }
+
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+
+                            (qvar,PyArray_DOUBLE,0,0);
+  qv = (double *)arr->data;
+/*
+ * Error checking. Input variables must be same size.
+ */
+  if(ndims_p != arr->nd) {
+    printf("wrf_td: p and qv must be the same dimensionality");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  for(i = 0; i < ndims_p; i++) {
+    if(dsizes_p[i] != (npy_intp)arr->dimensions[i]) {
+      printf("wrf_td: p and qv must be the same dimensionality");
+      Py_INCREF(Py_None);
+      return Py_None;
+    }
+  }
+
+/*
+ * Calculate size of leftmost dimensions.
+ */
+  size_leftmost = 1;
+  for(i = 0; i < ndims_p-1; i++) size_leftmost *= dsizes_p[i];
+  nx      = dsizes_p[ndims_p-1];
+
+/*
+ * Test dimension sizes.
+ */
+  if(nx > INT_MAX) {
+    printf("wrf_td: nx = %ld is greater than INT_MAX", nx);
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  inx = (int) nx;
+
+  size_td = size_leftmost * nx;
+
+  td = (double *)calloc(size_td,sizeof(double));
+  if(td == NULL) {
+    printf("wrf_td: Unable to allocate memory for output array");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+/*
+ * Loop across leftmost dimensions and call the Fortran routine for each
+ * one-dimensional subsection.
+ */
+  index_p = 0;
+  for(i = 0; i < size_leftmost; i++) {
+    convert_to_hPa(&p[index_p],nx);
+    var_zero(qv, nx);                   /* Set all values < 0 to 0. */
+
+    NGCALLF(dcomputetd,DCOMPUTETD)(&td[index_p],&p[index_p],
+				   &qv[index_p],&inx);
+    index_p += nx;    /* Increment index */}
+  
+  return ((PyObject *) PyArray_SimpleNewFromData(ndims_p,dsizes_p,
+                                                 PyArray_DOUBLE,
+                                                 (void *) td));
+}
+
+
 PyObject *fplib_wrf_rh(PyObject *self, PyObject *args)
 {
   PyObject *qvar = NULL;
@@ -496,5 +592,31 @@ npy_intp *dsizes_x
 {
   if(ndims_x == 1 && dsizes_x[0] == 1) return(1);
   else                                 return(0);
+}
+
+/*
+ * This routine sets all values of var < 0 to 0.0. This is
+ * so you don't have to do this in the NCL script. It's the
+ * equivalent of:
+ *
+ * tmp_var = tmp_var > 0.0
+ *
+ */
+void var_zero(double *tmp_var, npy_intp n)
+{
+  npy_intp i;
+
+  for(i = 0; i < n; i++) {
+    if(tmp_var[i] < 0.0) tmp_var[i] = 0.0;
+  }
+}
+
+/* Converts from hPa to Pa. */
+
+void convert_to_hPa(double *pp, npy_intp np)
+{
+  npy_intp i;
+
+  for(i = 0; i < np; i++) pp[i] *= 0.01;
 }
 
