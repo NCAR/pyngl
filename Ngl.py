@@ -1132,24 +1132,30 @@ def _promote_scalar_int32(x):
 def _pynglpath_ncarg():
 #
 #  Find the root directory that contains the supplemental PyNGL files,
-#  like fontcaps, colormaps, and map databases. The default is to look
-#  in site-packages/PyNGL/ncarg. Otherwise, check the PYNGL_NCARG
-#  environment variable.
+#  like fontcaps, colormaps, and map databases. First see if
+#  PYNGL_NCARG is set. If not, then look in the PYTHONPATH
+#  directories.
 #
-  pyngl1_dir  = os.path.join(pkgs_pth,"PyNGL","ncarg")
-  pyngl2_dir  = os.environ.get("PYNGL_NCARG")
+  pyngl_dir = os.environ.get("PYNGL_NCARG") 
+  if (pyngl_dir != None and os.path.exists(pyngl_dir)): 
+    if not os.path.exists(os.path.join(pyngl_dir,"colormaps")):
+      print "pynglpath: supplemental 'colormaps' directory cannot be found. PYNGL_NCARG"
+      print "           may be set incorrectly. You may not need to set it at all."
+    return pyngl_dir
 
-  if (pyngl2_dir != None and os.path.exists(pyngl2_dir)):
-    pyngl_ncarg = pyngl2_dir
-  elif (os.path.exists(pyngl1_dir)):
-    pyngl_ncarg = pyngl1_dir
-  else:
-    print "pynglpath: directory " + pyngl1_dir + \
-          "\n           does not exist and " + \
-          "environment variable PYNGL_NCARG is not set." 
-    sys.exit()
+  import sys 
+  for path in sys.path: 
+    trypath = os.path.join(path,"PyNGL","ncarg") 
+    if os.path.exists(trypath): 
+      return trypath
+    else: 
+      trypath = os.path.join(path,"ncarg") 
+      if os.path.exists(os.path.join(trypath,"colormaps")): 
+        return trypath
 
-  return pyngl_ncarg
+  print "pynglpath: supplemental 'ncarg' directory cannot be found."
+  print "You may need to set the PYNGL_NCARG environment variable."
+  sys.exit()
 
 def _lst2pobj(lst):
 #
