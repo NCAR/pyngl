@@ -33,8 +33,9 @@ __all__ = ['add_annotation', 'add_cyclic', 'add_new_coord_limits', \
            'streamline_scalar', 'streamline_scalar_map', 'text', \
            'text_ndc', 'update_workstation', 'vector', 'vector_map', \
            'vector_scalar', 'vector_scalar_map', 'vinth2p', 'wmbarb', \
-           'wmbarbmap', 'wmgetp', 'wmsetp', 'wmstnm', \
-           'wrf_dbz','wrf_rh', 'wrf_td', 'wrf_tk', 'xy', 'y', 'yiqrgb']
+           'wmbarbmap', 'wmgetp', 'wmsetp', 'wmstnm', 'wrf_avo', \
+           'wrf_dbz','wrf_rh', 'wrf_slp', 'wrf_td', 'wrf_tk', \
+           'xy', 'y', 'yiqrgb']
 
 # PyNGL analysis functions
 import fplib
@@ -7493,6 +7494,59 @@ imdat -- A string of 50 characters encoded as per the WMO/NOAA guidelines.
 
 ################################################################
 
+def wrf_avo(u, v, msfu, msfv, msfm, cor, dx, dy, opt=0):
+  """
+Calculates absolute vorticity from WRF model output.
+
+u - X-wind component. An array whose rightmost three dimensions are
+bottom_top x south_north x west_east_stag.
+
+v -- Y-wind component. An array whose rightmost three dimensions are
+bottom_top x south_north_stag x west_east, and whose leftmost
+dimensions are the same as u's.
+
+msfu -- Map scale factor on u-grid. An array whose rightmost two
+dimensions are the same as u's. If it contains additional leftmost
+dimensions, they must be the same as the u and v arrays.
+
+msfv -- Map scale factor on v-grid. An array with the same number of
+dimensions as msfu, whose rightmost two dimensions are the same as
+v's. If it contains additional leftmost dimensions, they must be the
+same as the u and v arrays.
+
+msfm -- Map scale factor on mass grid. An array with the same number
+of dimensions as msfu and msfv, whose rightmost two dimensions are
+south_north x west_east. If it contains additional leftmost
+dimensions, they must be the same as the u and v arrays.
+
+cor -- Coriolis sine latitude term. An array of the same
+dimensionality as msfm.
+
+dx -- A scalar representing the grid spacing in X.
+
+dy -- A scalar representing the grid spacing in Y.
+
+opt -- [optional] An integer option, not in use yet.
+  """
+
+#
+# Promote p and theta to numpy arrays that have at least a dimension of 1.
+#
+def wrf_avo(u, v, msfu, msfv, msfm, cor, dx, dy, opt=0):
+
+  u2    = _promote_scalar(u)
+  v2    = _promote_scalar(v)
+  msfu2 = _promote_scalar(msfu)
+  msfv2 = _promote_scalar(msfv)
+  msfm2 = _promote_scalar(msfm)
+  cor2  = _promote_scalar(cor)
+  dx2    = _promote_scalar(dx)
+  dy2    = _promote_scalar(dy)
+
+  return fplib.wrf_avo(u2,v2,msfu2,msfv2,msfm2,cor2,dx2,dy2,opt)
+
+################################################################
+
 def wrf_dbz(P, T, qv, qr, qs=None, qg=None, ivarint=0, iliqskin=0):
   """
 Calculates simulated equivalent radar reflectivity factor [dBZ] from
@@ -7575,6 +7629,35 @@ variable can be calculated by Ngl.wrf_tk.
   t2  = _promote_scalar(t)
 
   return fplib.wrf_rh(qv2,p2,t2)
+
+################################################################
+
+def wrf_slp(z,t,p,q):
+  """
+Calculates sea level pressure from ARW WRF model output.
+
+z -- Geopotential height in [m] with at least 3 dimensions. It must be
+on the ARW WRF unstaggered grid. The rightmost three dimensions must
+be level bottom_top x lat (south_north) x lon (west_east).
+
+t -- Temperature in [K]. An array with the same dimensionality as
+Z. This variable can be calculated by wrf_tk.
+
+p -- Full pressure (perturbation + base state pressure) in [Pa]. An
+array of the same dimensionality as Z.
+
+q -- Water vapor mixing ratio in [kg/kg]. An array of the same
+dimensionality as Z.
+  """
+#
+# Promote input arrays to numpy arrays that have at least a dimension of 1.
+#
+  z2 = _promote_scalar(z)
+  t2  = _promote_scalar(t)
+  p2  = _promote_scalar(p)
+  q2  = _promote_scalar(q)
+
+  return fplib.wrf_slp(z2,t2,p2,q2)
 
 ################################################################
 

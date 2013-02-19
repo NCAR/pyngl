@@ -1,3 +1,414 @@
+PyObject *fplib_wrf_avo(PyObject *self, PyObject *args)
+{
+  PyArrayObject *arr = NULL;
+/*
+ * Input variables
+ */
+  double *u; 
+  PyObject *uar = NULL;
+  int ndims_u;
+  npy_intp *dsizes_u;
+
+  double *v; 
+  PyObject *var = NULL;
+  int ndims_v;
+  npy_intp *dsizes_v;
+
+  double *msfu; 
+  PyObject *msfuar = NULL;
+  int ndims_msfu;
+  npy_intp *dsizes_msfu;
+
+  double *msfv; 
+  PyObject *msfvar = NULL;
+  int ndims_msfv;
+  npy_intp *dsizes_msfv;
+
+  double *msft; 
+  PyObject *msftar = NULL;
+  int ndims_msft;
+  npy_intp *dsizes_msft;
+
+  double *cor; 
+  PyObject *corar = NULL;
+  int ndims_cor;
+  npy_intp *dsizes_cor;
+
+  double *dx; 
+  PyObject *dxar = NULL;
+  int ndims_dx;
+  npy_intp *dsizes_dx;
+
+  double *dy; 
+  PyObject *dyar = NULL;
+  int ndims_dy;
+  npy_intp *dsizes_dy;
+
+  int *opt;
+
+/*
+ * Return variable
+ */
+  double *av;
+  npy_intp *dsizes_av;
+
+/*
+ * Various
+ */
+  npy_intp nx, ny, nz, nxp1, nyp1;
+  npy_intp nznynxp1, nznyp1nx, nznynx, nynxp1, nyp1nx, nynx;
+  npy_intp i, size_av, size_leftmost;
+  npy_intp index_u, index_v, index_msfu, index_msfv, index_msft, index_av;
+  int inx, iny, inz, inxp1, inyp1;
+
+  if (!PyArg_ParseTuple(args, "OOOOOOOOi:wrf_avo", &uar, &var, &msfuar, 
+			&msfvar,&msftar, &corar, &dxar, &dyar, &opt)) {
+    printf("wrf_avo: argument parsing failed\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+/*
+ * Retrieve parameters.
+ *
+ * Note any of the pointer parameters can be set to NULL, which
+ * implies you don't care about its value.
+ */
+/*
+ * Extract u
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (uar,PyArray_DOUBLE,0,0);
+  u        = (double *)arr->data;
+  ndims_u  = arr->nd;
+  dsizes_u = (npy_intp *) calloc(ndims_u,sizeof(npy_intp));
+  for(i = 0; i < ndims_u; i++ ) {
+    dsizes_u[i] = (npy_intp)arr->dimensions[i];
+  }
+
+/*
+ * Error checking on dimensions.
+ */
+  if(ndims_u < 3) {
+    printf("wrf_avo: u must have at least 3 dimensions");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  nz   = dsizes_u[ndims_u-3];
+  ny   = dsizes_u[ndims_u-2];
+  nxp1 = dsizes_u[ndims_u-1];
+
+/*
+ * Extract v
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (var,PyArray_DOUBLE,0,0);
+  v        = (double *)arr->data;
+  ndims_v  = arr->nd;
+  dsizes_v = (npy_intp *) calloc(ndims_v,sizeof(npy_intp));
+  for(i = 0; i < ndims_v; i++ ) {
+    dsizes_v[i] = (npy_intp)arr->dimensions[i];
+  }
+
+/*
+ * Error checking on dimensions.
+ */
+  if(ndims_v != ndims_u) {
+    printf("wrf_avo: u and v must have the same number of dimensions");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  if(dsizes_v[ndims_v-3] != nz) {
+    printf("wrf_avo: The third-from-the-right dimension of v must be the same as the third-from-the-right dimension of u");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+/*
+ * Error checking on leftmost dimension sizes.
+ */
+  for(i = 0; i < ndims_u-3; i++) {
+    if(dsizes_u[i] != dsizes_v[i]) {
+      printf("wrf_avo: The leftmost dimensions of u and v must be the same");
+      Py_INCREF(Py_None);
+      return Py_None;
+    }
+  }
+
+  nyp1 = dsizes_v[ndims_v-2];
+  nx   = dsizes_v[ndims_v-1];
+
+/*
+ * Extract msfu
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (msfuar,PyArray_DOUBLE,0,0);
+  msfu        = (double *)arr->data;
+  ndims_msfu  = arr->nd;
+  dsizes_msfu = (npy_intp *) calloc(ndims_msfu,sizeof(npy_intp));
+  for(i = 0; i < ndims_msfu; i++ ) {
+    dsizes_msfu[i] = (npy_intp)arr->dimensions[i];
+  }
+
+/*
+ * Error checking on dimensions.
+ */
+  if(ndims_msfu < 2) {
+    printf("wrf_avo: msfu must have at least 2 dimensions");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  if(ndims_msfu !=2 && ndims_msfu != (ndims_u-1)) {
+    printf("wrf_avo: msfu must be 2D or have one fewer dimensions than u");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  if(dsizes_msfu[ndims_msfu-2] != ny || dsizes_msfu[ndims_msfu-1] != nxp1) {
+    printf("wrf_avo: The rightmost 2 dimensions of msfu must be the same as the rightmost 2 dimensions of u");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+/*
+ * Error checking on leftmost dimension sizes. msfu, msfv, msft, and 
+ * cor can be 2D or nD.  If they are nD, they must have same leftmost
+ * dimensions as other input arrays.
+ */
+  if(ndims_msfu > 2) {
+    for(i = 0; i < ndims_u-3; i++) {
+      if(dsizes_msfu[i] != dsizes_u[i]) {
+        printf("wrf_avo: If msfu is not 2-dimensional, then the leftmost dimensions of msfu and u must be the same");
+	Py_INCREF(Py_None);
+	return(Py_None);
+      }
+    }
+  }
+
+/*
+ * Extract msfv
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (msfvar,PyArray_DOUBLE,0,0);
+  msfv        = (double *)arr->data;
+  ndims_msfv  = arr->nd;
+  dsizes_msfv = (npy_intp *) calloc(ndims_msfv,sizeof(npy_intp));
+  for(i = 0; i < ndims_msfv; i++ ) {
+    dsizes_msfv[i] = (npy_intp)arr->dimensions[i];
+  }
+
+/*
+ * Error checking on dimensions.
+ */
+  if(ndims_msfv != ndims_msfu) {
+    printf("wrf_avo: msfu, msfv, msft, and cor must have the same number of dimensions");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  if(dsizes_msfv[ndims_msfv-2] != nyp1 || dsizes_msfv[ndims_msfv-1] != nx) {
+    printf("wrf_avo: The rightmost 2 dimensions of msfv must be the same as the rightmost 2 dimensions of v");
+    Py_INCREF(Py_None);
+    return(Py_None);
+  }
+
+/*
+ * Error checking on leftmost dimension sizes.
+ */
+  for(i = 0; i < ndims_msfu-2; i++) {
+    if(dsizes_msfv[i] != dsizes_msfu[i]) {
+      printf("wrf_avo: The leftmost dimensions of msfv and msfu must be the same");
+      Py_INCREF(Py_None);
+      return(Py_None);
+    }
+  }
+
+/*
+ * Extract msft
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (msftar,PyArray_DOUBLE,0,0);
+  msft        = (double *)arr->data;
+  ndims_msft  = arr->nd;
+  dsizes_msft = (npy_intp *) calloc(ndims_msft,sizeof(npy_intp));
+  for(i = 0; i < ndims_msft; i++ ) {
+    dsizes_msft[i] = (npy_intp)arr->dimensions[i];
+  }
+
+/*
+ * Error checking on dimensions.
+ */
+  if(ndims_msft != ndims_msfu) {
+    printf("wrf_avo: msfu, msfv, msft, and cor must have the same number of dimensions");
+    Py_INCREF(Py_None);
+    return(Py_None);
+  }
+  if(dsizes_msft[ndims_msft-2] != ny || dsizes_msft[ndims_msft-1] != nx) {
+    printf("wrf_avo: The rightmost 2 dimensions of msft must be the same as the rightmost 2 dimensions of th");
+    Py_INCREF(Py_None);
+    return(Py_None);
+  }
+
+/*
+ * Error checking on leftmost dimension sizes.
+ */
+  for(i = 0; i < ndims_msfu-2; i++) {
+    if(dsizes_msft[i] != dsizes_msfu[i]) {
+      printf("wrf_avo: The leftmost dimensions of msft and msfu must be the same");
+      Py_INCREF(Py_None);
+      return(Py_None);
+    }
+  }
+
+/*
+ * Extract cor
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (corar,PyArray_DOUBLE,0,0);
+  cor        = (double *)arr->data;
+  ndims_cor  = arr->nd;
+  dsizes_cor = (npy_intp *) calloc(ndims_cor,sizeof(npy_intp));
+  for(i = 0; i < ndims_cor; i++ ) {
+    dsizes_cor[i] = (npy_intp)arr->dimensions[i];
+  }
+
+
+/*
+ * Error checking on dimensions.
+ */
+  if(ndims_cor != ndims_msft) {
+    printf("wrf_avo: msfu, msfv, msft, and cor must have the same number of dimensions");
+    Py_INCREF(Py_None);
+    return(Py_None);
+  }
+
+/*
+ * Error checking on dimension sizes.
+ */
+  for(i = 0; i < ndims_msft; i++) {
+    if(dsizes_cor[i] != dsizes_msft[i]) {
+      printf("wrf_avo: The dimensions of cor and msft must be the same");
+      Py_INCREF(Py_None);
+      return(Py_None);
+    }
+  }
+
+/*
+ * Extract dx and dy (scalars)
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (dxar,PyArray_DOUBLE,0,0);
+  dx        = (double *)arr->data;
+  ndims_dx  = arr->nd;
+  dsizes_dx = (npy_intp *) calloc(ndims_dx,sizeof(npy_intp));
+  for(i = 0; i < ndims_dx; i++ ) {
+    dsizes_dx[i] = (npy_intp)arr->dimensions[i];
+  }
+
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (dyar,PyArray_DOUBLE,0,0);
+  dy        = (double *)arr->data;
+  ndims_dy  = arr->nd;
+  dsizes_dy = (npy_intp *) calloc(ndims_dy,sizeof(npy_intp));
+  for(i = 0; i < ndims_dy; i++ ) {
+    dsizes_dy[i] = (npy_intp)arr->dimensions[i];
+  }
+
+
+/*
+ * Error checking on dimensions.
+ */
+  if((ndims_dx != 1 && dsizes_dx[0] != 1) ||
+     (ndims_dy != 1 && dsizes_dy[0] != 1)) {
+    printf("wrf_avo: dx and dy must be scalars");
+    Py_INCREF(Py_None);
+    return(Py_None);
+  }
+
+
+  nynx     = ny * nx;
+  nznynx   = nz * nynx;
+  nynxp1   = ny * nxp1;
+  nyp1nx   = nyp1 * nx;
+  nznynxp1 = nz * nynxp1;
+  nznyp1nx = nz * nyp1nx;
+
+/*
+ * Test dimension sizes.
+ */
+  if((nxp1 > INT_MAX) || (nyp1 > INT_MAX) || (nz > INT_MAX) || 
+     (nx > INT_MAX) ||(ny > INT_MAX)) {
+    printf("wrf_avo: one or more dimension sizes is greater than INT_MAX");
+    Py_INCREF(Py_None);
+    return(Py_None);
+  }
+  inx = (int) nx;
+  iny = (int) ny;
+  inz = (int) nz;
+  inxp1 = (int) nxp1;
+  inyp1 = (int) nyp1;
+
+/*
+ * Calculate size of leftmost dimensions, and set
+ * dimension sizes for output array.
+ */
+  dsizes_av = (npy_intp*)calloc(ndims_u,sizeof(npy_intp));  
+  if( dsizes_av == NULL) {
+    printf("wrf_avo: Unable to allocate memory for holding dimension sizes");
+    Py_INCREF(Py_None);
+    return(Py_None);
+  }
+
+  size_leftmost = 1;
+  for(i = 0; i < ndims_u-3; i++) {
+    size_leftmost *= dsizes_u[i];
+    dsizes_av[i] = dsizes_u[i];
+  }
+  size_av = size_leftmost * nznynx;
+  dsizes_av[ndims_u-1] = nx;
+  dsizes_av[ndims_u-2] = ny;
+  dsizes_av[ndims_u-3] = nz;
+
+/* 
+ * Allocate space for output array.
+ */
+  av = (double *)calloc(size_av, sizeof(double));
+  if(av == NULL) {
+    printf("wrf_avo: Unable to allocate memory for output array");
+    Py_INCREF(Py_None);
+    return(Py_None);
+  }
+
+/*
+ * Call the Fortran routine.
+ */
+  index_u = index_v = index_msfu = index_msfv = index_msft = index_av = 0;
+  for(i = 0; i < size_leftmost; i++) {
+    NGCALLF(dcomputeabsvort,DCOMPUTEABSVORT)(&av[index_av], &u[index_u], 
+					     &v[index_v], &msfu[index_msfu],
+					     &msfv[index_msfv], 
+					     &msft[index_msft], 
+					     &cor[index_msft],
+                                             &dx[0], &dy[0], &inx, &iny, &inz,
+                                             &inxp1, &inyp1);
+    index_u    += nznynxp1;
+    index_v    += nznyp1nx;
+    index_av   += nznynx;
+    if(ndims_msfu > 2) {
+      index_msfu += nynxp1;
+      index_msfv += nyp1nx;
+      index_msft += nynx;
+    }
+  }
+
+  /* Free memory */
+  free(dsizes_v);
+  free(dsizes_cor);
+  free(dsizes_msfu);
+  free(dsizes_msfv);
+  free(dsizes_msft);
+
+  return ((PyObject *) PyArray_SimpleNewFromData(ndims_u,dsizes_av,
+                                                 PyArray_DOUBLE,
+                                                 (void *) av));
+}
+
 PyObject *fplib_wrf_tk(PyObject *self, PyObject *args)
 {
   PyObject *par = NULL;
@@ -84,6 +495,7 @@ PyObject *fplib_wrf_tk(PyObject *self, PyObject *args)
 				   &theta[index_p],&inx);
     index_p += nx;    /* Increment index */
   }
+
   return ((PyObject *) PyArray_SimpleNewFromData(ndims_p,dsizes_p,
                                                  PyArray_DOUBLE,
                                                  (void *) tk));
@@ -184,6 +596,214 @@ PyObject *fplib_wrf_td(PyObject *self, PyObject *args)
                                                  PyArray_DOUBLE,
                                                  (void *) td));
 }
+
+
+PyObject *fplib_wrf_slp(PyObject *self, PyObject *args)
+{
+/*
+ * Input array variables
+ */
+  PyArrayObject *arr = NULL;
+  PyObject *zar = NULL;
+  PyObject *tar = NULL;
+  PyObject *par = NULL;
+  PyObject *qar = NULL;
+  double *z = NULL; 
+  double *t = NULL; 
+  double *p = NULL; 
+  double *q = NULL; 
+  int ndims_z, ndims_t, ndims_p, ndims_q;
+  npy_intp *dsizes_z;
+  npy_intp *dsizes_t;
+  npy_intp *dsizes_p;
+  npy_intp *dsizes_q;
+/*
+ * Output variable.
+ */
+  double *slp;
+  int ndims_slp;
+  npy_intp *dsizes_slp;
+  npy_intp size_slp;
+/*
+ * Various
+ */
+  npy_intp i, nx, ny, nz, nxy, nxyz, size_leftmost, index_nxy, index_nxyz;
+  double *tmp_t_sea_level, *tmp_t_surf, *tmp_level;
+  int inx, iny, inz;
+
+  if (!PyArg_ParseTuple(args, "OOOO:wrf_slp", &zar, &tar, &par, &qar)) {
+    printf("wrf_slp: argument parsing failed\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+/*
+ *  Extract z.
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (zar,PyArray_DOUBLE,0,0);
+  z        = (double *)arr->data;
+  ndims_z  = arr->nd;
+  dsizes_z = (npy_intp *) calloc(ndims_z,sizeof(npy_intp));
+  for(i = 0; i < ndims_z; i++ ) {
+    dsizes_z[i] = (npy_intp)arr->dimensions[i];
+  }
+
+/*
+ *  Extract t.
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (tar,PyArray_DOUBLE,0,0);
+  t        = (double *)arr->data;
+  ndims_t  = arr->nd;
+  dsizes_t = (npy_intp *) calloc(ndims_t,sizeof(npy_intp));
+  for(i = 0; i < ndims_t; i++ ) {
+    dsizes_t[i] = (npy_intp)arr->dimensions[i];
+  }
+
+/*
+ *  Extract p.
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (par,PyArray_DOUBLE,0,0);
+  p        = (double *)arr->data;
+  ndims_p  = arr->nd;
+  dsizes_p = (npy_intp *) calloc(ndims_p,sizeof(npy_intp));
+  for(i = 0; i < ndims_p; i++ ) {
+    dsizes_p[i] = (npy_intp)arr->dimensions[i];
+  }
+
+/*
+ *  Extract q.
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (qar,PyArray_DOUBLE,0,0);
+  q        = (double *)arr->data;
+  ndims_q  = arr->nd;
+  dsizes_q = (npy_intp *) calloc(ndims_q,sizeof(npy_intp));
+  for(i = 0; i < ndims_q; i++ ) {
+    dsizes_q[i] = (npy_intp)arr->dimensions[i];
+  }
+
+
+/*
+ * Error checking. Input variables must be same size, and must have at least
+ * 3 dimensions.
+ */
+  if(ndims_z != ndims_t || ndims_z != ndims_p || ndims_z != ndims_q) {
+    printf("wrf_slp: The z, t, p, and q arrays must have the same number of dimensions");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  if(ndims_z < 3) {
+    printf("wrf_slp: The z, t, p, and q arrays must have at least 3 dimensions");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  for(i = 0; i < ndims_z; i++) {
+    if(dsizes_z[i] != dsizes_t[i] || dsizes_z[i] != dsizes_p[i] ||
+       dsizes_z[i] != dsizes_q[i]) {
+      printf("wrf_slp: z, t, p, and q must be the same dimensionality");
+      Py_INCREF(Py_None);
+      return Py_None;
+    }
+  }
+/*
+ * Allocate space to set dimension sizes.
+ */
+  ndims_slp  = ndims_z-1;
+  dsizes_slp = (npy_intp*)calloc(ndims_slp,sizeof(npy_intp));  
+  if( dsizes_slp == NULL) {
+    printf("wrf_slp: Unable to allocate memory for holding dimension sizes");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+/*
+ * Set sizes for output array and calculate size of leftmost dimensions.
+ * The output array will have one less dimension than the four input arrays.
+ */
+  size_leftmost = 1;
+  for(i = 0; i < ndims_z-3; i++) {
+    dsizes_slp[i] = dsizes_z[i];
+    size_leftmost *= dsizes_z[i];
+  }
+  nx = dsizes_z[ndims_z-1];
+  ny = dsizes_z[ndims_z-2];
+  nz = dsizes_z[ndims_z-3];
+  dsizes_slp[ndims_slp-1] = nx;
+  dsizes_slp[ndims_slp-2] = ny;
+  nxy  = nx * ny;
+  nxyz = nxy * nz;
+  size_slp = size_leftmost * nxy;
+/*
+ * Test dimension sizes.
+ */
+  if((nx > INT_MAX) || (ny > INT_MAX) || (nz > INT_MAX)) {
+    printf("wrf_slp: nx, ny, and/or nz is greater than INT_MAX");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  inx = (int) nx;
+  iny = (int) ny;
+  inz = (int) nz;
+
+/*
+ * Allocate space for work arrays.
+ */ 
+  tmp_t_sea_level = (double *)calloc(nxy,sizeof(double));
+  tmp_t_surf      = (double *)calloc(nxy,sizeof(double));
+  tmp_level       = (double *)calloc(nxy,sizeof(double));
+  if(tmp_t_sea_level == NULL || tmp_t_surf == NULL || tmp_level == NULL) {
+    printf("wrf_slp: Unable to allocate memory for temporary arrays");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+/*
+ * Allocate space for output array.
+ */ 
+  slp = (double *)calloc(size_slp,sizeof(double));
+  if(slp == NULL) {
+    printf("wrf_slp: Unable to allocate memory for output array");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+/*
+ * Loop across leftmost dimensions and call the Fortran routine
+ * for each three-dimensional subsection.
+ */
+  index_nxy = index_nxyz = 0;
+  for(i = 0; i < size_leftmost; i++) {
+    var_zero(&q[index_nxyz], nxyz);   /* Set all values < 0 to 0. */
+/*
+ * Call Fortran routine.
+ */
+    NGCALLF(dcomputeseaprs,DCOMPUTESEAPRS)(&inx,&iny,&inz,&z[index_nxyz],
+					   &t[index_nxyz],&p[index_nxyz],
+                                           &q[index_nxyz],&slp[index_nxy],
+					   tmp_t_sea_level,tmp_t_surf,
+					   tmp_level);
+
+    index_nxyz += nxyz;    /* Increment indices */
+    index_nxy  += nxy;
+  }
+/*
+ * Free up memory.
+ */
+  free(dsizes_z);
+  free(dsizes_t);
+  free(dsizes_p);
+  free(dsizes_q);
+  free(tmp_t_sea_level);
+  free(tmp_t_surf);
+  free(tmp_level);
+
+  return ((PyObject *) PyArray_SimpleNewFromData(ndims_slp,dsizes_slp,
+                                                 PyArray_DOUBLE,
+                                                 (void *) slp));
+}
+
 
 
 PyObject *fplib_wrf_rh(PyObject *self, PyObject *args)
@@ -300,6 +920,7 @@ PyObject *fplib_wrf_rh(PyObject *self, PyObject *args)
 				   &t[index_qv],&rh[index_qv],&inx);
     index_qv += nx;    /* Increment index */
   }
+
   return ((PyObject *) PyArray_SimpleNewFromData(ndims_qv,dsizes_qv,
                                                  PyArray_DOUBLE,
                                                  (void *) rh));
@@ -575,6 +1196,12 @@ PyObject *fplib_wrf_dbz(PyObject *self, PyObject *args)
  */
   if(is_scalar_qs) free(tmp_qs);
   if(is_scalar_qg) free(tmp_qg);
+  free(dsizes_p);
+  free(dsizes_t);
+  free(dsizes_qv);
+  free(dsizes_qr);
+  free(dsizes_qs);
+  free(dsizes_qg);
  
   return ((PyObject *) PyArray_SimpleNewFromData(ndims_p,dsizes_p,
                                                  PyArray_DOUBLE,
