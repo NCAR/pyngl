@@ -2,7 +2,7 @@
 #include <ncarg/hlu/LogLinPlotP.h>
 #include <ncarg/hlu/PSWorkstationP.h>
 #include <ncarg/hlu/PDFWorkstationP.h>
-#include <ncarg/hlu/XWorkstationP.h>
+#include <ncarg/hlu/CairoWorkstationP.h>
 #include <ncarg/hlu/NcgmWorkstationP.h>
 #include <ncarg/hlu/AppP.h>
 #include <ncarg/hlu/hluP.h>
@@ -52,9 +52,17 @@ NhlClass NhlPNcgmWorkstationClass ()
 {
   return((NhlClass) NhlncgmWorkstationClass);
 }
-NhlClass NhlPXWorkstationClass ()
+NhlClass NhlPCairoWindowWorkstationClass ()
 {
-  return((NhlClass) NhlxWorkstationClass);
+  return((NhlClass) NhlcairoWindowWorkstationClass);
+}
+NhlClass NhlPCairoDocumentWorkstationClass ()
+{
+  return((NhlClass) NhlcairoDocumentWorkstationClass);
+}
+NhlClass NhlPCairoImageWorkstationClass ()
+{
+  return((NhlClass) NhlcairoImageWorkstationClass);
 }
 NhlClass NhlPPSWorkstationClass ()
 {

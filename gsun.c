@@ -586,7 +586,7 @@ void maximize_plots(int wks, nglPlotId *plot, int nplots, int ispanel,
   name = NhlClassName(wks);
   if(name != NULL && (!strcmp(name,"psWorkstationClass") ||
                       !strcmp(name,"pdfWorkstationClass") ||
-	              !strcmp(name,"documentWorkstationClass"))) {
+	              !strcmp(name,"cairoDocumentWorkstationClass"))) {
 /*
  * Compute and set device coordinates that will make plot fill the 
  * whole page.

@@ -13,9 +13,10 @@
 #include <ncarg/hlu/Title.h>
 #include <ncarg/hlu/Workstation.h>
 #include <ncarg/hlu/WorkstationP.h>
-#include <ncarg/hlu/XWorkstationP.h>
+#include <ncarg/hlu/NcgmWorkstationP.h>
 #include <ncarg/hlu/PSWorkstationP.h>
 #include <ncarg/hlu/PDFWorkstationP.h>
+#include <ncarg/hlu/CairoWorkstationP.h>
 #include <ncarg/hlu/LabelBar.h>
 #include <ncarg/hlu/Legend.h>
 #include <ncarg/hlu/TextItem.h>
@@ -58,9 +59,11 @@ extern void c_nnsetc(NhlString,NhlString);
 
 extern NhlClass NhlPAppClass ();
 extern NhlClass NhlPNcgmWorkstationClass ();
-extern NhlClass NhlPXWorkstationClass ();
 extern NhlClass NhlPPSWorkstationClass ();
 extern NhlClass NhlPPDFWorkstationClass ();
+extern NhlClass NhlPCairoDocumentWorkstationClass ();
+extern NhlClass NhlPCairoImageWorkstationClass ();
+extern NhlClass NhlPCairoWindowWorkstationClass ();
 extern NhlClass NhlPLogLinPlotClass ();
 extern NhlClass NhlPGraphicStyleClass ();
 extern NhlClass NhlPScalarFieldClass ();
@@ -2875,9 +2878,11 @@ extern PyObject *NhlGetMDDoubleArray(int, char *);
 extern PyObject *NhlGetMDIntegerArray(int, char *);
 extern NhlClass NhlPAppClass ();
 extern NhlClass NhlPNcgmWorkstationClass ();
-extern NhlClass NhlPXWorkstationClass ();
 extern NhlClass NhlPPSWorkstationClass ();
 extern NhlClass NhlPPDFWorkstationClass ();
+extern NhlClass NhlPCairoDocumentWorkstationClass ();
+extern NhlClass NhlPCairoImageWorkstationClass ();
+extern NhlClass NhlPCairoWindowWorkstationClass ();
 extern NhlClass NhlPLogLinPlotClass();
 extern NhlClass NhlPGraphicStyleClass();
 extern NhlClass NhlPScalarFieldClass ();
@@ -3183,9 +3188,11 @@ extern NhlErrorTypes NglGaus_p(int num, int nxir, int nyir, double *p_array_doub
 %newobject NhlGetMDIntegerArray(int, char *);
 %newobject  NhlPAppClass ();
 %newobject  NhlPNcgmWorkstationClass ();
-%newobject  NhlPXWorkstationClass ();
 %newobject  NhlPPSWorkstationClass ();
 %newobject  NhlPPDFWorkstationClass ();
+%newobject  NhlPCairoDocumentWorkstationClass ();
+%newobject  NhlPCairoImageWorkstationClass ();
+%newobject  NhlPCairoWindowWorkstationClass ();
 %newobject  NhlPLogLinPlotClass();
 %newobject  NhlPGraphicStyleClass();
 %newobject  NhlPScalarFieldClass ();
