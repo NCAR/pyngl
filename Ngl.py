@@ -7,12 +7,12 @@ NCL Graphics Libraries," and it is pronounced "pingle."
 """
 
 __all__ = ['add_annotation', 'add_cyclic', 'add_new_coord_limits', \
-           'add_polygon', 'add_polyline', 'add_polymarker', 'add_text', \
-           'asciiread', 'betainc', 'blank_plot', 'change_workstation', \
-           'chiinv', 'clear_workstation', 'contour', 'contour_map', \
-           'datatondc', 'define_colormap', 'delete_wks', 'destroy', \
-           'dim_gbits', 'draw', 'draw_colormap', 'draw_ndc_grid', 'end', \
-           'frame', 'free_color', 'fspan', 'ftcurv', 'ftcurvp', \
+           'add_lat_90','add_polygon', 'add_polyline', 'add_polymarker', \
+           'add_text', 'asciiread', 'betainc', 'blank_plot', \
+           'change_workstation', 'chiinv', 'clear_workstation', 'contour', \
+           'contour_map', 'datatondc', 'define_colormap', 'delete_wks', \
+           'destroy', 'dim_gbits', 'draw', 'draw_colormap', 'draw_ndc_grid', \
+           'end', 'frame', 'free_color', 'fspan', 'ftcurv', 'ftcurvp', \
            'ftcurvpi', 'gaus', 'gc_convert', 'gc_dist', 'gc_inout', \
            'gc_interp', 'gc_qarea', 'gc_tarea', 'generate_2d_array', \
            'get_MDfloat_array', 'get_MDinteger_array', \
@@ -2280,6 +2280,132 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
     return new_data, new_xcoord
   else:
     return new_data, new_ycoord
+
+#
+# Add -90 and 90 to the latitude dimension to give it "nice"
+# values, and then make sure the data is missing in these new 
+# locations.  By default, it is assumed the latitude dimemsion
+# is the leftmost dimension. If this is not the case, then
+# axis must be set to "x".
+#
+def add_lat_90(data,lat_coord=None,axis="y"):
+  """
+Adds -90 and 90 points to a latitude coordinate dimension of a 2D
+array and returns a NumPy array of the same type as data with two more
+elements in the given dimension (leftmost by default). These new 
+locations will contain all missing values. A fill_value will be 
+added, if none exists, and set to 1e20.
+
+datap = Ngl.add_lat_90(data, latitude=None, axis="y")
+
+data -- A two-dimensional array to which you want to add -90/90
+        latitude points to the given dimension (Y axis by default,
+        or axis="x")
+
+latitude -- An optional one-dimensional array, representing
+            latitude values, that you want to add the points
+            to.
+
+  """
+#
+# Check input data to make sure it is 2D.
+#
+  dims = data.shape
+  if (len(dims) != 2):
+    print "add_lat_90: input must be a 2-dimensional array."
+    sys.exit()
+
+  if(axis == None):
+    axis = "y"
+  else:
+    saxis = string.lower(axis)
+    if (saxis != "x" and saxis != "y"):
+      print "add_lat_90: 'axis' must be set to 'x' or 'y'"
+      sys.exit()
+
+  ny  = dims[0]
+  nx  = dims[1]
+
+  if(saxis == "y"):
+    ny1  = ny + 1
+    ny2  = ny + 2
+  else:
+    nx1  = nx + 1
+    nx2  = nx + 2
+#
+# Test latitude array, if it exists.
+#
+# In numpy 1.4.1 and later, you can't test a numpy masked
+# array for being equal to None.
+#
+  if(_is_numpy_ma(lat_coord) or \
+     (not _is_numpy_ma(lat_coord) and lat_coord != None)):
+    lat_coord_dims = lat_coord.shape
+    lat_coord_rank = len(lat_coord_dims)
+#
+# Latitude coordindate array must be 1D.
+#
+    if (lat_coord_rank != 1):
+      print "add_lat_90: latitude coordinate array must be a 1-dimensional."
+      sys.exit()
+#
+# Check dimension size against data array.
+#
+    nlat = lat_coord_dims[0]
+    if ((saxis == "y" and nlat != ny) or \
+        (saxis == "x" and nlat != nx)):
+      print "add_lat_90: latitude coordinate array must be the same length as the",axis,"dimension of the data array."
+      sys.exit()
+
+    nlat1 = nlat+1
+    nlat2 = nlat+2
+
+#
+# Create the new data array with two extra values in the Y direction.
+#
+  if(saxis == "y"):
+    newdata = ma.zeros((ny2,nx),data.dtype.char)
+  else:
+    newdata = ma.zeros((ny,nx2),data.dtype.char)
+
+  fill_value = _get_fill_value(data)
+  if(fill_value == None):
+    newdata.set_fill_value(1.e20)
+  else:
+    newdata.set_fill_value(fill_value)
+
+  if(saxis == "y"):
+    newdata[1:ny1,:] = data
+    newdata[0,:]     = newdata.fill_value
+    newdata[ny1,:]   = newdata.fill_value
+  else:
+    newdata[:,1:nx1] = data
+    newdata[:,0]     = newdata.fill_value
+    newdata[:,nx1]   = newdata.fill_value
+
+#
+# Update the latitude coordinate array too, if requested.
+#
+# In numpy 1.4.1 and later, you can't test a numpy masked
+# array for being equal to None.
+#
+  if(_is_numpy_ma(lat_coord) or \
+     (not _is_numpy_ma(lat_coord) and lat_coord != None)):
+    newlatcoord          = numpy.zeros(nlat2,lat_coord.dtype.char)
+    newlatcoord[1:nlat1] = lat_coord
+
+# Is this south-north, or north-south?
+    if(lat_coord[1] > lat_coord[0]):
+      newlatcoord[0]   = -90
+      newlatcoord[nlat1] =  90
+      newlatcoord[nlat1] =  90
+    else:
+      newlatcoord[0]     =  90
+      newlatcoord[nlat1] = -90
+
+    return newdata,newlatcoord
+  else:
+    return newdata
 
 ################################################################
 
