@@ -304,6 +304,7 @@ if os.uname()[-1] == "x86_64" or \
   (os.uname()[-1] == "Power Macintosh" and os.uname()[2] == "7.9.0"):
   os.environ["CFLAGS"] = "-O2"
 DMACROS =  [('NeedFuncProto', None)]
+os.environ["CFLAGS"] = "-fopenmp"
 
 # Instructions for compiling the "_hlu.so" and "fplib.so" files.
 EXT_MODULES = [Extension('_hlu', 
