@@ -255,7 +255,6 @@ mpres.pmLabelBarOrthogonalPosF = 0.025
 map = Ngl.contour_map(wks,sst,mpres)      # Draw the first contours/map.
 
 Ngl.define_colormap(wks,"WhViBlGrYeOrRe")   # set colormap for 2nd contours
-igray = Ngl.new_color(wks,0.8,0.8,0.8)      # add gray
 
 # Set up new contour resources
 

@@ -55,10 +55,7 @@ file = Nio.open_file(os.path.join(Ngl.pynglpath("data"),"cdf","pop.nc"))
 #  Open a workstation.
 #
 wks_type = "ps"
-
-rlist            = Ngl.Resources()
-rlist.wkColorMap = ["White","Black","Tan1","SkyBlue","Red"]
-wks = Ngl.open_wks(wks_type,"streamline1",rlist)
+wks = Ngl.open_wks(wks_type,"streamline1")
 
 #
 #  Get the u/v and lat/lon variables.

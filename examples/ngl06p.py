@@ -104,8 +104,7 @@ map = Ngl.vector_map(wks,ua,va,resources)  # Draw a vector plot of u and v
 
 #----------- Begin second plot -----------------------------------------
 
-cmap = numpy.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
-                    [.560, .500, .700], [.300, .300, .700], \
+cmap = numpy.array([[.560, .500, .700], [.300, .300, .700], \
                     [.100, .100, .700], [.000, .100, .700], \
                     [.000, .300, .700], [.000, .500, .500], \
                     [.000, .700, .100], [.060, .680, .000], \
@@ -113,10 +112,6 @@ cmap = numpy.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
                     [.700, .285, .000], [.700, .180, .000], \
                     [.870, .050, .000], [1.00, .000, .000], \
                     [.700, .700, .700]],'f')
-
-rlist = Ngl.Resources()
-rlist.wkColorMap = cmap
-Ngl.set_values(wks,rlist)
 
 resources.mpLimitMode       = "Corners"  # Zoom in on the plot area.
 resources.mpLeftCornerLonF  = float(lon[0])
@@ -136,6 +131,7 @@ resources.vcMinFracLengthF     = 0.33   # Increase length of
 resources.vcMinMagnitudeF      = 0.001  # vectors.
 resources.vcRefLengthF         = 0.045
 resources.vcRefMagnitudeF      = 20.0
+resources.vcLevelPalette       = cmap
 
 map = Ngl.vector_map(wks,ua,va,resources)  # Draw a vector plot.
 
@@ -155,10 +151,10 @@ resources.mpMaxLatF    =  65.0
 resources.mpMinLonF    = -128.
 resources.mpMaxLonF    = -58.
 
-resources.mpFillOn               = True  # Turn on map fill.
-resources.mpLandFillColor        = 16    # Change land color to grey.
-resources.mpOceanFillColor       = -1    # Change oceans and inland
-resources.mpInlandWaterFillColor = -1    # waters to transparent.
+resources.mpFillOn               = True   # Turn on map fill.
+resources.mpLandFillColor        = "grey" # Change land color to grey.
+resources.mpOceanFillColor       = -1     # Change oceans and inland
+resources.mpInlandWaterFillColor = -1     # waters to transparent.
 
 resources.mpGridMaskMode         = "MaskNotOcean"  # Draw grid over ocean.
 resources.mpGridLineDashPattern  = 2

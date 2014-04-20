@@ -115,13 +115,12 @@ map = Ngl.contour_map(wks,psl,resources)
 
 #----------- Begin second plot -----------------------------------------
 
-ic = Ngl.new_color(wks,0.75,0.75,0.75)   # Add gray to the color map
-
 resources.mpProjection = "Orthographic" # Change the map projection.
 resources.mpCenterLonF = 180.           # Rotate the projection.
 resources.mpFillOn     = True           # Turn on map fill.
-resources.mpFillColors = [0,-1,ic,-1]   # Fill land and leave oceans
-                                        # and inland water transparent.
+
+# Fill land and leave oceans and inland water transparent.
+resources.mpFillColors = ["white","transparent","gray","transparent"]
 
 resources.vpXF      = 0.1    # Change the size and location of the
 resources.vpYF      = 0.9    # plot on the viewport.

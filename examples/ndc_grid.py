@@ -27,6 +27,7 @@
 #    o  Setting resources for primitives.
 #    o  Using the NDC grid routine for debugging purposes.
 #    o  Drawing primitives with missing values
+#    o  Using indexed color.
 # 
 #  Output:
 #     A single visualization with an NDC grid and primitives is produced.

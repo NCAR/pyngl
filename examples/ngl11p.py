@@ -45,15 +45,10 @@ import numpy
 import Ngl
 
 #
-#  Define a color table and open a workstation.
+#  Open a workstation.
 #
-cmap = numpy.zeros((2,3),'f')
-cmap[0] = [1.,1.,1.]
-cmap[1] = [0.,0.,0.]
-rlist = Ngl.Resources()
-rlist.wkColorMap = cmap
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"ngl11p",rlist)
+wks = Ngl.open_wks(wks_type,"ngl11p")
 
 dirc     = Ngl.pynglpath("data")
 data     = Ngl.asciiread(dirc+"/asc/u.cocos",(39,14),"float")

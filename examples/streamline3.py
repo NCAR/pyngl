@@ -22,6 +22,7 @@
 #    o  Drawing streamlines colored by a scalar field
 #    o  Annotating plots
 #    o  Maximizing a plot after it is created
+#    o  Reading an existing color map and subsetting it.
 # 
 #  Output:
 #    This example produces one visualization.
@@ -142,17 +143,16 @@ spd =  numpy.sqrt(u**2 + v**2)
 
 # Create plot
 #
-wks_type = "ps"
+wks_type = "x11"
 wks = Ngl.open_wks(wks_type,"streamline3")
-Ngl.define_colormap(wks,"prcp_3")
   
 res              = Ngl.Resources()          # plot mods desired
 res.nglMaximize  = True
 res.nglDraw      = False                    # Turn off draw and frame so
 res.nglFrame     = False                    # we can attach some text.
 
-res.nglSpreadColorStart = 5    # Control which part of colormap to use.
-res.nglSpreadColorEnd   = 21
+cmap = Ngl.read_colormap_file("prcp_3")
+res.stLevelPalette = cmap[5:20]
 
 res.tiMainString      = "This is the main title"
 res.tiMainFontColor   = "Navy"

@@ -89,7 +89,7 @@ ta = (ta-273.15)*9.0/5.0+32.0
 pa = 0.01*pa
 
 #
-# Open a PostScript workstation and change the color map.
+# Open a PostScript workstation.
 #
 wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"overlay1")

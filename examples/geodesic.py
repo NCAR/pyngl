@@ -86,12 +86,10 @@ cy  = cfile.variables["grid_corner_lat"][:] * r2d
 ke  = cfile.variables["kinetic_energy"][2,:]
 
 #
-#  Select a colormap and open a workstation.
+#  Open a workstation.
 #
-rlist            = Ngl.Resources()
-rlist.wkColorMap = "gui_default"
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"geodesic",rlist)
+wks = Ngl.open_wks(wks_type,"geodesic")
 
 #
 #  The next set of resources will apply to the contour plot and the labelbar.
@@ -108,6 +106,7 @@ resources.cnFillMode        = "RasterFill"
 resources.cnLinesOn         = False
 resources.cnLineLabelsOn    = False
 resources.cnMaxLevelCount   = 22
+resources.cnFillPalette      = "gui_default"
 
 resources.tiMainString      = "2562 Element Geodesic grid"
 

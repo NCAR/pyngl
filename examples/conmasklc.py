@@ -55,7 +55,7 @@ lon  = nf.variables["lon"][:]
 # Set up a color map using RGB triplets.
 #
 cmap =  numpy.array(\
-        [ [.000,.000,.000], [1.00,1.00,1.00], [.700,.700,.700], \
+        [ [.700,.700,.700], \
           [.650,.650,.700], [.610,.600,.700], [.550,.550,.700], \
           [.560,.500,.700], [.450,.450,.700], [.420,.400,.700], \
           [.350,.350,.700], [.300,.300,.700], [.250,.250,.700], \
@@ -84,9 +84,7 @@ cmap =  numpy.array(\
 #
 
 wks_type = "ps"
-wres = Ngl.Resources()
-wres.wkColorMap = cmap
-wks = Ngl.open_wks(wks_type,"conmasklc",wres)
+wks = Ngl.open_wks(wks_type,"conmasklc")
 
 #----------- Begin first plot -----------------------------------------
  
@@ -123,6 +121,7 @@ res.sfYArray = lat
 res.cnFillOn             = True
 res.cnLinesOn            = False
 res.cnLineLabelsOn       = False
+res.cnFillPalette        = cmap
 
 res.cnLevelSelectionMode = "ManualLevels"
 res.cnMinLevelValF       = 195.

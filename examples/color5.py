@@ -23,6 +23,7 @@
 #    o  Drawing filled polygons in NDC space.
 #    o  Converting HLS color values to RGB.
 #    o  Defining a private color table.
+#    o  Using indexed color.
 #
 #  Output:
 #    o One plot is produced showing the Mandelbrot set created.

@@ -80,15 +80,10 @@ time[0,0:time1.shape[0]] = time1.astype('f')
 time[1,0:time2.shape[0]] = time2.astype('f')
 
 #
-#  Define a color map and open a workstation.
+#  Open a workstation.
 #
-cmap = numpy.zeros((2,3),'f')
-cmap[0] = [1.,1.,1.]
-cmap[1] = [0.,0.,0.]
-rlist = Ngl.Resources()
-rlist.wkColorMap = cmap
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"ngl10p",rlist)
+wks = Ngl.open_wks(wks_type,"ngl10p")
 
 resources = Ngl.Resources()
 

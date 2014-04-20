@@ -31,13 +31,10 @@ import Ngl
 import numpy
 
 #
-#  Define a color map and open a workstation.
+#   Open a workstation.
 #
-cmap = numpy.array([[1., 1., 1.], [0., 0., 0.]], 'f')
-rlist = Ngl.Resources()
-rlist.wkColorMap = cmap
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"wmstnm01",rlist)
+wks = Ngl.open_wks(wks_type,"wmstnm01")
 
 #
 #  Define the station model data and plot.

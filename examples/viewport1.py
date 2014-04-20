@@ -153,13 +153,13 @@ rlist.wkColorMap    = "nrl_sirkes"
 rlist.wkOrientation = "Portrait"             # Don't let it be landscape
 wks = Ngl.open_wks("ps","viewport1",rlist)   # Open a PS workstation.
 
-# Add some named colors.
-forest_green = numpy.array([ 34, 139,  34])/255.
-navy_blue    = numpy.array([  0,   0, 128])/255.
-brown        = numpy.array([165,  42,  42])/255.
-ig = Ngl.new_color(wks,forest_green[0],forest_green[1],forest_green[2])
-ib = Ngl.new_color(wks,navy_blue[0],   navy_blue[1],   navy_blue[2])
-ir = Ngl.new_color(wks,brown[0],       brown[1],       brown[2])
+# Add some named colors. This is no longer needed in PyNGL 1.5.0
+#forest_green = numpy.array([ 34, 139,  34])/255.
+#navy_blue    = numpy.array([  0,   0, 128])/255.
+#brown        = numpy.array([165,  42,  42])/255.
+#ig = Ngl.new_color(wks,forest_green[0],forest_green[1],forest_green[2])
+#ib = Ngl.new_color(wks,navy_blue[0],   navy_blue[1],   navy_blue[2])
+#ir = Ngl.new_color(wks,brown[0],       brown[1],       brown[2])
 
 # Generate some dummy data.
 

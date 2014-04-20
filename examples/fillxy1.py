@@ -20,6 +20,7 @@
 #  Effects illustrated:
 #    o Filling the area between two curves in an XY plot
 #    o Subscripting a variable using coordinate values
+#    o Using indexed color.
 # 
 #  Output:
 #     A single visualization with two XY curves 

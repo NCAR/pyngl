@@ -48,9 +48,7 @@ import numpy,os,sys
 import Ngl, Nio
 
 wks_type = "ps"
-rlist = Ngl.Resources()
-rlist.wkColorMap = ["White","Black","Blue","SlateGray2","NavajoWhite"]
-wks = Ngl.open_wks (wks_type,"shapefile2",rlist)
+wks = Ngl.open_wks (wks_type,"shapefile2")
 
 filename = "sa_str.shp"
 if(not os.path.exists(filename)):

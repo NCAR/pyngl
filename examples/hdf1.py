@@ -86,16 +86,14 @@ cmfov  = numpy.reshape(tmp, [nlat,nlon])
 del tmp
 del cm
 
-#---Set the colormap and open a PostScript workstation.
-colors   = ["white","black","gray","red","green","white"]
+#---Open a PostScript workstation.
 wks_type = "ps"
-wklist = Ngl.Resources()
-wklist.wkColorMap = colors
-wks = Ngl.open_wks(wks_type,"hdf1",wklist)
+wks = Ngl.open_wks(wks_type,"hdf1")
 
 #---Create variable to hold list of plot resources.
 res = Ngl.Resources()
 
+colors = ["gray","red","green","white"]
 res.nglDraw              = False         # Don't create plot or
 res.nglFrame             = False         # advance frame yet.
 
@@ -103,6 +101,7 @@ res.cnFillOn             = True          # turn on color fill
 res.cnLinesOn            = False         # turn off contour lines
 res.cnLineLabelsOn       = False         # turn of contour labels
 res.cnFillMode           = "RasterFill"  # turn on raster mode
+res.cnFillPalette        = colors
 
 res.pmLabelBarDisplayMode = "Never"           # Turn off labelbar
 
@@ -147,7 +146,7 @@ lbres.vpHeightF            = 0.15
 
 lbres.lbOrientation        = "Horizontal"
 lbres.lbLabelPosition      = "Center"         # label position
-lbres.lbFillColors         = colors[2:]
+lbres.lbFillColors         = colors
 lbres.lbMonoFillPattern    = True             # solid color fill
 lbres.lbLabelFontHeightF   = 0.02
 

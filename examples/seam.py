@@ -82,13 +82,10 @@ lat = numpy.ravel(cfile.variables["lat2d"][:,:])
 ps  = numpy.ravel(cfile.variables["ps"][0,:,:])/100.
 
 #
-#  Select a colormap and open a workstation.
+#  Open a workstation.
 #
-rlist            = Ngl.Resources()
-rlist.wkColorMap = "BlAqGrYeOrReVi200"
-
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"seam",rlist)
+wks = Ngl.open_wks(wks_type,"seam")
 
 #
 #  The next set of resources will apply to the contour plot and the labelbar.
@@ -103,6 +100,7 @@ resources.nglSpreadColorEnd   = 2
 
 resources.cnFillOn            = True
 resources.cnFillMode          = "AreaFill"
+resources.cnFillPalette       = "BlAqGrYeOrReVi200"
 resources.cnLinesOn           = False
 resources.cnLineLabelsOn      = False
 

@@ -70,11 +70,9 @@ yint = numpy.zeros(npts,'f')
 for i in xrange(npts):
   yint[i] = Ngl.ftcurvpi(0., xo[i], period, xi, yi)
 
-cmap = ["white","black","red","green","blue","yellow"]
-rlist = Ngl.Resources()
-rlist.wkColorMap = cmap
+# Open a PS file.
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"ngl07p",rlist) # Open an X11 workstation.
+wks = Ngl.open_wks(wks_type,"ngl07p")
 
 txres = Ngl.Resources()   # Set up variable for TextItem resources.
 xyres = Ngl.Resources()   # Set up variable for XyPlot resources.

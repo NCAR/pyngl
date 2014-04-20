@@ -111,7 +111,7 @@ for value in values:
      sindex = 0
      for saturation in saturations:
        r,g,b = Ngl.hsvrgb(hue,saturation,value)
-       poly_res.gsFillColor = Ngl.new_color(wks,r,g,b)
+       poly_res.gsFillColor = [r,g,b]     # Ngl.new_color(wks,r,g,b)
        rlen = 0.25*(3.*saturation + 1.)
        x[1] = math.cos(angle1) * rlen
        y[1] = math.sin(angle1) * rlen

@@ -25,6 +25,7 @@
 #  Effects illustrated:
 #    o  Drawing primitives on a plot.
 #    o  Drawing text on a plot.
+#    o  Using indexed color.
 # 
 #  Output:
 #     This example produces two frames.

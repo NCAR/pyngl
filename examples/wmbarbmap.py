@@ -40,13 +40,10 @@ import numpy
 #
 
 #
-#  Specify a color map and open an output workstation.
+#  Open an output workstation.
 #
-cmap = numpy.array([[1., 1., 1.], [0., 0., 0.], [1., 0., 0.]], 'f')
-rlist = Ngl.Resources()
-rlist.wkColorMap = cmap
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"wmbarbmap",rlist)  # Open a workstation.
+wks = Ngl.open_wks(wks_type,"wmbarbmap")
 
 #
 #  Set some map resources.

@@ -29,6 +29,7 @@
 #    o  How to title the X and Y axes of an XY visualization.
 #    o  How to use markers in XY visualizations.
 #    o  How to change line thicknesses.
+#    o  Using indexed color.
 #
 #  Output:
 #    Five visualizations are produced:

@@ -21,6 +21,7 @@
 #  Effects illustrated:
 #    o  Using resources to change fill patterns and colors.
 #    o  Changing the color map.
+#    o  Using indexed color.
 # 
 #  Output:
 #     A single visualization is produced.

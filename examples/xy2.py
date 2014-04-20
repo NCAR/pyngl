@@ -24,7 +24,6 @@
 #    and text are automatically resized and drawn.
 
 #  Effects illustrated:
-#    o  Using named colors to create a color map.
 #    o  Attaching primitives to a plot.
 #    o  Attaching text to a plot.
 #    o  Panelling plots.
@@ -63,15 +62,9 @@ ydots = y[26:37:5]
 xsquare = [16.0,48.0,48.0,16.0,16.0]    # X and Y coordinates
 ysquare = [-0.5,-0.5, 0.5, 0.5,-0.5]    # for polygon.
 
-#
-# Create a PS workstation, and use named colors to generate
-# a colormap.
-#
+# Create a PS workstation.
 wks_type = "ps"
-rlist = Ngl.Resources()
-rlist.wkColorMap = ["white","black","blue","hotpink","yellow","green",\
-                    "coral4","gray75"]
-wks = Ngl.open_wks(wks_type,"xy2",rlist)
+wks = Ngl.open_wks(wks_type,"xy2")
 
 #
 # Set up common resources for the XY plots.

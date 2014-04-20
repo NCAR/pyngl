@@ -132,8 +132,7 @@ tempa = temp[0,:,:]
 tempa      = (tempa-273.15)*9.0/5.0+32.0
 temp_units = "(deg F)"
 
-cmap = numpy.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
-                    [.560, .500, .700], [.300, .300, .700], \
+cmap = numpy.array([[.560, .500, .700], [.300, .300, .700], \
                     [.100, .100, .700], [.000, .100, .700], \
                     [.000, .300, .700], [.000, .500, .500], \
                     [.000, .700, .100], [.060, .680, .000], \
@@ -142,14 +141,11 @@ cmap = numpy.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
                     [.870, .050, .000], [1.00, .000, .000], \
                     [.700, .700, .700]],'f')
 
-rlist = Ngl.Resources()
-rlist.wkColorMap = cmap
-Ngl.set_values(wks,rlist)
-
 resources.vcFillArrowsOn           = True  # Fill the vector arrows
 resources.vcMonoFillArrowFillColor = False # in different colors
 resources.vcFillArrowEdgeColor     = 1     # Draw the edges in black.
 resources.vcFillArrowWidthF        = 0.055 # Make vectors thinner.
+resources.vcLevelPalette           = cmap
 
 resources.tiMainString      = "~F22~wind velocity vectors colored by temperature " + temp_units
 resources.tiMainFontHeightF = 0.02  # Make font slightly smaller.

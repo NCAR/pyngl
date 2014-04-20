@@ -32,11 +32,8 @@
 
 import Ngl
 
-rlist = Ngl.Resources()
-rlist.wkBackgroundColor = "White"
-rlist.wkForegroundColor = "Black"
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"thickness",rlist)
+wks = Ngl.open_wks(wks_type,"thickness")
 
 #
 #  Main title.

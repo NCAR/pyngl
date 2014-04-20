@@ -20,7 +20,6 @@
 #
 #  Effects illustrated:
 #    o  Selecting a color map by name.
-#    o  Adding a color to the color map.
 #    o  Overlaying multiple plots on a single plot.
 #    o  Copying one resource list to another.
 #    o  Drawing colored streamlines.
@@ -64,7 +63,6 @@ if(wks_type == "ps" or wks_type == "pdf"):
   rlist.wkOrientation = "Portrait"      # For PS or PDF output only.
 
 wks = Ngl.open_wks(wks_type,"streamline2",rlist)
-gray  = Ngl.new_color(wks,0.88,0.88,0.88)      # add gray to colormap
 
 stres = Ngl.Resources()
 cnres = Ngl.Resources()
@@ -87,8 +85,8 @@ stres.vfXCEndV               =  180.
 stres.vfYCStartV             =  -90.
 stres.vfYCEndV               =   90.
 
-stres.stLineColor            = 8      # green
-cnres.cnLineColor            = 6      # blue
+stres.stLineColor            = "darkgreen"
+cnres.cnLineColor            = "blue"
 stres.stLineThicknessF       = 1.5
 cnres.cnLineThicknessF       = 1.7
 cnres.cnLineDashPattern      = 7
@@ -104,7 +102,7 @@ mpres.mpGridAndLimbDrawOrder = "Draw"
 mpres.mpGridLineDashPattern  = 5
 mpres.mpInlandWaterFillColor = -1
 mpres.mpOceanFillColor       = -1
-mpres.mpLandFillColor        = gray
+mpres.mpLandFillColor        = "tan"
 mpres.mpLabelsOn             = False
 mpres.mpLeftCornerLatF       = 10.
 mpres.mpLeftCornerLonF       = -180.

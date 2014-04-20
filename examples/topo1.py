@@ -65,8 +65,7 @@ lon          = cfile.variables["lon"][:]
 map_cornersW = cfile.variables["map_cornersW"][:]
 map_cornersE = cfile.variables["map_cornersE"][:]
 
-cmap = numpy.array([[1.00, 1.00, 1.00],[0.00, 0.00, 0.00], \
-                    [0.51, 0.13, 0.94],[0.00, 0.00, 0.59], \
+cmap = numpy.array([[0.51, 0.13, 0.94],[0.00, 0.00, 0.59], \
                     [0.00, 0.00, 0.80],[0.25, 0.41, 0.88], \
                     [0.12, 0.56, 1.00],[0.00, 0.75, 1.00], \
                     [0.63, 0.82, 1.00],[0.82, 0.96, 1.00], \
@@ -77,13 +76,10 @@ cmap = numpy.array([[1.00, 1.00, 1.00],[0.00, 0.00, 0.00], \
                     'f')
 
 #
-#  Set the colormap and open a PostScript workstation.
+#  Open a PostScript workstation.
 #
-rlist            = Ngl.Resources()
-rlist.wkColorMap = cmap
-
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"topo1",rlist)
+wks = Ngl.open_wks(wks_type,"topo1")
 
 #
 # Variable to hold list of plot resources.
@@ -110,6 +106,7 @@ res.sfYArray             = lat
 res.cnFillOn             = True
 res.cnLinesOn            = False
 res.cnFillMode           = "RasterFill"
+res.cnFillPalette        = cmap
 res.cnLevelSelectionMode = "ExplicitLevels"
 res.cnLevels             = [ 5000., 6000., 7000., 8000., 8500., 9000., \
                              9500.,10000.,10500.,11000.,11500.,12000., \

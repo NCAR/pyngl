@@ -131,7 +131,7 @@ resources.sfMissingValueV = fill_value
 icemonnew,hlonnew = Ngl.add_cyclic(icemon[0:nsub+1,:],hlon[:])
 resources.sfXArray = hlonnew   # Necessary for overlay on a map.
 resources.sfYArray = hlat[0:nsub+1]
-resources.nglSpreadColors = False    # Do not interpolate color space.
+resources.nglSpreadColors = False    # Do not span color map
 
 resources.tiMainString = "CSM Y00-99 Mean Ice Fraction Month =" + str(month)
 

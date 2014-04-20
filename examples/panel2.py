@@ -66,11 +66,7 @@ lon = file.variables["lon"][:]
 # Start graphics.
 #
 wks_type = "ps"
-rlist            = Ngl.Resources()
-rlist.wkColorMap = "BlGrYeOrReVi200"
-wks = Ngl.open_wks(wks_type,"panel2",rlist)
-
-igray = Ngl.new_color(wks,0.7,0.7,0.7)             # Add gray to colormap
+wks = Ngl.open_wks(wks_type,"panel2")
 
 res = Ngl.Resources()
 res.nglDraw                = False     # Don't draw individual plots
@@ -93,13 +89,12 @@ res.sfXArray               = lon       # contours on map
 res.cnFillOn               = True          # Turn on contour fill
 res.cnLinesOn              = False         # Turn off contour lines
 res.cnFillDrawOrder        = "PostDraw"    # Draw contours last
+res.cnFillPalette          = "BlGrYeOrReVi200"
 
 res.cnLevelSelectionMode   = "ExplicitLevels"   # Set explicit contour levels
 res.cnLevels               = numpy.arange(0,75,4)      # 0,5,10,...,70
 res.cnLineLabelsOn         = False
 
-res.nglSpreadColors        = True             # Use full color map
-res.nglSpreadColorEnd      = -2               # Don't use added gray
 res.lbLabelBarOn           = False            # Turn off labelbar.
 
 res.mpProjection           = "Mercator"       # Projection
@@ -110,7 +105,7 @@ res.mpRightCornerLatF      = max(lat)
 res.mpRightCornerLonF      = max(lon)
 
 res.mpFillOn               = True
-res.mpFillColors           = [0,0,igray,igray]
+res.mpFillColors           = ["white","white","gray","gray"]
 res.mpGridLatSpacingF      = 5.
 res.mpGridLineDashPattern  = 2
 

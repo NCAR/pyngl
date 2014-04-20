@@ -102,11 +102,10 @@ for i in xrange(0,len(colors)):
 #
 #  Convert the integer color values obtained from the
 #  named color chart (as entered above) to floating 
-#  point numbers in the range 0. to 1. (as required 
-#  by "Ngl.new_color").
+#  point numbers in the range 0. to 1.
 #
   r, g, b = colors[i][0]/255., colors[i][1]/255., colors[i][2]/255.
-  poly_res.gsFillColor = Ngl.new_color(wks, r, g, b)
+  poly_res.gsFillColor = [r,g,b]   # Ngl.new_color(wks, r, g, b)
 #
 #  Draw a white outline if the color is black, otherwise draw a colored box.
 #

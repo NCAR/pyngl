@@ -21,13 +21,13 @@
 #
 #  Effects illustrated:
 #    o  Selecting a color map by name.
-#    o  Adding a color to an existing color map.
 #    o  Reading from a NetCDF file.
 #    o  Adding a cyclic point in the longitude dimension.
 #    o  Creating a polar map projection.
 #    o  Overlaying multiple plots on a single plot.
 #    o  Adding additional text to a plot.
 #    o  Copying one resource list to another.
+#    o  Using indexed color.
 # 
 #  Output:
 #    This example produces a single frame.
@@ -62,11 +62,6 @@ wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"spaghetti")
 Ngl.define_colormap(wks,"default")         # Change color map.
 
-red   = 245./255.
-green = 222./255.
-blue  = 179./255.
-tan = Ngl.new_color(wks,red,green,blue)   # Add tan.
-
 mpres = Ngl.Resources()
 
 mpres.nglDraw              = False       # Do not draw until the end.
@@ -99,7 +94,7 @@ mpres.mpMinLatF             = 30
 mpres.mpCenterLatF          = 90.
 
 mpres.mpFillOn              = True
-mpres.mpFillColors          = [0,-1,tan,-1]     # -1 is transparent
+mpres.mpFillColors          = ["white","transparent","tan","transparent"]
 mpres.mpOutlineOn           = False
 mpres.mpGridLineDashPattern = 2
 

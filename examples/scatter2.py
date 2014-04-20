@@ -22,7 +22,6 @@
 #  Effects illustrated:
 #      o  Defining your own markers.
 #      o  Usage of the the Python "random" module.
-#      o  Adding colors to a color map.
 #
 #  Output:
 #     A single visualization is produced showing the random markers
@@ -53,23 +52,8 @@ for i in range(100):
   y[1,i] = 90.*random.random()+105.
   y[2,i] = 90.*random.random()+105.
 
-#
-# Open a workstation and set the color map to a grayscale color map.
-# This is being done just to show how you can add colors to an
-# existing color map. 
-#
-rlist            = Ngl.Resources()
-rlist.wkColorMap = "gsltod"
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"scatter2",rlist)  # Open a workstation.
-
-#
-# Notice that if you comment these next three lines, you will
-# see only gray markers.
-#
-i1 = Ngl.new_color(wks,1,0,0)      # Red
-i2 = Ngl.new_color(wks,0,1,0)      # Green
-i3 = Ngl.new_color(wks,0,0,1)      # Blue
+wks = Ngl.open_wks(wks_type,"scatter2")
 
 #
 # Set up parameters for creating some new markers.

@@ -64,7 +64,6 @@ labels = ["Lung","Colon","Breast","Prostate","Pancreas",\
 
 wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"bar2")
-Ngl.define_colormap(wks,colors)
 
 res = Ngl.Resources()
 

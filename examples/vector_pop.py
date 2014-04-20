@@ -28,6 +28,7 @@
 #    o  Using named colors.
 #    o  Masking land.
 #    o  Defining cyclic points.
+#    o  Reading an existing color map and subsetting it.
 # 
 #  Output:
 #    This example produces eight visualizations:
@@ -63,10 +64,8 @@ file = Nio.open_file(os.path.join(dirc,"cdf","pop.nc"))
 #
 #  Open a workstation.
 #
-rlist            = Ngl.Resources()
-rlist.wkColorMap = ["White","Black","Tan1","SkyBlue","Red"]
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"vector_pop",rlist)
+wks = Ngl.open_wks(wks_type,"vector_pop")
 
 #
 #  Get the u/v and lat/lon variables.
@@ -204,14 +203,10 @@ vcres.tiMainString = "vcGlyphStyle = 'CurlyVector'"
 plot = Ngl.vector_map(wks,u,v,vcres) 
 
 # 
-# Change the color map and draw vectors colored by magnitude.
+# Draw vectors colored by magnitude.
 #
-wkres = Ngl.Resources()
-wkres.wkColorMap = "rainbow+gray"
-Ngl.set_values(wks,wkres)
-
-vcres.nglSpreadColorStart  = 24
-vcres.nglSpreadColorEnd    = -2 # Don't include last color, which is gray
+cmap = Ngl.read_colormap_file("rainbow+gray")
+vcres.vcLevelPalette  = cmap[22:236]  # start at purple, end at red
 
 vcres.mpOceanFillColor     = "Transparent"
 vcres.mpLandFillColor      = "Gray"

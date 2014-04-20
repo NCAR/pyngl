@@ -73,7 +73,7 @@ lon = tfile.variables["lon"][:]
 #
 # Define a color map.
 #
-cmap = numpy.array([[1.00,1.00,1.00],[0.00,0.00,0.00],[1.00,.000,.000],\
+cmap = numpy.array([[1.00,.000,.000],\
                     [.950,.010,.000],[.870,.050,.000],[.800,.090,.000],\
                     [.700,.090,.000],[.700,.120,.000],[.700,.180,.000],\
                     [.700,.260,.000],[.700,.285,.000],[.680,.330,.000],\
@@ -90,7 +90,6 @@ cmap = numpy.array([[1.00,1.00,1.00],[0.00,0.00,0.00],[1.00,.000,.000],\
 # Set the color map and open a workstation.
 #
 rlist               = Ngl.Resources()
-rlist.wkColorMap    = cmap
 
 wks_type = "ps"
 if(wks_type == "ps" or wks_type == "pdf"):
@@ -112,6 +111,7 @@ resources.nglFrame = False
 #
 plot = []
 resources.cnFillOn            = True    # Turn on contour fill.
+resources.cnFillPalette       = cmap
 resources.lbLabelStride       = 2       # Label every other box
 
 #

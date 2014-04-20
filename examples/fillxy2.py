@@ -46,8 +46,6 @@ y[2,:] = 4+numpy.sin(3*numpy.sqrt(numpy.fabs(theta)))   # don't intersect.
 y[3,:] = 6+numpy.sin(10*numpy.sqrt(numpy.fabs(theta)))
 
 rlist = Ngl.Resources()
-rlist.wkColorMap = ["white","black","darkgreen","dodgerblue4",\
-                    "orange","blue","coral","brown","purple","red"]
 rlist.wkOrientation = "Portrait"
 
 wks_type = "ps"

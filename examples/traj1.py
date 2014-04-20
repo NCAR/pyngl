@@ -28,6 +28,7 @@
 #    o  Polygons.
 #    o  Polymarkers.
 #    o  Maps using a Cylindrical Equidistant projection.
+#    o  Using indexed color.
 # 
 #  Output:
 #    A single visualization showing the paths of buoys set afloat
