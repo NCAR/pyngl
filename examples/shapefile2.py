@@ -39,6 +39,8 @@
 #       gunzip sa_str.tar.gz
 #       tar -xf sa_str.tar
 #
+# This example was updated in PyNGL 1.5.0 to simply the code that
+# attaches the polylines, using the new "gsSegments" resource.
 #
 import numpy,os,sys
 
@@ -56,32 +58,10 @@ if(not os.path.exists(filename)):
   print "The comments at the top of this script tell you how to get the files."
   sys.exit()
 
-f = Nio.open_file(filename, "r")   # Open shapefile
-
-#
-# Read data off shapefile
-#
-segments = f.variables["segments"][:]
-geometry = f.variables["geometry"][:]
-segsDims = segments.shape
-geomDims = geometry.shape
-
-#
-# Read global attributes  
-#
-geom_segIndex = f.geom_segIndex
-geom_numSegs  = f.geom_numSegs
-segs_xyzIndex = f.segs_xyzIndex
-segs_numPnts  = f.segs_numPnts
-
-numFeatures = geomDims[0]
-
-
 res = Ngl.Resources()
 
-res.nglFrame            = False   # Don't advance frame after plot is
-                                  # drawn, b/c we want to draw streams
-                                  # first.
+res.nglFrame            = False   # Don't draw plot or advance frame
+res.nglDraw             = False   # until we add shapefile outlines.
 
 res.mpDataBaseVersion   = "MediumRes"    # slightly better resolution
 
@@ -104,27 +84,19 @@ plot = Ngl.map(wks,res)   # Draw map, but don't advance frame.
 #*************************************************
 # Section to add polylines to map.
 #*************************************************
+f        = Nio.open_file(filename, "r")              # Open shapefile
+lon      = f.variables["x"][:]
+lat      = f.variables["y"][:]
+segments = f.variables["segments"][:,0]
 
 plres             = Ngl.Resources()           # resources for polylines
 plres.gsLineColor = "blue"
+plres.gsSegments  = segments
 
-lon    = f.variables["x"]
-lat    = f.variables["y"]
+id = Ngl.add_polyline(wks, plot, lon, lat, plres)
 
-for i in range(0,numFeatures):
-  startSegment = geometry[i, geom_segIndex]
-  numSegments  = geometry[i, geom_numSegs]
-  for seg in range(startSegment, startSegment+numSegments):
-    startPT = segments[seg, segs_xyzIndex]
-    endPT   = startPT + segments[seg, segs_numPnts] - 1
-#
-# Using Ngl.polyline is *much* faster than Ngl.add_polyline,
-# b/c there are hundreds of polylines to add.
-#
-    Ngl.polyline(wks, plot, lon[startPT:endPT],  \
-                            lat[startPT:endPT], plres)
-
-Ngl.frame(wks)       # Advance frame.
+Ngl.draw(plot)
+Ngl.frame(wks)
 
 Ngl.end()
 
