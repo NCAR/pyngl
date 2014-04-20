@@ -85,8 +85,8 @@ plot = Ngl.map(wks,res)   # Draw map, but don't advance frame.
 # Section to add polylines to map.
 #*************************************************
 f        = Nio.open_file(filename, "r")              # Open shapefile
-lon      = f.variables["x"][:]
-lat      = f.variables["y"][:]
+lon      = numpy.ravel(f.variables["x"][:])
+lat      = numpy.ravel(f.variables["y"][:])
 segments = f.variables["segments"][:,0]
 
 plres             = Ngl.Resources()           # resources for polylines
