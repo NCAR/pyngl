@@ -9,8 +9,9 @@ PyNGL can only be built on UNIX systems. It has been successfully built
 on systems running Linux (32 or 64-bit), MacOSX (PPC or Intel),
 and Windows/Cygwin.
 
-This version of PyNGL was tested with Python versions 2.7.x, and NumPy
-version 1.6.2. We have some precompiled binaries you can try.
+This version of PyNGL was tested with Python versions 2.7.x, NumPy
+version 1.7.2, and NumPy 1.8.1. We have some precompiled binaries
+you can try.
 
 This document covers what external software packages you need for PyNGL
 and how to build them, and then finally how to build PyNGL.
