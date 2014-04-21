@@ -1697,6 +1697,12 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
  */
   if(!nhl_initialized) {
     NhlInitialize();
+
+    /* make sure that only one OMP thread runs unless OMP_NUM_THREADS is explicitly defined  -- on Darwin at least the default is not a single thread */
+
+    if (! getenv("OMP_NUM_THREADS")) {
+      omp_set_num_threads(1);
+    }
   }
 
 /*
