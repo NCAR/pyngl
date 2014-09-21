@@ -29290,6 +29290,7 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
     
     arg2 = &inlist;
   }
+  if(arg2->base == NULL) fflush(stdout);
   res3 = SWIG_AsCharPtrAndSize(obj2, &buf3, NULL, &alloc3);
   if (!SWIG_IsOK(res3)) {
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "text_wrap" "', argument " "3"" of type '" "NhlString""'");
@@ -30158,6 +30159,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
     
     arg2 = &inlist;
   }
+  if(arg2->base == NULL) fflush(stdout);
   res3 = SWIG_AsCharPtrAndSize(obj2, &buf3, NULL, &alloc3);
   if (!SWIG_IsOK(res3)) {
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "add_text_wrap" "', argument " "3"" of type '" "NhlString""'");
@@ -31674,6 +31676,7 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
     
     arg2 = &inlist;
   }
+  if(arg2->base == NULL) fflush(stdout);
   {
     PyArrayObject *arr;
     arr =
@@ -32391,6 +32394,7 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
     
     arg2 = &inlist;
   }
+  if(arg2->base == NULL) fflush(stdout);
   {
     PyArrayObject *arr;
     arr =
