@@ -37,6 +37,10 @@ import os, numpy, math, time, sys
 import Ngl, Nio
 
 mpas_file = "MPASOcean60km.nc"
+if(not os.path.exists(mpas_file)):
+  print "You do not have the necessary file to run this example."
+  print "See the comments at the top of this script for more information."
+  sys.exit()
 
 #---Read edge and lat/lon information
 f              = Nio.open_file(mpas_file)

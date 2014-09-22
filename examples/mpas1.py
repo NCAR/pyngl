@@ -35,11 +35,17 @@
 #     http://mailman.ucar.edu/mailman/listinfo/pyngl-talk
 #
 #======================================================================
-import os, numpy, math
+import os, numpy, math, sys
 import Ngl, Nio
 
 #---Read data from MPAS Grid
-f  = Nio.open_file("MPAS.nc")
+filename = "MPAS.nc"
+if(not os.path.exists(filename)):
+  print "You do not have the necessary file to run this example."
+  print "See the comments at the top of this script for more information."
+  sys.exit()
+
+f  = Nio.open_file(filename)
 sp = f.variables["surface_pressure"][0,:]
 sp = sp/1000.   # Not sure what the pressure units are, there's
                 # not much metadata info on this file

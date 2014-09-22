@@ -43,6 +43,10 @@ def print_min_max(var,varname):
   print(varname + ": min/max = %.2f " % numpy.min(var) + "/" + "%.2f" % numpy.max(var))
 
 mpas_file = "x1.2621442.partial.nc"
+if(not os.path.exists(mpas_file)):
+  print "You do not have the necessary file to run this example."
+  print "See the comments at the top of this script for more information."
+  sys.exit()
 
 #---Read a timestep of "t2m" 
 nt  = 3                                        # nt=0 is a constant field for t2m
