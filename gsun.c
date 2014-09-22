@@ -1818,8 +1818,8 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
     }
     NhlCreate(&wks,"pdf",NhlpdfWorkstationClass,NhlDEFAULT_APP,wk_rlist);
   }
-  else if(!strcmp(type,"ps") || !strcmp(type,"pdf") || 
-          !strcmp(type,"PS") || !strcmp(type,"PDF")) {
+  else if(!strcmp(type,"ps") || !strcmp(type,"pdf") || !strcmp(type,"svg") ||
+          !strcmp(type,"PS") || !strcmp(type,"PDF") || !strcmp(type,"SVG")) {
     NhlRLSetString(wk_rlist,"wkFormat",(char*)type);
 /*
  * Flag for whether we need to check for wkOrientation later.
@@ -1854,7 +1854,7 @@ int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
     NhlCreate(&wks,"png",NhlcairoImageWorkstationClass,NhlDEFAULT_APP,wk_rlist);
   }
   else {
-    NhlPError(NhlWARNING,NhlEUNKNOWN,"open_wks: Invalid workstation type, must be 'x11', 'ncgm', 'ps', 'png', or 'pdf'\n");
+    NhlPError(NhlWARNING,NhlEUNKNOWN,"open_wks: Invalid workstation type, must be 'x11', 'ncgm', 'ps', 'png', 'pdf', or 'svg'\n");
   }
 
 /*
