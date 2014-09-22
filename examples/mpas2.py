@@ -148,7 +148,7 @@ print_min_max(latvoc,"latvoc")
 print_min_max(lonvoc,"lonvoc")
 
 #---Start the graphics
-wks_type = "x11"
+wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"mpas2")
 
 res                      = Ngl.Resources()              # Plot mods desired.
