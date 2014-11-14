@@ -390,7 +390,7 @@ if not (os.path.exists(pkgs_pth)):
   pkgs_pth = os.path.join(sys.prefix, 'lib64', 'python'+sys.version[:3],
                         'site-packages')
 
-if (not (os.path.exists(pkgs_pth)) and os.environ.get("PYNGL_NCARG") == None):
+if (not (os.path.exists(pkgs_pth)) and os.environ.get("PYNGL_NCARG") is None):
   print 'Cannot find the Python packages directory and PYNGL_NCARG is not set.'
   print 'There may be some difficulty finding needed PyNGL system files'
   print 'unless you set the PYNGL_NCARG environment variable.'
@@ -614,7 +614,7 @@ def _set_msg_val_res(rlist,fv,plot_type):
     return None
 
   res_to_set = type_res_pairs[plot_type]
-  if fv != None:
+  if not fv is None:
     if not rlist.has_key(res_to_set):
       rlist[res_to_set] = fv
     else:
@@ -640,7 +640,7 @@ dimensionality as x.
 # Deal with masked array.
   fill_value_x = _get_fill_value(x)
 
-  if (fill_value_x != None):
+  if not fill_value_x is None:
     x2 = x.filled(fill_value_x)
   else:
     fill_value_x = 1.e20
@@ -1138,7 +1138,7 @@ def _pynglpath_ncarg():
 #  directories.
 #
   pyngl_dir = os.environ.get("PYNGL_NCARG") 
-  if (pyngl_dir != None and os.path.exists(pyngl_dir)): 
+  if (not pyngl_dir is None) and os.path.exists(pyngl_dir):
     if not os.path.exists(os.path.join(pyngl_dir,"colormaps")):
       print "pynglpath: supplemental 'colormaps' directory cannot be found. PYNGL_NCARG"
       print "           may be set incorrectly. You may not need to set it at all."
@@ -1182,85 +1182,85 @@ def _lst2pobj(lst):
 #
   rval = PlotIds()
 
-  if (lst[0] == None):
+  if (lst[0] is None):
     rval.nbase = 0
   else:
     rval.nbase = len(lst[0])
   rval.base    = lst[0]
 
-  if (lst[1] == None):
+  if (lst[1] is None):
     rval.ncontour = 0
   else:
     rval.ncontour = len(lst[1])
   rval.contour    = lst[1]
 
-  if (lst[2] == None):
+  if (lst[2] is None):
     rval.nvector = 0
   else:
     rval.nvector = len(lst[2])
   rval.vector    = lst[2]
 
-  if (lst[3] == None):
+  if (lst[3] is None):
     rval.nstreamline = 0
   else:
     rval.nstreamline = len(lst[3])
   rval.streamline    = lst[3]
 
-  if (lst[4] == None):
+  if (lst[4] is None):
     rval.nmap = 0
   else:
     rval.nmap = len(lst[4])
   rval.map    = lst[4]
 
-  if (lst[5] == None):
+  if (lst[5] is None):
     rval.nxy = 0
   else:
     rval.nxy = len(lst[5])
   rval.xy     = lst[5]
 
-  if (lst[6] == None):
+  if (lst[6] is None):
     rval.nxydspec = 0
   else:
     rval.nxydspec = len(lst[6])
   rval.xydspec    = lst[6]
 
-  if (lst[7] == None):
+  if (lst[7] is None):
     rval.ntext = 0
   else:
     rval.ntext = len(lst[7])
   rval.text    = lst[7]
 
-  if (lst[8] == None):
+  if (lst[8] is None):
     rval.nprimitive = 0
   else:
     rval.nprimitive = len(lst[8])
   rval.primitive    = lst[8]
 
-  if (lst[9] == None):
+  if (lst[9] is None):
     rval.nlabelbar = 0
   else:
     rval.nlabelbar = len(lst[9])
   rval.labelbar    = lst[9]
 
-  if (lst[10] == None):
+  if (lst[10] is None):
     rval.nlegend = 0
   else:
     rval.nlegend = len(lst[10])
   rval.legend    = lst[10]
 
-  if (lst[11] == None):
+  if (lst[11] is None):
     rval.ncafield = 0
   else:
     rval.ncafield = len(lst[11])
   rval.cafield    = lst[11]
 
-  if (lst[12] == None):
+  if (lst[12] is None):
     rval.nsffield = 0
   else:
     rval.nsffield = len(lst[12])
   rval.sffield    = lst[12]
 
-  if (lst[13] == None):
+  if (lst[13] is None):
     rval.nvffield = 0
   else:
     rval.nvffield = len(lst[13])
@@ -1312,7 +1312,7 @@ def _pseq2lst(pseq):
 # whether a fill value was already present.
 #
 def _set_default_msg(fv,default_msg=1.e20):
-  if fv == None:
+  if fv is None:
     return default_msg,0
   else:
     return fv,1
@@ -1731,7 +1731,7 @@ def _set_legend_res(reslist,reslist1):
 # Converts resource class to a dictionary.
 def _crt_dict(resource_i):
   dic = {}
-  if (resource_i == None):
+  if (resource_i is None):
     return(dic)
   for t in dir(resource_i):
     if (t[0:2] != '__'):        # skip any Python-supplied attributes.
@@ -1849,14 +1849,14 @@ def _get_skewt_msg(varname,res_intrnl,res_public,opt,ma_fv):
 # in all the missing value locations.
 #
   if hasattr(opt,res_intrnl):
-    if ma_fv != None and ma_fv != getattr(opt,res_intrnl):
+    if (not ma_fv is None) and ma_fv != getattr(opt,res_intrnl):
       print "_get_skewt_msg:",res_public,"is being set to a different value"
       print "           than the fill_value in the",varname,"masked array."
       print "           The masked array fill_value will take precedence."
       msg = ma_fv
     else:
       msg = getattr(opt,res_intrnl)
-  elif ma_fv != None:
+  elif not ma_fv is None:
     msg = ma_fv
   else:
     msg = -999.
@@ -1912,7 +1912,7 @@ def _poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
 
   _set_spc_defaults(0)
   rlist1 = {}
-  if rlistc != None and rlistc != False:
+  if (not rlistc is None) and rlistc != False:
     rlist = _crt_dict(rlistc)  
     for key in rlist.keys():
       rlist[key] = _convert_from_ma(rlist[key])
@@ -1929,7 +1929,7 @@ def _poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
                   "double","double",len(_arg_with_scalar(x2)),ismx,ismy, \
                   fill_value_x,fill_value_y,ptype,rlist1,pvoid())
   del rlist1
-  if rlistc != None and rlistc != False:
+  if (not rlistc is None) and rlistc != False:
     del rlist
   return None
 
@@ -2069,7 +2069,7 @@ longitude -- An optional one-dimensional array, representing
 # array for being equal to None.
 #
   if(_is_numpy_ma(lon_coord) or \
-     (not _is_numpy_ma(lon_coord) and lon_coord != None)):
+     (not _is_numpy_ma(lon_coord) and (not lon_coord is None))):
     lon_coord_dims = lon_coord.shape
     lon_coord_rank = len(lon_coord_dims)
 #
@@ -2107,7 +2107,7 @@ longitude -- An optional one-dimensional array, representing
 # array for being equal to None.
 #
   if(_is_numpy_ma(lon_coord) or \
-     (not _is_numpy_ma(lon_coord) and lon_coord != None)):
+     (not _is_numpy_ma(lon_coord) and (not lon_coord is None))):
     newloncoord       = numpy.zeros(nx1,lon_coord.dtype.char)
     newloncoord[0:nx] = lon_coord
     newloncoord[nx]   = lon_coord[0] + 360
@@ -2160,7 +2160,7 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
     sys.exit()
 
   data_is_masked = False
-  if fillvalue == None:
+  if fillvalue is None:
     if _is_numpy_ma(data):
       data2,fillvalue = _get_arr_and_fv(data)
       data_is_masked = True
@@ -2174,7 +2174,7 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
 # Check for whether one or both elements of X and/or Y arrays are to
 # be added.
 #
-  if xcoord == None and ycoord == None:
+  if xcoord is None and ycoord is None:
     print "add_new_coord_limits: At least one of xcoord and/or ycoord must be set to an array"
     sys.exit()
 
@@ -2188,12 +2188,12 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
   new_nx = nx
   new_ny = ny
 
-  if xcoord != None:
+  if not xcoord is None:
     if (len(xcoord.shape) != 1):
       print "add_new_coord_limits - X coord array must be 1D"
       sys.exit()
 
-    if xmin == None and xmax == None:
+    if xmin is None and xmax is None:
       print "add_new_coord_limits: If xcoord is specified, then one of xmin, xmax must be specified"
       sys.exit()
     if xcoord.shape[0] != nx:
@@ -2202,20 +2202,20 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
 #
 # Test if one or two elements are to be added.
 #
-    if xmin != None:
+    if not xmin is None:
       ix_start = 1
       new_nx   = new_nx + 1
     ix_end = nx + ix_start
 
-    if xmax != None:
+    if not xmax is None:
       new_nx   = new_nx + 1
 
-  if ycoord != None:
+  if not ycoord is None:
     if (len(ycoord.shape) != 1):
       print "add_new_coord_limits - Y coord array must be 1D"
       sys.exit()
 
-    if ymin == None and ymax == None:
+    if ymin is None and ymax is None:
       print "add_new_coord_limits: If ycoord is specified, then one of ymin, ymax must be specified"
       sys.exit()
 
@@ -2225,13 +2225,13 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
 #
 # Test if one or two elements are to be added.
 #
-    if ymin != None:
+    if not ymin is None:
       iy_start = 1
       new_ny   = new_ny + 1
 
     iy_end = ny + iy_start
 
-    if ymax != None:
+    if not ymax is None:
       new_ny = new_ny + 1
 
 #
@@ -2246,9 +2246,9 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
       new_data.set_fill_value(data.fill_value())
   else:
     new_data     = numpy.zeros((new_ny,new_nx),data2.dtype.char)
-  if xcoord != None:
+  if not xcoord is None:
     new_xcoord = numpy.zeros(new_nx,xcoord.dtype.char)
-  if ycoord != None:
+  if not ycoord is None:
     new_ycoord = numpy.zeros(new_ny,ycoord.dtype.char)
 # 
 # Fill the new data array with the original values, and missing
@@ -2260,23 +2260,23 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
 #
 # Fill in the new coordinate arrays.
 #
-  if xcoord != None:
+  if not xcoord is None:
     new_xcoord[ix_start:ix_end] = xcoord
-    if xmin != None:
+    if not xmin is None:
        new_xcoord[0] = xmin
-    if xmax != None:
+    if not xmax is None:
       new_xcoord[ix_end] = xmax
 
-  if ycoord != None:
+  if not ycoord is None:
     new_ycoord[iy_start:iy_end] = ycoord
-    if ymin != None:
+    if not ymin is None:
        new_ycoord[0] = ymin
-    if ymax != None:
+    if not ymax is None:
       new_ycoord[iy_end] = ymax
 
-  if xcoord != None and ycoord != None:
+  if (not xcoord is None) and (not ycoord is None):
     return new_data, new_xcoord, new_ycoord
-  elif xcoord != None:
+  elif not xcoord is None:
     return new_data, new_xcoord
   else:
     return new_data, new_ycoord
@@ -2315,7 +2315,7 @@ latitude -- An optional one-dimensional array, representing
     print "add_lat_90: input must be a 2-dimensional array."
     sys.exit()
 
-  if(axis == None):
+  if(axis is None):
     axis = "y"
   else:
     saxis = string.lower(axis)
@@ -2339,7 +2339,7 @@ latitude -- An optional one-dimensional array, representing
 # array for being equal to None.
 #
   if(_is_numpy_ma(lat_coord) or \
-     (not _is_numpy_ma(lat_coord) and lat_coord != None)):
+     (not _is_numpy_ma(lat_coord) and (not lat_coord is None))):
     lat_coord_dims = lat_coord.shape
     lat_coord_rank = len(lat_coord_dims)
 #
@@ -2369,7 +2369,7 @@ latitude -- An optional one-dimensional array, representing
     newdata = ma.zeros((ny,nx2),data.dtype.char)
 
   fill_value = _get_fill_value(data)
-  if(fill_value == None):
+  if(fill_value is None):
     newdata.set_fill_value(1.e20)
   else:
     newdata.set_fill_value(fill_value)
@@ -2390,7 +2390,7 @@ latitude -- An optional one-dimensional array, representing
 # array for being equal to None.
 #
   if(_is_numpy_ma(lat_coord) or \
-     (not _is_numpy_ma(lat_coord) and lat_coord != None)):
+     (not _is_numpy_ma(lat_coord) and (not lat_coord is None))):
     newlatcoord          = numpy.zeros(nlat2,lat_coord.dtype.char)
     newlatcoord[1:nlat1] = lat_coord
 
@@ -3629,10 +3629,10 @@ highs_at -- an optional argument that is a list of coordinate
   if (seed > 100 or seed < 0):
     print "generate_2d_array: seed must be in the interval [0,100] - seed set to 0."
     seed = 0
-  if (lows_at != None):
+  if not lows_at is None:
     if (len(lows_at) != num_low):
       print "generate_2d_array: the list of positions for the lows must be the same size as num_low."
-  if (highs_at != None):
+  if not highs_at is None:
     if (len(highs_at) != num_high):
       print "generate_2d_array: the list of positions for the highs must be the same size as num_high."
 
@@ -3651,7 +3651,7 @@ highs_at -- an optional argument that is a list of coordinate
 
 #
   for k in xrange(num_low):
-    if (lows_at != None):
+    if not lows_at is None:
       tmp_array[0,k] =  float(lows_at[k][1])   # lows at specified locations.
       tmp_array[1,k] =  float(lows_at[k][0])
       tmp_array[2,k] = -1.
@@ -3660,7 +3660,7 @@ highs_at -- an optional argument that is a list of coordinate
       tmp_array[1,k] =  1.+(float(ny)-1.)*_dfran() # lows at random locations.
       tmp_array[2,k] = -1.
   for k in xrange(num_low,num_low+num_high):
-    if (highs_at != None):
+    if not highs_at is None:
       tmp_array[0,k] =  float(highs_at[k-num_low][1])  # highs locations
       tmp_array[1,k] =  float(highs_at[k-num_low][0])  # highs locations
       tmp_array[2,k] =  1.
@@ -4109,25 +4109,25 @@ fill_value -- The missing value for x. Defaults to 1.e20 if not set.
 #
 #  Set defaults for input parameters not specified by user.
 #
-  if end_pts_msg == None:
+  if end_pts_msg is None:
     end_pts_msg = 0
 
 #
 # Setting max_msg to 0 will cause the C wrapper to set this to
 # npts before going into the Fortran routine.
 #
-  if max_msg == None:
+  if max_msg is None:
     max_msg = 0
 #
 #  If input array is a numpy masked array, return a numpy masked array.
 #  Otherwise missing values are dealt with using the fill_value.
 #
   fv = _get_fill_value(x)
-  if (fv != None):
+  if (any(fv is None)):
+    return fplib.linmsg(_promote_scalar(x),end_pts_msg,max_msg,fill_value)
+  else:
     aret = fplib.linmsg(x.filled(fv), end_pts_msg, max_msg, fv)
     return ma.masked_array(aret, fill_value=fv)
-  else:
-    return fplib.linmsg(_promote_scalar(x),end_pts_msg,max_msg,fill_value)
 
 ################################################################
 
@@ -4142,7 +4142,7 @@ wks -- The identifier returned from calling Ngl.open_wks.
 res -- An optional instance of the Resources class having Map
        resources as attributes.
   """
-  if (res != None):
+  if not res is None:
     rlistc = res
   _set_spc_defaults(1)
   rlist = _crt_dict(rlistc)  
@@ -4615,17 +4615,17 @@ res -- An optional instance of the Resources class having Workstation
     os.environ["NCARG_NCARG"] = _pynglpath_ncarg()
 
     tmp_dir = os.environ.get("TMPDIR")
-    if (tmp_dir != None and os.path.exists(tmp_dir)):
+    if (not tmp_dir is None) and os.path.exists(tmp_dir):
       os.environ["TMPDIR"] = tmp_dir
     else:
       os.environ["TMPDIR"] = "/tmp"
 
     color_dir_envn = os.environ.get("PYNGL_COLORMAPS")
-    if (color_dir_envn != None and os.path.exists(color_dir_envn)):
+    if (not color_dir_envn is None) and os.path.exists(color_dir_envn):
       os.environ["NCARG_COLORMAPS"] = color_dir_envn
 
     grib2_dir_envn = os.environ.get("NIO_GRIB2_CODETABLES")
-    if (grib2_dir_envn != None and os.path.exists(grib2_dir_envn)):
+    if (not grib2_dir_envn is None) and os.path.exists(grib2_dir_envn):
       os.environ["NIO_GRIB2_CODETABLES"] = grib2_dir_envn
 
 #
@@ -4633,7 +4633,7 @@ res -- An optional instance of the Resources class having Workstation
 #  the default RANGS directory.
 #
     rangs_dir_envn = os.environ.get("PYNGL_RANGS")
-    if (rangs_dir_envn != None and os.path.exists(rangs_dir_envn)):
+    if (not rangs_dir_envn is None) and os.path.exists(rangs_dir_envn):
 #
 #  Check if the high-res file are there - if not issue a
 #  an information message to that effect.
@@ -4644,17 +4644,17 @@ res -- An optional instance of the Resources class having Workstation
       os.environ["NCARG_RANGS"] = _pynglpath_ncarg() + "/rangs"
 
     ures_dir_envn = os.environ.get("PYNGL_USRRESFILE")
-    if (ures_dir_envn != None and os.path.exists(ures_dir_envn)):
+    if (not ures_dir_envn is None) and os.path.exists(ures_dir_envn):
       os.environ["NCARG_USRRESFILE"] = ures_dir_envn
     else:
       os.environ["NCARG_USRRESFILE"] = "~/.hluresfile"
 
     sres_dir_envn = os.environ.get("PYNGL_SYSRESFILE")
-    if (sres_dir_envn != None and os.path.exists(sres_dir_envn)):
+    if (not sres_dir_envn is None) and os.path.exists(sres_dir_envn):
       os.environ["NCARG_SYSRESFILE"] = sres_dir_envn
 
     ares_dir_envn = os.environ.get("PYNGL_SYSAPPRES")
-    if (ares_dir_envn != None and os.path.exists(ares_dir_envn)):
+    if (not ares_dir_envn is None) and os.path.exists(ares_dir_envn):
       os.environ["NCARG_SYSAPPRES"] = ares_dir_envn
     else:
       os.environ["NCARG_SYSAPPRES"] = _pynglpath_ncarg() + "/sysappres"
@@ -4924,7 +4924,7 @@ name -- A string representing abbreviated name for which you want a
 #
   if (name == "tmp"):
     tmp_dir = os.environ.get("TMPDIR")
-    if (tmp_dir != None and os.path.exists(tmp_dir)):
+    if (not tmp_dir is None) and os.path.exists(tmp_dir):
       return tmp_dir
     else:
       return "/tmp"
@@ -4935,7 +4935,7 @@ name -- A string representing abbreviated name for which you want a
 #
     examples_dir_dflt = os.path.join(_pynglpath_ncarg(),"pynglex")
 
-    if (examples_dir_envn != None and os.path.exists(examples_dir_envn)):
+    if (not examples_dir_envn is None) and os.path.exists(examples_dir_envn):
       return examples_dir_envn
     elif (os.path.exists(examples_dir_dflt)):
       return examples_dir_dflt
@@ -4945,7 +4945,7 @@ name -- A string representing abbreviated name for which you want a
   elif (name == "data"):
     data_dir_envn = os.environ.get("PYNGL_DATA")
     data_dir_dflt = os.path.join(_pynglpath_ncarg(),"data")
-    if (data_dir_envn != None and os.path.exists(data_dir_envn)):
+    if (not data_dir_envn is None) and os.path.exists(data_dir_envn):
       return data_dir_envn
     elif (os.path.exists(data_dir_dflt)):
       return data_dir_dflt
@@ -4955,7 +4955,7 @@ name -- A string representing abbreviated name for which you want a
   elif (name == "colormaps"):
     color_dir_envn = os.environ.get("PYNGL_COLORMAPS")
     color_dir_dflt = os.path.join(_pynglpath_ncarg(),"colormaps")
-    if (color_dir_envn != None and os.path.exists(color_dir_envn)):
+    if (not color_dir_envn is None) and os.path.exists(color_dir_envn):
       return color_dir_envn
     elif (os.path.exists(color_dir_dflt)):
       return color_dir_dflt
@@ -4965,7 +4965,7 @@ name -- A string representing abbreviated name for which you want a
   elif (name == "rangs"):
     rangs_dir_envn = os.environ.get("PYNGL_RANGS")
     rangs_dir_dflt = os.path.join(_pynglpath_ncarg(),"rangs")
-    if (rangs_dir_envn != None and os.path.exists(rangs_dir_envn)):
+    if (not rangs_dir_envn is None) and os.path.exists(rangs_dir_envn):
       return rangs_dir_envn
     else: 
       return rangs_dir_dflt
@@ -4973,14 +4973,14 @@ name -- A string representing abbreviated name for which you want a
     print "name",name
     grib2_dir_envn = os.environ.get("NIO_GRIB2_CODETABLES")
     grib2_dir_dflt = os.path.join(_pynglpath_ncarg(),"grib2_codetables")
-    if (grib2_dir_envn != None and os.path.exists(grib2_dir_envn)):
+    if (not grib2_dir_envn is None) and os.path.exists(grib2_dir_envn):
       return grib2_dir_envn
     else: 
       return grib2_dir_dflt
   elif (name == "usrresfile"):
     ures_dir_envn = os.environ.get("PYNGL_USRRESFILE")
     ures_dir_dflt = commands.getoutput("ls ~/.hluresfile")
-    if (ures_dir_envn != None and os.path.exists(ures_dir_envn)):
+    if (not ures_dir_envn is None) and os.path.exists(ures_dir_envn):
       return ures_dir_envn
     elif (os.path.exists(ures_dir_dflt)):
       return ures_dir_dflt
@@ -4990,7 +4990,7 @@ name -- A string representing abbreviated name for which you want a
   elif (name == "sysresfile"):
     sres_dir_envn = os.environ.get("PYNGL_SYSRESFILE")
     sres_dir_dflt = os.path.join(_pynglpath_ncarg(),"sysresfile")
-    if (sres_dir_envn != None and os.path.exists(sres_dir_envn)):
+    if (not sres_dir_envn is None) and os.path.exists(sres_dir_envn):
       return sres_dir_envn
     elif (os.path.exists(sres_dir_dflt)):
       return sres_dir_dflt
@@ -5000,7 +5000,7 @@ name -- A string representing abbreviated name for which you want a
   elif (name == "sysappres"):
     ares_dir_envn = os.environ.get("PYNGL_SYSAPPRES")
     ares_dir_dflt = os.path.join(_pynglpath_ncarg(),"sysappres")
-    if (ares_dir_envn != None and os.path.exists(ares_dir_envn)):
+    if (not ares_dir_envn is None) and os.path.exists(ares_dir_envn):
       return ares_dir_envn
     elif (os.path.exists(ares_dir_dflt)):
       return ares_dir_dflt
@@ -5048,7 +5048,7 @@ colormap_name -- Either the name of a PyNGL-standard colormap, or the
     # Is this one of our standard named colormaps? There are several well-defined
     # locations and suffixes to try...
     tmp = os.getenv("NCARG_COLORMAPS")
-    if (tmp != None):
+    if not tmp is None:
         paths = tmp.split(":")
     else:
         paths = [os.path.join(pynglpath("ncarg"),"colormaps")]
@@ -5173,7 +5173,7 @@ return_info -- An optional logical that indicates whether additional
 #  Return a masked array with y's fill value as the fill_value.
 #  Return the additional calculated values if desired.
 # 
-  if result != None:
+  if not result is None:
     if HAS_MA:
       if (return_info == True): 
         return [ma.masked_array(result[0]),result[1]]
@@ -6331,7 +6331,7 @@ dataOpts -- An optional instance of the Resources class having
 #  new localOpts attributes for dataOpts attributes that do not
 #  overlap localOpts attributes.
 #
-  if (dataOpts != None):
+  if not dataOpts is None:
     if (not isinstance(dataOpts,Resources)):
       print "skewt_plt: last argument must be an Ngl Resources instance."
       return None
@@ -6642,7 +6642,7 @@ dataOpts -- An optional instance of the Resources class having
           yhWind = _skewty(ph)
           xhWind = numpy.ones(len(ph),'f')
           xhWind = _skewtx(45., _skewty(1013.)) * xhWind
-          if (yhWind != None and xhWind != None):
+          if (not yhWind is None) and (not xhWind is None):
             wmbarb(wks, xhWind, yhWind, uh, vh )
           wmsetp("col",wbcol)              # reset to initial color value
     else:
@@ -7719,11 +7719,11 @@ assumed to scatter as a liquid particle.
   qr2 = _promote_scalar(qr)
 
   zero = 0.0
-  if qs != None:
+  if not qs is None:
     qs2 = _promote_scalar(qs)
   else:
     qs2 = _promote_scalar(zero)
-  if qg != None:
+  if not qg is None:
     qg2 = _promote_scalar(qg)
   else:
     qg2 = _promote_scalar(zero)
@@ -7944,7 +7944,7 @@ res -- An (optional) instance of the Resources class having PyNGL
   rval = _lst2pobj(ixy)
 
 #---Check if we need to fill between curves.
-  if fill_xy and rval != None:
+  if fill_xy and (not rval is None):
     rval = _fill_bw_xy(wks,rval,xar,yar,fill_rlist)
 
     if (rlist.has_key("nglDraw") and rlist["nglDraw"]) or \
@@ -8081,7 +8081,7 @@ def nearlyequal(a, b, sig_digit=None):
     """ Measures the equality (for two floats), in unit of decimal significant 
         figures.  If no sigificant digit is specified, default is 7 digits. """
 
-    if sig_digit == None or sig_digit > 7:
+    if sig_digit is None or sig_digit > 7:
         sig_digit = 7
     if a == b:
         return True
@@ -8173,7 +8173,7 @@ def nice_cntr_levels(lmin, lmax, outside=True, max_steps=15, cint=None, returnLe
 
     d = 10.0**(numpy.floor(numpy.log10(amax - amin)) - 2.0)
 
-    if cint == None or cint == 0.0:
+    if cint is None or cint == 0.0:
         t = table * d
     else:
         t = cint
@@ -8185,7 +8185,7 @@ def nice_cntr_levels(lmin, lmax, outside=True, max_steps=15, cint=None, returnLe
         am1 = numpy.ceil(amin/t) * t
         ax1 = numpy.floor(amax/t)  * t
     
-    if cint == None or cint == 0.0:   
+    if cint is None or cint == 0.0:   
         cints = (ax1 - am1) / t
 
         # DEBUG LINE BELOW
