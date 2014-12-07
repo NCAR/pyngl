@@ -209,9 +209,10 @@ def set_ncl_libs_and_paths():
   LIBS.append('pixman-1')
   LIBS.append('freetype')
   LIBS.append('expat')
-# LIBS.append('Xrender')
-# LIBS.append('iconv')
-# LIBS.append('bz2')
+  LIBS.append('pthread')
+  LIBS.append('Xrender')
+  LIBS.append('Xext')
+  LIBS.append('bz2')
   try:
     PATHS.append(os.path.join(os.environ["CAIRO_PREFIX"],"lib"))
   except:
