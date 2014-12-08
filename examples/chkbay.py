@@ -79,18 +79,19 @@ ele   = cfile.variables["ele"][:]
 depth = cfile.variables["depth"][:]
 
 #
-#  Select a colormap and open a PostScript workstation.
+#  Open a PostScript workstation.
 #
-rlist            = Ngl.Resources()
-#rlist.wkColorMap = "rainbow+gray"
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"chkbay",rlist)
+wks = Ngl.open_wks(wks_type,"chkbay")
 
 #
 #  The next set of resources will apply to the contour plot.
 #
 resources = Ngl.Resources()
 
+#
+# Use a subset of a color map for the colored contours
+#
 resources.cnFillPalette    = Ngl.read_colormap_file("rainbow+gray")[15:-1,:]
 
 resources.sfXArray         = lon  # Portion of map on which to overlay

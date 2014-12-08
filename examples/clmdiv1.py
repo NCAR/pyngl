@@ -21,7 +21,6 @@
 #    colored randomly. 
 #
 #  Effects illustrated:
-#      o  Defining a color map.
 #      o  Using a Lambert conformal map projection.
 #      o  How to select a map database resolution.
 #      o  How to color only specified map areas.
@@ -90,10 +89,8 @@ cmap = numpy.array([[1.00,1.00,1.00],[0.00,0.00,0.00],[1.00,0.00,0.00],\
                       [0.20,0.80,0.00],[0.55,0.55,0.00],[0.00,0.70,0.00],\
                       [0.62,0.62,0.00],[0.25,0.25,0.25]],
                       'f')
-rlist = Ngl.Resources()
-rlist.wkColorMap = cmap
 wks_type = "ps"
-wks = Ngl.open_wks (wks_type,"clmdiv1",rlist)
+wks = Ngl.open_wks (wks_type,"clmdiv1")
 
 #
 #  Create the plot.
@@ -119,7 +116,7 @@ res.mpPerimOn           = False        # no box around map
 
 res.mpAreaMaskingOn        = True                 # draw only parts of map
 res.mpFillAreaSpecifiers   = ["Water","Land"]     # what parts to fill
-res.mpSpecifiedFillColors  = [0,0]                # fill with background color
+res.mpSpecifiedFillColors  = ["white","white"]   # fill with white
 res.mpOutlineBoundarySets  = "USStates"           # what outlines to use
 res.mpMaskAreaSpecifiers   = ["Conterminous US"]  # don't fill here
 res.mpGridAndLimbOn        = False                # no lat/lon lines
@@ -160,9 +157,9 @@ for st in xrange(npoly):
     if (st == 42 and cd == 0):          # save value
       va1_rn = rand_num                 # VA clim div 1
     if (st == 42 and cd == 6):          # use value for
-      res_poly.gsFillColor = va1_rn     # VA clim div 1
+      res_poly.gsFillColor = cmap[va1_rn,:]     # VA clim div 1
     else:
-      res_poly.gsFillColor = rand_num
+      res_poly.gsFillColor = cmap[rand_num,:]
     varstr = statenames[st]+"_CD" + str(cd+1)
     x = ncdf.variables[varstr].lon
     y = ncdf.variables[varstr].lat

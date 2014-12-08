@@ -57,12 +57,10 @@ data     = Ngl.asciiread(filename,[3,73,73],"float")
 # Open workstation and change color map.
 wks_type = "ps"
 
-rlist = Ngl.Resources()
-rlist.wkColorMap = "so4_23"
 if(wks_type == "ps" or wks_type == "pdf"):
   rlist.wkOrientation = "Portrait"      # For PS or PDF output only.
 
-wks = Ngl.open_wks(wks_type,"streamline2",rlist)
+wks = Ngl.open_wks(wks_type,"streamline2")
 
 stres = Ngl.Resources()
 cnres = Ngl.Resources()
@@ -100,8 +98,8 @@ mpres.mpCenterRotF           = 45.0
 mpres.mpFillOn               = True
 mpres.mpGridAndLimbDrawOrder = "Draw"
 mpres.mpGridLineDashPattern  = 5
-mpres.mpInlandWaterFillColor = -1
-mpres.mpOceanFillColor       = -1
+mpres.mpInlandWaterFillColor = "transparent"
+mpres.mpOceanFillColor       = "transparent"
 mpres.mpLandFillColor        = "tan"
 mpres.mpLabelsOn             = False
 mpres.mpLeftCornerLatF       = 10.
@@ -149,8 +147,8 @@ for t in dir(stres):
   setattr(resources,t,getattr(stres,t))
 
 #resources.pmLabelBarDisplayMode = "Always"
-resources.nglSpreadColorStart   = 3
-resources.nglSpreadColorEnd     = -4
+cmap = Ngl.read_colormap_file("so4_23")
+resources.cnFillColor           = cmap[2:-3,:]
 resources.stMonoLineColor       = False
 resources.stLineThicknessF      = 1.7
 resources.tiMainString          = "Streamlines colored by scalar field"

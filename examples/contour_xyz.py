@@ -93,8 +93,7 @@ zo = Ngl.natgrid(x, y, z, xo, yo)   # Interpolate.
 #
 #  Define a color map.
 #
-cmap = numpy.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
-                      [1.00, 0.00, 0.00], [1.00, 0.00, 0.40], \
+cmap = numpy.array([  [1.00, 0.00, 0.00], [1.00, 0.00, 0.40], \
                       [1.00, 0.00, 0.80], [1.00, 0.20, 1.00], \
                       [1.00, 0.60, 1.00], [0.60, 0.80, 1.00], \
                       [0.20, 0.80, 1.00], [0.20, 0.80, 0.60], \
@@ -103,11 +102,8 @@ cmap = numpy.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
                       [0.60, 0.40, 0.80], [0.60, 0.80, 0.80], \
                       [0.60, 0.80, 0.40], [1.00, 0.60, 0.80]],'f')
 
-rlist = Ngl.Resources()
-rlist.wkColorMap = cmap
 wks_type = "ps"
-wks   = Ngl.open_wks( wks_type,"contour_xyz",rlist)  # Open a PS workstation 
-                                                     # with the given colormap.
+wks = Ngl.open_wks( wks_type,"contour_xyz")  # Open a PS workstation 
 
 #
 # Set up a resource list to contain the resources for our various
@@ -124,12 +120,12 @@ resources.tiXAxisString         = "x values"    # X axis label.
 resources.tiYAxisString         = "y values"    # Y axis label.
 
 resources.cnFillOn              = True     # Turn on contour fill.
+resources.cnFillPalette         = cmap     # Set the color map to use.
 resources.cnInfoLabelOn         = False    # Turn off info label.
 resources.cnLineLabelsOn        = False    # Turn off line labels.
 
 resources.lbOrientation         = "Horizontal"   # Draw labelbar horizontally.
 
-resources.nglSpreadColors = False         # Do not interpolate color space.
 resources.vpYF            = 0.9           # Change Y location of plot.
 
 #

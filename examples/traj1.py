@@ -86,10 +86,8 @@ cmap = numpy.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
                     [0.80, 0.80, 1.00], [0.00, 0.00, 0.00]],\
                     'f')
 
-rlist = Ngl.Resources()
-rlist.wkColorMap = cmap
 wks_type = "ps"
-wks = Ngl.open_wks (wks_type,"traj1",rlist)
+wks = Ngl.open_wks (wks_type,"traj1")
 
 #
 #  Create the plot.
@@ -110,8 +108,8 @@ res.mpMaxLonF  = -25
 res.mpFillOn   = True
 res.mpLabelsOn = True
 res.mpOutlineOn = True
-res.mpLandFillColor = 2
-res.mpOceanFillColor = 3
+res.mpLandFillColor = [0.88, 0.57, 0.20]
+res.mpOceanFillColor = [0.90, 0.90, 0.95]
 res.mpGridAndLimbOn = False
 res.vpXF       = 0.05
 res.vpYF       = 0.95
@@ -131,7 +129,7 @@ map = Ngl.map(wks,res)    # Draw map.
 #
 txres = Ngl.Resources()
 txres.txFontHeightF = 0.025
-txres.txFontColor   =  1
+txres.txFontColor   =  "black"
 txres.txFont        = 22
 Ngl.text_ndc(wks,"Trajectories colored by salinity (ppt)",0.52,0.90,txres)
 del txres
@@ -140,14 +138,16 @@ del txres
 #  Manually draw a labelbar using colors 4-12.
 #
 gsres = Ngl.Resources()  # Line resources.
-gsres.gsLineColor = 1    # Draw black boundaries around the label bar boxes.
+
+# Draw black boundaries around the label bar boxes.
+gsres.gsLineColor = "black"    
+
 delx = 0.06
 dely = 0.03
 startx = 0.30
 starty = 0.25
 txres = Ngl.Resources()          # For labelling the label bar.
 txres.txFontHeightF = 0.018 
-txres.txFontColor   = 1
 txres.txFont   = 22
 for i in xrange(4,14,1):
   x0 = startx+(i-4)*delx
@@ -162,7 +162,7 @@ for i in xrange(4,14,1):
   y3 = y2
   y4 = y0
   y = [y0,y1,y2,y3,y4]
-  gsres.gsFillColor = i    # Change fill color.
+  gsres.gsFillColor = cmap[i,:]    # Change fill color.
   Ngl.polygon_ndc(wks,x,y,gsres) 
   Ngl.polyline_ndc(wks,x,y,gsres)
   if (i == 4):
@@ -210,7 +210,7 @@ for i in xrange(len(traj)):
       cindex = 4
     elif (cindex > 13):
       cindex = 13
-    pres.gsLineColor = cindex
+    pres.gsLineColor = cmap[cindex,:]
     Ngl.polyline(wks,map,[xpt[j],xpt[j+1]],[ypt[j],ypt[j+1]],pres)
 
 #

@@ -61,7 +61,7 @@ lon  = nf.variables["lon"][:]
 # Set up a color map using RGB triplets.
 #
 cmap =  numpy.array(\
-        [ [.000,.000,.000], [1.00,1.00,1.00], [.700,.700,.700], \
+        [ [.700,.700,.700], \
           [.650,.650,.700], [.610,.600,.700], [.550,.550,.700], \
           [.560,.500,.700], [.450,.450,.700], [.420,.400,.700], \
           [.350,.350,.700], [.300,.300,.700], [.250,.250,.700], \
@@ -87,10 +87,8 @@ cmap =  numpy.array(\
 #
 # Open a PS file and change the color map.
 #
-wres = Ngl.Resources()
 wks_type = "ps"
-wres.wkColorMap = cmap
-wks = Ngl.open_wks(wks_type,"cn05p",wres)
+wks = Ngl.open_wks(wks_type,"cn05p")
 
 #
 # Set up variable to hold the various plot
@@ -108,7 +106,7 @@ res.sfYArray = lat
 # Set some contour resources
 #
 res.cnFillOn             = True
-res.cnFillColors         = range(2,62)
+res.cnFillColors         = cmap
 res.cnLinesOn            = False
 res.cnLineLabelsOn       = False
 

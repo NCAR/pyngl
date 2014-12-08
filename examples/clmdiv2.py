@@ -22,7 +22,6 @@
 #    fill them.
 #
 #  Effects illustrated:
-#      o  Defining a color map.
 #      o  Using a Cylindrical Equidistant map projection.
 #      o  How to select a map database resolution.
 #      o  How to color only specified map areas.

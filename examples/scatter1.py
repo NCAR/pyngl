@@ -69,14 +69,10 @@ colors = ncdf.variables["colors"][:]
 color_index = colors.astype('i')
 
 #
-#  Specify a color map and open an output workstation.
+#  Open an output workstation.
 #
-cmap = numpy.array([[1., 1., 1.], [0., 0., 0.], [1., 0., 0.], \
-                    [0., 0., 1.], [0., 1., 0.]], 'f')
-rlist = Ngl.Resources()
-rlist.wkColorMap = cmap
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"scatter1",rlist)  # Open a workstation.
+wks = Ngl.open_wks(wks_type,"scatter1")
   
 #
 #  Label the plot.
@@ -91,7 +87,7 @@ resources.tiYAxisFont            = "helvetica-bold"
 resources.tiXAxisFontHeightF     = 0.025     # Change the font size.
 resources.tiYAxisFontHeightF     = 0.025
   
-resources.xyLineColors           = [1]       # Set the line colors.
+resources.xyLineColors           = "black"   # Set the line colors.
 resources.xyMonoLineThickness    = True      # Set the line colors.
 resources.xyLineThicknessF       = 3.0       # Triple the width.
   

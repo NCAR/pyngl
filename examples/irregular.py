@@ -80,11 +80,8 @@ z_t      = cdf_file.variables["z_t"][:] / 100.         # convert cm to m
 #
 #  Open a workstation.
 #
-wk_res            = Ngl.Resources()
-wk_res.wkColorMap = "gui_default"
-
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"irregular",wk_res)
+wks = Ngl.open_wks(wks_type,"irregular")
 
 #
 # Set up a resource list for plot options.
@@ -95,6 +92,7 @@ resources.sfXArray        = lat_t
 resources.sfYArray        = z_t
 
 resources.cnFillOn        = True
+resources.cnFillPalette   = "gui_default"
 resources.cnLineLabelsOn  = False
 
 resources.tiMainString    = "Default axes"        # main title
