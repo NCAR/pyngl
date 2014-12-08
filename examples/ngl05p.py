@@ -77,7 +77,7 @@ cdf_file3 = Nio.open_file(os.path.join(data_dir,"cdf","Pstorm.cdf"),"r")
 # cdf_file2 = NetCDFFile(os.path.join(data_dir,"cdf","sstdata_netcdf.nc"),"r")
 # cdf_file3 = NetCDFFile(os.path.join(data_dir,"cdf","Pstorm.cdf"),"r")
 
-psl = cdf_file1.variables["Psl"]   
+psl = cdf_file1.variables["Psl"][:]
 sst = cdf_file2.variables["sst"]  
 pf  = cdf_file3.variables["p"]  
 
