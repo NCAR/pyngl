@@ -57,10 +57,11 @@ data     = Ngl.asciiread(filename,[3,73,73],"float")
 # Open workstation and change color map.
 wks_type = "ps"
 
+rlist = Ngl.Resources()
 if(wks_type == "ps" or wks_type == "pdf"):
   rlist.wkOrientation = "Portrait"      # For PS or PDF output only.
 
-wks = Ngl.open_wks(wks_type,"streamline2")
+wks = Ngl.open_wks(wks_type,"streamline2",rlist)
 
 stres = Ngl.Resources()
 cnres = Ngl.Resources()
@@ -148,7 +149,7 @@ for t in dir(stres):
 
 #resources.pmLabelBarDisplayMode = "Always"
 cmap = Ngl.read_colormap_file("so4_23")
-resources.cnFillColor           = cmap[2:-3,:]
+resources.stLevelPalette        = cmap[2:-3,:]
 resources.stMonoLineColor       = False
 resources.stLineThicknessF      = 1.7
 resources.tiMainString          = "Streamlines colored by scalar field"
