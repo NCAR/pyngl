@@ -108,32 +108,25 @@ icemon = MA.filled(icemon,fill_value)
 
 nsub = 16 # Subscript location of northernmost hlat to be plotted.
 
-cmap = numpy.array([                                         \
-         [1.00,1.00,1.00], [0.00,0.00,0.00], [1.00,1.00,0.50], \
-         [0.00,0.00,0.50], [0.50,1.00,1.00], [0.50,0.00,0.00], \
-         [1.00,0.00,1.00], [0.00,1.00,1.00], [1.00,1.00,0.00], \
-         [0.00,0.00,1.00], [0.00,1.00,0.00], [1.00,0.00,0.00], \
-         [0.50,0.00,1.00], [1.00,0.50,0.00], [0.00,0.50,1.00], \
-         [0.50,1.00,0.00], [0.50,0.00,0.50], [0.50,1.00,0.50], \
-         [1.00,0.50,1.00], [0.00,0.50,0.00], [0.50,0.50,1.00], \
-         [1.00,0.00,0.50], [0.50,0.50,0.00], [0.00,0.50,0.50], \
-         [1.00,0.50,0.50], [0.00,1.00,0.50], [0.50,0.50,0.50], \
-         [0.625,0.625,0.625] ],dtype=float)
+cmap = numpy.array([                                           \
+         [1.00,1.00,0.50], [0.00,0.00,0.50], [0.50,1.00,1.00], \
+         [0.50,0.00,0.00], [1.00,0.00,1.00], [0.00,1.00,1.00], \
+         [1.00,1.00,0.00], [0.00,0.00,1.00], [0.00,1.00,0.00], \
+         [1.00,0.00,0.00] ],dtype=float)
 
-rlist = Ngl.Resources()
-rlist.wkColorMap = cmap
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"ngl09p",rlist) # Open a workstation.
+wks = Ngl.open_wks(wks_type,"ngl09p")
 
 resources = Ngl.Resources()
-resources.sfMissingValueV = fill_value
 
+# Add a longitude cyclic point
 icemonnew,hlonnew = Ngl.add_cyclic(icemon[0:nsub+1,:],hlon[:])
-resources.sfXArray = hlonnew   # Necessary for overlay on a map.
-resources.sfYArray = hlat[0:nsub+1]
-resources.nglSpreadColors = False    # Do not span color map
 
-resources.tiMainString = "CSM Y00-99 Mean Ice Fraction Month =" + str(month)
+resources.sfMissingValueV = fill_value
+resources.cnFillPalette   = cmap
+resources.sfXArray        = hlonnew   # Necessary for overlay on a map.
+resources.sfYArray        = hlat[0:nsub+1]
+resources.tiMainString    = "CSM Y00-99 Mean Ice Fraction Month =" + str(month)
 
 resources.pmTickMarkDisplayMode = "Never"
 
