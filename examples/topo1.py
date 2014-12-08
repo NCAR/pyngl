@@ -59,7 +59,7 @@ import Ngl
 dirc  = Ngl.pynglpath("data")
 cfile = Nio.open_file(os.path.join(dirc,"cdf","trinidad.nc"))
 
-data         = cfile.variables["data"]
+data         = cfile.variables["data"][:]
 lat          = cfile.variables["lat"][:]
 lon          = cfile.variables["lon"][:]
 map_cornersW = cfile.variables["map_cornersW"][:]

@@ -36,7 +36,7 @@ data_dir = Ngl.pynglpath("data")
 cdffile  = Nio.open_file(os.path.join(data_dir,"cdf","941110_P.cdf"),"r")
 
 # Read data
-psl      = cdffile.variables["Psl"]   
+psl      = cdffile.variables["Psl"][:]
 psl_lon  = cdffile.variables["lon"][:]
 psl_lat  = cdffile.variables["lat"][:]
 
