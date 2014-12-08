@@ -28,7 +28,6 @@
 #    o  Drawing the bounding box
 #    o  Changing the color and thickness of polylines
 #    o  Drawing polylines, polymarkers, and text in NDC space
-#    o  Adding named colors to an existing color map
 #    o  Using "getvalues" to retrieve resource values
 #    o  Generating dummy data
 # 
@@ -149,9 +148,9 @@ def draw_bb_box(wks,plot):
 #********************************************************************
 wks_type = "ps"
 rlist               = Ngl.Resources()
-rlist.wkColorMap    = "nrl_sirkes"
-rlist.wkOrientation = "Portrait"             # Don't let it be landscape
-wks = Ngl.open_wks("ps","viewport1",rlist)   # Open a PS workstation.
+if wks_type != "x11":
+  rlist.wkOrientation = "Portrait"                 # Don't let it be landscape
+wks = Ngl.open_wks(wks_type,"viewport1",rlist)   # Open a PS workstation.
 
 # Add some named colors. This is no longer needed in PyNGL 1.5.0
 #forest_green = numpy.array([ 34, 139,  34])/255.
@@ -169,6 +168,9 @@ cmax =  16.81
 data = Ngl.generate_2d_array([100,100], 10, 10, cmin, cmax)
 nice_min,nice_max,nice_spc = Ngl.nice_cntr_levels(cmin,cmax,cint=3)
 
+# Read in color map so we can subset it
+cmap = Ngl.read_colormap_file("nrl_sirkes")
+
 # Set up resources for a contour plot.
 
 cnres                   = Ngl.Resources()
@@ -178,7 +180,7 @@ cnres.nglDraw           = False     # Don't draw plot
 cnres.nglFrame          = False     # Don't advance the frame
 
 cnres.cnFillOn          = True        # Turn on contour fill
-cnres.nglSpreadColorEnd = -4          # Skip last three colors
+cnres.cnFillPalette     = cmap[:-3,:]
 
 cnres.cnLevelSelectionMode = "ManualLevels"
 cnres.cnLevelSpacingF      = nice_spc

@@ -97,17 +97,13 @@ for i in xrange(151,251):
 #
 #  Open workstation.
 #
-rlist            = Ngl.Resources()
-rlist.wkColorMap = cmap
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"ctnccl",rlist)
+wks = Ngl.open_wks(wks_type,"ctnccl")
 
 #
 #  The next set of resources will apply to the contour plot.
 #
 resources = Ngl.Resources()
-
-resources.nglSpreadColorStart = 4
 
 resources.sfXArray              = lon  # Portion of map on which to overlay
 resources.sfYArray              = lat  # contour plot.
@@ -115,6 +111,7 @@ resources.sfElementNodes        = ele
 resources.sfFirstNodeIndex      = 1
 
 resources.cnFillOn              = True 
+resources.cnFillPalette         = cmap[4:,]
 resources.cnFillMode            = "RasterFill"
 resources.cnRasterSmoothingOn   = True
 resources.cnLinesOn             = False

@@ -22,9 +22,8 @@
 #  Effects illustrated:
 #    o  Reading from a NetCDF file using Nio.
 #    o  Using a named color table.
-#    o  How to spread colors evenly over a
-#         subset of a color table.
 #    o  Using a cylindrical equidistant map projection.
+#    o  How to subset a color map
 #    o  How to select a map database resolution.
 #    o  How to use function codes in text strings.
 # 
@@ -83,7 +82,7 @@ depth = cfile.variables["depth"][:]
 #  Select a colormap and open a PostScript workstation.
 #
 rlist            = Ngl.Resources()
-rlist.wkColorMap = "rainbow+gray"
+#rlist.wkColorMap = "rainbow+gray"
 wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"chkbay",rlist)
 
@@ -92,8 +91,7 @@ wks = Ngl.open_wks(wks_type,"chkbay",rlist)
 #
 resources = Ngl.Resources()
 
-resources.nglSpreadColorStart = 15
-resources.nglSpreadColorEnd   = -2 
+resources.cnFillPalette    = Ngl.read_colormap_file("rainbow+gray")[15:-1,:]
 
 resources.sfXArray         = lon  # Portion of map on which to overlay
 resources.sfYArray         = lat  # contour plot.
