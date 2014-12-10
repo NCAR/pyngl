@@ -131,17 +131,14 @@ smothrh   = smth9(        rh, 0.50, -0.25)
 #
 #  Set up a color map and open an output workstation.
 #
-colors = numpy.array([                                               \
-                         [255,255,255], [  0,  0,  0], [255,255,255],  \
-                         [255,255,255], [255,255,255], [240,255,240],  \
-                         [220,255,220], [190,255,190], [120,255,120],  \
-                         [ 80,255, 80], [ 50,200, 50], [ 20,150, 20],  \
-                         [255,  0,  0]                                 \
+colors = numpy.array([                                                \
+                         [255,255,255], [255,255,255], [255,255,255], \
+                         [240,255,240], [220,255,220], [190,255,190], \
+                         [120,255,120], [ 80,255, 80], [ 50,200, 50], \
+                         [ 20,150, 20]                                \
                        ],'f') / 255.
-rlist = Ngl.Resources()
-rlist.wkColorMap = colors
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"meteogram",rlist)
+wks = Ngl.open_wks(wks_type,"meteogram")
 
 #
 # Create a different resource list for every plot created.
@@ -206,9 +203,9 @@ rh_res.tmXBLabels           =                             \
 rh_res.tmXBLabelAngleF   = 90.        # change label angle
 rh_res.tmXBMinorOn       = False        # No minor tick marks.
 rh_res.tmXBLabelJust     = "CenterCenter"
-rh_res.nglSpreadColorEnd = -2           # save last color (red) for cntr lines
 
 rh_res.cnFillOn              = True           # turns on color fill
+rh_res.cnFillPalette         = colors         # set colors for contours
 rh_res.cnLineLabelsOn        = True           # no contour labels
 rh_res.tiMainString          = "Meteogram for LGSA, 28/12Z"
 rh_res.tiMainFont            = "Helvetica-Bold"

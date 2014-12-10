@@ -21,7 +21,7 @@
 #
 #  Effects illustrated:
 #    o  Reading data from a NetCDF file.
-#    o  Changing the color map.
+#    o  Changing the colors associated with a contour plot.
 #    o  Contours with colored lines.
 #    o  Contours with hatch pattern fill.
 #    o  Turning off the label bar on a coutour plot.
@@ -80,10 +80,8 @@ lon  = cdf_file.variables["lon"]  # longitude
 #
 #  Open a workstation and specify a different color map.
 #
-wkres = Ngl.Resources()
-wkres.wkColorMap = "default"
 wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"ngl02p",wkres)
+wks = Ngl.open_wks(wks_type,"ngl02p")
 
 resources = Ngl.Resources()
 #
@@ -112,6 +110,7 @@ plot = Ngl.contour(wks,tempa,resources)  # Draw a contour plot.
 #----------- Begin third plot -----------------------------------------
 
 resources.cnFillOn          = True    # Turn on contour line fill.
+resources.cnFillPalette     = "default"   #  Set colors for contours
 resources.cnMonoFillPattern = False   # Turn off using a single fill pattern.
 resources.cnMonoFillColor   = True
 resources.cnMonoLineColor   = True
@@ -128,13 +127,7 @@ plot = Ngl.contour(wks,tempa,resources)   # Draw a contour plot.
 
 #---------- Begin fourth plot ------------------------------------------
 
-#
-#  Specify a new color map.
-#
-rlist = Ngl.Resources()
-rlist.wkColorMap = "BlGrYeOrReVi200"
-Ngl.set_values(wks,rlist)
-
+resources.cnFillPalette         = "BlGrYeOrReVi200"   #  Set colors for contours
 resources.cnMonoFillPattern     = True     # Turn solid fill back on.
 resources.cnMonoFillColor       = False    # Use multiple colors.
 resources.cnLineLabelsOn        = False    # Turn off line labels.
@@ -153,8 +146,7 @@ plot = Ngl.contour(wks,Z[0,0,:,:],resources)    # Draw a contour plot.
 
 #---------- Begin fifth plot ------------------------------------------
 
-cmap = numpy.array([[0.00, 0.00, 0.00], [1.00, 1.00, 1.00], \
-                    [0.10, 0.10, 0.10], [0.15, 0.15, 0.15], \
+cmap = numpy.array([[0.10, 0.10, 0.10], [0.15, 0.15, 0.15], \
                     [0.20, 0.20, 0.20], [0.25, 0.25, 0.25], \
                     [0.30, 0.30, 0.30], [0.35, 0.35, 0.35], \
                     [0.40, 0.40, 0.40], [0.45, 0.45, 0.45], \
@@ -162,10 +154,6 @@ cmap = numpy.array([[0.00, 0.00, 0.00], [1.00, 1.00, 1.00], \
                     [0.60, 0.60, 0.60], [0.65, 0.65, 0.65], \
                     [0.70, 0.70, 0.70], [0.75, 0.75, 0.75], \
                     [0.80, 0.80, 0.80], [0.85, 0.85, 0.85]],'f')
-
-rlist.wkColorMap = cmap       #  Specify a new color map.
-Ngl.set_values(wks,rlist)
-
 #
 #  If the pressure field has a long_name attribute, use it for a title.
 #
@@ -174,6 +162,7 @@ if hasattr(pres,"long_name"):
 
 presa = 0.01*pres[0,:,:]
 
+resources.cnFillPalette = cmap           # Set colors for contours
 plot = Ngl.contour(wks,presa,resources)  # Draw a contour plot.
 
 print "\nSubset [2:6,7:10] of temp array:" # Print subset of "temp" variable.

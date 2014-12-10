@@ -172,8 +172,6 @@ resources.cnFillOn              = True     # Turn on contour fill.
 resources.cnLineLabelsOn        = False    # Turn off line labels.
 resources.cnInfoLabelOn         = False    # Turn off info label.
 
-resources.nglSpreadColorEnd     = -2       # Don't include gray in contours.
-
 resources.sfXCStartV = float(min(pf_lon))   # Define where contour plot
 resources.sfXCEndV   = float(max(pf_lon))   # should lie on the map plot.
 resources.sfYCStartV = float(min(pf_lat))
@@ -223,24 +221,18 @@ del resources.tiXAxisString  # Delete some resources you don't
 del resources.tiYAxisString  # need anymore.
 del resources.nglFrame
 
-cmap = numpy.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
-                    [.560, .500, .700], [.300, .300, .700], \
+cmap = numpy.array([[.560, .500, .700], [.300, .300, .700], \
                     [.100, .100, .700], [.000, .100, .700], \
                     [.000, .300, .700], [.000, .500, .500], \
                     [.000, .400, .200], [.000, .600, .000], \
                     [.000, 1.00, .000], [.550, .550, .000], \
                     [.570, .420, .000], [.700, .285, .000], \
                     [.700, .180, .000], [.870, .050, .000], \
-                    [1.00, .000, .000], [0.00, 1.00, 1.00], \
-                    [.700, .700, .700]],'f')
-
-rlist = Ngl.Resources()
-rlist.wkColorMap = cmap
-Ngl.set_values(wks,rlist)
+                    [1.00, .000, .000], [0.00, 1.00, 1.00]],'f')
 
 resources.mpFillOn              = True         # Turn on map fill.
 resources.mpFillAreaSpecifiers  = ["Water","Land","USStatesWater"]
-resources.mpSpecifiedFillColors = [17,18,17]
+resources.mpSpecifiedFillColors = numpy.array([[0,1.,1.],[.7,.7,.7],[0,1.,1.]])
 resources.mpAreaMaskingOn       = True            # Indicate we want to
 resources.mpMaskAreaSpecifiers  = "USStatesLand"  # mask land.
 resources.mpPerimOn             = True            # Turn on a perimeter.
@@ -249,6 +241,7 @@ resources.cnFillDrawOrder       = "Predraw"       # Draw contours first.
 
 resources.cnLevelSelectionMode = "ExplicitLevels" # Define own levels.
 resources.cnLevels             = numpy.arange(985.,1046.,5.)
+resources.cnFillPalette        = cmap
 
 resources.lbTitleString  = "~F25~pressure (mb)" # Title for label bar.
 resources.cnLinesOn      = False         # Turn off contour lines.
@@ -263,7 +256,7 @@ map = Ngl.contour_map(wks,pfa,resources)
 
 del map
 del resources
-del rlist
+#del rlist
 del txres
 
 Ngl.end()

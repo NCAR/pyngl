@@ -76,8 +76,7 @@ zo = Ngl.natgrid(x, y, z, xo, yo)   # Interpolate.
 #
 #  Define a color map and open four different types of workstations.
 #
-cmap = numpy.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
-                    [1.00, 0.00, 0.00], [1.00, 0.00, 0.40], \
+cmap = numpy.array([[1.00, 0.00, 0.00], [1.00, 0.00, 0.40], \
                     [1.00, 0.00, 0.80], [1.00, 0.20, 1.00], \
                     [1.00, 0.60, 1.00], [0.60, 0.80, 1.00], \
                     [0.20, 0.80, 1.00], [0.20, 0.80, 0.60], \
@@ -85,12 +84,11 @@ cmap = numpy.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
                     [0.20, 0.45, 0.40], [0.20, 0.40, 0.80], \
                     [0.60, 0.40, 0.80], [0.60, 0.80, 0.80], \
                     [0.60, 0.80, 0.40], [1.00, 0.60, 0.80]],'f')
-rlist = Ngl.Resources()
-rlist.wkColorMap = cmap
-xwks   = Ngl.open_wks( "x11","ngl08p",rlist) # Open an X11 workstation.
-cgmwks = Ngl.open_wks("ncgm","ngl08p",rlist) # Open an NCGM workstation.
-pswks  = Ngl.open_wks(  "ps","ngl08p",rlist) # Open a PS workstation.
-pdfwks = Ngl.open_wks( "pdf","ngl08p",rlist) # Open a PDF workstation.
+
+xwks   = Ngl.open_wks( "x11","ngl08p") # Open an X11 workstation.
+cgmwks = Ngl.open_wks("ncgm","ngl08p") # Open an NCGM workstation.
+pswks  = Ngl.open_wks(  "ps","ngl08p") # Open a PS workstation.
+pdfwks = Ngl.open_wks( "pdf","ngl08p") # Open a PDF workstation.
 
 #----------- Begin first plot -----------------------------------------
 
@@ -104,12 +102,12 @@ resources.tiXAxisString         = "x values"    # X axis label.
 resources.tiYAxisString         = "y values"    # Y axis label.
 
 resources.cnFillOn              = True     # Turn on contour fill.
+resources.cnFillPalette         = cmap     # Set colors for contours.
 resources.cnInfoLabelOn         = False    # Turn off info label.
 resources.cnLineLabelsOn        = False    # Turn off line labels.
 
 resources.lbOrientation         = "Horizontal" # Draw it horizontally.
                                                  # label bar.
-resources.nglSpreadColors = False    # Do not interpolate color space.
 resources.vpYF = 0.9   # Change Y location of plot.
 
 zt = numpy.transpose(zo)
@@ -121,7 +119,7 @@ del resources
 resources = Ngl.Resources()
 resources.tiMainString        = "~F26~slices"   # Define a title.
 
-resources.xyLineColors        = [2,8,10,14]    # Define line colors.
+resources.xyLineColors        = ["red","cyan","darkgreen","darkorchid4"]
 resources.xyLineThicknessF    = 3.0             # Define line thickness.
 
 resources.pmLegendDisplayMode    = "Always"     # Turn on the drawing
