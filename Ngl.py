@@ -19,7 +19,7 @@ __all__ = ['add_annotation', 'add_cyclic', 'add_new_coord_limits', \
            'get_bounding_box', 'get_float', 'get_float_array', \
            'get_integer', 'get_integer_array', 'get_named_color_index', \
            'get_string', 'get_string_array', 'get_workspace_id', \
-           'hlsrgb', 'hsvrgb', 'ind', 'labelbar_ndc', 'legend_ndc', \
+           'hlsrgb', 'hsvrgb', 'ind', 'int2p', 'labelbar_ndc', 'legend_ndc', \
            'linmsg', 'map', 'maximize_plot', 'merge_colormaps', \
            'natgrid', 'ndctodata', 'new_color', 'new_dash_pattern', \
            'new_marker', 'nice_cntr_levels','nngetp', 'nnsetp', \
@@ -620,51 +620,6 @@ def _set_msg_val_res(rlist,fv,plot_type):
     else:
       if rlist[res_to_set] != fv:
         print "Warning:",res_to_set,"is not equal to actual missing value of data,",fv
-
-def betainc(x, a, b):
-  """
-Evaluates the incomplete beta function.
-
-alpha = Ngl.betainc (x,a,b)
-
-x -- upper limit of integration x must must be in (0,1) inclusive and
-can only be float or double. Can contain missing values.
-
-a -- first beta distribution parameter; must be > 0.0. Must be same
-dimensionality as x.
-
-b -- second beta distribution parameter; must be > 0.0.  Must be same
-dimensionality as x.
-  """
-
-# Deal with masked array.
-  fill_value_x = _get_fill_value(x)
-
-  if not fill_value_x is None:
-    x2 = x.filled(fill_value_x)
-  else:
-    fill_value_x = 1.e20
-    x2 = _promote_scalar(x)
-  
-#
-# Promote a and b to numpy arrays that have at least a dimension of 1.
-#
-  a2 = _promote_scalar(a)
-  b2 = _promote_scalar(b)
-
-  result = fplib.betainc(x2, a2, b2, fill_value_x)
-
-  del x2
-  del a2
-  del b2
-# 
-#  Return a masked array only if x was a masked array.
-# 
-  if _is_numpy_ma(x):
-    return ma.masked_array(result,fill_value=fill_value_x)
-  else:
-    return result
-
 
 def _ck_for_rangs(dir):
 #
@@ -2624,6 +2579,53 @@ type -- An optional argument specifying the type of the data you are
 
 ################################################################
 
+def betainc(x, a, b):
+  """
+Evaluates the incomplete beta function.
+
+alpha = Ngl.betainc (x,a,b)
+
+x -- upper limit of integration x must must be in (0,1) inclusive and
+can only be float or double. Can contain missing values.
+
+a -- first beta distribution parameter; must be > 0.0. Must be same
+dimensionality as x.
+
+b -- second beta distribution parameter; must be > 0.0.  Must be same
+dimensionality as x.
+  """
+
+# Deal with masked array.
+  fill_value_x = _get_fill_value(x)
+
+  if not fill_value_x is None:
+    x2 = x.filled(fill_value_x)
+  else:
+    fill_value_x = 1.e20
+    x2 = _promote_scalar(x)
+  
+#
+# Promote a and b to numpy arrays that have at least a dimension of 1.
+#
+  a2 = _promote_scalar(a)
+  b2 = _promote_scalar(b)
+
+  result = fplib.betainc(x2, a2, b2, fill_value_x)
+
+  del x2
+  del a2
+  del b2
+# 
+#  Return a masked array only if x was a masked array.
+# 
+  if _is_numpy_ma(x):
+    return ma.masked_array(result,fill_value=fill_value_x)
+  else:
+    return result
+
+
+################################################################
+
 def blank_plot(wks,rlistc=None):
   """
 Creates and draws a blank plot, and returns a PlotId representing the 
@@ -4003,6 +4005,61 @@ plist -- A Python list, tuple, or one-dimensional NumPy array.
     if (seq[i] != 0):
       inds.append(i)
   return(inds)
+
+################################################################
+
+def int2p(pin, xin, pout, linlog):
+  """
+Interpolates data on one set of pressure levels to a different set of
+pressure levels.  The return array will be a multi-dimensional NumPy
+array of the same shape as xin, but the rightmost dimension will have
+the same size as the rightmost dimension of pout.  The return type
+will be double if xinis double, float otherwise.
+
+xout = Ngl.int2p(pin, xin, pout, linlog)
+
+pin -- A NumPy array of any dimensionality containing input pressure
+levels. If multi-dimensional, the level dimension must be in the
+rightmost position and the values must be monotonically increasing or
+decreasing.  
+
+xin -- A NumPy array of any dimensionality containing the data to be
+interpolated. If pin is multi-dimensional, then these two arrays have
+the same dimension sizes.  
+
+pout -- A Numpy array of any dimensionality containing output pressure
+levels with values monotonically increasing or decreasing. If
+multi-dimensional, the level dimension must be in the rightmost
+dimension and all other dimensions must be the same as xin. If
+one-dimensional, then all of xin will be interpolated to the same
+levels. Must have the same units as pin. 
+
+linlog -- A scalar integer indicating the type of interpolation:
+
+abs(linlog) == 1 --> linear interpolation
+abs(linlog) != 1 --> log interpolation
+
+If linlog is negative, then extrapolation to levels outside the range
+of pin will occur. Use extrapolation with caution.  
+  """
+
+# Convert arrays to numpy arrays with potential fill values
+  xin2,fill_value_xin  = _get_arr_and_force_fv(xin)
+  pin2,fill_value_pin  = _get_arr_and_force_fv(pin)
+  pout2,fill_value_pin = _get_arr_and_fv(pout)
+
+# Figure out what the output fill value should be
+  if fill_value_xin is None:
+    if fill_value_pin is None:
+      fill_value = 1.e20
+    else:
+      fill_value = fill_value_pin
+  else:
+    fill_value = fill_value_xin
+  
+  aret = fplib.int2p(pin2, xin2, pout2, linlog, fill_value)
+  return ma.masked_array(aret, fill_value=fill_value)
+
 
 ################################################################
 
@@ -7666,8 +7723,8 @@ def wrf_avo(u, v, msfu, msfv, msfm, cor, dx, dy, opt=0):
   msfv2 = _promote_scalar(msfv)
   msfm2 = _promote_scalar(msfm)
   cor2  = _promote_scalar(cor)
-  dx2    = _promote_scalar(dx)
-  dy2    = _promote_scalar(dy)
+  dx2   = _promote_scalar(dx)
+  dy2   = _promote_scalar(dy)
 
   return fplib.wrf_avo(u2,v2,msfu2,msfv2,msfm2,cor2,dx2,dy2,opt)
 
@@ -7779,9 +7836,9 @@ dimensionality as Z.
 # Promote input arrays to numpy arrays that have at least a dimension of 1.
 #
   z2 = _promote_scalar(z)
-  t2  = _promote_scalar(t)
-  p2  = _promote_scalar(p)
-  q2  = _promote_scalar(q)
+  t2 = _promote_scalar(t)
+  p2 = _promote_scalar(p)
+  q2 = _promote_scalar(q)
 
   return fplib.wrf_slp(z2,t2,p2,q2)
 

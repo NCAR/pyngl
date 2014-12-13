@@ -1,0 +1,224 @@
+======================================================================
+
+This README file explains how to create a Python wrapper of a Fortran
+routine from a wrapper you already have for NCL. "xxxx" is used as the
+routine name in the description below, and "xxxxW.c" is used as the
+name of the NCL C file with the wrapper.
+
+There are four main steps:
+
+ 1. Register the function in the "fplibmodule.c" file.
+ 2. Create the xxxxP.c wrapper file.
+ 3. Add a "xxxx" function to Ngl.py that calls the wrapper.
+ 4. Add one or more tests to paft/tests
+
+First, copy over the xxxxW.c NCL wrapper file from
+$NCARG/ni/src/lib/nfp or wherever it resides.
+
+Make a copy of this file called xxxxP.c. The xxxxW.c file can be used
+as a backup if you screw up the xxxxP.c file.
+
+======================================================================
+Step 1 - fplibmodule.c changes
+
+ - Move the relevant "extern NGCALLF" from xxxxP.c to the top portion
+   of fplibmodule.c.
+
+ - Update the fplibmodule.c file to add the new wrapper in the same
+   fashion as the other wrappers:
+
+       - Add this line after the NGCALLF define section:
+           #include "xxxxP.c" 
+
+       - Add a new entry to fplib_methods, with "xxxx" as the new function name
+            {"xxxx", (PyCFunction)fplib_xxxx, METH_VARARGS},
+
+ - Update the fplibmodule.c file to add the new wrapper in the same
+
+======================================================================
+Step 2 - Modify the xxxxP.c file
+
+These changes should be made to the xxxxP.c file:
+
+ - Remove "#include wrapper.h"
+
+ - Change:
+
+       NhlErrorTypes xxxx_W( void )
+
+   to:
+
+PyObject *fplib_xxxx(PyObject *self, PyObject *args)
+
+ - Any input "void *" arguments to this function should be changed from:
+
+      void *x;
+
+   to two lines:
+
+     PyObject *xar = NULL;
+     double *x;
+
+ - You may be able to remove any references to *tmp_x, but you might
+   want to wait on this until you see how tmp_x is used.
+
+ - If one or more of the input arguments is an array of arbitrary size, then
+   add this single line, which will be used to process each input
+   argument of this type:
+
+  PyArrayObject *arr = NULL;
+
+ - If any of the input arguments is a specific type, like "integer" or
+   "double", it should be declared as such, and not as a pointer to
+   this type, i.e. "int loglin".
+
+ - Any variables defined as NclScalar should be removed, as the
+   _FillValue attributes will be handled by Ngl.py in Step 3. The
+   Python wrapper routine will only need:
+
+    double fill_value_x;
+
+   for every input argument that has a _FillValue that needs to be passed
+   to the Fortran wrapper.
+
+ - Any reference to NclBasicDataTypes should be removed. They are not needed.
+   The typing stuff will be handled in Step 3.
+
+ - Any "ng_size_t" declarations should be changed to "npy_intp".
+
+ - Any "dsizes_xxx[NCL_MAX_DIMENSIONS]" should be changed to "*dsizes_xxx"
+
+ - Any reference to has_missing_xxx should be removed.
+
+ - If the output variable is of variable type, then you only need:
+
+    double *xout;
+
+   You don't need "void *" stuff.
+
+ - As with the input variables, the Ngl.py python file will handle any
+   return _FillValue required in Step 3.
+
+ - Once you are done with the variable declarations, you should be in
+   the section that retrieves arguments (with NclGetArgValue).
+
+   First, you must parse all the arguments (and somewhat prototype the
+   function at the same time) with something like:
+
+  if (!PyArg_ParseTuple(args, "OOOd:xxxx", &xar, &yar, &zar, &fill_value_x)) {
+    printf("xxxx: argument parsing failed\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+   where "xxxx" is the function name, and the "OOOd" represents 3
+   arguments of variable type, followed by an argument of type
+   "double".  Use "i" for type integer. Note the "OOO" are capital o's
+   and not the number "0".
+  
+ - Each argument that is of variable type that needs to be extracted
+   should look like the code below, which will also get the number of
+   dimensions and the dimension sizes. You will use the "arr" variable
+   declared above, and you can use it multiple times for each input
+   argument that is of variable type:
+
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (xar,PyArray_DOUBLE,0,0);
+  x = (double *)arr->data;
+  ndims_x  = arr->nd;
+  dsizes_x = (npy_intp *) calloc(ndims_x,sizeof(npy_intp));
+  for(i = 0; i < ndims_x; i++ ) {
+    dsizes_x[i] = (npy_intp)arr->dimensions[i];
+  }
+
+ - Each argument that is of specific type doesn't need anything
+   additional, because its value was already extracted in the
+   "PyArg_ParseTuple" call.
+
+ - Any checks for correct dimension sizes, etc, should be left as is,
+   but you will need to change the "NhlPError" calls to simple
+   "printf" statements, and if you need to exit due to that error, it
+   should look like this (note: I don't fully understand the Py_INCREF
+   stuff yet):
+
+  if (ndims_x != 3) { 
+    printf("xxxxx: 'x' must have 3 dimensions");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+ - All other code for calculating output dimension sizes and creating
+   temporary work arrays should be left as is. 
+
+ - Any NCL code that was used to coerce the input arguments to double
+   should be removed.
+
+ - Any code for checking the output type or output missing value
+   should be removed. This will be handled by Ngl.py in Step 3.
+
+ - Once you get into the section that calls the Fortran routine, you
+   can remove any code that coerces the input values.  All input
+   values should already be "double" at this point, unless they were
+   specifically typed otherwise.
+
+ - Change any "NclFree" to "free".
+
+ - Remove any "free" calls that are occurring to handle variable
+   type input arrays that had to be coerced in the NCL wrappers.
+
+ - To return the value, the simplest case is to replace a call like:
+
+  ret = NclReturnValue(xout,ndims_xout,dsizes_xout,&missing_xout,
+                       type_xout,0);
+  with:
+
+  return ((PyObject *) PyArray_SimpleNewFromData(ndims_xout,dsizes_xout,
+                                                 PyArray_DOUBLE,
+                                                 (void *) xout));
+
+======================================================================
+Step 3 - add the function to Ngl.py
+
+The function in Ngl.py will take care of processing the input
+arguments so that they pass numpy arrays to the wrapper.  They will
+also process any attributes, like "_FillValue", and return a 
+masked array, if necessary.
+
+Once the xxxxP.c wrapper is set up, you need to create the Python
+version of the "xxxx" function that will call this wrapper.
+
+ - Start adding a "def" for the "xxxx" function. Add it alphabetically,
+   if possible, after the "Public functions in alphabetical order"
+   comment. You can use the NCL function documentation page to help
+
+ - Create documentation  for this function, use the """ style syntax.
+   You can see how the other functions are done.
+
+ - Any scalar value that comes into a function needs to be converted
+   to a numpy array, so it has dimension sizes (python scalars
+   have a dimension of 0).  Use "_promote_scalar" for this.
+
+ - Use "_get_arr_and_fv" or "_get_arr_and_force_fv" to both convert an
+   array to a numpy array (if needed) and return a missing value.  The
+   "_get_arr_and_fv" function will return None if the input variable
+   doesn't have a _FillValue, and the "_get_arr_and_force_fv" will
+   return a default fill value if one doesn't exist.
+
+ - For the return value, if it's potentially something with
+   a _FillValue, then use something like (where fill_value
+   is initialized to some default value before this code):
+
+    fv = _get_fill_value(x)
+    if (any(fv is None)):
+      return fplib.xxx(_promote_scalar(x),...,fill_value)
+    else:
+      aret = fplib.xxx(x.filled(fv), ..., fv)
+      return ma.masked_array(aret, fill_value=fv)
+
+======================================================================
+Step 4 - add a test to paft/tests
+
+See how the other tests are done. The "utils.py" script 
+has some utility functions for comparing values, and for
+creating a multi-d version of a smaller array (multid).
+======================================================================

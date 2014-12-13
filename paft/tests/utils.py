@@ -1,10 +1,36 @@
 import numpy
+import functools, operator
+import types
 
 try:
   from numpy import ma
   HAS_MA = True
 except:
   HAS_MA = False
+
+def product(seq):
+    """Product of a sequence."""
+    return functools.reduce(operator.mul, seq, 1)
+
+#
+# Conform or broadcast an array to a larger array
+#
+def multid(x,dims):
+# First make a copy of the array product(dims) times.
+  xnew = numpy.tile(x,product(dims))
+
+# Get dimensions of new array so we can reshape it.
+  if type(dims) == types.ListType:
+    newsize = dims
+  elif type(x) == types.TupleType:
+    newsize = list(dims)
+  if type(x) == types.ListType:
+    newsize.append(len(x))
+  else:
+    for d in x.shape:
+      newsize.append(d)
+
+  return xnew.reshape(newsize)
 
 #
 # Check type of value.

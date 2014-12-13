@@ -15,6 +15,10 @@ extern void NGCALLF(dregcoef,DREGCOEF)(double *,double *,int *,double *,
                                        double *,double *,double *,int *,
                                        double *,double *,double *,int *);
 
+extern void NGCALLF(dint2p,DINT2P)(double *,double *,double *,double *,
+                                   int *,double *,double *,int *,int *,
+                                   double *,int*);
+
 extern void NGCALLF(vinth2p,VINTH2P)(double *, double *, double *, double *,
                                      double *, double *, double *,int *,
                                      int *, double *, double *, int *,
@@ -94,6 +98,7 @@ static PyObject* t_output_helper(PyObject* target, PyObject* o) {
 #include "bytesP.c"
 #include "chiinvP.c"
 #include "linmsgP.c"
+#include "int2pP.c"
 #include "reglineP.c"
 #include "sgtoolsP.c"
 #include "vinth2pP.c"
@@ -105,6 +110,7 @@ static PyMethodDef fplib_methods[] = {
     {"chiinv",  (PyCFunction)fplib_chiinv,  METH_VARARGS},
     {"gc_inout", (PyCFunction)fplib_gc_inout, METH_VARARGS},
     {"linmsg",  (PyCFunction)fplib_linmsg,  METH_VARARGS},
+    {"int2p",  (PyCFunction)fplib_int2p,  METH_VARARGS},
     {"regline", (PyCFunction)fplib_regline, METH_VARARGS},
     {"vinth2p", (PyCFunction)fplib_vinth2p, METH_VARARGS},
     {"wrf_avo", (PyCFunction)fplib_wrf_avo, METH_VARARGS},
