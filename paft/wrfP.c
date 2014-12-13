@@ -89,7 +89,7 @@ PyObject *fplib_wrf_avo(PyObject *self, PyObject *args)
  * Error checking on dimensions.
  */
   if(ndims_u < 3) {
-    printf("wrf_avo: u must have at least 3 dimensions");
+    printf("wrf_avo: u must have at least 3 dimensions\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
@@ -113,12 +113,12 @@ PyObject *fplib_wrf_avo(PyObject *self, PyObject *args)
  * Error checking on dimensions.
  */
   if(ndims_v != ndims_u) {
-    printf("wrf_avo: u and v must have the same number of dimensions");
+    printf("wrf_avo: u and v must have the same number of dimensions\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
   if(dsizes_v[ndims_v-3] != nz) {
-    printf("wrf_avo: The third-from-the-right dimension of v must be the same as the third-from-the-right dimension of u");
+    printf("wrf_avo: The third-from-the-right dimension of v must be the same as the third-from-the-right dimension of u\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
@@ -127,7 +127,7 @@ PyObject *fplib_wrf_avo(PyObject *self, PyObject *args)
  */
   for(i = 0; i < ndims_u-3; i++) {
     if(dsizes_u[i] != dsizes_v[i]) {
-      printf("wrf_avo: The leftmost dimensions of u and v must be the same");
+      printf("wrf_avo: The leftmost dimensions of u and v must be the same\n");
       Py_INCREF(Py_None);
       return Py_None;
     }
@@ -152,17 +152,17 @@ PyObject *fplib_wrf_avo(PyObject *self, PyObject *args)
  * Error checking on dimensions.
  */
   if(ndims_msfu < 2) {
-    printf("wrf_avo: msfu must have at least 2 dimensions");
+    printf("wrf_avo: msfu must have at least 2 dimensions\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
   if(ndims_msfu !=2 && ndims_msfu != (ndims_u-1)) {
-    printf("wrf_avo: msfu must be 2D or have one fewer dimensions than u");
+    printf("wrf_avo: msfu must be 2D or have one fewer dimensions than u\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
   if(dsizes_msfu[ndims_msfu-2] != ny || dsizes_msfu[ndims_msfu-1] != nxp1) {
-    printf("wrf_avo: The rightmost 2 dimensions of msfu must be the same as the rightmost 2 dimensions of u");
+    printf("wrf_avo: The rightmost 2 dimensions of msfu must be the same as the rightmost 2 dimensions of u\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
@@ -175,7 +175,7 @@ PyObject *fplib_wrf_avo(PyObject *self, PyObject *args)
   if(ndims_msfu > 2) {
     for(i = 0; i < ndims_u-3; i++) {
       if(dsizes_msfu[i] != dsizes_u[i]) {
-        printf("wrf_avo: If msfu is not 2-dimensional, then the leftmost dimensions of msfu and u must be the same");
+        printf("wrf_avo: If msfu is not 2-dimensional, then the leftmost dimensions of msfu and u must be the same\n");
 	Py_INCREF(Py_None);
 	return(Py_None);
       }
@@ -198,12 +198,12 @@ PyObject *fplib_wrf_avo(PyObject *self, PyObject *args)
  * Error checking on dimensions.
  */
   if(ndims_msfv != ndims_msfu) {
-    printf("wrf_avo: msfu, msfv, msft, and cor must have the same number of dimensions");
+    printf("wrf_avo: msfu, msfv, msft, and cor must have the same number of dimensions\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
   if(dsizes_msfv[ndims_msfv-2] != nyp1 || dsizes_msfv[ndims_msfv-1] != nx) {
-    printf("wrf_avo: The rightmost 2 dimensions of msfv must be the same as the rightmost 2 dimensions of v");
+    printf("wrf_avo: The rightmost 2 dimensions of msfv must be the same as the rightmost 2 dimensions of v\n");
     Py_INCREF(Py_None);
     return(Py_None);
   }
@@ -213,7 +213,7 @@ PyObject *fplib_wrf_avo(PyObject *self, PyObject *args)
  */
   for(i = 0; i < ndims_msfu-2; i++) {
     if(dsizes_msfv[i] != dsizes_msfu[i]) {
-      printf("wrf_avo: The leftmost dimensions of msfv and msfu must be the same");
+      printf("wrf_avo: The leftmost dimensions of msfv and msfu must be the same\n");
       Py_INCREF(Py_None);
       return(Py_None);
     }
@@ -235,12 +235,12 @@ PyObject *fplib_wrf_avo(PyObject *self, PyObject *args)
  * Error checking on dimensions.
  */
   if(ndims_msft != ndims_msfu) {
-    printf("wrf_avo: msfu, msfv, msft, and cor must have the same number of dimensions");
+    printf("wrf_avo: msfu, msfv, msft, and cor must have the same number of dimensions\n");
     Py_INCREF(Py_None);
     return(Py_None);
   }
   if(dsizes_msft[ndims_msft-2] != ny || dsizes_msft[ndims_msft-1] != nx) {
-    printf("wrf_avo: The rightmost 2 dimensions of msft must be the same as the rightmost 2 dimensions of th");
+    printf("wrf_avo: The rightmost 2 dimensions of msft must be the same as the rightmost 2 dimensions of th\n");
     Py_INCREF(Py_None);
     return(Py_None);
   }
@@ -250,7 +250,7 @@ PyObject *fplib_wrf_avo(PyObject *self, PyObject *args)
  */
   for(i = 0; i < ndims_msfu-2; i++) {
     if(dsizes_msft[i] != dsizes_msfu[i]) {
-      printf("wrf_avo: The leftmost dimensions of msft and msfu must be the same");
+      printf("wrf_avo: The leftmost dimensions of msft and msfu must be the same\n");
       Py_INCREF(Py_None);
       return(Py_None);
     }
@@ -273,7 +273,7 @@ PyObject *fplib_wrf_avo(PyObject *self, PyObject *args)
  * Error checking on dimensions.
  */
   if(ndims_cor != ndims_msft) {
-    printf("wrf_avo: msfu, msfv, msft, and cor must have the same number of dimensions");
+    printf("wrf_avo: msfu, msfv, msft, and cor must have the same number of dimensions\n");
     Py_INCREF(Py_None);
     return(Py_None);
   }
@@ -283,7 +283,7 @@ PyObject *fplib_wrf_avo(PyObject *self, PyObject *args)
  */
   for(i = 0; i < ndims_msft; i++) {
     if(dsizes_cor[i] != dsizes_msft[i]) {
-      printf("wrf_avo: The dimensions of cor and msft must be the same");
+      printf("wrf_avo: The dimensions of cor and msft must be the same\n");
       Py_INCREF(Py_None);
       return(Py_None);
     }
@@ -316,7 +316,7 @@ PyObject *fplib_wrf_avo(PyObject *self, PyObject *args)
  */
   if((ndims_dx != 1 && dsizes_dx[0] != 1) ||
      (ndims_dy != 1 && dsizes_dy[0] != 1)) {
-    printf("wrf_avo: dx and dy must be scalars");
+    printf("wrf_avo: dx and dy must be scalars\n");
     Py_INCREF(Py_None);
     return(Py_None);
   }
@@ -334,7 +334,7 @@ PyObject *fplib_wrf_avo(PyObject *self, PyObject *args)
  */
   if((nxp1 > INT_MAX) || (nyp1 > INT_MAX) || (nz > INT_MAX) || 
      (nx > INT_MAX) ||(ny > INT_MAX)) {
-    printf("wrf_avo: one or more dimension sizes is greater than INT_MAX");
+    printf("wrf_avo: one or more dimension sizes is greater than INT_MAX\n");
     Py_INCREF(Py_None);
     return(Py_None);
   }
@@ -350,7 +350,7 @@ PyObject *fplib_wrf_avo(PyObject *self, PyObject *args)
  */
   dsizes_av = (npy_intp*)calloc(ndims_u,sizeof(npy_intp));  
   if( dsizes_av == NULL) {
-    printf("wrf_avo: Unable to allocate memory for holding dimension sizes");
+    printf("wrf_avo: Unable to allocate memory for holding dimension sizes\n");
     Py_INCREF(Py_None);
     return(Py_None);
   }
@@ -370,7 +370,7 @@ PyObject *fplib_wrf_avo(PyObject *self, PyObject *args)
  */
   av = (double *)calloc(size_av, sizeof(double));
   if(av == NULL) {
-    printf("wrf_avo: Unable to allocate memory for output array");
+    printf("wrf_avo: Unable to allocate memory for output array\n");
     Py_INCREF(Py_None);
     return(Py_None);
   }
@@ -448,13 +448,13 @@ PyObject *fplib_wrf_tk(PyObject *self, PyObject *args)
  * Error checking. Input variables must be same size.
  */
   if(ndims_p != arr->nd) {
-    printf("wrf_tk: p and theta must be the same dimensionality");
+    printf("wrf_tk: p and theta must be the same dimensionality\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
   for(i = 0; i < ndims_p; i++) {
     if(dsizes_p[i] != (npy_intp)arr->dimensions[i]) {
-      printf("wrf_tk: p and theta must be the same dimensionality");
+      printf("wrf_tk: p and theta must be the same dimensionality\n");
       Py_INCREF(Py_None);
       return Py_None;
     }
@@ -481,7 +481,7 @@ PyObject *fplib_wrf_tk(PyObject *self, PyObject *args)
 
   tk = (double *)calloc(size_tk,sizeof(double));
   if(tk == NULL) {
-    printf("wrf_tk: Unable to allocate memory for output array");
+    printf("wrf_tk: Unable to allocate memory for output array\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
@@ -542,13 +542,13 @@ PyObject *fplib_wrf_td(PyObject *self, PyObject *args)
  * Error checking. Input variables must be same size.
  */
   if(ndims_p != arr->nd) {
-    printf("wrf_td: p and qv must be the same dimensionality");
+    printf("wrf_td: p and qv must be the same dimensionality\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
   for(i = 0; i < ndims_p; i++) {
     if(dsizes_p[i] != (npy_intp)arr->dimensions[i]) {
-      printf("wrf_td: p and qv must be the same dimensionality");
+      printf("wrf_td: p and qv must be the same dimensionality\n");
       Py_INCREF(Py_None);
       return Py_None;
     }
@@ -575,7 +575,7 @@ PyObject *fplib_wrf_td(PyObject *self, PyObject *args)
 
   td = (double *)calloc(size_td,sizeof(double));
   if(td == NULL) {
-    printf("wrf_td: Unable to allocate memory for output array");
+    printf("wrf_td: Unable to allocate memory for output array\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
@@ -691,19 +691,19 @@ PyObject *fplib_wrf_slp(PyObject *self, PyObject *args)
  * 3 dimensions.
  */
   if(ndims_z != ndims_t || ndims_z != ndims_p || ndims_z != ndims_q) {
-    printf("wrf_slp: The z, t, p, and q arrays must have the same number of dimensions");
+    printf("wrf_slp: The z, t, p, and q arrays must have the same number of dimensions\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
   if(ndims_z < 3) {
-    printf("wrf_slp: The z, t, p, and q arrays must have at least 3 dimensions");
+    printf("wrf_slp: The z, t, p, and q arrays must have at least 3 dimensions\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
   for(i = 0; i < ndims_z; i++) {
     if(dsizes_z[i] != dsizes_t[i] || dsizes_z[i] != dsizes_p[i] ||
        dsizes_z[i] != dsizes_q[i]) {
-      printf("wrf_slp: z, t, p, and q must be the same dimensionality");
+      printf("wrf_slp: z, t, p, and q must be the same dimensionality\n");
       Py_INCREF(Py_None);
       return Py_None;
     }
@@ -714,7 +714,7 @@ PyObject *fplib_wrf_slp(PyObject *self, PyObject *args)
   ndims_slp  = ndims_z-1;
   dsizes_slp = (npy_intp*)calloc(ndims_slp,sizeof(npy_intp));  
   if( dsizes_slp == NULL) {
-    printf("wrf_slp: Unable to allocate memory for holding dimension sizes");
+    printf("wrf_slp: Unable to allocate memory for holding dimension sizes\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
@@ -739,7 +739,7 @@ PyObject *fplib_wrf_slp(PyObject *self, PyObject *args)
  * Test dimension sizes.
  */
   if((nx > INT_MAX) || (ny > INT_MAX) || (nz > INT_MAX)) {
-    printf("wrf_slp: nx, ny, and/or nz is greater than INT_MAX");
+    printf("wrf_slp: nx, ny, and/or nz is greater than INT_MAX\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
@@ -754,7 +754,7 @@ PyObject *fplib_wrf_slp(PyObject *self, PyObject *args)
   tmp_t_surf      = (double *)calloc(nxy,sizeof(double));
   tmp_level       = (double *)calloc(nxy,sizeof(double));
   if(tmp_t_sea_level == NULL || tmp_t_surf == NULL || tmp_level == NULL) {
-    printf("wrf_slp: Unable to allocate memory for temporary arrays");
+    printf("wrf_slp: Unable to allocate memory for temporary arrays\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
@@ -764,7 +764,7 @@ PyObject *fplib_wrf_slp(PyObject *self, PyObject *args)
  */ 
   slp = (double *)calloc(size_slp,sizeof(double));
   if(slp == NULL) {
-    printf("wrf_slp: Unable to allocate memory for output array");
+    printf("wrf_slp: Unable to allocate memory for output array\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
@@ -851,13 +851,13 @@ PyObject *fplib_wrf_rh(PyObject *self, PyObject *args)
  * Error checking. Input variables must be same size.
  */
   if(ndims_qv != arr->nd) {
-    printf("wrf_rh: qv, p, t must be the same dimensionality");
+    printf("wrf_rh: qv, p, t must be the same dimensionality\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
   for(i = 0; i < ndims_qv; i++) {
     if(dsizes_qv[i] != (npy_intp)arr->dimensions[i]) {
-      printf("wrf_rh: qv, p, t must be the same dimensionality");
+      printf("wrf_rh: qv, p, t must be the same dimensionality\n");
       Py_INCREF(Py_None);
       return Py_None;
     }
@@ -874,13 +874,13 @@ PyObject *fplib_wrf_rh(PyObject *self, PyObject *args)
  * Error checking. Input variables must be same size.
  */
   if(ndims_qv != arr->nd) {
-    printf("wrf_rh: qv, p, t must be the same dimensionality");
+    printf("wrf_rh: qv, p, t must be the same dimensionality\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
   for(i = 0; i < ndims_qv; i++) {
     if(dsizes_qv[i] != (npy_intp)arr->dimensions[i]) {
-      printf("wrf_rh: qv, p, t must be the same dimensionality");
+      printf("wrf_rh: qv, p, t must be the same dimensionality\n");
       Py_INCREF(Py_None);
       return Py_None;
     }
@@ -906,7 +906,7 @@ PyObject *fplib_wrf_rh(PyObject *self, PyObject *args)
 
   rh = (double *)calloc(size_rh,sizeof(double));
   if(rh == NULL) {
-    printf("wrf_rh: Unable to allocate memory for output array");
+    printf("wrf_rh: Unable to allocate memory for output array\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
@@ -979,7 +979,7 @@ PyObject *fplib_wrf_dbz(PyObject *self, PyObject *args)
  * Check dimension sizes.
  */
   if(ndims_p < 3) {
-    printf("wrf_dbz: The p array must have at least 3 dimensions");
+    printf("wrf_dbz: The p array must have at least 3 dimensions\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
@@ -991,7 +991,7 @@ PyObject *fplib_wrf_dbz(PyObject *self, PyObject *args)
  * Test dimension sizes.
  */
   if((wedim > INT_MAX) || (sndim > INT_MAX) || (btdim > INT_MAX)) {
-    printf("wrf_dbz: one or more dimension sizes is greater than INT_MAX");    
+    printf("wrf_dbz: one or more dimension sizes is greater than INT_MAX\n");    
     Py_INCREF(Py_None);
     return Py_None;
   }
@@ -1014,7 +1014,7 @@ PyObject *fplib_wrf_dbz(PyObject *self, PyObject *args)
   }
 
   if(ndims_t != ndims_p) {
-    printf("wrf_dbz: The t array must have the same number of dimensions as the p array");
+    printf("wrf_dbz: The t array must have the same number of dimensions as the p array\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
@@ -1031,7 +1031,7 @@ PyObject *fplib_wrf_dbz(PyObject *self, PyObject *args)
     dsizes_qv[i] = (npy_intp)arr->dimensions[i];
   }
   if(ndims_qv != ndims_p) {
-    printf("wrf_dbz: The qv array must have the same number of dimensions as the p array");
+    printf("wrf_dbz: The qv array must have the same number of dimensions as the p array\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
@@ -1049,7 +1049,7 @@ PyObject *fplib_wrf_dbz(PyObject *self, PyObject *args)
   }
 
   if(ndims_qr != ndims_p) {
-    printf("wrf_dbz: The qr array must have the same number of dimensions as the p array");
+    printf("wrf_dbz: The qr array must have the same number of dimensions as the p array\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
@@ -1072,7 +1072,7 @@ PyObject *fplib_wrf_dbz(PyObject *self, PyObject *args)
  */
   is_scalar_qs = is_scalar(ndims_qs,dsizes_qs);
   if(!is_scalar_qs && ndims_qs != ndims_p) {
-    printf("wrf_dbz: qs must either be a scalar or have the same number of dimensions as the p array");
+    printf("wrf_dbz: qs must either be a scalar or have the same number of dimensions as the p array\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
@@ -1094,7 +1094,7 @@ PyObject *fplib_wrf_dbz(PyObject *self, PyObject *args)
  */
   is_scalar_qg = is_scalar(ndims_qg,dsizes_qg);
   if(!is_scalar_qg && ndims_qg != ndims_p) {
-    printf("wrf_dbz: qg must either be a scalar or have the same number of dimensions as the p array");
+    printf("wrf_dbz: qg must either be a scalar or have the same number of dimensions as the p array\n");
     Py_INCREF(Py_None);
     return Py_None;
   }
@@ -1108,7 +1108,7 @@ PyObject *fplib_wrf_dbz(PyObject *self, PyObject *args)
        dsizes_qr[i] != dsizes_p[i] || 
       (!is_scalar_qs && dsizes_qs[i] != dsizes_p[i]) || 
       (!is_scalar_qg && dsizes_qg[i] != dsizes_p[i])) {
-      printf("wrf_dbz: The p, t, qv, qr, qs, and qg arrays must have the same dimensions (qs and qg are optional)");
+      printf("wrf_dbz: The p, t, qv, qr, qs, and qg arrays must have the same dimensions (qs and qg are optional)\n");
       Py_INCREF(Py_None);
       return Py_None;
     }
@@ -1128,7 +1128,7 @@ PyObject *fplib_wrf_dbz(PyObject *self, PyObject *args)
   if(is_scalar_qs) {
     tmp_qs = (double *)calloc(nbtsnwe,sizeof(double));
     if(tmp_qs == NULL) {
-      printf("wrf_dbz: Unable to allocate memory for promoting qs array");
+      printf("wrf_dbz: Unable to allocate memory for promoting qs array\n");
       Py_INCREF(Py_None);
       return Py_None;
     }
@@ -1139,7 +1139,7 @@ PyObject *fplib_wrf_dbz(PyObject *self, PyObject *args)
   if(is_scalar_qg) {
     tmp_qg = (double *)calloc(nbtsnwe,sizeof(double));
     if(tmp_qg == NULL) {
-      printf("wrf_dbz: Unable to allocate memory for promoting qg array");
+      printf("wrf_dbz: Unable to allocate memory for promoting qg array\n");
       Py_INCREF(Py_None);
       return Py_None;
     }
@@ -1153,7 +1153,7 @@ PyObject *fplib_wrf_dbz(PyObject *self, PyObject *args)
 
   dbz = (double *)calloc(size_output, sizeof(double));
   if(dbz == NULL) {
-    printf("wrf_dbz: Unable to allocate memory for output array");
+    printf("wrf_dbz: Unable to allocate memory for output array\n");
     Py_INCREF(Py_None);
     return Py_None;
   }

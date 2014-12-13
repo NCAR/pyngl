@@ -7712,11 +7712,6 @@ dy -- A scalar representing the grid spacing in Y.
 opt -- [optional] An integer option, not in use yet.
   """
 
-#
-# Promote p and theta to numpy arrays that have at least a dimension of 1.
-#
-def wrf_avo(u, v, msfu, msfv, msfm, cor, dx, dy, opt=0):
-
   u2    = _promote_scalar(u)
   v2    = _promote_scalar(v)
   msfu2 = _promote_scalar(msfu)
