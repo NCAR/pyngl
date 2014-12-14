@@ -62,7 +62,7 @@ PyObject *fplib_wrf_avo(PyObject *self, PyObject *args)
   int inx, iny, inz, inxp1, inyp1;
 
   if (!PyArg_ParseTuple(args, "OOOOOOOOi:wrf_avo", &uar, &var, &msfuar, 
-			&msfvar,&msftar, &corar, &dxar, &dyar, &opt)) {
+                        &msfvar,&msftar, &corar, &dxar, &dyar, &opt)) {
     printf("wrf_avo: argument parsing failed\n");
     Py_INCREF(Py_None);
     return Py_None;
@@ -176,8 +176,8 @@ PyObject *fplib_wrf_avo(PyObject *self, PyObject *args)
     for(i = 0; i < ndims_u-3; i++) {
       if(dsizes_msfu[i] != dsizes_u[i]) {
         printf("wrf_avo: If msfu is not 2-dimensional, then the leftmost dimensions of msfu and u must be the same\n");
-	Py_INCREF(Py_None);
-	return(Py_None);
+        Py_INCREF(Py_None);
+        return(Py_None);
       }
     }
   }
@@ -310,7 +310,6 @@ PyObject *fplib_wrf_avo(PyObject *self, PyObject *args)
     dsizes_dy[i] = (npy_intp)arr->dimensions[i];
   }
 
-
 /*
  * Error checking on dimensions.
  */
@@ -381,10 +380,10 @@ PyObject *fplib_wrf_avo(PyObject *self, PyObject *args)
   index_u = index_v = index_msfu = index_msfv = index_msft = index_av = 0;
   for(i = 0; i < size_leftmost; i++) {
     NGCALLF(dcomputeabsvort,DCOMPUTEABSVORT)(&av[index_av], &u[index_u], 
-					     &v[index_v], &msfu[index_msfu],
-					     &msfv[index_msfv], 
-					     &msft[index_msft], 
-					     &cor[index_msft],
+                                             &v[index_v], &msfu[index_msfu],
+                                             &msfv[index_msfv], 
+                                             &msft[index_msft], 
+                                             &cor[index_msft],
                                              &dx[0], &dy[0], &inx, &iny, &inz,
                                              &inxp1, &inyp1);
     index_u    += nznynxp1;
@@ -407,6 +406,519 @@ PyObject *fplib_wrf_avo(PyObject *self, PyObject *args)
   return ((PyObject *) PyArray_SimpleNewFromData(ndims_u,dsizes_av,
                                                  PyArray_DOUBLE,
                                                  (void *) av));
+}
+
+PyObject *fplib_wrf_pvo(PyObject *self, PyObject *args)
+{
+  PyArrayObject *arr = NULL;
+/*
+ * Input variables
+ *
+ * Argument # 0
+ */
+  double *u;
+  PyObject *uar = NULL;
+  int ndims_u;
+  npy_intp *dsizes_u;
+
+/*
+ * Argument # 1
+ */
+  double *v;
+  PyObject *var = NULL;
+  int ndims_v;
+  npy_intp *dsizes_v;
+
+/*
+ * Argument # 2
+ */
+  double *th;
+  PyObject *thar = NULL;
+  int ndims_th;
+  npy_intp *dsizes_th;
+
+/*
+ * Argument # 3
+ */
+  double *p;
+  PyObject *par = NULL;
+  int ndims_p;
+  npy_intp *dsizes_p;
+
+/*
+ * Argument # 4
+ */
+  double *msfu;
+  PyObject *msfuar = NULL;
+  int ndims_msfu;
+  npy_intp *dsizes_msfu;
+
+/*
+ * Argument # 5
+ */
+  double *msfv;
+  PyObject *msfvar = NULL;
+  int ndims_msfv;
+  npy_intp *dsizes_msfv;
+
+/*
+ * Argument # 6
+ */
+  double *msft;
+  PyObject *msftar = NULL;
+  int ndims_msft;
+  npy_intp *dsizes_msft;
+
+/*
+ * Argument # 7
+ */
+  double *cor;
+  PyObject *corar = NULL;
+  int ndims_cor;
+  npy_intp *dsizes_cor;
+
+/*
+ * Argument # 8
+ */
+  double *dx;
+  PyObject *dxar = NULL;
+  int ndims_dx;
+  npy_intp *dsizes_dx;
+
+/*
+ * Argument # 9
+ */
+  double *dy;
+  PyObject *dyar = NULL;
+  int ndims_dy;
+  npy_intp *dsizes_dy;
+
+/*
+ * Argument # 10
+ */
+  int *opt;
+
+/*
+ * Return variable
+ */
+  double *pv;
+
+/*
+ * Various
+ */
+  npy_intp nx, ny, nz, nxp1, nyp1;
+  npy_intp nznynxp1, nznyp1nx, nznynx, nynxp1, nyp1nx, nynx;
+  npy_intp i, size_pv, size_leftmost;
+  npy_intp index_u, index_v, index_th, index_msfu, index_msfv, index_msft;
+  int inx, iny, inz, inxp1, inyp1;
+
+/*
+ * Retrieve parameters.
+ *
+ * Note any of the pointer parameters can be set to NULL, which
+ * implies you don't care about its value.
+ */
+
+  if (!PyArg_ParseTuple(args, "OOOOOOOOOOi:wrf_pvo", &uar, &var, &thar, &par,
+                        &msfuar, &msfvar, &msftar, &corar, &dxar, &dyar, &opt)) {
+    printf("wrf_avo: argument parsing failed\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+/*
+ * Extract u
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (uar,PyArray_DOUBLE,0,0);
+  u        = (double *)arr->data;
+  ndims_u  = arr->nd;
+  dsizes_u = (npy_intp *) calloc(ndims_u,sizeof(npy_intp));
+  for(i = 0; i < ndims_u; i++ ) {
+    dsizes_u[i] = (npy_intp)arr->dimensions[i];
+  }
+
+/*
+ * Error checking on dimensions.
+ */
+  if(ndims_u < 3) {
+    printf("wrf_pvo: u must have at least 3 dimensions\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  nz   = dsizes_u[ndims_u-3];
+  ny   = dsizes_u[ndims_u-2];
+  nxp1 = dsizes_u[ndims_u-1];
+
+/*
+ * Extract v
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (var,PyArray_DOUBLE,0,0);
+  v        = (double *)arr->data;
+  ndims_v  = arr->nd;
+  dsizes_v = (npy_intp *) calloc(ndims_v,sizeof(npy_intp));
+  for(i = 0; i < ndims_v; i++ ) {
+    dsizes_v[i] = (npy_intp)arr->dimensions[i];
+  }
+
+/*
+ * Error checking on dimensions.
+ */
+  if(ndims_v != ndims_u) {
+    printf("wrf_pvo: u, v, th, and p must have the same number of dimensions\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  if(dsizes_v[ndims_v-3] != nz) {
+    printf("wrf_pvo: The third-from-the-right dimension of v must be the same as the third-from-the-right dimension of u\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+/*
+ * Error checking on leftmost dimension sizes.
+ */
+  for(i = 0; i < ndims_u-3; i++) {
+    if(dsizes_u[i] != dsizes_v[i]) {
+      printf("wrf_pvo: The leftmost dimensions of u and v must be the same\n");
+      Py_INCREF(Py_None);
+      return Py_None;
+    }
+  }
+
+  nyp1 = dsizes_v[ndims_v-2];
+  nx   = dsizes_v[ndims_v-1];
+
+/*
+ * Extract th
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (thar,PyArray_DOUBLE,0,0);
+  th        = (double *)arr->data;
+  ndims_th  = arr->nd;
+  dsizes_th = (npy_intp *) calloc(ndims_th,sizeof(npy_intp));
+  for(i = 0; i < ndims_th; i++ ) {
+    dsizes_th[i] = (npy_intp)arr->dimensions[i];
+  }
+
+/*
+ * Error checking on dimensions.
+ */
+  if(ndims_th != ndims_u) {
+    printf("wrf_pvo: u, v, th, and p must have the same number of dimensions\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+  if(dsizes_th[ndims_th-3] != nz || dsizes_th[ndims_th-2] != ny ||
+     dsizes_th[ndims_th-1] != nx) {
+    printf("wrf_pvo: The rightmost dimensions of th must be a combination of the dimensions of u and v (see documentation)\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+/*
+ * Error checking on leftmost dimension sizes.
+ */
+  for(i = 0; i < ndims_u-3; i++) {
+    if(dsizes_th[i] != dsizes_u[i]) {
+      printf("wrf_pvo: The leftmost dimensions of th and u must be the same\n");
+      Py_INCREF(Py_None);
+      return Py_None;
+    }
+  }
+
+/*
+ * Extract p
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (par,PyArray_DOUBLE,0,0);
+  p        = (double *)arr->data;
+  ndims_p  = arr->nd;
+  dsizes_p = (npy_intp *) calloc(ndims_p,sizeof(npy_intp));
+  for(i = 0; i < ndims_p; i++ ) {
+    dsizes_p[i] = (npy_intp)arr->dimensions[i];
+  }
+
+/*
+ * Error checking on dimensions.
+ */
+  if(ndims_p != ndims_u) {
+    printf("wrf_pvo: u, v, th, and p must have the same number of dimensions\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+/*
+ * Error checking on dimension sizes.
+ */
+  for(i = 0; i < ndims_th; i++) {
+    if(dsizes_p[i] != dsizes_th[i]) {
+      printf("wrf_pvo: The dimensions of p and th must be the same\n");
+      Py_INCREF(Py_None);
+      return Py_None;
+    }
+  }
+
+/*
+ * Extract msfu
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (msfuar,PyArray_DOUBLE,0,0);
+  msfu        = (double *)arr->data;
+  ndims_msfu  = arr->nd;
+  dsizes_msfu = (npy_intp *) calloc(ndims_msfu,sizeof(npy_intp));
+  for(i = 0; i < ndims_msfu; i++ ) {
+    dsizes_msfu[i] = (npy_intp)arr->dimensions[i];
+  }
+
+/*
+ * Error checking on dimensions.
+ */
+  if(ndims_msfu < 2) {
+    printf("wrf_pvo: msfu must have at least 2 dimensions\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  if(ndims_msfu !=2 && ndims_msfu != (ndims_u-1)) {
+    printf("wrf_pvo: msfu must be 2D or have one fewer dimensions than u\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  if(dsizes_msfu[ndims_msfu-2] != ny || dsizes_msfu[ndims_msfu-1] != nxp1) {
+    printf("wrf_pvo: The rightmost 2 dimensions of msfu must be the same as the rightmost 2 dimensions of u\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+/*
+ * Error checking on leftmost dimension sizes. msfu, msfv, msft, and 
+ * cor can be 2D or nD.  If they are nD, they must have same leftmost
+ * dimensions as other input arrays.
+ */
+  if(ndims_msfu > 2) {
+    for(i = 0; i < ndims_u-3; i++) {
+      if(dsizes_msfu[i] != dsizes_u[i]) {
+        printf("wrf_pvo: If msfu is not 2-dimensional, then the leftmost dimensions of msfu and u must be the same\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+      }
+    }
+  }
+
+/*
+ * Extract msfv
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (msfvar,PyArray_DOUBLE,0,0);
+  msfv        = (double *)arr->data;
+  ndims_msfv  = arr->nd;
+  dsizes_msfv = (npy_intp *) calloc(ndims_msfv,sizeof(npy_intp));
+  for(i = 0; i < ndims_msfv; i++ ) {
+    dsizes_msfv[i] = (npy_intp)arr->dimensions[i];
+  }
+
+/*
+ * Error checking on dimensions.
+ */
+  if(ndims_msfv != ndims_msfu) {
+    printf("wrf_pvo: msfu, msfv, msft, and cor must have the same number of dimensions\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  if(dsizes_msfv[ndims_msfv-2] != nyp1 || dsizes_msfv[ndims_msfv-1] != nx) {
+    printf("wrf_pvo: The rightmost 2 dimensions of msfv must be the same as the rightmost 2 dimensions of v\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+/*
+ * Error checking on leftmost dimension sizes.
+ */
+  for(i = 0; i < ndims_msfu-2; i++) {
+    if(dsizes_msfv[i] != dsizes_msfu[i]) {
+      printf("wrf_pvo: The leftmost dimensions of msfv and msfu must be the same\n");
+      Py_INCREF(Py_None);
+      return Py_None;
+    }
+  }
+
+/*
+ * Extract msft
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (msftar,PyArray_DOUBLE,0,0);
+  msft        = (double *)arr->data;
+  ndims_msft  = arr->nd;
+  dsizes_msft = (npy_intp *) calloc(ndims_msft,sizeof(npy_intp));
+  for(i = 0; i < ndims_msft; i++ ) {
+    dsizes_msft[i] = (npy_intp)arr->dimensions[i];
+  }
+
+/*
+ * Error checking on dimensions.
+ */
+  if(ndims_msft != ndims_msfu) {
+    printf("wrf_pvo: msfu, msfv, msft, and cor must have the same number of dimensions\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  if(dsizes_msft[ndims_msft-2] != ny || dsizes_msft[ndims_msft-1] != nx) {
+    printf("wrf_pvo: The rightmost 2 dimensions of msft must be the same as the rightmost 2 dimensions of th\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+/*
+ * Error checking on leftmost dimension sizes.
+ */
+  for(i = 0; i < ndims_msfu-2; i++) {
+    if(dsizes_msft[i] != dsizes_msfu[i]) {
+      printf("wrf_pvo: The leftmost dimensions of msft and msfu must be the same\n");
+      Py_INCREF(Py_None);
+      return Py_None;
+    }
+  }
+
+/*
+ * Extract cor
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (corar,PyArray_DOUBLE,0,0);
+  cor        = (double *)arr->data;
+  ndims_cor  = arr->nd;
+  dsizes_cor = (npy_intp *) calloc(ndims_cor,sizeof(npy_intp));
+  for(i = 0; i < ndims_cor; i++ ) {
+    dsizes_cor[i] = (npy_intp)arr->dimensions[i];
+  }
+
+/*
+ * Error checking on dimensions.
+ */
+  if(ndims_cor != ndims_msft) {
+    printf("wrf_pvo: msfu, msfv, msft, and cor must have the same number of dimensions\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+/*
+ * Error checking on dimension sizes.
+ */
+  for(i = 0; i < ndims_msft; i++) {
+    if(dsizes_cor[i] != dsizes_msft[i]) {
+      printf("wrf_pvo: The dimensions of cor and msft must be the same\n");
+      Py_INCREF(Py_None);
+      return Py_None;
+    }
+  }
+
+/*
+ * Extract dx and dy (scalars)
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (dxar,PyArray_DOUBLE,0,0);
+  dx        = (double *)arr->data;
+  ndims_dx  = arr->nd;
+  dsizes_dx = (npy_intp *) calloc(ndims_dx,sizeof(npy_intp));
+  for(i = 0; i < ndims_dx; i++ ) {
+    dsizes_dx[i] = (npy_intp)arr->dimensions[i];
+  }
+
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (dyar,PyArray_DOUBLE,0,0);
+  dy        = (double *)arr->data;
+  ndims_dy  = arr->nd;
+  dsizes_dy = (npy_intp *) calloc(ndims_dy,sizeof(npy_intp));
+  for(i = 0; i < ndims_dy; i++ ) {
+    dsizes_dy[i] = (npy_intp)arr->dimensions[i];
+  }
+
+/*
+ * Error checking on dimensions.
+ */
+  if((ndims_dx != 1 && dsizes_dx[0] != 1) ||
+     (ndims_dy != 1 && dsizes_dy[0] != 1)) {
+    printf("wrf_avo: dx and dy must be scalars\n");
+    Py_INCREF(Py_None);
+    return(Py_None);
+  }
+
+
+  nynx     = ny * nx;
+  nznynx   = nz * nynx;
+  nynxp1   = ny * nxp1;
+  nyp1nx   = nyp1 * nx;
+  nznynxp1 = nz * nynxp1;
+  nznyp1nx = nz * nyp1nx;
+
+/*
+ * Test dimension sizes.
+ */
+    if((nxp1 > INT_MAX) || (nyp1 > INT_MAX) || (nz > INT_MAX) || 
+       (nx > INT_MAX) ||(ny > INT_MAX)) {
+      printf("wrf_pvo: one or more dimension sizes is greater than INT_MAX\n");
+      Py_INCREF(Py_None);
+      return Py_None;
+    }
+    inx = (int) nx;
+    iny = (int) ny;
+    inz = (int) nz;
+    inxp1 = (int) nxp1;
+    inyp1 = (int) nyp1;
+
+/*
+ * Calculate size of leftmost dimensions. The dimension
+ * sizes of the output array are exactly the same
+ * as th's dimension sizes.
+ */
+  size_leftmost = 1;
+  for(i = 0; i < ndims_u-3; i++) size_leftmost *= dsizes_u[i];
+  size_pv = size_leftmost * nznynx;
+
+/* 
+ * Allocate space for output array.
+ */
+  pv = (double *)calloc(size_pv, sizeof(double));
+  if(pv == NULL) {
+    printf("wrf_pvo: Unable to allocate memory for output array\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+/*
+ * Call the Fortran routine.
+ */
+  index_u = index_v = index_th = index_msfu = index_msfv = index_msft = 0;
+  for(i = 0; i < size_leftmost; i++) {
+    NGCALLF(dcomputepv,DCOMPUTEPV)(&pv[index_th], &u[index_u], &v[index_v], 
+                                   &th[index_th], &p[index_th], 
+                                   &msfu[index_msfu], &msfv[index_msfv], 
+                                   &msft[index_msft], &cor[index_msft], 
+                                   &dx[0], &dy[0], &inx, &iny, &inz, &inxp1, &inyp1);
+    index_u    += nznynxp1;
+    index_v    += nznyp1nx;
+    index_th   += nznynx;
+    if(ndims_msfu > 2) {
+      index_msfu += nynxp1;
+      index_msfv += nyp1nx;
+      index_msft += nynx;
+    }
+  }
+
+/*
+ * Free unneeded memory.
+ */
+  /* Free memory */
+  free(dsizes_v);
+  free(dsizes_p);
+  free(dsizes_cor);
+  free(dsizes_msfu);
+  free(dsizes_msfv);
+  free(dsizes_msft);
+
+  return ((PyObject *) PyArray_SimpleNewFromData(ndims_th,dsizes_th,
+                                                 PyArray_DOUBLE,
+                                                 (void *) pv));
 }
 
 PyObject *fplib_wrf_tk(PyObject *self, PyObject *args)
@@ -492,7 +1004,7 @@ PyObject *fplib_wrf_tk(PyObject *self, PyObject *args)
   index_p = 0;
   for(i = 0; i < size_leftmost; i++) {
     NGCALLF(dcomputetk,DCOMPUTETK)(&tk[index_p],&p[index_p],
-				   &theta[index_p],&inx);
+                                   &theta[index_p],&inx);
     index_p += nx;    /* Increment index */
   }
 
@@ -589,7 +1101,7 @@ PyObject *fplib_wrf_td(PyObject *self, PyObject *args)
     var_zero(qv, nx);                   /* Set all values < 0 to 0. */
 
     NGCALLF(dcomputetd,DCOMPUTETD)(&td[index_p],&p[index_p],
-				   &qv[index_p],&inx);
+                                   &qv[index_p],&inx);
     index_p += nx;    /* Increment index */}
   
   return ((PyObject *) PyArray_SimpleNewFromData(ndims_p,dsizes_p,
@@ -780,10 +1292,10 @@ PyObject *fplib_wrf_slp(PyObject *self, PyObject *args)
  * Call Fortran routine.
  */
     NGCALLF(dcomputeseaprs,DCOMPUTESEAPRS)(&inx,&iny,&inz,&z[index_nxyz],
-					   &t[index_nxyz],&p[index_nxyz],
+                                           &t[index_nxyz],&p[index_nxyz],
                                            &q[index_nxyz],&slp[index_nxy],
-					   tmp_t_sea_level,tmp_t_surf,
-					   tmp_level);
+                                           tmp_t_sea_level,tmp_t_surf,
+                                           tmp_level);
 
     index_nxyz += nxyz;    /* Increment indices */
     index_nxy  += nxy;
@@ -917,7 +1429,7 @@ PyObject *fplib_wrf_rh(PyObject *self, PyObject *args)
   index_qv = 0;
   for(i = 0; i < size_leftmost; i++) {
     NGCALLF(dcomputerh,DCOMPUTERH)(&qv[index_qv],&p[index_qv],
-				   &t[index_qv],&rh[index_qv],&inx);
+                                   &t[index_qv],&rh[index_qv],&inx);
     index_qv += nx;    /* Increment index */
   }
 
@@ -957,7 +1469,7 @@ PyObject *fplib_wrf_dbz(PyObject *self, PyObject *args)
   int is_scalar_qs, is_scalar_qg;
 
   if (!PyArg_ParseTuple(args, "OOOOOOii:wrf_dbz", &par, &tar, &qvar, 
-			&qrar, &qsar, &qgar, &ivarint, &iliqskin)) {
+                        &qrar, &qsar, &qgar, &ivarint, &iliqskin)) {
     printf("wrf_dbz: argument parsing failed\n");
     Py_INCREF(Py_None);
     return Py_None;
@@ -1176,7 +1688,7 @@ PyObject *fplib_wrf_dbz(PyObject *self, PyObject *args)
       j   = 0;
       sn0 = 0;
       while( (j < nbtsnwe) && !sn0) {
-	if(qs[index_dbz+j] != 0.) sn0 = 1;
+        if(qs[index_dbz+j] != 0.) sn0 = 1;
         j++;
       }
       tmp_qs = &qs[index_dbz];
@@ -1185,9 +1697,9 @@ PyObject *fplib_wrf_dbz(PyObject *self, PyObject *args)
  * Call the Fortran routine.
  */
     NGCALLF(calcdbz,CALCDBZ)(&dbz[index_dbz], &p[index_dbz], &t[index_dbz], 
-			     &qv[index_dbz], &qr[index_dbz], tmp_qs, tmp_qg,
-			     &iwedim,&isndim, &ibtdim, &sn0, 
-			     &ivarint, &iliqskin);
+                             &qv[index_dbz], &qr[index_dbz], tmp_qs, tmp_qg,
+                             &iwedim,&isndim, &ibtdim, &sn0, 
+                             &ivarint, &iliqskin);
     index_dbz += nbtsnwe;
   }
 

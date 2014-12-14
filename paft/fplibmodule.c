@@ -49,6 +49,12 @@ extern void NGCALLF(dcomputeabsvort,DCOMPUTEABSVORT)(double *, double *,
                                                      double *, double *,
                                                      double *, int *, int *,
                                                      int *, int *, int *);
+extern void NGCALLF(dcomputepv,DCOMPUTEPV)(double *, double *, double *, 
+                                           double *, double *, double *, 
+                                           double *, double *, double *, 
+                                           double *, double *, int *, int *, 
+                                           int *, int *, int *);
+
 /* WRF utility functions */
 extern void convert_to_hPa(double *pp, npy_intp np);
 extern void var_zero(double *tmp_var, npy_intp n);
@@ -114,6 +120,7 @@ static PyMethodDef fplib_methods[] = {
     {"regline", (PyCFunction)fplib_regline, METH_VARARGS},
     {"vinth2p", (PyCFunction)fplib_vinth2p, METH_VARARGS},
     {"wrf_avo", (PyCFunction)fplib_wrf_avo, METH_VARARGS},
+    {"wrf_pvo", (PyCFunction)fplib_wrf_pvo, METH_VARARGS},
     {"wrf_dbz", (PyCFunction)fplib_wrf_dbz, METH_VARARGS},
     {"wrf_rh", (PyCFunction)fplib_wrf_rh, METH_VARARGS},
     {"wrf_slp", (PyCFunction)fplib_wrf_slp, METH_VARARGS},

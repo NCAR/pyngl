@@ -34,7 +34,7 @@ __all__ = ['add_annotation', 'add_cyclic', 'add_new_coord_limits', \
            'text_ndc', 'update_workstation', 'vector', 'vector_map', \
            'vector_scalar', 'vector_scalar_map', 'vinth2p', 'wmbarb', \
            'wmbarbmap', 'wmgetp', 'wmsetp', 'wmstnm', 'wrf_avo', \
-           'wrf_dbz','wrf_rh', 'wrf_slp', 'wrf_td', 'wrf_tk', \
+           'wrf_dbz','wrf_pvo','wrf_rh', 'wrf_slp', 'wrf_td', 'wrf_tk', \
            'xy', 'y', 'yiqrgb']
 
 # PyNGL analysis functions
@@ -7709,7 +7709,7 @@ dx -- A scalar representing the grid spacing in X.
 
 dy -- A scalar representing the grid spacing in Y.
 
-opt -- [optional] An integer option, not in use yet.
+opt -- [optional] An integer option, not in use yet. Set to 0.
   """
 
   u2    = _promote_scalar(u)
@@ -7781,6 +7781,63 @@ assumed to scatter as a liquid particle.
     qg2 = _promote_scalar(zero)
 
   return fplib.wrf_dbz(p2,t2,qv2,qr2,qs2,qg2,ivarint,iliqskin)
+
+################################################################
+
+def wrf_pvo(u, v, th, p, msfu, msfv, msfm, cor, dx, dy, opt=0):
+  """
+Calculates potential vorticity from WRF model output.
+
+u - X-wind component. An array whose rightmost three dimensions are
+bottom_top x south_north x west_east_stag.
+
+v -- Y-wind component. An array whose rightmost three dimensions are
+bottom_top x south_north_stag x west_east, and whose leftmost
+dimensions are the same as u's.
+
+theta -- Potential temperature in K. An array whose rightmost
+dimensions are bottom_top x south_north x west_east, and whose
+leftmost dimensions are the same as u's.
+
+P -- Full pressure (perturbation + base state pressure). An array with
+the same dimensionality as theta. Units must be [Pa].
+
+msfu -- Map scale factor on u-grid. An array whose rightmost two
+dimensions are the same as u's. If it contains additional leftmost
+dimensions, they must be the same as the u and v arrays.
+
+msfv -- Map scale factor on v-grid. An array with the same number of
+dimensions as msfu, whose rightmost two dimensions are the same as
+v's. If it contains additional leftmost dimensions, they must be the
+same as the u and v arrays.
+
+msfm -- Map scale factor on mass grid. An array with the same number
+of dimensions as msfu and msfv, whose rightmost two dimensions are
+south_north x west_east. If it contains additional leftmost
+dimensions, they must be the same as the u and v arrays.
+
+cor -- Coriolis sine latitude term. An array of the same
+dimensionality as msfm.
+
+dx -- A scalar representing the grid spacing in X.
+
+dy -- A scalar representing the grid spacing in Y.
+
+opt -- [optional] An integer option, not in use yet. Set to 0.
+  """
+
+  u2    = _promote_scalar(u)
+  v2    = _promote_scalar(v)
+  th2   = _promote_scalar(th)
+  p2    = _promote_scalar(p)
+  msfu2 = _promote_scalar(msfu)
+  msfv2 = _promote_scalar(msfv)
+  msfm2 = _promote_scalar(msfm)
+  cor2  = _promote_scalar(cor)
+  dx2   = _promote_scalar(dx)
+  dy2   = _promote_scalar(dy)
+
+  return fplib.wrf_pvo(u2,v2,th2,p2,msfu2,msfv2,msfm2,cor2,dx2,dy2,opt)
 
 ################################################################
 

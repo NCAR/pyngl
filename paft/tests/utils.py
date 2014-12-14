@@ -1,6 +1,6 @@
 import numpy
 import functools, operator
-import types
+import types,sys
 
 try:
   from numpy import ma
@@ -17,7 +17,7 @@ def product(seq):
 #
 def multid(x,dims):
 # First make a copy of the array product(dims) times.
-  xnew = numpy.tile(x,product(dims))
+  xnew = numpy.tile(numpy.ravel(x),product(dims))
 
 # Get dimensions of new array so we can reshape it.
   if type(dims) == types.ListType:
