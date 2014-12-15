@@ -1567,7 +1567,7 @@ PyObject *fplib_wrf_dbz(PyObject *self, PyObject *args)
   }
 
 /*
- * Extract qs. This is an optional argument, so it will have been
+ * Extract qs. This is an optional argument, and it may have been
  * set to a scalar by the calling routine.
  */
   arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -1708,7 +1708,6 @@ PyObject *fplib_wrf_dbz(PyObject *self, PyObject *args)
  */
   if(is_scalar_qs) free(tmp_qs);
   if(is_scalar_qg) free(tmp_qg);
-  free(dsizes_p);
   free(dsizes_t);
   free(dsizes_qv);
   free(dsizes_qr);

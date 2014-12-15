@@ -7772,15 +7772,25 @@ assumed to scatter as a liquid particle.
 
   zero = 0.0
   if not qs is None:
-    qs2 = _promote_scalar(qs)
+    if _is_scalar(qs):
+      qs2 = numpy.zeros(qv.shape)
+      qs2[:] = qs
+    else:
+      qs2 = _promote_scalar(qs)
   else:
-    qs2 = _promote_scalar(zero)
+    qs2 = numpy.zeros(qv.shape)
   if not qg is None:
-    qg2 = _promote_scalar(qg)
+    if _is_scalar(qg):
+      qg2 = numpy.zeros(qv.shape)
+      qg2[:] = qg
+    else:
+      qg2 = _promote_scalar(qg)
   else:
-    qg2 = _promote_scalar(zero)
+    qg2 = numpy.zeros(qv.shape)
 
-  return fplib.wrf_dbz(p2,t2,qv2,qr2,qs2,qg2,ivarint,iliqskin)
+  ivar2 = _promote_scalar(ivarint)
+  iliq2 = _promote_scalar(iliqskin)
+  return fplib.wrf_dbz(p2,t2,qv2,qr2,qs2,qg2,ivar2,iliq2)
 
 ################################################################
 
