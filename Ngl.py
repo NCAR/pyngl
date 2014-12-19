@@ -37,6 +37,9 @@ __all__ = ['add_annotation', 'add_cyclic', 'add_new_coord_limits', \
            'wrf_dbz','wrf_pvo','wrf_rh', 'wrf_slp', 'wrf_td', 'wrf_tk', \
            'xy', 'y', 'yiqrgb']
 
+# So we can get path to PyNGL ancillary files
+from distutils.sysconfig import get_python_lib
+
 # PyNGL analysis functions
 import fplib
 
@@ -383,8 +386,8 @@ import hlu, site, types, string, commands, sys, os, math, re
 # directory that's under the package directory.
 #
 
-pkgs_pth = os.path.join(sys.prefix, 'lib', 'python'+sys.version[:3],
-                        'site-packages')
+pkgs_pth = get_python_lib(1)
+
 # Try a different one.
 if not (os.path.exists(pkgs_pth)):
   pkgs_pth = os.path.join(sys.prefix, 'lib64', 'python'+sys.version[:3],

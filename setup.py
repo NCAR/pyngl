@@ -52,7 +52,7 @@ try:
   import numpy
 except ImportError:
   print "Error: Cannot import NumPy. Can't continue."
-  sys.exit()
+  sys.exit(1)
 
 #
 # Tests for environment variables.
@@ -61,7 +61,12 @@ try:
   ncarg_root = os.environ["NCARG_ROOT"]
 except:
   print "NCARG_ROOT is not set; can't continue!"
-  sys.exit()
+  sys.exit(1)
+try:
+  ncarg_lib = os.environ["NCARG_LIB"]
+except:
+  ncarg_lib = os.path.join(ncarg_root,'lib')
+
 
 # Depending on what Fortran compiler was used to build, we may need
 # additional library paths or libraries.
@@ -142,7 +147,7 @@ def get_ncarg_files():
   plat_dir = os.path.join("build","lib."+get_platform()+"-"+sys.version[:3], \
                           "PyNGL")
 
-  ncl_lib       = os.path.join(ncarg_root,'lib')
+  ncl_lib       = ncarg_lib
   ncl_ncarg_dir = os.path.join(ncl_lib,'ncarg')
   ncarg_dirs    = ["colormaps","data","database","fontcaps","graphcaps"]
 
@@ -175,7 +180,7 @@ def get_ncarg_files():
 
 # Return list of libraries and paths needed for compilation
 def set_ncl_libs_and_paths():
-  PATHS = [os.path.join(ncarg_root,'lib')]
+  PATHS = [ncarg_lib]
 
   xdir = "/usr/X11R6/lib"
   if(os.path.exists(xdir)):
