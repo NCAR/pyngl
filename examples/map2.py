@@ -3,7 +3,7 @@
 #    map2.py
 #
 #  Synopsis:
-#    Illustrates how to to draw polygons, lines, and markers on a map.
+#    Illustrates how to draw polygons, lines, and markers on a map.
 #
 #  Categories:
 #    maps only
