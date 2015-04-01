@@ -77,7 +77,7 @@ fill_value = None
 if (hasattr(fice,"missing_value")):
   fill_value = fice.missing_value
 elif (hasattr(fice,"_FillValue")):
-  fill_value = fice._FillVlaue
+  fill_value = fice._FillValue
 fice_masked = MA.transpose(MA.masked_values(ficea,fill_value),(1,2,0))
 
 hlat = ice1.variables["hlat"]  # hlat[49]
