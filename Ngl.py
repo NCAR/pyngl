@@ -5181,7 +5181,9 @@ colormap_name -- Either the name of a PyNGL-standard colormap, or the
 
   # normalize the values
   # this logical taken directly from HLU code in "Palette.c"
-  if (maxValue < 256):
+  if (maxValue <= 1):
+      cmap[:,3] = numpy.where(cmap[:,3] < 0, 1., cmap[:,3])
+  elif (maxValue < 256):
       cmap[:,3] = numpy.where(cmap[:,3] < 0, 255., cmap[:,3])
       cmap = cmap / 255.
   elif (maxValue == 256):
