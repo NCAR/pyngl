@@ -46,7 +46,7 @@ hgt = a.variables["HGT"][0,:,:]     # Read first time step ( nlat x nlon)
 lat = a.variables["XLAT"][0,:,:]    # 2D array (nlat x nlon)
 lon = a.variables["XLONG"][0,:,:]   # ditto
 
-#---Open PNG for graphics
+#---Open file for graphics
 wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"wrf1")
 

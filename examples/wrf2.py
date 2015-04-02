@@ -74,7 +74,7 @@ filename = filename + ".nc"        # must add the suffix for Nio.open_file
 a   = Nio.open_file(filename)
 hgt = a.variables["HGT"][0,:,:]    # Read first time step ( nlat x nlon)
 
-#---Open PNG for graphics
+#---Open PS for graphics
 wks_type = "ps"
 wks = Ngl.open_wks(wks_type,"wrf2")
 
