@@ -34,8 +34,8 @@ __all__ = ['add_annotation', 'add_cyclic', 'add_new_coord_limits', \
            'text_ndc', 'update_workstation', 'vector', 'vector_map', \
            'vector_scalar', 'vector_scalar_map', 'vinth2p', 'wmbarb', \
            'wmbarbmap', 'wmgetp', 'wmsetp', 'wmstnm', 'wrf_avo', \
-           'wrf_dbz','wrf_pvo','wrf_rh', 'wrf_slp', 'wrf_td', 'wrf_tk', \
-           'xy', 'y', 'yiqrgb']
+           'wrf_dbz','wrf_map_resources','wrf_pvo','wrf_rh', 'wrf_slp', \
+           'wrf_td', 'wrf_tk', 'xy', 'y', 'yiqrgb']
 
 # So we can get path to PyNGL ancillary files
 from distutils.sysconfig import get_python_lib
@@ -7956,6 +7956,210 @@ temperature) with the same dimension structure as P. Units must be
   theta2 = _promote_scalar(theta)
 
   return fplib.wrf_tk(p2, theta2)
+
+################################################################
+
+def wrf_map_resources(wrf_file,map_opts,zoom_in=False,nest_time=0,Ystart=0,Yend=-1,Xstart=0,Xend=-1):
+  """
+Sets a bunch of graphical map resources needed to plot data
+in the projection defined by the given WRF ARW file.
+
+Ngl.wrf_map_resources (wrf_file,res)
+
+wrf_file -- Either the name of a WRF output file, or a file pointer
+to a WRF output file that's already been opened by Nio.open_file.
+
+res -- A resource list (created by Ngl.Resources()) to attach additional 
+resources to.
+  """
+#
+# Set resources depending on what kind of map projection is on the file.
+#
+#   MAP_PROJ = 0 : "CylindricalEquidistant"
+#   MAP_PROJ = 1 : "LambertConformal"
+#   MAP_PROJ = 2 : "Stereographic"
+#   MAP_PROJ = 3 : "Mercator"
+#   MAP_PROJ = 6 : "Lat/Lon"
+#
+
+  if (type(wrf_file) == type('s')):
+    try:
+      import Nio
+      wfile = Nio.open_file(wrf_file,'r')
+    except:
+      print("wrf_map_resources: couldn't open specified WRF output file")
+      return
+  else:
+    wfile = wrf_file
+
+# Check if MAP_PROJ is on the file.
+  if(not hasattr(wfile,"MAP_PROJ")):
+    return
+
+  map_opts.tfDoNDCOverlay = _get_res_value_keep(map_opts, "tfDoNDCOverlay", True)
+
+#   CylindricalEquidistant
+  if(wfile.MAP_PROJ == 0):
+    map_opts.mpProjection   = "CylindricalEquidistant"
+    map_opts.mpGridSpacingF = 45
+    map_opts.mpCenterLatF   = _get_res_value_keep(map_opts, "mpCenterLatF", 0.0)
+    if(hasattr(wfile,"STAND_LON")):
+      map_opts.mpCenterLonF  = _get_res_value_keep(map_opts, "mpCenterLonF",wfile.STAND_LON)
+    elif(hasattr(wfile,"CEN_LON")):
+      map_opts.mpCenterLonF  = _get_res_value_keep(map_opts, "mpCenterLonF",wfile.CEN_LON)
+    else:
+      print("Ngl.wrf_map_resources: Error: Found neither STAND_LON or CEN_LON on file")
+      return
+
+#   LambertConformal projection
+  if(wfile.MAP_PROJ == 1):
+    map_opts.mpProjection        = "LambertConformal"
+    map_opts.mpLambertParallel1F = _get_res_value_keep(map_opts, "mpLambertParallel1F",wfile.TRUELAT1)
+    map_opts.mpLambertParallel2F = _get_res_value_keep(map_opts, "mpLambertParallel2F",wfile.TRUELAT2)
+    if(hasattr(wfile,"STAND_LON")):
+      map_opts.mpLambertMeridianF  = _get_res_value_keep(map_opts, "mpLambertMeridianF",wfile.STAND_LON)
+    elif(hasattr(wfile,"CEN_LON")):
+      map_opts.mpLambertMeridianF  = _get_res_value_keep(map_opts, "mpLambertMeridianF",wfile.CEN_LON)
+    else:
+      print("Ngl.wrf_map_resources: Error: Found neither STAND_LON or CEN_LON in file")
+      return
+  
+#   Stereographic projection
+  if(wfile.MAP_PROJ == 2):
+    map_opts.mpProjection   = "Stereographic"
+    map_opts.mpCenterLatF   = _get_res_value_keep(map_opts, "mpCenterLatF", wfile.CEN_LAT)
+    if(hasattr(wfile,"STAND_LON")):
+      map_opts.mpCenterLonF  = _get_res_value_keep(map_opts, "mpCenterLonF",wfile.STAND_LON)
+    elif(hasattr(wfile,"CEN_LON")):
+      map_opts.mpCenterLonF  = _get_res_value_keep(map_opts, "mpCenterLonF",wfile.CEN_LON)
+    else:
+      print("Ngl.wrf_map_resources: Error: Found neither STAND_LON or CEN_LON in file")
+      return
+  
+#   Mercator projection
+  if(wfile.MAP_PROJ == 3):
+    map_opts.mpProjection   = "Mercator"
+    map_opts.mpCenterLatF   = _get_res_value_keep(map_opts, "mpCenterLatF", 0.0)
+    if(hasattr(wfile,"STAND_LON")):
+      map_opts.mpCenterLonF  = _get_res_value_keep(map_opts, "mpCenterLonF",wfile.STAND_LON)
+    elif(hasattr(wfile,"CEN_LON")):
+      map_opts.mpCenterLonF  = _get_res_value_keep(map_opts, "mpCenterLonF",wfile.CEN_LON)
+    else:
+      print("Ngl.wrf_map_resources: Error: Found neither STAND_LON or CEN_LON in file")
+      return
+  
+#    global WRF CylindricalEquidistant
+  if(wfile.MAP_PROJ == 6):
+    map_opts.mpProjection   = "CylindricalEquidistant"
+    map_opts.mpGridSpacingF = 45
+    map_opts.mpCenterLonF   = _get_res_value_keep(map_opts, "mpCenterLonF",wfile.CEN_LON)
+    if( hasattr(wfile,"POLE_LAT") ):
+      map_opts.mpCenterRotF = _get_res_value_keep(map_opts, "mpCenterRotF", 90.0 - wfile.POLE_LAT) 
+      del map_opts.mpCenterLonF
+      calcen = -190.
+      map_opts.mpCenterLonF  = _get_res_value_keep(map_opts, "mpCenterLonF", calcen )
+
+  varnames = wfile.variables.keys()  
+
+  if("XLAT" in varnames and "XLONG" in varnames):
+    lat = wfile.variables["XLAT"][nest_time,:,:]
+    lon = wfile.variables["XLONG"][nest_time,:,:]
+  elif("XLAT_M" in varnames and "XLONG_M" in varnames):
+    lat = wfile.variables["XLAT_M"][nest_time,:,:]
+    lon = wfile.variables["XLONG_M"][nest_time,:,:]
+  else:
+    print("Ngl.wrf_map_resources: Error: Found neither XLAT/XLONG or XLAT_M/XLONG_M on file")
+    return
+
+  nlat = lat.shape[0]
+  nlon = lat.shape[1]
+
+# Use numpy.where here!
+  for ii in range(nlat):
+    for jj in range(nlon):
+      if (lon[ii,jj] < 0.0):
+        lon[ii,jj] = lon[ii,jj] + 360.
+
+# Set some resources common to all map projections.
+# "LowRes" is the default that NCL uses, so you don't need to
+# set it here. However, if you want a higher resolution, use 
+# "MediumRes". If you want higher resolution for the coastlines,
+# then set it to "HighRes", but then you also need to download
+# the RANGS-GSHHS database.  Higher resolutions take longer to
+# draw.
+
+  map_opts.mpOutlineOn           = _get_res_value_keep(map_opts, "mpOutlineOn", True)
+  map_opts.mpFillOn              = _get_res_value_keep(map_opts, "mpFillOn", False)
+  map_opts.mpDataBaseVersion     = _get_res_value_keep(map_opts, "mpDataBaseVersion","MediumRes")
+  map_opts.mpOutlineBoundarySets = _get_res_value_keep(map_opts, "mpOutlineBoundarySets", "GeophysicalAndUSStates")
+  map_opts.mpPerimLineThicknessF = _get_res_value_keep(map_opts, "mpPerimLineThicknessF", 1.0)
+  map_opts.tmXBLabelFontHeightF  = _get_res_value_keep(map_opts, "tmXBLabelFontHeightF", 0.01)
+  map_opts.tmYLLabelFontHeightF  = _get_res_value_keep(map_opts, "tmYLLabelFontHeightF", 0.01)
+
+# Select portion of the map to view.
+  map_opts.mpLimitMode           = _get_res_value_keep(map_opts, "mpLimitMode","Corners")
+  map_opts.mpLeftCornerLatF      = _get_res_value_keep(map_opts, "mpLeftCornerLatF", lat[0,0])
+  map_opts.mpLeftCornerLonF      = _get_res_value_keep(map_opts, "mpLeftCornerLonF", lon[0,0])
+  map_opts.mpRightCornerLatF     = _get_res_value_keep(map_opts, "mpRightCornerLatF",lat[nlat-1,nlon-1])
+  map_opts.mpRightCornerLonF     = _get_res_value_keep(map_opts, "mpRightCornerLonF",lon[nlat-1,nlon-1])
+
+  if ( map_opts.mpRightCornerLonF < 0.0 ):
+    map_opts.mpRightCornerLonF  = map_opts.mpRightCornerLonF + 360.0
+
+# Set some other resources for line colors and grid spacing.
+
+  map_opts.mpGeophysicalLineColor      = _get_res_value_keep(map_opts, "mpGeophysicalLineColor","Gray25")
+  map_opts.mpGeophysicalLineThicknessF = _get_res_value_keep(map_opts, "mpGeophysicalLineThicknessF",0.75)
+  map_opts.mpGridLineColor             = _get_res_value_keep(map_opts, "mpGridLineColor","Gray25")
+  map_opts.mpGridLineThicknessF        = _get_res_value_keep(map_opts, "mpGridLineThicknessF",0.75)
+  map_opts.mpGridSpacingF              = _get_res_value_keep(map_opts, "mpGridSpacingF",5)
+  map_opts.mpLimbLineColor             = _get_res_value_keep(map_opts, "mpLimbLineColor","Gray25")
+  map_opts.mpLimbLineThicknessF        = _get_res_value_keep(map_opts, "mpLimbLineThicknessF",0.75)
+  map_opts.mpNationalLineColor         = _get_res_value_keep(map_opts, "mpNationalLineColor","Gray25")
+  map_opts.mpNationalLineThicknessF    = _get_res_value_keep(map_opts, "mpNationalLineThicknessF",0.75)
+  map_opts.mpPerimLineColor            = _get_res_value_keep(map_opts, "mpPerimLineColor","Gray25")
+  map_opts.mpPerimOn                   = _get_res_value_keep(map_opts, "mpPerimOn",True)
+  map_opts.mpUSStateLineColor          = _get_res_value_keep(map_opts, "mpUSStateLineColor","Gray25")
+  map_opts.mpUSStateLineThicknessF     = _get_res_value_keep(map_opts, "mpUSStateLineThicknessF",0.75)
+  map_opts.pmTickMarkDisplayMode       = _get_res_value_keep(map_opts, "pmTickMarkDisplayMode","Always")
+
+# Tick mark resources
+  map_opts.tmXTOn                = _get_res_value_keep(map_opts,"tmXTOn",False)
+  map_opts.tmYROn                = _get_res_value_keep(map_opts,"tmYROn",False)
+  map_opts.tmYRLabelsOn          = _get_res_value_keep(map_opts,"tmYRLabelsOn",True)
+  map_opts.tmXBBorderOn          = _get_res_value_keep(map_opts,"tmXBBorderOn",True)
+  map_opts.tmXTBorderOn          = _get_res_value_keep(map_opts,"tmXTBorderOn",True)
+  map_opts.tmYLBorderOn          = _get_res_value_keep(map_opts,"tmYLBorderOn",True)
+  map_opts.tmYRBorderOn          = _get_res_value_keep(map_opts,"tmYRBorderOn",True)
+
+#
+# Special section to zoom in on WRF map plot. NOTE: This hasn't been tested yet!
+#
+# The user must specify the index locations of the desired zoomed
+# in area via the Xstart/YStart/Xend/Yend options.
+#
+  if zoom_in:
+    y1 = Ystart
+    x1 = Xstart
+    if(Yend == -1):
+      y2 = nlat-1
+    if(Xend == -1):
+      x2 = nlon-1
+    if(Xstart < 0 or Xstart > (nlon-1) or Ystart < 0 or Ystart > (nlat-1)):
+      print("Ngl.wrf_map_resources: Error: Invalid index values for one or more of Xstart/Xend/Ystart/Yend")
+    else:
+      map_opts.mpLeftCornerLatF  = lat[y1,x1]
+      map_opts.mpLeftCornerLonF  = lon[y1,x1]
+      map_opts.mpRightCornerLatF = lat[y2,x2]
+      map_opts.mpRightCornerLonF = lon[y2,x2]
+
+      if (map_opts.mpRightCornerLonF < 0.0):
+        map_opts.mpRightCornerLonF  = map_opts.mpRightCornerLonF + 360.0
+
+  if (type(wrf_file) == type('s')):
+    wfile.close()
+
+  return(map_opts)
 
 ################################################################
 
