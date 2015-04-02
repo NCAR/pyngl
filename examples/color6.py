@@ -139,7 +139,7 @@ def draw_colormap(wks,cmap):
 # Main code
 #======================================================================
 
-draw_all_colormaps = True
+draw_all_colormaps = False
 
 #---Open PS file for graphics
 wks_type = "ps"
