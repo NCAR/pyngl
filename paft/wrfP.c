@@ -1512,7 +1512,6 @@ PyObject *fplib_wrf_dbz(PyObject *self, PyObject *args)
   ibtdim = (int) btdim;
 
   nbtsnwe = btdim * sndim * wedim;
-
 /*
  * Extract t
  */
@@ -1677,9 +1676,8 @@ PyObject *fplib_wrf_dbz(PyObject *self, PyObject *args)
   index_dbz = 0;
   for(i = 0; i < size_leftmost; i++) {
     if(!is_scalar_qg) {
-      tmp_qg = &qs[index_dbz];
+      tmp_qg = &qg[index_dbz];
     }
-
 /*
  * Check values for qs array. If all zero, then set sn0 to 0. Otherwise
  * set sn0 to 1.
@@ -1713,7 +1711,6 @@ PyObject *fplib_wrf_dbz(PyObject *self, PyObject *args)
   free(dsizes_qr);
   free(dsizes_qs);
   free(dsizes_qg);
- 
   return ((PyObject *) PyArray_SimpleNewFromData(ndims_p,dsizes_p,
                                                  PyArray_DOUBLE,
                                                  (void *) dbz));
