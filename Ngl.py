@@ -3055,6 +3055,127 @@ wks -- The identifier returned from calling Ngl.open_wks.
 
 ################################################################
 
+def draw_color_palette(wks,colormap_name=None,opt=None):
+  """
+Draws the given color map and advances the frame.
+If no color map is given, then the current colormap 
+associated with the given workstation is drawn.
+
+Ngl.draw_color_palette(wks,colormap_name,opt)
+
+wks -- The identifier returned from calling Ngl.open_wks.
+
+colormap_name -- The name of the predefined colormap to draw, 
+  i.e. "rainbow"
+
+opt -- The identifier returned from Ngl.Resources(). An optional
+       list of resources you can set (not yet defined).
+  """
+
+#---Retrieve values for attributes
+  if wks is None:
+    wks = open_wks("x11","color_map")
+
+  call_frame    = _get_res_value_keep(opt,"Frame",True)
+  labels_on     = _get_res_value_keep(opt,"LabelsOn",True)
+
+  if(not opt is None and hasattr(opt,"LabelStrings")):
+    set_label_strings = True
+    label_strings     = opt.LabelStrings
+  else:
+    set_label_strings = False
+
+  font_height   = _get_res_value_keep(opt,"LabelFontHeight",0.015)
+  across        = _get_res_value_keep(opt,"Across",True)
+
+  if colormap_name is None:
+    rgb = retrieve_colormap(wks)
+  else:
+    rgb = read_colormap_file(colormap_name)
+  ncolors  = rgb.shape[0]
+  nrows    = int(numpy.sqrt(ncolors))
+
+#---Figure out ncols such that the columns will span across the page.
+  ncols = int(ncolors/nrows)
+  if((ncols*nrows) < ncolors):
+    ncols = ncols+1
+
+  ntotal = nrows * ncols        # # of colors per page.
+
+#---If drawing labels, test that we have valid number of labels
+  if(labels_on):
+    if( not set_label_strings):
+      label_strings = ['%d' % i for i in range(ncolors)]
+    else:
+      if(len(label_strings) != ncolors):
+        print("Error: draw_color_palette: invalid number of labels for boxes")
+        return
+
+#---Calculate X and Y positions of text and box in the view port.
+  width  = 1./ncols
+  height = 1./nrows
+
+  if(ncols > 1):
+    xpos_2d    = numpy.empty([nrows,ncols])
+    xpos_2d[:] = fspan(0,1-width,ncols)
+    if(across):
+      xpos = numpy.ravel(xpos_2d)
+    else:
+      xpos = numpy.ravel(xpos_2d.T)
+  else:
+    xpos = numpy.empty(ntotal)
+    xpos.fill(0.)
+
+  if(nrows > 1):
+    ypos_2d = numpy.empty([ncols,nrows])
+    ypos_2d[:] = fspan(1-height,0,nrows)
+    if(across):
+      ypos = numpy.ravel(ypos_2d.T)
+    else:
+      ypos = numpy.ravel(ypos_2d)
+  else:
+    ypos = numpy.empty(ntotal)
+    ypos.fill(1.-height)
+
+#---Calculate box coordinates.
+  xbox = [0,width, width,     0,0]
+  ybox = [0,    0,height,height,0]
+
+  gnres = Resources()   # variables to hold list of resources
+  lnres = Resources()
+
+  if(labels_on):
+    font_space                  = font_height/2.
+    txres                       = Resources()
+    txres.txFontHeightF         = font_height
+    txres.txFont                = "helvetica-bold"
+    txres.txJust                = "BottomLeft"
+    txres.txPerimOn             = True
+    txres.txPerimColor          = "black"
+    txres.txFontColor           = "black"
+    txres.txBackgroundFillColor = "white"
+
+  lnres.gsLineColor  = "black"
+
+#---ntotal colors per page.
+  for i in range(ncolors):
+#---Draw box and fill in the appropriate color.
+    gnres.gsFillColor = rgb[i,:]
+    polygon_ndc(wks,xbox+xpos[i],ybox+ypos[i],gnres) # Draw box.
+
+#---Outline box in black.
+    polyline_ndc(wks,xbox+xpos[i],ybox+ypos[i],lnres)
+
+#---Draw color label.
+    if(labels_on):
+      text_ndc(wks,label_strings[i],font_space+xpos[i],ypos[i]+font_space,txres)
+
+  if(call_frame):
+    frame(wks)   # Advance the frame.
+  return
+
+################################################################
+
 def draw_ndc_grid(wks):
   """
 Draws grid lines at 0.1 NDC intervals and labels them.
