@@ -1439,6 +1439,229 @@ PyObject *fplib_wrf_rh(PyObject *self, PyObject *args)
 }
 
 
+/*
+ * Note: this function is not yet working, so the wrf_ll_to_ij in
+ * Ngl.py is commented out for now. I think it's close.
+ */
+PyObject *fplib_wrf_ll_to_ij(PyObject *self, PyObject *args)
+{
+  PyArrayObject *arr = NULL;
+/*
+ * Input variables
+ */
+  double *lon, *lat;
+  PyObject *lonar = NULL, *latar;
+  int map_proj;
+  int ndims_lon, ndims_lat;
+  npy_intp *dsizes_lon, *dsizes_lat;
+
+/*
+ * Optional input arguments.
+ */
+  double truelat1=-999., truelat2=-999., stand_lon=999.;
+  double ref_lat=-999., ref_lon=-999., pole_lat=90., pole_lon=0.;
+  double knowni=-999, knownj=-999, dx=-999, dy=-999, latinc=-999., loninc=-999.;
+
+/*
+ * Return variable
+ */
+  double *loc, tmp_loc[2];
+  int ndims_loc;
+  npy_intp *dsizes_loc;
+
+/*
+ * Various
+ */
+  int npts, i;
+
+  if (!PyArg_ParseTuple(args, "OOiddddddddddddd:wrf_ll_to_ij", &lonar, &latar, &map_proj,
+			&truelat1, &truelat2, &stand_lon, &ref_lat, &ref_lon, &pole_lat,
+			&pole_lon, &knowni, &knownj, &dx, &dy, &latinc, &loninc)) {
+    printf("wrf_ll_to_ij: argument parsing failed\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+/*
+ * Check map_proj.
+ */
+  if(map_proj != 1 && map_proj != 2 && map_proj != 3 && map_proj != 6) {
+    printf("wrf_ll_to_ij: map_proj must be set to 1, 2, 3, or 6\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+/*
+ * Get lon values
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (lonar,PyArray_DOUBLE,0,0);
+  lon        = (double *)arr->data;
+  ndims_lon  = arr->nd;
+  dsizes_lon = (npy_intp *) calloc(ndims_lon,sizeof(npy_intp));
+  for(i = 0; i < ndims_lon; i++ ) {
+    dsizes_lon[i] = (npy_intp)arr->dimensions[i];
+  }
+
+/*
+ * Get lat values
+ */
+  arr = (PyArrayObject *) PyArray_ContiguousFromAny \
+                            (latar,PyArray_DOUBLE,0,0);
+  lat        = (double *)arr->data;
+  ndims_lat  = arr->nd;
+  dsizes_lat = (npy_intp *) calloc(ndims_lat,sizeof(npy_intp));
+  for(i = 0; i < ndims_lat; i++ ) {
+    dsizes_lat[i] = (npy_intp)arr->dimensions[i];
+  }
+
+/*
+ * Check dimension sizes.
+ */
+  if(ndims_lon != ndims_lat) {
+    printf("wrf_ll_to_ij: lat and lon must have the same number of dimensions\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+  for(i = 0; i < ndims_lat; i++) {
+    if(dsizes_lon[i] != dsizes_lat[i]) {
+      printf("wrf_ll_to_ij: lat and lon must have the same dimension sizes\n");
+      Py_INCREF(Py_None);
+      return Py_None;
+    }
+  }
+
+/*
+ * Calculate size of lat/lon dimensions.
+ */
+  npts = 1;
+  for(i = 0; i < ndims_lat; i++) npts *= dsizes_lat[i];
+
+/*
+ * Check truelat1. Must be set in some cases.
+ */
+  if( (map_proj == 1 || map_proj == 2 || map_proj == 3) && truelat1 == -999.) {
+    printf("wrf_ll_to_ij: truelat1 must be set if MAP_PROJ is 1, 2, or 3\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+/*
+ * Check truelat2. Must be set in some cases.
+ */
+  if( map_proj == 1 && truelat2 == -999.) {
+    printf("wrf_ll_to_ij: truelat2 must be set if map_proj is 1\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  else {
+    truelat2  = 0.;
+  }
+
+/*
+ * Check STAND_LON. Must be set.
+ */
+  if(stand_lon == -999.) {
+    printf("wrf_ll_to_ij: stand_lon must be set\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+/*
+ * Check REF_LAT/REF_LON. Must be set.
+ */
+  if(ref_lat == -999. || ref_lon == -999.) {
+    printf("wrf_ll_to_ij: ref_lat/ref_lon must be set\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+/*
+ * check knowni/knownj. Must be set.
+ */
+  if(knowni == -999. || knownj == -999.) {
+    printf("wrf_ll_to_ij: knowni/knownj  must be set\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+/*
+ * Check DX/DY. Must be set in some cases.
+ */
+  if( (map_proj == 1 || map_proj == 2 || map_proj == 3) &&
+      (dx == -999 || dy == -999)) {
+    printf("wrf_ll_to_ij: dx/dy must be set if map_proj is 1, 2, or 3\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+  if(dy == -999.) dy = 0.;
+
+/*
+ * Check latinc/loninc. Must be set in some cases.
+ */
+  if( map_proj == 6 && (latinc == -999 || loninc == -999)) {
+    printf("wrf_ll_to_ij: latinc/loninc must be set if map_proj is 6\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  if(latinc == -999) latinc = 0.;
+  if(loninc == -999) loninc = 0.;
+
+/* 
+ * Allocate space for output array.
+ */
+  loc = (double*)calloc(2*npts, sizeof(double));
+  if(loc == NULL) {
+    printf("wrf_ll_to_ij: Unable to allocate memory for output array\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+/*
+ * Allocate space for output dimension sizes and set them.
+ */
+  if(is_scalar(ndims_lat,dsizes_lat)) {
+    ndims_loc = 1;
+  }
+  else {
+    ndims_loc = ndims_lat + 1;
+  }
+  dsizes_loc = (npy_intp*)calloc(ndims_loc,sizeof(npy_intp));  
+  if( dsizes_loc == NULL ) {
+    printf("wrf_ll_to_ij: Unable to allocate memory for holding dimension sizes\n");
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  for(i = 0; i < ndims_loc-1; i++) dsizes_loc[i+1] = dsizes_lat[i];
+  dsizes_loc[0] = 2;
+
+/*
+ * Loop across all lat/lon points and call the Fortran routine for each
+ * point.
+ */
+  for(i = 0; i < npts; i++) {
+    NGCALLF(dlltoij,DLLTOIJ)(&map_proj, &truelat1, &truelat2, 
+                             &stand_lon, &ref_lat, &ref_lon, 
+                             &pole_lat, &pole_lon, &knowni,
+                             &knownj, &dx, &dy, &latinc, 
+                             &loninc, &lat, &lon, &tmp_loc[0]);
+    loc[i]      = tmp_loc[1];
+    loc[i+npts] = tmp_loc[0];
+  }
+/*
+ * Free unneeded memory.
+ */
+  free(dsizes_lat);
+  free(dsizes_lon);
+
+  return ((PyObject *) PyArray_SimpleNewFromData(ndims_loc,dsizes_loc,
+                                                 PyArray_DOUBLE,
+                                                 (void *) loc));
+}
+
+
+
 PyObject *fplib_wrf_dbz(PyObject *self, PyObject *args)
 {
   PyObject *par = NULL;

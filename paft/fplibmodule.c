@@ -55,6 +55,12 @@ extern void NGCALLF(dcomputepv,DCOMPUTEPV)(double *, double *, double *,
                                            double *, double *, int *, int *, 
                                            int *, int *, int *);
 
+extern void NGCALLF(dlltoij,DLLTOIJ)(int *, double *, double *, double *, 
+                                     double *, double *, double *, double *, 
+                                     double *, double *, double *, double *, 
+                                     double *, double *, double *, double *, 
+                                     double *);
+
 /* WRF utility functions */
 extern void convert_to_hPa(double *pp, npy_intp np);
 extern void var_zero(double *tmp_var, npy_intp n);
@@ -126,6 +132,7 @@ static PyMethodDef fplib_methods[] = {
     {"wrf_slp", (PyCFunction)fplib_wrf_slp, METH_VARARGS},
     {"wrf_td", (PyCFunction)fplib_wrf_td, METH_VARARGS},
     {"wrf_tk", (PyCFunction)fplib_wrf_tk, METH_VARARGS},
+    {"wrf_ll_to_ij", (PyCFunction)fplib_wrf_ll_to_ij, METH_VARARGS},
     {NULL,      NULL}        /* Sentinel */
 };
 
