@@ -1682,7 +1682,7 @@ int vector_field(void *u, void *v, const char *type_u, const char *type_v,
  * and to open a workstation.
  */
 
-int open_wks_wrap(const char *type, const char *name, ResInfo *wk_res,
+int open_wks_wrap(char *type, char *name, ResInfo *wk_res,
                   ResInfo *ap_res, nglRes *special_res)
 {
   int wks, len, tlen, wk_rlist, ap_rlist, grlist, check_orientation = 0;

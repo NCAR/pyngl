@@ -251,8 +251,7 @@ extern int vector_field(void *, void *, const char *, const char *, int,
  * Workstation routine.
  */
 
-extern int open_wks_wrap(const char *, const char *, ResInfo *, ResInfo *,
-                         nglRes *);
+extern int open_wks_wrap(char *, char *, ResInfo *, ResInfo *, nglRes *);
 
 /*
  * Plotting routines.
