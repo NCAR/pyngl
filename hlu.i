@@ -2917,7 +2917,7 @@ extern void c_cprect(float *sequence_as_float, int, int, int, float *sequence_as
 extern void c_cpcldr(float *sequence_as_float, float *sequence_as_float, int *sequence_as_int);
 extern void c_plchhq(float, float, NhlString, float, float, float);
 
-extern int open_wks_wrap(const char *, const char *, ResInfo *rlist,
+extern int open_wks_wrap(char *, char *, ResInfo *rlist,
                          ResInfo *rlist, nglRes *rlist);
 
 extern nglPlotId labelbar_ndc_wrap(int, int, NhlString *, int, void
@@ -3212,7 +3212,7 @@ extern NhlErrorTypes NglGaus_p(int num, int nxir, int nyir, double *p_array_doub
 
 %newobject NGGetNCARGEnv(const char *);
 
-%newobject  open_wks_wrap(const char *, const char *, ResInfo *rlist,
+%newobject  open_wks_wrap(char *, char *, ResInfo *rlist,
                           ResInfo *rlist, nglRes *rlist);
 
 %newobject labelbar_ndc_wrap(int, int, NhlString *, int,
