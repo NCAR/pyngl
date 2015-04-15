@@ -315,31 +315,13 @@ You can quickly test PyNGL by running python and importing Ngl:
 import Ngl
 
 For more extensive PyNGL tests, you can run any one of the examples in
-the PyNGL gallery <https://www.pyngl.ucar.edu/Examples/gallery.shtml>
-by typing:
-
-   pynglex example_name
-
-For example:
-
-   pynglex ngl01p
+the PyNGL gallery <https://www.pyngl.ucar.edu/Examples/gallery.shtml>,
+which also reside in
+PYTHON_PREFIX/lib/pythonx.y/site-packages/PyNGL/examples.
 
 Note that some of these examples depend on PyNIO, and will not run
 unless you install PyNIO, or use another package to read in the data
 files.
-
-For a list of all the examples, type:
-
-   pynglex -l
-
-The default for most of these examples is to send the output to a
-PostScript file using the example name, with a ".ps" appended. To
-change the output to an X11 window, PNG, or PDF file, use the "-w"
-option:
-
-   pynglex -w x11 ngl01p
-   pynglex -w pdf ngl01p
-   pynglex -w png ngl01p
 
 Note that if the output file contains multiple frames and you are
 sending the output to an X11 window, you need to click on the window
