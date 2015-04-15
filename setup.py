@@ -105,6 +105,7 @@ def create_version_file():
   vfile.close()
 
 # Copy the pynglex script to same filename w/the python version appended.
+# Not used for now.
 def copy_pynglex_script():
   pynglex_script = os.path.join(pynglex_dir,"pynglex")
   pynglex_v_file = pynglex_script + sys.version[:3]
@@ -340,8 +341,8 @@ python_bin_dir  = os.path.join(sys.prefix,'bin')
 DATA_FILES = []
 get_pynglex_files()   # Get example files associated
                       # with the "pynglex" script.
-pynglex_scripts = copy_pynglex_script()  # Copy pynglex script to itself with
-                                         # python version appended
+#pynglex_scripts = copy_pynglex_script()  # Copy pynglex script to itself with
+                                          # python version appended
 get_ncarg_files()                        # We need NCARG_ROOT for the lib
 
 setup (name = 'PyNGL',
@@ -359,7 +360,6 @@ setup (name = 'PyNGL',
        packages         = [ PYNGL_PKG_NAME ],
        package_data     = { PYNGL_PKG_NAME : DATA_FILES },
        data_files       = [(pkgs_pth, pyngl_pth_file)],
-       scripts          = pynglex_scripts,
        ext_package      = PYNGL_PKG_NAME,
        ext_modules      = EXT_MODULES
 )

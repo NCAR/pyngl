@@ -13,5 +13,4 @@ include hlu_wrap.c
 include sysresfile
 include version
 recursive-include paft *.c
-recursive-include examples *.py *.res pynglex
-
+recursive-include examples *.py *.res
