@@ -67,6 +67,7 @@ def add_shapefile_outlines(wks,plot,filename):
 filename = "wrfout_d01_2005-12-14_13:00:00"
 if(not os.path.exists(filename)):
   print "You do not have the necessary file to run this example."
+  print "See the comments at the top of this script for more information."
   sys.exit()
 filename = filename + ".nc"        # must add the suffix for Nio.open_file
 

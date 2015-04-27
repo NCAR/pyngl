@@ -3,7 +3,8 @@
 #    mpas2.py
 #
 #  Synopsis:
-#    Compares raster and cell filled contours on an MPAS grid with 2,621,442 cells.
+#    Compares raster and cell filled contours on an MPAS grid with 
+#    2,621,442 cells.
 #
 #  Categories:
 #    Contouring
@@ -15,8 +16,8 @@
 #    September 2014
 #
 #  Description:
-#    This example shows how to draw raster and celled filled contours of 
-#    a 2M cell array on an MPAS grid.
+#    This example shows how to draw raster and cell-filled
+#    contours of a 2 million cell array on an MPAS grid.
 #
 #    NOTE: The second plot causes a large output file to be created,
 #    which may take a while to view.
@@ -91,7 +92,8 @@ def subtitles(wks, plot, left_string, center_string, right_string):
 # Function to print the min/max of a given variable.
 #----------------------------------------------------------------------
 def print_min_max(var,varname):
-  print(varname + ": min/max = %.2f " % numpy.min(var) + "/" + "%.2f" % numpy.max(var))
+  print(varname + ": min/max = %.2f " % numpy.min(var) + "/" + 
+                              "%.2f" % numpy.max(var))
 
 #----------------------------------------------------------------------
 # Main code
