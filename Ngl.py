@@ -34,8 +34,9 @@ __all__ = ['add_annotation', 'add_cyclic', 'add_new_coord_limits', \
            'text_ndc', 'update_workstation', 'vector', 'vector_map', \
            'vector_scalar', 'vector_scalar_map', 'vinth2p', 'wmbarb', \
            'wmbarbmap', 'wmgetp', 'wmsetp', 'wmstnm', 'wrf_avo', \
-           'wrf_dbz', 'wrf_ll_to_ij', 'wrf_map_resources', 'wrf_pvo',\
-           'wrf_rh', 'wrf_slp', 'wrf_td', 'wrf_tk', 'xy', 'y', 'yiqrgb']
+           'wrf_dbz', 'wrf_ij_to_ll', 'wrf_ll_to_ij', \
+           'wrf_map_resources', 'wrf_pvo', 'wrf_rh', 'wrf_slp', \
+           'wrf_td', 'wrf_tk', 'xy', 'y', 'yiqrgb']
 
 # So we can get path to PyNGL ancillary files
 from distutils.sysconfig import get_python_lib
@@ -7919,40 +7920,72 @@ assumed to scatter as a liquid particle.
   return fplib.wrf_dbz(p2,t2,qv2,qr2,qs2,qg2,ivar2,iliq2)
 
 ################################################################
-# NOTE: this function is not yet working, so it is commented
-# out for now.
+
+def wrf_ll_to_ij(lon, lat, map_proj, truelat1=-999.,truelat2=-999.,stand_lon=999., \
+                 ref_lat=-999,ref_lon=-999,pole_lat=90,pole_lon=0,knowni=-999,\
+                 knownj=-999,dx=-999, dy=-999, latinc=-999., loninc=-999):
+  """
+Converts lon/lat values to i/j index values.
+
+lon,lat - lat,lon values to convert
+
+map_proj -- map projection
+  """
+
+  lon2       = _promote_scalar(lon)
+  lat2       = _promote_scalar(lat)
+  map_proj2  = _promote_scalar(map_proj)
+  truelat12  = _promote_scalar(truelat1)
+  truelat22  = _promote_scalar(truelat2)
+  stand_lon2 = _promote_scalar(stand_lon)
+  ref_lat2   = _promote_scalar(ref_lat)
+  ref_lon2   = _promote_scalar(ref_lon)
+  pole_lat2  = _promote_scalar(pole_lat)
+  pole_lon2  = _promote_scalar(pole_lon)
+  knowni2    = _promote_scalar(knowni)
+  knownj2    = _promote_scalar(knownj)
+  dx2        = _promote_scalar(dx)
+  dy2        = _promote_scalar(dy)
+  latinc2    = _promote_scalar(latinc)
+  loninc2    = _promote_scalar(loninc)
+
+  return fplib.wrf_ll_to_ij(lon2,lat2,map_proj2,truelat12,truelat22,stand_lon2, \
+                            ref_lat2,ref_lon2,pole_lat2,pole_lon2,knowni2, knownj2,\
+                            dx2, dy2, latinc2,loninc2)
+
 ################################################################
-##def wrf_ll_to_ij(lon, lat, map_proj, truelat1=-999.,truelat2=-999.,stand_lon=999., \
-##                 ref_lat=-999,ref_lon=-999,pole_lat=90,pole_lon=0,knowni=-999,\
-##                 knownj=-999,dx=-999, dy=-999, latinc=-999., loninc=-999):
-##  """
-##Converts lon/lat values to i/j index values.
-##
-##lon,lat - lat,lon values to convert
-##
-##map_proj -- map projection
-##  """
-##
-##  lon2       = _promote_scalar(lon)
-##  lat2       = _promote_scalar(lat)
-##  map_proj2  = _promote_scalar(map_proj)
-##  truelat12  = _promote_scalar(truelat1)
-##  truelat22  = _promote_scalar(truelat2)
-##  stand_lon2 = _promote_scalar(stand_lon)
-##  ref_lat2   = _promote_scalar(ref_lat)
-##  ref_lon2   = _promote_scalar(ref_lon)
-##  pole_lat2  = _promote_scalar(pole_lat)
-##  pole_lon2  = _promote_scalar(pole_lon)
-##  knowni2    = _promote_scalar(knowni)
-##  knownj2    = _promote_scalar(knownj)
-##  dx2        = _promote_scalar(dx)
-##  dy2        = _promote_scalar(dy)
-##  latinc2    = _promote_scalar(latinc)
-##  loninc2    = _promote_scalar(loninc)
-##
-##  return fplib.wrf_ll_to_ij(lon2,lat2,map_proj2,truelat12,truelat22,stand_lon2, \
-##                            ref_lat2,ref_lon2,pole_lat2,pole_lon2,knowni2, knownj2,\
-##                            dx2, dy2, latinc2,loninc2)
+
+def wrf_ij_to_ll(iloc, jloc, map_proj, truelat1=-999.,truelat2=-999.,stand_lon=999., \
+                 ref_lat=-999,ref_lon=-999,pole_lat=90,pole_lon=0,knowni=-999,\
+                 knownj=-999,dx=-999, dy=-999, latinc=-999., loninc=-999):
+  """
+Converts i/j index values to lon/lat values.
+
+lon,lat - lat,lon values to convert
+
+map_proj -- map projection
+  """
+
+  iloc2      = _promote_scalar(iloc)
+  jloc2      = _promote_scalar(jloc)
+  map_proj2  = _promote_scalar(map_proj)
+  truelat12  = _promote_scalar(truelat1)
+  truelat22  = _promote_scalar(truelat2)
+  stand_lon2 = _promote_scalar(stand_lon)
+  ref_lat2   = _promote_scalar(ref_lat)
+  ref_lon2   = _promote_scalar(ref_lon)
+  pole_lat2  = _promote_scalar(pole_lat)
+  pole_lon2  = _promote_scalar(pole_lon)
+  knowni2    = _promote_scalar(knowni)
+  knownj2    = _promote_scalar(knownj)
+  dx2        = _promote_scalar(dx)
+  dy2        = _promote_scalar(dy)
+  latinc2    = _promote_scalar(latinc)
+  loninc2    = _promote_scalar(loninc)
+
+  return fplib.wrf_ll_to_ij(iloc2,jloc2,map_proj2,truelat12,truelat22,stand_lon2, \
+                            ref_lat2,ref_lon2,pole_lat2,pole_lon2,knowni2, knownj2,\
+                            dx2, dy2, latinc2,loninc2)
 
 ################################################################
 

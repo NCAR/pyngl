@@ -133,6 +133,7 @@ static PyMethodDef fplib_methods[] = {
     {"wrf_td", (PyCFunction)fplib_wrf_td, METH_VARARGS},
     {"wrf_tk", (PyCFunction)fplib_wrf_tk, METH_VARARGS},
     {"wrf_ll_to_ij", (PyCFunction)fplib_wrf_ll_to_ij, METH_VARARGS},
+    {"wrf_ij_to_ll", (PyCFunction)fplib_wrf_ij_to_ll, METH_VARARGS},
     {NULL,      NULL}        /* Sentinel */
 };
 
