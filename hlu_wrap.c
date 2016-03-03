@@ -29441,7 +29441,8 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
       }
     }
     
-    arg2 = &inlist;
+    arg2 = (nglPlotId *) alloca(sizeof(nglPlotId));
+    memcpy(arg2, &inlist, sizeof(nglPlotId));
   }
   res3 = SWIG_AsCharPtrAndSize(obj2, &buf3, NULL, &alloc3);
   if (!SWIG_IsOK(res3)) {
@@ -30309,7 +30310,8 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
       }
     }
     
-    arg2 = &inlist;
+    arg2 = (nglPlotId *) alloca(sizeof(nglPlotId));
+    memcpy(arg2, &inlist, sizeof(nglPlotId));
   }
   res3 = SWIG_AsCharPtrAndSize(obj2, &buf3, NULL, &alloc3);
   if (!SWIG_IsOK(res3)) {
@@ -31480,7 +31482,8 @@ SWIGINTERN PyObject *_wrap_maximize_plots(PyObject *SWIGUNUSEDPARM(self), PyObje
       }
     }
     
-    arg2 = &inlist;
+    arg2 = (nglPlotId *) alloca(sizeof(nglPlotId));
+    memcpy(arg2, &inlist, sizeof(nglPlotId));
   }
   {
     arg3 = (int) PyInt_AsLong (obj2);
@@ -31825,7 +31828,8 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
       }
     }
     
-    arg2 = &inlist;
+    arg2 = (nglPlotId *) alloca(sizeof(nglPlotId));
+    memcpy(arg2, &inlist, sizeof(nglPlotId));
   }
   {
     PyArrayObject *arr;
@@ -32542,7 +32546,8 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
       }
     }
     
-    arg2 = &inlist;
+    arg2 = (nglPlotId *) alloca(sizeof(nglPlotId));
+    memcpy(arg2, &inlist, sizeof(nglPlotId));
   }
   {
     PyArrayObject *arr;
