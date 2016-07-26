@@ -38,9 +38,65 @@
 import numpy
 import Ngl
 import Nio
-import os
+import os, sys
+
+#----------------------------------------------------------------------
+# This procedure adds longitude labels to the outside of a circular
+# polar stereographic map.
+#----------------------------------------------------------------------
+def add_lon_labels(wks):
+#
+# List the longitude values where you want labels.  It's assumed that longitude=0
+# is at the bottom of the plot, and 180W at the top. You can adjust as necessary.
+#
+  lon_values = numpy.arange(-180,180,30)
+
+  nlon       = lon_values.shape[0]
+  lat_values = numpy.zeros(nlon,'f') + mpres.mpMinLatF + 0.005
 
 #
+# Get the NDC coordinates of these lat,lon labels.
+# We'll use this information to place labels *outside* of
+# the map plot.
+#
+  xndc, yndc = Ngl.datatondc(plot_base,lon_values,lat_values)
+
+#
+# Set an array of justification strings to use with the "txJust" resource
+# for each label, based on which quadrant it appears in.
+#
+  just_strs  = ["BottomCenter",                 # top of plot
+                "BottomRight","BottomRight",    # upper left quadrant
+                "CenterRight",                  # left of plot
+                "TopRight","TopRight",          # lower left quadrant
+                "TopCenter",                    # bottom of plot
+                "TopLeft","TopLeft",            # lower right quadrant
+                "CenterLeft",                   # right of plot
+                "BottomLeft","BottomLeft"]      # upper right qudrant
+
+# Create an array of longitude labels with "W" and "E" added.
+  lon_labels = []
+  for i in range(nlon):
+    if lon_values[i] < 0:
+      lon_labels.append("%gW" % abs(lon_values[i]))
+    elif lon_values[i] > 0:
+      lon_labels.append("%gE" % lon_values[i])
+    else:
+      lon_labels.append("%g" % lon_values[i])
+
+# Loop through each label and add it.
+  txres = Ngl.Resources()
+  txres.txFontHeightF = 0.01
+  for i in range(nlon):
+    txres.txJust = just_strs[i]
+    Ngl.text_ndc(wks,lon_labels[i],xndc[i],yndc[i],txres)
+
+  return
+
+#----------------------------------------------------------------------
+# Main code
+#----------------------------------------------------------------------
+
 # Open file and get variable. The lat/lon variables will be
 # generated using fspan.  This data came from another dataset
 # that had lat/lon on the file, but lat/lon was nothing more
@@ -58,7 +114,7 @@ hgt0,lon = Ngl.add_cyclic(hgt[0,:,:],lon)
 #
 # Start graphics.
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"spaghetti")
 Ngl.define_colormap(wks,"default")         # Change color map.
 
@@ -125,20 +181,10 @@ for i in range(19):
   plot = Ngl.contour(wks,hgt0,cnres)           # Generate contours.
   Ngl.overlay(plot_base,plot)                  # Overlay this contour on map.
 
-Ngl.draw(plot_base)                            # Draw map.
-
-# Add some subtitles at top.
-
-txres               = Ngl.Resources()
-txres.txFontHeightF = 0.02
-
-txres.txJust = "CenterLeft"
-Ngl.text_ndc(wks,"Geopotential Height",0.01,0.9,txres)
-
-txres.txJust = "CenterRight"
-Ngl.text_ndc(wks,"gpm",0.95,0.9,txres)
-
-Ngl.frame(wks)        # Now advance the frame.
+# Draw the plot, add the lon labels, and advance the frame.
+Ngl.draw(plot_base)
+add_lon_labels(wks)
+Ngl.frame(wks)
 
 Ngl.end()
 
