@@ -187,6 +187,10 @@ def set_ncl_libs_and_paths():
   if(os.path.exists(xdir)):
       PATHS.append(xdir)
 
+  xdir = "/opt/X11/lib"
+  if(os.path.exists(xdir)):
+      PATHS.append(xdir)
+
   if (os.uname()[-1] == "x86_64" or os.uname()[-1] == "ia64"):
     dir = '/usr/X11R6/lib64'
     if(os.path.exists(dir)):
