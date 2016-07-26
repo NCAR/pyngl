@@ -47,7 +47,7 @@ T = 100. - 8.*numpy.sqrt(T)
 #
 #  Open a workstation and draw the contour plot with color fill.
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"cn02p")
 
 res = Ngl.Resources()

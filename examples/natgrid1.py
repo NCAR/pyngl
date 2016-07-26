@@ -76,7 +76,7 @@ cmap = numpy.array([  [1.00, 0.00, 0.00], [1.00, 0.00, 0.40], \
                       [0.20, 0.45, 0.40], [0.20, 0.40, 0.80], \
                       [0.60, 0.40, 0.80], [0.60, 0.80, 0.80], \
                       [0.60, 0.80, 0.40], [1.00, 0.60, 0.80]],'f')
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"natgrid1")
 
 resources                       = Ngl.Resources()
@@ -129,6 +129,6 @@ contour = Ngl.contour(wks,zt,resources)
 #  Retrieve the default value for the tautness factor "bJ".
 #
 bJ_value = Ngl.nngetp("bJ")
-# print bJ_value
+# print(bJ_value)
 
 Ngl.end()

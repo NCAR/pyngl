@@ -81,7 +81,7 @@ lon = ufile.variables["lon"]
 ua = u[0,:,:]
 va = v[0,:,:]
 
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"ngl03p")
 
 vc = Ngl.vector(wks,ua,va)

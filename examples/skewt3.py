@@ -52,7 +52,7 @@ z    = TestData[:,4]    # geopotential [gpm]
 wspd = TestData[:,5]    # wind speed   [knots or m/s]    
 wdir = TestData[:,6]    # meteorological wind dir   
 
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type, "skewt3")
 
 #

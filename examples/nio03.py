@@ -43,9 +43,9 @@ fname = "wafsgfs_L_t06z_intdsk60.grib2"
 f = Nio.open_file(os.path.join(dirc,"grb",fname + ".grb"))
 
 #
-# Print the input file contents
+# Printthe input file contents
 #
-# print f
+# print(f)
 
 #
 # If the output file already exists, remove it
@@ -119,21 +119,21 @@ for var in vars:
     if dims.count(var) > 0:
         v = f.variables[var].get_value()
         fout.variables[var].assign_value(v)
-        print "finished writing " + var
+        print("finished writing " + var)
 
 for var in vars:
     if dims.count(var) == 0:
         v = f.variables[var].get_value()
         fout.variables[var].assign_value(v)
-        print "finished writing " + var
+        print("finished writing " + var)
             
 #
 # print the output file contents
 #
-# print fout    
+# print(fout    )
 
 f.close()
 
 # Print file size.
-print "File size of",fname+ ".nc:"
+print("File size of",fname+ ".nc:")
 os.system("wc -c " + fname + ".nc")

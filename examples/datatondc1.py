@@ -40,7 +40,7 @@ npts = 400
 x = Ngl.fspan(100.,npts-1,npts)
 y = 500.+ x * numpy.sin(0.031415926535898*x)
 
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"datatondc1")
 
 res = Ngl.Resources()
@@ -61,8 +61,8 @@ x_out, y_out = Ngl.datatondc(xy,x_in,y_in)
 #  Print out a table of data versus NDC values.
 #
 # for i in xrange(len(x_out)):
-#   print "%4d  data: (%3.0f, %8.4f)  NDC: (%6.4f, %6.4f)" % \
-#                  (i,x_in[i],y_in[i],x_out[i],y_out[i])
+#   print("%4d  data: (%3.0f, %8.4f)  NDC: (%6.4f, %6.4f)" % \
+#                  (i,x_in[i],y_in[i],x_out[i],y_out[i]))
 
 #
 #  Draw some markers on the curve in the above plot.
@@ -95,6 +95,6 @@ x_dat, y_dat = Ngl.ndctodata(xy, x_ndc, y_ndc)
 #
 #  Optional print.
 #
-#  print "Original data:    (100.0000, 600.0000)  \nNDC:              (%06.4f, %06.4f)  \nBack to original: (%6.4f, %6.4f)" % (x_ndc,y_ndc,x_dat,y_dat)
+#  print("Original data:    (100.0000, 600.0000)  \nNDC:              (%06.4f, %06.4f)  \nBack to original: (%6.4f, %6.4f)" % (x_ndc,y_ndc,x_dat,y_dat))
 
 Ngl.end()

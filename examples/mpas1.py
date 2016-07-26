@@ -41,8 +41,8 @@ import Ngl, Nio
 #---Read data from MPAS Grid
 filename = "MPAS.nc"
 if(not os.path.exists(filename)):
-  print "You do not have the necessary file to run this example."
-  print "See the comments at the top of this script for more information."
+  print("You do not have the necessary file to run this example.")
+  print("See the comments at the top of this script for more information.")
   sys.exit()
 
 f  = Nio.open_file(filename)
@@ -59,7 +59,7 @@ lonCell   = lonCell * RAD2DEG
 latCell   = latCell * RAD2DEG
 
 #---Start the graphics
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"mpas1")
 
 #---Read in desired color map so we can subset it later

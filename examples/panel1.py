@@ -86,16 +86,12 @@ cmap = numpy.array([[1.00,.000,.000],\
                     [.560,.500,.700],[.610,.600,.700],[.700,.700,.700]],
                     'f')
                    
-#
-# Set the color map and open a workstation.
-#
-rlist               = Ngl.Resources()
-
-wks_type = "ps"
+#--- Indicate where to send graphics
+rlist = Ngl.Resources()
+wks_type = "png"
 if(wks_type == "ps" or wks_type == "pdf"):
   rlist.wkOrientation = "Portrait"      # For PS or PDF output only.
-
-wks = Ngl.open_wks(wks_type,"panel1",rlist)  # Open an X11 workstation.
+wks = Ngl.open_wks(wks_type,"panel1",rlist)
 
 #
 # Turn off draw for the individual plots, since we are going to

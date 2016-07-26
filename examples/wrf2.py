@@ -43,12 +43,6 @@ import numpy, Nio, Ngl, os, sys
 # given NCL plot.
 #======================================================================
 def add_shapefile_outlines(wks,plot,filename):
-  if(not os.path.exists(filename)):
-    print "You do not seem to have the " + filename + " shapefile."
-    print "See the comments at the top of this script for more information."
-    print "No shapefile outlines added."
-    return
-
 #---Read data off shapefile
   f        = Nio.open_file(filename, "r")
   lon      = numpy.ravel(f.variables["x"][:])
@@ -64,19 +58,28 @@ def add_shapefile_outlines(wks,plot,filename):
 #----------------------------------------------------------------------
 # Main code
 #----------------------------------------------------------------------
-filename = "wrfout_d01_2005-12-14_13:00:00"
-if(not os.path.exists(filename)):
-  print "You do not have the necessary file to run this example."
-  print "See the comments at the top of this script for more information."
+wrf_filename = "wrfout_d01_2005-12-14_13:00:00"
+shp_filename = "USA_adm/USA_adm1.shp"
+if(not os.path.exists(wrf_filename)):
+  print("You do not have the necessary file to run this example.")
+  print("You need to supply your own WRF output file")
+  print("WRF output files usually have names like '%s'" % filename)
   sys.exit()
-filename = filename + ".nc"        # must add the suffix for Nio.open_file
+
+if(not os.path.exists(shp_filename)):
+  print("You do not have the " + shp_filename + " shapefile.")
+  print("See the comments at the top of this script for more information.")
+  print("No shapefile outlines will be added.")
+  ADD_SHAPE_OUTLINES = False
+else:
+  ADD_SHAPE_OUTLINES = True
 
 #---Read data
-a   = Nio.open_file(filename)
+a   = Nio.open_file(wrf_filename + ".nc")
 hgt = a.variables["HGT"][0,:,:]    # Read first time step ( nlat x nlon)
 
-#---Open PS for graphics
-wks_type = "ps"
+#---Send graphics to PNG file
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"wrf2")
 
 #---Set some plot options
@@ -94,7 +97,7 @@ res.cnLevelSelectionMode = "ExplicitLevels"
 res.cnLevels  = [0.5,10,50,75,100,150,200,250,300,400,500,600,700,800,900,1000,1100]
 
 # Set some map options based on information in WRF output file
-res = Ngl.wrf_map_resources(filename,res)
+res = Ngl.wrf_map_resources(wrf_filename+".nc",res)
 
 # Labelbar options
 res.lbOrientation      = "horizontal"
@@ -103,21 +106,21 @@ res.lbTitleFontHeightF = 0.008
 
 # Main Title
 res.tiMainString      = "WRF data plotted in native projection"
-
 plot = Ngl.contour_map(wks,hgt,res)
 
+if(ADD_SHAPE_OUTLINES):
 # Recreate plot without map outlines so we can add some from shapefile.
-res.nglDraw      = False
-res.nglFrame     = False
-res.mpOutlineOn  = False
-res.tiMainString = "WRF plot with shapefile outlines added"
+  res.nglDraw      = False
+  res.nglFrame     = False
+  res.mpOutlineOn  = False
+  res.tiMainString = "WRF plot with shapefile outlines added"
 
-plot = Ngl.contour_map(wks,hgt,res)
+  plot = Ngl.contour_map(wks,hgt,res)
 
-lnid = add_shapefile_outlines(wks,plot,"USA_adm/USA_adm1.shp")
+  lnid = add_shapefile_outlines(wks,plot,"USA_adm/USA_adm1.shp")
 
-Ngl.draw(plot)       # This draws map and attached polylines
-Ngl.frame(wks)       # Advance frame.
+  Ngl.draw(plot)       # This draws map and attached polylines
+  Ngl.frame(wks)       # Advance frame.
 
 Ngl.end()
 

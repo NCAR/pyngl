@@ -47,7 +47,7 @@ import numpy,os
 #
 import Ngl, Nio
 
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks (wks_type,"shapefile1")
 Ngl.define_colormap(wks,"rainbow+gray")
 

@@ -62,9 +62,9 @@ dirc = Ngl.pynglpath("data")
 file = Nio.open_file(os.path.join(dirc,"cdf","pop.nc"))
 
 #
-#  Open a workstation.
+#  Send graphics to PNG
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"vector_pop")
 
 #

@@ -54,14 +54,9 @@ import os,string,types
 filename = os.path.join(Ngl.pynglpath("data"),"asc","fcover.dat")
 data     = Ngl.asciiread(filename,[3,73,73],"float")
 
-# Open workstation and change color map.
-wks_type = "ps"
-
-rlist = Ngl.Resources()
-if(wks_type == "ps" or wks_type == "pdf"):
-  rlist.wkOrientation = "Portrait"      # For PS or PDF output only.
-
-wks = Ngl.open_wks(wks_type,"streamline2",rlist)
+# Send graphics to PNG file
+wks_type = "png"
+wks = Ngl.open_wks(wks_type,"streamline2")
 
 stres = Ngl.Resources()
 cnres = Ngl.Resources()

@@ -83,9 +83,9 @@ lon  =  cdf_file.variables["lon"][:]
 time =  cdf_file.variables["time"][:]
  
 #
-# Open a PS file.
+# Open a PNG file.
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"contour3")
 
 #

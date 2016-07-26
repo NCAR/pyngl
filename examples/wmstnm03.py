@@ -98,10 +98,9 @@ imdat =  ["11000000751126021360300004955054054600007757087712",  \
           "11678600751048021580300004055053013614007337085814"   \
         ]
 
-#
-#  Define a color map and open a workstation.
-#
-wks_type = "ps"
+
+#---Open file for graphics
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"wmstnm03")
 
 #

@@ -98,10 +98,10 @@ def print_min_max(var,varname):
 #----------------------------------------------------------------------
 # Main code
 #----------------------------------------------------------------------
-mpas_file = "x1.2621442.partial.nc"
+mpas_file = "x1.2621442.nc"
 if(not os.path.exists(mpas_file)):
-  print "You do not have the necessary file to run this example."
-  print "See the comments at the top of this script for more information."
+  print("You do not have the necessary file to run this example.")
+  print("See the comments at the top of this script for more information.")
   sys.exit()
 
 #---Read a timestep of "t2m" 
@@ -150,7 +150,7 @@ print_min_max(latvoc,"latvoc")
 print_min_max(lonvoc,"lonvoc")
 
 #---Start the graphics
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"mpas2")
 
 res                      = Ngl.Resources()              # Plot mods desired.
@@ -204,7 +204,7 @@ Ngl.draw(plot)
 Ngl.frame(wks)
 
 t2 = time.time()
-print "RasterFill took %0.3f seconds" % (t2-t1)
+print("RasterFill took %0.3f seconds" % (t2-t1))
 
 # Clean up, otherwise next plot gets drawn on top of this one (?)
 del plot
@@ -236,7 +236,7 @@ if CELL_FILL_PLOT:
   Ngl.frame(wks)
 
   t2 = time.time()
-  print "CellFill took %0.3f seconds" % (t2-t1)
+  print("CellFill took %0.3f seconds" % (t2-t1))
 
 Ngl.end()
 

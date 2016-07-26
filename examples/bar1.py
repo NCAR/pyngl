@@ -238,7 +238,8 @@ world_series = {
                 2011 : ["SLC", "TR"], \
                 2012 : ["SFG", "DT"], \
                 2013 : ["BRS", "SLC"], \
-                2014 : ["SFG", "KCR"] \
+                2014 : ["SFG", "KCR"], \
+                2015 : ["KCR", "NYM"]  \
            }
 
 #
@@ -301,8 +302,8 @@ x_lose = numpy.array(range(1,y_lose.shape[0]+1))
 #
 # Start the graphics portion of the script.
 #
-wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"bar1")   # Open an X11 window
+wks_type = "png"
+wks = Ngl.open_wks(wks_type,"bar1")
 Ngl.define_colormap(wks,winning_colors)
 
 res = Ngl.Resources()

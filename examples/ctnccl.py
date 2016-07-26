@@ -97,7 +97,7 @@ for i in xrange(151,251):
 #
 #  Open workstation.
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"ctnccl")
 
 #

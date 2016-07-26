@@ -114,7 +114,7 @@ cmap = numpy.array([                                           \
          [1.00,1.00,0.00], [0.00,0.00,1.00], [0.00,1.00,0.00], \
          [1.00,0.00,0.00] ],dtype=float)
 
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"ngl09p")
 
 resources = Ngl.Resources()

@@ -45,7 +45,7 @@ T = 100. - 8.*numpy.sqrt(T)
 #
 #  Open a workstation and draw the contour plot.
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"cn01p")
 Ngl.contour(wks,T)
 

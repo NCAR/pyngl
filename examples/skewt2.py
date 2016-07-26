@@ -57,7 +57,7 @@ wdir = -999.*numpy.ones(nlvl,'f')
 #
 #  Plot 1 - Create background skew-T and plot sounding.
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type, "skewt2")
 
 skewtOpts                          = Ngl.Resources()

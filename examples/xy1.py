@@ -47,7 +47,7 @@ for i in range(0,npts):
   x[i] = 500.+.9*xspan[i]*math.cos(0.031415926535898*xspan[i])
   y[i] = 500.+.9*xspan[i]*math.sin(0.031415926535898*xspan[i])
 
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"xy1")
 
 #

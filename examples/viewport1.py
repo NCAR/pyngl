@@ -51,7 +51,7 @@ def draw_vp_box(wks,plot):
   vpw = Ngl.get_float(plot,"vpWidthF")
   vph = Ngl.get_float(plot,"vpHeightF")
 
-  print "Viewport x,y,width,height =",vpx,vpy,vpw,vph
+  print("Viewport x,y,width,height =",vpx,vpy,vpw,vph)
 
 # Make a box with the viewport values.
   xbox = [vpx,vpx+vpw,vpx+vpw,vpx,vpx]
@@ -108,7 +108,7 @@ def draw_bb_box(wks,plot):
   lft = bb[2]
   rgt = bb[3]
 
-  print "Bounding box top,bottom,left,right =",top,bot,lft,rgt
+  print("Bounding box top,bottom,left,right =",top,bot,lft,rgt)
 
 # Make a box with the bounding box values.
   xbox = [rgt,lft,lft,rgt,rgt]
@@ -146,11 +146,8 @@ def draw_bb_box(wks,plot):
 #********************************************************************
 # Main code
 #********************************************************************
-wks_type = "ps"
-rlist               = Ngl.Resources()
-if wks_type != "x11":
-  rlist.wkOrientation = "Portrait"                 # Don't let it be landscape
-wks = Ngl.open_wks(wks_type,"viewport1",rlist)   # Open a PS workstation.
+wks_type = "png"
+wks = Ngl.open_wks(wks_type,"viewport1")
 
 # Add some named colors. This is no longer needed in PyNGL 1.5.0
 #forest_green = numpy.array([ 34, 139,  34])/255.

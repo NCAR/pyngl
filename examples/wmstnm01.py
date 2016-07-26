@@ -30,15 +30,12 @@
 import Ngl
 import numpy
 
-#
-#   Open a workstation.
-#
-wks_type = "ps"
+#---Open PNg file
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"wmstnm01")
 
-#
-#  Define the station model data and plot.
-#
+
+#---Define the station model data and plot.
 imdat="11212833201001120000300004014752028601117706086792"
 Ngl.wmsetp("wbs",0.25)    #  Scale
 Ngl.wmstnm(wks,0.5,0.5,imdat)

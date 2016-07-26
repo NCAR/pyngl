@@ -31,7 +31,7 @@
 
 import Ngl
 
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"map1")
 
 projections = ["CylindricalEquidistant","Mollweide"]

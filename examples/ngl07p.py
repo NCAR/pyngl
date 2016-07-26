@@ -70,8 +70,8 @@ yint = numpy.zeros(npts,'f')
 for i in xrange(npts):
   yint[i] = Ngl.ftcurvpi(0., xo[i], period, xi, yi)
 
-# Open a PS file.
-wks_type = "ps"
+# Send graphics to PNG file
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"ngl07p")
 
 txres = Ngl.Resources()   # Set up variable for TextItem resources.

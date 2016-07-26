@@ -54,29 +54,29 @@ import Ngl
 file = Nio.open_file(os.path.join(Ngl.pynglpath("data"),"grb","ced1.lf00.t00z.eta.grb"),"r")
 
 names = file.variables.keys()  #  Get the variable names
-print "\nVariable names:"      #  and print them out.
-print names                    
+print("\nVariable names:")     #  and print them out.)
+print(names)
 
 
 #
-#  For variable in names[1], retrieve and print all attributes
+#  For variable in names[1], retrieve and print all attributes 
 #  and their values.
 #
-print "\nThe attributes and their values for variable " + names[1] + ":"
+print("\nThe attributes and their values for variable " + names[1] + ":")
 for attrib in file.variables[names[1]].attributes.keys():
   t = getattr(file.variables[names[1]],attrib)
-  print "Attribute " + "'" + attrib + "' has value:", t
+  print("Attribute " + "'" + attrib + "' has value:", t)
 
 #
 #  For variable in names[1], retrieve and print the dimension names.
 #
-print "\nFor variable " + names[1] + " the dimension names are:"
-print file.variables[names[1]].dimensions
+print("\nFor variable " + names[1] + " the dimension names are:")
+print(file.variables[names[1]].dimensions)
 
 #
 #  Open a workstation.
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"ngl04p",None)
 
 #----------- Begin first plot -----------------------------------------

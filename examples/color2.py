@@ -45,13 +45,12 @@ color_names = ["White","Black","DimGray", "Plum",\
                "Orange","SeaGreen","Gold","Grey11","OliveDrab", \
                "PaleTurquoise","Peru","DarkSalmon","Moccasin","FireBrick"]
 
+#
+# Open a PNG workstation and set this colormap.
+#
 rlist = Ngl.Resources()
 rlist.wkColorMap = color_names
-
-#
-# Open a PS workstation and set this colormap.
-#
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"color2",rlist) 
 
 #
@@ -98,10 +97,10 @@ cmap = Ngl.retrieve_colormap(wks)
 # 
 # Print just some of the values of the colormap.
 #
-print "\n-----------printing some colormap values------------\n"
-print "color index  5 (NavyBlue) = ",cmap[5,:]
-print "color index 10 (Purple)   = ",cmap[10,:]
-print "color index 15 (Gold)     = ",cmap[15,:]
+print("\n-----------printing some colormap values------------\n")
+print("color index  5 (NavyBlue) = ",cmap[5,:])
+print("color index 10 (Purple)   = ",cmap[10,:])
+print("color index 15 (Gold)     = ",cmap[15,:])
 
 #
 # Retrieve some resource values of various types.
@@ -117,12 +116,12 @@ thicknesses = Ngl.get_float_array(xy.xydspec,"xyLineThicknesses")
 line_mode   = Ngl.get_string(xy.xydspec,"xyMarkLineMode")
 style       = Ngl.get_integer(xy,"xyYStyle")
 
-print "\n-----------printing some resource values------------\n"
-print "color map len  = ",cmap_len," (should be 23)"
-print "markers        = ",markers," (should be [11 12 15 16])"
-print "thicknesses    = ",thicknesses," should be ([3. 4. 5. 6.])"
-print "mark/line mode = ",line_mode," (should be 'MarkLines')"
-print "style          = ",style," (should be 1)"
+print("\n-----------printing some resource values------------\n")
+print("color map len  = ",cmap_len," (should be 23)")
+print("markers        = ",markers," (should be [11 12 15 16])")
+print("thicknesses    = ",thicknesses," should be ([3. 4. 5. 6.])")
+print("mark/line mode = ",line_mode," (should be 'MarkLines')")
+print("style          = ",style," (should be 1)")
 
 #
 # Here's another way to retrieve the color map.
@@ -130,9 +129,9 @@ print "style          = ",style," (should be 1)"
 del cmap
 cmap = Ngl.get_MDfloat_array(wks,"wkColorMap")
 
-print "\n-----------printing some more colormap values (float)------------\n"
-print "color index  6 (SaddleBrown)   = ",cmap[6,:]
-print "color index  7 (Chartreuse)    = ",cmap[7,:]
-print "color index 18 (PaleTurquoise) = ",cmap[18,:]
+print("\n-----------printing some more colormap values (float)------------\n")
+print("color index  6 (SaddleBrown)   = ",cmap[6,:])
+print("color index  7 (Chartreuse)    = ",cmap[7,:])
+print("color index 18 (PaleTurquoise) = ",cmap[18,:])
 
 Ngl.end()

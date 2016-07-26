@@ -40,7 +40,7 @@ boundaries = ["China:states","India:States"]
 #
 # Change the color map.
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks (wks_type,"ctrydiv1")
 Ngl.define_colormap(wks,"StepSeq25")
 

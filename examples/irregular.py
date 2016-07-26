@@ -80,7 +80,7 @@ z_t      = cdf_file.variables["z_t"][:] / 100.         # convert cm to m
 #
 #  Open a workstation.
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"irregular")
 
 #

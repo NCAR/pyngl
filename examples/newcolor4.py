@@ -30,7 +30,7 @@ import numpy,os
 import Ngl,Nio
 
 #---Start the graphics section
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks (wks_type,"newcolor4")
 
 #---Generate some dummy lat/lon data
@@ -77,7 +77,7 @@ res.sfYArray               = lat
 nplots = 9
 plots  = []
 for n in range(0,nplots):
-  print "plot #",n
+  print("plot #",n)
   dmin = dmins[n/3]
   dmax = dmaxs[n/3]
   dspa = dspas[n/3]

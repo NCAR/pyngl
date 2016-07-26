@@ -76,8 +76,8 @@ def add_mpas_edges(wks,map,mfile):
 
 mpas_file = "MPASOcean60km.nc"
 if(not os.path.exists(mpas_file)):
-  print "You do not have the necessary file to run this example."
-  print "See the comments at the top of this script for more information."
+  print("You do not have the necessary file to run this example.")
+  print("See the comments at the top of this script for more information.")
   sys.exit()
 
 #---Read variable to plot
@@ -94,7 +94,7 @@ latCell   = latCell * RAD2DEG
 lonCell   = lonCell * RAD2DEG
 
 #---Start the graphics
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"mpas3")
 
 res                        = Ngl.Resources()   # Plot mods desired.

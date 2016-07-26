@@ -41,7 +41,7 @@ psl_lon  = cdffile.variables["lon"][:]
 psl_lat  = cdffile.variables["lat"][:]
 
 # Open workstation
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"tickmark2")
 Ngl.define_colormap(wks,"BlueDarkRed18")  # Could also set
                                           # res.cnFillPalette = "BlueDarkRed18"

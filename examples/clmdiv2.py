@@ -68,7 +68,7 @@ for i in range(lencl):
 #
 rlist = Ngl.Resources()
 rlist.wkColorMap = "gui_default"
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks (wks_type,"clmdiv2",rlist)
 
 #

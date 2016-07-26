@@ -89,7 +89,7 @@ rlist = Ngl.Resources()
 rlist.wkForegroundColor = "White"
 rlist.wkBackgroundColor = "Black"
 rlist.wkColorMap        = "cyclic"
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"color3",rlist) 
 
 #
@@ -178,28 +178,28 @@ eps = 0.00001
 #
 r,g,b = Ngl.hlsrgb(120., 50., 100.)
 if numpy.sometrue(numpy.greater(numpy.fabs([r-1., g, b]), eps)):
-  print "color3: hlsrgb test failed"
+  print("color3: hlsrgb test failed")
 
 #
 #  RGB to HLS: (1., 0., 0.) -> (120., 50., 100.)
 #
 h,l,s = Ngl.rgbhls(1., 0., 0.)
 if numpy.sometrue(numpy.greater(numpy.fabs([h-120.,l-50.,s-100.]), eps)):
- print "color3: rgbhls test failed"
+ print("color3: rgbhls test failed")
 
 #
 #  HSV to RGB: (120., 1., 1.) -> (0., 1., 0.)
 #
 r,g,b = Ngl.hsvrgb(120., 1., 1.)   
 if numpy.sometrue(numpy.greater(numpy.fabs([r, g-1., b]), eps)):
-  print "color3: hsvrgb test failed"
+  print("color3: hsvrgb test failed")
 
 #
 #  RGB to HSV: (0., 1., 0.) -> (120., 1., 1.)
 #
 h,s,v = Ngl.rgbhsv(0., 1., 0.)        
 if numpy.sometrue(numpy.greater(numpy.fabs([h-120., s-1., v-1.]), eps)):
- print "color3: hsvrgb test failed"
+ print("color3: hsvrgb test failed")
 
 #
 #  Set a tolerance limit for the YIQ tests.
@@ -211,13 +211,13 @@ eps = 0.01
 #
 r,g,b = Ngl.yiqrgb(0.58701, -0.27431, -0.52299)
 if numpy.sometrue(numpy.greater(numpy.fabs([r, g-1., b]), eps)):
-  print "color3: yiqrgb test failed"
+  print("color3: yiqrgb test failed")
 
 #
 #  RGB to YIQ: (1., 1., 1.) -> (1., 0., 0.)
 #
 y,i,q = Ngl.rgbyiq(1., 1., 1.)
 if numpy.sometrue(numpy.greater(numpy.fabs([y-1., i, q]), eps)):
- print "color3: rgbyiq test failed"
+ print("color3: rgbyiq test failed")
       
 Ngl.end()

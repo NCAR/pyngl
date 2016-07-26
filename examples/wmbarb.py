@@ -38,7 +38,7 @@ import Ngl
 #
 #  Open a workstation.
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type, "wmbarb")
 
 #
@@ -56,6 +56,6 @@ Ngl.frame(wks)                # Draw plot.
 #  Retrieve the value of the wbs parameter.
 #
 size = Ngl.wmgetp("wbs")
-print "Current scale factor for wind barb size = %10.7f" % (size)
+print("Current scale factor for wind barb size = %10.7f" % (size))
 
 Ngl.end()

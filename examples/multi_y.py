@@ -72,7 +72,7 @@ t   = (t-273.15) * 9./5. + 32.
 #
 # Open a workstation.
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"multi_y")
 
 #

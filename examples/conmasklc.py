@@ -79,11 +79,7 @@ cmap =  numpy.array(\
           [1.00,.000,.000] ])
 
 
-#
-#  Open a workstation.
-#
-
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"conmasklc")
 
 #----------- Begin first plot -----------------------------------------

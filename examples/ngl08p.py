@@ -85,10 +85,10 @@ cmap = numpy.array([[1.00, 0.00, 0.00], [1.00, 0.00, 0.40], \
                     [0.60, 0.40, 0.80], [0.60, 0.80, 0.80], \
                     [0.60, 0.80, 0.40], [1.00, 0.60, 0.80]],'f')
 
-xwks   = Ngl.open_wks( "x11","ngl08p") # Open an X11 workstation.
-cgmwks = Ngl.open_wks("ncgm","ngl08p") # Open an NCGM workstation.
-pswks  = Ngl.open_wks(  "ps","ngl08p") # Open a PS workstation.
-pdfwks = Ngl.open_wks( "pdf","ngl08p") # Open a PDF workstation.
+xwks   = Ngl.open_wks( "x11","ngl08p") # Send graphics to an X11 window
+cgmwks = Ngl.open_wks("ncgm","ngl08p") # Send graphics to an NCGM file
+pswks  = Ngl.open_wks( "png","ngl08p") # Send graphics to a PNG file
+pdfwks = Ngl.open_wks( "pdf","ngl08p") # Send graphics to a PDF file
 
 #----------- Begin first plot -----------------------------------------
 

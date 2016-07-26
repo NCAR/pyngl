@@ -102,8 +102,8 @@ cmap = numpy.array([  [1.00, 0.00, 0.00], [1.00, 0.00, 0.40], \
                       [0.60, 0.40, 0.80], [0.60, 0.80, 0.80], \
                       [0.60, 0.80, 0.40], [1.00, 0.60, 0.80]],'f')
 
-wks_type = "ps"
-wks = Ngl.open_wks( wks_type,"contour_xyz")  # Open a PS workstation 
+wks_type = "png"
+wks = Ngl.open_wks( wks_type,"contour_xyz")
 
 #
 # Set up a resource list to contain the resources for our various

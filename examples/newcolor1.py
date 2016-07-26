@@ -38,7 +38,7 @@ u    = f.variables["U"][1,:,:]
 lat  = f.variables["lat"][:]
 lon  = f.variables["lon"][:]
  
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"newcolor1")
 
 cnres                 = Ngl.Resources()

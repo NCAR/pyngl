@@ -42,7 +42,7 @@ import numpy
 #
 #  Open an output workstation.
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"wmbarbmap")
 
 #

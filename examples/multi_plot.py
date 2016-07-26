@@ -81,12 +81,12 @@ sst,lon   = Ngl.add_cyclic(sst,lon)
 #
 # Start the graphics
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"multi_plot")
 Ngl.merge_colormaps(wks,"BlWhRe","default")
 
 #========================================================================== 
-print "Beginning bar chart section"
+print("Beginning bar chart section")
 arr    = [-2.22,-0.54,-1.4, -3.,-1.2,0.1]
 minval = [-2.6, -0.68, -2., -4.,-1.4]
 maxval = [-1.87,-0.4,  -1.,-1.9,-1.0]
@@ -210,7 +210,7 @@ Ngl.draw(plot)    # Draw the plot; all of the attached lines and
                   # text strings will also get drawn.
 
 #========================================================================== 
-print "Beginning robinson map projection section"
+print("Beginning robinson map projection section")
 
 Ngl.define_colormap(wks,"wh-bl-gr-ye-re")
 
@@ -281,7 +281,7 @@ mpres.lbLabelFontHeightF       = 0.012
 map2 = Ngl.contour_map(wks,topo,mpres)      # Draw the second contours/map.
 
 #========================================================================== 
-print "Beginning new XY plot section"
+print("Beginning new XY plot section")
 
 yarr = numpy.array([[0.,16.],[15.,19.], [22.5,30.5], [15.,15.], [22.5,22.5]])
 xarr = numpy.array([[0.,7.5],[0.,8.],   [0.,8.],     [0.,8.],   [0.,8.]])

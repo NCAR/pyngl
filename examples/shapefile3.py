@@ -107,7 +107,7 @@ data,lat1d,lon1d = gen_dummy_data()
 cmin,cmax,cint = Ngl.nice_cntr_levels(numpy.min(data),numpy.max(data))
 
 #---Start the graphics
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks (wks_type,"shapefile3")
 
 #---Define some graphical resources
@@ -161,8 +161,8 @@ map = Ngl.contour_map(wks,data,res)
 dir      = Ngl.pynglpath("data")
 filename = os.path.join(dir,"shp","mrb.shp")
 if(not os.path.exists(filename)):
-  print "You do not have the necessary files to run this example."
-  print "The comments at the top of this script tell you how to get the files."
+  print("You do not have the necessary files to run this example.")
+  print("The comments at the top of this script tell you how to get the files.")
   sys.exit()
 
 f = Nio.open_file(filename, "r")

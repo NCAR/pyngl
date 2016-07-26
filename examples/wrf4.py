@@ -43,7 +43,7 @@ import Nio, Ngl, os, sys
 def wrf_unstagger(x):
   rank = len(x.shape)
   if rank < 2:
-    print "wrf_unstagger: variable must be at least 2-dimensional"
+    print("wrf_unstagger: variable must be at least 2-dimensional")
     return x    
 
   xdims = x.dimensions
@@ -52,7 +52,7 @@ def wrf_unstagger(x):
   elif xdims[rank-2].endswith("_stag"):
     dim = "lat"
   else:
-    print "wrf_unstagger: error: couldn't find the staggered dimension"
+    print("wrf_unstagger: error: couldn't find the staggered dimension")
     return x    
 
   if rank == 4:
@@ -73,14 +73,15 @@ def wrf_unstagger(x):
   return xu
 
 # Read data
-filename = "wrfout_d03_2012-04-22_23_00_00.nc"
+filename = "wrfout_d03_2012-04-22_23_00_00"
 if(not os.path.exists(filename)):
-  print "You do not have the necessary file to run this example."
-  print "See the comments at the top of this script for more information."
+  print("You do not have the necessary file to run this example.")
+  print("You need to supply your own WRF output file")
+  print("WRF output files usually have names like '%s'" % filename)
   sys.exit()
 
 # Read some WRF data
-a    = Nio.open_file(filename)
+a    = Nio.open_file(filename+".nc")  # Must add ".nc" suffix for Nio.open_file
 u    = a.variables["U"]
 v    = a.variables["V"]
 latu = a.variables["XLAT_U"]
@@ -101,7 +102,7 @@ v10   = va[nt,nl,::nstep,::nstep]
 spd   = np.sqrt(u10**2+v10**2)                
 
 # Open file for graphics
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"wrf4")
 
 res                   = Ngl.Resources()
@@ -114,7 +115,7 @@ res.mpMinLonF         = np.min(lon[:])-0.1
 res.mpMaxLonF         = np.max(lon[:])+0.1
 
 res.mpFillOn                = True
-res.mpLandFillColor         = "tan"
+res.mpLandFillColor         = "beige"
 res.mpOceanFillColor        = "transparent"
 res.mpInlandWaterFillColor  = "transparent"
 res.mpGridLatSpacingF       = 1

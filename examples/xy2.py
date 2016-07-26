@@ -62,8 +62,8 @@ ydots = y[26:37:5]
 xsquare = [16.0,48.0,48.0,16.0,16.0]    # X and Y coordinates
 ysquare = [-0.5,-0.5, 0.5, 0.5,-0.5]    # for polygon.
 
-# Create a PS workstation.
-wks_type = "ps"
+# Send output to PNG file
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"xy2")
 
 #

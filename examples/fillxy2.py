@@ -45,11 +45,8 @@ y[1,:] = 2+numpy.sin(2*numpy.sqrt(numpy.fabs(theta)))   # Make sure they
 y[2,:] = 4+numpy.sin(3*numpy.sqrt(numpy.fabs(theta)))   # don't intersect.
 y[3,:] = 6+numpy.sin(10*numpy.sqrt(numpy.fabs(theta)))
 
-rlist = Ngl.Resources()
-rlist.wkOrientation = "Portrait"
-
-wks_type = "ps"
-wks = Ngl.open_wks(wks_type,"fillxy2",rlist)
+wks_type = "png"
+wks = Ngl.open_wks(wks_type,"fillxy2")
 
 #
 # Specify the colors to use between adjacent curves.

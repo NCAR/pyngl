@@ -40,8 +40,9 @@ import numpy, Nio, Ngl, os, sys
 
 filename = "wrfout_d03_2012-04-22_23_00_00"
 if(not os.path.exists(filename)):
-  print "You do not have the necessary file to run this example."
-  print "See the comments at the top of this script for more information."
+  print("You do not have the necessary file to run this example.")
+  print("You need to supply your own WRF output file")
+  print("WRF output files usually have names like '%s'" % filename)
   sys.exit()
 
 #---Read data
@@ -55,7 +56,7 @@ P  = P + PB
 TC = Ngl.wrf_tk(P, T) - 273.16      # Convert to degC
 
 #---Open file for graphics
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"wrf3")
 
 #---Set some plot options

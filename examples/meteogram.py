@@ -72,7 +72,7 @@ def smth9(x,p,q):
   ni = x.shape[0]
   nj = x.shape[1]
   if (ni < 3 or nj < 3):
-    print "smth9: both array dimensions must be at least three."
+    print("smth9: both array dimensions must be at least three.")
     sys.exit()
 
 #
@@ -137,7 +137,7 @@ colors = numpy.array([                                                \
                          [120,255,120], [ 80,255, 80], [ 50,200, 50], \
                          [ 20,150, 20]                                \
                        ],'f') / 255.
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"meteogram")
 
 #

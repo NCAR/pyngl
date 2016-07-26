@@ -76,9 +76,9 @@ cmap = numpy.array([[0.51, 0.13, 0.94],[0.00, 0.00, 0.59], \
                     'f')
 
 #
-#  Open a PostScript workstation.
+#  Open a PNG image
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"topo1")
 
 #

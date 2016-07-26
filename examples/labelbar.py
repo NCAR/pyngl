@@ -38,7 +38,7 @@ import Ngl
 
 wkres            = Ngl.Resources()
 wkres.wkColorMap = "default"
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"labelbar",wkres)
 
 labels = ["One","Two","Three","Four","Five","Six"]

@@ -32,7 +32,7 @@ import Nio, Ngl, os, sys
 # Read data
 dir  = Ngl.pynglpath("data")
 flnm = "MET9_IR108_cosmode_0909210000.grb2"
-print os.path.join(dir,"grb",flnm)
+print(os.path.join(dir,"grb",flnm))
 a    = Nio.open_file(os.path.join(dir,"grb",flnm))
 sbt  = a.variables["SBTMP_P31_GRLL0"]
 lat  = a.variables["gridlat_0"]
@@ -40,7 +40,7 @@ lon  = a.variables["gridlon_0"]
 nlat = lat.shape[0]
 nlon = lat.shape[1]
 
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"grb1")
 
 # Set some plot options

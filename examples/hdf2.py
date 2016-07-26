@@ -38,10 +38,10 @@ import Nio, Ngl
 #---Test if file exists
 filename = "MOD06_L2.A2010031.1430.005.2010031221343.hdf" 
 if(not os.path.exists(filename)):
-  print "You do not have the necessary HDF file to run this example."
-  print "You can get the file from"
-  print "    http://www.ncl.ucar.edu/Applications/Data/#hdf"
-  print "or else use your own data."
+  print("You do not have the necessary HDF file to run this example.")
+  print("You can get the file from")
+  print("    http://www.ncl.ucar.edu/Applications/Data/#hdf")
+  print("or else use your own data.")
   sys.exit()
 
 vname    = "Cloud_Top_Temperature"
@@ -53,7 +53,7 @@ cttf     = ctts.scale_factor * (ctts[:] - ctts.add_offset)
 lat      = a.variables["Latitude"][:]
 lon      = a.variables["Longitude"][:]
 
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"hdf2")
 
 # Set some plot options

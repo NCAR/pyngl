@@ -54,7 +54,7 @@ file = Nio.open_file(os.path.join(Ngl.pynglpath("data"),"cdf","pop.nc"))
 #
 #  Open a workstation.
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"streamline1")
 
 #

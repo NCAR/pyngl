@@ -65,7 +65,7 @@ lon = file.variables["lon"][:]
 #
 # Start graphics.
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"panel2")
 
 res = Ngl.Resources()
@@ -128,8 +128,8 @@ if(os.path.exists(rangs_dir)):
   nmap = 3
 else:
   nmap = 2
-  print "Sorry, you do not have the RANGS database installed."
-  print "Will not generate the third frame of this example."
+  print("Sorry, you do not have the RANGS database installed.")
+  print("Will not generate the third frame of this example.")
 
 plot = []
 for i in range(nmap):

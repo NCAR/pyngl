@@ -57,31 +57,31 @@ def draw_lines():
   yline3 = 0.045 * (numpy.sin(2.*PI*(Ngl.fspan(1,80,80)/10.))) + 0.7
 
 # Draw 3 sets of lines.
-  lnres.gsLineColor      = 21      # Color index 1 is the default
-  lnres.gsLineThicknessF = 1.5     # 1.0 is the default
+  lnres.gsLineColor      = "forestgreen"      # Black is the default
+  lnres.gsLineThicknessF = 4.0                # 1.0 is the default
   Ngl.polyline_ndc(wks,xline,yline1,lnres)
 
-  lnres.gsLineColor       = 85
-  lnres.gsLineThicknessF  = 2.0
+  lnres.gsLineColor       = "brown4"
+  lnres.gsLineThicknessF  = 3.0
   lnres.gsLineDashPattern = 2     # Default is a solid line (0)
   Ngl.polyline_ndc(wks,xline,yline2,lnres)
 
-  lnres.gsLineColor       = 42
-  lnres.gsLineThicknessF  = 3.5
+  lnres.gsLineColor       = "NavyBlue"
+  lnres.gsLineThicknessF  = 2.0
   lnres.gsLineDashPattern = 11
   Ngl.polyline_ndc(wks,xline,yline3,lnres)
 
 # Draw markers at the end of each of the 3 lines.
-  mkres.gsMarkerColor = 21
+  mkres.gsMarkerColor = "ForestGreen"
   mkres.gsMarkerIndex = 6
   mkres.gsMarkerSizeF = 0.02
   Ngl.polymarker_ndc(wks,[xline[0],xline[-1]],[yline1[0],yline1[-1]],mkres)
 
-  mkres.gsMarkerColor = 85
+  mkres.gsMarkerColor = "brown4"
   mkres.gsMarkerIndex = 11
   Ngl.polymarker_ndc(wks,[xline[0],xline[-1]],[yline2[0],yline2[-1]],mkres)
 
-  mkres.gsMarkerColor = 42
+  mkres.gsMarkerColor = "NavyBlue"
   mkres.gsMarkerIndex = 16
   mkres.gsMarkerSizeF = 0.01
   Ngl.polymarker_ndc(wks,[xline[0],xline[-1]],[yline3[0],yline3[-1]],mkres)
@@ -90,7 +90,7 @@ def draw_lines():
 # Draw a vertical line with some missing values. Include markers
 # so you can see where the missing values were.
 #
-  lnres.gsLineColor       = 80
+  lnres.gsLineColor       = "blue4"
   lnres.gsLineThicknessF  = 1.5
   lnres.gsLineDashPattern = 0
   vxline = ma.array(yline2[25::3] - .65)
@@ -98,7 +98,7 @@ def draw_lines():
 #
 # Draw the markers for each point.
 #
-  mkres.gsMarkerColor      = 15
+  mkres.gsMarkerColor      = "mediumorchid4"
   mkres.gsMarkerIndex      = 12     # Stars
   mkres.gsMarkerThicknessF = 2.0    # Default is 1.0
   Ngl.polymarker_ndc(wks,vxline,vyline,mkres)
@@ -123,7 +123,7 @@ def draw_lines():
 # Put a box around the missing value curve.
 #
   bres                  = Ngl.Resources()
-  bres.gsLineColor      = 79
+  bres.gsLineColor      = "lightsalmon4"
   bres.gsLineThicknessF = 3.0
   Ngl.polyline_ndc(wks,[.09,.28,.28,.09,.09],[.04,.04,.57,.57,.04],bres)
 	
@@ -134,13 +134,13 @@ def draw_gons(xshift=0.0,yshift=0.0):
   gnres = Ngl.Resources()    # Polygon resources
 
 # The filled diamond
-  gnres.gsFillColor = 98
+  gnres.gsFillColor = "lightpink1"
   xdia = numpy.array([0.00,0.10,0.20,0.10,0.00]) + xshift
   ydia = numpy.array([0.10,0.00,0.10,0.20,0.10]) + yshift
   Ngl.polygon_ndc(wks,xdia,ydia,gnres)
 
 # The filled four squares
-  gnres.gsFillColor = 8
+  gnres.gsFillColor = "lightslateblue"
   xbox = numpy.array([0.00,0.05,0.05,0.00,0.00]) + xshift
   ybox = numpy.array([0.00,0.00,0.05,0.05,0.00]) + yshift
 
@@ -154,7 +154,7 @@ def draw_gons(xshift=0.0,yshift=0.0):
   Ngl.polyline_ndc(wks,xbox+0.15,ybox+0.15)
 
 # The shaded slanted boxes attaching the squares
-  gnres.gsFillColor = 73
+  gnres.gsFillColor = "cyan"
   xbt1 = numpy.array([0.05,0.10,0.10,0.05,0.05]) + xshift
   ybt1 = numpy.array([0.00,0.05,0.10,0.05,0.00]) + yshift
   xbt2 = ybt1
@@ -163,7 +163,7 @@ def draw_gons(xshift=0.0,yshift=0.0):
   ybt3 = ybt1 + .10
   xbt4 = ybt3
   ybt4 = xbt3
-  gnres.gsFillColor = 1
+  gnres.gsFillColor = "black"
   gnres.gsFillIndex = 17
   Ngl.polygon_ndc(wks,xbt1,ybt1,gnres)
   Ngl.polygon_ndc(wks,xbt2,ybt2,gnres)
@@ -200,7 +200,7 @@ def draw_text():
   mkres = Ngl.Resources()    # Marker resources
 
   txres.txFontHeightF = 0.03
-  txres.txFontColor   = 1
+  txres.txFontColor   = "black"
   txres.txPerimOn     = True
   txres.txBackgroundFillColor = "yellow"
 
@@ -232,13 +232,10 @@ def draw_text():
 PI = 3.14159
 
 #
-# Create a PS workstation, and use named colors to generate
-# a colormap.
+# Send graphics PNG file.
 #
-wks_type = "ps"
-rlist = Ngl.Resources()
-rlist.wkColorMap = "WhViBlGrYeOrReWh"
-wks = Ngl.open_wks(wks_type,"ndc_grid",rlist)
+wks_type = "png"
+wks = Ngl.open_wks(wks_type,"ndc_grid")
 
 # Comment this out to get rid of the gray NDC grid.
 Ngl.draw_ndc_grid(wks)

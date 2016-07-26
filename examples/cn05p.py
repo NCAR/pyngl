@@ -87,7 +87,7 @@ cmap =  numpy.array(\
 #
 # Open a PS file and change the color map.
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"cn05p")
 
 #
@@ -145,7 +145,7 @@ srlist2 = Ngl.Resources()
 # Generate at least the first frame. Set "Animate" to True
 # if you want to generate the other 30 frames.
 #
-print "plotting day 1"
+print("plotting day 1")
 res.lbTitleString = "Day 1"
 map = Ngl.contour_map(wks,T[0,:,:],res)
 
@@ -157,7 +157,7 @@ if Animate:
 # a contour/map plot at each time step.
 #
   for nt in range(1,T.shape[0]):
-    print "plotting day ",nt+1
+    print("plotting day ",nt+1)
 #
 # There's no need to recreate the contour/map plot since
 # the only thing changing is the data and the title, so
@@ -176,7 +176,7 @@ if Animate:
     Ngl.draw(map.base)
     Ngl.frame(wks)
 else:
-  print "Only one frame was generated."
-  print "Set 'Animate' to True if you want to generate all 31 frames."
+  print("Only one frame was generated.")
+  print("Set 'Animate' to True if you want to generate all 31 frames.")
 
 Ngl.end()

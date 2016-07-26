@@ -39,8 +39,8 @@ data[0,:] = u['time|i0 lat|: lon|82']
 data[1,:] = u['time|i0 lat|: lon|-69']
 
 #---Start the graphics section
-wks_type = "ps"
-wks = Ngl.open_wks (wks_type,"fillxy1")     # Open "fillxy1.ps" PS file.
+wks_type = "png"
+wks = Ngl.open_wks (wks_type,"fillxy1")     # Open "fillxy1.png" PNG file.
 
 #---Set some resources.
 res                      = Ngl.Resources()

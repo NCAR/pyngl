@@ -92,9 +92,9 @@ foo.units = "arbitrary"
 #
 #  Print out the first row of "foo" and the dimensions of "foo".
 #
-print "On write, foo first row and foo dimensions:"
-print "  " + str(foo[0])
-print "  " + str(foo.dimensions)
+print("On write, foo first row and foo dimensions:")
+print("  " + str(foo[0]))
+print("  " + str(foo.dimensions))
 
 #
 #  Create a second integer variable.
@@ -103,16 +103,16 @@ bar = file.create_variable("bar","i", ("t", "n"))
 for i in range(10):
   bar[i] = i            #  Each row of "n" integers equals the row number.
 
-print "On write, bar.shape:"
-print "  " + str(bar.shape)
+print("On write, bar.shape:")
+print("  " + str(bar.shape))
 
 #
 #  Print out the file dimesions and variables and write the file.
 #
-print "On write, file dimensions:"
-print "  " + str(file.dimensions)
-print "On write, file variables:"
-print "  " + str(file.variables)
+print("On write, file dimensions:")
+print("  " + str(file.dimensions))
+print("On write, file variables:")
+print("  " + str(file.variables))
 
 file.close()
 
@@ -121,28 +121,28 @@ file.close()
 #
 file = Nio.open_file("nio01.nc", "r")
 
-print "\nOn read, a summary of the file contents:"
-print file
-print "\nOn read, file dimensions:"
-print "  " + str(file.dimensions)
-print "On read, file variables:"
-print "  " + str(file.variables)
+print("\nOn read, a summary of the file contents:")
+print(file)
+print("\nOn read, file dimensions:")
+print("  " + str(file.dimensions))
+print("On read, file variables:")
+print("  " + str(file.variables))
 
 #
 #  Read the first row of "foo".
 #
 foo = file.variables["foo"]
-print "\nOn read, a summary of variable 'foo':'"
-print foo
+print("\nOn read, a summary of variable 'foo':'")
+print(foo)
 foo_array = foo[:]
 foo_units = foo.units
 
 #
 #  Print out some of the same things we did on the write.
 #
-print "On read, foo first row:"
-print "  " + str(foo[0])
-print "On read, foo units:"
-print "  " + str(foo.units)
+print("On read, foo first row:")
+print("  " + str(foo[0]))
+print("On read, foo units:")
+print("  " + str(foo.units))
 
 file.close()

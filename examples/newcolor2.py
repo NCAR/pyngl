@@ -33,8 +33,8 @@ u    = f.variables["U"][0,:,8]
 lat  = f.variables["lat"][:]
 
 #---Start the graphics section
-wks_type = "ps"
-wks = Ngl.open_wks (wks_type,"newcolor2")     # Open "newcolor2.ps" PS file.
+wks_type = "png"
+wks = Ngl.open_wks (wks_type,"newcolor2")     # Open "newcolor2.png" for graphics
 
 #---Set some resources.
 res          = Ngl.Resources()

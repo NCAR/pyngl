@@ -43,7 +43,7 @@
 import Ngl
 import os
 
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"coast1")
 
 #
@@ -83,7 +83,7 @@ for i in range(len(resolutions)):
     if(os.path.exists(rangs_dir)):
       map = Ngl.map(wks,mpres)
     else:
-      print "Sorry, you do not have the RANGS database installed."
-      print "Not generating the third frame of this example."
+      print("Sorry, you do not have the RANGS database installed.")
+      print("Not generating the third frame of this example.")
 
 Ngl.end()

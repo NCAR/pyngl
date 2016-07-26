@@ -39,8 +39,8 @@ import numpy as np
 # Test if file exists
 filename = "3B-MO.MS.MRG.3IMERG.20140701-S000000-E235959.07.V03D.HDF5"
 if(not os.path.exists(filename)):
-  print "You do not have the necessary HDF5 file to run this example."
-  print "You need to supply your own HDF5 data"
+  print("You do not have the necessary HDF5 file to run this example.")
+  print("You need to supply your own HDF5 data")
   sys.exit()
 
 # Be sure to read this file using the advanced file structure.
@@ -50,7 +50,7 @@ f = Nio.open_file(filename, "r", options=opt)
 
 # Open group "Grid" which will now look like a regular NioFile
 g = f.groups['Grid']
-#print g
+#print(g)
 
 # Read data from this group
 precip = g.variables['precipitation']
@@ -59,10 +59,10 @@ lon    = g.variables['lon'][:]
 yyyymmdd = filename.split(".")[4].split('-')[0]
 
 # Print the metadata of precip, and min/max values
-print precip
-print "min/max = %g / %g" % (precip[:].min(), precip[:].max())
+print(precip)
+print("min/max = %g / %g" % (precip[:].min(), precip[:].max()))
 
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"hdf3")
 
 res                      = Ngl.Resources()

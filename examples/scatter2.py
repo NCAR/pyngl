@@ -52,7 +52,7 @@ for i in range(100):
   y[1,i] = 90.*random.random()+105.
   y[2,i] = 90.*random.random()+105.
 
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"scatter2")
 
 #

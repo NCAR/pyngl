@@ -44,7 +44,7 @@ for i in range(npts1):
   y1[i] = 4.0 - 8.*random.random()
 
 #---Start the graphics section.
-wks_type = "ps"
+wks_type = "png"
 wks      = Ngl.open_wks(wks_type,"tickmark1")
 
 #---Set some plot resources.

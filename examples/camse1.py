@@ -41,8 +41,8 @@ import numpy, Nio, Ngl, sys, os
 #---Read data
 filename = "b.e12.B1850C5CN.ne30_g16.init.ch.027.cam.h0.0001-01.nc"
 if(not os.path.exists(filename)):
-  print "You do not have the necessary file to run this example."
-  print "See the comments at the top of this script for more information."
+  print("You do not have the necessary file to run this example.")
+  print("See the comments at the top of this script for more information.")
   sys.exit()
 
 a     = Nio.open_file(filename)
@@ -52,9 +52,9 @@ lat   = a.variables["lat"][:]        # 1D array (48602 cells)
 lon   = a.variables["lon"][:]        # ditto
 
 ncells = data.shape[1]
-print "There are %d cells in the %s variable" % (ncells,vname)
+print("There are %d cells in the %s variable" % (ncells,vname))
 
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"camse1")
 
 #---Set some plot options

@@ -40,7 +40,7 @@ lat  = f.variables["lat"][:]
 lon  = f.variables["lon"][:]
 spd  = numpy.sqrt(u**2 + v**2)
  
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"newcolor3")
 
 cnres                             = Ngl.Resources()

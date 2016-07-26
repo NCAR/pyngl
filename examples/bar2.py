@@ -62,7 +62,7 @@ colors = ["white","black","FireBrick","Red","Orange","Green",
 labels = ["Lung","Colon","Breast","Prostate","Pancreas",\
           "Lymphoma","Leukemias","Ovary"]
 
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"bar2")
 
 res = Ngl.Resources()

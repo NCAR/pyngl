@@ -143,7 +143,7 @@ spd =  numpy.sqrt(u**2 + v**2)
 
 # Create plot
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"streamline3")
   
 res              = Ngl.Resources()          # plot mods desired

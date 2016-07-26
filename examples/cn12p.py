@@ -85,7 +85,7 @@ cmap = numpy.array([[1.00,1.00,1.00],[0.00,0.00,0.00],[0.70,0.70,0.70], \
 #
 wres            = Ngl.Resources()
 wres.wkColorMap = cmap
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"cn12p",wres)
 
 # Generate some dummy data

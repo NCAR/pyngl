@@ -78,9 +78,9 @@ lat  = cdf_file.variables["lat"]  # latitude
 lon  = cdf_file.variables["lon"]  # longitude
 
 #
-#  Open a workstation and specify a different color map.
+#  Open a PNG file
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"ngl02p")
 
 resources = Ngl.Resources()
@@ -165,16 +165,16 @@ presa = 0.01*pres[0,:,:]
 resources.cnFillPalette = cmap           # Set colors for contours
 plot = Ngl.contour(wks,presa,resources)  # Draw a contour plot.
 
-print "\nSubset [2:6,7:10] of temp array:" # Print subset of "temp" variable.
-print tempa[2:6,7:10]
-print "\nDimensions of temp array:"        # Print dimension names of T.
-print temp.dimensions
-print "\nThe long_name attribute of T:"    # Print the long_name attribute of T.
-print temp.long_name 
-print "\nThe nlat data:"                   # Print the lat data.
-print lat[:]           
-print "\nThe nlon data:"                   # Print the lon data.
-print lon[:]          
+print("\nSubset [2:6,7:10] of temp array:") # Print subset of "temp" variable.
+print(tempa[2:6,7:10])
+print("\nDimensions of temp array:")        # Print dimension names of T.
+print(temp.dimensions)
+print("\nThe long_name attribute of T:")    # Print the long_name attribute of T.
+print(temp.long_name )
+print("\nThe nlat data:")                   # Print the lat data.
+print(lat[:])
+print("\nThe nlon data:")                   # Print the lon data.
+print(lon[:])
 
 #
 #  Write a subsection of tempa to an ASCII file.
@@ -183,7 +183,7 @@ os.system("/bin/rm -f data.asc")
 sys.stdout = open("data.asc","w")
 for i in range(7,2,-2):
   for j in range(0,5):
-    print "%9.5f" % (tempa[i,j])
+    print("%9.5f" % (tempa[i,j]))
 
 # Clean up (not really necessary, but a good practice).
 

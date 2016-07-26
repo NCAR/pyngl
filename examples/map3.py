@@ -142,7 +142,7 @@ def add_map_gridlines(wks,map,lat_spc,lon_spc):
 lon_spacing = 40
 lat_spacing = 20
 
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"map3")
 
 #---Create and draw map; note how lat/lon spacing doesn't line up with tickmarks

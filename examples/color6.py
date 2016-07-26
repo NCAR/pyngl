@@ -141,8 +141,8 @@ def draw_colormap(wks,cmap):
 
 draw_all_colormaps = False
 
-#---Open PS file for graphics
-wks_type = "ps"
+#---Open PNG file for graphics
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"color6")
 
 cmaps = get_colormap_names()

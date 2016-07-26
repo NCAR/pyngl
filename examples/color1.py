@@ -41,7 +41,7 @@
 import Ngl
 import os, sys
 
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"color1") 
 
 rlist = Ngl.Resources()
@@ -69,7 +69,7 @@ for i in xrange(len(color_files)):
 #  preserve proper indentation).
 #
 # base_name = os.path.splitext(color_files[i])
-# print base_name[0]
+# print(base_name[0])
 # rlist.wkColorMap = base_name[0]
 
 #

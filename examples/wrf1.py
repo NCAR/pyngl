@@ -36,19 +36,19 @@ import numpy, Nio, Ngl, os, sys
 
 filename = "wrfout_d01_2005-12-14_13:00:00"
 if(not os.path.exists(filename)):
-  print "You do not have the necessary file to run this example."
-  print "See the comments at the top of this script for more information."
+  print("You do not have the necessary file to run this example.")
+  print("You need to supply your own WRF output file")
+  print("WRF output files usually have names like '%s'" % filename)
   sys.exit()
-filename = filename + ".nc"        # must add the suffix for Nio.open_file
 
 #---Read data
-a   = Nio.open_file(filename)
+a   = Nio.open_file(filename+".nc")  # Must add ".nc" suffix for Nio.open_file
 hgt = a.variables["HGT"][0,:,:]     # Read first time step ( nlat x nlon)
 lat = a.variables["XLAT"][0,:,:]    # 2D array (nlat x nlon)
 lon = a.variables["XLONG"][0,:,:]   # ditto
 
 #---Open file for graphics
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"wrf1")
 
 #---Set some plot options

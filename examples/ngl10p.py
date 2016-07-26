@@ -82,7 +82,7 @@ time[1,0:time2.shape[0]] = time2.astype('f')
 #
 #  Open a workstation.
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"ngl10p")
 
 resources = Ngl.Resources()

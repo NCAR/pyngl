@@ -50,9 +50,9 @@ import numpy, os, sys, Nio, Ngl
 #---Test if file exists
 flnm  = "MOD05_L2.A2002161.1830.004.2003221153410.hdf"
 if(not os.path.exists(flnm)):
-  print "You do not have the necessary HDF file to run this example."
-  print "You can get the file from"
-  print "    http://www.ncl.ucar.edu/Applications/Data/#hdf"
+  print("You do not have the necessary HDF file to run this example.")
+  print("You can get the file from")
+  print("    http://www.ncl.ucar.edu/Applications/Data/#hdf")
   sys.exit()
 
 #---Open netCDF file
@@ -86,8 +86,8 @@ cmfov  = numpy.reshape(tmp, [nlat,nlon])
 del tmp
 del cm
 
-#---Open a PostScript workstation.
-wks_type = "ps"
+#---Open a PNG file
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"hdf1")
 
 #---Create variable to hold list of plot resources.

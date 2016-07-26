@@ -59,7 +59,7 @@ import Ngl
 x = [10., 20.00, 30., 40.0, 50.000, 60.00, 70., 80.00, 90.000]
 y = [ 0.,  0.71,  1.,  0.7,  0.002, -0.71, -1., -0.71, -0.003]
 
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"ngl01p")  # Open a workstation.
 
 plot = Ngl.xy(wks,x,y)   # Draw an XY plot.

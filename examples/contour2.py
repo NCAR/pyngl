@@ -51,7 +51,7 @@ T = 100.0 - numpy.sqrt(64 * T)
 #
 rlist    = Ngl.Resources()
 rlist.wkColorMap = "default"
-wks_type = "ps"
+wks_type = "png"
 
 wks = Ngl.open_wks(wks_type,"contour2",rlist)
 

@@ -89,9 +89,9 @@ ta = (ta-273.15)*9.0/5.0+32.0
 pa = 0.01*pa
 
 #
-# Open a PostScript workstation.
+# Open a PNG file for graphics
 #
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"overlay1")
 
 #

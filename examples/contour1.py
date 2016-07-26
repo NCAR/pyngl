@@ -49,14 +49,8 @@ for i in range(0,len(ispn)):
 
 T = 100.0 - numpy.sqrt(64 * T)
 
-#
-# Force the orientation to be portrait for both frames.
-#
-rlist    = Ngl.Resources()
-wks_type = "ps"
-if(wks_type == "ps" or wks_type == "pdf"):
-  rlist.wkOrientation = "Portrait"      # For PS or PDF output only.
-wks = Ngl.open_wks(wks_type,"contour1",rlist)
+wks_type = "png"
+wks = Ngl.open_wks(wks_type,"contour1")
 
 cnres = Ngl.Resources()
 cnres.sfYCStartV    = 10         # Define limits for Y axis.

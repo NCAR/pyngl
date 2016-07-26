@@ -62,7 +62,7 @@ rlist = Ngl.Resources()
 rlist.wkColorMap = "default"
 rlist.wkForegroundColor = "White"
 rlist.wkBackgroundColor = "Black"
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks(wks_type,"color4",rlist) 
 
 #

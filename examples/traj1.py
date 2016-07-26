@@ -86,7 +86,7 @@ cmap = numpy.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
                     [0.80, 0.80, 1.00], [0.00, 0.00, 0.00]],\
                     'f')
 
-wks_type = "ps"
+wks_type = "png"
 wks = Ngl.open_wks (wks_type,"traj1")
 
 #
