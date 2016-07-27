@@ -207,6 +207,8 @@ def set_ncl_libs_and_paths():
       LIBS.append('f77compat')
       LIBS.append('fsu')
       LIBS.append('sunmath')
+  elif sys.platform == "darwin":
+      LIBS.append('quadmath')
 
 # Add extra libraries for cairo support. You must link
 # against a cairo-enabled version of the NCAR Graphics libraries.
