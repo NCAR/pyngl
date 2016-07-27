@@ -1,3 +1,31 @@
+#
+#  File:
+#    taylor_diagram1.py
+#
+#  Synopsis:
+#    Illustrates how to create a taylor diagram.
+#
+#  Categories:
+#    taylor diagrams
+#
+#  Author:
+#    Fred Castruccio
+#  
+#  Date of initial publication:
+#    March 2015
+#
+#  Description:
+#    This example shows how to use the taylor_diagram function added
+#    in PyNGL 1.5.0 to create a taylor diagram plot.
+#
+#  Effects illustrated:
+# 
+#  Output:
+#     A single visualization is produced.
+#
+#  Notes:
+#     
+
 import numpy as np
 import Ngl
 
