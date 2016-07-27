@@ -61,13 +61,13 @@ def add_shapefile_outlines(wks,plot,filename):
 wrf_filename = "wrfout_d01_2005-12-14_13:00:00"
 shp_filename = "USA_adm/USA_adm1.shp"
 if(not os.path.exists(wrf_filename)):
-  print("You do not have the necessary file to run this example.")
+  print("You do not have the necessary '%s' file to run this example." % wrf_filename)
   print("You need to supply your own WRF output file")
   print("WRF output files usually have names like '%s'" % filename)
   sys.exit()
 
 if(not os.path.exists(shp_filename)):
-  print("You do not have the " + shp_filename + " shapefile.")
+  print("You do not have the '%s' shapefile." % shp_filename)
   print("See the comments at the top of this script for more information.")
   print("No shapefile outlines will be added.")
   ADD_SHAPE_OUTLINES = False

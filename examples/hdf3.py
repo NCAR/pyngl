@@ -39,7 +39,7 @@ import numpy as np
 # Test if file exists
 filename = "3B-MO.MS.MRG.3IMERG.20140701-S000000-E235959.07.V03D.HDF5"
 if(not os.path.exists(filename)):
-  print("You do not have the necessary HDF5 file to run this example.")
+  print("You do not have the necessary %s HDF5 file to run this example." % filename)
   print("You need to supply your own HDF5 data")
   sys.exit()
 

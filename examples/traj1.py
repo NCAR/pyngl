@@ -28,7 +28,7 @@
 #    o  Polygons.
 #    o  Polymarkers.
 #    o  Maps using a Cylindrical Equidistant projection.
-#    o  Using indexed color.
+#    o  Using named colors.
 # 
 #  Output:
 #    A single visualization showing the paths of buoys set afloat
@@ -55,10 +55,9 @@ import Nio
 #
 import Ngl
 
-#
+#----------------------------------------------------------------------
 #  nint returns the nearest integer to a given floating value.
-#
-#
+#----------------------------------------------------------------------
 def nint(r):
   if (abs(int(r)-r) < 0.5):
     return int(r)
@@ -68,156 +67,150 @@ def nint(r):
     else:
       return int(r)-1
 
-#
-#  Open the netCDF file containing the salinity data for the trajectories.
-#
-dirc = Ngl.pynglpath("data")
-ncdf = Nio.open_file(os.path.join(dirc,"cdf","traj_data.nc"),"r")
+#----------------------------------------------------------------------
+# Create map of southern tip of South America
+#----------------------------------------------------------------------
+def create_map(wks):
+#---Map resources
+  res            = Ngl.Resources()   # map resources
+  res.nglDraw    = False         # don't draw map
+  res.nglFrame   = False         # don't advance frame
 
-#
-#  Define a color map and open a workstation.
-#
-cmap = numpy.array([[1.00, 1.00, 1.00], [0.00, 0.00, 0.00], \
-                    [0.88, 0.57, 0.20], [0.90, 0.90, 0.95], \
-                    [1.00, 0.00, 0.00], [0.00, 1.00, 0.00], \
-                    [0.00, 0.00, 1.00], [0.00, 1.00, 1.00], \
-                    [1.00, 0.00, 1.00], [1.00, 1.00, 0.00], \
-                    [0.80, 0.50, 0.50], [0.20, 0.80, 0.20], \
-                    [0.80, 0.80, 1.00], [0.00, 0.00, 0.00]],\
-                    'f')
+  res.mpDataBaseVersion = "MediumRes"   # better map outlines
 
-wks_type = "png"
-wks = Ngl.open_wks (wks_type,"traj1")
+  res.mpLimitMode = "LatLon"
+  res.mpMaxLatF   = -20           # select subregion
+  res.mpMinLatF   = -62
+  res.mpMinLonF   = -78
+  res.mpMaxLonF   = -25
 
-#
-#  Create the plot.
-#
+  res.mpOutlineOn     = True
+  res.mpGridAndLimbOn = False
 
-#
-#  Map resources.
-#
-res            = Ngl.Resources()   # map resources
-res.nglFrame   = False         # don't advance frame
-res.vpWidthF   = 0.80          # make map bigger
-res.vpHeightF  = 0.80
-res.mpLimitMode = "LatLon"
-res.mpMaxLatF  = -20           # select subregion
-res.mpMinLatF  = -60
-res.mpMinLonF  = -75
-res.mpMaxLonF  = -25
-res.mpFillOn   = True
-res.mpLabelsOn = True
-res.mpOutlineOn = True
-res.mpLandFillColor = [0.88, 0.57, 0.20]
-res.mpOceanFillColor = [0.90, 0.90, 0.95]
-res.mpGridAndLimbOn = False
-res.vpXF       = 0.05
-res.vpYF       = 0.95
-res.vpWidthF   = 0.8
-res.vpHeightF  = 0.8
-res.tmXBTickStartF = -75
-res.tmXBTickEndF = -25
-res.tmYROn  = True
-res.tmXTOn  = True
-res.tmXBLabelFontHeightF = 0.02
-res.tmYLLabelFontHeightF = 0.02
-res.mpProjection = "CylindricalEquidistant"
-map = Ngl.map(wks,res)    # Draw map.
+  res.mpFillOn               = True
+  res.mpLandFillColor        = "beige"
+  res.mpOceanFillColor       = "paleturquoise1"
+  res.mpInlandWaterFillColor = "paleturquoise1"
 
-#
-#  Main title.
-#
-txres = Ngl.Resources()
-txres.txFontHeightF = 0.025
-txres.txFontColor   =  "black"
-txres.txFont        = 22
-Ngl.text_ndc(wks,"Trajectories colored by salinity (ppt)",0.52,0.90,txres)
-del txres
+  res.tmYROn  = True    # Turn on right tickmarks
+  res.tmXTOn  = True    # Turn on top tickmarks
 
-#
-#  Manually draw a labelbar using colors 4-12.
-#
-gsres = Ngl.Resources()  # Line resources.
+  res.tiMainString = "Trajectories colored by salinity (ppt)"
+  res.tiMainFontHeightF = 0.02
 
-# Draw black boundaries around the label bar boxes.
-gsres.gsLineColor = "black"    
+  map = Ngl.map(wks,res)    # Draw map.
 
-delx = 0.06
-dely = 0.03
-startx = 0.30
-starty = 0.25
-txres = Ngl.Resources()          # For labelling the label bar.
-txres.txFontHeightF = 0.018 
-txres.txFont   = 22
-for i in xrange(4,14,1):
-  x0 = startx+(i-4)*delx
-  x1 = x0+delx
-  x2 = x1
-  x3 = x0
-  x4 = x0
-  x = [x0,x1,x2,x3,x4]
-  y0 = starty
-  y1 = y0
-  y2 = y1+dely
-  y3 = y2
-  y4 = y0
-  y = [y0,y1,y2,y3,y4]
-  gsres.gsFillColor = cmap[i,:]    # Change fill color.
-  Ngl.polygon_ndc(wks,x,y,gsres) 
-  Ngl.polyline_ndc(wks,x,y,gsres)
-  if (i == 4):
-    Ngl.text_ndc(wks,"34.55",x0,y0-dely,txres)
-  elif(i == 6):
-    Ngl.text_ndc(wks,"34.61",x0,y0-dely,txres)
-  elif(i == 8):
-    Ngl.text_ndc(wks,"34.67",x0,y0-dely,txres)
-  elif(i == 10):
-    Ngl.text_ndc(wks,"34.73",x0,y0-dely,txres)
-  elif(i == 12):
-    Ngl.text_ndc(wks,"34.79",x0,y0-dely,txres)
-  Ngl.text_ndc(wks,"34.85",startx+10*delx,y0-dely,txres)
+  return map
 
-#
-#  Draw the trajectories.
-#
-traj = [1,10,53,67,80]   # choose which trajectories to plot
+#----------------------------------------------------------------------
+#  Add the trajectory lines.
+#----------------------------------------------------------------------
+def add_trajectories(wks,map,filename,cmap):
+#---Open the netCDF file containing the salinity data for the trajectories.
+  ncfile = Nio.open_file(filename)
+
+  traj = [1,10,53,67,80]   # choose which trajectories to plot
    
-pres                  = Ngl.Resources()        # polyline resources
-pres.gsLineThicknessF = 3.0                # line thickness
-mres  = Ngl.Resources()                        # marker resources
-mres.gsMarkerSizeF  = 17.0        # marker size
-mres.gsMarkerColor  = "black"     # marker color
+  pres                  = Ngl.Resources()    # polyline resources
+  pres.gsLineThicknessF = 5.0                # line thickness
 
+  mres  = Ngl.Resources()                    # marker resources
+  mres.gsMarkerSizeF       = 17.0            # marker size
+  mres.gsMarkerColor       = "black"         # marker color
+  mres.gsMarkerIndex       = 15              # circle with an X
+  mres.gsMarkerThicknessF  = 2.0             # thicker marker outlines
 
 #
 #  Loop through the chosen trajectories.
 #
-sdata = ncdf.variables["sdata"]
-for i in xrange(len(traj)):
-  ypt = sdata[2,:,traj[i]]                  # extract lat from whole array
-  xpt = sdata[1,:,traj[i]]                  # extract lon from whole array
-  sst = sdata[8,:,traj[i]]
+  sdata = ncfile.variables["sdata"]
+  sid = []
+  for i in xrange(len(traj)):
+    lat = sdata[2,:,traj[i]]                  # extract lat from whole array
+    lon = sdata[1,:,traj[i]]                  # extract lon from whole array
+    sst = sdata[8,:,traj[i]]
 
 #
 #  Map the salinity values between 34.55 and 34.85 into color
-#  indices between 4 and 13 and draw polylines, with those 
+#  indices between 0 and 9 and draw polylines, with those 
 #  colors, between adjacent lat/lon values.
 #
-  for j in xrange(len(ypt)-2):
-    sval = 0.5*(sst[j]+sst[j+1])
-    cindex = nint(4.+30.*(sval-34.55))
-    if (cindex < 4):
-      cindex = 4
-    elif (cindex > 13):
-      cindex = 13
-    pres.gsLineColor = cmap[cindex,:]
-    Ngl.polyline(wks,map,[xpt[j],xpt[j+1]],[ypt[j],ypt[j+1]],pres)
+    for j in xrange(len(lat)-2):
+      sval = 0.5*(sst[j]+sst[j+1])
+      cindex = nint(30.*(sval-34.55))
+      pres.gsLineColor = cmap[cindex]
+      sid.append(Ngl.add_polyline(wks,map,[lon[j],lon[j+1]],[lat[j],lat[j+1]],pres))
 
-#
-#  Draw a polymarker at the beginning of each trajectory.
-#
-    Ngl.polymarker(wks,map,[xpt[0]],[ypt[0]],mres) 
+#---Draw a polymarker at the beginning of each trajectory.
+      sid.append(Ngl.add_polymarker(wks,map,[lon[0]],[lat[0]],mres))
 
+  return
+
+#----------------------------------------------------------------------
+# Manually create a labelbar using polygons, lines, and text to 
+# draw various primitives.  The lat/lon space of the map is used
+# to indicate where to draw the labelbar. By using the various
+# Ngl.add_xxxx functions, this actually attaches the primitives to
+# the map, so if you were to resize the map later (say in a panel
+# plot), the primitives would be resized automatically.
+#
+# This is the harder way to draw a labelbar, but it shows how to 
+# do more custom labelbars, if desired.
+#----------------------------------------------------------------------
+def add_labelbar(wks,map,cmap):
+  gsres = Ngl.Resources()  # Line resources.
+
+  delta_lon = 4.0
+  delta_lat = 2.1
+  start_lon = -68.
+  start_lat = -58.
+  txres = Ngl.Resources()          # For labeling the label bar.
+  txres.txFontHeightF = 0.015
+  gid = []
+  lid = []
+  tid = []
+  for i in xrange(4,14,1):
+    lon0 = start_lon+(i-4)*delta_lon
+    lon1 = lon0+delta_lon
+    lat0 = start_lat
+    lat1 = start_lat+delta_lat
+    lons = [lon0,lon1,lon1,lon0,lon0]
+    lats = [lat0,lat0,lat1,lat1,lat0]
+    gsres.gsFillColor = cmap[i-4]    # Change fill color.
+    gid.append(Ngl.add_polygon(wks,map,lons,lats,gsres))
+    lid.append(Ngl.add_polyline(wks,map,lons,lats,gsres))
+    if (i == 4):
+      tid.append(Ngl.add_text(wks,map,"34.55",lon0,lat0-delta_lat,txres))
+    elif(i == 6):
+      tid.append(Ngl.add_text(wks,map,"34.61",lon0,lat0-delta_lat,txres))
+    elif(i == 8):
+      tid.append(Ngl.add_text(wks,map,"34.67",lon0,lat0-delta_lat,txres))
+    elif(i == 10):
+      tid.append(Ngl.add_text(wks,map,"34.73",lon0,lat0-delta_lat,txres))
+    elif(i == 12):
+      tid.append(Ngl.add_text(wks,map,"34.79",lon0,lat0-delta_lat,txres))
+    else:
+      tid.append(Ngl.add_text(wks,map,"34.85",start_lon+10*delta_lon,lat0-delta_lat,txres))
+  
+  return
+
+#----------------------------------------------------------------------
+#  Main code
+#----------------------------------------------------------------------
+
+#---Get the path to the NetCDF file.
+dirc     = Ngl.pynglpath("data")
+filename = os.path.join(dirc,"cdf","traj_data.nc")
+
+#---Define a list of named colors to use for trajectory lines and labelbar
+cmap = ["brown4","yellow1","navyblue","forestgreen","hotpink","purple",\
+        "slateblue","thistle","deeppink4","darkgoldenrod"]
+         
+wks = Ngl.open_wks ("png","traj1")
+map = create_map(wks)
+add_labelbar(wks,map,cmap)
+add_trajectories(wks,map,filename,cmap)
+
+Ngl.draw(map)
 Ngl.frame(wks)
-
 Ngl.end()

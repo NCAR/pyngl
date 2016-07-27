@@ -35,8 +35,10 @@
 #
 import Ngl
 
+rlist = Ngl.Resources()
+rlist.wkColorMap = "default"
 wks_type = "png"
-wks = Ngl.open_wks(wks_type,"legend")
+wks = Ngl.open_wks(wks_type,"legend",rlist)
 
 labels = ["One","Two","Three","Four","Five","Six"]
 
@@ -63,6 +65,7 @@ del rlist.lgLabelFont
 rlist.vpWidthF          = 0.85
 rlist.vpHeightF         = 0.20
 rlist.lgOrientation     = "Horizontal"
+rlist.lgLineThicknessF  = 4.0
 lg = Ngl.legend_ndc(wks,6,labels,0.1,0.2,rlist)
 Ngl.frame(wks)
 
@@ -81,6 +84,7 @@ lotta_labels = ["AL","AR","AZ","CA","CO","CT","DE","FL","GA","IA","ID","IL",\
 rlist.lgLabelAlignment   = "AboveItems"
 rlist.lgLabelFontHeightF = 0.014
 rlist.lgMonoDashIndex    = True
+rlist.lgLineThicknessF   = 4.0
 lg = Ngl.legend_ndc(wks,len(lotta_labels),lotta_labels,0.1,0.5,rlist)
 Ngl.frame(wks)
 

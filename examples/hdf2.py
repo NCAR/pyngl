@@ -38,7 +38,7 @@ import Nio, Ngl
 #---Test if file exists
 filename = "MOD06_L2.A2010031.1430.005.2010031221343.hdf" 
 if(not os.path.exists(filename)):
-  print("You do not have the necessary HDF file to run this example.")
+  print("You do not have the necessary %s file to run this example." % filename)
   print("You can get the file from")
   print("    http://www.ncl.ucar.edu/Applications/Data/#hdf")
   print("or else use your own data.")

@@ -36,7 +36,7 @@ import numpy, Nio, Ngl, os, sys
 
 filename = "wrfout_d01_2005-12-14_13:00:00"
 if(not os.path.exists(filename)):
-  print("You do not have the necessary file to run this example.")
+  print("You do not have the necessary '%s' file to run this example." % filename)
   print("You need to supply your own WRF output file")
   print("WRF output files usually have names like '%s'" % filename)
   sys.exit()

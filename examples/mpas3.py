@@ -76,7 +76,7 @@ def add_mpas_edges(wks,map,mfile):
 
 mpas_file = "MPASOcean60km.nc"
 if(not os.path.exists(mpas_file)):
-  print("You do not have the necessary file to run this example.")
+  print("You do not have the necessary '%s' file to run this example." % mpas_file)
   print("See the comments at the top of this script for more information.")
   sys.exit()
 

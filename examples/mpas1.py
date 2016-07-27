@@ -41,7 +41,7 @@ import Ngl, Nio
 #---Read data from MPAS Grid
 filename = "MPAS.nc"
 if(not os.path.exists(filename)):
-  print("You do not have the necessary file to run this example.")
+  print("You do not have the necessary '%s' file to run this example." % filename)
   print("See the comments at the top of this script for more information.")
   sys.exit()
 

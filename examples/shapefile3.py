@@ -161,7 +161,7 @@ map = Ngl.contour_map(wks,data,res)
 dir      = Ngl.pynglpath("data")
 filename = os.path.join(dir,"shp","mrb.shp")
 if(not os.path.exists(filename)):
-  print("You do not have the necessary files to run this example.")
+  print("You do not have the necessary shapefiles to run this example.")
   print("The comments at the top of this script tell you how to get the files.")
   sys.exit()
 

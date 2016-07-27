@@ -89,8 +89,6 @@ cmap = numpy.array([[1.00,.000,.000],\
 #--- Indicate where to send graphics
 rlist = Ngl.Resources()
 wks_type = "png"
-if(wks_type == "ps" or wks_type == "pdf"):
-  rlist.wkOrientation = "Portrait"      # For PS or PDF output only.
 wks = Ngl.open_wks(wks_type,"panel1",rlist)
 
 #
@@ -107,8 +105,8 @@ resources.nglFrame = False
 #
 plot = []
 resources.cnFillOn            = True    # Turn on contour fill.
-resources.cnFillPalette       = cmap
-resources.lbLabelStride       = 2       # Label every other box
+resources.cnFillPalette       = "MPL_viridis"
+resources.cnLineLabelsOn      = False   # Turn off contour labels
 
 #
 # Set some font heights to make them slightly bigger than the default.
@@ -116,7 +114,6 @@ resources.lbLabelStride       = 2       # Label every other box
 # heights for you.
 #
 resources.nglScale               = False
-resources.cnLineLabelFontHeightF = 0.025
 resources.tiMainFontHeightF      = 0.037
 resources.lbLabelFontHeightF     = 0.032
 resources.tmXBLabelFontHeightF   = 0.030
@@ -142,6 +139,7 @@ Ngl.panel(wks,plot[0:4],[2,2],panelres)    # Draw 2 rows/2 columns of plots.
 #
 del resources.tiMainString  # Don't set a main title.
 
+resources.cnFillPalette  = cmap # Set color map using RGB values
 resources.sfXArray       = lon  # Portion of map on which to overlay
 resources.sfYArray       = lat  # contour plot.
 

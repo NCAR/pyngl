@@ -100,7 +100,7 @@ def print_min_max(var,varname):
 #----------------------------------------------------------------------
 mpas_file = "x1.2621442.nc"
 if(not os.path.exists(mpas_file)):
-  print("You do not have the necessary file to run this example.")
+  print("You do not have the necessary '%s' file to run this example." % mpas_file)
   print("See the comments at the top of this script for more information.")
   sys.exit()
 
