@@ -5,13 +5,18 @@ http://www.pyngl.ucar.edu/Download/build_pyngl_from_src.shtml
 
 How to build PyNGL from source code
 
-PyNGL can only be built on UNIX systems. It has been successfully built
-on systems running Linux (32 or 64-bit), MacOSX (PPC or Intel),
-and Windows/Cygwin.
+We highly recommend installing PyNGL via conda/conda-forge if
+possible.  Building PyNGL requires building lots of external software
+packages which is not trivial for people who are not comfortable with
+UNIX and various build systems.
 
-This version of PyNGL was tested with Python versions 2.7.x, NumPy
-version 1.7.2, and NumPy 1.8.1. We have some precompiled binaries
-you can try.
+PyNGL can only be built on UNIX systems. It has been successfully
+built on systems running Linux (32 and 64-bit), MacOSX, and
+Windows/Cygwin (32 bit only).
+
+This version of PyNGL was tested with Python version 2.7.12 and NumPy
+version 1.11.2 but should be compatible with other Python 2.7.x
+and NumPy 1.9+ versions.
 
 This document covers what external software packages you need for PyNGL
 and how to build them, and then finally how to build PyNGL.
@@ -28,7 +33,6 @@ and how to build them, and then finally how to build PyNGL.
           o cairo <#cairo>
                 + libpng <#PNG>
                 + pkg-config <#pkgconfig>
-                + fontconfig <#fontconfig>
                 + FreeType <#freetype>
                 + pixman <#pixman>
                 + expat <#expat>
@@ -43,10 +47,8 @@ and how to build them, and then finally how to build PyNGL.
 <CompilersNeeded>
 *Compilers needed to build PyNGL*
 
-You need a Fortran 77 or 90 compiler and an ANSI C compiler to build
-PyNGL. We use gcc/gfortran on Linux and Mac OSX systems.
-
-Do not use g77 as a Fortran compiler.
+You need a Fortran compiler and an ANSI C compiler to build PyNGL. We
+use gcc/gfortran on Linux and Mac OSX systems.
 
 ------------------------------------------------------------------------
 <SetCompilerEnvVars>
@@ -97,11 +99,21 @@ Once you download and install any external software to use with PyNGL,
 you must comply with the license of that software, regardless of PyNGL's
 source code license.
 
+Please check your system to see if any of these packages are already
+installed, before you start building them from scratch.  You can also
+use Linux or Mac package managers like yum, apt-get, or conda to install
+many of these packages.
+
+For software that you download and build from source code yourself, we
+will use "/usr/local/pyngl-1.5.0/external_software" as the parent
+directory example for where we install all the additional software
+required.
+
 List of external software to install:
 
     * NCL <http://www.ncl.ucar.edu>
 
-      Download version 6.1.0 or later.
+      Download version 6.3.0 or later.
 
       See the full instructions <http://www.ncl.ucar.edu/Download/> for
       building NCL from either source code or binary. NCL is a difficult
@@ -118,8 +130,8 @@ List of external software to install:
       your system.
 
       This library is usually installed as part of an X developer's
-      package, and will reside in a directory like /usr/X11R6/lib or
-      /usr/X11R6/lib64.
+      package, and will reside in a directory like /usr/X11R6/lib,
+      /usr/X11R6/lib64, opt/local/lib (for MacOS systems).
 
       *cairo software*
 
@@ -130,116 +142,108 @@ List of external software to install:
 
           o *libpng <http://www.libpng.org/pub/png/libpng.html>*
 
-            Download version 1.2.27 (earlier versions had a serious bug)
-            or later (not 1.4.x or 1.5.x)
+            Download version 1.2.52 or later (not 1.4.x or 1.5.x)
 
             Once you have the libpng source code, you can build and
             install it with:
 
-              ./configure  --with-pic --prefix=/usr/local 
+              ./configure  --with-pic --prefix=/usr/local/pyngl-1.5.0/external_software 
               make all install
 
           o pkg-config <http://pkgconfig.freedesktop.org/releases/> -
-            Download version 0.25 or later.
+            Download version 0.28 or later.
 
             Once you have the pkg-config source code, you can build and
             install it with:
 
-              ./configure --prefix=/usr/local
+              ./configure --prefix=/usr/local/pyngl-1.5.0/external_software
               make all install
 
-            Make sure that the location of pkg-config is on your search
-            path and library path. For example, if you installed
-            pkg-config to "/usr/local", then you also need to do the
-            following:
+            Make sure that the location of pkg-config is on your
+            search path and library path. For example, if you
+            installed pkg-config to
+            "/usr/local/pyngl-1.5.0/external_software", then you also
+            need to do the following:
 
             From tcsh or csh:
 
-              setenv PKG_CONFIG_PATH /usr/local/lib/pkgconfig
-              setenv LD_LIBRARY_PATH /usr/local/cairo/lib
-              set path=(/usr/local/bin $path)
+              setenv PKG_CONFIG_PATH /usr/local/pyngl-1.5.0/external_software/lib/pkgconfig
+              set path=(/usr/local/pyngl-1.5.0/external_software/bin $path)
 
             From ksh or bash:
 
-              export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
-              export LD_LIBRARY_PATH=/usr/local/cairo/lib
-              export PATH=/usr/local/bin:$PATH
-
-            [On a Mac, use DYLD_LIBRARY_PATH instead of LD_LIBRARY_PATH.]
-
-          o fontconfig <http://fontconfig.org/release/> - Download
-            version 2.8.0 or later.
-
-            Once you have the fontconfig source code, you can build and
-            install it with:
-
-              ./configure --prefix=/usr/local
-              make all install
+              export PKG_CONFIG_PATH=/usr/local/pyngl-1.5.0/external_software/lib/pkgconfig
+              export PATH=/usr/local/pyngl-1.5.0/external_software/bin:$PATH
 
           o FreeType <http://freetype.sourceforge.net/index2.html> -
-            Download version 2.4.4 or later.
+            Download version 2.5.5 or later.
 
             Once you have the FreeType source code, you can build and
             install it with:
 
-              ./configure --prefix=/usr/local
+              ./configure --prefix=/usr/local/pyngl-1.5.0/external_software
               make all install
 
           o pixman <http://cairographics.org/releases/> - Download
-            version 0.21.2 or later.
+            version 0.32.6 or later.
 
             Once you have the pixman source code, you can build and
             install it with:
 
-              ./configure --prefix=/usr/local
-              make all install
+            Mac systems:
 
-          o Expat <http://sourceforge.net/projects/expat/> - Download
-            version 2.0.1 or later.
+               ./configure --prefix=/usr/local --disable-openmp --disable-arm-iwmmxt \
+                 --disable-dependency-tracking
+               make all install
 
-            This software may not be needed, but the instructions are
-            here in case you need expat to get cairo support into PyNGL.
+            Linux, Cygwin, others:
 
-            Once you have the expat source code, you can build and
-            install it with:
-
-              ./configure --prefix=/usr/local
+              ./configure --prefix=/usr/local/pyngl-1.5.0/external_software
               make all install
 
           o cairo <http://cairographics.org/releases/> - Download
-            version 1.8.8 or later.
+            version 1.12.18 or later.
 
-            You can't build cairo until you have installed fontconfig,
-            FreeType, pixman, and pkg-config.
+            You can't build cairo until you have installed FreeType,
+            pixman, and pkg-config.
 
-            Make sure the "pkg-config" you built is on your search path.
-            For example, if you installed it to /usr/local, then
-            /usr/local/bin needs to be in your search path.
+            Make sure the "pkg-config" you built is on your search
+            path.  For example, if you installed it to
+            /usr/local/pyngl-1.5.0/external_software, then
+            /usr/local/pyngl-1.5.0/external_software/bin needs to be
+            in your search path.
 
             From tcsh or csh:
 
-              setenv PATH /usr/local/bin:$PATH
+              setenv PATH /usr/local/pyngl-1.5.0/external_software/bin:$PATH
               which pkg-config
 
             From ksh or bash:
 
-              export PATH=/usr/local/bin:$PATH
+              export PATH=/usr/local/pyngl-1.5.0/external_software/bin:$PATH
               which pkg-config
 
             Once you have the cairo source code, you can build and
             install it with:
 
-              ./configure --prefix=/usr/local
+            Mac systems:
+
+              ./configure --prefix=/usr/local --enable-quartz-font=no --enable-quartz=no \
+                   --enable-shared=no --enable-static=yes
+
+            Linux, Cygwin, others:
+
+              ./configure --prefix=/usr/local/pyngl-1.5.0/external_software
               make all install
 
           o zlib <http://www.zlib.net/> - needed for cairo support
 
-            Download version 1.2.5 or later.
+            Download version 1.2.8 or later. (May already be on your system):
 
             Once you have the zlib source code, you can build and
             install it with:
 
-              ./configure --prefix=/usr/local
+              ./configure --prefix=/usr/local/pyngl-1.5.0/external_software
               make all install
 
 ------------------------------------------------------------------------
@@ -289,12 +293,12 @@ Use F2CLIBS to indicate the library name (don't include the "-l", and
 F2CLIBS_PREFIX to point to the location. For example:
 
   setenv F2CLIBS gfortran
-  setenv F2CLIBS_PREFIX /usr/local/lib
+  setenv F2CLIBS_PREFIX /usr/local/pyngl-1.5.0/external_software/lib
 
 or
 
   export F2CLIBS=gfortran
-  export F2CLIBS_PREFIX=/usr/local/lib
+  export F2CLIBS_PREFIX=/usr/local/pyngl-1.5.0/external_software/lib
 
 ------------------------------------------------------------------------
 <RunSetup> 
@@ -332,9 +336,10 @@ position your mouse over the window and hit <RETURN>.
 <Help> 
 *How to get help*
 
-If you have problems, send email to pyngl-talk
-<http://mailman.ucar.edu/mailman/listinfo/pyngl-talk> (you must be a
-member to post).
+If you have problems, send email to pyngl-talk@ucar.edu.  You must
+subscribe before you can post to it:
+
+<http://mailman.ucar.edu/mailman/listinfo/pyngl-talk>
 
 ------------------------------------------------------------------------
 

@@ -1,7 +1,9 @@
 
 PyNGL ("pingle") stands for "Python NCL Graphics Library" and is a
-Python package for producing publication-quality two-dimensional
-visualizations.
+Python package developed at the National Center for Atmospheric
+Research for producing publication-quality two-dimensional
+visualizations. It is based on the same graphical libraries
+that the NCAR Command Language (NCL) uses.
 
 Use of this software implies agreement of the PyNGL source code
 license:
@@ -12,20 +14,21 @@ You can import this package with:
 
   import Ngl
 
-PyNGL 1.3.1 has been tested against Python 2.6.x and Python 2.5.x,
-NumPy 1.3.0, and NumPy 1.4.1. PyNGL 1.3.1 and earlier can only
-be built against NCL versions 5.2.1 and earlier.
+PyNGL 1.5.0 was tested against Python 2.7.12 and NumPy 1.11.2, but
+should be compatible with other Python 2.7 and NumPy 1.9+ versions.
+It can only be built against NCL versions 6.1.0 and higher; we highly
+recommend NCL version 6.3.0 or higher.
 
-PyNGL 1.4.0 has been tested against Python 2.6.x and Python 2.7.x,
-NumPy 1.5.1, and NumPy 1.6.0. PyNGL 1.4.0 and later can only be built
+PyNGL 1.4.0 was tested against Python 2.6.x and Python 2.7.x, NumPy
+1.5.1, and NumPy 1.6.0. PyNGL 1.4.0 and later can only be built
 against NCL version 6.0.0 (not 6.1.0 or later).
 
-PyNGL 1.5.0 has been tested against Python 2.7.[3-8] and NumPy
-1.[6-9].x.  It can only be built against NCL versions 6.1.0 and
-higher; we highly recommend NCL version 6.2.0 or higher.
+PyNGL 1.3.1 was tested against Python 2.6.x and Python 2.5.x, NumPy
+1.3.0, and NumPy 1.4.1. PyNGL 1.3.1 and earlier can only be built
+against NCL versions 5.2.1 and earlier.
 
-The visualizations can be drawn on an X11 window or saved as
-PostScript, PDF, PNG, or NCGM files.
+The visualizations can be drawn on an X11 window or saved as PNG, SVG,
+PostScript, PDF, or NCGM files.
 
 Interfaces exist for the rapid display of:
 
@@ -39,50 +42,3 @@ Interfaces exist for the rapid display of:
 For documentation, examples, and a line-by-line tutorial, see:
 
   http://www.pyngl.ucar.edu/
-
-Installation:
--------------
-
-Required: Python 2.7 or higher and NumPy version 1.6 or higher.
-Earlier or later versions of these packages may work, but we haven't
-tested all of them.
-
-Binary installation is simple:
-
-    python setup.py install
-
-This command may require root privileges on some systems.
-
-Source code installation is not trivial. See the INSTALL file in this
-directory.
-
-Examples:
----------
-
-Many PyNGL examples depend on PyNIO, which used to be packaged with
-PyNGL. PyNIO is now a separate package, but can be downloaded from the
-same location as PyNGL.  See http://www.pyngl.ucar.edu/Download/
-
-To run a PyNGL example (that doesn't depend on PyNIO), type:
-
-   pynglex ngl01p
-
-This command will generate a multi-page PostScript file called
-"ngl01p.ps" containing several XY plots.
-
-To have this example generate an X11 window instead of a PostScript
-file, type:
-
-   pynglex -w x11 ngl01p
-
-You will need to click on the X11 window with your left mouse button to
-advance to the next page (frame).
-
-For a PDF file:
-
-   pynglex -w pdf ngl01p
-
-For a complete list of PyNGL examples, type:
-
-   pynglex -l
-

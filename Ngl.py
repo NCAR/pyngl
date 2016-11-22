@@ -8441,7 +8441,7 @@ map_proj -- map projection
   latinc2    = _promote_scalar(latinc)
   loninc2    = _promote_scalar(loninc)
 
-  return fplib.wrf_ll_to_ij(iloc2,jloc2,map_proj2,truelat12,truelat22,stand_lon2, \
+  return fplib.wrf_ij_to_ll(iloc2,jloc2,map_proj2,truelat12,truelat22,stand_lon2, \
                             ref_lat2,ref_lon2,pole_lat2,pole_lon2,knowni2, knownj2,\
                             dx2, dy2, latinc2,loninc2)
 
