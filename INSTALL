@@ -5,7 +5,7 @@ http://www.pyngl.ucar.edu/Download/build_pyngl_from_src.shtml
 
 How to build PyNGL from source code
 
-We highly recommend installing PyNGL via conda/conda-forge if
+We highly recommend installing PyNGL via conda-forge if
 possible.  Building PyNGL requires building lots of external software
 packages which is not trivial for people who are not comfortable with
 UNIX and various build systems.
@@ -13,10 +13,6 @@ UNIX and various build systems.
 PyNGL can only be built on UNIX systems. It has been successfully
 built on systems running Linux (32 and 64-bit), MacOSX, and
 Windows/Cygwin (32 bit only).
-
-This version of PyNGL was tested with Python version 2.7.12 and NumPy
-version 1.11.2 but should be compatible with other Python 2.7.x
-and NumPy 1.9+ versions.
 
 This document covers what external software packages you need for PyNGL
 and how to build them, and then finally how to build PyNGL.
@@ -101,8 +97,8 @@ source code license.
 
 Please check your system to see if any of these packages are already
 installed, before you start building them from scratch.  You can also
-use Linux or Mac package managers like yum, apt-get, or conda to install
-many of these packages.
+use Linux or Mac package managers like yum, apt-get, or conda to
+install many of these packages.
 
 For software that you download and build from source code yourself, we
 will use "/usr/local/pyngl-1.5.0/external_software" as the parent

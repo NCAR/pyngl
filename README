@@ -14,10 +14,9 @@ You can import this package with:
 
   import Ngl
 
-PyNGL 1.5.0 was tested against Python 2.7.12 and NumPy 1.11.2, but
-should be compatible with other Python 2.7 and NumPy 1.9+ versions.
-It can only be built against NCL versions 6.1.0 and higher; we highly
-recommend NCL version 6.3.0 or higher.
+PyNGL 1.5.0 was tested against Python 2.7.x. It has not yet been
+ported to Python 3.x. It should only be built against NCL versions
+6.3.0 and higher. We recommend NCL V6.4.0.
 
 PyNGL 1.4.0 was tested against Python 2.6.x and Python 2.7.x, NumPy
 1.5.1, and NumPy 1.6.0. PyNGL 1.4.0 and later can only be built
