@@ -1,6 +1,14 @@
 %module hlu
 
 %{
+#if PY_VERSION_HEX >= 0x03000000
+#ifdef PyString_AsString(str)
+#undef PyString_AsString(str)
+/*#define PyString_AsString(str) PyBytes_AsString(PyUnicode_AsASCIIString(str))*/
+#define PyString_AsString(str) PyUnicode_AsUTF8(str)
+#endif
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -2077,8 +2085,10 @@ import_array();
     else {
       for (i = 0; i < size; i++) {
         PyObject *o = PyList_GetItem($input,i);
-        if (PyString_Check(o)) {
-          $1[i] = PyString_AsString(PyList_GetItem($input,i));
+        if (PyBytes_Check(o)) {
+          $1[i] = PyBytes_AsString(PyList_GetItem($input,i));
+        } else if (PyUnicode_Check(o)) {
+          $1[i] = PyUnicode_AsUTF8(PyList_GetItem($input,i));
         }
         else {
           PyErr_SetString(PyExc_TypeError,"List must contain strings");
@@ -2232,21 +2242,34 @@ import_array();
  *  Determine if the tuple is a tuple of strings, ints, or floats.
  *  
  *    list_type = 2 (int)
- *              = 0 (string)
+ *              = 0 (bytes)
  *              = 1 (float)
+ *              = 3 (unicode)
  */
         list_type = 2;
-        if (PyString_Check(PyTuple_GetItem(value,0))) {
+        if (PyBytes_Check(PyTuple_GetItem(value,0))) {
 /*
  *  Check that all items in the tuple are strings.
  */
           for (i = 0; i < list_len ; i++) {
-            if (!PyString_Check(PyTuple_GetItem(value,i))) {
-              printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+            if (!PyBytes_Check(PyTuple_GetItem(value,i))) {
+              printf("All items in the tuple value for resource %s must be strings\n",PyBytes_AsString(key));
             return NULL;
             }
           }
           list_type = 0;
+        }
+        else if (PyUnicode_Check(PyTuple_GetItem(value,0))) {
+/*
+ *  Check that all items in the tuple are strings.
+ */
+          for (i = 0; i < list_len ; i++) {
+            if (!PyUnicode_Check(PyTuple_GetItem(value,i))) {
+              printf("All items in the tuple value for resource %s must be strings\n",PyUnicode_AsUTF8(key));
+            return NULL;
+            }
+          }
+          list_type = 3;
         }
         else {
 /*
@@ -2281,9 +2304,16 @@ import_array();
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = PyBytes_AsString(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,PyBytes_AsString(key),strings,list_len);
+            break;
+          case 3:
+            strings = (char **) malloc(list_len*sizeof(char *));
+            for (i = 0; i < list_len ; i++) {
+              strings[i] = PyUnicode_AsUTF8(PyTuple_GetItem(value,i));
+            }
+            NhlRLSetStringArray(rlist,PyUnicode_AsUTF8(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
@@ -2318,24 +2348,37 @@ import_array();
  *  Determine if the list is a list of strings, ints, or floats.
  *  
  *    list_type = 2 (int)
- *              = 0 (string)
+ *              = 0 (bytes)
  *              = 1 (float)
+ *              = 3 (unicode)
  */
         list_type = 2;
-        if (PyString_Check(PyList_GetItem(value,0))) {
+        if (PyBytes_Check(PyList_GetItem(value,0))) {
 /*
  *  Check that all items in the list are strings.
  */
           for (i = 0; i < list_len ; i++) {
-            if (!PyString_Check(PyList_GetItem(value,i))) {
-              printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+            if (!PyBytes_Check(PyList_GetItem(value,i))) {
+              printf("All items in the list value for resource %s must be strings\n",PyBytes_AsString(key));
               return NULL;
               break;
             }
           }
           list_type = 0;
         }
-        else {
+        else if (PyUnicode_Check(PyList_GetItem(value,0))) {
+/*
+ *  Check that all items in the list are strings.
+ */
+          for (i = 0; i < list_len ; i++) {
+            if (!PyUnicode_Check(PyList_GetItem(value,i))) {
+              printf("All items in the list value for resource %s must be strings\n",PyUnicode_AsUTF8(key));
+              return NULL;
+              break;
+            }
+          }
+          list_type = 3;
+        } else {
 /*
  *  If the items in the list value are not strings, then
  *  they must all be ints or floats.
@@ -2361,9 +2404,16 @@ import_array();
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = PyBytes_AsString(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,PyBytes_AsString(key),strings,list_len);
+            break;
+          case 3:
+            strings = (char **) malloc(list_len*sizeof(char *));
+            for (i = 0; i < list_len ; i++) {
+              strings[i] = PyUnicode_AsUTF8(PyList_GetItem(value,i));
+            }
+            NhlRLSetStringArray(rlist,PyUnicode_AsUTF8(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
@@ -2411,11 +2461,18 @@ import_array();
                                (int) PyInt_AsLong(value));
           }
 /*
- *  value is a Python string
+ *  value is a Python byte string
  */
-          else if (PyString_Check(value)) {
-            NhlRLSetString(rlist,PyString_AsString(key),
-                               PyString_AsString(value));
+          else if (PyBytes_Check(value)) {
+            NhlRLSetString(rlist,PyBytes_AsString(key),
+                               PyBytes_AsString(value));
+          }
+/*
+ *  value is a Python unicode string
+ */
+          else if (PyUnicode_Check(value)) {
+            NhlRLSetString(rlist,PyUnicode_AsUTF8(key),
+                               PyUnicode_AsUTF8(value));
           }
         }
 /*
@@ -2557,21 +2614,33 @@ import_array();
  *  Determine if the tuple is a tuple of strings, ints, or floats.
  *  
  *    list_type = 2 (int)
- *              = 0 (string)
+ *              = 0 (bytes)
  *              = 1 (float)
+ *              = 3 (unicode)
  */
         list_type = 2;
-        if (PyString_Check(PyTuple_GetItem(value,0))) {
+        if (PyBytes_Check(PyTuple_GetItem(value,0))) {
 /*
  *  Check that all items in the tuple are strings.
  */
           for (i = 0; i < list_len ; i++) {
-            if (!PyString_Check(PyTuple_GetItem(value,i))) {
-              printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+            if (!PyBytes_Check(PyTuple_GetItem(value,i))) {
+              printf("All items in the tuple value for resource %s must be strings\n",PyBytes_AsString(key));
             return NULL;
             }
           }
           list_type = 0;
+        } else if (PyUnicode_Check(PyTuple_GetItem(value,0))) {
+/*
+ *  Check that all items in the tuple are strings.
+ */
+          for (i = 0; i < list_len ; i++) {
+            if (!PyUnicode_Check(PyTuple_GetItem(value,i))) {
+              printf("All items in the tuple value for resource %s must be strings\n",PyUnicode_AsUTF8(key));
+            return NULL;
+            }
+          }
+          list_type = 3;
         }
         else {
 /*
@@ -2606,9 +2675,16 @@ import_array();
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = PyBytes_AsString(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,PyBytes_AsString(key),strings,list_len);
+            break;
+          case 3:
+            strings = (char **) malloc(list_len*sizeof(char *));
+            for (i = 0; i < list_len ; i++) {
+              strings[i] = PyUnicode_AsUTF8(PyTuple_GetItem(value,i));
+            }
+            NhlRLSetStringArray(rlist,PyUnicode_AsUTF8(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
@@ -2643,22 +2719,35 @@ import_array();
  *  Determine if the list is a list of strings, ints, or floats.
  *  
  *    list_type = 2 (int)
- *              = 0 (string)
+ *              = 0 (bytes)
  *              = 1 (float)
+ *              = 3 (unicode)
  */
         list_type = 2;
-        if (PyString_Check(PyList_GetItem(value,0))) {
+        if (PyBytes_Check(PyList_GetItem(value,0))) {
 /*
  *  Check that all items in the list are strings.
  */
           for (i = 0; i < list_len ; i++) {
-            if (!PyString_Check(PyList_GetItem(value,i))) {
-              printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+            if (!PyBytes_Check(PyList_GetItem(value,i))) {
+              printf("All items in the list value for resource %s must be strings\n",PyBytes_AsString(key));
               return NULL;
               break;
             }
           }
           list_type = 0;
+        } else if (PyUnicode_Check(PyList_GetItem(value,0))) {
+/*
+ *  Check that all items in the list are strings.
+ */
+          for (i = 0; i < list_len ; i++) {
+            if (!PyUnicode_Check(PyList_GetItem(value,i))) {
+              printf("All items in the list value for resource %s must be strings\n",PyUnicode_AsUTF8(key));
+              return NULL;
+              break;
+            }
+          }
+          list_type = 3;
         }
         else {
 /*
@@ -2686,9 +2775,16 @@ import_array();
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = PyBytes_AsString(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,PyBytes_AsString(key),strings,list_len);
+            break;
+          case 3:
+            strings = (char **) malloc(list_len*sizeof(char *));
+            for (i = 0; i < list_len ; i++) {
+              strings[i] = PyUnicode_AsUTF8(PyList_GetItem(value,i));
+            }
+            NhlRLSetStringArray(rlist,PyUnicode_AsUTF8(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
@@ -2725,10 +2821,16 @@ import_array();
         NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
       }
 /*
- *  value is a string
+ *  value is a bytes string
  */
-      else if (PyString_Check(value)) {
-        NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
+      else if (PyBytes_Check(value)) {
+        NhlRLSetString(rlist,PyBytes_AsString(key),PyBytes_AsString(value));
+      }
+/*
+ *  value is a unicode string
+ */
+      else if (PyBytes_Check(value)) {
+        NhlRLSetString(rlist,PyUnicode_AsUTF8(key),PyUnicode_AsUTF8(value));
       }
 /*
  *  value is an array.

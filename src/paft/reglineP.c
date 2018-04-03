@@ -56,7 +56,7 @@ PyObject *fplib_regline(PyObject *self, PyObject *args)
   npts  = dsizes_x[0];
   inpts = (int)npts;   /* inpts may not be big enough to hold value of npts */
   if( npts < 2 ) {
-#if py_major_version >= 3
+#if PY_MAJOR_VERSION >= 3
     PyErr_SetString(PyExc_ValueError, "regline: The length of x and y must be at least 2.");
 #else
     PyErr_SetString(PyExc_StandardError, "regline: The length of x and y must be at least 2.");
@@ -73,7 +73,7 @@ PyObject *fplib_regline(PyObject *self, PyObject *args)
   NGCALLF(dregcoef,DREGCOEF)(x, y, &inpts, &fill_value_x, &fill_value_y,
                              rcoef, &tval, &nptxy, &xave, &yave, &rstd, &ier);
   if (ier == 5) {
-#if py_major_version >= 3
+#if PY_MAJOR_VERSION >= 3
     PyErr_SetString(PyExc_ValueError, "regline: The x and/or y array contains all missing values.");
 #else
     PyErr_SetString(PyExc_StandardError, "regline: The x and/or y array contains all missing values.");
@@ -83,7 +83,7 @@ PyObject *fplib_regline(PyObject *self, PyObject *args)
     return Py_None;
   }
   if (ier == 6) {
-#if py_major_version >= 3
+#if PY_MAJOR_VERSION >= 3
     PyErr_SetString(PyExc_ValueError, "regline: The x and/or y array contains less than 3 non-missing values.");
 #else
     PyErr_SetString(PyExc_StandardError, "regline: The x and/or y array contains less than 3 non-missing values.");
@@ -104,7 +104,7 @@ PyObject *fplib_regline(PyObject *self, PyObject *args)
     rc = PyFloat_FromDouble(*rcoef);
 
     pdict = PyDict_New();
-#if py_major_version >= 3
+#if PY_MAJOR_VERSION >= 3
     PyDict_SetItem(pdict, PyUnicode_DecodeUTF8("xave", 4, "strict"), PyFloat_FromDouble(xave));
     PyDict_SetItem(pdict, PyUnicode_DecodeUTF8("yave", 4, "strict"), PyFloat_FromDouble(yave));
     PyDict_SetItem(pdict, PyUnicode_DecodeUTF8("tval", 4, "strict"), PyFloat_FromDouble(tval));

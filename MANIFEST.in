@@ -12,5 +12,6 @@ include hlu.py
 include hlu_wrap.c
 include sysresfile
 include version
+include ncarg
 recursive-include paft *.c
 recursive-include examples *.py *.res

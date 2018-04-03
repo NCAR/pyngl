@@ -42,7 +42,7 @@ __all__ = ['add_annotation', 'add_cyclic', 'add_new_coord_limits', \
 from distutils.sysconfig import get_python_lib
 
 # PyNGL analysis functions
-import fplib
+from . import fplib
 
 import sys
 #
@@ -61,10 +61,10 @@ import sys
 #  attributes. Note that PyNGL no longer supports Numeric, so 
 #  __array_module__ should always be "numpy".
 #
-from . import pyngl_version
-__version__              = pyngl_version.version
-__array_module__         = pyngl_version.array_module
-__array_module_version__ = pyngl_version.array_module_version
+#from . import pyngl_version
+#__version__              = pyngl_version.version
+#__array_module__         = pyngl_version.array_module
+#__array_module_version__ = pyngl_version.array_module_version
 
 #
 # Test to make sure we can actually load numpy and that we 
@@ -377,8 +377,8 @@ IS_NEW_MA = _get_integer_version(numpy.__version__) > 10004
 #
 # Import other stuff we need.
 #
-from .hlu import *
-import hlu, site, types, string, subprocess, sys, os, math, re
+from ._hlu import *
+import site, types, string, subprocess, sys, os, math, re
 
 #
 # Try to guess the package path for PyNGL. If it can't
@@ -401,10 +401,10 @@ if (not (os.path.exists(pkgs_pth)) and os.environ.get("PYNGL_NCARG") is None):
 
 first_call_to_open_wks = 0
 
-class Resources:
+class Resources(object):
   pass
 
-class PlotIds:
+class PlotIds(object):
   pass
 
 def _inputt(a,b):
@@ -1103,14 +1103,14 @@ def _pynglpath_ncarg():
       print("           may be set incorrectly. You may not need to set it at all.")
     return pyngl_dir
 
-  import sys 
-  for path in sys.path: 
-    trypath = os.path.join(path,"PyNGL","ncarg") 
-    if os.path.exists(trypath): 
+  import sys
+  for path in sys.path:
+    trypath = os.path.join(path,"ngl","ncarg")
+    if os.path.exists(trypath):
       return trypath
-    else: 
-      trypath = os.path.join(path,"ncarg") 
-      if os.path.exists(os.path.join(trypath,"colormaps")): 
+    else:
+      trypath = os.path.join(path,"ncarg")
+      if os.path.exists(os.path.join(trypath,"colormaps")):
         return trypath
 
   print("pynglpath: supplemental 'ncarg' directory cannot be found.")
