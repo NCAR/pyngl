@@ -51,7 +51,7 @@ import os, sys
 try:
   import numpy
 except ImportError:
-  print "Error: Cannot import NumPy. Can't continue."
+  print("Error: Cannot import NumPy. Can't continue.")
   sys.exit(1)
 
 PYNGL_NCARG_DIR = "src/ngl/ncarg"
@@ -61,7 +61,7 @@ PYNGL_NCARG_DIR = "src/ngl/ncarg"
 try:
   ncarg_root = os.environ["NCARG_ROOT"]
 except:
-  print "NCARG_ROOT is not set; can't continue!"
+  print("NCARG_ROOT is not set; can't continue!")
   sys.exit(1)
 try:
   ncarg_lib = os.environ["NCARG_LIB"]
@@ -116,11 +116,11 @@ def copy_pynglex_script():
 # Modify the pynglex script to have the correct python invocation.
   for line in fileinput.input(pynglex_v_file,inplace=1):
     if (re.search("/usr/bin/env python",line) != None):
-      print line.replace("python","python"+sys.version[:3]),
+      print(line.replace("python","python"+sys.version[:3]))
     elif(re.search("^py_cmd = 'python'",line) != None):
-      print line.replace("python","python"+sys.version[:3]),
+      print(line.replace("python","python"+sys.version[:3]))
     else:
-      print line,
+      print(line)
 
   return [pynglex_script, pynglex_v_file]
 
