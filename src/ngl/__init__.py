@@ -3201,7 +3201,7 @@ wks -- The identifier returned from calling Ngl.open_wks.
   gridres = Resources()                        # polyline mods desired
   gridres.gsLineColor            = igray       # color of lines
   gridres.gsLineThicknessF       = 1.5         # thickness of lines
-  gridres.gsLineDashPattern      = 1	       # dash the lines
+  gridres.gsLineDashPattern      = 1           # dash the lines
   gridres.gsLineLabelFontColor   = igray       # color of labels
   gridres.gsLineLabelFontHeightF = 0.0105      # size of labels
 
@@ -7384,7 +7384,7 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
       rlRes.gsLineDashPattern= 2                  # line pattern
       rlRes.gsLineThicknessF = 1                  # choose line thickness
       if (hasattr(rOpts, "ccRays_color")) :
-	  rlRes.gsLineColor = rOpts.ccRays_color
+      rlRes.gsLineColor = rOpts.ccRays_color
       else :
           rlRes.gsLineColor    =  "black"
 
@@ -7427,7 +7427,7 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
          if (n == 4) :
              n4 = int( 0.61*npts )
              dum9.append(add_polyline(wks,taylor,xx[0:n4+1],yy[0:n4+1],respl))
-	     
+
       del ang
       del xx
       del yy
@@ -7520,14 +7520,14 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
 #      nModel                   = numpy.size( rOpts.caseLabels )
 #      print nModel, rOpts.caseLabels
 #      lbid = legend_ndc(wks,nModel,rOpts.caseLabels,0.35,-0.35,lgres)
-	 
+
   if (rOpts and hasattr(rOpts,"caseLabels")) :
       nCase    = numpy.size(rOpts.caseLabels)
       
       if (hasattr(rOpts,"caseLabelsFontHeightF")) :
-	  caseLabelsFontHeightF = rOpts.caseLabelsFontHeightF
+      caseLabelsFontHeightF = rOpts.caseLabelsFontHeightF
       else :
-	  caseLabelsFontHeightF = 0.05
+      caseLabelsFontHeightF = 0.05
 
       txres = Resources()
       txres.txFontHeightF = caseLabelsFontHeightF
@@ -7544,7 +7544,7 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
           ys  = rOpts.caseLabelsYloc            # user specified
       else :
           ys  = max( [nCase*delta_y , 0.30])
-	  
+
       gsres               = Resources()
       gsres.gsMarkerSizeF = gsMarkerSizeF
       
@@ -7552,10 +7552,10 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
          if (i==0) :
              dum12 = []
              dum13 = []
-	     
-         gsres.gsMarkerColor	 = Colors[i]	 # colors of markers
-         gsres.gsMarkerIndex	 = Markers[i]	 # Markers 
-	 dum13.append(add_polymarker(wks, taylor, xs-delta_x, ys, gsres) )   # Draw a polymarker.
+
+         gsres.gsMarkerColor     = Colors[i]     # colors of markers
+         gsres.gsMarkerIndex     = Markers[i]    # Markers
+      dum13.append(add_polymarker(wks, taylor, xs-delta_x, ys, gsres) )   # Draw a polymarker.
 
          txres.txFontColor     = Colors[i]        # colors of markers
          dum12.append(add_text(wks,taylor, rOpts.caseLabels[i], xs, ys, txres))
@@ -7583,15 +7583,15 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
          if (i==0) :
              dum12 = []
 
-	 dum12.append(add_text(wks,taylor, str(i+1) + " - " + rOpts.varLabels[i], .125,ys,txres))
+      dum12.append(add_text(wks,taylor, str(i+1) + " - " + rOpts.varLabels[i], .125,ys,txres))
          ys = ys- delta_y
   
   if (not hasattr(rOpts,"taylorDraw") or \
      (hasattr(rOpts,"taylorDraw") and rOpts.taylorDraw)) :
-	draw(taylor)
+    draw(taylor)
   if (not hasattr(rOpts,"taylorFrame") or \
      (hasattr(rOpts,"taylorFrame") and rOpts.taylorFrame)) :
-	frame(wks)
+    frame(wks)
 
   return taylor
 
