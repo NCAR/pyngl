@@ -49,6 +49,13 @@ from distutils.sysconfig import get_python_lib
 from . import fplib
 
 import sys
+
+# integer type compatibility http://python3porting.com/differences.html#long
+if sys.version_info < (3,):
+    integer_types = (int, long,)
+else:
+    integer_types = (int,)
+
 #
 # The "netcdftime" module was contributed by Jeffrey Whitaker of NOAA.
 # The latest version can be downloaded from:
@@ -469,8 +476,8 @@ def _is_numpy_ma(arg):
 #
 def _is_python_scalar(arg):
   import types
-  if (type(arg)==types.IntType or type(arg)==types.LongType or \
-      type(arg)==types.FloatType):
+  if (isinstance(arg, integer_types) or \
+      type(arg)==float):
     return True
   else:
     return False
@@ -1455,7 +1462,7 @@ def _check_res_value(resvalue,strvalue,intvalue):
 #
   if( (type(resvalue) == types.StringType and \
      string.lower(resvalue) == string.lower(strvalue)) or \
-     (type(resvalue) == types.IntType and resvalue == intvalue)):
+     (isinstance(resvalue, integer_types) and resvalue == intvalue)):
     return(True)
   else:
     return(False)
@@ -8104,8 +8111,8 @@ dx, dy -- Scalars, one-dimensional NumPy arrays or Python lists
       return 1
     for i in range(len(x)):
       c_wmbarbp(gksid,x[i],y[i],u[i],v[i])
-  elif (type(x)==types.IntType or type(x)==types.LongType or \
-        type(x)==types.FloatType):
+  elif (isinstance(x, integer_types) or \
+        type(x)==float):
     c_wmbarbp(gksid,x,y,u,v)
   return 0
 
