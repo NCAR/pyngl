@@ -1316,7 +1316,7 @@ def _set_spc_res(resource_name,value):
   elif (resource_name == "Debug"):
     set_nglRes_i(4, lval)
   elif (resource_name == "PaperOrientation"):
-    if(type(lval) == types.StringType):
+    if(isinstance(lval, str)):
       if(string.lower(lval) == "portrait"):
         set_nglRes_i(5, 0)
       elif(string.lower(lval) == "landscape"):
@@ -1410,7 +1410,7 @@ def _set_spc_res(resource_name,value):
   elif (resource_name == "AppResFileName"):
     set_nglRes_s(46, lval)
   elif (resource_name == "XAxisType"):
-    if(type(lval) == types.StringType):
+    if(isinstance(lval, str)):
       if(string.lower(lval) == "irregularaxis"):
         set_nglRes_i(47, 0)
       elif(string.lower(lval) == "linearaxis"):
@@ -1422,7 +1422,7 @@ def _set_spc_res(resource_name,value):
     else:
       set_nglRes_i(47, lval)
   elif (resource_name == "YAxisType"):
-    if(type(lval) == types.StringType):
+    if(isinstance(lval, str)):
       if(string.lower(lval) == "irregularaxis"):
         set_nglRes_i(48, 0)
       elif(string.lower(lval) == "linearaxis"):
@@ -1460,7 +1460,7 @@ def _check_res_value(resvalue,strvalue,intvalue):
 #  Function for checking a resource value that can either be of
 #  type string or integer (like color resource values).
 #
-  if( (type(resvalue) == types.StringType and \
+  if( (isinstance(resvalue, str) and \
      string.lower(resvalue) == string.lower(strvalue)) or \
      (isinstance(resvalue, integer_types) and resvalue == intvalue)):
     return(True)
@@ -4679,8 +4679,8 @@ pname -- Name of the parameter whose value you want to retrieve.
   cparms = [                                                         \
             "alg", "ALG", "erf", "ERF"                                \
            ]
-  if (not isinstance(pname,types.StringType)):
-    print "nngetp: Parameter '" + str(pname) + "' is not a string type." 
+  if (not isinstance(pname,str)):
+    print("nngetp: Parameter '" + str(pname) + "' is not a string type.")
     return None
   if (iparms.count(pname) > 0):
     return c_nngeti(pname)
@@ -4704,14 +4704,14 @@ pname -- Name of the parameter whose value you want to retrieve.
 
 pvalue -- Value of the parameter you want to set.
   """
-  if (not isinstance(pname,types.StringType)):
-    print "nnsetp: Parameter '" + str(pname) + "' is not a string type." 
+  if (not isinstance(pname,str)):
+    print("nnsetp: Parameter '" + str(pname) + "' is not a string type.")
     return None
   if (isinstance(val,int)):
     c_nnseti(pname,val)
   elif (isinstance(val,float)):
     c_nnsetrd(pname,val)
-  elif (isinstance(val,types.StringType)):
+  elif (isinstance(val,str)):
     c_nnsetc(pname,val)
   else:
     print("nnsetp: specified value for " + pname + " is not of a recognized type.")
@@ -8183,8 +8183,8 @@ value -- The return value of the given input parameter.
 
   cparms = [ "erf", "fro", "ERF", "FRO" ]
 
-  if (not isinstance(pname,types.StringType)):
-    print "wmgetp: Parameter '" + str(pname) + "' is not a string type." 
+  if (not isinstance(pname,str)):
+    print("wmgetp: Parameter '" + str(pname) + "' is not a string type.")
     return None
   if (iparms.count(pname) > 0):
     return c_wmgetip(pname)
@@ -8208,14 +8208,14 @@ pname -- Name of the parameter to set.
 
 pvalue -- Value of the parameter you want to set.
   """
-  if (not isinstance(pname,types.StringType)):
-    print "wmsetp: Parameter '" + str(pname) + "' is not a string type." 
+  if (not isinstance(pname,str)):
+    print("wmsetp: Parameter '" + str(pname) + "' is not a string type.")
     return None
   if (isinstance(val,float)):
     c_wmsetrp(pname,val)
   elif (isinstance(val,int)):
     c_wmsetip(pname,val)
-  elif (isinstance(val,types.StringType)):
+  elif (isinstance(val,str)):
     c_wmsetcp(pname,val)
   else:
     print("wmsetp: specified value for " + pname + " is not of a recognized type.")
