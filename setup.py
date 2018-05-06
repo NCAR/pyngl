@@ -54,6 +54,7 @@ except ImportError:
   print "Error: Cannot import NumPy. Can't continue."
   sys.exit(1)
 
+PYNGL_NCARG_DIR = "src/ngl/ncarg"
 #
 # Tests for environment variables.
 #
@@ -127,11 +128,10 @@ def copy_pynglex_script():
 def get_pynglex_files():
   all_pynglex_files = os.listdir(pynglex_dir)
 
-  ndir = 'ncarg'
-  if not os.path.exists(ndir):
-    os.mkdir(ndir)
+  if not os.path.exists(PYNGL_NCARG_DIR):
+    os.mkdir(PYNGL_NCARG_DIR)
 
-  dir_to_copy_to = os.path.join(ndir,'pynglex')
+  dir_to_copy_to = os.path.join(PYNGL_NCARG_DIR,'pynglex')
   if not os.path.exists(dir_to_copy_to):
     os.mkdir(dir_to_copy_to)
 
@@ -153,15 +153,15 @@ def get_ncarg_files():
   ncarg_dirs    = ["colormaps","data","database","fontcaps","graphcaps"]
 
   cwd = os.getcwd()          # Retain current directory.
-  if not os.path.exists('ncarg'):
-    os.mkdir('ncarg')          # make a directory to copy files to
+  if not os.path.exists(PYNGL_NCARG_DIR):
+    os.mkdir(PYNGL_NCARG_DIR)          # make a directory to copy files to
   os.chdir(ncl_ncarg_dir)    # cd to $NCARG_ROOT/lib/ncarg
 
 # Walk through each directory and copy some data files. Skip over
 # the rangs directory.
   for ncarg_dir in ncarg_dirs:
     for root, dirs, files in os.walk(ncarg_dir):
-      dir_to_copy_to = os.path.join(cwd,'ncarg',root)
+      dir_to_copy_to = os.path.join(cwd,PYNGL_NCARG_DIR,root)
       if not os.path.exists(dir_to_copy_to):
         os.mkdir(dir_to_copy_to)
       for name in files:
@@ -174,7 +174,7 @@ def get_ncarg_files():
   os.chdir(cwd)    # cd back to original directory
 
 # Special 'sysresfile'
-  os.system("cp sysresfile ncarg")
+  os.system("cp data/sysresfile " + PYNGL_NCARG_DIR)
   DATA_FILES.append(os.path.join('ncarg','sysresfile'))
 
   return
@@ -225,6 +225,7 @@ def set_ncl_libs_and_paths():
   LIBS.append('Xrender')
   LIBS.append('Xext')
   LIBS.append('bz2')
+  LIBS.append('gfortran')
   try:
     PATHS.append(os.path.join(os.environ["CAIRO_PREFIX"],"lib"))
   except:
@@ -282,6 +283,8 @@ def set_include_paths():
   except:
     pass
 
+  PATHS.append("src/gsun")
+
   return PATHS
 
 #----------------------------------------------------------------------
@@ -295,14 +298,13 @@ long_description = "PyNGL is a Python language module designed for publication-q
 
 if os.path.exists('MANIFEST'): os.remove('MANIFEST')
 
-PYNGL_PKG_NAME = 'PyNGL'                    # Name of package to install.
-pyngl_pth_file = ['Ngl.pth']                # and its *.pth file.
+PYNGL_PKG_NAME = 'ngl'                    # Name of package to install.
 pkgs_pth       = get_python_lib()
 
 # Construct the version file.
 from numpy import __version__ as array_module_version
 
-pyngl_vfile   = "pyngl_version.py"     # Name of version file.
+pyngl_vfile   = "src/ngl/version.py"     # Name of version file.
 pyngl_version = open('version','r').readlines()[0].strip('\n')
 create_version_file()
 
@@ -317,18 +319,18 @@ if os.uname()[-1] == "x86_64" or \
   (os.uname()[-1] == "Power Macintosh" and os.uname()[2] == "7.9.0"):
   os.environ["CFLAGS"] = "-O2"
 DMACROS =  [('NeedFuncProto', None)]
-os.environ["CFLAGS"] = "-fopenmp"
+os.environ["CFLAGS"] += " -fopenmp "
 
 # Instructions for compiling the "_hlu.so" and "fplib.so" files.
 EXT_MODULES = [Extension('_hlu', 
-              ['Helper.c','hlu_wrap.c','gsun.c'],
+              ['src/Helper.c','src/hlu/hlu_wrap.c','src/gsun/gsun.c'],
                 define_macros   = DMACROS,
                 include_dirs    = INC_DIRS,
                 library_dirs    = LIB_DIRS,
                 libraries       = LIBRARIES,
                 extra_objects   = EXTRA_OBJECTS),
                Extension('fplib', 
-               [os.path.join('paft','fplibmodule.c')],
+               [os.path.join('src','paft','fplibmodule.c')],
                 define_macros   = DMACROS,
                 include_dirs    = INC_DIRS,
                 library_dirs    = LIB_DIRS,
@@ -351,7 +353,7 @@ get_pynglex_files()   # Get example files associated
                                           # python version appended
 get_ncarg_files()                        # We need NCARG_ROOT for the lib
 
-setup (name = 'PyNGL',
+setup (name = PYNGL_PKG_NAME,
        version          = pyngl_version,
        license          = 'PyNGL license, similar to University of Illinois/NCSA license',
        platforms         = "Unix, Linux, Windows (Cygwin), MacOSX",
@@ -362,10 +364,10 @@ setup (name = 'PyNGL',
        description      = '2D visualization library',
        long_description = long_description,
        url              = 'http://www.pyngl.ucar.edu/',
-       package_dir      = { PYNGL_PKG_NAME : '.'},
+       package_dir      = { '' : 'src'},
        packages         = [ PYNGL_PKG_NAME ],
+       py_modules       = [ 'Ngl' ],
        package_data     = { PYNGL_PKG_NAME : DATA_FILES },
-       data_files       = [(pkgs_pth, pyngl_pth_file)],
        ext_package      = PYNGL_PKG_NAME,
        ext_modules      = EXT_MODULES
 )

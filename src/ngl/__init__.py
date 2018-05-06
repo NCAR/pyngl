@@ -11,7 +11,8 @@ __all__ = ['add_annotation', 'add_cyclic', 'add_new_coord_limits', \
            'add_text', 'asciiread', 'betainc', 'blank_plot', \
            'change_workstation', 'chiinv', 'clear_workstation', 'contour', \
            'contour_map', 'datatondc', 'define_colormap', 'delete_wks', \
-           'destroy', 'dim_gbits', 'draw', 'draw_colormap', 'draw_ndc_grid', \
+           'destroy', 'dim_gbits', 'draw', 'draw_colormap', \
+           'draw_color_palette', 'draw_ndc_grid', \
            'end', 'frame', 'free_color', 'fspan', 'ftcurv', 'ftcurvp', \
            'ftcurvpi', 'gaus', 'gc_convert', 'gc_dist', 'gc_inout', \
            'gc_interp', 'gc_qarea', 'gc_tarea', 'generate_2d_array', \
@@ -21,7 +22,8 @@ __all__ = ['add_annotation', 'add_cyclic', 'add_new_coord_limits', \
            'get_string', 'get_string_array', 'get_workspace_id', \
            'hlsrgb', 'hsvrgb', 'ind', 'int2p', 'labelbar_ndc', 'legend_ndc', \
            'linmsg', 'map', 'maximize_plot', 'merge_colormaps', \
-           'natgrid', 'ndctodata', 'new_color', 'new_dash_pattern', \
+           'natgrid', 'ndctodata', 'nearlyequal', 'new_color', \
+           'new_dash_pattern', \
            'new_marker', 'nice_cntr_levels','nngetp', 'nnsetp', \
            'normalize_angle', 'open_wks', 'overlay', 'panel', 'polygon', \
            'polygon_ndc', 'polyline', 'polyline_ndc', 'polymarker', \
@@ -30,19 +32,21 @@ __all__ = ['add_annotation', 'add_cyclic', 'add_new_coord_limits', \
            'remove_overlay', 'retrieve_colormap', 'rgbhls', 'rgbhsv', \
            'rgbyiq', 'set_color', 'set_values', 'skewt_bkg', \
            'skewt_plt', 'streamline', 'streamline_map', \
-           'streamline_scalar', 'streamline_scalar_map', 'text', \
+           'streamline_scalar', 'streamline_scalar_map', 'taylor_diagram', \
+           'text', \
            'text_ndc', 'update_workstation', 'vector', 'vector_map', \
            'vector_scalar', 'vector_scalar_map', 'vinth2p', 'wmbarb', \
            'wmbarbmap', 'wmgetp', 'wmsetp', 'wmstnm', 'wrf_avo', \
            'wrf_dbz', 'wrf_ij_to_ll', 'wrf_ll_to_ij', \
            'wrf_map_resources', 'wrf_pvo', 'wrf_rh', 'wrf_slp', \
-           'wrf_td', 'wrf_tk', 'xy', 'y', 'yiqrgb']
+           'wrf_td', 'wrf_tk', 'xy', 'y', 'yiqrgb', \
+           'PlotIds', 'Resources', '__version__']
 
 # So we can get path to PyNGL ancillary files
 from distutils.sysconfig import get_python_lib
 
 # PyNGL analysis functions
-import fplib
+from . import fplib
 
 import sys
 #
@@ -61,7 +65,7 @@ import sys
 #  attributes. Note that PyNGL no longer supports Numeric, so 
 #  __array_module__ should always be "numpy".
 #
-import pyngl_version
+from . import version as pyngl_version
 __version__              = pyngl_version.version
 __array_module__         = pyngl_version.array_module
 __array_module_version__ = pyngl_version.array_module_version
@@ -377,8 +381,8 @@ IS_NEW_MA = _get_integer_version(numpy.__version__) > 10004
 #
 # Import other stuff we need.
 #
-from hlu import *
-import hlu, site, types, string, commands, sys, os, math, re
+from .hlu import *
+import site, types, string, subprocess, sys, os, math, re
 
 #
 # Try to guess the package path for PyNGL. If it can't
@@ -1103,14 +1107,14 @@ def _pynglpath_ncarg():
       print "           may be set incorrectly. You may not need to set it at all."
     return pyngl_dir
 
-  import sys 
-  for path in sys.path: 
-    trypath = os.path.join(path,"PyNGL","ncarg") 
-    if os.path.exists(trypath): 
+  import sys
+  for path in sys.path:
+    trypath = os.path.join(path,"ngl","ncarg")
+    if os.path.exists(trypath):
       return trypath
-    else: 
-      trypath = os.path.join(path,"ncarg") 
-      if os.path.exists(os.path.join(trypath,"colormaps")): 
+    else:
+      trypath = os.path.join(path,"ncarg")
+      if os.path.exists(os.path.join(trypath,"colormaps")):
         return trypath
 
   print "pynglpath: supplemental 'ncarg' directory cannot be found."
