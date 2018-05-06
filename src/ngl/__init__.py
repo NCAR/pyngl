@@ -82,12 +82,12 @@ try:
 #
   if numpy.__version__[0] == '0' and \
      numpy.__version__ < __array_module_version__:
-    print 'Warning: your version of numpy may be older than what PyNGL'
-    print 'was built with. You could have compatibility problems.'
-    print 'PyNGL was built with numpy version',__array_module_version__,'and you are'
-    print 'importing version',numpy.__version__
+    print('Warning: your version of numpy may be older than what PyNGL')
+    print('was built with. You could have compatibility problems.')
+    print('PyNGL was built with numpy version',__array_module_version__,'and you are')
+    print('importing version',numpy.__version__)
 except ImportError:
-  print 'Cannot find numpy, cannot proceed.'
+  print('Cannot find numpy, cannot proceed.')
   sys.exit()
 
 #
@@ -155,11 +155,11 @@ def _fill_bw_xy(wks,plot,xx,yy,res):
     print("_fill_bw_xy: Error: The leftmost dimension of input array must be at least 2.")
     return plot
 
-  if( not res.has_key("nglXYFillColors") and  \
-      not res.has_key("nglXYAboveFillColors") and  \
-      not res.has_key("nglXYBelowFillColors") and  \
-      not res.has_key("nglXYRightFillColors") and  \
-      not res.has_key("nglXYLeftFillColors")):
+  if( "nglXYFillColors" not in res and  \
+      "nglXYAboveFillColors" not in res and  \
+      "nglXYBelowFillColors" not in res and  \
+      "nglXYRightFillColors" not in res and  \
+      "nglXYLeftFillColors" not in res):
     return plot     # No resources set, so just return.
   
 #
@@ -175,7 +175,7 @@ def _fill_bw_xy(wks,plot,xx,yy,res):
 #
 # To make things a little easier, above==right and below==left
 #
-  if(res.has_key("nglXYFillColors")):
+  if("nglXYFillColors" in res):
     above_fill_colors = _get_key_value_keep(res,"nglXYFillColors",[-1])
     below_fill_colors = above_fill_colors
   else:
@@ -399,9 +399,9 @@ if not (os.path.exists(pkgs_pth)):
                         'site-packages')
 
 if (not (os.path.exists(pkgs_pth)) and os.environ.get("PYNGL_NCARG") is None):
-  print 'Cannot find the Python packages directory and PYNGL_NCARG is not set.'
-  print 'There may be some difficulty finding needed PyNGL system files'
-  print 'unless you set the PYNGL_NCARG environment variable.'
+  print('Cannot find the Python packages directory and PYNGL_NCARG is not set.')
+  print('There may be some difficulty finding needed PyNGL system files')
+  print('unless you set the PYNGL_NCARG environment variable.')
 
 first_call_to_open_wks = 0
 
@@ -439,15 +439,15 @@ def _int_id(plot_id):
   elif (isinstance(plot_id,PlotIds)):
 #  Is a PlotIds class instance.
     if (type(plot_id.base[0]) != type(1)):
-      print "plot id is not valid"
+      print("plot id is not valid")
       return None
     return plot_id.base[0]
   else:
-    print "plot id is not valid"
+    print("plot id is not valid")
     return None
 
 def _is_list_or_tuple(arg):
-  if ( ((type(arg) == types.ListType) or (type(arg) == types.TupleType)) ):
+  if ( ((type(arg) == list) or (type(arg) == tuple)) ):
     return True
   else:
     return False
@@ -580,7 +580,7 @@ def _get_res_value_keep(res, attrname,default):
 # the default value given.
 #
 def _get_key_value_keep(res, keyname,default):
-  if res.has_key(keyname):
+  if keyname in res:
     return(res[keyname])
   else:
     return(default)
@@ -612,22 +612,22 @@ def _convert_to_ma(arr,fv):
 # sets the appropriate missing value PyNGL resource.
 #
 def _set_msg_val_res(rlist,fv,plot_type):
-  type_res_pairs = { "xy_x"     : "caXMissingV", 
-                     "xy_y"     : "caYMissingV", 
-                     "scalar"   : "sfMissingValueV", 
+  type_res_pairs = { "xy_x"     : "caXMissingV",
+                     "xy_y"     : "caYMissingV",
+                     "scalar"   : "sfMissingValueV",
                      "vector_u" : "vfMissingUValueV",
                      "vector_v" : "vfMissingVValueV"}
 
-  if not plot_type in type_res_pairs.keys():
+  if not plot_type in list(type_res_pairs.keys()):
     return None
 
   res_to_set = type_res_pairs[plot_type]
   if not fv is None:
-    if not rlist.has_key(res_to_set):
+    if res_to_set not in rlist:
       rlist[res_to_set] = fv
     else:
       if rlist[res_to_set] != fv:
-        print "Warning:",res_to_set,"is not equal to actual missing value of data,",fv
+        print("Warning:",res_to_set,"is not equal to actual missing value of data,",fv)
 
 def _ck_for_rangs(dir):
 #
@@ -647,10 +647,10 @@ def _ck_for_rangs(dir):
   for file in file_names:
     fp_file = dir + "/" + file
     if (not (os.path.exists(fp_file))):
-      print '\nInfo message: The environment variable PYNGL_RANGS has '
-      print '   been set, but the required high-res database file'
-      print '   "' + fp_file + '"'
-      print '   is not in that directory.\n'
+      print('\nInfo message: The environment variable PYNGL_RANGS has ')
+      print('   been set, but the required high-res database file')
+      print('   "' + fp_file + '"')
+      print('   is not in that directory.\n')
       return None
 
 def _ismissing(arg,mval):
@@ -663,7 +663,7 @@ def _ismissing(arg,mval):
     if _is_numpy(arg2):
       pass
     else:
-      print "_ismissing: first argument must be a numpy array or scalar."
+      print("_ismissing: first argument must be a numpy array or scalar.")
       return None
     return(numpy.equal(arg2,mval))
 
@@ -705,20 +705,20 @@ def _test_for_mask_lc(rlist,rlist1):
   masklc      = False
   maskoutline = 1
 
-  if rlist.has_key("nglMaskLambertConformal"):
+  if "nglMaskLambertConformal" in rlist:
     if rlist["nglMaskLambertConformal"]:
       masklc = True
-  if rlist.has_key("nglMaskLambertConformalOutlineOn"):
+  if "nglMaskLambertConformalOutlineOn" in rlist:
     maskoutline = rlist["nglMaskLambertConformalOutlineOn"]
 
   if masklc:
-    if rlist1.has_key("mpMinLatF") and rlist1.has_key("mpMaxLatF") and \
-       rlist1.has_key("mpMinLonF") and rlist1.has_key("mpMaxLonF"):
+    if "mpMinLatF" in rlist1 and "mpMaxLatF" in rlist1 and \
+       "mpMinLonF" in rlist1 and "mpMaxLonF" in rlist1:
       if (rlist1["mpMinLatF"] < 0):
         rlist1["mpLambertParallel1F"] = -0.001
         rlist1["mpLambertParallel2F"] = -89.999
     else:
-      print "map: Warning: one or more of the resources mpMinLatF, mpMaxLatF, mpMinLonF, and mpMaxLonF have not been set."
+      print("map: Warning: one or more of the resources mpMinLatF, mpMaxLatF, mpMinLonF, and mpMaxLonF have not been set.")
       print("No masking of the Lambert Conformal map will take place.")
       masklc = False
 
@@ -730,11 +730,11 @@ def _test_for_mask_lc(rlist,rlist1):
   frameit = True
   maxit   = True
   if masklc:
-    if rlist.has_key("nglDraw"):
+    if "nglDraw" in rlist:
       drawit = rlist["nglDraw"]
-    if rlist.has_key("nglFrame"):
+    if "nglFrame" in rlist:
       frameit = rlist["nglFrame"]
-    if rlist.has_key("nglMaximize"):
+    if "nglMaximize" in rlist:
       maxit = rlist["nglMaximize"]
 
     _set_spc_res("Draw",False)
@@ -784,32 +784,32 @@ def _mask_lambert_conformal(wks, maplc, mask_list, mlcres):
 # Some error checking.
 #
   if (maxlat > 0 and minlat < 0):
-    print "mask_lambert_conformal: warning: you are not authorized to specify."
-    print "  a maxlat that is above the equator and a minlat that is below"
-    print "  the equator. No masking will take place."
+    print("mask_lambert_conformal: warning: you are not authorized to specify.")
+    print("  a maxlat that is above the equator and a minlat that is below")
+    print("  the equator. No masking will take place.")
     return maplc
 
   if (minlon > maxlon):
-     print "mask_lambert_conformal: warning: Minimum longitude is greated than"
-     print "  maximum, subtracting 360 from minumum."
+     print("mask_lambert_conformal: warning: Minimum longitude is greated than")
+     print("  maximum, subtracting 360 from minumum.")
      minlon = minlon - 360
-     print "minlon = "+minlon+", maxlon = "+maxlon
+     print("minlon = "+minlon+", maxlon = "+maxlon)
 
   if (minlat > maxlat):
-     print "mask_lambert_conformal: warning: Minimum latitude is greater than"
-     print "  maximum, swapping the two."
+     print("mask_lambert_conformal: warning: Minimum latitude is greater than")
+     print("  maximum, swapping the two.")
      tmplat = minlat
      minlat = maxlat
      maxlat = tmplat
-     print "minlat = "+minlat+", maxlat = "+maxlat
+     print("minlat = "+minlat+", maxlat = "+maxlat)
 
   if (minlon >= 180 and maxlon > 180):
      minlon = minlon - 360
-     maxlon = maxlon - 360  
+     maxlon = maxlon - 360
 
   if (minlon < 180 and maxlon >= 180):
      minlon = minlon - 360
-     maxlon = maxlon - 360  
+     maxlon = maxlon - 360
 
 #
 # Set up list of map resources. The user should have already created a 
@@ -920,10 +920,10 @@ def _mask_lambert_conformal(wks, maplc, mask_list, mlcres):
 # Calculate NDC coordinates of four corners of area defined by min/max
 # lat/lon coordinates.
 #
-  xmnlnmnlt, ymnlnmnlt = datatondc(maplc, minlon, minlat) 
-  xmxlnmnlt, ymxlnmnlt = datatondc(maplc, maxlon, minlat) 
-  xmnlnmxlt, ymnlnmxlt = datatondc(maplc, minlon, maxlat) 
-  xmxlnmxlt, ymxlnmxlt = datatondc(maplc, maxlon, maxlat) 
+  xmnlnmnlt, ymnlnmnlt = datatondc(maplc, minlon, minlat)
+  xmxlnmnlt, ymxlnmnlt = datatondc(maplc, maxlon, minlat)
+  xmnlnmxlt, ymnlnmxlt = datatondc(maplc, minlon, maxlat)
+  xmxlnmxlt, ymxlnmxlt = datatondc(maplc, maxlon, maxlat)
 
 #
 # Calculate NDC coordinates of southern hemisphere semi-circle.
@@ -1100,11 +1100,11 @@ def _pynglpath_ncarg():
 #  PYNGL_NCARG is set. If not, then look in the PYTHONPATH
 #  directories.
 #
-  pyngl_dir = os.environ.get("PYNGL_NCARG") 
+  pyngl_dir = os.environ.get("PYNGL_NCARG")
   if (not pyngl_dir is None) and os.path.exists(pyngl_dir):
     if not os.path.exists(os.path.join(pyngl_dir,"colormaps")):
-      print "pynglpath: supplemental 'colormaps' directory cannot be found. PYNGL_NCARG"
-      print "           may be set incorrectly. You may not need to set it at all."
+      print("pynglpath: supplemental 'colormaps' directory cannot be found. PYNGL_NCARG")
+      print("           may be set incorrectly. You may not need to set it at all.")
     return pyngl_dir
 
   import sys
@@ -1117,8 +1117,8 @@ def _pynglpath_ncarg():
       if os.path.exists(os.path.join(trypath,"colormaps")):
         return trypath
 
-  print "pynglpath: supplemental 'ncarg' directory cannot be found."
-  print "You may need to set the PYNGL_NCARG environment variable."
+  print("pynglpath: supplemental 'ncarg' directory cannot be found.")
+  print("You may need to set the PYNGL_NCARG environment variable.")
   sys.exit()
 
 def _lst2pobj(lst):
@@ -1299,154 +1299,154 @@ def _set_spc_res(resource_name,value):
 #  end of the list. See also _set_spc_defaults.
 #
   if (resource_name   == "Maximize"):
-    set_nglRes_i(0, lval) 
+    set_nglRes_i(0, lval)
   elif (resource_name == "Draw"):
-    set_nglRes_i(1, lval) 
+    set_nglRes_i(1, lval)
   elif (resource_name == "Frame"):
-    set_nglRes_i(2, lval) 
+    set_nglRes_i(2, lval)
   elif (resource_name == "Scale"):
-    set_nglRes_i(3, lval) 
+    set_nglRes_i(3, lval)
   elif (resource_name == "Debug"):
-    set_nglRes_i(4, lval) 
+    set_nglRes_i(4, lval)
   elif (resource_name == "PaperOrientation"):
     if(type(lval) == types.StringType):
       if(string.lower(lval) == "portrait"):
-        set_nglRes_i(5, 0) 
+        set_nglRes_i(5, 0)
       elif(string.lower(lval) == "landscape"):
-        set_nglRes_i(5, 6) 
+        set_nglRes_i(5, 6)
       elif(string.lower(lval) == "auto"):
-        set_nglRes_i(5, 3) 
+        set_nglRes_i(5, 3)
       else:
-        print "_set_spc_res: Unknown value for " + resource_name
+        print("_set_spc_res: Unknown value for " + resource_name)
     else:
-      set_nglRes_i(5, lval) 
+      set_nglRes_i(5, lval)
   elif (resource_name == "PaperWidth"):
-    set_nglRes_f(6, lval) 
+    set_nglRes_f(6, lval)
   elif (resource_name == "PaperHeight"):
-    set_nglRes_f(7, lval) 
+    set_nglRes_f(7, lval)
   elif (resource_name == "PaperMargin"):
-    set_nglRes_f(8, lval) 
+    set_nglRes_f(8, lval)
   elif (resource_name == "PanelCenter"):
-    set_nglRes_i(9, lval) 
+    set_nglRes_i(9, lval)
   elif (resource_name == "PanelRowSpec"):
-    set_nglRes_i(10, lval) 
+    set_nglRes_i(10, lval)
   elif (resource_name == "PanelXWhiteSpacePercent"):
-    set_nglRes_f(11, lval) 
+    set_nglRes_f(11, lval)
   elif (resource_name == "PanelYWhiteSpacePercent"):
-    set_nglRes_f(12, lval) 
+    set_nglRes_f(12, lval)
   elif (resource_name == "PanelBoxes"):
-    set_nglRes_i(13, lval) 
+    set_nglRes_i(13, lval)
   elif (resource_name == "PanelLeft"):
-    set_nglRes_f(14, lval) 
+    set_nglRes_f(14, lval)
   elif (resource_name == "PanelRight"):
-    set_nglRes_f(15, lval) 
+    set_nglRes_f(15, lval)
   elif (resource_name == "PanelBottom"):
-    set_nglRes_f(16, lval) 
+    set_nglRes_f(16, lval)
   elif (resource_name == "PanelTop"):
-    set_nglRes_f(17, lval) 
+    set_nglRes_f(17, lval)
   elif (resource_name == "PanelInvsblTop"):
-    set_nglRes_f(18, lval) 
+    set_nglRes_f(18, lval)
   elif (resource_name == "PanelInvsblLeft"):
-    set_nglRes_f(19, lval) 
+    set_nglRes_f(19, lval)
   elif (resource_name == "PanelInvsblRight"):
-    set_nglRes_f(20, lval) 
+    set_nglRes_f(20, lval)
   elif (resource_name == "PanelInvsblBottom"):
-    set_nglRes_f(21, lval) 
+    set_nglRes_f(21, lval)
   elif (resource_name == "PanelSave"):
-    set_nglRes_i(22, lval) 
+    set_nglRes_i(22, lval)
   elif (resource_name == "SpreadColors"):
-    set_nglRes_i(23, lval) 
+    set_nglRes_i(23, lval)
   elif (resource_name == "SpreadColorStart"):
-    set_nglRes_i(24, lval) 
+    set_nglRes_i(24, lval)
   elif (resource_name == "SpreadColorEnd"):
-    set_nglRes_i(25, lval) 
+    set_nglRes_i(25, lval)
   elif (resource_name == "PanelLabelBarOrientation"):
-    set_nglRes_i(26, lval) 
+    set_nglRes_i(26, lval)
   elif (resource_name == "PanelLabelBar" and len(resource_name) == 13):
-    set_nglRes_i(27, lval) 
+    set_nglRes_i(27, lval)
   elif (resource_name == "PanelLabelBarXF"):
-    set_nglRes_f(28, lval) 
+    set_nglRes_f(28, lval)
   elif (resource_name == "PanelLabelBarYF"):
-    set_nglRes_f(29, lval) 
+    set_nglRes_f(29, lval)
   elif (resource_name == "PanelLabelBarLabelFontHeightF"):
-    set_nglRes_f(30, lval) 
+    set_nglRes_f(30, lval)
   elif (resource_name == "PanelLabelBarWidthF"):
-    set_nglRes_f(31, lval) 
+    set_nglRes_f(31, lval)
   elif (resource_name == "PanelLabelBarHeightF"):
-    set_nglRes_f(32, lval) 
+    set_nglRes_f(32, lval)
   elif (resource_name == "PanelLabelBarOrthogonalPosF"):
-    set_nglRes_f(33, lval) 
+    set_nglRes_f(33, lval)
   elif (resource_name == "PanelLabelBarParallelPosF"):
-    set_nglRes_f(34, lval) 
+    set_nglRes_f(34, lval)
   elif (resource_name == "PanelLabelBarPerimOn"):
-    set_nglRes_i(35, lval) 
+    set_nglRes_i(35, lval)
   elif (resource_name == "PanelLabelBarAlignment"):
-    set_nglRes_i(36, lval) 
+    set_nglRes_i(36, lval)
   elif (resource_name == "PanelLabelBarLabelAutoStride"):
-    set_nglRes_i(37, lval) 
+    set_nglRes_i(37, lval)
   elif (resource_name == "PanelFigureStrings" and len(resource_name) == 18):
-    set_nglRes_c(38, lval) 
+    set_nglRes_c(38, lval)
   elif (resource_name == "PanelFigureStringsCount"):
-    set_nglRes_i(39, lval) 
+    set_nglRes_i(39, lval)
   elif (resource_name == "PanelFigureStringsJust"):
-    set_nglRes_i(40, lval) 
+    set_nglRes_i(40, lval)
   elif (resource_name == "PanelFigureStringsOrthogonalPosF"):
-    set_nglRes_f(41, lval) 
+    set_nglRes_f(41, lval)
   elif (resource_name == "PanelFigureStringsParallelPosF"):
-    set_nglRes_f(42, lval) 
+    set_nglRes_f(42, lval)
   elif (resource_name == "PanelFigureStringsPerimOn"):
-    set_nglRes_i(43, lval) 
+    set_nglRes_i(43, lval)
   elif (resource_name == "PanelFigureStringsBackgroundFillColor"):
-    set_nglRes_i(44, lval) 
+    set_nglRes_i(44, lval)
   elif (resource_name == "PanelFigureStringsFontHeightF"):
-    set_nglRes_f(45, lval) 
+    set_nglRes_f(45, lval)
   elif (resource_name == "AppResFileName"):
-    set_nglRes_s(46, lval) 
+    set_nglRes_s(46, lval)
   elif (resource_name == "XAxisType"):
     if(type(lval) == types.StringType):
       if(string.lower(lval) == "irregularaxis"):
-        set_nglRes_i(47, 0) 
+        set_nglRes_i(47, 0)
       elif(string.lower(lval) == "linearaxis"):
-        set_nglRes_i(47, 1) 
+        set_nglRes_i(47, 1)
       elif(string.lower(lval) == "logaxis"):
-        set_nglRes_i(47, 2) 
+        set_nglRes_i(47, 2)
       else:
-        print "_set_spc_res: Unknown value for " + resource_name
+        print("_set_spc_res: Unknown value for " + resource_name)
     else:
-      set_nglRes_i(47, lval) 
+      set_nglRes_i(47, lval)
   elif (resource_name == "YAxisType"):
     if(type(lval) == types.StringType):
       if(string.lower(lval) == "irregularaxis"):
-        set_nglRes_i(48, 0) 
+        set_nglRes_i(48, 0)
       elif(string.lower(lval) == "linearaxis"):
-        set_nglRes_i(48, 1) 
+        set_nglRes_i(48, 1)
       elif(string.lower(lval) == "logaxis"):
-        set_nglRes_i(48, 2) 
+        set_nglRes_i(48, 2)
       else:
-        print "_set_spc_res: Unknown value for " + resource_name
+        print("_set_spc_res: Unknown value for " + resource_name)
     else:
-      set_nglRes_i(48, lval) 
+      set_nglRes_i(48, lval)
   elif (resource_name == "PointTickmarksOutward"):
-    set_nglRes_i(49, lval) 
+    set_nglRes_i(49, lval)
   elif (resource_name == "XRefLine"):
-    set_nglRes_f(50, lval) 
+    set_nglRes_f(50, lval)
   elif (resource_name == "YRefLine"):
-    set_nglRes_f(51, lval) 
+    set_nglRes_f(51, lval)
   elif (resource_name == "XRefLineThicknessF"):
-    set_nglRes_f(52, lval) 
+    set_nglRes_f(52, lval)
   elif (resource_name == "YRefLineThicknessF"):
-    set_nglRes_f(53, lval) 
+    set_nglRes_f(53, lval)
   elif (resource_name == "XRefLineColor"):
-    set_nglRes_i(54, lval) 
+    set_nglRes_i(54, lval)
   elif (resource_name == "YRefLineColor"):
-    set_nglRes_i(55, lval) 
+    set_nglRes_i(55, lval)
   elif (resource_name == "MaskLambertConformal"):
-    set_nglRes_i(56, lval) 
+    set_nglRes_i(56, lval)
   elif (resource_name == "MaskLambertConformalOutlineOn"):
-    set_nglRes_i(57, lval) 
+    set_nglRes_i(57, lval)
 
   else:
-    print "_set_spc_res: Unknown special resource ngl" + resource_name
+    print("_set_spc_res: Unknown special resource ngl" + resource_name)
 
 def _check_res_value(resvalue,strvalue,intvalue):
 #
@@ -1465,8 +1465,8 @@ def _set_tickmark_res(reslist,reslist1):
 # Set tmEqualizeXYSizes to True so that tickmark lengths and font
 # heights are the same size on both axes.
 #
-  if((reslist.has_key("nglScale") and reslist["nglScale"] > 0) or
-     (not (reslist.has_key("nglScale")))):
+  if(("nglScale" in reslist and reslist["nglScale"] > 0) or
+     (not ("nglScale" in reslist))):
     reslist1["tmEqualizeXYSizes"] = True
 
 def _set_contour_res(reslist,reslist1):
@@ -1474,19 +1474,19 @@ def _set_contour_res(reslist,reslist1):
 #  Set some contour resources of which we either don't like the NCL
 #  defaults, or we want to set something on behalf of the user.
 #
-  if(reslist.has_key("cnFillOn") and reslist["cnFillOn"] > 0):
-    if ( not (reslist.has_key("cnInfoLabelOn"))):
+  if("cnFillOn" in reslist and reslist["cnFillOn"] > 0):
+    if ( not ("cnInfoLabelOn" in reslist)):
       reslist1["cnInfoLabelOn"] = False
-    if ( not (reslist.has_key("pmLabelBarDisplayMode")) and 
-         (not (reslist.has_key("lbLabelBarOn")) or 
-               reslist.has_key("lbLabelBarOn") and 
+    if ( not ("pmLabelBarDisplayMode" in reslist) and
+         (not ("lbLabelBarOn" in reslist) or
+               "lbLabelBarOn" in reslist and
                         reslist["lbLabelBarOn"] > 0)):
       reslist1["pmLabelBarDisplayMode"] = "Always"
 #
 # The ContourPlot object does not recognize the lbLabelBarOn resource
 # so we have to remove it after we've used it.
 #
-  if (reslist1.has_key("lbLabelBarOn")):
+  if ("lbLabelBarOn" in reslist1):
     del reslist1["lbLabelBarOn"]
 #
 # It used to be that nglSpreadColors was set to True by default.
@@ -1497,37 +1497,37 @@ def _set_contour_res(reslist,reslist1):
 # something other than 2 and/or nglSpreadColorEnd is set explicitly
 # to something other than -1.
 #
-  if((reslist.has_key("nglSpreadColorStart") and
-      reslist["nglSpreadColorStart"] != 2) or 
-     (reslist.has_key("nglSpreadColorEnd") and
+  if(("nglSpreadColorStart" in reslist and
+      reslist["nglSpreadColorStart"] != 2) or
+     ("nglSpreadColorEnd" in reslist and
       reslist["nglSpreadColorEnd"] != -1)):
       lval = 1
-      set_nglRes_i(23, lval) 
+      set_nglRes_i(23, lval)
 #
 #  Check for "plural" resources that only take effect if their
 #  corresponding "Mono" resource is set to False, and set the
 #  Mono resource on behalf of the user.
 #
-  if(reslist.has_key("cnLineDashPatterns")):
-    if ( not (reslist.has_key("cnMonoLineDashPattern"))):
+  if("cnLineDashPatterns" in reslist):
+    if ( not ("cnMonoLineDashPattern" in reslist)):
       reslist1["cnMonoLineDashPattern"] = False
-  if(reslist.has_key("cnLineColors")):
-    if (not (reslist.has_key("cnMonoLineColor"))):
+  if("cnLineColors" in reslist):
+    if (not ("cnMonoLineColor" in reslist)):
       reslist1["cnMonoLineColor"] = False
-  if(reslist.has_key("cnLineThicknesss")):
-    if (not (reslist.has_key("cnMonoLineThickness"))):
+  if("cnLineThicknesss" in reslist):
+    if (not ("cnMonoLineThickness" in reslist)):
       reslist1["cnMonoLineThickness"] = False
-  if(reslist.has_key("cnLevelFlags")):
-    if (not (reslist.has_key("cnMonoLevelFlag"))):
+  if("cnLevelFlags" in reslist):
+    if (not ("cnMonoLevelFlag" in reslist)):
       reslist1["cnMonoLevelFlag"] = False
-  if(reslist.has_key("cnFillPatterns")):
-    if (not (reslist.has_key("cnMonoFillPattern"))):
+  if("cnFillPatterns" in reslist):
+    if (not ("cnMonoFillPattern" in reslist)):
       reslist1["cnMonoFillPattern"] = False
-  if(reslist.has_key("cnFillScales")):
-    if (not (reslist.has_key("cnMonoFillScale"))):
+  if("cnFillScales" in reslist):
+    if (not ("cnMonoFillScale" in reslist)):
       reslist1["cnMonoFillScale"] = False
-  if(reslist.has_key("cnLineLabelFontColors")):
-    if (not (reslist.has_key("cnMonoLineLabelFontColor"))):
+  if("cnLineLabelFontColors" in reslist):
+    if (not ("cnMonoLineLabelFontColor" in reslist)):
       reslist1["cnMonoLineLabelFontColor"] = False
 #
 # Set some tickmark resources.
@@ -1549,28 +1549,28 @@ def _set_vector_res(reslist,reslist1):
 # set, because it all depends on if vcGlyphStyle is set a certain way.
 # Put the responsibility on the user
 #
-  if( (reslist.has_key("vcMonoLineArrowColor") and
+  if( ("vcMonoLineArrowColor" in reslist and
        (_check_res_value(reslist["vcMonoLineArrowColor"],"False",0) or
        not reslist["vcMonoLineArrowColor"])) or
-      (reslist.has_key("vcMonoFillArrowFillColor") and
+      ("vcMonoFillArrowFillColor" in reslist and
        (_check_res_value(reslist["vcMonoFillArrowFillColor"],"False",0) or
        not reslist["vcMonoFillArrowFillColor"])) or
-      (reslist.has_key("vcMonoFillArrowEdgeColor") and
+      ("vcMonoFillArrowEdgeColor" in reslist and
        (_check_res_value(reslist["vcMonoFillArrowEdgeColor"],"False",0) or
        not reslist["vcMonoFillArrowEdgeColor"])) or
-      (reslist.has_key("vcMonoWindBarbColor") and
+      ("vcMonoWindBarbColor" in reslist and
        (_check_res_value(reslist["vcMonoWindBarbColor"],"False",0) or
         not reslist["vcMonoWindBarbColor"]))):
-    if ( not (reslist.has_key("pmLabelBarDisplayMode")) and 
-         (not (reslist.has_key("lbLabelBarOn")) or 
-               reslist.has_key("lbLabelbarOn") and 
+    if ( not ("pmLabelBarDisplayMode" in reslist) and
+         (not ("lbLabelBarOn" in reslist) or
+               "lbLabelbarOn" in reslist and
                         reslist["lbLabelBarOn"] > 0)):
       reslist1["pmLabelBarDisplayMode"] = "Always"
 #
 # The VectorPlot object does not recognize the lbLabelBarOn resource
 # so we have to remove it after we've used it.
 #
-  if (reslist1.has_key("lbLabelBarOn")):
+  if ("lbLabelBarOn" in reslist1):
     del reslist1["lbLabelBarOn"]
 #
 # It used to be that nglSpreadColors was set to True by default.
@@ -1581,12 +1581,12 @@ def _set_vector_res(reslist,reslist1):
 # something other than 2 and/or nglSpreadColorEnd is set explicitly
 # to something other than -1.
 #
-  if((reslist.has_key("nglSpreadColorStart") and
-      reslist["nglSpreadColorStart"] != 2) or 
-     (reslist.has_key("nglSpreadColorEnd") and
+  if(("nglSpreadColorStart" in reslist and
+      reslist["nglSpreadColorStart"] != 2) or
+     ("nglSpreadColorEnd" in reslist and
       reslist["nglSpreadColorEnd"] != -1)):
       lval = 1
-      set_nglRes_i(23, lval) 
+      set_nglRes_i(23, lval)
 #
 # Set some tickmark resources.
 #
@@ -1601,15 +1601,15 @@ def _set_streamline_res(reslist,reslist1):
 # Instead, there's an stLevelColors resource, and this is the one we
 # need to set here.
 #
-  if(reslist.has_key("stLevelColors")):
-    if (not (reslist.has_key("stMonoLineColor"))):
+  if("stLevelColors" in reslist):
+    if (not ("stMonoLineColor" in reslist)):
       reslist1["stMonoLineColor"] = False
 
-  if( reslist.has_key("stMonoLineColor") and
+  if( "stMonoLineColor" in reslist and
       (reslist["stMonoLineColor"]  or reslist["stMonoLineColor"] == 0)):
-    if ( not (reslist.has_key("pmLabelBarDisplayMode")) and 
-         (not (reslist.has_key("lbLabelBarOn")) or 
-               reslist.has_key("lbLabelbarOn") and 
+    if ( not ("pmLabelBarDisplayMode" in reslist) and
+         (not ("lbLabelBarOn" in reslist) or
+               "lbLabelbarOn" in reslist and
                         reslist["lbLabelBarOn"] > 0)):
       reslist1["pmLabelBarDisplayMode"] = "Always"
 
@@ -1622,15 +1622,15 @@ def _set_map_res(reslist,reslist1):
 #
 # Turn on map tickmarks.
 #
-  if ( not (reslist.has_key("pmTickMarkDisplayMode"))):
+  if ( not ("pmTickMarkDisplayMode" in reslist)):
     reslist1["pmTickMarkDisplayMode"] = "Always"
-  if ( not (reslist.has_key("pmTitleDisplayMode"))):
+  if ( not ("pmTitleDisplayMode" in reslist)):
     reslist1["pmTitleDisplayMode"] = "Conditional"
-  if(reslist.has_key("mpFillPatterns")):
-    if (not (reslist.has_key("mpMonoFillPattern"))):
+  if("mpFillPatterns" in reslist):
+    if (not ("mpMonoFillPattern" in reslist)):
       reslist1["mpMonoFillPattern"] = False
-  if(reslist.has_key("mpFillScales")):
-    if (not (reslist.has_key("mpMonoFillScale"))):
+  if("mpFillScales" in reslist):
+    if (not ("mpMonoFillScale" in reslist)):
       reslist1["mpMonoFillScale"] = False
   
 def _set_labelbar_res(reslist,reslist1,part_of_plot):
@@ -1638,19 +1638,19 @@ def _set_labelbar_res(reslist,reslist1,part_of_plot):
 # Set some labelbar resources of which we don't like the NCL
 # defaults.
 # 
-  if ( not (reslist.has_key("lbPerimOn"))):
+  if ( not ("lbPerimOn" in reslist)):
     reslist1["lbPerimOn"] = False
-  if ( not (reslist.has_key("lbLabelAutoStride"))):
+  if ( not ("lbLabelAutoStride" in reslist)):
     reslist1["lbLabelAutoStride"] = True
-  if(reslist.has_key("lbLabelFontHeightF")):
-    if ( not (reslist.has_key("lbAutoManage"))):
+  if("lbLabelFontHeightF" in reslist):
+    if ( not ("lbAutoManage" in reslist)):
       reslist1["lbAutoManage"] = False
-  if(reslist.has_key("lbFillScales")):
-    if (not (reslist.has_key("lbMonoFillScale"))):
+  if("lbFillScales" in reslist):
+    if (not ("lbMonoFillScale" in reslist)):
       reslist1["lbMonoFillScale"] = False
   if(part_of_plot):
-      if(reslist.has_key("lbOrientation")):
-        if ( not (reslist.has_key("pmLabelBarSide"))):
+      if("lbOrientation" in reslist):
+        if ( not ("pmLabelBarSide" in reslist)):
           if(_check_res_value(reslist["lbOrientation"],"Horizontal",0)):
             reslist1["pmLabelBarSide"] = "Bottom"
           if(_check_res_value(reslist["lbOrientation"],"Vertical",1)):
@@ -1665,30 +1665,30 @@ def _set_legend_res(reslist,reslist1):
 # We may not be doing anything with these yet, since
 # we don't have a legend function yet.
 # 
-  if ( not (reslist.has_key("lgPerimOn"))):
+  if ( not ("lgPerimOn" in reslist)):
     reslist1["lgPerimOn"] = False
-  if ( not (reslist.has_key("lgLabelAutoStride"))):
+  if ( not ("lgLabelAutoStride" in reslist)):
     reslist1["lgLabelAutoStride"] = True
-  if(reslist.has_key("lgLabelFontHeightF")):
-    if ( not (reslist.has_key("lgAutoManage"))):
+  if("lgLabelFontHeightF" in reslist):
+    if ( not ("lgAutoManage" in reslist)):
       reslist1["lgAutoManage"] = False
-  if(reslist.has_key("lgItemTypes")):
-    if (not (reslist.has_key("lgMonoItemType"))):
+  if("lgItemTypes" in reslist):
+    if (not ("lgMonoItemType" in reslist)):
       reslist1["lgMonoItemType"] = False
-  if(reslist.has_key("lgLineDashSegLens")):
-    if (not (reslist.has_key("lgMonoLineDashSegLen"))):
+  if("lgLineDashSegLens" in reslist):
+    if (not ("lgMonoLineDashSegLen" in reslist)):
       reslist1["lgMonoLineDashSegLen"] = False
-  if(reslist.has_key("lgLineThicknesses")):
-    if (not (reslist.has_key("lgMonoLineThickness"))):
+  if("lgLineThicknesses" in reslist):
+    if (not ("lgMonoLineThickness" in reslist)):
       reslist1["lgMonoLineThickness"] = False
-  if(reslist.has_key("lgMarkerThicknesses")):
-    if (not (reslist.has_key("lgMonoMarkerThickness"))):
+  if("lgMarkerThicknesses" in reslist):
+    if (not ("lgMonoMarkerThickness" in reslist)):
       reslist1["lgMonoMarkerThickness"] = False
-  if(reslist.has_key("lgLineLabelFontHeights")):
-    if (not (reslist.has_key("lgMonoLineLabelFontHeight"))):
+  if("lgLineLabelFontHeights" in reslist):
+    if (not ("lgMonoLineLabelFontHeight" in reslist)):
       reslist1["lgMonoLineLabelFontHeight"] = False
-  if(reslist.has_key("lgMarkerSizes")):
-    if (not (reslist.has_key("lgMonoMarkerSize"))):
+  if("lgMarkerSizes" in reslist):
+    if (not ("lgMonoMarkerSize" in reslist)):
       reslist1["lgMonoMarkerSize"] = False
 
 # Converts resource class to a dictionary.
@@ -1813,9 +1813,9 @@ def _get_skewt_msg(varname,res_intrnl,res_public,opt,ma_fv):
 #
   if hasattr(opt,res_intrnl):
     if (not ma_fv is None) and ma_fv != getattr(opt,res_intrnl):
-      print "_get_skewt_msg:",res_public,"is being set to a different value"
-      print "           than the fill_value in the",varname,"masked array."
-      print "           The masked array fill_value will take precedence."
+      print("_get_skewt_msg:",res_public,"is being set to a different value")
+      print("           than the fill_value in the",varname,"masked array.")
+      print("           The masked array fill_value will take precedence.")
       msg = ma_fv
     else:
       msg = getattr(opt,res_intrnl)
@@ -1876,11 +1876,11 @@ def _poly(wks,plot,x,y,ptype,is_ndc,rlistc=None):
   _set_spc_defaults(0)
   rlist1 = {}
   if (not rlistc is None) and rlistc != False:
-    rlist = _crt_dict(rlistc)  
-    for key in rlist.keys():
+    rlist = _crt_dict(rlistc)
+    for key in list(rlist.keys()):
       rlist[key] = _convert_from_ma(rlist[key])
       if (key[0:3] == "ngl"):
-        _set_spc_res(key[3:],rlist[key])      
+        _set_spc_res(key[3:],rlist[key])
       else:
         rlist1[key] = rlist[key]
 
@@ -1901,12 +1901,12 @@ def _add_poly(wks,plot,x,y,ptype,rlistc=None,isndc=0):
   x2,fill_value_x = _get_arr_and_fv(x)
   y2,fill_value_y = _get_arr_and_fv(y)
 
-  rlist = _crt_dict(rlistc)  
+  rlist = _crt_dict(rlistc)
   rlist1 = {}
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])
     else:
       rlist1[key] = rlist[key]
 
@@ -2018,7 +2018,7 @@ longitude -- An optional one-dimensional array, representing
 #
   dims = data.shape
   if (len(dims) != 2):
-    print "add_cyclic: input must be a 2-dimensional array."
+    print("add_cyclic: input must be a 2-dimensional array.")
     sys.exit()
 
   ny  = dims[0]
@@ -2039,14 +2039,14 @@ longitude -- An optional one-dimensional array, representing
 # Longitude coordindate array must be 1D.
 #
     if (lon_coord_rank != 1):
-      print "add_cyclic: longitude coordinate array must be a 1-dimensional."
+      print("add_cyclic: longitude coordinate array must be a 1-dimensional.")
       sys.exit()
 #
 # Check dimension size against data array.
 #
     nlon = lon_coord_dims[0]
     if (nlon != nx):
-      print "add_cyclic: longitude coordinate array must be the same length as the rightmost dimension of the data array."
+      print("add_cyclic: longitude coordinate array must be the same length as the rightmost dimension of the data array.")
       sys.exit()
 
 #
@@ -2119,7 +2119,7 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
   """
 
   if (len(data.shape) != 2):
-    print "add_new_coord_limits - array must be 2D"
+    print("add_new_coord_limits - array must be 2D")
     sys.exit()
 
   data_is_masked = False
@@ -2128,7 +2128,7 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
       data2,fillvalue = _get_arr_and_fv(data)
       data_is_masked = True
     else:
-      print "add_new_coord_limits - fillvalue must be set if you don't have a masked array"
+      print("add_new_coord_limits - fillvalue must be set if you don't have a masked array")
       sys.exit()
   else:
     data2 = data
@@ -2138,7 +2138,7 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
 # be added.
 #
   if xcoord is None and ycoord is None:
-    print "add_new_coord_limits: At least one of xcoord and/or ycoord must be set to an array"
+    print("add_new_coord_limits: At least one of xcoord and/or ycoord must be set to an array")
     sys.exit()
 
   nx       = data2.shape[1]
@@ -2153,14 +2153,14 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
 
   if not xcoord is None:
     if (len(xcoord.shape) != 1):
-      print "add_new_coord_limits - X coord array must be 1D"
+      print("add_new_coord_limits - X coord array must be 1D")
       sys.exit()
 
     if xmin is None and xmax is None:
-      print "add_new_coord_limits: If xcoord is specified, then one of xmin, xmax must be specified"
+      print("add_new_coord_limits: If xcoord is specified, then one of xmin, xmax must be specified")
       sys.exit()
     if xcoord.shape[0] != nx:
-      print "add_new_coord_limits: xcoord must be the same length as the second dimension of data"
+      print("add_new_coord_limits: xcoord must be the same length as the second dimension of data")
       sys.exit()
 #
 # Test if one or two elements are to be added.
@@ -2175,15 +2175,15 @@ ymin,ymax -- Optional new minimum or maximum values for the Y coordinate
 
   if not ycoord is None:
     if (len(ycoord.shape) != 1):
-      print "add_new_coord_limits - Y coord array must be 1D"
+      print("add_new_coord_limits - Y coord array must be 1D")
       sys.exit()
 
     if ymin is None and ymax is None:
-      print "add_new_coord_limits: If ycoord is specified, then one of ymin, ymax must be specified"
+      print("add_new_coord_limits: If ycoord is specified, then one of ymin, ymax must be specified")
       sys.exit()
 
     if ycoord.shape[0] != ny:
-      print "add_new_coord_limits: ycoord must be the same length as the first dimension of data"
+      print("add_new_coord_limits: ycoord must be the same length as the first dimension of data")
       sys.exit()
 #
 # Test if one or two elements are to be added.
@@ -2275,7 +2275,7 @@ latitude -- An optional one-dimensional array, representing
 #
   dims = data.shape
   if (len(dims) != 2):
-    print "add_lat_90: input must be a 2-dimensional array."
+    print("add_lat_90: input must be a 2-dimensional array.")
     sys.exit()
 
   if(axis is None):
@@ -2283,7 +2283,7 @@ latitude -- An optional one-dimensional array, representing
   else:
     saxis = string.lower(axis)
     if (saxis != "x" and saxis != "y"):
-      print "add_lat_90: 'axis' must be set to 'x' or 'y'"
+      print("add_lat_90: 'axis' must be set to 'x' or 'y'")
       sys.exit()
 
   ny  = dims[0]
@@ -2309,7 +2309,7 @@ latitude -- An optional one-dimensional array, representing
 # Latitude coordindate array must be 1D.
 #
     if (lat_coord_rank != 1):
-      print "add_lat_90: latitude coordinate array must be a 1-dimensional."
+      print("add_lat_90: latitude coordinate array must be a 1-dimensional.")
       sys.exit()
 #
 # Check dimension size against data array.
@@ -2317,7 +2317,7 @@ latitude -- An optional one-dimensional array, representing
     nlat = lat_coord_dims[0]
     if ((saxis == "y" and nlat != ny) or \
         (saxis == "x" and nlat != nx)):
-      print "add_lat_90: latitude coordinate array must be the same length as the",axis,"dimension of the data array."
+      print("add_lat_90: latitude coordinate array must be the same length as the",axis,"dimension of the data array.")
       sys.exit()
 
     nlat1 = nlat+1
@@ -2454,7 +2454,7 @@ x, y -- One-dimensional arrays containing the x, y coordinates of the
 res -- An optional instance of the Resources class having TextItem
        resources as attributes.
   """
-  rlist = _crt_dict(rlistc)  
+  rlist = _crt_dict(rlistc)
  
 #
 #  Separate the resource dictionary into those resources
@@ -2462,7 +2462,7 @@ res -- An optional instance of the Resources class having TextItem
 #
   am_rlist  = {}
   tx_rlist  = {}
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:2] == "tx"):
       tx_rlist[key] = rlist[key]
@@ -2536,11 +2536,11 @@ type -- An optional argument specifying the type of the data you are
             pass
   else:
     nnum = 1
-    if (not (isinstance(dims,types.ListType)) and \
-        not (isinstance(dims,types.TupleType))):
-      print 'asciiread: dims must be a list or a tuple'
+    if (not (isinstance(dims,list)) and \
+        not (isinstance(dims,tuple))):
+      print('asciiread: dims must be a list or a tuple')
       return None
-    for m in xrange(len(dims)):
+    for m in range(len(dims)):
       nnum = nnum*dims[m]
  
   if (type == "integer"):
@@ -2550,7 +2550,7 @@ type -- An optional argument specifying the type of the data you are
   elif (type == "double"):
     ar = numpy.zeros(nnum,'float64')
   else:
-    print 'asciiread: type must be one of: "integer", "float", or "double".'
+    print('asciiread: type must be one of: "integer", "float", or "double".')
     sys.exit()
 
   count = 0
@@ -2577,7 +2577,7 @@ type -- An optional argument specifying the type of the data you are
           pass
 
   if (count < nnum and dims != -1):
-    print "asciiread: Warning, fewer data items than specified array size."
+    print("asciiread: Warning, fewer data items than specified array size.")
 
   file.close()
   if (dims == -1):
@@ -2648,7 +2648,7 @@ res -- An (optional) instance of the Resources class having PyNGL
   """
   _set_spc_defaults(1)
 
-  rlist = _crt_dict(rlistc)  
+  rlist = _crt_dict(rlistc)
  
 #
 #  Separate the resource dictionary into those resources
@@ -2657,25 +2657,25 @@ res -- An (optional) instance of the Resources class having PyNGL
   bp_rlist  = {}
 
 # For a blank plot, we usually don't want to draw it or advance the frame.
-  if not rlist.has_key("nglDraw"):
+  if "nglDraw" not in rlist:
     rlist["nglDraw"] = False
 
-  if not rlist.has_key("nglFame"):
+  if "nglFame" not in rlist:
     rlist["nglFrame"] = False
 
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
     if(key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])
     else:
       bp_rlist[key] = rlist[key]
 
   _set_tickmark_res(rlist,bp_rlist)      # Set some addtl tickmark resources
 
-  if not rlist.has_key("pmTickMarkDisplayMode"):
+  if "pmTickMarkDisplayMode" not in rlist:
     bp_rlist["pmTickMarkDisplayMode"] = "Always"
 
-  if not rlist.has_key("pmTitleDisplayMode"):
+  if "pmTitleDisplayMode" not in rlist:
     bp_rlist["pmTitleDisplayMode"] = "Always"
 
 #
@@ -2765,14 +2765,14 @@ res -- An optional instance of the Resources class having PyNGL
 #  Make sure the array is 1D or 2D.
 #
   if (len(array.shape) != 1 and len(array.shape) != 2):
-    print "contour - array must be 1D or 2D"
+    print("contour - array must be 1D or 2D")
     return None
 
 # Get NumPy array from masked array, if necessary.
   arr2,fill_value = _get_arr_and_fv(array)
   
   _set_spc_defaults(1)
-  rlist = _crt_dict(rlistc)  
+  rlist = _crt_dict(rlistc)
  
 #  Separate the resource dictionary into those resources
 #  that apply to ScalarField and those that apply to
@@ -2781,12 +2781,12 @@ res -- An optional instance of the Resources class having PyNGL
   rlist1 = {}
   rlist2 = {}
   rlist3 = {}
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:2] == "sf"):
       rlist1[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])
     else:
       rlist2[key] = rlist[key]
 #
@@ -2842,14 +2842,14 @@ res -- An optional instance of the Resources class having PyNGL
 #  Make sure the array is 2D.
 #
   if (len(array.shape) != 1 and len(array.shape) != 2):
-    print "contour_map - array must be 1D or 2D"
+    print("contour_map - array must be 1D or 2D")
     return None
 
 # Get NumPy array from masked array, if necessary.
   arr2,fill_value = _get_arr_and_fv(array)
     
   _set_spc_defaults(1)
-  rlist = _crt_dict(rlistc)  
+  rlist = _crt_dict(rlistc)
  
 #  Separate the resource dictionary into those resources
 #  that apply to ScalarField, MapPlot, and ContourPlot.
@@ -2858,7 +2858,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist2 = {}
   rlist3 = {}
 
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
 # Now sort resources into correct individual resource lists.
     if (key[0:2] == "sf"):
@@ -2868,7 +2868,7 @@ res -- An optional instance of the Resources class having PyNGL
           (key[0:2] == "ti") ):
       rlist2[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])
     else:
       rlist3[key] = rlist[key]
 
@@ -3297,19 +3297,17 @@ xo -- A 1D array of length nxo containing the abscissae for the
   elif _is_numpy_array(x):
     dsizes_x = x.shape[0]
   else:
-    print \
-     "ftcurv: type of argument 1 must be one of: list, tuple, or NumPy array"
+    print("ftcurv: type of argument 1 must be one of: list, tuple, or NumPy array")
     return None
   if _is_list_or_tuple(y):
     dsizes_y = len(y)
   elif _is_numpy_array(y):
     dsizes_y = y.shape[0]
   else:
-    print \
-     "ftcurv: type of argument 2 must be one of: list, tuple, or NumPy array"
+    print("ftcurv: type of argument 2 must be one of: list, tuple, or NumPy array")
     return None
   if (dsizes_x != dsizes_y):
-    print "ftcurv: first and second arguments must be the same length."
+    print("ftcurv: first and second arguments must be the same length.")
     return None
 
   if _is_list_or_tuple(xo):
@@ -3319,10 +3317,10 @@ xo -- A 1D array of length nxo containing the abscissae for the
 
   status,yo = ftcurvc(dsizes_x,x,y,dsizes_xo,xo)
   if (status == 1):
-    print "ftcurv: input array must have at least three elements."
+    print("ftcurv: input array must have at least three elements.")
     return None
-  elif (status == 2): 
-    print "ftcurv: input array values must be strictly increasing."
+  elif (status == 2):
+    print("ftcurv: input array values must be strictly increasing.")
     return None
   else:
     del status
@@ -3357,19 +3355,17 @@ xo -- A 1D array of length nxo containing the abscissae for the
   elif _is_numpy_array(x):
     dsizes_x = x.shape[0]
   else:
-    print \
-     "ftcurvp: type of argument 1 must be one of: list, tuple, or NumPy array"
+    print("ftcurvp: type of argument 1 must be one of: list, tuple, or NumPy array")
     return None
   if _is_list_or_tuple(y):
     dsizes_y = len(y)
   elif _is_numpy_array(y):
     dsizes_y = y.shape[0]
   else:
-    print \
-     "ftcurvp: type of argument 2 must be one of: list, tuple, or NumPy array"
+    print("ftcurvp: type of argument 2 must be one of: list, tuple, or NumPy array")
     return None
   if (dsizes_x != dsizes_y):
-    print "ftcurvp: first and second arguments must be the same length."
+    print("ftcurvp: first and second arguments must be the same length.")
     return None
 
   if _is_list_or_tuple(xo):
@@ -3379,10 +3375,10 @@ xo -- A 1D array of length nxo containing the abscissae for the
 
   status,yo = ftcurvpc(dsizes_x,x,y,p,dsizes_xo,xo)
   if (status == 1):
-    print "ftcurvp: input array must have at least three elements."
+    print("ftcurvp: input array must have at least three elements.")
     return None
   elif (status == 2):
-    print "ftcurvp: the period is strictly less than the span of the abscissae."
+    print("ftcurvp: the period is strictly less than the span of the abscissae.")
     return None
   else:
     del status
@@ -3418,19 +3414,17 @@ yi -- An array of any dimensionality, whose rightmost dimension is
   elif _is_numpy_array(x):
     dsizes_x = x.shape[0]
   else:
-    print \
-     "ftcurvpi: type of argument 4 must be one of: list, tuple, or NumPy array"
+    print("ftcurvpi: type of argument 4 must be one of: list, tuple, or NumPy array")
     return None
   if _is_list_or_tuple(y):
     dsizes_y = len(y)
   elif _is_numpy_array(y):
     dsizes_y = y.shape[0]
   else:
-    print \
-     "ftcurvpi: type of argument 5 must be one of: list, tuple, or NumPy array"
+    print("ftcurvpi: type of argument 5 must be one of: list, tuple, or NumPy array")
     return None
   if (dsizes_x != dsizes_y):
-    print "ftcurvpi: fourth and fifth arguments must be the same length."
+    print("ftcurvpi: fourth and fifth arguments must be the same length.")
     return None
 
   return (ftcurvpic(xl,xr,p,dsizes_x,x,y)[1])
@@ -3502,7 +3496,7 @@ type -- A string (or integer) indicating the units you want to convert
   elif (dtype[0:2] == "mi"):
     return d2r*angle*r2m*m2f/5280.
   else:
-    print "gc_convert: unrecognized conversion type " + str(ctype)
+    print("gc_convert: unrecognized conversion type " + str(ctype))
 
 ################################################################
 
@@ -3540,7 +3534,7 @@ npts -- The number of equally-spaced points you want to interpolate to.
   """
   num = abs(numi)
   if (abs(num) < 2):
-    print "gc_interp: the number of points must be at least two."
+    print("gc_interp: the number of points must be at least two.")
   elif (num == 2):
     lat = numpy.array([rlat1,rlat2],'f')
     lon = numpy.array([rlon1,rlon2],'f')
@@ -3560,10 +3554,10 @@ npts -- The number of equally-spaced points you want to interpolate to.
       else:
         lon[i] = normalize_angle(lon[i],1)
     if (numi > 0):
-      lon0_tmp = normalize_angle(lon0_tmp,0) 
+      lon0_tmp = normalize_angle(lon0_tmp,0)
       lon1_tmp = normalize_angle(lon1_tmp,0)
     else:
-      lon0_tmp = normalize_angle(lon0_tmp,1) 
+      lon0_tmp = normalize_angle(lon0_tmp,1)
       lon1_tmp = normalize_angle(lon1_tmp,1)
 
 #
@@ -3637,13 +3631,13 @@ connecting the vertices.
   pi  = 4.*math.atan(1.)
   d2r = pi/180.
   tol = 1.e-7
-  for i in xrange(len(lat1t)):
+  for i in range(len(lat1t)):
     a = d2r*gc_dist(lat1t[i], lon1t[i], lat2t[i], lon2t[i])
     b = d2r*gc_dist(lat2t[i], lon2t[i], lat3t[i], lon3t[i])
     c = d2r*gc_dist(lat3t[i], lon3t[i], lat1t[i], lon1t[i])
     sa, sb, sc = math.sin(a), math.sin(b), math.sin(c)
     if (abs(sa) < tol or abs(sb) < tol or abs(sc) < tol):
-      print "gc_tarea: input vertices must be distinct and not be polar opposites."
+      print("gc_tarea: input vertices must be distinct and not be polar opposites.")
       sys.exit()
     ca, cb, cc = math.cos(a), math.cos(b), math.cos(c)
     sang1 = math.acos( (ca-cb*cc)/(sb*sc) )
@@ -3737,35 +3731,35 @@ highs_at -- an optional argument that is a list of coordinate
   try:
     alen = len(dims)
   except:
-    print "generate_2d_array: first argument must be a list, tuple, or array having two elements specifying the dimensions of the output array."
+    print("generate_2d_array: first argument must be a list, tuple, or array having two elements specifying the dimensions of the output array.")
     return None
-  if (alen != 2):   
-    print "generate_2d_array: first argument must have two elements specifying the dimensions of the output array."
+  if (alen != 2):
+    print("generate_2d_array: first argument must have two elements specifying the dimensions of the output array.")
     return None
   if (int(dims[0]) <=1 and int(dims[1]) <=1):
-    print "generate_2d_array: array must have at least two elements."
+    print("generate_2d_array: array must have at least two elements.")
     return None
   if (num_low < 1):
-    print "generate_2d_array: number of lows must be at least 1 - defaulting to 1."
+    print("generate_2d_array: number of lows must be at least 1 - defaulting to 1.")
     num_low = 1
   if (num_low > 25):
-    print "generate_2d_array: number of lows must be at most 25 - defaulting to 25."
+    print("generate_2d_array: number of lows must be at most 25 - defaulting to 25.")
     num_high =25
   if (num_high < 1):
-    print "generate_2d_array: number of highs must be at least 1 - defaulting to 1."
+    print("generate_2d_array: number of highs must be at least 1 - defaulting to 1.")
     num_high = 1
   if (num_high > 25):
-    print "generate_2d_array: number of highs must be at most 25 - defaulting to 25."
+    print("generate_2d_array: number of highs must be at most 25 - defaulting to 25.")
     num_high =25
   if (seed > 100 or seed < 0):
-    print "generate_2d_array: seed must be in the interval [0,100] - seed set to 0."
+    print("generate_2d_array: seed must be in the interval [0,100] - seed set to 0.")
     seed = 0
   if not lows_at is None:
     if (len(lows_at) != num_low):
-      print "generate_2d_array: the list of positions for the lows must be the same size as num_low."
+      print("generate_2d_array: the list of positions for the lows must be the same size as num_low.")
   if not highs_at is None:
     if (len(highs_at) != num_high):
-      print "generate_2d_array: the list of positions for the highs must be the same size as num_high."
+      print("generate_2d_array: the list of positions for the highs must be the same size as num_high.")
 
 #
 #  Dims are reversed in order to get the same results as the NCL function.
@@ -3781,7 +3775,7 @@ highs_at -- an optional argument that is a list of coordinate
   ncnt = nlow + nhgh
 
 #
-  for k in xrange(num_low):
+  for k in range(num_low):
     if not lows_at is None:
       tmp_array[0,k] =  float(lows_at[k][1])   # lows at specified locations.
       tmp_array[1,k] =  float(lows_at[k][0])
@@ -3790,7 +3784,7 @@ highs_at -- an optional argument that is a list of coordinate
       tmp_array[0,k] =  1.+(float(nx)-1.)*_dfran() # lows at random locations.
       tmp_array[1,k] =  1.+(float(ny)-1.)*_dfran() # lows at random locations.
       tmp_array[2,k] = -1.
-  for k in xrange(num_low,num_low+num_high):
+  for k in range(num_low,num_low+num_high):
     if not highs_at is None:
       tmp_array[0,k] =  float(highs_at[k-num_low][1])  # highs locations
       tmp_array[1,k] =  float(highs_at[k-num_low][0])  # highs locations
@@ -3803,10 +3797,10 @@ highs_at -- an optional argument that is a list of coordinate
   dmin =  1.e+36
   dmax = -1.e+36
   midpt = 0.5*(minv + maxv)
-  for j in xrange(ny):
-    for i in xrange(nx):
+  for j in range(ny):
+    for i in range(nx):
       out_array[i,j] = midpt
-      for k in xrange(ncnt):
+      for k in range(ncnt):
         tempi = fovm*(float(i+1)-tmp_array[0,k])
         tempj = fovn*(float(j+1)-tmp_array[1,k])
         temp  = -(tempi*tempi + tempj*tempj)
@@ -3912,7 +3906,7 @@ resource_name -- The name of the resource whose value you want to
 def _get_MDdouble_array(obj,name):
   rval = NhlGetMDDoubleArray(_int_id(obj),name)
   if (rval[0] != -1):
-    print "get_MDdouble_array: error number %d" % (rval[0])
+    print("get_MDdouble_array: error number %d" % (rval[0]))
     return None
   return(rval[1])
 
@@ -3933,7 +3927,7 @@ resource_name - The name of the resource whose value you want to
   """
   rval = NhlGetMDFloatArray(_int_id(obj),name)
   if (rval[0] != -1):
-    print "get_MDfloat_array: error number %d" % (rval[0])
+    print("get_MDfloat_array: error number %d" % (rval[0]))
     return None
   return(rval[1])
 
@@ -3954,7 +3948,7 @@ resource_name - The name of the resource whose value you want to
   """
   rval = NhlGetMDIntegerArray(_int_id(obj),name)
   if (rval[0] != -1):
-    print "get_MDinteger_array: error number %d" % (rval[0])
+    print("get_MDinteger_array: error number %d" % (rval[0]))
     return None
   return(rval[1])
 
@@ -4043,7 +4037,7 @@ s -- Saturation values in the range [0.,100.]. Saturation is a measure
     rr = numpy.zeros(dimc,'f')
     gr = numpy.zeros(dimc,'f')
     br = numpy.zeros(dimc,'f')
-    for i in xrange(dimc):
+    for i in range(dimc):
       rr[i],gr[i],br[i] = c_hlsrgb(h.ravel()[i],l.ravel()[i],s.ravel()[i])
     rr.shape = gr.shape = br.shape = ishape
     del ishape,dimc
@@ -4058,13 +4052,13 @@ s -- Saturation values in the range [0.,100.]. Saturation is a measure
     rr = numpy.zeros(dimc,'f')
     gr = numpy.zeros(dimc,'f')
     br = numpy.zeros(dimc,'f')
-    for i in xrange(dimc):
+    for i in range(dimc):
       rr[i], gr[i], br[i] = c_hlsrgb(hi.ravel()[i],li.ravel()[i],si.ravel()[i])
     rr.shape = gr.shape = br.shape = ishape
     del hi,li,si,ishape,dimc
     return rr,gr,br
   else:
-    print "hlsrgb: arguments must be scalars, arrays, lists or tuples."
+    print("hlsrgb: arguments must be scalars, arrays, lists or tuples.")
 
 ################################################################
 
@@ -4094,7 +4088,7 @@ v -- Values for the value component in the range [0.,1.].
     rr = numpy.zeros(dimc,'f')
     gr = numpy.zeros(dimc,'f')
     br = numpy.zeros(dimc,'f')
-    for i in xrange(dimc):
+    for i in range(dimc):
       rr[i],gr[i],br[i] = c_hsvrgb(h.ravel()[i],s.ravel()[i],v.ravel()[i])
     rr.shape = gr.shape = br.shape = ishape
     return rr,gr,br
@@ -4108,13 +4102,13 @@ v -- Values for the value component in the range [0.,1.].
     rr = numpy.zeros(dimc,'f')
     gr = numpy.zeros(dimc,'f')
     br = numpy.zeros(dimc,'f')
-    for j in xrange(dimc):
+    for j in range(dimc):
       rr[j],gr[j],br[j] = c_hsvrgb(hi.ravel()[j],si.ravel()[j],vi.ravel()[j])
     rr.shape = gr.shape = br.shape = ishape
     del hi,si,vi,dimc,ishape
     return rr,gr,br
   else:
-    print "hsvrgb: arguments must be scalars, arrays, lists or tuples."
+    print("hsvrgb: arguments must be scalars, arrays, lists or tuples.")
 
 ################################################################
 
@@ -4130,7 +4124,7 @@ tindex = Ngl.ind(plist)
 plist -- A Python list, tuple, or one-dimensional NumPy array.
   """
   inds = []
-  for i in xrange(len(seq)):
+  for i in range(len(seq)):
     if (seq[i] != 0):
       inds.append(i)
   return(inds)
@@ -4214,16 +4208,16 @@ res -- An optional instance of the Resources class having Labelbar
   _set_spc_defaults(0)
   rlist = _crt_dict(rlistc)
   rlist1 = {}
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
     if(key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])
     else:
       rlist1[key] = rlist[key]
 
   _set_labelbar_res(rlist,rlist1,False) # Set some addtl labelbar resources
 
-  ilb = labelbar_ndc_wrap(wks,nbox,labels,len(labels),x,y, 
+  ilb = labelbar_ndc_wrap(wks,nbox,labels,len(labels),x,y,
                           "double","double",rlist1,pvoid())
   del rlist
   del rlist1
@@ -4254,16 +4248,16 @@ res -- An optional instance of the Resources class having Labelbar
   _set_spc_defaults(0)
   rlist = _crt_dict(rlistc)
   rlist1 = {}
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
     if(key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])
     else:
       rlist1[key] = rlist[key]
 
   _set_legend_res(rlist,rlist1)      # Set some addtl legend resources
 
-  ilb = legend_ndc_wrap(wks,nitems,labels,len(labels),x,y, 
+  ilb = legend_ndc_wrap(wks,nitems,labels,len(labels),x,y,
                         "double","double",rlist1,pvoid())
   del rlist
   del rlist1
@@ -4331,12 +4325,12 @@ res -- An optional instance of the Resources class having Map
   if not res is None:
     rlistc = res
   _set_spc_defaults(1)
-  rlist = _crt_dict(rlistc)  
+  rlist = _crt_dict(rlistc)
   rlist1 = {}
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])
     else:
       rlist1[key] = rlist[key]
 
@@ -4374,12 +4368,12 @@ res -- An optional optional instance of the Resources class having
        PyNGL resources as attributes.
   """
   _set_spc_defaults(0)
-  rlist = _crt_dict(rlistc)  
+  rlist = _crt_dict(rlistc)
   rlist1 = {}
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])
     else:
       rlist1[key] = rlist[key]
   maximize_plots(wks,_pobj2lst(plot),1,0,pvoid())
@@ -4418,8 +4412,8 @@ cmap2 -- A second n x 3 array of RGB triplets, or a predefined colormap name.
   ncmap2 = rgb_cmap2.shape[0]
 
   if (ncmap1 + ncmap2) > 256:
-    print "merge_colormaps - Warning, the two color maps combined must have 256 or fewer colors."
-    print "Keeping original color map."
+    print("merge_colormaps - Warning, the two color maps combined must have 256 or fewer colors.")
+    print("Keeping original color map.")
     define_colormap(wks,orig_cmap)
     return None
 
@@ -4459,8 +4453,7 @@ xo, yo -- One-dimensional NumPy float arrays or Python lists (of
   elif _is_numpy_array(x):
     dsizes_x = x.shape[0]
   else:
-    print \
-     "natgrid: type of argument 1 must be one of: list, tuple, or NumPy array"
+    print("natgrid: type of argument 1 must be one of: list, tuple, or NumPy array")
     return None
 
   if _is_list_or_tuple(xo):
@@ -4468,8 +4461,7 @@ xo, yo -- One-dimensional NumPy float arrays or Python lists (of
   elif _is_numpy_array(xo):
     dsizes_xo = xo.shape[0]
   else:
-    print \
-     "natgrid: type of argument 4 must be one of: list, tuple, or NumPy array"
+    print("natgrid: type of argument 4 must be one of: list, tuple, or NumPy array")
     return None
 
   if _is_list_or_tuple(yo):
@@ -4477,15 +4469,14 @@ xo, yo -- One-dimensional NumPy float arrays or Python lists (of
   elif _is_numpy_array(yo):
     dsizes_yo = yo.shape[0]
   else:
-    print \
-     "natgrid: type of argument 5 must be one of: list, tuple, or NumPy array"
+    print("natgrid: type of argument 5 must be one of: list, tuple, or NumPy array")
     return None
 
   ier,zo = \
      natgridc(dsizes_x,x,y,z,dsizes_xo,dsizes_yo,xo,yo,dsizes_xo,dsizes_yo)
 
   if (ier != 0):
-    print "natgrid: error number %d returned, see error table." % (ier)
+    print("natgrid: error number %d returned, see error table." % (ier))
     del ier
     return None
   else:
@@ -4691,8 +4682,7 @@ pname -- Name of the parameter whose value you want to retrieve.
   elif (cparms.count(pname) > 0):
     return c_nngetcp(pname)
   else:
-    print \
-      "nngetp: specified value for " + pname + " is not of a recognized type." 
+    print("nngetp: specified value for " + pname + " is not of a recognized type.")
   return None
 
 ################################################################
@@ -4710,15 +4700,14 @@ pvalue -- Value of the parameter you want to set.
   if (not isinstance(pname,types.StringType)):
     print "nnsetp: Parameter '" + str(pname) + "' is not a string type." 
     return None
-  if (isinstance(val,types.IntType)):
+  if (isinstance(val,int)):
     c_nnseti(pname,val)
-  elif (isinstance(val,types.FloatType)): 
+  elif (isinstance(val,float)):
     c_nnsetrd(pname,val)
   elif (isinstance(val,types.StringType)):
     c_nnsetc(pname,val)
   else:
-    print \
-      "nnsetp: specified value for " + pname + " is not of a recognized type." 
+    print("nnsetp: specified value for " + pname + " is not of a recognized type.")
   return None
 
 ################################################################
@@ -4780,12 +4769,12 @@ res -- An optional instance of the Resources class having Workstation
   rlist1 = {}
   rlist2 = {}
 
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:3] == "app"):
       rlist2[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])
     else:
       rlist1[key] = rlist[key]
 
@@ -4850,12 +4839,12 @@ res -- An optional instance of the Resources class having Workstation
 #
 #  Lists of triplets for color tables must be numpy arrays.
 #
-  if (rlist.has_key("wkColorMap")):
+  if ("wkColorMap" in rlist):
 #
 #  Type of the elements of the color map must be array and not list.
 #
     if type(rlist["wkColorMap"][0]) == type([0]):
-      print "opn_wks: lists of triplets for color tables must be NumPy arrays"
+      print("opn_wks: lists of triplets for color tables must be NumPy arrays")
       return None
 
 #
@@ -4906,10 +4895,10 @@ res -- An optional instance of the Resources class having PyNGL
        resources as attributes.
   """
   _set_spc_defaults(1)
-  rlist = _crt_dict(rlistc)  
+  rlist = _crt_dict(rlistc)
   rlist1 = {}
   rlist2 = {}
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:3] == "ngl"):
       if (len(key) == 21 and key[0:21] == "nglPanelFigureStrings"):
@@ -4918,21 +4907,21 @@ res -- An optional instance of the Resources class having PyNGL
       elif (key[0:25] == "nglPanelFigureStringsJust"):
         if(_check_res_value(rlist[key],"TopLeft",0)):
           _set_spc_res(key[3:],0)
-        elif(_check_res_value(rlist[key],"CenterLeft",1)): 
+        elif(_check_res_value(rlist[key],"CenterLeft",1)):
           _set_spc_res(key[3:],1)
-        elif(_check_res_value(rlist[key],"BottomLeft",2)): 
+        elif(_check_res_value(rlist[key],"BottomLeft",2)):
           _set_spc_res(key[3:],2)
-        elif(_check_res_value(rlist[key],"TopCenter",3)): 
+        elif(_check_res_value(rlist[key],"TopCenter",3)):
           _set_spc_res(key[3:],3)
-        elif(_check_res_value(rlist[key],"CenterCenter",4)): 
+        elif(_check_res_value(rlist[key],"CenterCenter",4)):
           _set_spc_res(key[3:],4)
-        elif(_check_res_value(rlist[key],"BottomCenter",5)): 
+        elif(_check_res_value(rlist[key],"BottomCenter",5)):
           _set_spc_res(key[3:],5)
         elif(_check_res_value(rlist[key],"TopRight",6)):
           _set_spc_res(key[3:],6)
-        elif(_check_res_value(rlist[key],"CenterRight",7)): 
+        elif(_check_res_value(rlist[key],"CenterRight",7)):
           _set_spc_res(key[3:],7)
-        elif(_check_res_value(rlist[key],"BottomRight",8)): 
+        elif(_check_res_value(rlist[key],"BottomRight",8)):
           _set_spc_res(key[3:],8)
       else:
         _set_spc_res(key[3:],rlist[key])
@@ -5126,7 +5115,7 @@ name -- A string representing abbreviated name for which you want a
     elif (os.path.exists(examples_dir_dflt)):
       return examples_dir_dflt
     else:
-      print "pynglpath: examples directory does not exist."
+      print("pynglpath: examples directory does not exist.")
       return None
   elif (name == "data"):
     data_dir_envn = os.environ.get("PYNGL_DATA")
@@ -5136,7 +5125,7 @@ name -- A string representing abbreviated name for which you want a
     elif (os.path.exists(data_dir_dflt)):
       return data_dir_dflt
     else:
-      print "pynglpath: data directory does not exist."
+      print("pynglpath: data directory does not exist.")
       return None
   elif (name == "colormaps"):
     color_dir_envn = os.environ.get("PYNGL_COLORMAPS")
@@ -5146,22 +5135,22 @@ name -- A string representing abbreviated name for which you want a
     elif (os.path.exists(color_dir_dflt)):
       return color_dir_dflt
     else:
-      print "pynglpath: colormaps directory does not exist."
+      print("pynglpath: colormaps directory does not exist.")
       return None
   elif (name == "rangs"):
     rangs_dir_envn = os.environ.get("PYNGL_RANGS")
     rangs_dir_dflt = os.path.join(_pynglpath_ncarg(),"rangs")
     if (not rangs_dir_envn is None) and os.path.exists(rangs_dir_envn):
       return rangs_dir_envn
-    else: 
+    else:
       return rangs_dir_dflt
   elif (name == "grib2_codetables"):
-    print "name",name
+    print("name",name)
     grib2_dir_envn = os.environ.get("NIO_GRIB2_CODETABLES")
     grib2_dir_dflt = os.path.join(_pynglpath_ncarg(),"grib2_codetables")
     if (not grib2_dir_envn is None) and os.path.exists(grib2_dir_envn):
       return grib2_dir_envn
-    else: 
+    else:
       return grib2_dir_dflt
   elif (name == "usrresfile"):
     ures_dir_envn = os.environ.get("PYNGL_USRRESFILE")
@@ -5171,7 +5160,7 @@ name -- A string representing abbreviated name for which you want a
     elif (os.path.exists(ures_dir_dflt)):
       return ures_dir_dflt
     else:
-      print "pynglpath: useresfile directory does not exist."
+      print("pynglpath: useresfile directory does not exist.")
       return None
   elif (name == "sysresfile"):
     sres_dir_envn = os.environ.get("PYNGL_SYSRESFILE")
@@ -5181,7 +5170,7 @@ name -- A string representing abbreviated name for which you want a
     elif (os.path.exists(sres_dir_dflt)):
       return sres_dir_dflt
     else:
-      print "pynglpath: sysresfile directory does not exist."
+      print("pynglpath: sysresfile directory does not exist.")
       return None
   elif (name == "sysappres"):
     ares_dir_envn = os.environ.get("PYNGL_SYSAPPRES")
@@ -5191,12 +5180,12 @@ name -- A string representing abbreviated name for which you want a
     elif (os.path.exists(ares_dir_dflt)):
       return ares_dir_dflt
     else:
-      print "pynglpath: sysappres directory does not exist."
+      print("pynglpath: sysappres directory does not exist.")
       return None
   elif (name == "ncarg"):
     return _pynglpath_ncarg()
   else:
-    print 'pynglpath: input name "%s" not recognized' % (name)
+    print('pynglpath: input name "%s" not recognized' % (name))
 
 ################################################################
 
@@ -5317,7 +5306,7 @@ colormap_name -- Either the name of a PyNGL-standard colormap, or the
       cmap = cmap / 256.
   elif (maxValue == 65536):
       cmap[:,3] = numpy.where(cmap[:,3] < 0, 65535., cmap[:,3])
-      cmap = cmap / 65535. 
+      cmap = cmap / 65535.
   elif (maxValue == 65536):
       cmap[:,3] = numpy.where(cmap[:,3] < 0, 65536., cmap[:,3])
       cmap = cmap / 65536.
@@ -5363,12 +5352,12 @@ return_info -- An optional logical that indicates whether additional
 # 
   if not result is None:
     if HAS_MA:
-      if (return_info == True): 
+      if (return_info == True):
         return [ma.masked_array(result[0]),result[1]]
       else:
         return ma.masked_array(result[0],fill_value=fill_value_y)
     else:
-      if (return_info == True): 
+      if (return_info == True):
         return [result[0],result[1]]
       else:
         return result[0]
@@ -5460,7 +5449,7 @@ s -- The saturation value of the input point in HLS color space in the
     hr = numpy.zeros(dimc,'f')
     lr = numpy.zeros(dimc,'f')
     sr = numpy.zeros(dimc,'f')
-    for i in xrange(dimc):
+    for i in range(dimc):
       hr[i],lr[i],sr[i] = c_rgbhls(r.ravel()[i],g.ravel()[i],b.ravel()[i])
     hr.shape = lr.shape = sr.shape = ishape
     del dimc,ishape
@@ -5475,13 +5464,13 @@ s -- The saturation value of the input point in HLS color space in the
     hr = numpy.zeros(dimc,'f')
     lr = numpy.zeros(dimc,'f')
     sr = numpy.zeros(dimc,'f')
-    for i in xrange(dimc):
+    for i in range(dimc):
       hr[i], lr[i], sr[i] = c_rgbhls(ri.ravel()[i],gi.ravel()[i],bi.ravel()[i])
     hr.shape = lr.shape = sr.shape = ishape
     del ri,gi,bi,dimc,ishape
     return hr,lr,sr
   else:
-    print "rgbhls: arguments must be scalars, arrays, lists or tuples."
+    print("rgbhls: arguments must be scalars, arrays, lists or tuples.")
 
 
 ################################################################
@@ -5520,7 +5509,7 @@ v -- The value in HSV space, in the range [0.,1.].
     hr = numpy.zeros(dimc,'f')
     sr = numpy.zeros(dimc,'f')
     vr = numpy.zeros(dimc,'f')
-    for i in xrange(dimc):
+    for i in range(dimc):
       hr[i],sr[i],vr[i] = c_rgbhsv(r.ravel()[i],g.ravel()[i],b.ravel()[i])
     hr.shape = sr.shape = vr.shape = ishape
     del ishape,dimc
@@ -5535,13 +5524,13 @@ v -- The value in HSV space, in the range [0.,1.].
     hr = numpy.zeros(dimc,'f')
     sr = numpy.zeros(dimc,'f')
     vr = numpy.zeros(dimc,'f')
-    for j in xrange(dimc):
+    for j in range(dimc):
       hr[j], sr[j], vr[j] = c_rgbhsv(ri.ravel()[j],gi.ravel()[j],bi.ravel()[j])
     hr.shape = sr.shape = vr.shape = ishape
     del ri,gi,bi,ishape,dimc
     return hr,sr,vr
   else:
-    print "rgbhsv: arguments must be scalars, arrays, lists or tuples."
+    print("rgbhsv: arguments must be scalars, arrays, lists or tuples.")
 
 ################################################################
 
@@ -5574,7 +5563,7 @@ q -- Q component (chrominance purple-green) values in the range
     yr = numpy.zeros(dimc,'f')
     ir = numpy.zeros(dimc,'f')
     qr = numpy.zeros(dimc,'f')
-    for i in xrange(dimc):
+    for i in range(dimc):
       yr[i],ir[i],qr[i] = c_rgbyiq(r.ravel()[i],g.ravel()[i],b.ravel()[i])
     yr.shape = ir.shape = qr.shape = ishape
     del ishape,dimc
@@ -5589,13 +5578,13 @@ q -- Q component (chrominance purple-green) values in the range
     yr = numpy.zeros(dimc,'f')
     ir = numpy.zeros(dimc,'f')
     qr = numpy.zeros(dimc,'f')
-    for i in xrange(dimc):
+    for i in range(dimc):
       yr[i], ir[i], qr[i] = c_rgbyiq(ri.ravel[i],gi.ravel[i],bi.ravel[i])
     yr.shape = ir.shape = qr.shape = ishape
     del ri,gi,bi,ishape,dimc
     return yr,ir,qr
   else:
-    print "rgbyiq: arguments must be scalars, arrays, lists or tuples."
+    print("rgbyiq: arguments must be scalars, arrays, lists or tuples.")
 
 ################################################################
 
@@ -5677,17 +5666,17 @@ res -- A required instance of the Resources class having special
 #  overlap localOpts attributes.
 #
   if (not isinstance(Opts,Resources)):
-    print "skewt_bkg: argument 2 must be an Ngl Resources instance"
+    print("skewt_bkg: argument 2 must be an Ngl Resources instance")
     return None
   OptsAtts = _crt_dict(Opts)
   if (len(_crt_dict(Opts)) != 0):
-    for key in OptsAtts.keys():
+    for key in list(OptsAtts.keys()):
       setattr(localOpts,key,OptsAtts[key])
 #
 #  Check for new resource names and convert them to the original ones.
 #
-    for new_name in OptsAtts.keys():
-      if (RscConv.has_key(new_name)):
+    for new_name in list(OptsAtts.keys()):
+      if (new_name in RscConv):
         setattr(localOpts,RscConv[new_name],OptsAtts[new_name])
 #
 #  Check for new sktTemperatureUnits or sktHeightScaleUnits resources,
@@ -5702,7 +5691,7 @@ res -- A required instance of the Resources class having special
             localOpts.sktDrawFahrenheit = True    # default is True
           else:
             localOpts.sktDrawFahrenheit = True    # default is True
-            print "Warning - skewt_bkg: 'sktTemperatureUnits' must be set to 'fahrenheit' or 'celsius'. Defaulting to 'fahrenheit'."
+            print("Warning - skewt_bkg: 'sktTemperatureUnits' must be set to 'fahrenheit' or 'celsius'. Defaulting to 'fahrenheit'.")
 
         if (hasattr(localOpts,"sktHeightScaleUnits")):
           if(string.lower(localOpts.sktHeightScaleUnits) == "km"):
@@ -5712,7 +5701,7 @@ res -- A required instance of the Resources class having special
             localOpts.sktDrawHeightScaleFt = True    # default is True
           else:
             localOpts.sktDrawHeightScaleFt = True    # default is True
-            print "Warning - skewt_bkg: 'sktHeightScaleUnits' must be set to 'feet' or 'km'. Defaulting to 'feet'."
+            print("Warning - skewt_bkg: 'sktHeightScaleUnits' must be set to 'feet' or 'km'. Defaulting to 'feet'.")
 
 #
 #  Declare isotherm values (Celcius) and pressures (hPa) where 
@@ -5736,7 +5725,7 @@ res -- A required instance of the Resources class having special
           
   ntemp = len(temp)
   if (len(temp) != len(lendt) or len(lendt) != len(rendt)):
-    print "skewt_bkg: lengths of temp, lendt, rendt do not match"
+    print("skewt_bkg: lengths of temp, lendt, rendt do not match")
 
 #
 #  Declare pressure values [hPa] and x coordinates of the endpoints 
@@ -5761,7 +5750,7 @@ res -- A required instance of the Resources class having special
          ],'f')
   npres = len(pres)
   if (len(pres) != len(xpl) or len(xpl) != len(xpr)):
-    print "skewt_bkg: lengths of pres, xpl, xpr do not match"
+    print("skewt_bkg: lengths of pres, xpl, xpr do not match")
 
 #
 #  Declare adiabat values [C] and pressures where adiabats 
@@ -5788,7 +5777,7 @@ res -- A required instance of the Resources class having special
            ],'f')
   ntheta = len(theta)
   if (len(theta) != len(lendth) or len(lendth) != len(rendth)):
-    print "skewt_bkg: lengths of pres, xpl, xpr do not match"
+    print("skewt_bkg: lengths of pres, xpl, xpr do not match")
 
 #
 #  Declare moist adiabat values and pressures of the tops of the
@@ -5858,7 +5847,7 @@ res -- A required instance of the Resources class having special
 #
 #  U.S. Standard ATmosphere (km), source: Hess/Riegel.
 #
-    zsa = numpy.array(range(0,17),'f')
+    zsa = numpy.array(list(range(0,17)),'f')
     psa = numpy.array(                                       \
           [                                                  \
            1013.25, 898.71, 794.90, 700.99, 616.29, 540.07,  \
@@ -5896,10 +5885,10 @@ res -- A required instance of the Resources class having special
 #
 
   if (localOpts.sktDrawFahrenheit):
-    tf = numpy.array(range(-20,110,20),'i')             # deg F
+    tf = numpy.array(list(range(-20,110,20)),'i')             # deg F
     tc = 0.55555 * (tf - 32.)                           # deg C
   else:
-    tc = numpy.array(range(-30,50,10),'f')
+    tc = numpy.array(list(range(-30,50,10)),'f')
 
 #
 #  Don't draw the plot or advance the frame in the call to xy.
@@ -5965,7 +5954,7 @@ res -- A required instance of the Resources class having special
 #
   xyOpts.tmYLMajorLengthF        = 0.
   xyOpts.tmYLMinorLengthF        = 0.
-  xyOpts.nglScale                = False       
+  xyOpts.nglScale                = False
 
   xyOpts.tmXBLabelFontHeightF = 0.014
   xyOpts.tmYLLabelFontHeightF = xyOpts.tmXBLabelFontHeightF
@@ -6001,7 +5990,7 @@ res -- A required instance of the Resources class having special
 #
 #  Special for the right hand side.
 #
-  if (localOpts.sktDrawHeightScale):  
+  if (localOpts.sktDrawHeightScale):
     xyOpts.trXMaxF      = _skewtx (55. , _skewty(1013.)) # extra wide
     xyOpts.tmYUseLeft   = False # Keep right axis independent of left.
     xyOpts.tmYRBorderOn = True
@@ -6014,7 +6003,7 @@ res -- A required instance of the Resources class having special
     xyOpts.tmYRMinorOn             = False       # No minor tick marks.
     xyOpts.tmYRMode                = "Explicit"  # Define tick mark labels.
 
-    zkm = numpy.array(range(0,17),'f')
+    zkm = numpy.array(list(range(0,17)),'f')
     pkm = ftcurv(zsa, psa, zkm)
     zft = numpy.array(                                    \
           [                                               \
@@ -6052,14 +6041,14 @@ res -- A required instance of the Resources class having special
     txOpts.txFontHeightF     = xyOpts.tmYLLabelFontHeightF
     xlab                     = _skewtx (53., _skewty(1013.))
     ylab                     = _skewty (350.)
-    text (wks,xyplot,zLabel,xlab,ylab,txOpts) 
+    text (wks,xyplot,zLabel,xlab,ylab,txOpts)
     del txOpts
 
   if (localOpts.sktDrawColAreaFill):
     color1 = "PaleGreen2"            # "LightGreen"
     color2 = "Background"            # "Azure"
     gsOpts = Resources()
-    for i in xrange(0,ntemp-1):
+    for i in range(0,ntemp-1):
       if (i%2 == 0):                 # alternate colors
         gsOpts.gsFillColor = color1
       else:
@@ -6072,7 +6061,7 @@ res -- A required instance of the Resources class having special
       sx[1] = _skewtx( temp[i+1], sy[1])
       sy[2] = _skewty(rendt[i+1] )
       sx[2] = _skewtx( temp[i+1], sy[2])
-      sy[3] = _skewty(rendt[i  ] )   
+      sy[3] = _skewty(rendt[i  ] )
       sx[3] = _skewtx( temp[i  ], sy[3])
 
 
@@ -6214,13 +6203,13 @@ res -- A required instance of the Resources class having special
 #
 #  saturation  mix ratio only.
 #
-    gsOpts.gsLineDashPattern = 2        
-    gsOpts.gsLineColor       = colGreen 
+    gsOpts.gsLineDashPattern = 2
+    gsOpts.gsLineColor       = colGreen
 
     txOpts                   = Resources()
-    txOpts.txAngleF          = 65.     
+    txOpts.txAngleF          = 65.
     txOpts.txFontColor       = colGreen
-    txOpts.txFontHeightF     = 0.0100  
+    txOpts.txFontHeightF     = 0.0100
 
     yy[1] = _skewty( 400.)    # y at top [right end of slanted line]
     yy[0] = _skewty(1000.)    # y at bottom of line [was 1050.]
@@ -6250,8 +6239,8 @@ res -- A required instance of the Resources class having special
 #
   if (localOpts.sktDrawDryAdiabat):
     gsOpts                   = Resources()
-    gsOpts.gsLineDashPattern = 0            
-    gsOpts.gsLineColor       = colTan     
+    gsOpts.gsLineDashPattern = 0
+    gsOpts.gsLineColor       = colTan
     gsOpts.gsLineThicknessF  = 1.0
 
     txOpts                   = Resources()
@@ -6269,7 +6258,7 @@ res -- A required instance of the Resources class having special
           sy[j] = _skewty(rendth[i])
           t     = _dtdaskewt(theta[i],p)   # get temp on dry adiabat at p
           sx[j] = _skewtx(t,sy[j])
-          break 
+          break
         sy[j] = _skewty(p)
         t     = _dtdaskewt(theta[i],p)
         sx[j] = _skewtx(t,sy[j])
@@ -6328,9 +6317,9 @@ res -- A required instance of the Resources class having special
 
   if (localOpts.sktDrawStandardAtm):
       gsOpts                   = Resources()
-      gsOpts.gsLineColor       = colTan   
+      gsOpts.gsLineColor       = colTan
       gsOpts.gsLineThicknessF  = localOpts.sktDrawStandardAtmThk
-      gsOpts.gsLineDashPattern = 0             
+      gsOpts.gsLineDashPattern = 0
 
       for i in range(0,nlvl):
          sy[i] = _skewty(psa[i])
@@ -6352,7 +6341,7 @@ res -- A required instance of the Resources class having special
 
       presWind      = pres
       presWind[0]   = 1013.          # override 1050
-      xWind         = _skewtx (45. , _skewty(presWind[0])) 
+      xWind         = _skewtx (45. , _skewty(presWind[0]))
       sx[0:npres] = xWind            # "x" location of wind plot
       try:
         sy[0:npres] = _skewty(presWind).astype(numpy.Float0)
@@ -6386,7 +6375,7 @@ res -- A required instance of the Resources class having special
 
 ################################################################
 
-def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR, 
+def skewt_plt(wks, skewt_bkgd, P, TC, TDC, Z, WSPD, WDIR,
              dataOpts=None):
   """
 Plots soundings and (optionally) winds on Skew T, Log P charts created
@@ -6447,8 +6436,8 @@ dataOpts -- An optional instance of the Resources class having
 #  the original ones and set them as dataOpts attributes.
 #
   OptsAtts = _crt_dict(dataOpts)
-  for new_name in OptsAtts.keys():
-    if (RscConv.has_key(new_name)):
+  for new_name in list(OptsAtts.keys()):
+    if (new_name in RscConv):
       setattr( dataOpts,RscConv[new_name],OptsAtts[new_name])
 #
 #  Set missing values for variables
@@ -6491,13 +6480,13 @@ dataOpts -- An optional instance of the Resources class having
 #  Check if the temperature and pressure data values are out of range.
 #
   if (numpy.any(tc > 150.)):
-      print "skewt_plt: temperature values are out of range for Fahrenheit or Celsius."
+      print("skewt_plt: temperature values are out of range for Fahrenheit or Celsius.")
       return None
   if (numpy.any(tdc > 150.)):
-      print "skewt_plt: dew point temperature values are out of range for Fahrenheit or Celsius."
+      print("skewt_plt: dew point temperature values are out of range for Fahrenheit or Celsius.")
       return None
   if (numpy.any(p > 1100.)):
-      print "skewt_plt: pressure values are out of range (must be in millibars)."
+      print("skewt_plt: pressure values are out of range (must be in millibars).")
       return None
 
 #
@@ -6521,18 +6510,18 @@ dataOpts -- An optional instance of the Resources class having
 #
   if not dataOpts is None:
     if (not isinstance(dataOpts,Resources)):
-      print "skewt_plt: last argument must be an Ngl Resources instance."
+      print("skewt_plt: last argument must be an Ngl Resources instance.")
       return None
     OptsAtts = _crt_dict(dataOpts)
     if (len(OptsAtts) != 0):
-      for key in OptsAtts.keys():
+      for key in list(OptsAtts.keys()):
         setattr(localOpts,key,OptsAtts[key])
 #
 #  Check for new resource names in dataOpts and convert them to
 #  the original ones and set them for localOpts.
 #
-      for new_name in OptsAtts.keys():
-        if (RscConv.has_key(new_name)):
+      for new_name in list(OptsAtts.keys()):
+        if (new_name in RscConv):
           setattr(localOpts,RscConv[new_name],OptsAtts[new_name])
 #
 #  Check for new sktPressureWindBarbComponents or sktHeightWindBarbComponents
@@ -6548,7 +6537,7 @@ dataOpts -- An optional instance of the Resources class having
             localOpts.sktWspdWdir = True    # the default
           else:
             localOpts.sktWspdWdir = True    # the default
-            print "Warning - skewt_plt: 'sktPressureWindBarbComponents' must be set to 'SpeedDirection' or 'UV'. Defaulting to 'SpeedDirection'."
+            print("Warning - skewt_plt: 'sktPressureWindBarbComponents' must be set to 'SpeedDirection' or 'UV'. Defaulting to 'SpeedDirection'.")
 
         if (hasattr(localOpts,"sktHeightWindBarbComponents")):
           if(string.lower(localOpts.sktHeightWindBarbComponents) == "uv"):
@@ -6558,7 +6547,7 @@ dataOpts -- An optional instance of the Resources class having
             localOpts.sktHspdHdir = True    # the default
           else:
             localOpts.sktHspdHdir = True    # the default
-            print "Warning - skewt_plt: 'sktHeightWindBarbComponents' must be set to 'SpeedDirection' or 'UV'. Defaulting to 'SpeedDirection'."
+            print("Warning - skewt_plt: 'sktHeightWindBarbComponents' must be set to 'SpeedDirection' or 'UV'. Defaulting to 'SpeedDirection'.")
 
   vpXF                 = get_float(skewt_bkgd,"vpXF")
   vpYF                 = get_float(skewt_bkgd,"vpYF")
@@ -6577,9 +6566,9 @@ dataOpts -- An optional instance of the Resources class having
   sktcolDewPt       = "RoyalBlue"
   sktcolPpath       = "Red"
   sktcolZLabel      = "Foreground"
-  sktcolWindP       = "Black"   
-  sktcolWindZ       = "Blue"   
-  sktcolWindH       = "OrangeRed3"    
+  sktcolWindP       = "Black"
+  sktcolWindZ       = "Blue"
+  sktcolWindH       = "OrangeRed3"
   sktcolThermoInfo  = "Goldenrod4"
 
 #
@@ -6590,17 +6579,17 @@ dataOpts -- An optional instance of the Resources class having
   if (hasattr(localOpts,"sktcolDewPt")):
     sktcolDewPt  = localOpts.sktcolDewPt
   if (hasattr(localOpts,"sktcolPpath")):
-    sktcolPpath  = localOpts.sktcolPpath 
+    sktcolPpath  = localOpts.sktcolPpath
   if (hasattr(localOpts,"sktcolZLabel")):
-    sktcolZLabel  = localOpts.sktcolZLabel 
+    sktcolZLabel  = localOpts.sktcolZLabel
   if (hasattr(localOpts,"sktcolWindP")):
-    sktcolWindP  = localOpts.sktcolWindP 
+    sktcolWindP  = localOpts.sktcolWindP
   if (hasattr(localOpts,"sktcolWindZ")):
-    sktcolWindZ  = localOpts.sktcolWindZ 
+    sktcolWindZ  = localOpts.sktcolWindZ
   if (hasattr(localOpts,"sktcolWindH")):
-    sktcolWindH  = localOpts.sktcolWindH 
+    sktcolWindH  = localOpts.sktcolWindH
   if (hasattr(localOpts,"sktcolThermoInfo")):
-    sktcolThermoInfo  = localOpts.sktcolThermoInfo 
+    sktcolThermoInfo  = localOpts.sktcolThermoInfo
 
 
 #
@@ -6637,14 +6626,14 @@ dataOpts -- An optional instance of the Resources class having
     pwat = _dpwskewt(tdc,p,nlvls)            # precipitable water (cm)
 
     iprnt= 0                                # debug only (>0)
-    nlLcl= 0                              
+    nlLcl= 0
     nlLfc= 0
     nlCross= 0
 
     if (hasattr(localOpts,"sktTCmissingV")):
       TCmissing = localOpts.sktTCmissingV
       if (numpy.any(_ismissing(tc,TCmissing))):
-        print "skewt_plt: tc (temperature) cannot have missing values if sktThermoInfoLabelOn is True."
+        print("skewt_plt: tc (temperature) cannot have missing values if sktThermoInfoLabelOn is True.")
         return None
     TCmissing = -999.
     cape,tpar,nlLcl,nlLfc,nlCross  =  \
@@ -6787,7 +6776,7 @@ dataOpts -- An optional instance of the Resources class having
         pz   = ftcurv(Zv,Pv,zw)               # map zw to p levels.
 
         wbcol = wmgetp("col")
-        wmsetp("col",get_named_color_index(wks,sktcolWindZ)) 
+        wmsetp("col",get_named_color_index(wks,sktcolWindZ))
         yzWind = _skewty(pz)
         xzWind = numpy.ones(len(pz),'f')
         xzWind = _skewtx(45., _skewty(1013.)) * xzWind
@@ -6820,7 +6809,7 @@ dataOpts -- An optional instance of the Resources class having
         idzp = ind(mv2)
         Zv   = numpy.take(Z2,idzp)
         if (len(Zv) == 0):
-          print "Warning - skewt_plt: attempt to plot wind barbs at specified heights when there are no coordinates where pressure and geopotential are both defined."
+          print("Warning - skewt_plt: attempt to plot wind barbs at specified heights when there are no coordinates where pressure and geopotential are both defined.")
         else:
           Pv   = numpy.take(P2,idzp)
           ph   = ftcurv(Zv,Pv,localOpts.sktHeight)
@@ -6859,7 +6848,7 @@ res -- An optional instance of the Resources class having PyNGL
   var2,var_fill_value = _get_arr_and_fv(varray)
 
   _set_spc_defaults(1)
-  rlist = _crt_dict(rlistc)  
+  rlist = _crt_dict(rlistc)
  
 #  Separate the resource dictionary into those resources
 #  that apply to VectorField and those that apply to
@@ -6868,12 +6857,12 @@ res -- An optional instance of the Resources class having PyNGL
   rlist1 = {}
   rlist2 = {}
   rlist3 = {}
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])
     else:
       rlist2[key] = rlist[key]
 
@@ -6928,7 +6917,7 @@ res -- An optional instance of the Resources class having PyNGL
   var2,var_fill_value = _get_arr_and_fv(varray)
 
   _set_spc_defaults(1)
-  rlist = _crt_dict(rlistc)  
+  rlist = _crt_dict(rlistc)
  
 #  Separate the resource dictionary into those resources
 #  that apply to VectorField, MapPlot, and StreamlinePlot.
@@ -6936,7 +6925,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist1 = {}
   rlist2 = {}
   rlist3 = {}
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
@@ -6945,7 +6934,7 @@ res -- An optional instance of the Resources class having PyNGL
           (key[0:2] == "ti") ):
       rlist3[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])
     else:
       rlist2[key] = rlist[key]
 
@@ -6968,7 +6957,7 @@ res -- An optional instance of the Resources class having PyNGL
                          uar2.shape[0],uar2.shape[1],0,               \
                          pvoid(),"",0,pvoid(),"", 0, 0, pvoid(), pvoid(), \
                          rlist1,rlist2,rlist3,pvoid())
-  lstrm = _lst2pobj(strm) 
+  lstrm = _lst2pobj(strm)
 
   if mask_list["MaskLC"]:
     lstrm = _mask_lambert_conformal(wks, lstrm, mask_list, rlist3)
@@ -7005,7 +6994,7 @@ res -- An optional instance of the Resources class having PyNGL
   tar2,tar_fill_value = _get_arr_and_fv(tarray)
 
   _set_spc_defaults(1)
-  rlist = _crt_dict(rlistc)  
+  rlist = _crt_dict(rlistc)
  
 #  Separate the resource dictionary into those resources
 #  that apply to VectorField, ScalarField, and StreamlinePlot.
@@ -7014,14 +7003,14 @@ res -- An optional instance of the Resources class having PyNGL
   rlist2 = {}
   rlist3 = {}
   rlist4 = {}
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:2] == "sf"):
       rlist2[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])
     else:
       rlist3[key] = rlist[key]
 #
@@ -7083,7 +7072,7 @@ res -- An optional instance of the Resources class having PyNGL
   tar2,tar_fill_value = _get_arr_and_fv(tarray)
 
   _set_spc_defaults(1)
-  rlist = _crt_dict(rlistc)  
+  rlist = _crt_dict(rlistc)
  
 #  Separate the resource dictionary into those resources
 #  that apply to VectorField, ScalarField, MapPlot, and 
@@ -7093,7 +7082,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist2 = {}
   rlist3 = {}
   rlist4 = {}
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
@@ -7104,7 +7093,7 @@ res -- An optional instance of the Resources class having PyNGL
           (key[0:2] == "ti") ):
       rlist4[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])
     else:
       rlist3[key] = rlist[key]
     
@@ -7215,15 +7204,15 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
 
   for nc in range(nCase):
      angle      = numpy.arccos( CC[nc,:] )             # array operation                                    
-     X[nc,:]    = RATIO[nc,:] * numpy.cos( angle )     
-     Y[nc,:]    = RATIO[nc,:] * numpy.sin( angle )    
+     X[nc,:]    = RATIO[nc,:] * numpy.cos( angle )
+     Y[nc,:]    = RATIO[nc,:] * numpy.sin( angle )
 
   xyMin                 = 0
   xyOne                 = 1.00
   xyMax                 = 1.65
   xyMax_Panel           = xyMax+ 0.10                # paneling purposes
  
-  if (rOpts and hasattr(rOpts,"txFontHeightF"))  : 
+  if (rOpts and hasattr(rOpts,"txFontHeightF"))  :
       FontHeightF       = rOpts.txFontHeightF        # user wants to specify size
   else :
       FontHeightF       = 0.0175
@@ -7234,7 +7223,7 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
 # basic x-y and draw the 1.0 observed and the outer curve at 1.65
 # ----------------------------------------------------------------
   
-  rxy = Resources() 
+  rxy = Resources()
   rxy.nglDraw           = False
   rxy.nglFrame          = False
   rxy.vpHeightF         = 0.65
@@ -7245,7 +7234,7 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
   rxy.tiYAxisString     = "Standardized Deviations (Normalized)"
   rxy.tiYAxisFontHeightF= FontHeightF                # default=0.025 
   
-  rxy.tmXBMode          = "Explicit" 
+  rxy.tmXBMode          = "Explicit"
   rxy.tmXBValues        = [0.0,0.25,0.50,0.75,1.00,1.25,1.5]    # major tm
   rxy.tmXBLabels        = ["    ","0.25","0.50","0.75","REF" ,"1.25","1.50"]
   if (rOpts and hasattr(rOpts,"OneX") )  :           # eg: rOpts.OneX="1.00" 
@@ -7260,7 +7249,7 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
   rxy.tmYLMinorOn       = False
   rxy.tmYLMajorLengthF  = rxy.tmXBMajorLengthF
   rxy.tmYLLabelFontHeightF = FontHeightF
-  rxy.tmYLMode          = "Explicit" 
+  rxy.tmYLMode          = "Explicit"
   rxy.tmYLValues        = [0.0, .25, 0.50, 0.75, 1.00, 1.25, 1.5] # major tm
   rxy.tmYLLabels        = ["0.00","0.25","0.50","0.75","1.00","1.25","1.50"]
   rxy.trYMaxF           = xyMax_Panel
@@ -7278,7 +7267,7 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
 
                                      # create outer 'correlation axis'
   npts    = 200                      # arbitrary
-  xx      = numpy.linspace(xyMin,xyMax,npts) 
+  xx      = numpy.linspace(xyMin,xyMax,npts)
   yy      = numpy.sqrt(xyMax**2 - xx**2    )   # outer correlation line (xyMax)
 
   sLabels = ["0.0","0.1","0.2","0.3","0.4","0.5","0.6",    # correlation labels
@@ -7305,7 +7294,7 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
   dum1 = add_polyline(wks,taylor, [0.,xyMax], [0.,  0.], rsrRes)
 
   xx   = numpy.linspace(xyMin, xyOne ,npts)               # draw 1.0 standard radius
-  yy   = numpy.sqrt(xyOne - xx**2)   
+  yy   = numpy.sqrt(xyOne - xx**2)
   rsrRes.gsLineDashPattern = 1                         # dashed line pattern
   rsrRes.gsLineThicknessF  = rxy.xyLineThicknesses[0]  # line thickness
   dum2 = add_polyline(wks,taylor,xx,yy, rsrRes)
@@ -7319,8 +7308,8 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
       dum3  = []
       for n in range(nStnRad):
          rr = rOpts.stnRad[n]
-         xx = numpy.linspace(xyMin, rr ,npts) 
-         yy = numpy.sqrt(rr**2   - xx**2)   
+         xx = numpy.linspace(xyMin, rr ,npts)
+         yy = numpy.sqrt(rr**2   - xx**2)
          dum3.append(add_polyline(wks,taylor,xx,yy, rsrRes))
 
       del xx
@@ -7343,9 +7332,9 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
   txRes.txFontHeightF = FontHeightF               # match YL 
   txRes.tmYLLabelFont = tmYLLabelFont             # match YL
   txRes.txAngleF      = -45.
-  if ( not hasattr(rOpts, "drawCorLabel") or rOpts.drawCorLabel) : 
+  if ( not hasattr(rOpts, "drawCorLabel") or rOpts.drawCorLabel) :
       dum4 = add_text(wks,taylor,"Correlation",1.30,1.30,txRes)
-  txRes.txAngleF      = 0.0 
+  txRes.txAngleF      = 0.0
   txRes.txFontHeightF = FontHeightF*0.50          # bit smaller
 
   plRes               = Resources()
@@ -7364,7 +7353,7 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
     dum5.append(add_text(wks, taylor, sLabels[i],xC[i],yC[i],txRes))   # cor label
     xTM[0]   = xyMax * numpy.cos(angC[i]*rad)        # major tickmarks at
     yTM[0]   = xyMax * numpy.sin(angC[i]*rad)        # correlation labels
-    xTM[1]   = radTM * numpy.cos(angC[i]*rad)             
+    xTM[1]   = radTM * numpy.cos(angC[i]*rad)
     yTM[1]   = radTM * numpy.sin(angC[i]*rad)
     dum6.append(add_polyline(wks,taylor,xTM,yTM,plRes))
                                                   # minor tm locations
@@ -7377,7 +7366,7 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
   for i in range(numpy.size(mTM)):                   # manually add tm
     xTM[0]   = xyMax * numpy.cos(angmTM[i]*rad)      # minor tickmarks
     yTM[0]   = xyMax * numpy.sin(angmTM[i]*rad)
-    xTM[1]   = radmTM * numpy.cos(angmTM[i]*rad)          
+    xTM[1]   = radmTM * numpy.cos(angmTM[i]*rad)
     yTM[1]   = radmTM * numpy.sin(angmTM[i]*rad)
     dum7.append(add_polyline(wks,taylor,xTM,yTM,plRes))
                                                   # added for Wanli
@@ -7488,7 +7477,7 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
      ptRes.txFontColor     = gsRes.gsMarkerColor
      for i in range(nVar) :
        dum10.append(add_polymarker(wks,taylor,X[n,i],Y[n,i],gsRes))
-       print 'X(n,i) = %f  Y(n,i) = %f' %(X[n,i], Y[n,i])
+       print('X(n,i) = %f  Y(n,i) = %f' %(X[n,i], Y[n,i]))
        dum11.append(add_text(wks,taylor,str(i+1),X[n,i],Y[n,i]+markerTxYOffset,ptRes))
 
 
@@ -7525,34 +7514,34 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
 #      print nModel, rOpts.caseLabels
 #      lbid = legend_ndc(wks,nModel,rOpts.caseLabels,0.35,-0.35,lgres)
 	 
-  if (rOpts and hasattr(rOpts,"caseLabels")) : 
+  if (rOpts and hasattr(rOpts,"caseLabels")) :
       nCase    = numpy.size(rOpts.caseLabels)
       
       if (hasattr(rOpts,"caseLabelsFontHeightF")) :
 	  caseLabelsFontHeightF = rOpts.caseLabelsFontHeightF
       else :
-	  caseLabelsFontHeightF = 0.05 
+	  caseLabelsFontHeightF = 0.05
 
       txres = Resources()
       txres.txFontHeightF = caseLabelsFontHeightF
       txres.txJust = "CenterLeft"              # justify to the center left
 
-      delta_y = 0.1   
-      delta_x = 0.05  
+      delta_y = 0.1
+      delta_x = 0.05
       if (rOpts and hasattr(rOpts,"caseLabelsXloc")) :
           xs  = rOpts.caseLabelsXloc            # user specified
       else :
-          xs  = 1.                
+          xs  = 1.
       
       if (rOpts and hasattr(rOpts,"caseLabelsYloc")) :
           ys  = rOpts.caseLabelsYloc            # user specified
       else :
-          ys  = max( [nCase*delta_y , 0.30]) 
+          ys  = max( [nCase*delta_y , 0.30])
 	  
       gsres               = Resources()
       gsres.gsMarkerSizeF = gsMarkerSizeF
       
-      for i in range(nCase):     
+      for i in range(nCase):
          if (i==0) :
              dum12 = []
              dum13 = []
@@ -7565,7 +7554,7 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
          dum12.append(add_text(wks,taylor, rOpts.caseLabels[i], xs, ys, txres))
          ys = ys- delta_y
   
-  if (rOpts and hasattr(rOpts,"varLabels")) : 
+  if (rOpts and hasattr(rOpts,"varLabels")) :
       nVar    = numpy.size(rOpts.varLabels)
 
       if (hasattr(rOpts,"varLabelsFontHeightF")) :
@@ -7577,13 +7566,13 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
       txres.txFontHeightF = varLabelsFontHeightF
       txres.txJust = "CenterLeft"              # justify to the center left
 
-      delta_y = 0.06   
+      delta_y = 0.06
       if (rOpts and hasattr(rOpts,"varLabelsYloc")) :
           ys  = rOpts.varLabelsYloc            # user specified
       else :
           ys  = max( [nVar*delta_y , 0.30])
       
-      for i in range(nVar):     
+      for i in range(nVar):
          if (i==0) :
              dum12 = []
 
@@ -7591,10 +7580,10 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
          ys = ys- delta_y
   
   if (not hasattr(rOpts,"taylorDraw") or \
-     (hasattr(rOpts,"taylorDraw") and rOpts.taylorDraw)) : 
+     (hasattr(rOpts,"taylorDraw") and rOpts.taylorDraw)) :
 	draw(taylor)
   if (not hasattr(rOpts,"taylorFrame") or \
-     (hasattr(rOpts,"taylorFrame") and rOpts.taylorFrame)) : 
+     (hasattr(rOpts,"taylorFrame") and rOpts.taylorFrame)) :
 	frame(wks)
 
   return taylor
@@ -7625,10 +7614,10 @@ res -- An optional variable containing a list of TextItem resources,
   _set_spc_defaults(0)
   rlist = _crt_dict(rlistc)
   rlist1 = {}
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
     if(key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])
     else:
       rlist1[key] = rlist[key]
   itxt = text_wrap(wks,_pobj2lst(plot),text,x,y,"double","double",rlist1,pvoid())
@@ -7658,10 +7647,10 @@ res -- An (optional) instance of the Resources class having TextItem
   _set_spc_defaults(0)
   rlist = _crt_dict(rlistc)
   rlist1 = {}
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
     if(key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])
     else:
       rlist1[key] = rlist[key]
 
@@ -7701,7 +7690,7 @@ res -- An optional instance of the Resources class having PyNGL
 #  Make sure the arrays are 2D.
 #
   if len(uarray.shape) != 2 or len(varray.shape) != 2:
-    print "vector - arrays must be 2D"
+    print("vector - arrays must be 2D")
     return None
 
 # Get NumPy array from masked arrays, if necessary.
@@ -7709,7 +7698,7 @@ res -- An optional instance of the Resources class having PyNGL
   var2,var_fill_value = _get_arr_and_fv(varray)
 
   _set_spc_defaults(1)
-  rlist = _crt_dict(rlistc)  
+  rlist = _crt_dict(rlistc)
  
 #  Separate the resource dictionary into those resources
 #  that apply to VectorField and those that apply to
@@ -7718,12 +7707,12 @@ res -- An optional instance of the Resources class having PyNGL
   rlist1 = {}
   rlist2 = {}
   rlist3 = {}
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])
     else:
       rlist2[key] = rlist[key]
 #
@@ -7776,7 +7765,7 @@ res -- An optional instance of the Resources class having PyNGL
 #  Make sure the arrays are 2D.
 #
   if len(uarray.shape) != 2 or len(varray.shape) != 2:
-    print "vector_map - arrays must be 2D"
+    print("vector_map - arrays must be 2D")
     return None
 
 # Get NumPy array from masked arrays, if necessary.
@@ -7784,7 +7773,7 @@ res -- An optional instance of the Resources class having PyNGL
   var2,var_fill_value = _get_arr_and_fv(varray)
 
   _set_spc_defaults(1)
-  rlist = _crt_dict(rlistc)  
+  rlist = _crt_dict(rlistc)
  
 #  Separate the resource dictionary into those resources
 #  that apply to VectorField, MapPlot, and VectorPlot.
@@ -7792,7 +7781,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist1 = {}
   rlist2 = {}
   rlist3 = {}
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
@@ -7801,7 +7790,7 @@ res -- An optional instance of the Resources class having PyNGL
           (key[0:2] == "ti") ):
       rlist3[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])
     else:
       rlist2[key] = rlist[key]
 
@@ -7860,7 +7849,7 @@ res -- An optional instance of the Resources class having PyNGL
 #
   if len(uarray.shape) != 2 or len(varray.shape) != 2 or \
      len(tarray.shape) != 2:
-    print "vector_scalar - arrays must be 2D"
+    print("vector_scalar - arrays must be 2D")
     return None
 
 # Get NumPy array from masked arrays, if necessary.
@@ -7869,7 +7858,7 @@ res -- An optional instance of the Resources class having PyNGL
   tar2,tar_fill_value = _get_arr_and_fv(tarray)
 
   _set_spc_defaults(1)
-  rlist = _crt_dict(rlistc)  
+  rlist = _crt_dict(rlistc)
  
 #  Separate the resource dictionary into those resources
 #  that apply to VectorField, ScalarField, and VectorPlot.
@@ -7878,14 +7867,14 @@ res -- An optional instance of the Resources class having PyNGL
   rlist2 = {}
   rlist3 = {}
   rlist4 = {}
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
     elif(key[0:2] == "sf"):
       rlist2[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])
     else:
       rlist3[key] = rlist[key]
 #
@@ -7946,7 +7935,7 @@ res -- An optional instance of the Resources class having PyNGL
 #
   if len(uarray.shape) != 2 or len(varray.shape) != 2 or \
      len(tarray.shape) != 2:
-    print "vector_scalar_map - arrays must be 2D"
+    print("vector_scalar_map - arrays must be 2D")
     return None
 
 # Get NumPy array from masked arrays, if necessary.
@@ -7955,7 +7944,7 @@ res -- An optional instance of the Resources class having PyNGL
   tar2,tar_fill_value = _get_arr_and_fv(tarray)
 
   _set_spc_defaults(1)
-  rlist = _crt_dict(rlistc)  
+  rlist = _crt_dict(rlistc)
  
 #  Separate the resource dictionary into those resources
 #  that apply to VectorField, ScalarField, MapPlot, and 
@@ -7965,7 +7954,7 @@ res -- An optional instance of the Resources class having PyNGL
   rlist2 = {}
   rlist3 = {}
   rlist4 = {}
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
     if (key[0:2] == "vf"):
       rlist1[key] = rlist[key]
@@ -7976,7 +7965,7 @@ res -- An optional instance of the Resources class having PyNGL
           (key[0:2] == "ti") ):
       rlist4[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])
     else:
       rlist3[key] = rlist[key]
     
@@ -8017,7 +8006,7 @@ res -- An optional instance of the Resources class having PyNGL
 
 ################################################################
 
-def vinth2p(datai, hbcofa, hbcofb, plevo, psfc, intyp, p0, ii, kxtrp):     
+def vinth2p(datai, hbcofa, hbcofb, plevo, psfc, intyp, p0, ii, kxtrp):
   """
 Interpolates CCSM hybrid coordinates to pressure coordinates.  A
 multi-dimensional NumPy array of the same shape as datai is
@@ -8061,7 +8050,7 @@ kxtrp -- A logical value. If False, then no extrapolation is done when
          the pressure level is outside of the range of psfc.
   """
 
-  return fplib.vinth2p(datai, hbcofa, hbcofb, plevo, psfc, 
+  return fplib.vinth2p(datai, hbcofa, hbcofb, plevo, psfc,
                        intyp, p0, ii, kxtrp)
 
 ################################################################
@@ -8093,7 +8082,7 @@ dx, dy -- Scalars, one-dimensional NumPy arrays or Python lists
   t = type(numpy.array([0],'i'))
   if (type(x) == t):
     if ( (type(y) != t) or (type(u) != t) or (type(v) != t)):
-      print "wmbarb: If any argument is a NumPy array, they must all be."
+      print("wmbarb: If any argument is a NumPy array, they must all be.")
       return 1
     rx = numpy.ravel(x)
     ry = numpy.ravel(y)
@@ -8101,17 +8090,17 @@ dx, dy -- Scalars, one-dimensional NumPy arrays or Python lists
     rv = numpy.ravel(v)
     for i in range(len(rx)):
       c_wmbarbp(gksid,rx[i],ry[i],ru[i],rv[i])
-  elif(type(x) == types.ListType):
-    l = types.ListType
+  elif(type(x) == list):
+    l = list
     if ( (type(y) != l) or (type(u) != l) or (type(v) != l)):
-      print "wmbarb: If any argument is a Python list, they must all be."
+      print("wmbarb: If any argument is a Python list, they must all be.")
       return 1
     for i in range(len(x)):
       c_wmbarbp(gksid,x[i],y[i],u[i],v[i])
-  elif(type(x) == types.TupleType):
-    l = types.TupleType
+  elif(type(x) == tuple):
+    l = tuple
     if ( (type(y) != l) or (type(u) != l) or (type(v) != l)):
-      print "wmbarb: If any argument is a Python tuple, they must all be."
+      print("wmbarb: If any argument is a Python tuple, they must all be.")
       return 1
     for i in range(len(x)):
       c_wmbarbp(gksid,x[i],y[i],u[i],v[i])
@@ -8172,7 +8161,7 @@ value -- The return value of the given input parameter.
              "RC1", "RC2", "RC3", "RC4", "RC5", "REV", "RFC", "RLS", "ROS", \
              "SC1", "SC2", "SC3", "SC4", "SLF", "STY", "T1C", "T2C", "WBF", \
              "WFC", "WTY", "EZF", "SMF", "LOC", "WDF", "UNT"                \
-           ] 
+           ]
 
   rparms = [                                                                \
              "arc", "ard", "arl", "ars", "beg", "bet", "cht", "cmg", "cs1", \
@@ -8197,8 +8186,7 @@ value -- The return value of the given input parameter.
   elif (cparms.count(pname) > 0):
     return c_wmgetcp(pname)
   else:
-    print \
-      "wmgetp: specified value for " + pname + " is not of a recognized type." 
+    print("wmgetp: specified value for " + pname + " is not of a recognized type.")
   return None
 
 ################################################################
@@ -8216,15 +8204,14 @@ pvalue -- Value of the parameter you want to set.
   if (not isinstance(pname,types.StringType)):
     print "wmsetp: Parameter '" + str(pname) + "' is not a string type." 
     return None
-  if (isinstance(val,types.FloatType)):
+  if (isinstance(val,float)):
     c_wmsetrp(pname,val)
-  elif (isinstance(val,types.IntType)): 
+  elif (isinstance(val,int)):
     c_wmsetip(pname,val)
   elif (isinstance(val,types.StringType)):
     c_wmsetcp(pname,val)
   else:
-    print \
-      "wmsetp: specified value for " + pname + " is not of a recognized type." 
+    print("wmsetp: specified value for " + pname + " is not of a recognized type.")
   return None
 
 ################################################################
@@ -8258,7 +8245,7 @@ imdat -- A string of 50 characters encoded as per the WMO/NOAA guidelines.
     imdata = numpy.array([imdat])
   else:
     imdata = numpy.array(imdat)
-  for i in xrange(len(xa)):
+  for i in range(len(xa)):
     c_wmstnmp(gksid,xa[i],ya[i],imdata[i])
 
   del xa,ya,imdata
@@ -8706,12 +8693,12 @@ resources to.
     map_opts.mpGridSpacingF = 45
     map_opts.mpCenterLonF   = _get_res_value_keep(map_opts, "mpCenterLonF",wfile.CEN_LON)
     if( hasattr(wfile,"POLE_LAT") ):
-      map_opts.mpCenterRotF = _get_res_value_keep(map_opts, "mpCenterRotF", 90.0 - wfile.POLE_LAT) 
+      map_opts.mpCenterRotF = _get_res_value_keep(map_opts, "mpCenterRotF", 90.0 - wfile.POLE_LAT)
       del map_opts.mpCenterLonF
       calcen = -190.
       map_opts.mpCenterLonF  = _get_res_value_keep(map_opts, "mpCenterLonF", calcen )
 
-  varnames = wfile.variables.keys()  
+  varnames = list(wfile.variables.keys())
 
   if("XLAT" in varnames and "XLONG" in varnames):
     lat = wfile.variables["XLAT"][nest_time,:,:]
@@ -8849,8 +8836,7 @@ res -- An (optional) instance of the Resources class having PyNGL
     ndims_x = (len(xar2.shape))
     dsizes_x = xar2.shape
   else:
-    print \
-      "xy: type of argument 2 must be one of: list, tuple, or NumPy array"
+    print("xy: type of argument 2 must be one of: list, tuple, or NumPy array")
     return None
 
   if _is_list_or_tuple(yar2):
@@ -8860,11 +8846,10 @@ res -- An (optional) instance of the Resources class having PyNGL
     ndims_y = (len(yar2.shape))
     dsizes_y = yar2.shape
   else:
-    print \
-      "xy: type of argument 3 must be one of: list, tuple, or NumPy array"
+    print("xy: type of argument 3 must be one of: list, tuple, or NumPy array")
     return None
 
-  rlist = _crt_dict(rlistc)  
+  rlist = _crt_dict(rlistc)
  
 #
 #  Separate the resource dictionary into those resources
@@ -8884,7 +8869,7 @@ res -- An (optional) instance of the Resources class having PyNGL
                 'nglXYRightFillColors','nglXYLeftFillColors',  \
                 'nglXYFillColors']
   fill_xy = False
-  for key in rlist.keys():
+  for key in list(rlist.keys()):
     rlist[key] = _convert_from_ma(rlist[key])
 #---Test for special fill attributes
     if key in fill_attrs:
@@ -8910,7 +8895,7 @@ res -- An (optional) instance of the Resources class having PyNGL
       else:
         xyd_rlist[key] = rlist[key]
     elif(key[0:3] == "ngl"):
-      _set_spc_res(key[3:],rlist[key])      
+      _set_spc_res(key[3:],rlist[key])
     else:
       xy_rlist[key] = rlist[key]
 
@@ -8927,11 +8912,11 @@ res -- An (optional) instance of the Resources class having PyNGL
   if fill_xy and (not rval is None):
     rval = _fill_bw_xy(wks,rval,xar,yar,fill_rlist)
 
-    if (rlist.has_key("nglDraw") and rlist["nglDraw"]) or \
-       not rlist.has_key("nglDraw"):
+    if ("nglDraw" in rlist and rlist["nglDraw"]) or \
+       "nglDraw" not in rlist:
       draw(rval.xy)
-    if (rlist.has_key("nglFrame") and rlist["nglFrame"]) or \
-       not rlist.has_key("nglFrame"):
+    if ("nglFrame" in rlist and rlist["nglFrame"]) or \
+       "nglFrame" not in rlist:
       frame(wks)
 
   del rlist
@@ -8978,8 +8963,7 @@ res -- An (optional) instance of the Resources class having PyNGL
     ndims_y = (len(yar2.shape))
     dsizes_y = yar2.shape
   else:
-    print \
-      "xy: type of argument 3 must be one of: list, tuple, or NumPy array"
+    print("xy: type of argument 3 must be one of: list, tuple, or NumPy array")
     return None
 
   if (len(dsizes_y) == 1):
@@ -8987,13 +8971,12 @@ res -- An (optional) instance of the Resources class having PyNGL
   elif (len(dsizes_y) == 2):
     npts = dsizes_y[1]
   else:
-    print \
-      "y: array can have at most two dimensions"
+    print("y: array can have at most two dimensions")
     return None
     
 # Just pass yar and let the xy function deal with setting msg val
 # resources, if any.
-  return xy(wks,range(0,npts),yar,rlistc)
+  return xy(wks,list(range(0,npts)),yar,rlistc)
 
 ################################################################
 
@@ -9024,7 +9007,7 @@ r, g, b -- The red, green, and blue intensity values in the range
     rr = numpy.zeros(dimc,'f')
     gr = numpy.zeros(dimc,'f')
     br = numpy.zeros(dimc,'f')
-    for j in xrange(dimc):
+    for j in range(dimc):
       rr[j],gr[j],br[j] = c_yiqrgb(y.ravel()[j],i.ravel()[j],q.ravel()[j])
     rr.shape = gr.shape = br.shape = ishape
     del dimc,ishape
@@ -9039,13 +9022,13 @@ r, g, b -- The red, green, and blue intensity values in the range
     rr = numpy.zeros(dimc,'f')
     gr = numpy.zeros(dimc,'f')
     br = numpy.zeros(dimc,'f')
-    for j in xrange(dimc):
+    for j in range(dimc):
       rr[j],gr[j],br[j] = c_yiqrgb(yi.ravel()[j],ii.ravel()[j],qi.ravel()[j])
     rr.shape = gr.shape = br.shape = ishape
     del yi,ii,qi,ishape,dimc
     return rr,gr,br
   else:
-    print "yiqrgb: arguments must be scalars, arrays, lists or tuples."
+    print("yiqrgb: arguments must be scalars, arrays, lists or tuples.")
 
 ################################################################
 # This function is one of two codes contributed by Lou Wicker
@@ -9165,7 +9148,7 @@ def nice_cntr_levels(lmin, lmax, outside=True, max_steps=15, cint=None, returnLe
         am1 = numpy.ceil(amin/t) * t
         ax1 = numpy.floor(amax/t)  * t
     
-    if cint is None or cint == 0.0:   
+    if cint is None or cint == 0.0:
         cints = (ax1 - am1) / t
 
         # DEBUG LINE BELOW
@@ -9177,14 +9160,14 @@ def nice_cntr_levels(lmin, lmax, outside=True, max_steps=15, cint=None, returnLe
             return None
 
         if returnLevels:
-            return am1[index], ax1[index], cints[index], numpy.arange(am1[index], ax1[index]+cints[index], cints[index]) 
+            return am1[index], ax1[index], cints[index], numpy.arange(am1[index], ax1[index]+cints[index], cints[index])
         else:
             return am1[index], ax1[index], cints[index]
 
     else:
 
         if returnLevels:
-            return am1, ax1, cint, numpy.arange(am1, ax1+cint, cint) 
+            return am1, ax1, cint, numpy.arange(am1, ax1+cint, cint)
         else:
             return am1, ax1, cint
 
