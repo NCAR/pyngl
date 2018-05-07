@@ -137,8 +137,47 @@ static PyMethodDef fplib_methods[] = {
     {NULL,      NULL}        /* Sentinel */
 };
 
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+#define GETSTATE(m) ((struct nio_state*)PyModule_GetState(m))
+#else
+#define INITERROR return
+#endif
+
+
+#if PY_MAJOR_VERSION >= 3
+static struct PyModuleDef fplib_def = {
+    PyModuleDef_HEAD_INIT,
+    "fplib",
+    NULL,
+    NULL,
+    fplib_methods,
+    NULL,
+    NULL,
+    /* TODO: Add support for cyclic garbage collection */
+    /*(traverseproc)nio_traverse,*/
+    NULL,
+    /* TODO: Add support for cyclic garbage collection */
+    /*(inquiry)nio_clear,*/
+    NULL
+};
+
+PyMODINIT_FUNC PyInit_fplib(void) {
+    PyObject *m;
+    m = PyModule_Create(&fplib_def);
+
+    if (m == NULL) {
+        INITERROR;
+    }
+
+    import_array();
+
+    return m;
+}
+#else
 void initfplib()
 {
     (void) Py_InitModule("fplib", fplib_methods);
     import_array();
 }
+#endif
