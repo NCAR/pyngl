@@ -7384,7 +7384,7 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
       rlRes.gsLineDashPattern= 2                  # line pattern
       rlRes.gsLineThicknessF = 1                  # choose line thickness
       if (hasattr(rOpts, "ccRays_color")) :
-      rlRes.gsLineColor = rOpts.ccRays_color
+          rlRes.gsLineColor = rOpts.ccRays_color
       else :
           rlRes.gsLineColor    =  "black"
 
@@ -7525,9 +7525,9 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
       nCase    = numpy.size(rOpts.caseLabels)
       
       if (hasattr(rOpts,"caseLabelsFontHeightF")) :
-      caseLabelsFontHeightF = rOpts.caseLabelsFontHeightF
+        caseLabelsFontHeightF = rOpts.caseLabelsFontHeightF
       else :
-      caseLabelsFontHeightF = 0.05
+        caseLabelsFontHeightF = 0.05
 
       txres = Resources()
       txres.txFontHeightF = caseLabelsFontHeightF
@@ -7555,7 +7555,7 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
 
          gsres.gsMarkerColor     = Colors[i]     # colors of markers
          gsres.gsMarkerIndex     = Markers[i]    # Markers
-      dum13.append(add_polymarker(wks, taylor, xs-delta_x, ys, gsres) )   # Draw a polymarker.
+         dum13.append(add_polymarker(wks, taylor, xs-delta_x, ys, gsres) )   # Draw a polymarker.
 
          txres.txFontColor     = Colors[i]        # colors of markers
          dum12.append(add_text(wks,taylor, rOpts.caseLabels[i], xs, ys, txres))
@@ -7583,7 +7583,7 @@ def taylor_diagram(wks, RATIO, CC, rOpts):
          if (i==0) :
              dum12 = []
 
-      dum12.append(add_text(wks,taylor, str(i+1) + " - " + rOpts.varLabels[i], .125,ys,txres))
+         dum12.append(add_text(wks,taylor, str(i+1) + " - " + rOpts.varLabels[i], .125,ys,txres))
          ys = ys- delta_y
   
   if (not hasattr(rOpts,"taylorDraw") or \
