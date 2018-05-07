@@ -1317,11 +1317,11 @@ def _set_spc_res(resource_name,value):
     set_nglRes_i(4, lval)
   elif (resource_name == "PaperOrientation"):
     if(isinstance(lval, str)):
-      if(string.lower(lval) == "portrait"):
+      if(lval.lower() == "portrait"):
         set_nglRes_i(5, 0)
-      elif(string.lower(lval) == "landscape"):
+      elif(lval.lower() == "landscape"):
         set_nglRes_i(5, 6)
-      elif(string.lower(lval) == "auto"):
+      elif(lval.lower() == "auto"):
         set_nglRes_i(5, 3)
       else:
         print("_set_spc_res: Unknown value for " + resource_name)
@@ -1411,11 +1411,11 @@ def _set_spc_res(resource_name,value):
     set_nglRes_s(46, lval)
   elif (resource_name == "XAxisType"):
     if(isinstance(lval, str)):
-      if(string.lower(lval) == "irregularaxis"):
+      if(lval.lower() == "irregularaxis"):
         set_nglRes_i(47, 0)
-      elif(string.lower(lval) == "linearaxis"):
+      elif(lval.lower() == "linearaxis"):
         set_nglRes_i(47, 1)
-      elif(string.lower(lval) == "logaxis"):
+      elif(lval.lower() == "logaxis"):
         set_nglRes_i(47, 2)
       else:
         print("_set_spc_res: Unknown value for " + resource_name)
@@ -1423,11 +1423,11 @@ def _set_spc_res(resource_name,value):
       set_nglRes_i(47, lval)
   elif (resource_name == "YAxisType"):
     if(isinstance(lval, str)):
-      if(string.lower(lval) == "irregularaxis"):
+      if(lval.lower() == "irregularaxis"):
         set_nglRes_i(48, 0)
-      elif(string.lower(lval) == "linearaxis"):
+      elif(lval.lower() == "linearaxis"):
         set_nglRes_i(48, 1)
-      elif(string.lower(lval) == "logaxis"):
+      elif(lval.lower() == "logaxis"):
         set_nglRes_i(48, 2)
       else:
         print("_set_spc_res: Unknown value for " + resource_name)
@@ -1461,7 +1461,7 @@ def _check_res_value(resvalue,strvalue,intvalue):
 #  type string or integer (like color resource values).
 #
   if( (isinstance(resvalue, str) and \
-     string.lower(resvalue) == string.lower(strvalue)) or \
+     resvalue.lower() == strvalue.lower()) or \
      (isinstance(resvalue, integer_types) and resvalue == intvalue)):
     return(True)
   else:
@@ -2288,7 +2288,7 @@ latitude -- An optional one-dimensional array, representing
   if(axis is None):
     axis = "y"
   else:
-    saxis = string.lower(axis)
+    saxis = axis.lower()
     if (saxis != "x" and saxis != "y"):
       print("add_lat_90: 'axis' must be set to 'x' or 'y'")
       sys.exit()
@@ -5692,18 +5692,18 @@ res -- A required instance of the Resources class having special
 #  two resources took True/False values.
 #
         if (hasattr(localOpts,"sktTemperatureUnits")):
-          if(string.lower(localOpts.sktTemperatureUnits) == "celsius"):
+          if(localOpts.sktTemperatureUnits.lower() == "celsius"):
             localOpts.sktDrawFahrenheit = False    # default is True
-          elif(string.lower(localOpts.sktTemperatureUnits) == "fahrenheit"):
+          elif(localOpts.sktTemperatureUnits.lower() == "fahrenheit"):
             localOpts.sktDrawFahrenheit = True    # default is True
           else:
             localOpts.sktDrawFahrenheit = True    # default is True
             print("Warning - skewt_bkg: 'sktTemperatureUnits' must be set to 'fahrenheit' or 'celsius'. Defaulting to 'fahrenheit'.")
 
         if (hasattr(localOpts,"sktHeightScaleUnits")):
-          if(string.lower(localOpts.sktHeightScaleUnits) == "km"):
+          if(localOpts.sktHeightScaleUnits.lower() == "km"):
             localOpts.sktDrawHeightScaleFt = False    # default is True
-          elif(string.lower(localOpts.sktHeightScaleUnits) == \
+          elif(localOpts.sktHeightScaleUnits.lower() == \
                             "feet"):
             localOpts.sktDrawHeightScaleFt = True    # default is True
           else:
@@ -6537,9 +6537,9 @@ dataOpts -- An optional instance of the Resources class having
 #  took True/False values.
 #
         if (hasattr(localOpts,"sktPressureWindBarbComponents")):
-          if(string.lower(localOpts.sktPressureWindBarbComponents) == "uv"):
+          if(localOpts.sktPressureWindBarbComponents.lower() == "uv"):
             localOpts.sktWspdWdir = False    # default is True
-          elif(string.lower(localOpts.sktPressureWindBarbComponents) == \
+          elif(localOpts.sktPressureWindBarbComponents.lower() == \
                             "speeddirection"):
             localOpts.sktWspdWdir = True    # the default
           else:
@@ -6547,9 +6547,9 @@ dataOpts -- An optional instance of the Resources class having
             print("Warning - skewt_plt: 'sktPressureWindBarbComponents' must be set to 'SpeedDirection' or 'UV'. Defaulting to 'SpeedDirection'.")
 
         if (hasattr(localOpts,"sktHeightWindBarbComponents")):
-          if(string.lower(localOpts.sktHeightWindBarbComponents) == "uv"):
+          if(localOpts.sktHeightWindBarbComponents.lower() == "uv"):
             localOpts.sktHspdHdir = False    # default is True
-          elif(string.lower(localOpts.sktHeightWindBarbComponents) == \
+          elif(localOpts.sktHeightWindBarbComponents.lower() == \
                             "speeddirection"):
             localOpts.sktHspdHdir = True    # the default
           else:
