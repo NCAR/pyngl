@@ -2053,7 +2053,9 @@ import_array();
     }
   }
 
-  $1 = &inlist;
+  $1 = (nglPlotId *) alloca(sizeof(nglPlotId));
+  memcpy($1, &inlist, sizeof(nglPlotId));
+
 }
 
 %typemap(out) NhlString *NhlGetStringArray {
