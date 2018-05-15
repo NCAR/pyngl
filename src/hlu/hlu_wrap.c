@@ -3025,6 +3025,194 @@ static swig_module_info swig_module = {swig_types, 13, 0, 0, 0, 0};
 #define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
+/* Python 3.7 changes the unicode char* to const char* */
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 7
+typedef const char py3_char;
+#else
+typedef char py3_char;
+#endif
+
+/* Converts unicode, bytes, or str to UTF8 unicode object.
+ * The ob argument can be unicode, bytes, or str;
+ *
+ * A new reference will always be returned.
+ * */
+static PyObject* pystr_to_utf8(PyObject *ob) {
+    PyObject *bytes, *result;
+    int del_bytes = 0;
+
+#if PY_MAJOR_VERSION >= 3
+    Py_ssize_t bytelen;
+    char *bytedata = NULL;
+
+    if (PyUnicode_Check(ob)) {
+        bytes = PyUnicode_AsUTF8String(ob);
+        del_bytes = 1;
+    }
+    else if (PyBytes_Check(ob)) {
+        bytes = ob;
+        del_bytes = 0;
+    } else {
+        del_bytes = 0;
+        PyErr_SetString(PyExc_ValueError, "argument is not a string type");
+        return NULL;
+    }
+
+    if (bytes) {
+        bytelen = PyBytes_Size(bytes);
+        bytedata = PyBytes_AsString(bytes);
+
+        result = PyUnicode_DecodeUTF8(bytedata, bytelen, "strict");
+    } else {
+        PyErr_SetString(PyExc_MemoryError, "creation of bytes failed");
+        return NULL;
+    }
+#else
+    del_bytes = 0;
+
+    if (PyUnicode_Check(ob)) {
+        bytes = PyUnicode_AsUTF8String(ob);
+
+    } else if (PyString_Check(ob)) {
+        /* Make a copy of the string so that a new reference is returned */
+        bytes = PyString_FromString(PyString_AsString(ob));
+    } else {
+        PyErr_SetString(PyExc_ValueError, "argument is not a string type");
+        return NULL;
+    }
+
+    if (bytes) {
+        result = bytes;
+    } else {
+        PyErr_SetString(PyExc_MemoryError, "creation of bytes failed");
+        return NULL;
+    }
+#endif
+
+    if (del_bytes) {
+        Py_XDECREF(bytes);
+    }
+
+    return result;
+}
+
+/* This will convert a Unicode/PyString to a UTF8 char* string.
+ *
+ * The resulting string must be free'd by the user.
+ */
+static py3_char* as_utf8_char_and_size(PyObject *ob, Py_ssize_t *size) {
+    char *result;
+    char *tempstr;
+    Py_ssize_t local_size;
+    PyObject *pystr = NULL;
+
+#if PY_MAJOR_VERSION >= 3
+    tempstr = (char*) PyUnicode_AsUTF8AndSize(ob, &local_size);
+#else
+    /* First, need to convert the object to UTF8 unicode/string object */
+    if (PyUnicode_Check(ob) || PyString_Check(ob)) {
+        pystr = pystr_to_utf8(ob);
+    } else {
+        PyErr_SetString(PyExc_ValueError, "argument is not a string type");
+        return NULL;
+    }
+
+    if (pystr) {
+        tempstr = PyString_AsString(pystr);
+        local_size = strlen(tempstr);
+    } else {
+        if (size) {
+            *size = 0;
+        }
+        PyErr_SetString(PyExc_ValueError, "creation of string failed");
+        return NULL;
+    }
+#endif
+
+    /* create a copy of tempstr */
+    result = calloc(local_size + 1, sizeof(char));
+    if (result) {
+        strcpy(result, tempstr);
+    } else {
+        result = (char*) PyErr_NoMemory();
+    }
+
+    if (size) {
+        *size = local_size;
+    }
+
+    if (pystr) {
+        Py_XDECREF(pystr);
+    }
+
+    return (py3_char*) result;
+}
+
+static py3_char* as_utf8_char(PyObject *ob) {
+    return as_utf8_char_and_size(ob, NULL);
+}
+
+/* Converts a char* to a python string
+ *
+ * A new reference is always returned.
+ */
+static PyObject* char_to_pystr(const char *s, Py_ssize_t len) {
+    PyObject *result = NULL;
+
+#if PY_MAJOR_VERSION >= 3
+    result = PyUnicode_DecodeUTF8(s, len, "strict");
+#else
+    result = PyString_FromStringAndSize(s, len);
+#endif
+
+    return result;
+}
+
+static int is_string_type(PyObject *ob) {
+    int result;
+
+#if PY_MAJOR_VERSION >= 3
+    result = PyUnicode_Check(ob) || PyBytes_Check(ob);
+#else
+    result = PyUnicode_Check(ob) || PyString_Check(ob);
+#endif
+
+    return result;
+
+}
+
+static PyObject* pystr_from_format(const char *format, ...) {
+    PyObject* result = NULL;
+    va_list arglist;
+
+    va_start(arglist, format);
+
+#if PY_MAJOR_VERSION >= 3
+    PyObject *temp = PyUnicode_FromFormatV(format, arglist);
+    result = pystr_to_utf8(temp);
+    Py_XDECREF(temp);
+#else
+    result = PyString_FromFormatV(format, arglist);
+#endif
+
+    va_end(arglist);
+
+    return result;
+
+}
+
+static int dict_setitemstring(PyObject *d, const char *key, PyObject *val) {
+    PyObject *key_obj = char_to_pystr(key, strlen(key));
+    int success = 0;
+
+    success = PyDict_SetItem(d, key_obj, val);
+
+    Py_XDECREF(key_obj);
+
+    return success;
+}
+
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -5092,7 +5280,7 @@ SWIGINTERN PyObject *_wrap_NhlSetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
        *  list, string, or array.
        */
       while (PyDict_Next(obj1, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -5116,13 +5304,13 @@ SWIGINTERN PyObject *_wrap_NhlSetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -5136,7 +5324,7 @@ SWIGINTERN PyObject *_wrap_NhlSetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -5161,23 +5349,23 @@ SWIGINTERN PyObject *_wrap_NhlSetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -5202,13 +5390,13 @@ SWIGINTERN PyObject *_wrap_NhlSetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -5223,7 +5411,7 @@ SWIGINTERN PyObject *_wrap_NhlSetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -5241,23 +5429,23 @@ SWIGINTERN PyObject *_wrap_NhlSetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -5265,25 +5453,25 @@ SWIGINTERN PyObject *_wrap_NhlSetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
          *  value is an int.
          */
         else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
+          NhlRLSetInteger(rlist,as_utf8_char(key),(int) PyInt_AsLong(value));
         }
         /*
          *  value is a float.
          */
         else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
+          NhlRLSetDouble(rlist,as_utf8_char(key),PyFloat_AsDouble(value));
         }
         /*
          *  value is a long.
          */
         else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
+          NhlRLSetInteger(rlist,as_utf8_char(key),(int) PyInt_AsLong(value));
         }
         /*
          *  value is a string
          */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
+        else if (is_string_type(value)) {
+          NhlRLSetString(rlist,as_utf8_char(key),as_utf8_char(value));
         }
         /*
          *  value is an array.
@@ -5302,7 +5490,7 @@ SWIGINTERN PyObject *_wrap_NhlSetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -5313,7 +5501,7 @@ SWIGINTERN PyObject *_wrap_NhlSetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -5322,7 +5510,7 @@ SWIGINTERN PyObject *_wrap_NhlSetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -6797,8 +6985,8 @@ SWIGINTERN PyObject *_wrap_NhlRLSetStringArray(PyObject *SWIGUNUSEDPARM(self), P
       else {
         for (i = 0; i < size; i++) {
           PyObject *o = PyList_GetItem(obj2,i);
-          if (PyString_Check(o)) {
-            arg3[i] = PyString_AsString(PyList_GetItem(obj2,i));
+          if (is_string_type(o)) {
+            arg3[i] = as_utf8_char(PyList_GetItem(obj2,i));
           }
           else {
             PyErr_SetString(PyExc_TypeError,"List must contain strings");
@@ -6881,7 +7069,7 @@ SWIGINTERN PyObject *_wrap_NhlGetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
        *  list, string, or array.
        */
       while (PyDict_Next(obj1, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -6905,13 +7093,13 @@ SWIGINTERN PyObject *_wrap_NhlGetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -6925,7 +7113,7 @@ SWIGINTERN PyObject *_wrap_NhlGetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -6950,23 +7138,23 @@ SWIGINTERN PyObject *_wrap_NhlGetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -6991,13 +7179,13 @@ SWIGINTERN PyObject *_wrap_NhlGetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -7012,7 +7200,7 @@ SWIGINTERN PyObject *_wrap_NhlGetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -7030,23 +7218,23 @@ SWIGINTERN PyObject *_wrap_NhlGetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -7054,25 +7242,25 @@ SWIGINTERN PyObject *_wrap_NhlGetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
          *  value is an int.
          */
         else if (PyInt_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
+          NhlRLSetInteger(rlist,as_utf8_char(key),(int) PyInt_AsLong(value));
         }
         /*
          *  value is a float.
          */
         else if (PyFloat_Check(value)) {
-          NhlRLSetDouble(rlist,PyString_AsString(key),PyFloat_AsDouble(value));
+          NhlRLSetDouble(rlist,as_utf8_char(key),PyFloat_AsDouble(value));
         }
         /*
          *  value is a long.
          */
         else if (PyLong_Check(value)) {
-          NhlRLSetInteger(rlist,PyString_AsString(key),(int) PyInt_AsLong(value));
+          NhlRLSetInteger(rlist,as_utf8_char(key),(int) PyInt_AsLong(value));
         }
         /*
          *  value is a string
          */
-        else if (PyString_Check(value)) {
-          NhlRLSetString(rlist,PyString_AsString(key),PyString_AsString(value));
+        else if (is_string_type(value)) {
+          NhlRLSetString(rlist,as_utf8_char(key),as_utf8_char(value));
         }
         /*
          *  value is an array.
@@ -7091,7 +7279,7 @@ SWIGINTERN PyObject *_wrap_NhlGetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -7102,7 +7290,7 @@ SWIGINTERN PyObject *_wrap_NhlGetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -7111,7 +7299,7 @@ SWIGINTERN PyObject *_wrap_NhlGetValues(PyObject *SWIGUNUSEDPARM(self), PyObject
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -7653,7 +7841,7 @@ SWIGINTERN PyObject *_wrap_NhlGetStringArray(PyObject *SWIGUNUSEDPARM(self), PyO
     PyObject *rlist;
     rlist = PyList_New(*arg3);
     for (i = 0; i < *arg3; i++) {
-      PyList_SetItem(rlist,i,PyString_FromString((char *)result[i]));
+      PyList_SetItem(rlist,i,char_to_pystr((char *)result[i], strlen((char *)result[i])));
     }
     resultobj = rlist;
   }
@@ -8846,7 +9034,7 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
        *  list, string, or array.
        */
       while (PyDict_Next(obj2, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -8870,13 +9058,13 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -8890,7 +9078,7 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -8915,23 +9103,23 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -8956,13 +9144,13 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -8977,7 +9165,7 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -8995,23 +9183,23 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -9027,29 +9215,29 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -9060,29 +9248,29 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -9103,7 +9291,7 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -9114,7 +9302,7 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -9123,7 +9311,7 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -9169,7 +9357,7 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
        *  list, string, or array.
        */
       while (PyDict_Next(obj3, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -9193,13 +9381,13 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -9213,7 +9401,7 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -9238,23 +9426,23 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -9279,13 +9467,13 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -9300,7 +9488,7 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -9318,23 +9506,23 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -9350,29 +9538,29 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -9383,29 +9571,29 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -9426,7 +9614,7 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -9437,7 +9625,7 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -9446,7 +9634,7 @@ SWIGINTERN PyObject *_wrap_open_wks_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -9521,8 +9709,8 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
       else {
         for (i = 0; i < size; i++) {
           PyObject *o = PyList_GetItem(obj2,i);
-          if (PyString_Check(o)) {
-            arg3[i] = PyString_AsString(PyList_GetItem(obj2,i));
+          if (is_string_type(o)) {
+            arg3[i] = as_utf8_char(PyList_GetItem(obj2,i));
           }
           else {
             PyErr_SetString(PyExc_TypeError,"List must contain strings");
@@ -9595,7 +9783,7 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
        *  list, string, or array.
        */
       while (PyDict_Next(obj8, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -9619,13 +9807,13 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -9639,7 +9827,7 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -9664,23 +9852,23 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -9705,13 +9893,13 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -9726,7 +9914,7 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -9744,23 +9932,23 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -9776,29 +9964,29 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -9809,29 +9997,29 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -9852,7 +10040,7 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -9863,7 +10051,7 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -9872,7 +10060,7 @@ SWIGINTERN PyObject *_wrap_labelbar_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyO
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -10126,8 +10314,8 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
       else {
         for (i = 0; i < size; i++) {
           PyObject *o = PyList_GetItem(obj2,i);
-          if (PyString_Check(o)) {
-            arg3[i] = PyString_AsString(PyList_GetItem(obj2,i));
+          if (is_string_type(o)) {
+            arg3[i] = as_utf8_char(PyList_GetItem(obj2,i));
           }
           else {
             PyErr_SetString(PyExc_TypeError,"List must contain strings");
@@ -10200,7 +10388,7 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
        *  list, string, or array.
        */
       while (PyDict_Next(obj8, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -10224,13 +10412,13 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -10244,7 +10432,7 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -10269,23 +10457,23 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -10310,13 +10498,13 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -10331,7 +10519,7 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -10349,23 +10537,23 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -10381,29 +10569,29 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -10414,29 +10602,29 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -10457,7 +10645,7 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -10468,7 +10656,7 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -10477,7 +10665,7 @@ SWIGINTERN PyObject *_wrap_legend_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -10731,7 +10919,7 @@ SWIGINTERN PyObject *_wrap_blank_plot_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
        *  list, string, or array.
        */
       while (PyDict_Next(obj1, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -10755,13 +10943,13 @@ SWIGINTERN PyObject *_wrap_blank_plot_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -10775,7 +10963,7 @@ SWIGINTERN PyObject *_wrap_blank_plot_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -10800,23 +10988,23 @@ SWIGINTERN PyObject *_wrap_blank_plot_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -10841,13 +11029,13 @@ SWIGINTERN PyObject *_wrap_blank_plot_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -10862,7 +11050,7 @@ SWIGINTERN PyObject *_wrap_blank_plot_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -10880,23 +11068,23 @@ SWIGINTERN PyObject *_wrap_blank_plot_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -10912,29 +11100,29 @@ SWIGINTERN PyObject *_wrap_blank_plot_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -10945,29 +11133,29 @@ SWIGINTERN PyObject *_wrap_blank_plot_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -10988,7 +11176,7 @@ SWIGINTERN PyObject *_wrap_blank_plot_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -10999,7 +11187,7 @@ SWIGINTERN PyObject *_wrap_blank_plot_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -11008,7 +11196,7 @@ SWIGINTERN PyObject *_wrap_blank_plot_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -11346,7 +11534,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
        *  list, string, or array.
        */
       while (PyDict_Next(obj13, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -11370,13 +11558,13 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -11390,7 +11578,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -11415,23 +11603,23 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -11456,13 +11644,13 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -11477,7 +11665,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -11495,23 +11683,23 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -11527,29 +11715,29 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -11560,29 +11748,29 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -11603,7 +11791,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -11614,7 +11802,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -11623,7 +11811,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -11669,7 +11857,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
        *  list, string, or array.
        */
       while (PyDict_Next(obj14, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -11693,13 +11881,13 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -11713,7 +11901,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -11738,23 +11926,23 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -11779,13 +11967,13 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -11800,7 +11988,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -11818,23 +12006,23 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -11850,29 +12038,29 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -11883,29 +12071,29 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -11926,7 +12114,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -11937,7 +12125,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -11946,7 +12134,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -11992,7 +12180,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
        *  list, string, or array.
        */
       while (PyDict_Next(obj15, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -12016,13 +12204,13 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -12036,7 +12224,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -12061,23 +12249,23 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -12102,13 +12290,13 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -12123,7 +12311,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -12141,23 +12329,23 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -12173,29 +12361,29 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -12206,29 +12394,29 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -12249,7 +12437,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -12260,7 +12448,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -12269,7 +12457,7 @@ SWIGINTERN PyObject *_wrap_contour_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -12525,7 +12713,7 @@ SWIGINTERN PyObject *_wrap_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
        *  list, string, or array.
        */
       while (PyDict_Next(obj1, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -12549,13 +12737,13 @@ SWIGINTERN PyObject *_wrap_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -12569,7 +12757,7 @@ SWIGINTERN PyObject *_wrap_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -12594,23 +12782,23 @@ SWIGINTERN PyObject *_wrap_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -12635,13 +12823,13 @@ SWIGINTERN PyObject *_wrap_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -12656,7 +12844,7 @@ SWIGINTERN PyObject *_wrap_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -12674,23 +12862,23 @@ SWIGINTERN PyObject *_wrap_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -12706,29 +12894,29 @@ SWIGINTERN PyObject *_wrap_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -12739,29 +12927,29 @@ SWIGINTERN PyObject *_wrap_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -12782,7 +12970,7 @@ SWIGINTERN PyObject *_wrap_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -12793,7 +12981,7 @@ SWIGINTERN PyObject *_wrap_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -12802,7 +12990,7 @@ SWIGINTERN PyObject *_wrap_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -13140,7 +13328,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
        *  list, string, or array.
        */
       while (PyDict_Next(obj13, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -13164,13 +13352,13 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -13184,7 +13372,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -13209,23 +13397,23 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -13250,13 +13438,13 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -13271,7 +13459,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -13289,23 +13477,23 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -13321,29 +13509,29 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -13354,29 +13542,29 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -13397,7 +13585,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -13408,7 +13596,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -13417,7 +13605,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -13463,7 +13651,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
        *  list, string, or array.
        */
       while (PyDict_Next(obj14, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -13487,13 +13675,13 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -13507,7 +13695,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -13532,23 +13720,23 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -13573,13 +13761,13 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -13594,7 +13782,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -13612,23 +13800,23 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -13644,29 +13832,29 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -13677,29 +13865,29 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -13720,7 +13908,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -13731,7 +13919,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -13740,7 +13928,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -13786,7 +13974,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
        *  list, string, or array.
        */
       while (PyDict_Next(obj15, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -13810,13 +13998,13 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -13830,7 +14018,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -13855,23 +14043,23 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -13896,13 +14084,13 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -13917,7 +14105,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -13935,23 +14123,23 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -13967,29 +14155,29 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -14000,29 +14188,29 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -14043,7 +14231,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -14054,7 +14242,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -14063,7 +14251,7 @@ SWIGINTERN PyObject *_wrap_contour_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyOb
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -14409,7 +14597,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
        *  list, string, or array.
        */
       while (PyDict_Next(obj13, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -14433,13 +14621,13 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -14453,7 +14641,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -14478,23 +14666,23 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -14519,13 +14707,13 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -14540,7 +14728,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -14558,23 +14746,23 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -14590,29 +14778,29 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -14623,29 +14811,29 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -14666,7 +14854,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -14677,7 +14865,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -14686,7 +14874,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -14732,7 +14920,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
        *  list, string, or array.
        */
       while (PyDict_Next(obj14, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -14756,13 +14944,13 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -14776,7 +14964,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -14801,23 +14989,23 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -14842,13 +15030,13 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -14863,7 +15051,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -14881,23 +15069,23 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -14913,29 +15101,29 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -14946,29 +15134,29 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -14989,7 +15177,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -15000,7 +15188,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -15009,7 +15197,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -15055,7 +15243,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
        *  list, string, or array.
        */
       while (PyDict_Next(obj15, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -15079,13 +15267,13 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -15099,7 +15287,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -15124,23 +15312,23 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -15165,13 +15353,13 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -15186,7 +15374,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -15204,23 +15392,23 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -15236,29 +15424,29 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -15269,29 +15457,29 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -15312,7 +15500,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -15323,7 +15511,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -15332,7 +15520,7 @@ SWIGINTERN PyObject *_wrap_xy_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *arg
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -15633,7 +15821,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
        *  list, string, or array.
        */
       while (PyDict_Next(obj7, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -15657,13 +15845,13 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -15677,7 +15865,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -15702,23 +15890,23 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -15743,13 +15931,13 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -15764,7 +15952,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -15782,23 +15970,23 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -15814,29 +16002,29 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -15847,29 +16035,29 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -15890,7 +16078,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -15901,7 +16089,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -15910,7 +16098,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -15956,7 +16144,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
        *  list, string, or array.
        */
       while (PyDict_Next(obj8, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -15980,13 +16168,13 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -16000,7 +16188,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -16025,23 +16213,23 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -16066,13 +16254,13 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -16087,7 +16275,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -16105,23 +16293,23 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -16137,29 +16325,29 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -16170,29 +16358,29 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -16213,7 +16401,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -16224,7 +16412,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -16233,7 +16421,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -16279,7 +16467,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
        *  list, string, or array.
        */
       while (PyDict_Next(obj9, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -16303,13 +16491,13 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -16323,7 +16511,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -16348,23 +16536,23 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -16389,13 +16577,13 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -16410,7 +16598,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -16428,23 +16616,23 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -16460,29 +16648,29 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -16493,29 +16681,29 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -16536,7 +16724,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -16547,7 +16735,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -16556,7 +16744,7 @@ SWIGINTERN PyObject *_wrap_y_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *args
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -16926,7 +17114,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
        *  list, string, or array.
        */
       while (PyDict_Next(obj17, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -16950,13 +17138,13 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -16970,7 +17158,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -16995,23 +17183,23 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -17036,13 +17224,13 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -17057,7 +17245,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -17075,23 +17263,23 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -17107,29 +17295,29 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -17140,29 +17328,29 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -17183,7 +17371,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -17194,7 +17382,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -17203,7 +17391,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -17249,7 +17437,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
        *  list, string, or array.
        */
       while (PyDict_Next(obj18, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -17273,13 +17461,13 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -17293,7 +17481,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -17318,23 +17506,23 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -17359,13 +17547,13 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -17380,7 +17568,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -17398,23 +17586,23 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -17430,29 +17618,29 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -17463,29 +17651,29 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -17506,7 +17694,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -17517,7 +17705,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -17526,7 +17714,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -17572,7 +17760,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
        *  list, string, or array.
        */
       while (PyDict_Next(obj19, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -17596,13 +17784,13 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -17616,7 +17804,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -17641,23 +17829,23 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -17682,13 +17870,13 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -17703,7 +17891,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -17721,23 +17909,23 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -17753,29 +17941,29 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -17786,29 +17974,29 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -17829,7 +18017,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -17840,7 +18028,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -17849,7 +18037,7 @@ SWIGINTERN PyObject *_wrap_vector_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject 
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -18225,7 +18413,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
        *  list, string, or array.
        */
       while (PyDict_Next(obj17, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -18249,13 +18437,13 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -18269,7 +18457,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -18294,23 +18482,23 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -18335,13 +18523,13 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -18356,7 +18544,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -18374,23 +18562,23 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -18406,29 +18594,29 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -18439,29 +18627,29 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -18482,7 +18670,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -18493,7 +18681,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -18502,7 +18690,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -18548,7 +18736,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
        *  list, string, or array.
        */
       while (PyDict_Next(obj18, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -18572,13 +18760,13 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -18592,7 +18780,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -18617,23 +18805,23 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -18658,13 +18846,13 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -18679,7 +18867,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -18697,23 +18885,23 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -18729,29 +18917,29 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -18762,29 +18950,29 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -18805,7 +18993,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -18816,7 +19004,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -18825,7 +19013,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -18871,7 +19059,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
        *  list, string, or array.
        */
       while (PyDict_Next(obj19, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -18895,13 +19083,13 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -18915,7 +19103,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -18940,23 +19128,23 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -18981,13 +19169,13 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -19002,7 +19190,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -19020,23 +19208,23 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -19052,29 +19240,29 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -19085,29 +19273,29 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -19128,7 +19316,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -19139,7 +19327,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -19148,7 +19336,7 @@ SWIGINTERN PyObject *_wrap_vector_map_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -19556,7 +19744,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
        *  list, string, or array.
        */
       while (PyDict_Next(obj21, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -19580,13 +19768,13 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -19600,7 +19788,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -19625,23 +19813,23 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -19666,13 +19854,13 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -19687,7 +19875,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -19705,23 +19893,23 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -19737,29 +19925,29 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -19770,29 +19958,29 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -19813,7 +20001,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -19824,7 +20012,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -19833,7 +20021,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -19879,7 +20067,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
        *  list, string, or array.
        */
       while (PyDict_Next(obj22, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -19903,13 +20091,13 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -19923,7 +20111,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -19948,23 +20136,23 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -19989,13 +20177,13 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -20010,7 +20198,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -20028,23 +20216,23 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -20060,29 +20248,29 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -20093,29 +20281,29 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -20136,7 +20324,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -20147,7 +20335,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -20156,7 +20344,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -20202,7 +20390,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
        *  list, string, or array.
        */
       while (PyDict_Next(obj23, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -20226,13 +20414,13 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -20246,7 +20434,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -20271,23 +20459,23 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -20312,13 +20500,13 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -20333,7 +20521,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -20351,23 +20539,23 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -20383,29 +20571,29 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -20416,29 +20604,29 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -20459,7 +20647,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -20470,7 +20658,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -20479,7 +20667,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -20525,7 +20713,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
        *  list, string, or array.
        */
       while (PyDict_Next(obj24, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -20549,13 +20737,13 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -20569,7 +20757,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -20594,23 +20782,23 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -20635,13 +20823,13 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -20656,7 +20844,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -20674,23 +20862,23 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -20706,29 +20894,29 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -20739,29 +20927,29 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -20782,7 +20970,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -20793,7 +20981,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -20802,7 +20990,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_wrap(PyObject *SWIGUNUSEDPARM(self), Py
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -21212,7 +21400,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
        *  list, string, or array.
        */
       while (PyDict_Next(obj21, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -21236,13 +21424,13 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -21256,7 +21444,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -21281,23 +21469,23 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -21322,13 +21510,13 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -21343,7 +21531,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -21361,23 +21549,23 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -21393,29 +21581,29 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -21426,29 +21614,29 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -21469,7 +21657,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -21480,7 +21668,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -21489,7 +21677,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -21535,7 +21723,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
        *  list, string, or array.
        */
       while (PyDict_Next(obj22, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -21559,13 +21747,13 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -21579,7 +21767,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -21604,23 +21792,23 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -21645,13 +21833,13 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -21666,7 +21854,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -21684,23 +21872,23 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -21716,29 +21904,29 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -21749,29 +21937,29 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -21792,7 +21980,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -21803,7 +21991,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -21812,7 +22000,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -21858,7 +22046,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
        *  list, string, or array.
        */
       while (PyDict_Next(obj23, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -21882,13 +22070,13 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -21902,7 +22090,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -21927,23 +22115,23 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -21968,13 +22156,13 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -21989,7 +22177,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -22007,23 +22195,23 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -22039,29 +22227,29 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -22072,29 +22260,29 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -22115,7 +22303,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -22126,7 +22314,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -22135,7 +22323,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -22181,7 +22369,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
        *  list, string, or array.
        */
       while (PyDict_Next(obj24, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -22205,13 +22393,13 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -22225,7 +22413,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -22250,23 +22438,23 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -22291,13 +22479,13 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -22312,7 +22500,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -22330,23 +22518,23 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -22362,29 +22550,29 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -22395,29 +22583,29 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -22438,7 +22626,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -22449,7 +22637,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -22458,7 +22646,7 @@ SWIGINTERN PyObject *_wrap_vector_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(self)
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -22836,7 +23024,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
        *  list, string, or array.
        */
       while (PyDict_Next(obj17, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -22860,13 +23048,13 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -22880,7 +23068,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -22905,23 +23093,23 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -22946,13 +23134,13 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -22967,7 +23155,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -22985,23 +23173,23 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -23017,29 +23205,29 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -23050,29 +23238,29 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -23093,7 +23281,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -23104,7 +23292,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -23113,7 +23301,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -23159,7 +23347,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
        *  list, string, or array.
        */
       while (PyDict_Next(obj18, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -23183,13 +23371,13 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -23203,7 +23391,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -23228,23 +23416,23 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -23269,13 +23457,13 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -23290,7 +23478,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -23308,23 +23496,23 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -23340,29 +23528,29 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -23373,29 +23561,29 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -23416,7 +23604,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -23427,7 +23615,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -23436,7 +23624,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -23482,7 +23670,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
        *  list, string, or array.
        */
       while (PyDict_Next(obj19, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -23506,13 +23694,13 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -23526,7 +23714,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -23551,23 +23739,23 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -23592,13 +23780,13 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -23613,7 +23801,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -23631,23 +23819,23 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -23663,29 +23851,29 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -23696,29 +23884,29 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -23739,7 +23927,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -23750,7 +23938,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -23759,7 +23947,7 @@ SWIGINTERN PyObject *_wrap_streamline_wrap(PyObject *SWIGUNUSEDPARM(self), PyObj
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -24135,7 +24323,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
        *  list, string, or array.
        */
       while (PyDict_Next(obj17, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -24159,13 +24347,13 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -24179,7 +24367,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -24204,23 +24392,23 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -24245,13 +24433,13 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -24266,7 +24454,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -24284,23 +24472,23 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -24316,29 +24504,29 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -24349,29 +24537,29 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -24392,7 +24580,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -24403,7 +24591,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -24412,7 +24600,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -24458,7 +24646,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
        *  list, string, or array.
        */
       while (PyDict_Next(obj18, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -24482,13 +24670,13 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -24502,7 +24690,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -24527,23 +24715,23 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -24568,13 +24756,13 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -24589,7 +24777,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -24607,23 +24795,23 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -24639,29 +24827,29 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -24672,29 +24860,29 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -24715,7 +24903,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -24726,7 +24914,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -24735,7 +24923,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -24781,7 +24969,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
        *  list, string, or array.
        */
       while (PyDict_Next(obj19, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -24805,13 +24993,13 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -24825,7 +25013,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -24850,23 +25038,23 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -24891,13 +25079,13 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -24912,7 +25100,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -24930,23 +25118,23 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -24962,29 +25150,29 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -24995,29 +25183,29 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -25038,7 +25226,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -25049,7 +25237,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -25058,7 +25246,7 @@ SWIGINTERN PyObject *_wrap_streamline_map_wrap(PyObject *SWIGUNUSEDPARM(self), P
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -25466,7 +25654,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
        *  list, string, or array.
        */
       while (PyDict_Next(obj21, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -25490,13 +25678,13 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -25510,7 +25698,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -25535,23 +25723,23 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -25576,13 +25764,13 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -25597,7 +25785,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -25615,23 +25803,23 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -25647,29 +25835,29 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -25680,29 +25868,29 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -25723,7 +25911,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -25734,7 +25922,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -25743,7 +25931,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -25789,7 +25977,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
        *  list, string, or array.
        */
       while (PyDict_Next(obj22, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -25813,13 +26001,13 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -25833,7 +26021,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -25858,23 +26046,23 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -25899,13 +26087,13 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -25920,7 +26108,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -25938,23 +26126,23 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -25970,29 +26158,29 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -26003,29 +26191,29 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -26046,7 +26234,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -26057,7 +26245,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -26066,7 +26254,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -26112,7 +26300,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
        *  list, string, or array.
        */
       while (PyDict_Next(obj23, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -26136,13 +26324,13 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -26156,7 +26344,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -26181,23 +26369,23 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -26222,13 +26410,13 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -26243,7 +26431,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -26261,23 +26449,23 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -26293,29 +26481,29 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -26326,29 +26514,29 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -26369,7 +26557,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -26380,7 +26568,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -26389,7 +26577,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -26435,7 +26623,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
        *  list, string, or array.
        */
       while (PyDict_Next(obj24, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -26459,13 +26647,13 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -26479,7 +26667,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -26504,23 +26692,23 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -26545,13 +26733,13 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -26566,7 +26754,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -26584,23 +26772,23 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -26616,29 +26804,29 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -26649,29 +26837,29 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -26692,7 +26880,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -26703,7 +26891,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -26712,7 +26900,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_wrap(PyObject *SWIGUNUSEDPARM(self)
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -27122,7 +27310,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
        *  list, string, or array.
        */
       while (PyDict_Next(obj21, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -27146,13 +27334,13 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -27166,7 +27354,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -27191,23 +27379,23 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -27232,13 +27420,13 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -27253,7 +27441,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -27271,23 +27459,23 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -27303,29 +27491,29 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -27336,29 +27524,29 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -27379,7 +27567,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -27390,7 +27578,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -27399,7 +27587,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -27445,7 +27633,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
        *  list, string, or array.
        */
       while (PyDict_Next(obj22, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -27469,13 +27657,13 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -27489,7 +27677,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -27514,23 +27702,23 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -27555,13 +27743,13 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -27576,7 +27764,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -27594,23 +27782,23 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -27626,29 +27814,29 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -27659,29 +27847,29 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -27702,7 +27890,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -27713,7 +27901,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -27722,7 +27910,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -27768,7 +27956,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
        *  list, string, or array.
        */
       while (PyDict_Next(obj23, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -27792,13 +27980,13 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -27812,7 +28000,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -27837,23 +28025,23 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -27878,13 +28066,13 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -27899,7 +28087,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -27917,23 +28105,23 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -27949,29 +28137,29 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -27982,29 +28170,29 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -28025,7 +28213,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -28036,7 +28224,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -28045,7 +28233,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -28091,7 +28279,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
        *  list, string, or array.
        */
       while (PyDict_Next(obj24, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -28115,13 +28303,13 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -28135,7 +28323,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -28160,23 +28348,23 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -28201,13 +28389,13 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -28222,7 +28410,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -28240,23 +28428,23 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -28272,29 +28460,29 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -28305,29 +28493,29 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -28348,7 +28536,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -28359,7 +28547,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -28368,7 +28556,7 @@ SWIGINTERN PyObject *_wrap_streamline_scalar_map_wrap(PyObject *SWIGUNUSEDPARM(s
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -28674,7 +28862,7 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
        *  list, string, or array.
        */
       while (PyDict_Next(obj6, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -28698,13 +28886,13 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -28718,7 +28906,7 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -28743,23 +28931,23 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -28784,13 +28972,13 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -28805,7 +28993,7 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -28823,23 +29011,23 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -28855,29 +29043,29 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -28888,29 +29076,29 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -28931,7 +29119,7 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -28942,7 +29130,7 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -28951,7 +29139,7 @@ SWIGINTERN PyObject *_wrap_text_ndc_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -29542,7 +29730,7 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
        *  list, string, or array.
        */
       while (PyDict_Next(obj7, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -29566,13 +29754,13 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -29586,7 +29774,7 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -29611,23 +29799,23 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -29652,13 +29840,13 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -29673,7 +29861,7 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -29691,23 +29879,23 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -29723,29 +29911,29 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -29756,29 +29944,29 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -29799,7 +29987,7 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -29810,7 +29998,7 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -29819,7 +30007,7 @@ SWIGINTERN PyObject *_wrap_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -30412,7 +30600,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
        *  list, string, or array.
        */
       while (PyDict_Next(obj7, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -30436,13 +30624,13 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -30456,7 +30644,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -30481,23 +30669,23 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -30522,13 +30710,13 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -30543,7 +30731,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -30561,23 +30749,23 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -30593,29 +30781,29 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -30626,29 +30814,29 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -30669,7 +30857,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -30680,7 +30868,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -30689,7 +30877,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -30735,7 +30923,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
        *  list, string, or array.
        */
       while (PyDict_Next(obj8, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -30759,13 +30947,13 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -30779,7 +30967,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -30804,23 +30992,23 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -30845,13 +31033,13 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -30866,7 +31054,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -30884,23 +31072,23 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -30916,29 +31104,29 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -30949,29 +31137,29 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -30992,7 +31180,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -31003,7 +31191,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -31012,7 +31200,7 @@ SWIGINTERN PyObject *_wrap_add_text_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -31953,7 +32141,7 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
        *  list, string, or array.
        */
       while (PyDict_Next(obj12, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -31977,13 +32165,13 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -31997,7 +32185,7 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -32022,23 +32210,23 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -32063,13 +32251,13 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -32084,7 +32272,7 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -32102,23 +32290,23 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -32134,29 +32322,29 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -32167,29 +32355,29 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -32210,7 +32398,7 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -32221,7 +32409,7 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -32230,7 +32418,7 @@ SWIGINTERN PyObject *_wrap_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *a
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -32675,7 +32863,7 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
        *  list, string, or array.
        */
       while (PyDict_Next(obj13, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -32699,13 +32887,13 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -32719,7 +32907,7 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -32744,23 +32932,23 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -32785,13 +32973,13 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -32806,7 +32994,7 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -32824,23 +33012,23 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -32856,29 +33044,29 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -32889,29 +33077,29 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -32932,7 +33120,7 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -32943,7 +33131,7 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -32952,7 +33140,7 @@ SWIGINTERN PyObject *_wrap_add_poly_wrap(PyObject *SWIGUNUSEDPARM(self), PyObjec
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -33520,7 +33708,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
        *  list, string, or array.
        */
       while (PyDict_Next(obj5, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -33544,13 +33732,13 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -33564,7 +33752,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -33589,23 +33777,23 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -33630,13 +33818,13 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -33651,7 +33839,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -33669,23 +33857,23 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -33701,29 +33889,29 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -33734,29 +33922,29 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -33777,7 +33965,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -33788,7 +33976,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -33797,7 +33985,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -33843,7 +34031,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
        *  list, string, or array.
        */
       while (PyDict_Next(obj6, &pos, &key, &value)) {
-        trnames[count] = PyString_AsString(key);
+        trnames[count] = as_utf8_char(key);
         count++;
         
         /*
@@ -33867,13 +34055,13 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyTuple_GetItem(value,0))) {
+          if (is_string_type(PyTuple_GetItem(value,0))) {
             /*
              *  Check that all items in the tuple are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyTuple_GetItem(value,i))) {
-                printf("All items in the tuple value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyTuple_GetItem(value,i))) {
+                printf("All items in the tuple value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -33887,7 +34075,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyTuple_GetItem(value,i))) &&
                 (!PyInt_Check(PyTuple_GetItem(value,i))) ) {
-                printf("All items in the tuple value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the tuple value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -33912,23 +34100,23 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyTuple_GetItem(value,i));
+              strings[i] = as_utf8_char(PyTuple_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyTuple_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyTuple_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -33953,13 +34141,13 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
            *              = 1 (float)
            */
           list_type = 2;
-          if (PyString_Check(PyList_GetItem(value,0))) {
+          if (is_string_type(PyList_GetItem(value,0))) {
             /*
              *  Check that all items in the list are strings.
              */
             for (i = 0; i < list_len ; i++) {
-              if (!PyString_Check(PyList_GetItem(value,i))) {
-                printf("All items in the list value for resource %s must be strings\n",PyString_AsString(key));
+              if (!is_string_type(PyList_GetItem(value,i))) {
+                printf("All items in the list value for resource %s must be strings\n",as_utf8_char(key));
                 return NULL;
                 break;
               }
@@ -33974,7 +34162,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
             for (i = 0; i < list_len ; i++) {
               if ( (!PyFloat_Check(PyList_GetItem(value,i))) &&
                 (!PyInt_Check(PyList_GetItem(value,i))) ) {
-                printf("All items in the list value for resource %s must be ints or floats.\n",PyString_AsString(key));
+                printf("All items in the list value for resource %s must be ints or floats.\n",as_utf8_char(key));
                 return NULL;
               }
             }
@@ -33992,23 +34180,23 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
           case 0:
             strings = (char **) malloc(list_len*sizeof(char *));
             for (i = 0; i < list_len ; i++) {
-              strings[i] = PyString_AsString(PyList_GetItem(value,i));
+              strings[i] = as_utf8_char(PyList_GetItem(value,i));
             }
-            NhlRLSetStringArray(rlist,PyString_AsString(key),strings,list_len);
+            NhlRLSetStringArray(rlist,as_utf8_char(key),strings,list_len);
             break;
           case 1:
             dvals = (double *) malloc(list_len*sizeof(double));
             for (i = 0; i < list_len ; i++) {
               dvals[i] = PyFloat_AsDouble(PyList_GetItem(value,i));
             }
-            NhlRLSetDoubleArray(rlist,PyString_AsString(key),dvals,list_len);
+            NhlRLSetDoubleArray(rlist,as_utf8_char(key),dvals,list_len);
             break;
           case 2:
             ivals = (int *) malloc(list_len*sizeof(int));
             for (i = 0; i < list_len ; i++) {
               ivals[i] = (int) PyInt_AsLong(PyList_GetItem(value,i));
             }
-            NhlRLSetIntegerArray(rlist,PyString_AsString(key),ivals,list_len);
+            NhlRLSetIntegerArray(rlist,as_utf8_char(key),ivals,list_len);
             break;
           }
         }
@@ -34024,29 +34212,29 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
              *  value is a Python int.
              */
             if (PyInt_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python float.
              */
             else if (PyFloat_Check(value)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a Python long.
              */
             else if (PyLong_Check(value)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a Python string
              */
-            else if (PyString_Check(value)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+            else if (is_string_type(value)) {
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
           /*
@@ -34057,29 +34245,29 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
              *  value is a numpy int.
              */
             if (PyArray_IsScalar(value,Int)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy float.
              */
             else if (PyArray_IsScalar(value,Float)) {
-              NhlRLSetDouble(rlist,PyString_AsString(key),
+              NhlRLSetDouble(rlist,as_utf8_char(key),
                 PyFloat_AsDouble(value));
             }
             /*
              *  value is a numpy long.
              */
             else if (PyArray_IsScalar(value,Long)) {
-              NhlRLSetInteger(rlist,PyString_AsString(key),
+              NhlRLSetInteger(rlist,as_utf8_char(key),
                 (int) PyInt_AsLong(value));
             }
             /*
              *  value is a numpy string
              */
             else if (PyArray_IsScalar(value,String)) {
-              NhlRLSetString(rlist,PyString_AsString(key),
-                PyString_AsString(value));
+              NhlRLSetString(rlist,as_utf8_char(key),
+                as_utf8_char(value));
             }
           }
         }
@@ -34100,7 +34288,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDLongArray(rlist,PyString_AsString(key),lvals,ndims,len_dims);
+            NhlRLSetMDLongArray(rlist,as_utf8_char(key),lvals,ndims,len_dims);
           }
           else if (array_type == PyArray_FLOAT || array_type == PyArray_DOUBLE) {
             arr = (PyArrayObject *) PyArray_ContiguousFromAny \
@@ -34111,7 +34299,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
             for(i = 0; i < ndims; i++ ) {
               len_dims[i] = (ng_size_t)arr->dimensions[i];
             }
-            NhlRLSetMDDoubleArray(rlist,PyString_AsString(key),dvals,ndims,len_dims);
+            NhlRLSetMDDoubleArray(rlist,as_utf8_char(key),dvals,ndims,len_dims);
           }
           else {
             printf(
@@ -34120,7 +34308,7 @@ SWIGINTERN PyObject *_wrap_panel_wrap(PyObject *SWIGUNUSEDPARM(self), PyObject *
           }
         }
         else {
-          printf("  value for keyword %s is invalid.\n",PyString_AsString(key));
+          printf("  value for keyword %s is invalid.\n",as_utf8_char(key));
           return NULL;
         }
       }
@@ -35824,8 +36012,8 @@ SWIGINTERN PyObject *_wrap_set_nglRes_c(PyObject *SWIGUNUSEDPARM(self), PyObject
       else {
         for (i = 0; i < size; i++) {
           PyObject *o = PyList_GetItem(obj1,i);
-          if (PyString_Check(o)) {
-            arg2[i] = PyString_AsString(PyList_GetItem(obj1,i));
+          if (is_string_type(o)) {
+            arg2[i] = as_utf8_char(PyList_GetItem(obj1,i));
           }
           else {
             PyErr_SetString(PyExc_TypeError,"List must contain strings");
