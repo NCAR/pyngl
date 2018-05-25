@@ -35,6 +35,7 @@
 #
 #  Import numpy.
 #
+from __future__ import print_function
 import numpy, os
 
 #
@@ -96,7 +97,7 @@ res.mpMinLatF      = 20.                 # select region to be plotted
 res.mpMaxLatF      = 50.
 res.mpMinLonF      = -130.
 res.mpMaxLonF      = -65.
-res.mpFillColors   = range(23)
+res.mpFillColors   = list(range(23))
 res.mpFillOn       = True
 
 res.mpOceanFillColor       = "transparent"
@@ -202,7 +203,7 @@ Ngl.set_values(map,sres)
 # Create a labelbar using the min/max group ids that are actually
 # in use.
 #
-colors = range(ming,maxg+1)
+colors = list(range(ming,maxg+1))
 nboxes = len(colors)
 
 # Get an array of strings for our labelbar boxes.

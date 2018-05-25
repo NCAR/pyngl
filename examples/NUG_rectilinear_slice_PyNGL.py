@@ -7,6 +7,7 @@
    
   2015-06-04  kmf
 """
+from __future__ import print_function
 import numpy as np
 import sys,os
 import Nio, Ngl
@@ -89,7 +90,7 @@ res.tmYLMode              = "Explicit"    #-- set y axis tickmark labels
 res.tmXBMode              = "Explicit"    #-- set x axis tickmark labels
 res.tmYLValues            = levs
 res.tmXBValues            = lons
-res.tmYLLabels            = map(str,levs)
+res.tmYLLabels            = list(map(str,levs))
 res.tmXBLabels            = nice_lon_labels(lons)
 
 res.tmXBLabelFontHeightF  = 0.015        # - make font smaller

@@ -33,6 +33,7 @@
 #  Notes:
 #    There are over 230 color maps.
 #     
+from __future__ import print_function
 import Ngl, os
 
 #----------------------------------------------------------------------

@@ -42,6 +42,7 @@
 # This example was updated in PyNGL 1.5.0 to simply the code that
 # attaches the polylines, using the new "gsSegments" resource.
 #
+from __future__ import print_function
 import numpy,os,sys
 
 #

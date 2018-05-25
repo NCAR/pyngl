@@ -33,6 +33,7 @@
 #
 #     http://mailman.ucar.edu/mailman/listinfo/pyngl-talk
 #
+from __future__ import print_function
 import numpy, Nio, Ngl, sys, os
 
 #---Read data

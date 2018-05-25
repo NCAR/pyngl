@@ -33,6 +33,7 @@
 #    8 MB for NCGM).
 #     
 
+from __future__ import print_function
 import Ngl
 import os, sys
 

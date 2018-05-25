@@ -47,6 +47,7 @@
 #
 #        http://www.pyngl.ucar.edu/Graphics/rangs.shtml
 
+from __future__ import print_function
 import numpy
 import os
 import Ngl

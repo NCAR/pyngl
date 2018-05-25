@@ -29,6 +29,7 @@
 #  Notes:
 #     
 
+from __future__ import print_function
 import numpy 
 import Nio
 import Ngl
@@ -84,7 +85,7 @@ fout = Nio.open_file(fname + ".nc","c",opt,hatt)
 
 # create dimensions
 
-dims = f.dimensions.keys()
+dims = list(f.dimensions.keys())
 dims.sort()
 for dim in dims:
     length = f.dimensions[dim]
@@ -92,7 +93,7 @@ for dim in dims:
 
 # create variables and attributes
 
-vars = f.variables.keys()
+vars = list(f.variables.keys())
 vars.sort()
 
 for var in vars:
@@ -100,7 +101,7 @@ for var in vars:
     type = v.typecode()
     vdims = v.dimensions
     fout.create_variable(var,type,vdims)
-    varAtts = v.__dict__.keys()
+    varAtts = list(v.__dict__.keys())
     varAtts.sort()
     for att in varAtts:
         value = getattr(v,att)

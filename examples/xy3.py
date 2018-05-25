@@ -32,6 +32,7 @@
 #
 #  Notes:
 #     
+from __future__ import print_function
 import numpy as np
 import copy
 import Ngl, os, sys 
@@ -81,7 +82,7 @@ NPTS  = 500
 PI100 = 0.031415926535898
 
 #---Create data for the four XY plots.
-x     = np.array(range(NPTS))
+x     = np.array(list(range(NPTS)))
 theta = PI100*x
 y1 = np.sin(theta)
 y2 = np.sin(2**theta)

@@ -40,6 +40,7 @@
 #
 #  Import numpy and os
 #
+from __future__ import print_function
 import numpy,os
 
 #
@@ -133,12 +134,12 @@ for i in range(0,numFeatures):
   if (unemp[i] >= 0.04):
      plres.gsFillColor = colors[3]
 
-  startSegment = geometry[i][geom_segIndex]
-  numSegments  = geometry[i][geom_numSegs]
+  startSegment = int(geometry[i][geom_segIndex])
+  numSegments  = int(geometry[i][geom_numSegs])
   lines = []
   for seg in range(startSegment, startSegment+numSegments):
-    startPT = segments[seg, segs_xyzIndex]
-    endPT = startPT + segments[seg, segs_numPnts] - 1
+    startPT = int(segments[seg, segs_xyzIndex])
+    endPT = int(startPT + segments[seg, segs_numPnts] - 1)
     lines.append(Ngl.add_polygon(wks, plot, lon[startPT:endPT],  \
                                  lat[startPT:endPT], plres))
     segNum = segNum + 1

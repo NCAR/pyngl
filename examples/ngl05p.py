@@ -44,6 +44,7 @@
 #
 #  Import NumPy.
 #
+from __future__ import print_function
 import numpy, os
 
 #
@@ -130,7 +131,7 @@ resources.vpHeightF = 0.7
 mnlvl = 0                        # Minimum contour level.
 mxlvl = 28                       # Maximum contour level.
 spcng = 2                        # Contour level spacing.
-ncn   = (mxlvl-mnlvl)/spcng + 1  # Number of contour levels.
+ncn   = (mxlvl-mnlvl)//spcng + 1  # Number of contour levels.
 
 resources.cnLevelSelectionMode = "ManualLevels" # Define your own
 resources.cnMinLevelValF       = mnlvl          # contour levels.

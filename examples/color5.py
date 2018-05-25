@@ -28,6 +28,7 @@
 #  Output:
 #    o One plot is produced showing the Mandelbrot set created.
 #
+from __future__ import print_function
 import Ngl
 
 #
@@ -54,7 +55,7 @@ def user2ndc(x, y):
 def convg(z, num, tolsm, tollg):
   zs = z
   z0 = z
-  for i in xrange(num):
+  for i in range(num):
     zn = z0*z0 + zs
     if ( (abs(zn-z0) < tolsm) or (abs(zn-z0) > tollg) ):
       return i
@@ -114,7 +115,7 @@ wks = Ngl.open_wks(wks_type,"color5")
 #  all the hues in the HLS color space, starting
 #  with blue.
 #
-for k in xrange(0,niter):
+for k in range(0,niter):
   h = 360*float(k)/float(niter)
   r,g,b = Ngl.hlsrgb(h, 50., 100.)
   Ngl.set_color(wks, k, r, g, b)
@@ -123,12 +124,12 @@ for k in xrange(0,niter):
 #  Create the set and draw the color cells.
 #
 poly_res = Ngl.Resources()
-for j in xrange(ny):
-  for i in xrange(nx):
+for j in range(ny):
+  for i in range(nx):
     x, y = get_cell(i, j, xl, xr, yb, yt, nx, ny)
     iter = convg(complex(x[0],y[0]), niter, 0.001, 10000)
     poly_res.gsFillColor = iter-1   #  iter will be at least one.
-    for i in xrange(len(x)):
+    for i in range(len(x)):
       x[i], y[i] = user2ndc(x[i], y[i])
     Ngl.polygon_ndc(wks, x, y,poly_res)
 Ngl.frame(wks)

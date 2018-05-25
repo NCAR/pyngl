@@ -7,6 +7,7 @@
 
  05.06.15  kmf
 """
+from __future__ import print_function
 import numpy as np
 import math, time
 import sys,os
@@ -16,7 +17,7 @@ import Ngl,Nio
 #-- MAIN
 #----------------------
 t1 = time.time()                                   #-- retrieve start time
-print ""
+print("")
 
 #--  define variables
 diri  = "./"                                       #-- data path
@@ -37,15 +38,15 @@ g = Nio.open_file(diri + gname,"r")                #-- add grid file (not contai
 #-- read a timestep of "ta" 
 var =  f.variables["ta"][0,0,:]                    #-- first time step, lev, ncells
 
-print "-----------------------"
-print f.variables["ta"]                            #-- like printVarSummary
-print "-----------------------"
+print("-----------------------")
+print(f.variables["ta"])                            #-- like printVarSummary
+print("-----------------------")
 
 title    = "ICON:  Surface temperature"            #-- title string
 varMin   =  230                                    #-- data minimum
 varMax   =  310                                    #-- data maximum
 varInt   =    2                                    #-- data increment
-levels   =  range(varMin,varMax,varInt)            #-- set levels array
+levels   =  list(range(varMin,varMax,varInt))            #-- set levels array
 
 #-------------------------------------------------------------------
 #-- define the x-, y-values and the polygon points
@@ -74,11 +75,11 @@ for j in range(1,ncells):
            vlon[j,i] = vlon[j,i] - 360.
 
 #-- information
-print ""
-print "Cell points:           ", nv
-print "Cells:                 ", str(ncells)
-print "Variable ta   min/max:  %.2f " % np.min(var) + "/" + " %.2f" % np.max(var)
-print ""
+print("")
+print("Cell points:           ", nv)
+print("Cells:                 ", str(ncells))
+print("Variable ta   min/max:  %.2f " % np.min(var) + "/" + " %.2f" % np.max(var))
+print("")
 
 #-- open a workstation
 wks_type = "png"
@@ -122,7 +123,7 @@ Ngl.frame(wks)
 
 #-- get wallclock time
 t2 = time.time()
-print "Wallclock time:  %0.3f seconds" % (t2-t1)
-print ""
+print("Wallclock time:  %0.3f seconds" % (t2-t1))
+print("")
 
 Ngl.end()

@@ -36,6 +36,7 @@
 #     You must download the desired "XXX_adm" shapefiles from:
 #      http://gadm.org/country/
 #======================================================================
+from __future__ import print_function
 import numpy, Nio, Ngl, os, sys
 
 #======================================================================

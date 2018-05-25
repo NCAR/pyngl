@@ -31,6 +31,7 @@
 
 
 # Import support modules
+from __future__ import print_function
 import os,sys
 import numpy as np
 import Nio, Ngl

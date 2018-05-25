@@ -29,6 +29,7 @@
 #  Notes:
 #     
 
+from __future__ import print_function
 import Ngl
 import numpy
 
@@ -98,9 +99,9 @@ cmap = Ngl.retrieve_colormap(wks)
 # Print just some of the values of the colormap.
 #
 print("\n-----------printing some colormap values------------\n")
-print("color index  5 (NavyBlue) = ",cmap[5,:])
-print("color index 10 (Purple)   = ",cmap[10,:])
-print("color index 15 (Gold)     = ",cmap[15,:])
+print(("color index  5 (NavyBlue) = ",cmap[5,:]))
+print(("color index 10 (Purple)   = ",cmap[10,:]))
+print(("color index 15 (Gold)     = ",cmap[15,:]))
 
 #
 # Retrieve some resource values of various types.

@@ -26,6 +26,7 @@
 #  Output:
 #     A single visualization with nine plots
 #
+from __future__ import print_function
 import numpy,os
 import Ngl,Nio
 
@@ -78,9 +79,9 @@ nplots = 9
 plots  = []
 for n in range(0,nplots):
   print("plot #",n)
-  dmin = dmins[n/3]
-  dmax = dmaxs[n/3]
-  dspa = dspas[n/3]
+  dmin = dmins[n//3]
+  dmax = dmaxs[n//3]
+  dspa = dspas[n//3]
 
   mstart = numpy.random.uniform(10,25,1).astype(int)
   mend   = numpy.random.uniform(10,25,1).astype(int)
@@ -88,13 +89,13 @@ for n in range(0,nplots):
   xend   = numpy.random.uniform(dmax-2,dmax,1)
 
 #---This is a new resource added in PyNGL 1.5.0
-  res.cnFillPalette          = colormaps[n/3]
+  res.cnFillPalette          = colormaps[n//3]
 
   res.cnMinLevelValF         = dmin
   res.cnMaxLevelValF         = dmax
   res.cnLevelSpacingF        = dspa
 
-  data = Ngl.generate_2d_array([nlat,nlon],mstart,mend,xstart,xend)
+  data = Ngl.generate_2d_array([nlat,nlon],mstart[0],mend[0],xstart,xend)
 
   plots.append(Ngl.contour_map(wks,data,res))
 

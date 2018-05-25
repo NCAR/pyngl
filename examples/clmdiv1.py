@@ -35,6 +35,7 @@
 #
 #  Import numpy and random.
 #
+from __future__ import print_function
 import numpy
 import random
 import os
@@ -151,8 +152,8 @@ random.seed(10)   # set a seed for the random number generator
 #  Get the polygon data and fill polygons with random colors in 
 #  the range of our color table (2-31).
 #
-for st in xrange(npoly):
-  for cd in xrange(ncds[st]):
+for st in range(npoly):
+  for cd in range(ncds[st]):
     rand_num = int(29.*random.random()+2.)
     if (st == 42 and cd == 0):          # save value
       va1_rn = rand_num                 # VA clim div 1

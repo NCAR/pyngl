@@ -30,6 +30,7 @@
 #  Notes:
 #
 
+from __future__ import print_function
 import Ngl
 
 wks_type = "png"
@@ -58,7 +59,7 @@ pres = Ngl.Resources()
 ytop = 0.78
 txres.txFontHeightF = 0.02
 txres.txJust = "CenterLeft"
-for i in xrange(len(thicknesses)):
+for i in range(len(thicknesses)):
   pres.gsLineThicknessF  = thicknesses[i]
   yh = ytop - 0.1*i
   Ngl.text_ndc(wks,"Thickness = " + str(thicknesses[i]),0.05,yh+0.025,txres)

@@ -40,6 +40,7 @@
 #
 #  Import packages needed.
 #
+from __future__ import print_function
 import Ngl
 import os
 

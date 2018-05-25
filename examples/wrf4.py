@@ -33,6 +33,7 @@
 #     of the one referenced by this example.
 #======================================================================
 
+from __future__ import print_function
 import numpy as np
 import Nio, Ngl, os, sys
 

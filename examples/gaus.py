@@ -27,6 +27,7 @@
 #    standard output.  No visualization is produced.
 #     
 
+from __future__ import print_function
 import Ngl
 
 #

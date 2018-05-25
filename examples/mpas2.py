@@ -37,6 +37,7 @@
 #     http://mailman.ucar.edu/mailman/listinfo/pyngl-talk
 #
 #======================================================================
+from __future__ import print_function
 import os, numpy, math, time, sys
 import Ngl, Nio
 
@@ -92,7 +93,7 @@ def subtitles(wks, plot, left_string, center_string, right_string):
 # Function to print the min/max of a given variable.
 #----------------------------------------------------------------------
 def print_min_max(var,varname):
-  print(varname + ": min/max = %.2f " % numpy.min(var) + "/" + 
+  print(varname + ": min/max = %.2f " % numpy.min(var) + "/" +
                               "%.2f" % numpy.max(var))
 
 #----------------------------------------------------------------------
@@ -100,7 +101,7 @@ def print_min_max(var,varname):
 #----------------------------------------------------------------------
 mpas_file = "x1.2621442.nc"
 if(not os.path.exists(mpas_file)):
-  print("You do not have the necessary '%s' file to run this example." % mpas_file)
+  print(("You do not have the necessary '%s' file to run this example." % mpas_file))
   print("See the comments at the top of this script for more information.")
   sys.exit()
 
@@ -141,7 +142,7 @@ for i in range(maxEdges):
 del latVertex,lonVertex,verticesOnCell
 
 #---Debug prints
-print("This MPAS file has " + str(nCells) + " cells.")
+print(("This MPAS file has " + str(nCells) + " cells."))
 
 print_min_max(t2m,"t2m")
 print_min_max(latCell,"latCell")
@@ -204,7 +205,7 @@ Ngl.draw(plot)
 Ngl.frame(wks)
 
 t2 = time.time()
-print("RasterFill took %0.3f seconds" % (t2-t1))
+print(("RasterFill took %0.3f seconds" % (t2-t1)))
 
 # Clean up, otherwise next plot gets drawn on top of this one (?)
 del plot
@@ -236,7 +237,7 @@ if CELL_FILL_PLOT:
   Ngl.frame(wks)
 
   t2 = time.time()
-  print("CellFill took %0.3f seconds" % (t2-t1))
+  print(("CellFill took %0.3f seconds" % (t2-t1)))
 
 Ngl.end()
 

@@ -34,6 +34,7 @@
 #
 #  Import numpy, types, os.
 #
+from __future__ import print_function
 import numpy 
 import types
 import os
@@ -53,7 +54,7 @@ import Ngl
 #
 file = Nio.open_file(os.path.join(Ngl.pynglpath("data"),"grb","ced1.lf00.t00z.eta.grb"),"r")
 
-names = file.variables.keys()  #  Get the variable names
+names = list(file.variables.keys())  #  Get the variable names
 print("\nVariable names:")     #  and print them out.)
 print(names)
 

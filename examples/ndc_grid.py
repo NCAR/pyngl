@@ -38,6 +38,7 @@
 #
 #  Import NumPy, Ngl functions
 #
+from __future__ import print_function
 import numpy, Ngl 
 
 # Import masked arrays

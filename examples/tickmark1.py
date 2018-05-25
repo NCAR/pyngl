@@ -29,6 +29,7 @@
 #     This example produces similar visualizations, the second containing
 #     a curve with missing values.
 #
+from __future__ import print_function
 import Ngl, numpy, random
 
 #---Import masked arrays

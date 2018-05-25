@@ -24,6 +24,7 @@
 #  Output:
 #     A single visualization with two XY curves 
 #
+from __future__ import print_function
 import numpy,os
 import Ngl,Nio
 

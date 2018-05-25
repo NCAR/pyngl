@@ -45,6 +45,7 @@
 #                                                  11 (3) = Clear          
 
 #---Import support modules
+from __future__ import print_function
 import numpy, os, sys, Nio, Ngl
 
 #---Test if file exists

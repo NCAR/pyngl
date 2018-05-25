@@ -31,6 +31,7 @@
 #
 #  Import numpy.
 #
+from __future__ import print_function
 import numpy
 
 #
@@ -126,7 +127,7 @@ ypos = [30.,18.,70.]
 #
 #  Loop through text strings and plot them.
 #
-for i in xrange(0,len(strings)):
+for i in range(0,len(strings)):
   Ngl.text(wks,xy,strings[i],xpos[i],ypos[i],txresources)
 
 Ngl.frame(wks)

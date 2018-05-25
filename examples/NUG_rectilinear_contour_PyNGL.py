@@ -7,6 +7,7 @@
    
   2015-06-04  kmf
 """
+from __future__ import print_function
 import Ngl,Nio
 import os,sys
 

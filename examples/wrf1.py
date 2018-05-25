@@ -32,6 +32,7 @@
 #     You will need to include your own WRF output file in place
 #     of the one referenced by this example.
 #======================================================================
+from __future__ import print_function
 import numpy, Nio, Ngl, os, sys
 
 filename = "wrfout_d01_2005-12-14_13:00:00"

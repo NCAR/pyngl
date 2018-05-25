@@ -36,6 +36,7 @@
 #     http://mailman.ucar.edu/mailman/listinfo/pyngl-talk
 #
 #======================================================================
+from __future__ import print_function
 import os, numpy, math, time, sys
 import Ngl, Nio
 

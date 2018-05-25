@@ -49,6 +49,7 @@
 #
 #  Import numpy and os
 #
+from __future__ import print_function
 import numpy, os
 
 #

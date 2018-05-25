@@ -26,6 +26,7 @@
 #    A single visualization is produced showing scaled brightness 
 #    temperature.
 
+from __future__ import print_function
 import numpy as np
 import Nio, Ngl, os, sys
 

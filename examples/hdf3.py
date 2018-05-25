@@ -32,6 +32,7 @@
 #    A single visualization is produced showing precipitation
 #    over a map.
 
+from __future__ import print_function
 import Nio,Ngl
 import sys, os
 import numpy as np

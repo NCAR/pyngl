@@ -43,6 +43,7 @@
 #
 #  Import numpy.
 #
+from __future__ import print_function
 import numpy
 
 #
@@ -67,7 +68,7 @@ period = 3.0
 yo = Ngl.ftcurvp(xi, yi, period, xo)  # Interpolate.
 
 yint = numpy.zeros(npts,'f')
-for i in xrange(npts):
+for i in range(npts):
   yint[i] = Ngl.ftcurvpi(0., xo[i], period, xi, yi)
 
 # Send graphics to PNG file

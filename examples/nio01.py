@@ -30,6 +30,7 @@
 #  Notes:
 #     
 
+from __future__ import print_function
 import numpy 
 import Nio 
 import time, os
@@ -43,7 +44,7 @@ def getUserName():
   except ImportError:
     return "unknown user"
   pwd_entry = pwd.getpwuid(os.getuid())
-  name = string.strip(string.splitfields(pwd_entry[4], ",")[0])
+  name = (pwd_entry[4].split(",")[0]).strip()
   if name == "":
     name = pwd_entry[0]
   return name

@@ -46,6 +46,7 @@
 #    o Possible warnings to standard out if color conversion tests fail.
 #
 
+from __future__ import print_function
 import Ngl 
 import math
 import numpy

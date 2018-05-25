@@ -36,6 +36,7 @@
 #  Notes:
 #    1.)  This visualization is similar in appearance to one provided 
 #         by Joel Norris of GFDL, but dummmy data are used.
+from __future__ import print_function
 #    2.)  This example requires importing the Scientific package.
 #     
 
@@ -154,9 +155,9 @@ resources.nglFrame = False
 #
 npoints = len(x)
 a = numpy.zeros([npoints,3],'f')
-for m in xrange(npoints):
+for m in range(npoints):
   a[m,0] = 1.
-  for j in xrange(1,3):
+  for j in range(1,3):
     a[m,j] = x[m]*a[m,j-1]
 c = (numpy.linalg.lstsq(a,y,rcond=1.e-15))[0]
 
@@ -167,7 +168,7 @@ num  = 301
 delx = 1000./num
 xp    = numpy.zeros(num,'f')
 yp    = numpy.zeros(num,'f')
-for i in xrange(num):
+for i in range(num):
   xp[i] = float(i)*delx
   yp[i] = c[0]+c[1]*xp[i]+c[2]*xp[i]*xp[i]
 plot = Ngl.xy(wks,xp,yp,resources) # Draw least squares quadratic.
@@ -178,7 +179,7 @@ plot = Ngl.xy(wks,xp,yp,resources) # Draw least squares quadratic.
 #
 mres = Ngl.Resources()
 mres.gsMarkerIndex = 1
-for i in xrange(len(x)):
+for i in range(len(x)):
   if (color_index[i] == 1): 
     mres.gsMarkerColor = "black"
     mres.gsMarkerSizeF =  0.01 #Increase marker size by a factor of 10.

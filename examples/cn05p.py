@@ -43,6 +43,7 @@
 #
 #  Import numpy, Ngl, and Nio support functions.
 #
+from __future__ import print_function
 import numpy 
 import Ngl 
 import Nio

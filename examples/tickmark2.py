@@ -29,6 +29,7 @@
 #
 
 # Import necessary modules
+from __future__ import print_function
 import numpy, os, Nio, Ngl
 
 # Open data file
@@ -90,8 +91,8 @@ map = Ngl.contour_map(wks,psl,res)
 #----------------------------------------------------------------------
 
 #---Create arrays for where we want tickmarks on lat/lon axes.
-lat_values = range(-90,100,30)
-lon_values = range(-180,210,30)
+lat_values = list(range(-90,100,30))
+lon_values = list(range(-180,210,30))
 
 #
 # Create arrays of labels for the lat tickmark locations.

@@ -42,6 +42,7 @@
 #
 #  Import numpy and the Masked Array module.
 #
+from __future__ import print_function
 import numpy, os
 from numpy import ma
 
@@ -109,7 +110,7 @@ res.trYMaxF   = 1.
 res.tmXBOn                  = False
 res.tmXTOn                  = False
 res.tmXBMode                = "Explicit"          # explicit labels
-res.tmXBValues              = range(8)
+res.tmXBValues              = list(range(8))
 res.tmXBLabels              = ["","","","","","","",""]
 res.tmYLLabelFontHeightF    = 0.012
 res.tmYLMajorOutwardLengthF = -0.001     # set tickmarks
@@ -123,7 +124,7 @@ res.tiYAxisOffsetXF    = -.017
 
 res.xyLineColor        = "transparent"
            
-plot = Ngl.xy(wks,range(1,6),arr,res)
+plot = Ngl.xy(wks,list(range(1,6)),arr,res)
 
 #
 # Fill area above Y=0 pink, and below Y=0 light blue.
@@ -307,7 +308,7 @@ sres.tmYROn          = False
 sres.tmYRBorderOn    = False
 sres.tmXTBorderOn    = False
 sres.tmXBMode        = "Explicit"              # explicit labels
-sres.tmXBValues      = range(9)
+sres.tmXBValues      = list(range(9))
 sres.tmXBLabels      = sres.tmXBValues
 sres.tmYLMode        = "Explicit"              # explicit labels
 sres.tmYLValues      = [0,   5,  10, 15, 17.5, 20.,22.5,27.5,32.5]

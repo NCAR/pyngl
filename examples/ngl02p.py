@@ -44,6 +44,7 @@
 #
 #  Import Python modules to be used.
 #
+from __future__ import print_function
 import numpy
 import sys,os
 

@@ -31,6 +31,7 @@
 #     You must download the "FRA_adm" shapefiles from:
 #      http://gadm.org/country/
 #  
+from __future__ import print_function
 import numpy,os,sys
 
 #
