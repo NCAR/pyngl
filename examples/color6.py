@@ -147,7 +147,7 @@ wks_type = "png"
 wks = Ngl.open_wks(wks_type,"color6")
 
 cmaps = get_colormap_names()
-print("There are " + str(len(cmaps)) + " color maps")
+print("There are {} color maps".format(len(cmaps)))
 
 if draw_all_colormaps:
   num_colormaps = len(cmaps)
@@ -155,7 +155,7 @@ else:
   num_colormaps = 3
 
 for n in range(num_colormaps):
-  print("Drawing '" + cmaps[n] + "'")
+  print("Drawing '{}'".format(cmaps[n]))
   draw_colormap(wks,cmaps[n])
     
 Ngl.end()

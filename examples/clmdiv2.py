@@ -182,7 +182,7 @@ for i in range(len(databin)):
   state_ix = int(cldata[i,0]) - 1
   clim_ix  = int(cldata[i,1])
   state    = states[state_ix]
-  areaname = state + " : %02i" % clim_ix
+  areaname = "{} : {:02d}".format(state, clim_ix)
 
   for j in range(659,1118):
     if areaname == anames[j]:         # Find the index into the anames array.
@@ -210,8 +210,8 @@ nboxes = len(colors)
 labels = str(bins).split()
 
 # Format the end labels
-labels[0]     = "%.2f" % min(bins)
-labels.append("%.2f" % max(bins))
+labels[0]     = "{:.2f}".format(min(bins))
+labels.append("{:.2f}".format(max(bins)))
 
 # Blank out rest of labels
 for j in range(1,nboxes):

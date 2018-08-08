@@ -136,7 +136,7 @@ res.tiMainString         = "January Global Surface Temperature (K)"
 res.lbOrientation        = "Horizontal"
 
 nt = 30    # Pick a time for a single plot.
-res.lbTitleString = "Day " + str(nt+1)
+res.lbTitleString = "Day {}".format(nt+1)
 map = Ngl.contour_map(wks,T[nt,:,:],res)
 
 Ngl.end()

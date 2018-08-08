@@ -121,7 +121,7 @@ resources.tmXBLabelFontHeightF   = 0.030
 resources.tmYLLabelFontHeightF   = 0.030
 
 for i in range(0,nplots):
-  resources.tiMainString  = "Temperature at time = " + str(i)
+  resources.tiMainString  = "Temperature at time = {}".format(i)
   plot.append(Ngl.contour(wks,temp[i,:,:],resources))
 
 Ngl.panel(wks,plot[0:4],[2,2])    # Draw 2 rows/2 columns of plots.

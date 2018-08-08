@@ -150,7 +150,7 @@ resources.cnLineDrawOrder      = "Predraw" # Draw lines and filled
 resources.cnFillDrawOrder      = "Predraw" # areas before map gets
                                              # drawn.
 
-resources.tiMainString = "~F26~" + cdf_file2.title
+resources.tiMainString = "~F26~{}".format(cdf_file2.title)
 
 resources.sfXCStartV = float(min(sst_lon))   # Define where contour plot
 resources.sfXCEndV   = float(max(sst_lon))   # should lie on the map plot.

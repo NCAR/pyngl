@@ -39,6 +39,7 @@
 #
 from __future__ import print_function
 import numpy
+import os
 
 #
 #  Import NGL support functions.
@@ -52,7 +53,11 @@ wks_type = "png"
 wks = Ngl.open_wks(wks_type,"ngl11p")
 
 dirc     = Ngl.pynglpath("data")
-data     = Ngl.asciiread(dirc+"/asc/u.cocos",(39,14),"float")
+data     = Ngl.asciiread(os.path.join(dirc,
+                                      "asc",
+                                      "u.cocos"),
+                         (39,14),
+                         "float")
 
 pressure  = data[:,0]    # First column of data is pressure (mb).
 height    = data[:,1]    # Second column is height (km).

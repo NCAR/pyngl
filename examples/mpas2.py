@@ -93,15 +93,14 @@ def subtitles(wks, plot, left_string, center_string, right_string):
 # Function to print the min/max of a given variable.
 #----------------------------------------------------------------------
 def print_min_max(var,varname):
-  print(varname + ": min/max = %.2f " % numpy.min(var) + "/" +
-                              "%.2f" % numpy.max(var))
+  print("{}: min/max = {:.2f} / {:.2f}".format(varname, numpy.min(var), numpy.max(var)))
 
 #----------------------------------------------------------------------
 # Main code
 #----------------------------------------------------------------------
 mpas_file = "x1.2621442.nc"
 if(not os.path.exists(mpas_file)):
-  print(("You do not have the necessary '%s' file to run this example." % mpas_file))
+  print("You do not have the necessary '{}' file to run this example.".format(mpas_file))
   print("See the comments at the top of this script for more information.")
   sys.exit()
 
@@ -142,7 +141,7 @@ for i in range(maxEdges):
 del latVertex,lonVertex,verticesOnCell
 
 #---Debug prints
-print(("This MPAS file has " + str(nCells) + " cells."))
+print("This MPAS file has {} cells.".format(nCells))
 
 print_min_max(t2m,"t2m")
 print_min_max(latCell,"latCell")
@@ -197,7 +196,7 @@ plot = Ngl.contour_map(wks,t2m,res)
 #---Attach some subtitles to the plot
 left_string   = varname
 center_string = time_str
-right_string  = str(nCells) + " cells"
+right_string  = "{} cells".format(nCells)
 subtitles(wks,plot,left_string,center_string,right_string)
 
 #---Drawing the plot will also draw the subtitles
@@ -205,7 +204,7 @@ Ngl.draw(plot)
 Ngl.frame(wks)
 
 t2 = time.time()
-print(("RasterFill took %0.3f seconds" % (t2-t1)))
+print("RasterFill took {:0.3f} seconds".format(t2-t1))
 
 # Clean up, otherwise next plot gets drawn on top of this one (?)
 del plot
@@ -237,7 +236,7 @@ if CELL_FILL_PLOT:
   Ngl.frame(wks)
 
   t2 = time.time()
-  print(("CellFill took %0.3f seconds" % (t2-t1)))
+  print("CellFill took {:0.3f} seconds".format(t2-t1))
 
 Ngl.end()
 

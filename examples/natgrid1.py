@@ -40,12 +40,17 @@
 from __future__ import print_function
 import numpy
 import Ngl
+import os
 
 #  
 #  Open the ASCII file of seismic data.
 #  
 dirc    = Ngl.pynglpath("data")
-seismic = Ngl.asciiread(dirc + "/asc/seismic.asc" ,[52,3],"float")
+seismic = Ngl.asciiread(os.path.join(dirc,
+                                     "asc",
+                                     "seismic.asc"),
+                        [52,3],
+                        "float")
 
 #
 #  Extract coordinate triples from the data file.

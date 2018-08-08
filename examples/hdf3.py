@@ -40,7 +40,7 @@ import numpy as np
 # Test if file exists
 filename = "3B-MO.MS.MRG.3IMERG.20140701-S000000-E235959.07.V03D.HDF5"
 if(not os.path.exists(filename)):
-  print("You do not have the necessary %s HDF5 file to run this example." % filename)
+  print("You do not have the necessary {} HDF5 file to run this example.".format(filename))
   print("You need to supply your own HDF5 data")
   sys.exit()
 
@@ -61,7 +61,7 @@ yyyymmdd = filename.split(".")[4].split('-')[0]
 
 # Print the metadata of precip, and min/max values
 print(precip)
-print("min/max = %g / %g" % (precip[:].min(), precip[:].max()))
+print("min/max = {:g} / {:g}".format(precip[:].min(), precip[:].max()))
 
 wks_type = "png"
 wks = Ngl.open_wks(wks_type,"hdf3")
@@ -82,7 +82,7 @@ res.cnFillColors         = ["white","cyan", "green","yellow",
 # make Dateline the center of the plot (default is GM)
 res.mpCenterLonF         = 180  
 
-res.tiMainString         = "precipitation (%s) (%s)" % (precip.units,yyyymmdd)
+res.tiMainString         = "precipitation ({}) ({})".format(precip.units, yyyymmdd)
 res.lbLabelFontHeightF   = 0.01              # default is a bit large
 res.lbOrientation        = "horizontal"
 

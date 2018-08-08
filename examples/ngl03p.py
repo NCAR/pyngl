@@ -148,7 +148,7 @@ resources.vcFillArrowEdgeColor     = 1     # Draw the edges in black.
 resources.vcFillArrowWidthF        = 0.055 # Make vectors thinner.
 resources.vcLevelPalette           = cmap
 
-resources.tiMainString      = "~F22~wind velocity vectors colored by temperature " + temp_units
+resources.tiMainString      = "~F22~wind velocity vectors colored by temperature {}".format(temp_units)
 resources.tiMainFontHeightF = 0.02  # Make font slightly smaller.
 
 vc = Ngl.vector_scalar(wks,ua,va,tempa,resources) # Draw a vector plot of

@@ -37,13 +37,13 @@ import numpy, Nio, Ngl, os, sys
 
 filename = "wrfout_d01_2005-12-14_13:00:00"
 if(not os.path.exists(filename)):
-  print("You do not have the necessary '%s' file to run this example." % filename)
+  print("You do not have the necessary '{}' file to run this example.".format(filename))
   print("You need to supply your own WRF output file")
-  print("WRF output files usually have names like '%s'" % filename)
+  print("WRF output files usually have names like '{}'".format(filename))
   sys.exit()
 
 #---Read data
-a   = Nio.open_file(filename+".nc")  # Must add ".nc" suffix for Nio.open_file
+a   = Nio.open_file("{}.nc".format(filename))  # Must add ".nc" suffix for Nio.open_file
 hgt = a.variables["HGT"][0,:,:]     # Read first time step ( nlat x nlon)
 lat = a.variables["XLAT"][0,:,:]    # 2D array (nlat x nlon)
 lon = a.variables["XLONG"][0,:,:]   # ditto
@@ -80,7 +80,7 @@ res.lbLabelFontHeightF = 0.01
 
 # Main Title
 dims = hgt.shape
-res.tiMainString      = "WRF curvilinear lat/lon grid (" + str(dims[0]) + " x " + str(dims[1]) + ")"
+res.tiMainString      = "WRF curvilinear lat/lon grid ({} x {})".format(dims[0], dims[1])
 
 # Additional resources needed for putting contours on map
 res.sfXArray          = lon

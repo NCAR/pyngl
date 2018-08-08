@@ -39,7 +39,7 @@ import Nio, Ngl
 #---Test if file exists
 filename = "MOD06_L2.A2010031.1430.005.2010031221343.hdf" 
 if(not os.path.exists(filename)):
-  print("You do not have the necessary %s file to run this example." % filename)
+  print("You do not have the necessary {} file to run this example.".format(filename))
   print("You can get the file from")
   print("    http://www.ncl.ucar.edu/Applications/Data/#hdf")
   print("or else use your own data.")
@@ -79,7 +79,7 @@ res.mpMaxLonF         = np.max(lon)+1
 res.mpGridAndLimbOn   = False
 
 # Main Title
-res.tiMainString     = "%s (%s)" % (ctts.hdf_name,ctts.units)
+res.tiMainString     = "{} ({})".format(ctts.hdf_name, ctts.units)
 
 # Labelbar options
 res.lbLabelFontHeightF = 0.01

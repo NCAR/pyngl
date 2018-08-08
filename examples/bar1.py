@@ -240,7 +240,9 @@ world_series = {
                 2012 : ["SFG", "DT"], \
                 2013 : ["BRS", "SLC"], \
                 2014 : ["SFG", "KCR"], \
-                2015 : ["KCR", "NYM"]  \
+                2015 : ["KCR", "NYM"], \
+                2016 : ["CC", "CI"],  \
+                2017 : ["HA", "LAD"]  \
            }
 
 #
@@ -332,7 +334,7 @@ res.trXMinF               = 0              # Minimum value on X axis.
 res.trYMaxF               = max(y_win)+1   # Maximum value on Y axis.
 res.trXMaxF               = max(x_win)+1   # Maximum value on X axis.
   
-res.tiXAxisString          = "# of World Series Wins through " + str(max_year)
+res.tiXAxisString          = "# of World Series Wins through {}".format(max_year)
 res.tiXAxisFontHeightF     = 0.03
 
 res.nglFrame              = False          # Don't advance frame.
@@ -372,7 +374,7 @@ for i in range(len(y_win)):
   else:
     txres.txJust   = "CenterLeft"
     txres.txAngleF = 90. 
-    Ngl.text(wks,plot," " + winning_teams_nm[i],x_win[i],y_win[i],txres)
+    Ngl.text(wks,plot," {}".format(winning_teams_nm[i]),x_win[i],y_win[i],txres)
 
 Ngl.frame(wks)
 
@@ -386,7 +388,7 @@ bar_width = bar_width_perc * dx               # Bar width.
 
 res.trYMaxF               = max(y_lose)+1   # Maximum value on Y axis.
 res.trXMaxF               = max(x_lose)+1   # Maximum value on X axis.
-res.tiXAxisString         = "# of World Series Losses through " + str(max_year)
+res.tiXAxisString         = "# of World Series Losses through {}".format(max_year)
 
 #
 # Loop through each value, and create and draw a bar for it.
@@ -412,7 +414,7 @@ for i in range(len(y_lose)):
   else:
     txres.txJust   = "CenterLeft"
     txres.txAngleF = 90. 
-    Ngl.text(wks,plot," " + losing_teams_nm[i],x_lose[i],y_lose[i],txres)
+    Ngl.text(wks,plot," {}".format(losing_teams_nm[i]),x_lose[i],y_lose[i],txres)
 
 Ngl.frame(wks)
 

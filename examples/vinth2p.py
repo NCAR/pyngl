@@ -65,12 +65,12 @@ psrf = (cfile.variables["PS"][:,:,:])
 Tnew = Ngl.vinth2p(T,hyam,hybm,pnew,psrf,1,p0mb,1,True)
 
 ntime, output_levels, nlat, nlon = Tnew.shape
-print("vinth2p: shape of returned array   = [%1d,%1d,%2d,%3d]" % (Tnew.shape))
-print("  number of timesteps     = %4d" % (ntime))
-print("  number of input levels  = %4d" % (T.shape[1]))
-print("  number of output levels = %4d" % (output_levels))
-print("  number of latitudes     = %4d" % (nlat))
-print("  number of longitudes    = %4d" % (nlon))
+print("vinth2p: shape of returned array   = [{:1d},{:1d},{:2d},{:3d}]".format(*Tnew.shape))
+print("  number of timesteps     = {:4d}".format((ntime)))
+print("  number of input levels  = {:4d}".format((T.shape[1])))
+print("  number of output levels = {:4d}".format((output_levels)))
+print("  number of latitudes     = {:4d}".format((nlat)))
+print("  number of longitudes    = {:4d}".format((nlon)))
 
 #
 #  Uncomment the following to print out the resultant array values.

@@ -102,7 +102,7 @@ lvalues = numpy.where(values >= 2000,values-2000,values-1900).tolist()
 labels  = []
 for l in lvalues:
   if l%10:
-    labels.append("'%0.2i" % l)
+    labels.append("'{:02d}".format(l))
   else:
     labels.append('')
 

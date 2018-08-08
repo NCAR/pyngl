@@ -153,7 +153,7 @@ vcres.vcMinDistanceF          = 0.0
 vcres.vcRefAnnoString2        = urot.units
 vcres.vcRefAnnoOrthogonalPosF = -0.18       # Move ref anno up into plot.
 
-vcres.tiMainString            = "Currents at depth " + str(urot.z_t[0])
+vcres.tiMainString            = "Currents at depth {}".format(urot.z_t[0])
 
 #
 # Draw the full set of vectors.

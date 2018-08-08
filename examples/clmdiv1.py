@@ -161,7 +161,7 @@ for st in range(npoly):
       res_poly.gsFillColor = cmap[va1_rn,:]     # VA clim div 1
     else:
       res_poly.gsFillColor = cmap[rand_num,:]
-    varstr = statenames[st]+"_CD" + str(cd+1)
+    varstr = "{}_CD{}".format(statenames[st], cd + 1)
     x = ncdf.variables[varstr].lon
     y = ncdf.variables[varstr].lat
     Ngl.polygon (wks,plot,x,y,res_poly)

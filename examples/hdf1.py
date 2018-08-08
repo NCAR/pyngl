@@ -51,7 +51,7 @@ import numpy, os, sys, Nio, Ngl
 #---Test if file exists
 flnm  = "MOD05_L2.A2002161.1830.004.2003221153410.hdf"
 if(not os.path.exists(flnm)):
-  print("You do not have the necessary %s file to run this example." % flnm)
+  print("You do not have the necessary {} file to run this example.".format(flnm))
   print("You can get the file from")
   print("    http://www.ncl.ucar.edu/Applications/Data/#hdf")
   sys.exit()

@@ -20,18 +20,20 @@ t1 = time.time()                                    #-- retrieve start time
 diri         = './'
 fname        = 'ta_ps_850.nc'                       #-- data path and file name
 gname        = 'r2b4_amip.nc'                       #-- grid info file
+ffile        = os.path.join(diri, fname)
+gfile        = os.path.join(diri, gname)
 VarName      = 'ta'                                 #-- variable name       
  
 #---Test if files exist
-if(not os.path.exists(diri+fname) or not os.path.exists(diri+gname)):
-  print("You do not have the necessary files to run this example, '%s' and '%s'." % (diri+fname,diri+gname))
+if(not os.path.exists(ffile) or not os.path.exists(gfile)):
+  print("You do not have the necessary files to run this example, '{}' and '{}'.".format(ffile, gfile))
   print("You can get the files from the NCL website at:")
   print("http://www.ncl.ucar.edu/Document/Manuals/NCL_User_Guide/Data/")
   sys.exit()
 
 #--  open file and read variables 
-f = Nio.open_file(diri + fname,'r')                 #-- add data file
-g = Nio.open_file(diri + gname,'r')                 #-- add grid file (not contained in data file!!!)
+f = Nio.open_file(ffile, 'r')                 #-- add data file
+g = Nio.open_file(gfile, 'r')                 #-- add grid file (not contained in data file!!!)
  
 #-- read a timestep of 'ta'  
 variable =  f.variables['ta']                       #-- first time step, lev, ncells
@@ -58,14 +60,14 @@ labels   =  ['{:.2f}'.format(x) for x in levels]    #-- convert list of floats t
 
 #-- print info to stdout
 print('')
-print('min/max:          %.2f' %np.min(varM) + ' /' + ' %.2f' %np.max(varM))
+print('min/max:          {:0.2f} / {:0.2f}'.format(np.min(varM), np.max(varM)))
 print('')
-print('varMin:           %3d' %varMin)
-print('varMax:           %3d' %varMax)
-print('varInt:           %3d' %varInt)
+print('varMin:           {:3d}'.format(varMin))
+print('varMax:           {:3d}'.format(varMax))
+print('varInt:           {:3d}'.format(varInt))
 print('')
-print('missing_value:    ', missing)
-print('missing values:   ', nummissing)
+print('missing_value:    {}'.format(missing))
+print('missing values:   {}'.format(nummissing))
 #-------------------------------------------------------------------
 #-- define the x-, y-values and the polygon points
 #-------------------------------------------------------------------
@@ -80,8 +82,8 @@ ncells, nv =  vlon.shape                            #-- ncells: number of cells;
 
 #-- print information to stdout
 print('')
-print('cell points:      ', nv)
-print('cells:            ', str(ncells))
+print('cell points:      {}'.format(nv))
+print('cells:            {}'.format(ncells))
 print('')
 
 #-- rearrange the longitude values to -180.-180.
@@ -94,8 +96,8 @@ def rearrange(vlon):
 
 vlon = rearrange(vlon)                              #-- set longitude values to -180.-180. degrees
 
-print('min/max vlon:     ', np.min(vlon), np.max(vlon))
-print('min/max vlat:     ', np.min(vlat), np.max(vlat))
+print('min/max vlon:     {} {}'.format(np.min(vlon), np.max(vlon)))
+print('min/max vlat:     {} {}'.format(np.min(vlat), np.max(vlat)))
 print('')
 
 #-- open a workstation for second plot:  triangles plot
@@ -110,10 +112,10 @@ colormap =  Ngl.read_colormap_file('WhiteBlueGreenYellowRed')[22::12,:]    #-- R
                                                   #-- select every 12th color 
 colormap[19,:] = [1.,1.,1.,0.]                    #-- white for missing values
 print('')
-print('levels:           ',levels)
-print('labels:           ',labels)
+print('levels:           {}'.format(levels))
+print('labels:           {}'.format(labels))
 print('')
-print('nlevs:            %3d' %nlevs)
+print('nlevs:            {:3d}'.format(nlevs))
 print('')
 
 #-- set map resources
@@ -139,7 +141,7 @@ for m in range(0,nlevs):
         if (varM[i] >= levels[m] and varM[i] < levels[m+1]):
            gscolors[i] = m+1    # 1 to nlevs
            vind.append(i)
-    print('finished level %3d' % m , ' -- %5d ' % len(vind) , ' polygons considered - gscolors %3d' % (m+1))
+    print('finished level {:3d}  -- {:5d}   polygons considered - gscolors {:3d}'.format(m, len(vind), m+1))
     del vind
 
 gscolors[varM < varMin]         =  0       #-- set color index for cells less than level[0]
@@ -182,7 +184,7 @@ Ngl.frame(wks)
 #-- get wallclock time
 t2 = time.time()
 print('')
-print('Wallclock time:  %0.3f seconds' % (t2-t1))
+print('Wallclock time:  {:0.3f} seconds'.format(t2-t1))
 print('')
 
 Ngl.end()

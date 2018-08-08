@@ -60,12 +60,17 @@ import numpy
 #
 import Ngl
 import Nio
+import os
 
 #  
 #  Open the ASCII file.
 #  
 dirc    = Ngl.pynglpath("data")
-seismic = Ngl.asciiread(dirc + "/asc/seismic.asc" ,[52,3],"float")
+seismic = Ngl.asciiread(os.path.join(dirc,
+                                     "asc",
+                                     "seismic.asc"),
+                        [52,3],
+                        "float")
 
 #
 #  Read in X,Y,Z data.

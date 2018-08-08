@@ -14,10 +14,11 @@ import os,sys
 #-- define variables
 diri   = "./"                                  #-- data directory
 fname  = "rectilinear_grid_2D.nc"              #-- data file name
+ffile  = os.path.join(diri, fname)
 
 #---Test if file exists
-if(not os.path.exists(diri+fname)):
-  print("You do not have the necessary file (%s) to run this example." % (diri+fname))
+if(not os.path.exists(ffile)):
+  print("You do not have the necessary file ({}) to run this example.".format(ffile))
   print("You can get the files from the NCL website at:")
   print("http://www.ncl.ucar.edu/Document/Manuals/NCL_User_Guide/Data/")
   sys.exit()
@@ -27,7 +28,7 @@ maxval =  315                                  #-- maximum contour level
 inc    =    5.                                 #-- contour level spacing
 
 #-- open file and read variables
-f      =  Nio.open_file(diri + fname,"r")      #-- open data file
+f      =  Nio.open_file(ffile, "r")            #-- open data file
 temp   =  f.variables["tsurf"][0,:,:]          #-- first time step
 lat    =  f.variables["lat"][:]                #-- all latitudes
 lon    =  f.variables["lon"][:]                #-- all longitudes
@@ -44,8 +45,8 @@ wks                   =  Ngl.open_wks(wks_type,wks_name,wkres)
 res                    =  Ngl.Resources()      #-- generate an resource object for plot
 
 if hasattr(f.variables["tsurf"],"long_name") and hasattr(f.variables["tsurf"],"units"):
-   res.tiMainString = "%s (%s)" % (f.variables["tsurf"].long_name,\
-                                   f.variables["tsurf"].units)          #-- set main title
+   res.tiMainString = "{} ({})".format(f.variables["tsurf"].long_name,
+                                       f.variables["tsurf"].units)      #-- set main title
 
 res.cnFillOn              =  True              #-- turn on contour fill.
 res.cnLinesOn             =  False             #-- turn off contour lines

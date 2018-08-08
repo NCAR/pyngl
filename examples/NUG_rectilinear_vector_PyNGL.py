@@ -16,7 +16,7 @@ diri   = "./"                               #-- data directory
 fname  = "rectilinear_grid_2D.nc"           #-- data file name
 
 #--  open file and read variables
-f      = Nio.open_file(diri + fname,"r")    #-- open data file
+f      = Nio.open_file(os.path.join(diri, fname), "r")    #-- open data file
 temp   = f.variables["tsurf"][0,:,:]        #-- first time step
 u      = f.variables["u10"][0,:,:]          #-- first time step
 v      = f.variables["v10"][0,:,:]          #-- first time step

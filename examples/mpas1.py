@@ -42,7 +42,7 @@ import Ngl, Nio
 #---Read data from MPAS Grid
 filename = "MPAS.nc"
 if(not os.path.exists(filename)):
-  print("You do not have the necessary '%s' file to run this example." % filename)
+  print("You do not have the necessary '{}' file to run this example.".format(filename))
   print("See the comments at the top of this script for more information.")
   sys.exit()
 
@@ -87,8 +87,7 @@ res.sfXArray             = lonCell
 res.sfYArray             = latCell
 
 res.cnFillMode           = "RasterFill"      # turn raster on      
-res.tiMainString         = "Surface pressure on MPAS grid (" + \
-                           str(sp.shape[0]) + " cells)"
+res.tiMainString         = "Surface pressure on MPAS grid ({} cells)".format(sp.shape[0])
 res.tiMainFontHeightF   = 0.018
 
 plot = Ngl.contour_map(wks,sp,res)  

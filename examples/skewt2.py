@@ -38,11 +38,15 @@
 from __future__ import print_function
 import Ngl
 import numpy
+import os
 
 nlvl = 30  
 ncol = 16
-TestData = Ngl.asciiread(Ngl.pynglpath("data") + "/asc/sounding_testdata.asc", \
-                   [nlvl,ncol], "float")
+TestData = Ngl.asciiread(os.path.join(Ngl.pynglpath("data"),
+                                      "asc",
+                                      "sounding_testdata.asc"),
+                         [nlvl, ncol],
+                         "float")
 
 p    = TestData[:,1]
 z    = TestData[:,2]

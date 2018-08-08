@@ -211,15 +211,15 @@ def draw_text():
   mkres.gsMarkerColor = "red"
 
   txres.txJust        = "BottomCenter"
-  Ngl.text_ndc(wks,"_"+txres.txJust+"_",0.6,0.3,txres)
+  Ngl.text_ndc(wks,"_{}_".format(txres.txJust),0.6,0.3,txres)
   Ngl.polymarker_ndc(wks,0.6,0.3,mkres)
 
   txres.txJust        = "TopLeft"
-  Ngl.text_ndc(wks,"_"+txres.txJust+"_",0.6,0.25,txres)
+  Ngl.text_ndc(wks,"_{}_".format(txres.txJust),0.6,0.25,txres)
   Ngl.polymarker_ndc(wks,0.6,0.25,mkres)
 
   txres.txJust        = "CenterRight"
-  Ngl.text_ndc(wks,"_"+txres.txJust+"_",0.6,0.15,txres)
+  Ngl.text_ndc(wks,"_{}_".format(txres.txJust),0.6,0.15,txres)
   Ngl.polymarker_ndc(wks,0.6,0.15,mkres)
 
   txres.txJust        = "TopCenter"

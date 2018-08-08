@@ -158,7 +158,7 @@ if Animate:
 # a contour/map plot at each time step.
 #
   for nt in range(1,T.shape[0]):
-    print("plotting day ",nt+1)
+    print("plotting day {}".format(nt+1))
 #
 # There's no need to recreate the contour/map plot since
 # the only thing changing is the data and the title, so
@@ -166,7 +166,7 @@ if Animate:
 # Using Ngl.set_values will result in slightly faster code.
 #
     srlist2.sfDataArray   = T[nt,:,:]  
-    srlist1.lbTitleString = "Day " + str(nt+1)
+    srlist1.lbTitleString = "Day {}".format(nt+1)
 
     Ngl.set_values(map.contour,srlist1)      # changing labelbar string
     Ngl.set_values(map.sffield,srlist2)      # changing data

@@ -99,9 +99,9 @@ cmap = Ngl.retrieve_colormap(wks)
 # Print just some of the values of the colormap.
 #
 print("\n-----------printing some colormap values------------\n")
-print(("color index  5 (NavyBlue) = ",cmap[5,:]))
-print(("color index 10 (Purple)   = ",cmap[10,:]))
-print(("color index 15 (Gold)     = ",cmap[15,:]))
+print("color index  5 (NavyBlue) = {}".format(cmap[5,:]))
+print("color index 10 (Purple)   = {}".format(cmap[10,:]))
+print("color index 15 (Gold)     = {}".format(cmap[15,:]))
 
 #
 # Retrieve some resource values of various types.
@@ -118,11 +118,11 @@ line_mode   = Ngl.get_string(xy.xydspec,"xyMarkLineMode")
 style       = Ngl.get_integer(xy,"xyYStyle")
 
 print("\n-----------printing some resource values------------\n")
-print("color map len  = ",cmap_len," (should be 23)")
-print("markers        = ",markers," (should be [11 12 15 16])")
-print("thicknesses    = ",thicknesses," should be ([3. 4. 5. 6.])")
-print("mark/line mode = ",line_mode," (should be 'MarkLines')")
-print("style          = ",style," (should be 1)")
+print("color map len  = {} (should be 23)".format(cmap_len))
+print("markers        = {} (should be [11 12 15 16])".format(markers))
+print("thicknesses    = {} should be ([3. 4. 5. 6.])".format(thicknesses))
+print("mark/line mode = {} (should be 'MarkLines')".format(line_mode))
+print("style          = {} (should be 1)".format(style))
 
 #
 # Here's another way to retrieve the color map.

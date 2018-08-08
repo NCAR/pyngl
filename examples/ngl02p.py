@@ -184,7 +184,7 @@ os.system("/bin/rm -f data.asc")
 sys.stdout = open("data.asc","w")
 for i in range(7,2,-2):
   for j in range(0,5):
-    print("%9.5f" % (tempa[i,j]))
+    print("{:9.5f}".format(tempa[i,j]))
 
 # Clean up (not really necessary, but a good practice).
 

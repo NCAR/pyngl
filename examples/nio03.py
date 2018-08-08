@@ -41,7 +41,7 @@ import time,os
 #
 dirc = Ngl.pynglpath("data")
 fname = "wafsgfs_L_t06z_intdsk60.grib2"
-f = Nio.open_file(os.path.join(dirc,"grb",fname + ".grb"))
+f = Nio.open_file(os.path.join(dirc,"grb","{}.grb".format(fname)))
 
 #
 # Printthe input file contents
@@ -51,7 +51,7 @@ f = Nio.open_file(os.path.join(dirc,"grb",fname + ".grb"))
 #
 # If the output file already exists, remove it
 #
-os.system("rm -f " + fname + ".nc")
+os.system("rm -f {}.nc".format(fname))
 
 #
 # Set the PreFill option to False to improve writing performance
@@ -71,12 +71,12 @@ opt.CompressionLevel = 5                  # Can go up to 9
 #
 # Set the history attribute
 #
-hatt = "Converted from GRIB2: " + time.ctime(time.time())
+hatt = "Converted from GRIB2: {}".format(time.ctime(time.time()))
 
 #
 # Create the output file
 #
-fout = Nio.open_file(fname + ".nc","c",opt,hatt)
+fout = Nio.open_file("{}.nc".format(fname), "c", opt, hatt)
 
 #
 # Note that it is much more efficient if all dimensions, variables,
@@ -120,13 +120,13 @@ for var in vars:
     if dims.count(var) > 0:
         v = f.variables[var].get_value()
         fout.variables[var].assign_value(v)
-        print("finished writing " + var)
+        print("finished writing {}".format(var))
 
 for var in vars:
     if dims.count(var) == 0:
         v = f.variables[var].get_value()
         fout.variables[var].assign_value(v)
-        print("finished writing " + var)
+        print("finished writing {}".format(var))
             
 #
 # print the output file contents
@@ -136,5 +136,5 @@ for var in vars:
 f.close()
 
 # Print file size.
-print("File size of",fname+ ".nc:")
-os.system("wc -c " + fname + ".nc")
+print("File size of {}.nc:".format(fname))
+os.system("wc -c {}.nc".format(fname))

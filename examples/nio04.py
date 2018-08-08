@@ -73,13 +73,13 @@ for i in range(10):
 print("After assigning elements 0-9 of unlimited dimension:")
 print(file)
 
-print("Closing '" + filename + "' file...\n")
+print("Closing '{}' file...\n".format(filename))
 file.close()
 
 #
 #  Reopen the file for writing
 #
-print("Reopening '" + filename + "' file...")
+print("Reopening '{}' file...".format(filename))
 file = Nio.open_file(filename, "w")
 
 print(file)

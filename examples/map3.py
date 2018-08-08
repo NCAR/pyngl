@@ -63,9 +63,9 @@ def add_map_tickmarks(wks,map,lat_spc,lon_spc):
   lon_labels = []
   for l in lon_values:
     if l < 0:
-      lon_labels.append("%i~S~o~N~W" % np.fabs(l))
+      lon_labels.append("{}~S~o~N~W".format(np.fabs(l)))
     elif l > 0:
-      lon_labels.append("%i~S~o~N~E" % l)
+      lon_labels.append("{}~S~o~N~E".format(l))
     else:
       lon_labels.append("0")
   
@@ -74,11 +74,11 @@ def add_map_tickmarks(wks,map,lat_spc,lon_spc):
   lat_labels = []
   for l in lat_values:
     if l < 0:
-      lat_labels.append("%i~S~o~N~S" % np.fabs(l))
+      lat_labels.append("{}~S~o~N~S".format(np.fabs(l)))
     elif l > 0:
-      lat_labels.append("%i~S~o~N~N" % l)
+      lat_labels.append("{}~S~o~N~N".format(l))
     else:
-      lat_labels.append("EQ" % l)
+      lat_labels.append("EQ")
 
 #---Set tickmark resources
   bres.tmXBMode                = "Explicit"

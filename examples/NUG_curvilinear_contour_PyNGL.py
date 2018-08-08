@@ -14,16 +14,17 @@ import os,sys
 #--  define variables
 diri   = "./"                                 #-- data directory
 fname  = "tos_ocean_bipolar_grid.nc"          #-- curvilinear data 
+ffile  = os.path.join(diri, fname)
 
 #---Test if file exists
-if(not os.path.exists(diri+fname)):
-  print("You do not have the necessary file (%s) to run this example." % (diri+fname))
+if(not os.path.exists(ffile)):
+  print("You do not have the necessary file ({}) to run this example.".format(ffile))
   print("You can get the files from the NCL website at:")
   print("http://www.ncl.ucar.edu/Document/Manuals/NCL_User_Guide/Data/")
   sys.exit()
 
 #--  open file and read variables
-f      = Nio.open_file(diri + fname,"r")
+f      = Nio.open_file(ffile, "r")
 var    = f.variables["tos"][0,:,:]            #-- first time step, reverse latitude
 lat2d  = f.variables["lat"][:,:]              #-- 2D latitudes 
 lon2d  = f.variables["lon"][:,:]              #-- 2D longitudes
