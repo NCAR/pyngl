@@ -15,13 +15,12 @@
 #    April, 2015
 #
 #  Description:
-#    This example shows how to read and unstagger U,V data on a WRF
-#    output grid, and then draw streamlines. The streamlines are
+#    This example shows how to read U,V data on a WRF
+#    output grid using wrf-python. The streamlines are
 #    dense, so the arrays are strided to cull some of them.
 #
 #  Effects illustrated:
-#    o  Plotting WRF data in a lat/lon projection
-#    o  Unstaggering WRF data
+#    o  Using wrf-python to get U,V data from WRF output file
 #    o  Drawing streamlines
 #    o  Coloring streamlines by another field
 # 
@@ -36,42 +35,8 @@
 from __future__ import print_function
 import numpy as np
 import Nio, Ngl, os, sys
+from wrf import getvar, latlon_coords, to_np
 
-#----------------------------------------------------------------------
-# This function takes a WRF variable and unstaggers it along the
-# given dimension.
-#----------------------------------------------------------------------
-def wrf_unstagger(x):
-  rank = len(x.shape)
-  if rank < 2:
-    print("wrf_unstagger: variable must be at least 2-dimensional")
-    return x    
-
-  xdims = x.dimensions
-  if xdims[rank-1].endswith("_stag"):
-    dim = "lon"
-  elif xdims[rank-2].endswith("_stag"):
-    dim = "lat"
-  else:
-    print("wrf_unstagger: error: couldn't find the staggered dimension")
-    return x    
-
-  if rank == 4:
-    if dim == "lon":
-      xu = 0.5*(x[:,:,:,:-1] + x[:,:,:,1:])
-    else:
-      xu = 0.5*(x[:,:,:-1,:] + x[:,:,1:,:])
-  elif rank == 3:
-    if dim == "lon":
-      xu = 0.5*(x[:,:,:-1] + x[:,:,1:])
-    else:
-      xu = 0.5*(x[:,:-1,:] + x[:,1:,:])
-  elif rank == 2:
-    if dim == "lon":
-      xu = 0.5*(x[:,:-1] + x[:,1:])
-    else:
-      xu = 0.5*(x[:-1,:] + x[1:,:])
-  return xu
 
 # Read data
 filename = "wrfout_d03_2012-04-22_23_00_00"
@@ -82,25 +47,22 @@ if(not os.path.exists(filename)):
   sys.exit()
 
 # Read some WRF data
-a    = Nio.open_file("{}.nc".format(filename))  # Must add ".nc" suffix for Nio.open_file
-u    = a.variables["U"]
-v    = a.variables["V"]
-latu = a.variables["XLAT_U"]
-lonu = a.variables["XLONG_U"]
-
-# Unstagger the data
-ua  = wrf_unstagger(u)
-va  = wrf_unstagger(v)
-lat = wrf_unstagger(latu)
-lon = wrf_unstagger(lonu)
+a  = Nio.open_file(filename+".nc")  # Must add ".nc" suffix for Nio.open_file
+ua = getvar(a,"ua")
+va = getvar(a,"va")
 
 # First timestep, lowest (bottommost) level, every 5th lat/lon
 nl    = 0
 nt    = 0
 nstep = 5     # a stride to cull some of the streamlines
-u10   = ua[nt,nl,::nstep,::nstep]
-v10   = va[nt,nl,::nstep,::nstep]
-spd   = np.sqrt(u10**2+v10**2)                
+u     = ua[nl,::nstep,::nstep]
+v     = va[nl,::nstep,::nstep]
+spd   = np.sqrt(u**2+v**2)                
+
+# Get the latitude and longitude points
+lat, lon = latlon_coords(ua)
+lat = to_np(lat)
+lon = to_np(lon)
 
 # Open file for graphics
 wks_type = "png"
@@ -116,7 +78,7 @@ res.mpMinLonF         = np.min(lon[:])-0.1
 res.mpMaxLonF         = np.max(lon[:])+0.1
 
 res.mpFillOn                = True
-res.mpLandFillColor         = "beige"
+res.mpLandFillColor         = "gray85"
 res.mpOceanFillColor        = "transparent"
 res.mpInlandWaterFillColor  = "transparent"
 res.mpGridLatSpacingF       = 1
@@ -129,10 +91,10 @@ res.stMonoLineColor   = False        # Use multiple colors for streamlines
 res.tiMainString      = "U10/V10 streamlines color by wind speed"
 
 # Necessary to overlay on map correctly.
-res.vfYArray          = lat[0,::nstep,::nstep]
-res.vfXArray          = lon[0,::nstep,::nstep]
+res.vfYArray          = lat[::nstep,::nstep]
+res.vfXArray          = lon[::nstep,::nstep]
 
-plot = Ngl.streamline_scalar_map(wks,u10,v10,spd,res)
+plot = Ngl.streamline_scalar_map(wks,u,v,spd,res)
 
 Ngl.end()
 
