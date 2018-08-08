@@ -50,6 +50,16 @@ from . import fplib
 
 import sys
 
+# import warnings module to warn about deprecated wrf functions
+import warnings
+
+def wrf_deprecated():
+    warnings.simplefilter('always', DeprecationWarning)
+    warnings.warn('Ngl.{}: This function has been deprecated. '
+                  'Please consider using wrf-python instead.'.format(sys._getframe(1).f_code.co_name),
+                  DeprecationWarning)
+    warnings.simplefilter('default', DeprecationWarning)
+
 # integer type compatibility http://python3porting.com/differences.html#long
 if sys.version_info < (3,):
     integer_types = (int, long,)
@@ -8294,6 +8304,7 @@ dy -- A scalar representing the grid spacing in Y.
 
 opt -- [optional] An integer option, not in use yet. Set to 0.
   """
+  wrf_deprecated()
 
   u2    = _promote_scalar(u)
   v2    = _promote_scalar(v)
@@ -8344,6 +8355,7 @@ iliqskin -- [optional, default=0] A scalar option for scattering. If set to 1,
 frozen particles that are at a temperature above freezing will be
 assumed to scatter as a liquid particle.
   """
+  wrf_deprecated()
 
 #
 # Promote p and theta to numpy arrays that have at least a dimension of 1.
@@ -8421,6 +8433,7 @@ lon,lat - lat,lon values to convert
 
 map_proj -- map projection
   """
+  wrf_deprecated()
 
   iloc2      = _promote_scalar(iloc)
   jloc2      = _promote_scalar(jloc)
@@ -8486,6 +8499,7 @@ dy -- A scalar representing the grid spacing in Y.
 
 opt -- [optional] An integer option, not in use yet. Set to 0.
   """
+  wrf_deprecated()
 
   u2    = _promote_scalar(u)
   v2    = _promote_scalar(v)
@@ -8517,6 +8531,8 @@ dimension structure as qv. Units must be [Pa].
 t -- Temperature in [K] with the same dimension structure as qv. This
 variable can be calculated by Ngl.wrf_tk.
   """
+  wrf_deprecated()
+
 #
 # Promote p and theta to numpy arrays that have at least a dimension of 1.
 #
@@ -8545,6 +8561,8 @@ array of the same dimensionality as Z.
 q -- Water vapor mixing ratio in [kg/kg]. An array of the same
 dimensionality as Z.
   """
+  wrf_deprecated()
+
 #
 # Promote input arrays to numpy arrays that have at least a dimension of 1.
 #
@@ -8569,6 +8587,7 @@ dimensions are bottom_top x south_north x west_east. Units must be
 
 qv -- Water vapor mixing ratio in [kg/kg]. An array with the same dimensionality as P.
   """
+  wrf_deprecated()
 
 #
 # Promote p and theta to numpy arrays that have at least a dimension of 1.
@@ -8594,6 +8613,7 @@ theta -- Potential temperature (i.e, perturbation + reference
 temperature) with the same dimension structure as P. Units must be
 [K].
   """
+  wrf_deprecated()
 
 #
 # Promote p and theta to numpy arrays that have at least a dimension of 1.
@@ -8618,6 +8638,8 @@ to a WRF output file that's already been opened by Nio.open_file.
 res -- A resource list (created by Ngl.Resources()) to attach additional 
 resources to.
   """
+  wrf_deprecated()
+
 #
 # Set resources depending on what kind of map projection is on the file.
 #
