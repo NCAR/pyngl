@@ -1,5 +1,37 @@
+#
+#  File:
+#    NUG_curvilinear_contour_PyNGL.py
+#
+#  Synopsis:
+#    Illustrates how to create cell-filled contours of curvilinear data
+#
+#  Categories:
+#    contour plots
+#
+#  Author:
+#    Karin Meier-Fleischer
+#  
+#  Date of initial publication:
+#    June 2015
+#
+#  Description:
+#    This example shows how to create cell-filled contours over
+#    a map using curvilinear data.
+#
+#  Effects illustrated:
+#    o  Using cell fill mode
+#    o  Drawing filled contours over a map
+#    o  Plotting edges of the curvilinear grid
+# 
+#  Output:
+#    One visualization is produced.
+
+#
+#  Notes: The data for this example can be downloaded from 
+#    http://www.ncl.ucar.edu/Document/Manuals/NCL_User_Guide/Data/
+#     
 """
-  NCL User Guide Python Example:   PyNGL_curvilinear_contour.py
+  NCL User Guide Python Example:   NUG_curvilinear_contour_PyNGL.py
 
    - curvilinear data
    - colormap

@@ -1,5 +1,36 @@
+#
+#  File:
+#    NUG_unstructured_contour_cellfill_PyNGL.py
+#
+#  Synopsis:
+#    Illustrates how to create cell-filled contours of unstructured data
+#
+#  Categories:
+#    contour plots
+#
+#  Author:
+#    Karin Meier-Fleischer
+#  
+#  Date of initial publication:
+#    August 2015
+#
+#  Description:
+#    This example shows how to create cell-filled contours of the
+#    unstructured ICON grid.
+#
+#  Effects illustrated:
+#    o  Using cell fill mode
+#    o  Using a cylindrical equidistant map projection
+#    o  How to specify explicit contour levels.
+# 
+#  Output:
+#    A single visualization is produced.
+#
+#  Notes: The data for this example can be downloaded from 
+#    http://www.ncl.ucar.edu/Document/Manuals/NCL_User_Guide/Data/
+#     
 """
-  NCL User Guide Python Example:   PyNGL_unstructured_contour_cellfill.py
+  NCL User Guide Python Example:   NUG_unstructured_contour_cellfill_PyNGL.py
 
     - unstructured data (ICON)
     - contour plot
@@ -16,7 +47,7 @@ import Ngl,Nio
 #-- MAIN
 #----------------------
 t1 = time.time()                                   #-- retrieve start time
-print ""
+print("")
 
 #--  define variables
 diri  = "./"                                       #-- data path
@@ -37,15 +68,15 @@ g = Nio.open_file(diri + gname,"r")                #-- add grid file (not contai
 #-- read a timestep of "ta" 
 var =  f.variables["ta"][0,0,:]                    #-- first time step, lev, ncells
 
-print "-----------------------"
-print f.variables["ta"]                            #-- like printVarSummary
-print "-----------------------"
+print("-----------------------")
+print(f.variables["ta"])                           #-- like printVarSummary
+print("-----------------------")
 
 title    = "ICON:  Surface temperature"            #-- title string
 varMin   =  230                                    #-- data minimum
 varMax   =  310                                    #-- data maximum
 varInt   =    2                                    #-- data increment
-levels   =  range(varMin,varMax,varInt)            #-- set levels array
+levels   =  list(range(varMin,varMax,varInt))      #-- set levels array
 
 #-------------------------------------------------------------------
 #-- define the x-, y-values and the polygon points
@@ -74,11 +105,11 @@ for j in range(1,ncells):
            vlon[j,i] = vlon[j,i] - 360.
 
 #-- information
-print ""
-print "Cell points:           ", nv
-print "Cells:                 ", str(ncells)
-print "Variable ta   min/max:  %.2f " % np.min(var) + "/" + " %.2f" % np.max(var)
-print ""
+print("")
+print("Cell points:           %d" %nv)
+print("Cells:                 %s" % ncells)
+print("Variable ta   min/max:  %.2f " % np.min(var) + "/" + " %.2f" % np.max(var))
+print("")
 
 #-- open a workstation
 wks_type = "png"
@@ -122,7 +153,7 @@ Ngl.frame(wks)
 
 #-- get wallclock time
 t2 = time.time()
-print "Wallclock time:  %0.3f seconds" % (t2-t1)
-print ""
+print("Wallclock time:  %0.3f seconds" % (t2-t1))
+print("")
 
 Ngl.end()

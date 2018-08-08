@@ -1,5 +1,37 @@
+#
+#  File:
+#    NUG_rectilinear_slice_PyNGL.py
+#
+#  Synopsis:
+#    Illustrates slicing the data and creating a contour plot
+#
+#  Categories:
+#    contour plots
+#    slices
+#
+#  Author:
+#    Karin Meier-Fleischer
+#  
+#  Date of initial publication:
+#    June 2015
+#
+#  Description:
+#    This example shows how to slice the data at a particular
+#    latitude and create contours of pressure versus longitude
+#
+#  Effects illustrated:
+#    o  Drawing filled contours
+#    o  Reversing the Y axis
+#    o  Using transformation resources to log the Y axis
+# 
+#  Output:
+#    One visualization is produced.
+#
+#  Notes: The data for this example can be downloaded from 
+#    http://www.ncl.ucar.edu/Document/Manuals/NCL_User_Guide/Data/
+#     
 """
-  NCL User Guide Python Example:   PyNGL_rectilinear_slice.py
+  NCL User Guide Python Example:   NUG_rectilinear_slice_PyNGL.py
 
    - slice filled contour plot
    - colorbar
@@ -21,6 +53,13 @@ def nice_lon_labels(lons):
     else:
       lonstrs.append("EQ" % l)
   return lonstrs
+
+
+def nice_lev_labels(lons):
+  levstrs = []
+  for l in levs:
+      levstrs.append("%i" % np.fabs(l))
+  return levstrs
 
 
 #--  define variables
@@ -83,13 +122,13 @@ res.nglYAxisType          = "LogAxis"     #-- y axis log
 
 res.tiYAxisString         = "%s (hPa)" % f.variables["lev"].long_name
 
-res.nglPointTickmarksOutward = True       #-- point tickmarks out
+#res.nglPointTickmarksOutward = True       #-- point tickmarks out
 
 res.tmYLMode              = "Explicit"    #-- set y axis tickmark labels
 res.tmXBMode              = "Explicit"    #-- set x axis tickmark labels
 res.tmYLValues            = levs
 res.tmXBValues            = lons
-res.tmYLLabels            = map(str,levs)
+res.tmYLLabels            = nice_lev_labels(levs)
 res.tmXBLabels            = nice_lon_labels(lons)
 
 res.tmXBLabelFontHeightF  = 0.015        # - make font smaller

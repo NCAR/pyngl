@@ -1,5 +1,35 @@
+#
+#  File:
+#    NUG_xy_plot_simple_PyNGL.py
+#
+#  Synopsis:
+#    Illustrates how to customize curves and a legend in an XY plot
+#
+#  Categories:
+#    xy plots
+#
+#  Author:
+#    Karin Meier-Fleischer
+#  
+#  Date of initial publication:
+#    October 2015
+#
+#  Description:
+#    This example shows how to create an XY plot with different
+#    styles of lines and a legend to match.
+#
+#  Effects illustrated:
+#    o  Drawing a multi-curve XY plot using markers and lines
+#    o  Customizing a legend
+# 
+#  Output:
+#    A single visualization is produced.
+#
+#  Notes: The data for this example can be downloaded from 
+#    http://www.ncl.ucar.edu/Document/Manuals/NCL_User_Guide/Data/
+#     
 """
-  NCL User Guide Python Example:   PyNGL_xy_plot_simple.py
+  NCL User Guide Python Example:   NUG_xy_plot_simple_PyNGL.py
 
      - marker
      - different line colors

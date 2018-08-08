@@ -40,6 +40,7 @@ wks = Ngl.open_wks (wks_type,"newcolor2")     # Open "newcolor2.png" for graphic
 res          = Ngl.Resources()
 res.nglDraw  = False
 res.nglFrame = False
+res.xyLineThicknessF = 4.0
 
 plot  = Ngl.xy (wks,lat,u,res)              # Create plot
 
@@ -47,6 +48,7 @@ txres                = Ngl.Resources()         # text mods desired
 txres.txFont         = 30
 txres.txFontHeightF  = 0.04                    # font smaller. default big
 txres.txFontOpacityF = 0.10                    # highly transparent
+#txres.txFontOpacityF = 0.5                    # half transparent
 txres.txAngleF       = 45.
 
 txid = Ngl.add_text(wks,plot,"Preliminary Data",10,15,txres) 

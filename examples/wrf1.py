@@ -33,6 +33,7 @@
 #     of the one referenced by this example.
 #======================================================================
 import numpy, Nio, Ngl, os, sys
+from wrf import getvar, get_pyngl
 
 filename = "wrfout_d01_2005-12-14_13:00:00"
 if(not os.path.exists(filename)):
@@ -43,16 +44,14 @@ if(not os.path.exists(filename)):
 
 #---Read data
 a   = Nio.open_file(filename+".nc")  # Must add ".nc" suffix for Nio.open_file
-hgt = a.variables["HGT"][0,:,:]     # Read first time step ( nlat x nlon)
-lat = a.variables["XLAT"][0,:,:]    # 2D array (nlat x nlon)
-lon = a.variables["XLONG"][0,:,:]   # ditto
+var = getvar(a,"ter")
 
 #---Open file for graphics
 wks_type = "png"
 wks = Ngl.open_wks(wks_type,"wrf1")
 
 #---Set some plot options
-res                   = Ngl.Resources()
+res = get_pyngl(var)
 
 # Contour options
 res.cnFillOn          = True          # turn on contour fill
@@ -65,27 +64,19 @@ res.cnLevels  = [2,50,75,100,200,300,400,500,600,700,800,900,1000,1200,1400,1600
 # Map options
 res.mpDataBaseVersion     = "MediumRes"                # better map outlines
 res.mpOutlineBoundarySets = "GeophysicalAndUSStates"   # more outlines
-
-res.mpLimitMode           = "LatLon"
-res.mpMinLatF             = numpy.min(lat)-1
-res.mpMaxLatF             = numpy.max(lat)+1
-res.mpMinLonF             = numpy.min(lon)-1
-res.mpMaxLonF             = numpy.max(lon)+1
 res.mpGridAndLimbOn       = False
 
 # Labelbar options
 res.lbOrientation      = "horizontal"
 res.lbLabelFontHeightF = 0.01
 
+# Allows us to overlay data in native WRF map projection
+res.tfDoNDCOverlay     = True
+
 # Main Title
-dims = hgt.shape
-res.tiMainString      = "WRF curvilinear lat/lon grid (" + str(dims[0]) + " x " + str(dims[1]) + ")"
+res.tiMainString      = "WRF curvilinear lat/lon grid (" + str(var.shape[0]) + " x " + str(var.shape[1]) + ")"
 
-# Additional resources needed for putting contours on map
-res.sfXArray          = lon
-res.sfYArray          = lat
-
-plot = Ngl.contour_map(wks,hgt,res)
+plot = Ngl.contour_map(wks,var,res)
 
 Ngl.end()
 

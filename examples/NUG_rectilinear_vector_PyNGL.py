@@ -1,5 +1,39 @@
+#
+#  File:
+#    NUG_rectilinear_vector_PyNGL.py
+#
+#  Synopsis:
+#    Illustrates creating vectors over contours over a map
+#
+#  Categories:
+#    vector plots
+#    contour plots
+#
+#  Author:
+#    Karin Meier-Fleischer
+#  
+#  Date of initial publication:
+#    June 2016
+#
+#  Description:
+#    This example shows how to create vectors over contours over
+#    a map using rectilinear data.
+#
+#  Effects illustrated:
+#    o  Coloring vectors based on magnitude
+#    o  Coloring vectors based on temperature
+#    o  Drawing straight vectors
+#    o  Drawing curly vectors
+#    o  Zooming in on a map
+# 
+#  Output:
+#    Two visualizations are produced: one over a global map and one over the United States
+#
+#  Notes: The data for this example can be downloaded from 
+#    http://www.ncl.ucar.edu/Document/Manuals/NCL_User_Guide/Data/
+#     
 """
-  NCL User Guide Python Example:   PyNGL_rectilinear_vector.py
+  NCL User Guide Python Example:   NUG_rectilinear_vector_PyNGL.py
 
    - vectors on global map, colored
    - vectors colored by temperature

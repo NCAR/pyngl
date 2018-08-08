@@ -21,11 +21,10 @@
 #
 #  Effects illustrated:
 #    o  Reading data from a NetCDF file.
-#    o  Changing the colors associated with a contour plot.
+#    o  Changing the color map associated with the workstation.
 #    o  Contours with colored lines.
 #    o  Contours with hatch pattern fill.
 #    o  Turning off the label bar on a coutour plot.
-#    o  Color filled coutours.
 #    o  Using a long_name in a NetCDF file for a title.
 #    o  Writing data to an ASCII file.
 #    o  Contouring using grayscale contour levels.
@@ -109,9 +108,8 @@ plot = Ngl.contour(wks,tempa,resources)  # Draw a contour plot.
 
 #----------- Begin third plot -----------------------------------------
 
-resources.cnFillOn          = True    # Turn on contour line fill.
-resources.cnFillPalette     = "default"   #  Set colors for contours
-resources.cnMonoFillPattern = False   # Turn off using a single fill pattern.
+resources.cnFillOn          = True       # Turn on contour fill.
+resources.cnMonoFillPattern = False      # Turn off using a single fill pattern.
 resources.cnMonoFillColor   = True
 resources.cnMonoLineColor   = True
 
@@ -131,8 +129,7 @@ resources.cnFillPalette         = "BlGrYeOrReVi200"   #  Set colors for contours
 resources.cnMonoFillPattern     = True     # Turn solid fill back on.
 resources.cnMonoFillColor       = False    # Use multiple colors.
 resources.cnLineLabelsOn        = False    # Turn off line labels.
-resources.cnInfoLabelOn         = False    # Turn off informational
-                                             # label.
+resources.cnInfoLabelOn         = False    # Turn off informational label.
 resources.pmLabelBarDisplayMode = "Always" # Turn on label bar.
 resources.cnLinesOn             = False    # Turn off contour lines.
 
