@@ -31,6 +31,7 @@
 #     You must download the "FRA_adm" shapefiles from:
 #      http://gadm.org/country/
 #  
+from __future__ import print_function
 import numpy,os,sys
 
 #
@@ -44,7 +45,7 @@ wks = Ngl.open_wks (wks_type,"shapefile4")
 dir      = "FRA_adm/"
 filename = "FRA_adm1.shp"
 if(not os.path.exists(os.path.join(dir,filename))):
-  print("You do not have the necessary shapefile file(s) (%s) to run this example." % filename)
+  print("You do not have the necessary shapefile file(s) ({}) to run this example.".format(filename))
   print("The comments at the top of this script tell you how to get the files.")
   sys.exit()
 

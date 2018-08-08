@@ -30,6 +30,7 @@
 #
 #  Import Ngl support functions.
 #
+from __future__ import print_function
 import Ngl
 
 #

@@ -35,6 +35,7 @@
 #  Notes:
 #     
 
+from __future__ import print_function
 import Ngl
 import numpy, os
 
@@ -61,7 +62,7 @@ def neg_dash_contours(contour):
 #
 # Make contour lines above 0 dashed.
 #
-  for i in xrange(len(levels)):
+  for i in range(len(levels)):
     if (levels[i] > 0.):
       patterns[i] = 2
 

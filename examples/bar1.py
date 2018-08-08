@@ -32,6 +32,7 @@
 #
 #  Notes:
 #     
+from __future__ import print_function
 import numpy
 import Ngl
 
@@ -239,7 +240,9 @@ world_series = {
                 2012 : ["SFG", "DT"], \
                 2013 : ["BRS", "SLC"], \
                 2014 : ["SFG", "KCR"], \
-                2015 : ["KCR", "NYM"]  \
+                2015 : ["KCR", "NYM"], \
+                2016 : ["CC", "CI"],  \
+                2017 : ["HA", "LAD"]  \
            }
 
 #
@@ -248,7 +251,7 @@ world_series = {
 #
 nteams = len(teams)               # Number of teams
 max_year = max(world_series.keys())
-values = numpy.array(world_series.values())
+values = numpy.array(list(world_series.values()))
 won    = values[:,0].tolist()     # Index 0 = winning teams
 lost   = values[:,1].tolist()     # Index 1 = losing teams
 ngames = len(won)                 # Number of games
@@ -277,7 +280,7 @@ losing_teams_nm  = []
 nw = 2                     # color index counter for winning team
 nl = 2                     # color index counter for losing team
 
-sorted_teams = teams.keys()
+sorted_teams = list(teams.keys())
 sorted_teams.sort()           # Sort the team names
 for team in sorted_teams:
   steam = teams[team]["abbrev"]
@@ -295,9 +298,9 @@ for team in sorted_teams:
   
 # Store the winning and losing counts in numpy arrays.
 y_win  = numpy.array(winning_teams_ct)
-x_win  = numpy.array(range(1,y_win.shape[0]+1))
+x_win  = numpy.array(list(range(1,y_win.shape[0]+1)))
 y_lose = numpy.array(losing_teams_ct)
-x_lose = numpy.array(range(1,y_lose.shape[0]+1))
+x_lose = numpy.array(list(range(1,y_lose.shape[0]+1)))
 
 #
 # Start the graphics portion of the script.
@@ -331,7 +334,7 @@ res.trXMinF               = 0              # Minimum value on X axis.
 res.trYMaxF               = max(y_win)+1   # Maximum value on Y axis.
 res.trXMaxF               = max(x_win)+1   # Maximum value on X axis.
   
-res.tiXAxisString          = "# of World Series Wins through " + str(max_year)
+res.tiXAxisString          = "# of World Series Wins through {}".format(max_year)
 res.tiXAxisFontHeightF     = 0.03
 
 res.nglFrame              = False          # Don't advance frame.
@@ -351,7 +354,7 @@ gsres = Ngl.Resources()                  # Resource list for bars.
 # Loop through each value, and create and draw a bar for it.
 #
 imax = numpy.where(y_win == max(y_win))[0]
-for i in xrange(len(y_win)):
+for i in range(len(y_win)):
   xbar,ybar = get_bar(x_win[i],y_win[i],dx,ymin)
   plot = Ngl.xy(wks,xbar,ybar,res)
 
@@ -371,7 +374,7 @@ for i in xrange(len(y_win)):
   else:
     txres.txJust   = "CenterLeft"
     txres.txAngleF = 90. 
-    Ngl.text(wks,plot," " + winning_teams_nm[i],x_win[i],y_win[i],txres)
+    Ngl.text(wks,plot," {}".format(winning_teams_nm[i]),x_win[i],y_win[i],txres)
 
 Ngl.frame(wks)
 
@@ -385,14 +388,14 @@ bar_width = bar_width_perc * dx               # Bar width.
 
 res.trYMaxF               = max(y_lose)+1   # Maximum value on Y axis.
 res.trXMaxF               = max(x_lose)+1   # Maximum value on X axis.
-res.tiXAxisString         = "# of World Series Losses through " + str(max_year)
+res.tiXAxisString         = "# of World Series Losses through {}".format(max_year)
 
 #
 # Loop through each value, and create and draw a bar for it.
 #
 imax = numpy.where(y_lose == max(y_lose))[0]
 
-for i in xrange(len(y_lose)):
+for i in range(len(y_lose)):
   xbar,ybar = get_bar(x_lose[i],y_lose[i],dx,ymin)
   plot = Ngl.xy(wks,xbar,ybar,res)
 
@@ -411,7 +414,7 @@ for i in xrange(len(y_lose)):
   else:
     txres.txJust   = "CenterLeft"
     txres.txAngleF = 90. 
-    Ngl.text(wks,plot," " + losing_teams_nm[i],x_lose[i],y_lose[i],txres)
+    Ngl.text(wks,plot," {}".format(losing_teams_nm[i]),x_lose[i],y_lose[i],txres)
 
 Ngl.frame(wks)
 

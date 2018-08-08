@@ -36,6 +36,7 @@
 #     You must download the desired "XXX_adm" shapefiles from:
 #      http://gadm.org/country/
 #======================================================================
+from __future__ import print_function
 import numpy, Nio, Ngl, os, sys
 
 #======================================================================
@@ -61,13 +62,13 @@ def add_shapefile_outlines(wks,plot,filename):
 wrf_filename = "wrfout_d01_2005-12-14_13:00:00"
 shp_filename = "USA_adm/USA_adm1.shp"
 if(not os.path.exists(wrf_filename)):
-  print("You do not have the necessary '%s' file to run this example." % wrf_filename)
+  print("You do not have the necessary '{}' file to run this example.".format(wrf_filename))
   print("You need to supply your own WRF output file")
-  print("WRF output files usually have names like '%s'" % filename)
+  print("WRF output files usually have names like '{}'".format(filename))
   sys.exit()
 
 if(not os.path.exists(shp_filename)):
-  print("You do not have the '%s' shapefile." % shp_filename)
+  print("You do not have the '{}' shapefile.".format(shp_filename))
   print("See the comments at the top of this script for more information.")
   print("No shapefile outlines will be added.")
   ADD_SHAPE_OUTLINES = False
@@ -75,7 +76,7 @@ else:
   ADD_SHAPE_OUTLINES = True
 
 #---Read data
-a   = Nio.open_file(wrf_filename + ".nc")
+a   = Nio.open_file("{}.nc".format(wrf_filename))
 hgt = a.variables["HGT"][0,:,:]    # Read first time step ( nlat x nlon)
 
 #---Send graphics to PNG file
@@ -97,7 +98,7 @@ res.cnLevelSelectionMode = "ExplicitLevels"
 res.cnLevels  = [0.5,10,50,75,100,150,200,250,300,400,500,600,700,800,900,1000,1100]
 
 # Set some map options based on information in WRF output file
-res = Ngl.wrf_map_resources(wrf_filename+".nc",res)
+res = Ngl.wrf_map_resources("{}.nc".format(wrf_filename), res)
 
 # Labelbar options
 res.lbOrientation      = "horizontal"

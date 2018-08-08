@@ -28,6 +28,7 @@
 #    o One plot is produced with sixteen sample color boxes.
 #
 
+from __future__ import print_function
 import Ngl
 import numpy
 
@@ -84,7 +85,7 @@ text_res.txFont = "Helvetica-Bold"
 #
 #  Draw the color boxes and titles.
 #
-for i in xrange(0,len(colors)):
+for i in range(0,len(colors)):
 #
 #  delx_0 - horizontal spacing between boxes.
 #  delx_1 - width of a box.
@@ -93,7 +94,7 @@ for i in xrange(0,len(colors)):
 #
   delx_0, delx_1, dely_0, dely_1 = 0.245, 0.235, 0.22, 0.15
 
-  x[0], y[0] = 0.015 + delx_0*(i%4), 0.90 - (i/4)*dely_0 
+  x[0], y[0] = 0.015 + delx_0*(i%4), 0.90 - (i//4)*dely_0
   x[1], y[1] = x[0] + delx_1       , y[0]
   x[2], y[2] = x[1]                , y[1] - dely_1
   x[3], y[3] = x[0]                , y[2]
@@ -118,7 +119,7 @@ for i in xrange(0,len(colors)):
 #
   text_res.txFontHeightF = 0.017
   Ngl.text_ndc(wks, labels[i], 0.5*(x[0]+x[1]), y[0] + 0.0125, text_res)
-  rgb_label = "R=%4.2f G=%4.2f B=%4.2f" % (r, g, b)
+  rgb_label = "R={:4.2f} G={:4.2f} B={:4.2f}".format(r, g, b)
   text_res.txFontHeightF = 0.015
   Ngl.text_ndc(wks, rgb_label, 0.5*(x[0]+x[1]), y[3] - 0.0125, text_res)
 

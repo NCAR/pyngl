@@ -29,6 +29,7 @@
 #
 #  Notes:
 #     
+from __future__ import print_function
 import Ngl
 
 #
@@ -56,6 +57,6 @@ Ngl.frame(wks)                # Draw plot.
 #  Retrieve the value of the wbs parameter.
 #
 size = Ngl.wmgetp("wbs")
-print("Current scale factor for wind barb size = %10.7f" % (size))
+print("Current scale factor for wind barb size = {:10.7f}".format((size)))
 
 Ngl.end()

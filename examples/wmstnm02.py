@@ -34,6 +34,7 @@
 #  Notes:
 #     
 
+from __future__ import print_function
 import numpy
 import Ngl
 
@@ -150,7 +151,7 @@ labels_k = ["Calm","1-2","3-7","8-12","13-17","18-22",  \
 labels_m = ["Calm","1-2","3-8","9-14","15-20","21-25",  \
              "26-31","32-37","38-43"]
 y_start = hline_y + 0.04*height
-for i in xrange (1,10):
+for i in range (1,10):
   xp = xl+0.25*(midx-xl)
   yp = y_start - 0.042*i
   Ngl.wmbarb(wks, xp, yp, speeds_u[i-1], 0.)  # Plot barbs.
@@ -165,7 +166,7 @@ labels_k = ["38-42","43-47","48-52","53-57","58-62",  \
 labels_m = ["44-49","50-54","55-60","61-66","67-71",  \
              "72-77","78-83","84-89","119-123"]
 y_start = hline_y+0.04*height
-for i in xrange(1,10):
+for i in range(1,10):
   xp = midx+0.25*(xr-midx)
   yp = y_start - 0.042*i
   Ngl.wmbarb(wks, xp, yp, speeds_u[i-1], 0.)  # Plot barbs.

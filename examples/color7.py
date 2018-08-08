@@ -33,6 +33,7 @@
 #    8 MB for NCGM).
 #     
 
+from __future__ import print_function
 import Ngl
 import os, sys
 
@@ -67,10 +68,10 @@ rlist = Ngl.Resources()
 
 color_maps = ["WhiteBlueGreenYellowRed","BkBlAqGrYeOrReViWh200","amwg"]
 
-print("Will draw %d color maps" % len(color_maps))
+print("Will draw {} color maps".format(len(color_maps)))
 
 for cmap in color_maps:
-  print("Drawing color map '%s'..." % cmap)
+  print("Drawing color map '{}'...".format(cmap))
   Ngl.draw_color_palette(wks,cmap)
 
 Ngl.end()

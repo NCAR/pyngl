@@ -26,6 +26,7 @@
 #  Output:
 #     A single visualization with nine plots
 #
+from __future__ import print_function
 import numpy,os
 import Ngl,Nio
 
@@ -77,7 +78,7 @@ res.sfYArray               = lat
 nplots = 9
 plots  = []
 for n in range(nplots):
-  print("plot #%d" % n)
+  print("plot #{}".format(n))
   dmin = dmins[n//3]
   dmax = dmaxs[n//3]
   dspa = dspas[n//3]

@@ -41,6 +41,7 @@
 #    Fleet numpy.l Meteorology and Oceanography Center
 #     
 
+from __future__ import print_function
 import copy
 #
 #  Import Nio.
@@ -82,8 +83,8 @@ def smth9(x,p,q):
   qo4 = q/4.
 
   output = numpy.zeros([ni,nj],'f')
-  for j in xrange(1,nj-1):
-    for i in xrange(1,ni-1):
+  for j in range(1,nj-1):
+    for i in range(1,ni-1):
       jm1 = j-1
       jp1 = j+1
       im1 = i-1

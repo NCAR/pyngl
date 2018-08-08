@@ -28,6 +28,7 @@
 # 
 
 #
+from __future__ import print_function
 import Ngl
 import numpy
 
@@ -38,9 +39,9 @@ T = numpy.zeros([N,M])
 #
 # create a mound as a test data set
 #
-jspn = numpy.power(xrange(-M/2+5,M/2+5),2)
-ispn = numpy.power(xrange(-N/2-3,N/2-3),2)
-for i in xrange(len(ispn)):
+jspn = numpy.power(range(-M//2+5,M//2+5),2)
+ispn = numpy.power(range(-N//2-3,N//2-3),2)
+for i in range(len(ispn)):
   T[i,:] = ispn[i] + jspn
 T = 100. - 8.*numpy.sqrt(T)
 

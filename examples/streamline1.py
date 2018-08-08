@@ -38,6 +38,7 @@
 #
 #  Import Nio for reading netCDF files.
 #
+from __future__ import print_function
 import Nio
 
 #

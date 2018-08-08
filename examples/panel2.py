@@ -47,6 +47,7 @@
 #
 #        http://www.pyngl.ucar.edu/Graphics/rangs.shtml
 
+from __future__ import print_function
 import numpy
 import os
 import Ngl
@@ -134,7 +135,7 @@ else:
 plot = []
 for i in range(nmap):
   res.mpDataBaseVersion = map_res[i]
-  res.tiMainString      = "Resolution = '" + map_res[i] + "'"
+  res.tiMainString      = "Resolution = '{}'".format(map_res[i])
   plot.append(Ngl.contour_map (wks,fsd,res))  # Create plot, but don't draw
 
 #

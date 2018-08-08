@@ -33,6 +33,7 @@
 #
 #          http://www.ncl.ucar.edu/Applications/Data/#shp
 #
+from __future__ import print_function
 import numpy,os,sys
 from numpy import ma
 

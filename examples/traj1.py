@@ -43,6 +43,7 @@
 #
 #  Import numpy.
 #
+from __future__ import print_function
 import numpy, os
 
 #
@@ -125,7 +126,7 @@ def add_trajectories(wks,map,filename,cmap):
 #
   sdata = ncfile.variables["sdata"]
   sid = []
-  for i in xrange(len(traj)):
+  for i in range(len(traj)):
     lat = sdata[2,:,traj[i]]                  # extract lat from whole array
     lon = sdata[1,:,traj[i]]                  # extract lon from whole array
     sst = sdata[8,:,traj[i]]
@@ -135,7 +136,7 @@ def add_trajectories(wks,map,filename,cmap):
 #  indices between 0 and 9 and draw polylines, with those 
 #  colors, between adjacent lat/lon values.
 #
-    for j in xrange(len(lat)-2):
+    for j in range(len(lat)-2):
       sval = 0.5*(sst[j]+sst[j+1])
       cindex = nint(30.*(sval-34.55))
       pres.gsLineColor = cmap[cindex]
@@ -169,7 +170,7 @@ def add_labelbar(wks,map,cmap):
   gid = []
   lid = []
   tid = []
-  for i in xrange(4,14,1):
+  for i in range(4,14,1):
     lon0 = start_lon+(i-4)*delta_lon
     lon1 = lon0+delta_lon
     lat0 = start_lat

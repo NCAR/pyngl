@@ -38,6 +38,7 @@
 #    8 MB for NCGM).
 #     
 
+from __future__ import print_function
 import Ngl
 import os, sys
 
@@ -61,7 +62,7 @@ color_files = ["thelix","GreenYellow","gsltod"]
 #color_dir   = os.path.join(pkgs_pth,"PyNGL","ncarg","colormaps")
 #color_files = os.listdir(color_dir)
 
-for i in xrange(len(color_files)):
+for i in range(len(color_files)):
   rlist.wkColorMap = color_files[i]
 #
 #  If you want to draw all color maps uncomment the following

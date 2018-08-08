@@ -29,6 +29,7 @@
 #
 
 # Import necessary modules
+from __future__ import print_function
 import numpy, os, Nio, Ngl
 
 # Open data file
@@ -90,8 +91,8 @@ map = Ngl.contour_map(wks,psl,res)
 #----------------------------------------------------------------------
 
 #---Create arrays for where we want tickmarks on lat/lon axes.
-lat_values = range(-90,100,30)
-lon_values = range(-180,210,30)
+lat_values = list(range(-90,100,30))
+lon_values = list(range(-180,210,30))
 
 #
 # Create arrays of labels for the lat tickmark locations.
@@ -100,11 +101,11 @@ lon_values = range(-180,210,30)
 lat_labels = []
 for l in lat_values:
   if l < 0:
-    lat_labels.append("%gS" % abs(l))
+    lat_labels.append("{:g}S".format(abs(l)))
   elif l > 0:
-    lat_labels.append("%gN" % l)
+    lat_labels.append("{:g}N".format(l))
   else:
-    lat_labels.append("%g" % l)
+    lat_labels.append("{:g}".format(l))
 
 #
 # Create arrays of labels for the lon tickmark locations.
@@ -113,11 +114,11 @@ for l in lat_values:
 lon_labels  = []
 for l in lon_values:
   if l < 0:
-    lon_labels.append("%gW" % abs(l))
+    lon_labels.append("{:g}W".format(abs(l)))
   elif l > 0:
-    lon_labels.append("%gE" % l)
+    lon_labels.append("{:g}E".format(l))
   else:
-    lon_labels.append("%g" % l)
+    lon_labels.append("{:g}".format(l))
 
 #----------------------------------------------------------------------
 # This section creates a blank plot, for the purpose of customizing

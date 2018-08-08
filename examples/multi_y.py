@@ -49,7 +49,9 @@
 #
 #  Import Ngl support functions.
 #
+from __future__ import print_function
 import Ngl
+import os
 
 #
 #  xy.asc has 4 vars of length 129 longitudes, u, v, and t.
@@ -59,7 +61,11 @@ import Ngl
 #  u and v are in m/s, and t is in deg K.
 #
 dirc     = Ngl.pynglpath("data")
-data     = Ngl.asciiread(dirc+"/asc/xy.asc",[516],"float")
+data     = Ngl.asciiread(os.path.join(dirc,
+                                      "asc",
+                                      "xy.asc"),
+                         [516],
+                         "float")
 
 lon  = data[0:512:4]    # First column of data is longitude.
 u    = data[1:513:4]    # Second column is u

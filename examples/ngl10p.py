@@ -31,6 +31,7 @@
 #
 #  Import numpy.
 #
+from __future__ import print_function
 import numpy
 
 #
@@ -116,8 +117,8 @@ txresources.txFontHeightF = 0.015
 txresources.txJust        = "CenterLeft" # Default is "CenterCenter".
 txresources.txFuncCode    = "~"          # Default is "~"
 
-strings = ["Wigley (Moller/IPCC)",\
-       "~F22~CSM-proposed:~F~~C~(Orn et.al./GEIA + Smith)",\
+strings = ["Wigley (Moller/IPCC)",
+       "~F22~CSM-proposed:~F~~C~(Orn et.al./GEIA + Smith)",
        "~F22~CSM SO~B~4~N~ Scaling Factor: ~V1Q~~F22~S~B~emis~N~ (yr)~H-7Q~~V-1Q~---------------~H-9Q~~V-1Q~S~B~emis~N~ (1985)"]
 
 xpos = [1885.,1940.,1860.]   # Define X/Y locations for text.
@@ -126,7 +127,7 @@ ypos = [30.,18.,70.]
 #
 #  Loop through text strings and plot them.
 #
-for i in xrange(0,len(strings)):
+for i in range(0,len(strings)):
   Ngl.text(wks,xy,strings[i],xpos[i],ypos[i],txresources)
 
 Ngl.frame(wks)

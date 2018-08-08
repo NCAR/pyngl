@@ -33,6 +33,7 @@
 #  Notes:
 #     
 
+from __future__ import print_function
 import numpy
 import Ngl
 # 
@@ -55,7 +56,7 @@ def get_bar(x,y,dx,ymin,bar_width_perc=0.6):
 #
 # Note: we have not verified the accuracy of this data!
 #
-x = numpy.array(range(1,9))
+x = numpy.array(list(range(1,9)))
 y = numpy.array([154900,56600,40000,30200,29700,24400,21700,13900])
 colors = ["white","black","FireBrick","Red","Orange","Green",
           "Navy", "Blue", "SkyBlue","SlateBlue"]
@@ -97,7 +98,7 @@ dx   = min(x[1:-1]-x[0:-2])              # Distance between X values.
 
 gsres = Ngl.Resources()                  # Resource list for bars.
 # Loop through each Y point, and create and draw a bar for it.
-for i in xrange(len(y)):
+for i in range(len(y)):
   xbar,ybar = get_bar(x[i],y[i],dx,ymin)
   plot = Ngl.xy(wks,xbar,ybar,res)
 
@@ -119,7 +120,7 @@ txres.txFontHeightF = 0.015              # Decrease size of font
 txres.txJust        = "CenterLeft"       # Left justify
 
 nboxes = len(xpos)
-for i in xrange(nboxes):
+for i in range(nboxes):
   xp   = xpos[i]
   yp   = ypos[i]
   xbox = [xp,xp+width,xp+width,xp,xp]

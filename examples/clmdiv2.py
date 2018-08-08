@@ -35,6 +35,7 @@
 #
 #  Import numpy.
 #
+from __future__ import print_function
 import numpy, os
 
 #
@@ -96,7 +97,7 @@ res.mpMinLatF      = 20.                 # select region to be plotted
 res.mpMaxLatF      = 50.
 res.mpMinLonF      = -130.
 res.mpMaxLonF      = -65.
-res.mpFillColors   = range(23)
+res.mpFillColors   = list(range(23))
 res.mpFillOn       = True
 
 res.mpOceanFillColor       = "transparent"
@@ -181,7 +182,7 @@ for i in range(len(databin)):
   state_ix = int(cldata[i,0]) - 1
   clim_ix  = int(cldata[i,1])
   state    = states[state_ix]
-  areaname = state + " : %02i" % clim_ix
+  areaname = "{} : {:02d}".format(state, clim_ix)
 
   for j in range(659,1118):
     if areaname == anames[j]:         # Find the index into the anames array.
@@ -202,15 +203,15 @@ Ngl.set_values(map,sres)
 # Create a labelbar using the min/max group ids that are actually
 # in use.
 #
-colors = range(ming,maxg+1)
+colors = list(range(ming,maxg+1))
 nboxes = len(colors)
 
 # Get an array of strings for our labelbar boxes.
 labels = str(bins).split()
 
 # Format the end labels
-labels[0]     = "%.2f" % min(bins)
-labels.append("%.2f" % max(bins))
+labels[0]     = "{:.2f}".format(min(bins))
+labels.append("{:.2f}".format(max(bins)))
 
 # Blank out rest of labels
 for j in range(1,nboxes):

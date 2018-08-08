@@ -48,7 +48,9 @@
 #
 #  Import numpy.
 #
+from __future__ import print_function
 import numpy
+import os
 
 #
 #  Import Ngl support functions.
@@ -73,7 +75,10 @@ import Nio
 #   http://kiwi.atmos.colostate.edu/BUGS/geodesic/interpolate.html
 #
 dirc  = Ngl.pynglpath("data")
-cfile = Nio.open_file(dirc + "/cdf/hswm_d000000p000.g2.nc","r")
+cfile = Nio.open_file(os.path.join(dirc,
+                                   "cdf",
+                                   "hswm_d000000p000.g2.nc"),
+                      "r")
 
 #
 #  Read the grid centers and the kinetic energy into local variables.

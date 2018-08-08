@@ -37,7 +37,9 @@
 #
 #  Import numpy.
 #
+from __future__ import print_function
 import numpy
+import os
 
 #
 #  Import NGL support functions.
@@ -51,7 +53,11 @@ wks_type = "png"
 wks = Ngl.open_wks(wks_type,"ngl11p")
 
 dirc     = Ngl.pynglpath("data")
-data     = Ngl.asciiread(dirc+"/asc/u.cocos",(39,14),"float")
+data     = Ngl.asciiread(os.path.join(dirc,
+                                      "asc",
+                                      "u.cocos"),
+                         (39,14),
+                         "float")
 
 pressure  = data[:,0]    # First column of data is pressure (mb).
 height    = data[:,1]    # Second column is height (km).
@@ -76,7 +82,7 @@ resources.tmXBMode      = "Explicit"   # Define your own tick mark labels.
 resources.tmXBLabelFont = "times-roman"  # Change font of labels.
 resources.tmXBLabelFontHeightF = 0.015 # Change font height of labels.
 resources.tmXBMinorOn   = False        # No minor tick marks.
-resources.tmXBValues    = range(0,13,1) # Location to put tick mark labels
+resources.tmXBValues    = list(range(0,13,1)) # Location to put tick mark labels
                                          # (13 points with January repeated).
 resources.tmXBLabels    = ["Jan","Feb","Mar","Apr","May","Jun",\
                            "Jul","Aug","Sep","Oct","Nov","Dec","Jan"]
@@ -88,7 +94,7 @@ resources.tmYROn        = True       # Turn on right axis tick marks.
 resources.tmYRMinorOn   = False      # No minor tick marks.
 
 resources.tmYRMode      = "Explicit"  # Define own tick mark labels.
-hnice = range(0,23,2)                 # Set range of "nice" height values.
+hnice = list(range(0,23,2))                 # Set range of "nice" height values.
 pnice = Ngl.ftcurv(height,pressure,hnice) # Calculate "nice" pressure values.
 resources.tmYRValues    = pnice       # At each "nice" pressure value,
 resources.tmYRLabels    = hnice       # put a "height" value label.
@@ -120,7 +126,7 @@ levels = Ngl.get_float_array(contour,"cnLevels")
 patterns = numpy.zeros((len(levels)+1),'i')
 patterns[:] = -1
 
-for i in xrange(len(levels)):
+for i in range(len(levels)):
   if (levels[i] <= -6.):
     patterns[i] = 5
   else:
@@ -160,11 +166,11 @@ resources.tmXBMode      = "Explicit"   # Define your own tick mark labels.
 resources.tmXBLabelFont = "times-roman"   # Change font of labels.
 resources.tmXBLabelFontHeightF = 0.015 # Change font height of labels.
 resources.tmXBMinorOn   = False        # No minor tick marks.
-resources.tmXBValues    = range(0,13,1)# Values from 0 to 12.
+resources.tmXBValues    = list(range(0,13,1))# Values from 0 to 12.
 resources.tmXBLabels    = ["Jan","Feb","Mar","Apr","May","Jun",\
                            "Jul","Aug","Sep","Oct","Nov","Dec","Jan"]
 resources.tmYLLabelFont = "times-roman"  # Change the font.
 
-xy = Ngl.xy(wks,range(0,13,1),unew,resources) # Create and draw an XY plot.
+xy = Ngl.xy(wks,list(range(0,13,1)),unew,resources) # Create and draw an XY plot.
 
 Ngl.end()

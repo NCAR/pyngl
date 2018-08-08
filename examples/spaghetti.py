@@ -35,6 +35,7 @@
 #  Notes:
 #     
 
+from __future__ import print_function
 import numpy
 import Ngl
 import Nio
@@ -78,11 +79,11 @@ def add_lon_labels(wks):
   lon_labels = []
   for i in range(nlon):
     if lon_values[i] < 0:
-      lon_labels.append("%gW" % abs(lon_values[i]))
+      lon_labels.append("{:g}W".format(abs(lon_values[i])))
     elif lon_values[i] > 0:
-      lon_labels.append("%gE" % lon_values[i])
+      lon_labels.append("{:g}E".format(lon_values[i]))
     else:
-      lon_labels.append("%g" % lon_values[i])
+      lon_labels.append("{:g}".format(lon_values[i]))
 
 # Loop through each label and add it.
   txres = Ngl.Resources()

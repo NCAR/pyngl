@@ -36,6 +36,7 @@
 #
 #  Import numpy.
 #
+from __future__ import print_function
 import numpy
 
 #
@@ -132,15 +133,10 @@ del stres.nglFrame
 # Copy all three resource lists to one big resource list.
 #
 resources = Ngl.Resources()
-for t in dir(cnres):
-  if len(t) > 5 and t[0:6] != 'cnLine':
-    setattr(resources,t,getattr(cnres,t))
 
-for t in dir(mpres):
-  setattr(resources,t,getattr(mpres,t))
-
-for t in dir(stres):
-  setattr(resources,t,getattr(stres,t))
+for res in [cnres, mpres, stres]:
+    d = res.__dict__
+    resources.__dict__.update({key: d[key] for key in d if res is not cnres or (len(key) > 5 and key[0:6] != 'cnLine')})
 
 #resources.pmLabelBarDisplayMode = "Always"
 cmap = Ngl.read_colormap_file("so4_23")

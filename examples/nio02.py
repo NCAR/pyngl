@@ -29,16 +29,17 @@
 #  Notes:
 #     
 
+from __future__ import print_function
 import numpy 
 import Nio
 import Ngl
 import os
 
-print """
+print("""
 This example prints all Nio docstrings. For clarity each docstring
 is bracketed by a line of equal signs, and preceded by a comment naming the
 particular docstring.
-"""
+""")
 #
 # print the Nio summary documentation
 #

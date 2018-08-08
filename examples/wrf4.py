@@ -33,6 +33,7 @@
 #     of the one referenced by this example.
 #======================================================================
 
+from __future__ import print_function
 import numpy as np
 import Nio, Ngl, os, sys
 
@@ -75,13 +76,13 @@ def wrf_unstagger(x):
 # Read data
 filename = "wrfout_d03_2012-04-22_23_00_00"
 if(not os.path.exists(filename)):
-  print("You do not have the necessary '%s' file to run this example." % filename)
+  print("You do not have the necessary '{}' file to run this example.".format(filename))
   print("You need to supply your own WRF output file")
-  print("WRF output files usually have names like '%s'" % filename)
+  print("WRF output files usually have names like '{}'".format(filename))
   sys.exit()
 
 # Read some WRF data
-a    = Nio.open_file(filename+".nc")  # Must add ".nc" suffix for Nio.open_file
+a    = Nio.open_file("{}.nc".format(filename))  # Must add ".nc" suffix for Nio.open_file
 u    = a.variables["U"]
 v    = a.variables["V"]
 latu = a.variables["XLAT_U"]

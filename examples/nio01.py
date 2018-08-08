@@ -30,6 +30,7 @@
 #  Notes:
 #     
 
+from __future__ import print_function
 import numpy 
 import Nio 
 import time, os
@@ -43,7 +44,7 @@ def getUserName():
   except ImportError:
     return "unknown user"
   pwd_entry = pwd.getpwuid(os.getuid())
-  name = string.strip(string.splitfields(pwd_entry[4], ",")[0])
+  name = (pwd_entry[4].split(",")[0]).strip()
   if name == "":
     name = pwd_entry[0]
   return name
@@ -59,7 +60,7 @@ if (os.path.exists("nio01.nc")):
 #  Specify a global history attribute and open a NetCDF file
 #  for writing.
 #
-hatt = "Created " + time.ctime(time.time()) + " by " + getUserName()
+hatt = "Created {} by {}".format(time.ctime(time.time()), getUserName())
 file = Nio.open_file("nio01.nc", "w", None, hatt)
 
 #
@@ -93,8 +94,8 @@ foo.units = "arbitrary"
 #  Print out the first row of "foo" and the dimensions of "foo".
 #
 print("On write, foo first row and foo dimensions:")
-print("  " + str(foo[0]))
-print("  " + str(foo.dimensions))
+print("  {}".format(foo[0]))
+print("  {}".format(foo.dimensions))
 
 #
 #  Create a second integer variable.
@@ -104,15 +105,15 @@ for i in range(10):
   bar[i] = i            #  Each row of "n" integers equals the row number.
 
 print("On write, bar.shape:")
-print("  " + str(bar.shape))
+print("  {}".format(bar.shape))
 
 #
 #  Print out the file dimesions and variables and write the file.
 #
 print("On write, file dimensions:")
-print("  " + str(file.dimensions))
+print("  {}".format(file.dimensions))
 print("On write, file variables:")
-print("  " + str(file.variables))
+print("  {}".format(file.variables))
 
 file.close()
 
@@ -124,9 +125,9 @@ file = Nio.open_file("nio01.nc", "r")
 print("\nOn read, a summary of the file contents:")
 print(file)
 print("\nOn read, file dimensions:")
-print("  " + str(file.dimensions))
+print("  {}".format(file.dimensions))
 print("On read, file variables:")
-print("  " + str(file.variables))
+print("  {}".format(file.variables))
 
 #
 #  Read the first row of "foo".
@@ -141,8 +142,8 @@ foo_units = foo.units
 #  Print out some of the same things we did on the write.
 #
 print("On read, foo first row:")
-print("  " + str(foo[0]))
+print("  {}".format(foo[0]))
 print("On read, foo units:")
-print("  " + str(foo.units))
+print("  {}".format(foo.units))
 
 file.close()

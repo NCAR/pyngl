@@ -26,6 +26,7 @@
 #     Two visualizations with different types of fill.
 #
 
+from __future__ import print_function
 import numpy,Ngl
 
 

@@ -46,6 +46,7 @@
 #    o Possible warnings to standard out if color conversion tests fail.
 #
 
+from __future__ import print_function
 import Ngl 
 import math
 import numpy
@@ -131,7 +132,7 @@ for value in values:
        if (saturation != 0.):
          text_res.txFontHeightF = 0.022
          text_res.txJust = "CenterCenter" 
-         slabel = "S = %4.2f" % (saturation)
+         slabel = "S = {:4.2f}".format(saturation)
          Ngl.text_ndc(wks, slabel, 0.5, slab_y[sindex],text_res)
          sindex = sindex+1
 
@@ -140,7 +141,7 @@ for value in values:
 #
   text_res.txFontHeightF = 0.03
   text_res.txJust = "CenterCenter" 
-  Ngl.text_ndc(wks, "Value = %4.2f" % (value), 0.5, 0.9, text_res)
+  Ngl.text_ndc(wks, "Value = {:4.2f}".format(value), 0.5, 0.9, text_res)
 
 #
 #  Mark the hues.

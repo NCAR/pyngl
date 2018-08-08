@@ -32,18 +32,19 @@
 #     You will need to include your own WRF output file in place
 #     of the one referenced by this example.
 #======================================================================
+from __future__ import print_function
 import numpy, Nio, Ngl, os, sys
 from wrf import getvar, get_pyngl
 
 filename = "wrfout_d01_2005-12-14_13:00:00"
 if(not os.path.exists(filename)):
-  print("You do not have the necessary '%s' file to run this example." % filename)
+  print("You do not have the necessary '{}' file to run this example.".format(filename))
   print("You need to supply your own WRF output file")
-  print("WRF output files usually have names like '%s'" % filename)
+  print("WRF output files usually have names like '{}'".format(filename))
   sys.exit()
 
 #---Read data
-a   = Nio.open_file(filename+".nc")  # Must add ".nc" suffix for Nio.open_file
+a   = Nio.open_file("{}.nc".format(filename))  # Must add ".nc" suffix for Nio.open_file
 var = getvar(a,"ter")
 
 #---Open file for graphics
@@ -74,7 +75,7 @@ res.lbLabelFontHeightF = 0.01
 res.tfDoNDCOverlay     = True
 
 # Main Title
-res.tiMainString      = "WRF curvilinear lat/lon grid (" + str(var.shape[0]) + " x " + str(var.shape[1]) + ")"
+res.tiMainString      = "WRF curvilinear lat/lon grid ({} x {})".format(*var.shape)
 
 plot = Ngl.contour_map(wks,var,res)
 

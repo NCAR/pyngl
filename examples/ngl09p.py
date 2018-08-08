@@ -33,6 +33,7 @@
 #    This example requires the resource file ngl09p.res.
 #     
 
+from __future__ import print_function
 import numpy
 #
 #  Import the masked array module.
@@ -93,8 +94,8 @@ nmo    = 0
 month  = nmo+1
 
 icemon = MA.zeros((nhlat,nhlon),dtype=float)
-for i in xrange(fice_masked.shape[0]):
-  for j in xrange(fice_masked.shape[1]):
+for i in range(fice_masked.shape[0]):
+  for j in range(fice_masked.shape[1]):
     icemon[i,j] = MA.average(fice_masked[i,j,0:ntime:12])
 
 #
@@ -126,7 +127,7 @@ resources.sfMissingValueV = fill_value
 resources.cnFillPalette   = cmap
 resources.sfXArray        = hlonnew   # Necessary for overlay on a map.
 resources.sfYArray        = hlat[0:nsub+1]
-resources.tiMainString    = "CSM Y00-99 Mean Ice Fraction Month =" + str(month)
+resources.tiMainString    = "CSM Y00-99 Mean Ice Fraction Month ={}".format(month)
 
 resources.pmTickMarkDisplayMode = "Never"
 
@@ -136,13 +137,13 @@ map = Ngl.contour_map(wks,icemonnew,resources) # Draw a contour
 nmos = 12    # Specify the number of months in the loop (max 120).
 for nmo in range(1,nmos): 
   month  = nmo+1
-  for i in xrange(fice_masked.shape[0]):
-    for j in xrange(fice_masked.shape[1]):
+  for i in range(fice_masked.shape[0]):
+    for j in range(fice_masked.shape[1]):
       icemon[i,j] = MA.average(fice_masked[i,j,nmo:ntime:12])
   icemon = MA.masked_values(icemon,0.,rtol=0.,atol=1.e-15)
   icemon = MA.filled(icemon,fill_value)
 
-  resources.tiMainString = "CSM Y00-99 Mean Ice Fraction Month =" + str(month)
+  resources.tiMainString = "CSM Y00-99 Mean Ice Fraction Month ={}".format(month)
   map = \
     Ngl.contour_map(wks,Ngl.add_cyclic(icemon[0:nsub+1,:]),resources)
 

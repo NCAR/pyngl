@@ -29,6 +29,7 @@
 #  Notes:
 #     
 
+from __future__ import print_function
 import Ngl
 
 wks_type = "png"
@@ -46,7 +47,7 @@ mpres.vpHeightF    = 0.8
 
 mpres.pmTitleDisplayMode = "Always"    # Force the title to appear.
 
-for i in xrange(len(projections)):
+for i in range(len(projections)):
   mpres.mpProjection = projections[i]
   mpres.tiMainString = projections[i]
   map = Ngl.map(wks,mpres)

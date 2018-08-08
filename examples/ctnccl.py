@@ -52,6 +52,7 @@
 #
 #  Import numpy.
 #
+from __future__ import print_function
 import numpy, os
 
 #
@@ -89,7 +90,7 @@ cmap[3] = [.8,.8,.8]
 
 iofc = 151
 iolc = 250
-for i in xrange(151,251):
+for i in range(151,251):
   p = (1.*iolc-i)/(1.*iolc-1.*iofc)
   q = (i-1.*iofc)/(1.*iolc-1.*iofc)
   cmap[i-147] = [0.,p,q]

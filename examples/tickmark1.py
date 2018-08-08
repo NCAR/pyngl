@@ -29,6 +29,7 @@
 #     This example produces similar visualizations, the second containing
 #     a curve with missing values.
 #
+from __future__ import print_function
 import Ngl, numpy, random
 
 #---Import masked arrays
@@ -101,7 +102,7 @@ lvalues = numpy.where(values >= 2000,values-2000,values-1900).tolist()
 labels  = []
 for l in lvalues:
   if l%10:
-    labels.append("'%0.2i" % l)
+    labels.append("'{:02d}".format(l))
   else:
     labels.append('')
 

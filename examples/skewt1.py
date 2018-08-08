@@ -33,6 +33,7 @@
 #    Skew-T resource names decided on.
 #     
 
+from __future__ import print_function
 import Ngl
 
 wks_type = "png"

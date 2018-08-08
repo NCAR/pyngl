@@ -40,6 +40,7 @@
 #
 #  Import packages needed.
 #
+from __future__ import print_function
 import Ngl
 import os
 
@@ -71,7 +72,7 @@ resolutions = ["LowRes","MediumRes","HighRes"]
 
 rangs_dir = Ngl.pynglpath("rangs")     # Location of RANGS dir.
 for i in range(len(resolutions)):
-  mpres.tiMainString      = "mpDataBaseVersion = " + resolutions[i]
+  mpres.tiMainString      = "mpDataBaseVersion = {}".format(resolutions[i])
   mpres.mpDataBaseVersion = resolutions[i]
 
   if (resolutions[i] != "HighRes"):

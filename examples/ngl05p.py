@@ -44,6 +44,7 @@
 #
 #  Import NumPy.
 #
+from __future__ import print_function
 import numpy, os
 
 #
@@ -130,7 +131,7 @@ resources.vpHeightF = 0.7
 mnlvl = 0                        # Minimum contour level.
 mxlvl = 28                       # Maximum contour level.
 spcng = 2                        # Contour level spacing.
-ncn   = (mxlvl-mnlvl)/spcng + 1  # Number of contour levels.
+ncn   = (mxlvl-mnlvl)//spcng + 1  # Number of contour levels.
 
 resources.cnLevelSelectionMode = "ManualLevels" # Define your own
 resources.cnMinLevelValF       = mnlvl          # contour levels.
@@ -149,7 +150,7 @@ resources.cnLineDrawOrder      = "Predraw" # Draw lines and filled
 resources.cnFillDrawOrder      = "Predraw" # areas before map gets
                                              # drawn.
 
-resources.tiMainString = "~F26~" + cdf_file2.title
+resources.tiMainString = "~F26~{}".format(cdf_file2.title)
 
 resources.sfXCStartV = float(min(sst_lon))   # Define where contour plot
 resources.sfXCEndV   = float(max(sst_lon))   # should lie on the map plot.

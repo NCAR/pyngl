@@ -39,6 +39,7 @@
    
   2015-06-04  kmf
 """
+from __future__ import print_function
 import numpy as np
 import sys,os
 import Nio, Ngl
@@ -47,34 +48,35 @@ def nice_lon_labels(lons):
   lonstrs = []
   for l in lons:
     if l < 0:
-      lonstrs.append("%i~S~o~N~W" % np.fabs(l))
+      lonstrs.append("{}~S~o~N~W".format(np.fabs(l)))
     elif l > 0:
-      lonstrs.append("%i~S~o~N~E" % l)
+      lonstrs.append("{}~S~o~N~E".format(l))
     else:
-      lonstrs.append("EQ" % l)
+      lonstrs.append("EQ")
   return lonstrs
 
 
 def nice_lev_labels(lons):
   levstrs = []
   for l in levs:
-      levstrs.append("%i" % np.fabs(l))
+      levstrs.append("{}".format(np.fabs(l)))
   return levstrs
 
 
 #--  define variables
 diri   = "./"                             #-- data directory
 fname  = "rectilinear_grid_3D.nc"         #-- data file name
+ffile  = os.path.join(diri, fname)
 
 #---Test if file exists
-if(not os.path.exists(diri+fname)):
-  print("You do not have the necessary file (%s) to run this example." % (diri+fname))
+if(not os.path.exists(ffile)):
+  print("You do not have the necessary file ({}) to run this example.".format(ffile))
   print("You can get the files from the NCL website at:")
   print("http://www.ncl.ucar.edu/Document/Manuals/NCL_User_Guide/Data/")
   sys.exit()
 
 #--  open file and read variables
-f      =  Nio.open_file(diri + fname,"r") #-- open data file
+f      =  Nio.open_file(ffile, "r")       #-- open data file
 t      =  f.variables["t"]                #-- get whole "t" variable
 t26    =  t[0,:,26,:]                     #-- variable at lat index 26
 lev    =  f.variables["lev"][:]*0.01      #-- all levels, convert to hPa
@@ -101,8 +103,9 @@ wks                       =  Ngl.open_wks(wks_type,wks_name)
 #-- set resources
 res                       =  Ngl.Resources
 
-res.tiMainString          =  "%s (%s) at lat %.2f degrees" % \
-                              (t.long_name,t.units,strlat26)
+res.tiMainString          =  "{} ({}) at lat {:.2f} degrees".format(t.long_name,
+                                                                    t.units,
+                                                                    strlat26)
 res.cnLevelSelectionMode  = "ManualLevels" #-- select manual levels
 res.cnMinLevelValF        =  minval       #-- minimum contour value
 res.cnMaxLevelValF        =  maxval       #-- maximum contour value
@@ -120,9 +123,9 @@ res.sfYArray              =  lev          #-- scalar field y
 res.trYReverse            = True          #-- reverse the Y axis
 res.nglYAxisType          = "LogAxis"     #-- y axis log
 
-res.tiYAxisString         = "%s (hPa)" % f.variables["lev"].long_name
+res.tiYAxisString         = "{} (hPa)".format(f.variables["lev"].long_name)
 
-#res.nglPointTickmarksOutward = True       #-- point tickmarks out
+res.nglPointTickmarksOutward = True       #-- point tickmarks out
 
 res.tmYLMode              = "Explicit"    #-- set y axis tickmark labels
 res.tmXBMode              = "Explicit"    #-- set x axis tickmark labels

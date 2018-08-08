@@ -38,6 +38,7 @@
 
  05.06.15  kmf
 """
+from __future__ import print_function
 import numpy as np
 import math, time
 import sys,os
@@ -53,17 +54,19 @@ print("")
 diri  = "./"                                       #-- data path
 fname = "ta_ps_850.nc"                             #-- data file
 gname = "r2b4_amip.nc"                             #-- grid info file
+ffile = os.path.join(diri, fname)
+gfile = os.path.join(diri, gname)
 
 #---Test if files exist
-if(not os.path.exists(diri+fname) or not os.path.exists(diri+gname)):
-  print("You do not have the necessary files to run this example, '%s' and '%s'." % (diri+fname,diri+gname))
+if(not os.path.exists(ffile) or not os.path.exists(gfile)):
+  print("You do not have the necessary files to run this example, '{}' and '{}'.".format(ffile, gfile))
   print("You can get the files from the NCL website at:")
   print("http://www.ncl.ucar.edu/Document/Manuals/NCL_User_Guide/Data/")
   sys.exit()
 
 #--  open file and read variables
-f = Nio.open_file(diri + fname,"r")                #-- add data file
-g = Nio.open_file(diri + gname,"r")                #-- add grid file (not contained in data file!!!)
+f = Nio.open_file(ffile, "r")                #-- add data file
+g = Nio.open_file(gfile, "r")                #-- add grid file (not contained in data file!!!)
 
 #-- read a timestep of "ta" 
 var =  f.variables["ta"][0,0,:]                    #-- first time step, lev, ncells
@@ -106,9 +109,9 @@ for j in range(1,ncells):
 
 #-- information
 print("")
-print("Cell points:           %d" %nv)
-print("Cells:                 %s" % ncells)
-print("Variable ta   min/max:  %.2f " % np.min(var) + "/" + " %.2f" % np.max(var))
+print("Cell points:           {}".format(nv))
+print("Cells:                 {}".format(ncells))
+print("Variable ta   min/max:  {:.2f} / {:.2f}".format(np.min(var), np.max(var)))
 print("")
 
 #-- open a workstation
@@ -153,7 +156,7 @@ Ngl.frame(wks)
 
 #-- get wallclock time
 t2 = time.time()
-print("Wallclock time:  %0.3f seconds" % (t2-t1))
+print("Wallclock time:  {:0.3f} seconds".format(t2-t1))
 print("")
 
 Ngl.end()

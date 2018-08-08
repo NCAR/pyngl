@@ -26,6 +26,7 @@
 #      1.  Fully opaque vectors
 #      2.  Partially opaque vectors
 #     
+from __future__ import print_function
 import os, numpy
 import Ngl, Nio
 

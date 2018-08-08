@@ -34,6 +34,7 @@
 #
 #  Import numpy, types, os.
 #
+from __future__ import print_function
 import numpy 
 import types
 import os
@@ -53,7 +54,7 @@ import Ngl
 #
 file = Nio.open_file(os.path.join(Ngl.pynglpath("data"),"grb","ced1.lf00.t00z.eta.grb"),"r")
 
-names = file.variables.keys()  #  Get the variable names
+names = list(file.variables.keys())  #  Get the variable names
 print("\nVariable names:")     #  and print them out.)
 print(names)
 
@@ -62,15 +63,15 @@ print(names)
 #  For variable in names[1], retrieve and print all attributes 
 #  and their values.
 #
-print("\nThe attributes and their values for variable " + names[1] + ":")
+print("\nThe attributes and their values for variable {}:".format(names[1]))
 for attrib in file.variables[names[1]].attributes.keys():
   t = getattr(file.variables[names[1]],attrib)
-  print("Attribute " + "'" + attrib + "' has value:", t)
+  print("Attribute '{}' has value:{}".format(attrib, t))
 
 #
 #  For variable in names[1], retrieve and print the dimension names.
 #
-print("\nFor variable " + names[1] + " the dimension names are:")
+print("\nFor variable {} the dimension names are:".format(names[1]))
 print(file.variables[names[1]].dimensions)
 
 #
@@ -92,7 +93,7 @@ vvar = file.variables["V_GRD_6_ISBL"]
 #  Set resources and plot.
 #
 if hasattr(uvar,"units"):
-  resources.tiMainString = "GRD_6_ISBL (u,v " + uvar.units + ")"
+  resources.tiMainString = "GRD_6_ISBL (u,v {})".format(uvar.units)
 else:
   resources.tiMainString = "GRD_6_ISBL"
 
@@ -113,7 +114,7 @@ vvar = file.variables["V_GRD_6_TRO"]
 #  Set resources and plot.
 #
 if hasattr(uvar,"units"):
-  resources.tiMainString = "GRD_6_TRO (u,v " + uvar.units + ")"
+  resources.tiMainString = "GRD_6_TRO (u,v {})".format(uvar.units)
 else:
   resources.tiMainString = "GRD_6_TRO"
 
@@ -142,7 +143,7 @@ vvar = file.variables["V_GRD_6_GPML"]
 #  Set resources and plot.
 #
 if hasattr(uvar,"units"):
-  resources.tiMainString = "GRD_6_GPML (u,v " + uvar.units + ")"
+  resources.tiMainString = "GRD_6_GPML (u,v {})".format(uvar.units)
 else:
   resources.tiMainString = "GRD_6_GPML"
 
