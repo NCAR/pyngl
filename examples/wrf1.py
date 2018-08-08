@@ -3,7 +3,7 @@
 #    wrf1.py
 #
 #  Synopsis:
-#    Draws contours over a map of a "HGT" variable read off a WRF output file.
+#    Draws filled contours over a map of a variable or diagnostic calculated from a WRF file.
 #
 #  Categories:
 #    Contouring
@@ -15,11 +15,13 @@
 #    April 2015
 #
 #  Description:
-#    This example shows how to read the height variable off a WRF output file 
-#    and draw filled contours. See wrf2.py for a similar script that 
-#    draws the height in the native projection with shapefile outlines added.
+#    This example shows how to use wrf-python to read a variable or
+#    calculate a diagnostic from a WRF output file and draw filled
+#    contours over a map. See wrf2.py for a similar script that draws
+#    the data in the native WRF projection with shapefile outlines added.
 #
 #  Effects illustrated:
+#    o  Using wrf-python to get data from WRF output file
 #    o  Plotting WRF data
 #    o  Plotting curvilinear data
 #    o  Using cnFillPalette to assign a color palette to contours
@@ -34,6 +36,7 @@
 #======================================================================
 from __future__ import print_function
 import numpy, Nio, Ngl, os, sys
+from wrf import getvar, latlon_coords, to_np
 
 filename = "wrfout_d01_2005-12-14_13:00:00"
 if(not os.path.exists(filename)):
@@ -43,25 +46,37 @@ if(not os.path.exists(filename)):
   sys.exit()
 
 #---Read data
-a   = Nio.open_file("{}.nc".format(filename))  # Must add ".nc" suffix for Nio.open_file
-hgt = a.variables["HGT"][0,:,:]     # Read first time step ( nlat x nlon)
-lat = a.variables["XLAT"][0,:,:]    # 2D array (nlat x nlon)
-lon = a.variables["XLONG"][0,:,:]   # ditto
+f        = Nio.open_file("{}.nc".format(filename))  # Must add ".nc" suffix for Nio.open_file
+var_name = "slp"           # "slp", "ter"
+var      = getvar(f,var_name)
+lat, lon = latlon_coords(var)
+
+lat = to_np(lat)
+lon = to_np(lon)
+
+#print(max(var.XLAT))
 
 #---Open file for graphics
 wks_type = "png"
 wks = Ngl.open_wks(wks_type,"wrf1")
 
-#---Set some plot options
-res                   = Ngl.Resources()
+# Create handle for plot options
+res = Ngl.Resources()
 
 # Contour options
 res.cnFillOn          = True          # turn on contour fill
 res.cnLinesOn         = False         # turn off contour lines
 res.cnLineLabelsOn    = False         # turn off line labels
-res.cnFillPalette     = "OceanLakeLandSnow"
-res.cnLevelSelectionMode = "ExplicitLevels"
-res.cnLevels  = [2,50,75,100,200,300,400,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2200]
+res.sfXArray          = lon
+res.sfYArray          = lat
+
+# This is for terrain
+if var_name == "ter":
+  res.cnFillPalette        = "OceanLakeLandSnow"
+  res.cnLevelSelectionMode = "ExplicitLevels"
+  res.cnLevels  = [2,50,75,100,150,200,250,300,350,400,500,600,700,800,900,1000,1100]
+elif var_name == "slp":
+  res.cnFillPalette     = "MPL_viridis"
 
 # Map options
 res.mpDataBaseVersion     = "MediumRes"                # better map outlines
@@ -77,16 +92,15 @@ res.mpGridAndLimbOn       = False
 # Labelbar options
 res.lbOrientation      = "horizontal"
 res.lbLabelFontHeightF = 0.01
+res.pmLabelBarHeightF  = 0.08
+res.pmLabelBarWidthF   = 0.65
+res.lbTitleString      = "%s (%s)" % (var.description,var.units)
+res.lbTitleFontHeightF = 0.01
 
 # Main Title
-dims = hgt.shape
-res.tiMainString      = "WRF curvilinear lat/lon grid ({} x {})".format(dims[0], dims[1])
+res.tiMainString      = "WRF curvilinear lat/lon grid (" + str(var.shape[0]) + " x " + str(var.shape[1]) + ")"
+res.tiMainFontHeightF = 0.02
 
-# Additional resources needed for putting contours on map
-res.sfXArray          = lon
-res.sfYArray          = lat
-
-plot = Ngl.contour_map(wks,hgt,res)
+plot = Ngl.contour_map(wks,var,res)
 
 Ngl.end()
-

@@ -3,8 +3,8 @@
 #    wrf3.py
 #
 #  Synopsis:
-#    Draws contours of a "TC" diagnostic variable calculated 
-#    from WRF output file
+#    Draws contours of a "TC" diagnostic variable calculated from a
+#    from WRF output file using wrf-python
 #
 #  Categories:
 #    Contouring
@@ -23,6 +23,7 @@
 #    "trGridType" resource comments below.
 #
 #  Effects illustrated:
+#    o  Using wrf-python to get data from WRF output file
 #    o  Plotting WRF data in its native projection
 #    o  Plotting curvilinear data
 #    o  Using RasterFill for faster contouring
@@ -37,7 +38,7 @@
 #======================================================================
 from __future__ import print_function
 import numpy, Nio, Ngl, os, sys
-
+from wrf import getvar, get_pyngl
 
 filename = "wrfout_d03_2012-04-22_23_00_00"
 if(not os.path.exists(filename)):
@@ -47,21 +48,16 @@ if(not os.path.exists(filename)):
   sys.exit()
 
 #---Read data
-a   = Nio.open_file("{}.nc".format(filename))  # Must add ".nc" suffix for Nio.open_file
-T  = a.variables["T"][:]
-P  = a.variables["P"][:]
-PB = a.variables["PB"][:]
-
-T  = T + 300
-P  = P + PB
-TC = Ngl.wrf_tk(P, T) - 273.16      # Convert to degC
+a  = Nio.open_file(filename+".nc")  # Must add ".nc" suffix for Nio.open_file
+tc = getvar(a,"tc")
 
 #---Open file for graphics
 wks_type = "png"
 wks = Ngl.open_wks(wks_type,"wrf3")
 
-#---Set some plot options
-res                   = Ngl.Resources()
+# Set some map options based on information in WRF output file
+res = get_pyngl(tc)
+res.tfDoNDCOverlay    = True          # required for native projection
 
 #---Contour options
 res.cnFillOn          = True          # turn on contour fill
@@ -71,22 +67,18 @@ res.cnFillMode        = "RasterFill"        # These two resources
 res.trGridType        = "TriangularMesh"    # can speed up plotting.
 res.cnFillPalette     = "ncl_default"
 
-res.lbOrientation     = "horizontal"   # default is vertical
+res.lbOrientation      = "horizontal"   # default is vertical
+res.pmLabelBarHeightF  = 0.08
+res.pmLabelBarWidthF   = 0.65
+res.lbTitleString      = "%s (%s)" % (tc.description,tc.units)
+res.lbTitleFontHeightF = 0.015
+res.lbLabelFontHeightF = 0.015
 
-res.tiMainString      = "{}: temperature (degC)".format(filename)
-res.tiMainFontHeightF = 0.015
+res.tiMainString      = filename
+res.tiMainFont        = "helvetica-bold"
+res.tiMainFontHeightF = 0.02
 
-#
-# Map options added using map info on WRF output file.
-# This can make plotting go faster, because you don't have
-# to do a map transformation.
-#
-res = Ngl.wrf_map_resources(a,res)
-
-nt = 0       # first time step
-nl = 0       # first level
-plot = Ngl.contour_map(wks,TC[nt,nl,:,:],res)
-
+plot = Ngl.contour_map(wks,tc[0,:,:],res)
 
 Ngl.end()
 
