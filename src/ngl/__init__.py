@@ -389,7 +389,7 @@ IS_NEW_MA = _get_integer_version(numpy.__version__) > 10004
 # Import other stuff we need.
 #
 from .hlu import *
-import site, types, string, subprocess, sys, os, math, re
+import site, types, subprocess, sys, os, math, re
 
 #
 # Try to guess the package path for PyNGL. If it can't
@@ -2527,7 +2527,7 @@ type -- An optional argument specifying the type of the data you are
         break
       
       line = re.sub(sep," ",rline)  # replace separator with blanks
-      toks = string.split(line)
+      toks = line.split(" ")
       for str in toks:
         if (type == "integer"):
           try:
@@ -2567,7 +2567,7 @@ type -- An optional argument specifying the type of the data you are
     if len(rline) == 0:
       break
     line = re.sub(sep," ",rline)  # replace separator with blanks
-    toks = string.split(line)
+    toks = line.split(" ")
     for tstr in toks:
       str = re.sub(",","",tstr)
       if (type == "integer"):
@@ -8719,6 +8719,7 @@ resources to.
 
   nlat = lat.shape[0]
   nlon = lat.shape[1]
+  lon  = numpy.copy(lon)
 
 # Use numpy.where here!
   for ii in range(nlat):
