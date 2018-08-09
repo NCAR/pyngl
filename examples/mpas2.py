@@ -90,6 +90,16 @@ def subtitles(wks, plot, left_string, center_string, right_string):
   return
 
 #----------------------------------------------------------------------
+# Awkward function to convert a byte array to a Python string.
+# There has to be a better way to do this.
+#----------------------------------------------------------------------
+def convert_byte_array_to_string(barray):
+  str = []
+  for b in barray:
+    str.append(b.decode())
+  return(''.join(str).strip())
+
+#----------------------------------------------------------------------
 # Function to print the min/max of a given variable.
 #----------------------------------------------------------------------
 def print_min_max(var,varname):
@@ -109,7 +119,7 @@ varname  = "t2m"
 ntime    = 3                                        # ntime=0 is a constant field for t2m
 f        = Nio.open_file(mpas_file)
 t2m      = f.variables[varname][ntime,:]
-time_str = ''.join(f.variables["xtime"][ntime][:]).strip()
+time_str = convert_byte_array_to_string(f.variables["xtime"][ntime][:])
 
 lonCell        = f.variables["lonCell"][:]
 latCell        = f.variables["latCell"][:]
