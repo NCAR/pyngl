@@ -57,7 +57,7 @@ nt    = 0
 nstep = 5     # a stride to cull some of the streamlines
 u     = ua[nl,::nstep,::nstep]
 v     = va[nl,::nstep,::nstep]
-spd   = np.sqrt(u**2+v**2)                
+spd   = np.sqrt(u**2+v**2)
 
 # Get the latitude and longitude points
 lat, lon = latlon_coords(ua)

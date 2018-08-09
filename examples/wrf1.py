@@ -54,7 +54,6 @@ lat, lon = latlon_coords(var)
 lat = to_np(lat)
 lon = to_np(lon)
 
-#print(max(var.XLAT))
 
 #---Open file for graphics
 wks_type = "png"
