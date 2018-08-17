@@ -138,12 +138,19 @@ for i in range(nmap):
   res.tiMainString      = "Resolution = '{}'".format(map_res[i])
   plot.append(Ngl.contour_map (wks,fsd,res))  # Create plot, but don't draw
 
+# Draw a title before we draw plots
+title               =  "Comparison of coastline resolutions"
+txres               = Ngl.Resources()
+txres.txJust        = "BottomCenter"
+txres.txFont        = "helvetica-bold"
+txres.txFontHeightF = 0.02
+Ngl.text_ndc(wks,title,0.5,0.85,txres)
+
 #
 # Set some panel resources: a common labelbar and title.
 # "[1,3]" indicates 1 row, 3 columns.
 #
 panelres = Ngl.Resources()
-panelres.txString         = "Comparison of coastline resolutions"
 panelres.nglPanelLabelBar = True   # Common labelbar
 Ngl.panel(wks,plot,[1,3],panelres)
 
