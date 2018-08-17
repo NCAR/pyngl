@@ -3,7 +3,8 @@
 #    newcolor6.py
 #
 #  Synopsis:
-#    Illustrates applying opacity to filled contours to emphasize a particular area
+#    Illustrates applying opacity to filled contours to emphasize a
+#    particular area
 #
 #  Categories:
 #    contour plots

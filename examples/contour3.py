@@ -3,7 +3,8 @@
 #    contour3.py
 #
 #  Synopsis:
-#    Illustrates drawing dashed negative contours and pointing tickmarks out.
+#    Illustrates drawing dashed negative contours and pointing
+#    tickmarks out.
 #
 #  Categories:
 #    Contouring

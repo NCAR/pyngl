@@ -3,7 +3,8 @@
 #    streamline2.py
 #
 #  Synopsis:
-#    Draws streamlines colored by a scalar field.over contours and a map.
+#    Draws streamlines colored by a scalar field over contours and a
+#    map.
 #
 #  Category:
 #    Streamlines

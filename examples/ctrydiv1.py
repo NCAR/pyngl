@@ -3,7 +3,7 @@
 #    ctrydiv1.py
 #
 #  Synopsis:
-#    Draws provinces of China and states of India
+#    Draws provinces of China and states of India.
 #
 #  Categories:
 #    maps only

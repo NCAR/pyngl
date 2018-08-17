@@ -3,7 +3,7 @@
 #    shapefile4.py
 #
 #  Synopsis:
-#    Drawing France administrative areas using data on a shapefile.
+#    Draws France administrative areas using data read from a shapefile.
 #
 #  Categories:
 #    Maps only

@@ -3,7 +3,8 @@
 #    wrf1.py
 #
 #  Synopsis:
-#    Draws filled contours over a map of a variable or diagnostic calculated from a WRF file.
+#    Draws filled contours over a map of a WRF variable or diagnostic
+#    calculated using wrf-python.
 #
 #  Categories:
 #    Contouring

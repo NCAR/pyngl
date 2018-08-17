@@ -3,7 +3,7 @@
 #    hdf3.py
 #
 #  Synopsis:
-#    Unpacks and plots HDF5 data
+#    Unpacks and plots HDF5 data.
 #
 #  Category:
 #    Contours over maps

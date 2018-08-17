@@ -3,7 +3,7 @@
 #    hdf1.py
 #
 #  Synopsis:
-#    Plots EOS-DIS data
+#    Plots EOS-DIS data.
 #
 #  Category:
 #    Contours over maps

@@ -3,9 +3,7 @@
 #    tickmark1.py
 #
 #  Synopsis:
-#    Illustrates how to label minor tickmarks differently, by
-#    overlaying a blank plot that contains the labeled minor
-#    tickmarks.
+#    Illustrates how to label both minor and major tickmarks.
 #
 #  Categories:
 #    tickmarks

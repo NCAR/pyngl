@@ -3,7 +3,7 @@
 #    hdf2.py
 #
 #  Synopsis:
-#    Unpacks and plots HDF-EOS data
+#    Unpacks and plots HDF-EOS data.
 #
 #  Category:
 #    Contours over maps

@@ -3,7 +3,8 @@
 #    ngl09p.py
 #
 #  Synopsis:
-#    Illustrates Animation of contours over a map and using masked arrays.
+#    Illustrates animation of contours over a map and using masked
+#    arrays.
 #
 #  Category:
 #    Contours over maps

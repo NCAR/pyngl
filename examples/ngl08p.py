@@ -3,7 +3,8 @@
 #    ngl08p.py
 #
 #  Synopsis:
-#    Does a 2D interpolation for a colored contour and an XY plot.
+#    Interpolates 1D data to a 2D grid and creates a colored contour
+#    plot and an XY plot.
 #
 #  Category:
 #    Contouring
@@ -20,7 +21,7 @@
 #
 #  Description:
 #    This example reads data from a NetCDF file, does an interpolation
-#    from randomply-spaced data to gridded data, then draws a colored
+#    from randomly-spaced data to gridded data, then draws a colored
 #    contour plot and an XY plot to four different output files: a 
 #    PostScript file, a PDF file, an X11 window, and an NCGM file. 
 #

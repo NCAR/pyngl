@@ -3,7 +3,7 @@
 #    xy3.py
 #
 #  Synopsis:
-#    Illustrates how to draw stacked XY plots
+#    Illustrates how to draw stacked XY plots.
 #
 #  Categories:
 #    xy plots

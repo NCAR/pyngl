@@ -3,7 +3,7 @@
 #    color6.py
 #
 #  Synopsis:
-#    Draws colormaps (by name) as a vertical or horizontal bar of colors
+#    Draws named colormaps as a vertical or horizontal bar of colors.
 #
 #  Category:
 #    Colors

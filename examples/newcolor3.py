@@ -3,7 +3,7 @@
 #    newcolor3.py
 #
 #  Synopsis:
-#    Illustrates new color capabilities in PyNGL 1.5.0
+#    Illustrates new color capabilities in PyNGL 1.5.0.
 #
 #  Categories:
 #    Contouring

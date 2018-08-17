@@ -3,8 +3,8 @@
 #    wrf3.py
 #
 #  Synopsis:
-#    Draws contours of a "TC" diagnostic variable calculated from a
-#    from WRF output file using wrf-python
+#    Draws contours of a WRF diagnostic variable calculated using
+#    wrf-python.
 #
 #  Categories:
 #    Contouring
