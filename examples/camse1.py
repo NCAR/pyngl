@@ -75,9 +75,7 @@ res.mpPerimOn         = False
 res.pmTickMarkDisplayMode = "Never"
 
 # Main Title
-res.tiMainString      = "{} ({}) ({} cells)".format(data.long_name,
-                                                    data.units,
-                                                    ncells)
+res.tiMainString      = f'{data.long_name} ({data.units}) ({ncells} cells)'
 res.tiMainFontHeightF = 0.018
 
 # Labelbar options

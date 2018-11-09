@@ -103,7 +103,7 @@ def convert_byte_array_to_string(barray):
 # Function to print the min/max of a given variable.
 #----------------------------------------------------------------------
 def print_min_max(var,varname):
-  print("{}: min/max = {:.2f} / {:.2f}".format(varname, numpy.min(var), numpy.max(var)))
+  print("{}: min/max = {:7.2f} / {:7.2f}".format(varname, numpy.min(var), numpy.max(var)))
 
 #----------------------------------------------------------------------
 # Main code

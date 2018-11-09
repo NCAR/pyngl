@@ -55,14 +55,6 @@ def nice_lon_labels(lons):
       lonstrs.append("EQ")
   return lonstrs
 
-
-def nice_lev_labels(lons):
-  levstrs = []
-  for l in levs:
-      levstrs.append("{}".format(np.fabs(l)))
-  return levstrs
-
-
 #--  define variables
 diri   = "./"                             #-- data directory
 fname  = "rectilinear_grid_3D.nc"         #-- data file name
@@ -131,7 +123,7 @@ res.tmYLMode              = "Explicit"    #-- set y axis tickmark labels
 res.tmXBMode              = "Explicit"    #-- set x axis tickmark labels
 res.tmYLValues            = levs
 res.tmXBValues            = lons
-res.tmYLLabels            = nice_lev_labels(levs)
+res.tmYLLabels            = [str(x) for x in levs]
 res.tmXBLabels            = nice_lon_labels(lons)
 
 res.tmXBLabelFontHeightF  = 0.015        # - make font smaller
