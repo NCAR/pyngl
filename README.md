@@ -17,7 +17,7 @@ PyNGL is developed by the [Computational and Information Systems Lab](https://ww
 PyNGL can be installed on Linux and MacOS systems via [conda](https://conda.io/docs/):
 
 ```
-conda create --name pyn_env --channel conda-forge pynio pyngl
+conda create --name pyn_env --channel conda-forge pyngl
 source activate pyn_env
 ```
 
