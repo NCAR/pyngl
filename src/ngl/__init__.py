@@ -5701,24 +5701,24 @@ res -- A required instance of the Resources class having special
 #  The original names (sktDrawFahrenheit/sktHeightScaleFt) for these
 #  two resources took True/False values.
 #
-        if (hasattr(localOpts,"sktTemperatureUnits")):
-          if(localOpts.sktTemperatureUnits.lower() == "celsius"):
-            localOpts.sktDrawFahrenheit = False    # default is True
-          elif(localOpts.sktTemperatureUnits.lower() == "fahrenheit"):
-            localOpts.sktDrawFahrenheit = True    # default is True
-          else:
-            localOpts.sktDrawFahrenheit = True    # default is True
-            print("Warning - skewt_bkg: 'sktTemperatureUnits' must be set to 'fahrenheit' or 'celsius'. Defaulting to 'fahrenheit'.")
+    if (hasattr(localOpts,"sktTemperatureUnits")):
+      if(localOpts.sktTemperatureUnits.lower() == "celsius"):
+        localOpts.sktDrawFahrenheit = False    # default is True
+      elif(localOpts.sktTemperatureUnits.lower() == "fahrenheit"):
+        localOpts.sktDrawFahrenheit = True    # default is True
+      else:
+        localOpts.sktDrawFahrenheit = True    # default is True
+        print("Warning - skewt_bkg: 'sktTemperatureUnits' must be set to 'fahrenheit' or 'celsius'. Defaulting to 'fahrenheit'.")
 
-        if (hasattr(localOpts,"sktHeightScaleUnits")):
-          if(localOpts.sktHeightScaleUnits.lower() == "km"):
-            localOpts.sktDrawHeightScaleFt = False    # default is True
-          elif(localOpts.sktHeightScaleUnits.lower() == \
-                            "feet"):
-            localOpts.sktDrawHeightScaleFt = True    # default is True
-          else:
-            localOpts.sktDrawHeightScaleFt = True    # default is True
-            print("Warning - skewt_bkg: 'sktHeightScaleUnits' must be set to 'feet' or 'km'. Defaulting to 'feet'.")
+    if (hasattr(localOpts,"sktHeightScaleUnits")):
+      if(localOpts.sktHeightScaleUnits.lower() == "km"):
+        localOpts.sktDrawHeightScaleFt = False    # default is True
+      elif(localOpts.sktHeightScaleUnits.lower() == \
+                        "feet"):
+        localOpts.sktDrawHeightScaleFt = True    # default is True
+      else:
+        localOpts.sktDrawHeightScaleFt = True    # default is True
+        print("Warning - skewt_bkg: 'sktHeightScaleUnits' must be set to 'feet' or 'km'. Defaulting to 'feet'.")
 
 #
 #  Declare isotherm values (Celcius) and pressures (hPa) where 
