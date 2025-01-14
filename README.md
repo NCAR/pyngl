@@ -1,7 +1,7 @@
 # PyNGL
 
 > [!WARNING]
-> **PyNGL was placed in maintenance mode as of November of 2020.** You can find more details in the [full announcement here](https://geocat.ucar.edu/blog/2020/11/11/November-2020-update).
+> **PyNGL was placed in maintenance mode as of November of 2020.** You can find more details in the [full announcement here](https://geocat.ucar.edu/news/november-2020-update/).
 
 PyNGL ("pingle") is a Python module built on top of [NCL](http://www.ncl.ucar.edu)'s graphics library, which produces publication-quality, two-dimensional visualizations tailored for climate and weather data.
 
